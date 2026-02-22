@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { Menu } from 'lucide-react';
+import { Analytics } from '@vercel/analytics/react';
 import Sidebar from './components/Sidebar';
 import Home from './pages/Home.jsx';
 import CreateInspection from './pages/CreateInspection.jsx';
@@ -146,6 +147,7 @@ function App() {
         <Route path="/calendar" element={<SubscriptionGuard><CalendarPage /></SubscriptionGuard>} />
         <Route path="/checklists" element={<SubscriptionGuard><ChecklistManager /></SubscriptionGuard>} />
       </Routes>
+      <Analytics />
     </div>
   );
 }
