@@ -14,10 +14,10 @@ export default function AppSettings() {
     const toggleTheme = (newTheme) => {
         setTheme(newTheme);
         localStorage.setItem('theme', newTheme);
-        if (newTheme === 'light') {
-            document.documentElement.classList.add('light-mode');
+        if (newTheme === 'dark') {
+            document.documentElement.classList.add('dark');
         } else {
-            document.documentElement.classList.remove('light-mode');
+            document.documentElement.classList.remove('dark');
         }
     };
 

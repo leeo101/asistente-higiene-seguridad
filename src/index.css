@@ -142,8 +142,20 @@ a:hover {
   }
 }
 
+.card,
+.print-area {
+  --color-background: #F4F5F7;
+  --color-surface: #FFFFFF;
+  --color-surface-solid: #FFFFFF;
+  --color-text: #172B4D;
+  --color-text-muted: #6B778C;
+  --color-border: #DFE1E6;
+  color-scheme: light;
+}
+
 .card {
   background: var(--color-surface);
+  color: var(--color-text);
   border: 1px solid var(--color-border);
   border-radius: 8px;
   /* Softer radius typical in UI */
@@ -210,7 +222,7 @@ h1 {
   line-height: 1.2;
   margin-bottom: 1.5rem;
   font-weight: 800;
-  color: #172B4D;
+  color: var(--color-text);
 }
 
 input,
@@ -222,7 +234,7 @@ textarea {
   border-radius: 8px;
   border: 1px solid var(--color-border);
   background: #ffffff;
-  color: var(--color-text);
+  color: #172B4D;
   font-family: var(--font-family);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
   box-sizing: border-box;

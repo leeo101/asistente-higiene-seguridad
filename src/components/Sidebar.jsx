@@ -118,10 +118,7 @@ export default function Sidebar({ isOpen, onClose }) {
                         </Link>
                     ))}
 
-                    <div onClick={toggleTheme} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: '8px', color: 'var(--color-text)', background: 'transparent', transition: 'background 0.2s', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-background)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
-                        {isDarkMode ? <Sun size={20} color="var(--color-warning)" /> : <Moon size={20} color="var(--color-text-muted)" />}
-                        <span style={{ fontWeight: 500 }}>{isDarkMode ? 'Modo Claro' : 'Modo Oscuro'}</span>
-                    </div>
+
 
                     <a href="mailto:asistente.hs.soporte@gmail.com?subject=Sugerencia de Mejora - Asistente H&S" onClick={onClose} style={{ textDecoration: 'none' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: '8px', color: 'var(--color-text)', background: 'transparent', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-background)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
