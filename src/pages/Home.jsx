@@ -5,9 +5,11 @@ import {
     Flame, ShieldAlert, BarChart3, ChevronRight, Plus, FileText, Gavel,
     Accessibility, AlertTriangle, Lock
 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Home() {
     const navigate = useNavigate();
+    const { currentUser } = useAuth();
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [stats, setStats] = useState([
         { label: 'Inspecciones', value: 0, icon: <ClipboardList />, color: '#3b82f6', key: 'inspections_history' },
@@ -115,10 +117,16 @@ export default function Home() {
                     <img src="/logo.png" alt="Icon" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                 </div>
                 <div style={{ flex: 1 }}>
-                    <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#172B4D' }}>Asistente H&S PRO</h4>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#6B778C' }}>Bienvenido a tu suite de gestión profesional.</p>
+                    <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#172B4D' }}>
+                        Asistente H&S {isSubscribed ? 'PRO' : 'Básico'}
+                    </h4>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#6B778C' }}>
+                        {isSubscribed
+                            ? 'Bienvenido a tu suite de gestión profesional.'
+                            : 'Crea tu cuenta y actualízate a la versión PRO para habilitar todas las funciones e impresiones.'}
+                    </p>
                 </div>
-                <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: 'var(--color-secondary)' }}></div>
+                <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: isSubscribed ? 'var(--color-secondary)' : '#6B778C' }}></div>
             </div>
 
             <div style={{ marginBottom: '2.5rem' }}>
