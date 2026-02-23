@@ -258,23 +258,46 @@ label {
   font-size: 0.9rem;
 }
 
-/* Responsive Grids & Layouts */
-.grid-res-4 {
+/* Responsive Grids & Layouts (Native CSS) */
+.grid-4-cols {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
-.grid-res-3 {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-}
-
-.grid-res-2 {
+.grid-2-cols {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
+  gap: 1.5rem;
+}
+
+.desktop-horizontal {
+  display: flex;
+  flex-direction: column;
+  /* Default to column for mobile */
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+
+  /* Apply horizontal layout on desktop */
+  .desktop-horizontal {
+    flex-direction: row;
+  }
+}
+
+@media (max-width: 1024px) {
+  .grid-4-cols {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+
+  .grid-4-cols,
+  .grid-2-cols {
+    grid-template-columns: 1fr;
+  }
 }
 
 .flex-res {

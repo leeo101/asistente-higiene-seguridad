@@ -123,7 +123,7 @@ export default function Home() {
 
             <div style={{ marginBottom: '2.5rem' }}>
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', color: '#172B4D' }}>Historiales</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
                     {stats.map((stat, i) => (
                         <div
                             key={i}
@@ -137,7 +137,8 @@ export default function Home() {
                                 padding: '1.2rem',
                                 cursor: 'pointer',
                                 transition: 'transform 0.2s',
-                                background: '#fff'
+                                background: '#fff',
+                                margin: 0 /* Reset margin if card has it */
                             }}
                             onClick={() => {
                                 if (stat.key === 'ats_history') navigate('/ats-history');
@@ -158,24 +159,24 @@ export default function Home() {
             </div>
 
             <div className="mb-6">
-                <h3 className="text-lg font-bold mb-4">Accesos Rápidos</h3>
-                <div className="flex flex-col gap-4">
-                    <Link to="/create-inspection" className="no-underline">
-                        <div className="card flex items-center gap-4 p-5 border border-slate-100 hover:border-slate-300 transition-colors">
-                            <div className="text-[var(--color-primary)] flex items-center justify-center h-12 w-12 shrink-0">
-                                <PlusCircle size={32} />
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', color: '#172B4D' }}>Accesos Rápidos</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                    <Link to="/create-inspection" style={{ textDecoration: 'none' }}>
+                        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', padding: '1.5rem', border: '1px solid var(--color-border)', background: 'var(--color-primary)' }}>
+                            <div style={{ color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <PlusCircle size={40} />
                             </div>
-                            <div className="flex-1">
-                                <h4 className="m-0 text-lg font-bold text-[#172B4D]">Nueva Inspección</h4>
-                                <p className="m-0 text-sm text-slate-500">Sincronización en la nube</p>
+                            <div style={{ flex: 1 }}>
+                                <h4 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: 'white' }}>Nueva Inspección</h4>
+                                <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)' }}>Sincronización en la nube</p>
                             </div>
-                            <ChevronRight size={20} className="text-slate-300" />
+                            <ChevronRight size={24} style={{ color: 'white', opacity: 0.5 }} />
                         </div>
                     </Link>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
                         <Link to="/ats" style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem' }}>
+                            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', margin: 0 }}>
                                 <div style={{ color: '#10b981' }}><BarChart3 size={28} /></div>
                                 <div>
                                     <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>ATS</h4>
@@ -185,7 +186,7 @@ export default function Home() {
                         </Link>
 
                         <Link to="/fire-load" style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem' }}>
+                            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', margin: 0 }}>
                                 <div style={{ color: '#f97316' }}><Flame size={28} /></div>
                                 <div>
                                     <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Fuego</h4>
@@ -195,7 +196,7 @@ export default function Home() {
                         </Link>
 
                         <Link to="/risk-matrix" onClick={(e) => { if (!isSubscribed) { e.preventDefault(); navigate('/subscribe'); } }} style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem' }}>
+                            <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', margin: 0 }}>
                                 {!isSubscribed && <div style={{ position: 'absolute', top: '8px', right: '8px', color: '#ef4444' }}><Lock size={14} /></div>}
                                 <div style={{ color: '#8b5cf6' }}><ShieldAlert size={28} /></div>
                                 <div>
@@ -206,7 +207,7 @@ export default function Home() {
                         </Link>
 
                         <Link to="/ergonomics" onClick={(e) => { if (!isSubscribed) { e.preventDefault(); navigate('/subscribe'); } }} style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem' }}>
+                            <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', margin: 0 }}>
                                 {!isSubscribed && <div style={{ position: 'absolute', top: '8px', right: '8px', color: '#ef4444' }}><Lock size={14} /></div>}
                                 <div style={{ color: '#3b82f6' }}><Accessibility size={28} /></div>
                                 <div>
@@ -217,7 +218,7 @@ export default function Home() {
                         </Link>
 
                         <Link to="/reports" onClick={(e) => { if (!isSubscribed) { e.preventDefault(); navigate('/subscribe'); } }} style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem' }}>
+                            <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', margin: 0 }}>
                                 {!isSubscribed && <div style={{ position: 'absolute', top: '8px', right: '8px', color: '#ef4444' }}><Lock size={14} /></div>}
                                 <div style={{ color: '#ec4899' }}><FileText size={28} /></div>
                                 <div>
@@ -228,7 +229,7 @@ export default function Home() {
                         </Link>
 
                         <Link to="/legislation" style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem' }}>
+                            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', margin: 0 }}>
                                 <div style={{ color: '#8b5cf6' }}><Gavel size={28} /></div>
                                 <div>
                                     <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Leyes</h4>
@@ -238,7 +239,7 @@ export default function Home() {
                         </Link>
 
                         <Link to="/ai-camera" style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', border: '1px solid #EBECF0' }}>
+                            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', border: '1px solid #EBECF0', margin: 0 }}>
                                 <div style={{ color: 'var(--color-primary)' }}><PlusCircle size={28} /></div>
                                 <div>
                                     <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Cámara IA</h4>
@@ -248,7 +249,7 @@ export default function Home() {
                         </Link>
 
                         <Link to="/checklists" style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', border: '1px solid #EBECF0' }}>
+                            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', border: '1px solid #EBECF0', margin: 0 }}>
                                 <div style={{ color: 'var(--color-primary)' }}><ClipboardList size={28} /></div>
                                 <div>
                                     <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Checklists</h4>

@@ -326,39 +326,37 @@ export default function ChecklistManager() {
 
             <div className="bg-white text-black p-12 shadow-2xl mx-auto print-area border border-slate-200 rounded-2xl" style={{ width: '100%', maxWidth: '850px', boxSizing: 'border-box' }}>
 
-                <div className="flex flex-col sm:flex-row justify-between items-center border-b-4 border-slate-200 pb-6 mb-8 w-full gap-6">
+                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottom: '4px solid var(--color-border)', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
                     {/* Top Left Text */}
-                    <div className="hidden md:block flex-1 text-left">
-                        <p className="font-bold text-[0.65rem] uppercase text-slate-500 tracking-wider">Sistema de Gestión</p>
-                        <p className="font-black text-[0.75rem] uppercase text-slate-700">Control H&S</p>
+                    <div style={{ flex: 1, textAlign: 'left' }}>
+                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', letterSpacing: '0.05em' }}>Sistema de Gestión</p>
+                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--color-text)' }}>Control H&S</p>
                     </div>
 
                     {/* Center Main Title */}
-                    <div className="flex-1 flex flex-col items-center justify-center text-center">
-                        <h1 className="font-black text-3xl sm:text-4xl tracking-tighter uppercase leading-none m-0">CHECK LIST</h1>
-                        <p className="text-slate-500 font-black text-[0.6rem] uppercase tracking-[0.4em] mt-1 m-0">Higiene y Seguridad</p>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                        <h1 style={{ margin: 0, fontWeight: 900, fontSize: '2.5rem', letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1 }}>CHECK LIST</h1>
+                        <p style={{ margin: 0, color: 'var(--color-text-muted)', fontWeight: 900, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.4em', marginTop: '0.25rem' }}>Higiene y Seguridad</p>
                     </div>
 
                     {/* Right Document Counter */}
-                    <div className="w-full sm:w-auto text-center sm:text-right">
-                        <div className="text-[0.6rem] font-black text-slate-400 uppercase tracking-widest mb-1">DOCUMENTO N°</div>
+                    <div style={{ flex: 1, textAlign: 'right' }}>
+                        <div style={{ fontSize: '0.6rem', fontWeight: 900, color: 'var(--color-border)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>DOCUMENTO N°</div>
                         <input
-                            className="text-center sm:text-right font-black text-2xl outline-none bg-transparent w-full sm:w-32 border-b-2 border-slate-100 focus:border-black transition-colors"
+                            style={{ textAlign: 'right', fontWeight: 900, fontSize: '1.5rem', border: 'none', borderBottom: '2px solid var(--color-border)', background: 'transparent', width: '120px', outline: 'none' }}
                             value={inspectionInfo.serial}
                             onChange={e => setInspectionInfo({ ...inspectionInfo, serial: e.target.value })}
                         />
                     </div>
                 </div>
 
-                <div className="border-2 border-slate-300 rounded-xl mb-10 w-full overflow-hidden text-left">
-                    <div className="flex flex-col sm:flex-row border-b md:border-b-2 border-slate-200">
+                <div style={{ border: '2px solid var(--color-border)', borderRadius: '12px', marginBottom: '2.5rem', width: '100%', overflow: 'hidden' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', borderBottom: '2px solid var(--color-border)', width: '100%' }}>
                         <DocBox label="CLIENTE / EMPRESA" value={companyInfo.name} onChange={v => setCompanyInfo({ ...companyInfo, name: v })} flex={2} large />
-                        <div className="flex flex-row border-t sm:border-t-0 sm:flex-1">
-                            <DocBox label="CUIT / CUIL" value={companyInfo.cuit} onChange={v => setCompanyInfo({ ...companyInfo, cuit: v })} flex={1} />
-                            <DocBox label="UBICACIÓN / OBRA" value={companyInfo.location} onChange={v => setCompanyInfo({ ...companyInfo, location: v })} flex={1} />
-                        </div>
+                        <DocBox label="CUIT / CUIL" value={companyInfo.cuit} onChange={v => setCompanyInfo({ ...companyInfo, cuit: v })} flex={1} />
+                        <DocBox label="UBICACIÓN / OBRA" value={companyInfo.location} onChange={v => setCompanyInfo({ ...companyInfo, location: v })} flex={1} />
                     </div>
-                    <div className="flex flex-col sm:flex-row">
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', width: '100%' }}>
                         <DocBox
                             label="EQUIPO REVISADO"
                             value={inspectionInfo.item}
@@ -369,10 +367,8 @@ export default function ChecklistManager() {
                             list="equipment-examples"
                             placeholder="Ej: Amoladora, Andamio..."
                         />
-                        <div className="flex flex-row border-t sm:border-t-0 sm:flex-1">
-                            <DocBox label="FECHA REVISIÓN" value={inspectionInfo.date} onChange={v => setInspectionInfo({ ...inspectionInfo, date: v })} type="date" flex={1} />
-                            <DocBox label="OPERADOR" value={companyInfo.inspector} onChange={v => setCompanyInfo({ ...companyInfo, inspector: v })} flex={1} />
-                        </div>
+                        <DocBox label="FECHA REVISIÓN" value={inspectionInfo.date} onChange={v => setInspectionInfo({ ...inspectionInfo, date: v })} type="date" flex={1} />
+                        <DocBox label="OPERADOR" value={companyInfo.inspector} onChange={v => setCompanyInfo({ ...companyInfo, inspector: v })} flex={1} />
                     </div>
                 </div>
 
