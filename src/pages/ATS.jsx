@@ -256,8 +256,8 @@ export default function ATS() {
                                                 key={status}
                                                 onClick={() => updateChecklist(item.id, 'estado', status)}
                                                 className={`px-3 py-2 text-[10px] sm:text-xs font-bold rounded-lg border transition-colors min-w-[70px] ${item.estado === status
-                                                        ? (status === 'Cumple' ? 'bg-[var(--color-secondary)] text-white' : status === 'No Cumple' ? 'bg-red-500 text-white' : 'bg-slate-500 text-white')
-                                                        : 'bg-transparent border-slate-200 text-slate-600'
+                                                    ? (status === 'Cumple' ? 'bg-[var(--color-secondary)] text-white' : status === 'No Cumple' ? 'bg-red-500 text-white' : 'bg-slate-500 text-white')
+                                                    : 'bg-transparent border-slate-200 text-slate-600'
                                                     }`}
                                             >
                                                 {status === 'Cumple' ? '✓' : status === 'No Cumple' ? '✗' : '-'} {status}
@@ -291,7 +291,7 @@ export default function ATS() {
                     </div>
                 </div>
 
-                <div className="flex flex-col md:flex-row justify-around items-start w-full gap-8">
+                <div className="flex flex-col lg:flex-row justify-around items-start w-full gap-8">
                     {showSignatures.operator && (
                         <div className="flex-1 flex flex-col items-center pt-16 sm:pt-20 text-center w-full">
                             <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
@@ -301,7 +301,7 @@ export default function ATS() {
                     )}
 
                     {showSignatures.supervisor && (
-                        <div className="flex-1 flex flex-col items-center w-full mt-8 md:mt-0">
+                        <div className="flex-1 flex flex-col items-center w-full mt-8 lg:mt-0">
                             <label className="no-print text-sm font-semibold mb-2 text-center w-full">Supervisor</label>
                             <canvas
                                 ref={capatazCanvasRef}
@@ -317,7 +317,7 @@ export default function ATS() {
                                 touchEnd={() => setIsDrawingCapataz(false)}
                             />
                             <button type="button" onClick={clearCapatazSignature} className="no-print mt-2 text-xs text-red-500 underline hover:text-red-700 w-full text-center">Limpiar Firma</button>
-                            <div className="print:block hidden w-full border-t-2 border-slate-400 border-dashed mt-16 md:mt-20 mb-3"></div>
+                            <div className="print:block hidden w-full border-t-2 border-slate-400 border-dashed mt-16 lg:mt-20 mb-3"></div>
                             <div className="text-center w-full">
                                 <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR</p>
                                 <p className="text-[0.8rem] font-black uppercase text-black leading-none">Firma del Supervisor</p>
@@ -326,7 +326,7 @@ export default function ATS() {
                     )}
 
                     {showSignatures.professional && (
-                        <div className="flex-1 flex flex-col items-center w-full mt-8 md:mt-0">
+                        <div className="flex-1 flex flex-col items-center w-full mt-8 lg:mt-0">
                             <label className="no-print text-sm font-semibold mb-2 text-center w-full">Profesional Actuante</label>
                             <div className="flex flex-col items-center justify-center gap-2 border border-dashed border-slate-200 rounded-lg bg-slate-50 p-4 w-full h-[120px]">
                                 {professional.signature ? (

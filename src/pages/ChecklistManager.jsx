@@ -343,7 +343,7 @@ export default function ChecklistManager() {
                 </div>
 
                 <div className="border-2 border-slate-300 rounded-xl mb-10 w-full overflow-hidden text-left">
-                    <div className="flex flex-col md:flex-row border-b md:border-b-2 border-slate-200">
+                    <div className="flex flex-col md:flex-row border-b-2 border-slate-200">
                         <DocBox label="CLIENTE / EMPRESA" value={companyInfo.name} onChange={v => setCompanyInfo({ ...companyInfo, name: v })} flex={2} large />
                         <div className="flex flex-row border-t md:border-t-0 md:flex-1">
                             <DocBox label="CUIT / CUIL" value={companyInfo.cuit} onChange={v => setCompanyInfo({ ...companyInfo, cuit: v })} flex={1} />

@@ -120,7 +120,7 @@ export default function Home() {
 
             <div className="mb-10">
                 <h3 className="text-lg font-bold mb-4">Historiales</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     {stats.map((stat, i) => (
                         <div
                             key={i}
@@ -137,7 +137,7 @@ export default function Home() {
                                 {React.cloneElement(stat.icon, { size: 24 })}
                             </div>
                             <div className="text-xl font-extrabold">{stat.value}</div>
-                            <div className="text-[0.6rem] text-slate-500 uppercase font-bold tracking-tight">{stat.label}</div>
+                            <div className="text-[0.65rem] text-slate-500 uppercase font-bold tracking-tight">{stat.label}</div>
                         </div>
                     ))}
                 </div>
@@ -159,7 +159,7 @@ export default function Home() {
                         </div>
                     </Link>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         <Link to="/ats" className="no-underline">
                             <div className="card flex flex-col items-center justify-center text-center p-4 min-h-[110px] gap-2 hover:bg-slate-50 transition-colors">
                                 <div className="text-[#10b981]"><BarChart3 size={28} /></div>
