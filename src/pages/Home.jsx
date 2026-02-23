@@ -159,99 +159,104 @@ export default function Home() {
 
             <div className="mb-6">
                 <h3 className="text-lg font-bold mb-4">Accesos Rápidos</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    <Link to="/create-inspection" className="no-underline lg:col-span-1">
-                        <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', background: 'var(--color-primary)', border: 'none' }}>
-                            <div style={{ color: 'white' }}><PlusCircle size={28} /></div>
-                            <div>
-                                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: 'white' }}>Nueva Inspección</h4>
-                                <p style={{ margin: 0, fontSize: '0.7rem', color: 'rgba(255,255,255,0.8)' }}>Sincronización Pro</p>
+                <div className="flex flex-col gap-4">
+                    <Link to="/create-inspection" className="no-underline">
+                        <div className="card flex items-center gap-4 p-5 border border-slate-100 hover:border-slate-300 transition-colors">
+                            <div className="text-[var(--color-primary)] flex items-center justify-center h-12 w-12 shrink-0">
+                                <PlusCircle size={32} />
                             </div>
+                            <div className="flex-1">
+                                <h4 className="m-0 text-lg font-bold text-[#172B4D]">Nueva Inspección</h4>
+                                <p className="m-0 text-sm text-slate-500">Sincronización en la nube</p>
+                            </div>
+                            <ChevronRight size={20} className="text-slate-300" />
                         </div>
                     </Link>
 
-                    <Link to="/ats" style={{ textDecoration: 'none' }}>
-                        <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem' }}>
-                            <div style={{ color: '#10b981' }}><BarChart3 size={28} /></div>
-                            <div>
-                                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>ATS</h4>
-                                <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Seguridad</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <Link to="/ats" style={{ textDecoration: 'none' }}>
+                            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem' }}>
+                                <div style={{ color: '#10b981' }}><BarChart3 size={28} /></div>
+                                <div>
+                                    <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>ATS</h4>
+                                    <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Seguridad</p>
+                                </div>
                             </div>
-                        </div>
-                    </Link>
+                        </Link>
 
-                    <Link to="/fire-load" style={{ textDecoration: 'none' }}>
-                        <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem' }}>
-                            <div style={{ color: '#f97316' }}><Flame size={28} /></div>
-                            <div>
-                                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Fuego</h4>
-                                <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Cálculo</p>
+                        <Link to="/fire-load" style={{ textDecoration: 'none' }}>
+                            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem' }}>
+                                <div style={{ color: '#f97316' }}><Flame size={28} /></div>
+                                <div>
+                                    <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Fuego</h4>
+                                    <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Cálculo</p>
+                                </div>
                             </div>
-                        </div>
-                    </Link>
+                        </Link>
 
-                    <Link to="/risk-matrix" onClick={(e) => { if (!isSubscribed) { e.preventDefault(); navigate('/subscribe'); } }} style={{ textDecoration: 'none' }}>
-                        <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem' }}>
-                            {!isSubscribed && <div style={{ position: 'absolute', top: '8px', right: '8px', color: '#ef4444' }}><Lock size={14} /></div>}
-                            <div style={{ color: '#8b5cf6' }}><ShieldAlert size={28} /></div>
-                            <div>
-                                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Matrices</h4>
-                                <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Riesgos</p>
+                        <Link to="/risk-matrix" onClick={(e) => { if (!isSubscribed) { e.preventDefault(); navigate('/subscribe'); } }} style={{ textDecoration: 'none' }}>
+                            <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem' }}>
+                                {!isSubscribed && <div style={{ position: 'absolute', top: '8px', right: '8px', color: '#ef4444' }}><Lock size={14} /></div>}
+                                <div style={{ color: '#8b5cf6' }}><ShieldAlert size={28} /></div>
+                                <div>
+                                    <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Matrices</h4>
+                                    <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Riesgos</p>
+                                </div>
                             </div>
-                        </div>
-                    </Link>
+                        </Link>
 
-                    <Link to="/ergonomics" onClick={(e) => { if (!isSubscribed) { e.preventDefault(); navigate('/subscribe'); } }} style={{ textDecoration: 'none' }}>
-                        <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem' }}>
-                            {!isSubscribed && <div style={{ position: 'absolute', top: '8px', right: '8px', color: '#ef4444' }}><Lock size={14} /></div>}
-                            <div style={{ color: '#3b82f6' }}><Accessibility size={28} /></div>
-                            <div>
-                                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Ergonomía</h4>
-                                <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Res. 886/15</p>
+                        <Link to="/ergonomics" onClick={(e) => { if (!isSubscribed) { e.preventDefault(); navigate('/subscribe'); } }} style={{ textDecoration: 'none' }}>
+                            <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem' }}>
+                                {!isSubscribed && <div style={{ position: 'absolute', top: '8px', right: '8px', color: '#ef4444' }}><Lock size={14} /></div>}
+                                <div style={{ color: '#3b82f6' }}><Accessibility size={28} /></div>
+                                <div>
+                                    <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Ergonomía</h4>
+                                    <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Res. 886/15</p>
+                                </div>
                             </div>
-                        </div>
-                    </Link>
+                        </Link>
 
-                    <Link to="/reports" onClick={(e) => { if (!isSubscribed) { e.preventDefault(); navigate('/subscribe'); } }} style={{ textDecoration: 'none' }}>
-                        <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem' }}>
-                            {!isSubscribed && <div style={{ position: 'absolute', top: '8px', right: '8px', color: '#ef4444' }}><Lock size={14} /></div>}
-                            <div style={{ color: '#ec4899' }}><FileText size={28} /></div>
-                            <div>
-                                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Informes</h4>
-                                <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Técnicos</p>
+                        <Link to="/reports" onClick={(e) => { if (!isSubscribed) { e.preventDefault(); navigate('/subscribe'); } }} style={{ textDecoration: 'none' }}>
+                            <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem' }}>
+                                {!isSubscribed && <div style={{ position: 'absolute', top: '8px', right: '8px', color: '#ef4444' }}><Lock size={14} /></div>}
+                                <div style={{ color: '#ec4899' }}><FileText size={28} /></div>
+                                <div>
+                                    <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Informes</h4>
+                                    <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Técnicos</p>
+                                </div>
                             </div>
-                        </div>
-                    </Link>
+                        </Link>
 
-                    <Link to="/legislation" style={{ textDecoration: 'none' }}>
-                        <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem' }}>
-                            <div style={{ color: '#8b5cf6' }}><Gavel size={28} /></div>
-                            <div>
-                                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Leyes</h4>
-                                <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Biblioteca</p>
+                        <Link to="/legislation" style={{ textDecoration: 'none' }}>
+                            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem' }}>
+                                <div style={{ color: '#8b5cf6' }}><Gavel size={28} /></div>
+                                <div>
+                                    <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Leyes</h4>
+                                    <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Biblioteca</p>
+                                </div>
                             </div>
-                        </div>
-                    </Link>
+                        </Link>
 
-                    <Link to="/ai-camera" style={{ textDecoration: 'none' }}>
-                        <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', border: '1px solid #EBECF0' }}>
-                            <div style={{ color: 'var(--color-primary)' }}><PlusCircle size={28} /></div>
-                            <div>
-                                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Cámara IA</h4>
-                                <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Escaneo Libre</p>
+                        <Link to="/ai-camera" style={{ textDecoration: 'none' }}>
+                            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', border: '1px solid #EBECF0' }}>
+                                <div style={{ color: 'var(--color-primary)' }}><PlusCircle size={28} /></div>
+                                <div>
+                                    <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Cámara IA</h4>
+                                    <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Escaneo Libre</p>
+                                </div>
                             </div>
-                        </div>
-                    </Link>
+                        </Link>
 
-                    <Link to="/checklists" style={{ textDecoration: 'none' }}>
-                        <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', border: '1px solid #EBECF0' }}>
-                            <div style={{ color: 'var(--color-primary)' }}><ClipboardList size={28} /></div>
-                            <div>
-                                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Checklists</h4>
-                                <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Herramientas</p>
+                        <Link to="/checklists" style={{ textDecoration: 'none' }}>
+                            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', border: '1px solid #EBECF0' }}>
+                                <div style={{ color: 'var(--color-primary)' }}><ClipboardList size={28} /></div>
+                                <div>
+                                    <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Checklists</h4>
+                                    <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Herramientas</p>
+                                </div>
                             </div>
-                        </div>
-                    </Link>
+                        </Link>
+                    </div>
                 </div>
             </div>
 
