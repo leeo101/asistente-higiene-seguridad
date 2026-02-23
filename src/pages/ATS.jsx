@@ -176,18 +176,18 @@ export default function ATS() {
         <div className="container" style={{ maxWidth: '900px', paddingBottom: '5rem' }}>
 
 
-            <div className="no-print" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
+            <div className="no-print flex flex-col sm:flex-row items-center gap-4 mb-8">
                 <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
                     <ArrowLeft />
                 </button>
-                <h1 className="print-text-center w-full" style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Análisis de Trabajo Seguro (ATS)</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-center sm:text-left w-full">Análisis de Trabajo Seguro (ATS)</h1>
             </div>
 
-            <div className="bg-white text-black p-8 shadow-sm border-2 border-slate-200 rounded-2xl mb-8" style={{ width: '100%', boxSizing: 'border-box' }}>
+            <div className="bg-white text-black p-6 sm:p-8 shadow-sm border-2 border-slate-200 rounded-2xl mb-8 w-full box-border">
                 <h3 style={{ marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                     <Building2 size={20} color="var(--color-primary)" /> Datos de la Empresa y Tarea
                 </h3>
-                <div className="grid-res-2" style={{ marginBottom: '1rem' }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Empresa Contratista</label>
                         <input type="text" value={formData.empresa} onChange={e => setFormData({ ...formData, empresa: e.target.value })} placeholder="Ej: Techint S.A." />
@@ -197,7 +197,7 @@ export default function ATS() {
                         <input type="text" value={formData.cuit} onChange={e => setFormData({ ...formData, cuit: e.target.value })} placeholder="30-XXXXXXXX-X" />
                     </div>
                 </div>
-                <div className="grid-res-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Obra / Frente de Trabajo</label>
                         <input type="text" value={formData.obra} onChange={e => setFormData({ ...formData, obra: e.target.value })} placeholder="Ej: Sector Fundaciones" />
@@ -222,25 +222,22 @@ export default function ATS() {
                             </h4>
                             <button className="no-print" onClick={() => addQuestion(cat)} style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}>+ Agregar</button>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                        <div className="flex flex-col gap-8">
                             {formData.checklist.filter(i => i.categoria === cat).map(item => (
-                                <div key={item.id} className="print-row" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: '1.5rem', alignItems: 'start', position: 'relative' }}>
-                                    <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+                                <div key={item.id} className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                                    <div className="flex-1 w-full">
+                                        <div className="flex gap-2 items-start">
                                             <div
                                                 contentEditable
                                                 suppressContentEditableWarning
                                                 onBlur={(e) => updateChecklist(item.id, 'pregunta', e.target.innerText)}
-                                                style={{ flex: 1, fontSize: '0.9rem', marginBottom: '0.5rem', outline: 'none', borderBottom: '1px dashed transparent', padding: '2px' }}
-                                                onFocus={(e) => e.target.style.borderBottom = '1px dashed var(--color-primary)'}
+                                                className="flex-1 text-sm mb-2 outline-none border-b border-dashed border-transparent focus:border-[var(--color-primary)] p-1"
                                             >
                                                 {item.pregunta}
                                             </div>
                                             <button
-                                                className="no-print"
+                                                className="no-print text-red-500 hover:text-red-700"
                                                 onClick={() => removeQuestion(item.id)}
-                                                title="Eliminar pregunta"
-                                                style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.2rem', marginTop: '-0.2rem' }}
                                             >
                                                 <Trash2 size={16} />
                                             </button>
@@ -250,26 +247,18 @@ export default function ATS() {
                                             placeholder="Observaciones / Medidas tomadas..."
                                             value={item.observaciones}
                                             onChange={(e) => updateChecklist(item.id, 'observaciones', e.target.value)}
-                                            style={{ margin: 0, padding: '0.4rem', fontSize: '0.8rem', opacity: 0.8 }}
+                                            className="m-0 p-2 text-xs opacity-80"
                                         />
                                     </div>
-                                    <div style={{ display: 'flex', gap: '0.3rem' }}>
+                                    <div className="flex flex-wrap gap-1">
                                         {['Cumple', 'No Cumple', 'N/A'].map(status => (
                                             <button
                                                 key={status}
                                                 onClick={() => updateChecklist(item.id, 'estado', status)}
-                                                style={{
-                                                    padding: '0.4rem 0.6rem',
-                                                    fontSize: '0.7rem',
-                                                    borderRadius: '6px',
-                                                    border: '1px solid var(--color-border)',
-                                                    background: item.estado === status ?
-                                                        (status === 'Cumple' ? 'var(--color-secondary)' : status === 'No Cumple' ? '#ef4444' : '#64748b')
-                                                        : 'transparent',
-                                                    color: item.estado === status ? 'white' : 'var(--color-text)',
-                                                    fontWeight: 600,
-                                                    minWidth: '70px'
-                                                }}
+                                                className={`px-3 py-2 text-[10px] sm:text-xs font-bold rounded-lg border transition-colors min-w-[70px] ${item.estado === status
+                                                        ? (status === 'Cumple' ? 'bg-[var(--color-secondary)] text-white' : status === 'No Cumple' ? 'bg-red-500 text-white' : 'bg-slate-500 text-white')
+                                                        : 'bg-transparent border-slate-200 text-slate-600'
+                                                    }`}
                                             >
                                                 {status === 'Cumple' ? '✓' : status === 'No Cumple' ? '✗' : '-'} {status}
                                             </button>
@@ -302,35 +291,33 @@ export default function ATS() {
                     </div>
                 </div>
 
-                <div className="flex flex-row justify-around items-start w-full gap-8">
+                <div className="flex flex-col md:flex-row justify-around items-start w-full gap-8">
                     {showSignatures.operator && (
-                        <div className="flex-1 flex flex-col items-center pt-20">
+                        <div className="flex-1 flex flex-col items-center pt-16 sm:pt-20 text-center w-full">
                             <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
-                            <div className="text-center w-full">
-                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
-                                <p className="text-[0.8rem] font-black uppercase text-black leading-none min-h-[0.8rem]">Aclaración y Firma</p>
-                            </div>
+                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
+                            <p className="text-[0.8rem] font-black uppercase text-black leading-none min-h-[0.8rem]">Aclaración y Firma</p>
                         </div>
                     )}
 
                     {showSignatures.supervisor && (
-                        <div className="flex-1 flex flex-col items-center">
-                            <label style={{ fontSize: '0.9rem', fontWeight: 600, display: 'block', marginBottom: '0.5rem', textAlign: 'center' }} className="no-print">Supervisor</label>
+                        <div className="flex-1 flex flex-col items-center w-full mt-8 md:mt-0">
+                            <label className="no-print text-sm font-semibold mb-2 text-center w-full">Supervisor</label>
                             <canvas
                                 ref={capatazCanvasRef}
                                 width={500}
                                 height={150}
-                                style={{ width: '100%', height: '120px', border: '1px dashed var(--color-border)', borderRadius: '4px', background: 'var(--color-surface)', touchAction: 'none' }}
+                                className="w-full h-[120px] border border-dashed border-slate-200 rounded-lg bg-slate-50 touch-none"
                                 onMouseDown={startDrawing}
                                 onMouseMove={draw}
                                 onMouseUp={() => setIsDrawingCapataz(false)}
                                 onMouseLeave={() => setIsDrawingCapataz(false)}
-                                onTouchStart={startDrawing}
-                                onTouchMove={draw}
-                                onTouchEnd={() => setIsDrawingCapataz(false)}
+                                touthStart={startDrawing}
+                                touchMove={draw}
+                                touchEnd={() => setIsDrawingCapataz(false)}
                             />
-                            <button type="button" onClick={clearCapatazSignature} className="no-print text-center" style={{ marginTop: '0.5rem', fontSize: '0.75rem', background: 'none', border: 'none', color: '#ef4444', textDecoration: 'underline', cursor: 'pointer', width: '100%' }}>Limpiar Firma</button>
-                            <div className="print:block hidden w-full border-t-2 border-slate-400 border-dashed mt-20 mb-3"></div>
+                            <button type="button" onClick={clearCapatazSignature} className="no-print mt-2 text-xs text-red-500 underline hover:text-red-700 w-full text-center">Limpiar Firma</button>
+                            <div className="print:block hidden w-full border-t-2 border-slate-400 border-dashed mt-16 md:mt-20 mb-3"></div>
                             <div className="text-center w-full">
                                 <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR</p>
                                 <p className="text-[0.8rem] font-black uppercase text-black leading-none">Firma del Supervisor</p>
@@ -339,20 +326,20 @@ export default function ATS() {
                     )}
 
                     {showSignatures.professional && (
-                        <div className="flex-1 flex flex-col items-center">
-                            <label style={{ fontSize: '0.9rem', fontWeight: 600, display: 'block', marginBottom: '0.5rem', textAlign: 'center' }} className="no-print">Profesional Actuante</label>
-                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', border: '1px dashed var(--color-border)', borderRadius: '4px', minHeight: '120px', background: 'white', padding: '0.5rem', width: '100%' }}>
+                        <div className="flex-1 flex flex-col items-center w-full mt-8 md:mt-0">
+                            <label className="no-print text-sm font-semibold mb-2 text-center w-full">Profesional Actuante</label>
+                            <div className="flex flex-col items-center justify-center gap-2 border border-dashed border-slate-200 rounded-lg bg-slate-50 p-4 w-full h-[120px]">
                                 {professional.signature ? (
-                                    <img src={professional.signature} alt="Firma" style={{ height: '50px', maxWidth: '100%', objectFit: 'contain' }} />
+                                    <img src={professional.signature} alt="Firma" className="max-h-12 max-w-full object-contain" />
                                 ) : (
-                                    <div style={{ height: '50px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', color: '#999' }}>Sin Firma</div>
+                                    <div className="text-xs text-slate-400">Sin Firma Digitada</div>
                                 )}
                             </div>
                             <div className="print:block hidden w-full border-t-2 border-slate-400 border-dashed mt-8 mb-3"></div>
                             <div className="text-center w-full">
                                 <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL ACTUANTE</p>
-                                <p style={{ margin: 0, fontWeight: 700, fontSize: '0.8rem' }}>{professional.name}</p>
-                                <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Matrícula: {professional.license}</p>
+                                <p className="text-sm font-bold text-slate-900 m-0">{professional.name}</p>
+                                <p className="text-[0.65rem] text-slate-500 m-0">Matrícula: {professional.license}</p>
                             </div>
                         </div>
                     )}

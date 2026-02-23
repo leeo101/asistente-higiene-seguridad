@@ -62,12 +62,12 @@ export default function ErgonomicsReport() {
                 fontFamily: 'Arial, sans-serif'
             }}>
                 {/* Header Legal */}
-                <div style={{ borderBottom: '2px solid #333', paddingBottom: '20px', marginBottom: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="flex flex-col md:flex-row justify-between border-b-2 border-[#333] pb-5 mb-8 gap-4">
                     <div>
                         <h1 style={{ margin: 0, fontSize: '22px', textTransform: 'uppercase' }}>Protocolo de Ergonomía</h1>
                         <p style={{ margin: '5px 0 0', fontSize: '14px', fontWeight: 'bold' }}>Resolución SRT N° 886/15</p>
                     </div>
-                    <div style={{ textAlign: 'right' }}>
+                    <div className="md:text-right">
                         <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#3b82f6' }}>Estudio Ergonómico</div>
                         <div style={{ fontSize: '12px', color: '#666' }}>Fecha: {new Date(parseInt(data.id)).toLocaleDateString()}</div>
                     </div>
@@ -101,11 +101,11 @@ export default function ErgonomicsReport() {
                     <div style={{ background: '#f5f5f5', padding: '10px 15px', fontWeight: 'bold', marginBottom: '15px', borderLeft: '4px solid #3b82f6' }}>
                         II - PLANILLA 1: IDENTIFICACIÓN DE FACTORES DE RIESGO
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '12px' }}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-[12px]">
                         {Object.entries(data.planilla1).map(([key, val]) => (
                             <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '5px' }}>
                                 <div style={{
-                                    width: '18px', height: '18px', border: '2px solid #333', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                    width: '18px', height: '18px', border: '2px solid #333', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
                                 }}>
                                     {val ? 'X' : ''}
                                 </div>
@@ -164,36 +164,36 @@ export default function ErgonomicsReport() {
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'flex-start', gap: '2rem', marginTop: '60px' }}>
+                <div className="flex flex-col sm:flex-row justify-around items-start w-full gap-8 mt-10">
                     {showSignatures.operator && (
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', items: 'center', paddingTop: '80px', textAlign: 'center' }}>
-                            <div style={{ width: '100%', borderTop: '2px dashed #94a3b8', marginBottom: '10px' }}></div>
-                            <p style={{ margin: 0, fontSize: '10px', fontWeight: 900, color: '#94a3b8', letterSpacing: '0.1em' }}>OPERADOR</p>
-                            <p style={{ margin: 0, fontSize: '12px', fontWeight: 'bold' }}>Aclaración y Firma</p>
+                        <div className="flex-1 flex flex-col items-center pt-16 sm:pt-20 text-center w-full">
+                            <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
+                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
+                            <p className="text-[0.8rem] font-black uppercase text-black leading-none min-h-[0.8rem]">Aclaración y Firma</p>
                         </div>
                     )}
 
                     {showSignatures.supervisor && (
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', items: 'center', paddingTop: '80px', textAlign: 'center' }}>
-                            <div style={{ width: '100%', borderTop: '2px dashed #94a3b8', marginBottom: '10px' }}></div>
-                            <p style={{ margin: 0, fontSize: '10px', fontWeight: 900, color: '#94a3b8', letterSpacing: '0.1em' }}>SUPERVISOR / EMPLEADOR</p>
-                            <p style={{ margin: 0, fontSize: '12px', fontWeight: 'bold' }}>Firma Autorizada</p>
+                        <div className="flex-1 flex flex-col items-center pt-16 sm:pt-20 text-center w-full">
+                            <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
+                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR / EMPLEADOR</p>
+                            <p className="text-[0.8rem] font-black uppercase text-black leading-none min-h-[0.8rem]">Firma Autorizada</p>
                         </div>
                     )}
 
                     {showSignatures.professional && (
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', items: 'center', textAlign: 'center' }}>
-                            <div style={{ height: '70px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px dashed #e2e8f0', borderRadius: '4px', padding: '5px', width: '100%' }}>
+                        <div className="flex-1 flex flex-col items-center text-center w-full mt-8 sm:mt-0">
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', border: '1px dashed var(--color-border)', borderRadius: '4px', minHeight: '90px', background: 'white', padding: '0.5rem', width: '100%' }}>
                                 {signature?.signature ? (
-                                    <img src={signature.signature} alt="Firma" style={{ height: '50px', maxWidth: '100%', objectFit: 'contain' }} />
+                                    <img src={signature.signature} alt="Firma" style={{ height: '40px', maxWidth: '100%', objectFit: 'contain' }} />
                                 ) : (
-                                    <div style={{ fontSize: '10px', color: '#999' }}>Sin Firma Digitada</div>
+                                    <div style={{ height: '40px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', color: '#999' }}>Sin Firma</div>
                                 )}
                             </div>
-                            <div style={{ width: '100%', borderTop: '2px dashed #94a3b8', marginTop: '10px', marginBottom: '10px' }}></div>
-                            <p style={{ margin: 0, fontSize: '10px', fontWeight: 900, color: '#94a3b8', letterSpacing: '0.1em' }}>PROFESIONAL ACTUANTE</p>
-                            <div style={{ fontSize: '12px', fontWeight: 'bold' }}>{profile?.name}</div>
-                            <div style={{ fontSize: '11px' }}>Mat.: {profile?.license}</div>
+                            <div className="print:block hidden w-full border-t-2 border-slate-400 border-dashed mt-8 mb-3"></div>
+                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL ACTUANTE</p>
+                            <p style={{ margin: 0, fontWeight: 700, fontSize: '0.8rem' }}>{profile?.name}</p>
+                            <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Mat: {profile?.license}</p>
                         </div>
                     )}
                 </div>

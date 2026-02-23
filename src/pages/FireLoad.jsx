@@ -224,10 +224,12 @@ export default function FireLoad() {
             <div className="print-header">
                 <h1 style={{ margin: 0, fontSize: '1.8rem' }}>INFORME TÉCNICO: ESTUDIO DE CARGA DE FUEGO</h1>
                 <p style={{ margin: '5px 0', fontSize: '1rem', color: '#444' }}>Determinación de Carga Térmica y Resistencia al Fuego - Dec. 351/79</p>
-                <div style={{ textAlign: 'left', marginTop: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '0.9rem' }}>
-                    <div><strong>Empresa:</strong> {formData.empresa}</div>
-                    <div><strong>Sector:</strong> {formData.sector}</div>
-                    <div style={{ gridColumn: '1 / span 2' }}><strong>Actividad:</strong> {formData.actividadResumen || 'No especificada'}</div>
+                <div style={{ textAlign: 'left', marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.9rem' }}>
+                    <div className="flex flex-col md:flex-row gap-2 md:gap-8">
+                        <div><strong>Empresa:</strong> {formData.empresa}</div>
+                        <div><strong>Sector:</strong> {formData.sector}</div>
+                    </div>
+                    <div><strong>Actividad:</strong> {formData.actividadResumen || 'No especificada'}</div>
                 </div>
             </div>
 
@@ -241,7 +243,7 @@ export default function FireLoad() {
                 </div>
             </div>
 
-            <div className="main-layout grid-res-2" style={{ gridTemplateColumns: 'minmax(0, 1fr) 300px', alignItems: 'start' }}>
+            <div className="main-layout flex flex-col lg:flex-row gap-6" style={{ alignItems: 'start' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                     <div className="card">
                         <h3 style={{ marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '1.1rem' }}>
@@ -401,121 +403,161 @@ export default function FireLoad() {
                         </div>
                     </div>
 
-                    <div className="card" style={{ padding: '1rem' }}>
-                        <h4 style={{ margin: '0 0 0.8rem 0', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                            <Info size={16} /> Resumen Técnico
-                        </h4>
-                        <div style={{ fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span>Calor Total:</span>
-                                <span>{Math.round(results.cargaTermicaTotal || 0).toLocaleString()} Kcal</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span>Madera Eq:</span>
-                                <span>{(results.maderaEquivalente || 0).toFixed(2)} Kg</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '5px', paddingTop: '5px', borderTop: '1px solid var(--color-border)' }}>
-                                <span style={{ fontWeight: 600 }}>Matafuegos Sugeridos:</span>
-                                <span style={{ fontWeight: 700, color: 'var(--color-primary)' }}>{results.minMatafuegos} u. (Tipo ABC)</span>
+                    <div className="bg-white text-black p-4 md:p-8 shadow-sm border-2 border-slate-200 rounded-2xl mb-8 mt-10 print-area" style={{ display: 'block' }}>
+                        <h3 style={{ marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
+                            <ShieldCheck size={22} color="var(--color-primary)" /> Resultados Finales del Cálculo
+                        </h3>
+
+                        <div className="overflow-x-auto w-full mb-8">
+                            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
+                                <thead style={{ background: 'var(--color-background)' }}>
+                                    <tr>
+                                        <th style={{ padding: '0.8rem', border: '1px solid var(--color-border)' }}>Parámetro</th>
+                                        <th style={{ padding: '0.8rem', border: '1px solid var(--color-border)' }}>Valor Obtenido</th>
+                                        <th style={{ padding: '0.8rem', border: '1px solid var(--color-border)' }}>Unidad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style={{ padding: '0.8rem', border: '1px solid var(--color-border)' }}>Carga de Fuego (Qf)</td>
+                                        <td style={{ padding: '0.8rem', border: '1px solid var(--color-border)', fontWeight: 700 }}>{results.cargaDeFuego.toFixed(2)}</td>
+                                        <td style={{ padding: '0.8rem', border: '1px solid var(--color-border)' }}>kg/m² (madera equiv.)</td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{ padding: '0.8rem', border: '1px solid var(--color-border)' }}>Poder Calorífico Total</td>
+                                        <td style={{ padding: '0.8rem', border: '1px solid var(--color-border)', fontWeight: 700 }}>{Math.round(results.cargaTermicaTotal * 4.184).toLocaleString()}</td>
+                                        <td style={{ padding: '0.8rem', border: '1px solid var(--color-border)' }}>kJ</td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{ padding: '0.8rem', border: '1px solid var(--color-border)' }}>Nivel de Riesgo</td>
+                                        <td style={{ padding: '0.8rem', border: '1px solid var(--color-border)', fontWeight: 800, color: 'var(--color-primary)' }}>{formData.riesgo}</td>
+                                        <td style={{ padding: '0.8rem', border: '1px solid var(--color-border)' }}>-</td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{ padding: '0.8rem', border: '1px solid var(--color-border)' }}>Resistencia al Fuego (RF) Requerida</td>
+                                        <td style={{ padding: '0.8rem', border: '1px solid var(--color-border)', fontWeight: 800 }}>{results.rfRequerida}</td>
+                                        <td style={{ padding: '0.8rem', border: '1px solid var(--color-border)' }}>minutos</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div className="card" style={{ padding: '1rem' }}>
+                            <h4 style={{ margin: '0 0 0.8rem 0', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                <Info size={16} /> Resumen Técnico
+                            </h4>
+                            <div style={{ fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>Calor Total:</span>
+                                    <span>{Math.round(results.cargaTermicaTotal || 0).toLocaleString()} Kcal</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>Madera Eq:</span>
+                                    <span>{(results.maderaEquivalente || 0).toFixed(2)} Kg</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '5px', paddingTop: '5px', borderTop: '1px solid var(--color-border)' }}>
+                                    <span style={{ fontWeight: 600 }}>Matafuegos Sugeridos:</span>
+                                    <span style={{ fontWeight: 700, color: 'var(--color-primary)' }}>{results.minMatafuegos} u. (Tipo ABC)</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="card" style={{ padding: '1rem', border: '2px solid var(--color-primary)', background: 'rgba(59, 130, 246, 0.05)' }}>
-                        <h4 style={{ margin: '0 0 0.8rem 0', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-primary)' }}>
-                            <ShieldCheck size={18} /> Requerimientos de Protección
-                        </h4>
-                        <div style={{ fontSize: '0.85rem' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                                <span>Matafuegos (Mín.):</span>
-                                <span style={{ fontWeight: 800 }}>{results.minMatafuegos} unidades</span>
+                        <div className="card" style={{ padding: '1rem', border: '2px solid var(--color-primary)', background: 'rgba(59, 130, 246, 0.05)' }}>
+                            <h4 style={{ margin: '0 0 0.8rem 0', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-primary)' }}>
+                                <ShieldCheck size={18} /> Requerimientos de Protección
+                            </h4>
+                            <div style={{ fontSize: '0.85rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                                    <span>Matafuegos (Mín.):</span>
+                                    <span style={{ fontWeight: 800 }}>{results.minMatafuegos} unidades</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--color-text-muted)' }} className="no-print">
+                                    <span>Tipo Sugerido:</span>
+                                    <span>ABC (Polvo)</span>
+                                </div>
+                                <p style={{ margin: '10px 0 0 0', fontSize: '0.7rem', fontStyle: 'italic', borderTop: '1px solid #ddd', paddingTop: '5px' }}>
+                                    * Cálculo basado en 1 unidad cada 200m² con un mínimo de 2 por sector.
+                                </p>
                             </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--color-text-muted)' }} className="no-print">
-                                <span>Tipo Sugerido:</span>
-                                <span>ABC (Polvo)</span>
-                            </div>
-                            <p style={{ margin: '10px 0 0 0', fontSize: '0.7rem', fontStyle: 'italic', borderTop: '1px solid #ddd', paddingTop: '5px' }}>
-                                * Cálculo basado en 1 unidad cada 200m² con un mínimo de 2 por sector.
-                            </p>
                         </div>
+
+                        <button
+                            className="no-print flex items-center justify-center gap-2 px-6 py-4 bg-emerald-600 text-white rounded-xl font-bold transition-all hover:bg-emerald-700 active:scale-95 w-full mt-2 shadow-sm border-0"
+                            onClick={handleSave}
+                        >
+                            <Save size={18} /> GUARDAR DATOS
+                        </button>
+
+                        <button
+                            className="no-print flex items-center justify-center gap-2 px-6 py-4 bg-orange-600 text-white rounded-xl font-bold transition-all hover:bg-orange-700 active:scale-95 w-full mt-2 shadow-sm border-0"
+                            onClick={handlePrint}
+                        >
+                            <Printer size={18} /> IMPRIMIR / GENERAR PDF
+                        </button>
                     </div>
-
-                    <button
-                        className="no-print flex items-center justify-center gap-2 px-6 py-4 bg-emerald-600 text-white rounded-xl font-bold transition-all hover:bg-emerald-700 active:scale-95 w-full mt-2 shadow-sm border-0"
-                        onClick={handleSave}
-                    >
-                        <Save size={18} /> GUARDAR DATOS
-                    </button>
-
-                    <button
-                        className="no-print flex items-center justify-center gap-2 px-6 py-4 bg-orange-600 text-white rounded-xl font-bold transition-all hover:bg-orange-700 active:scale-95 w-full mt-2 shadow-sm border-0"
-                        onClick={handlePrint}
-                    >
-                        <Printer size={18} /> IMPRIMIR / GENERAR PDF
-                    </button>
                 </div>
-            </div>
 
-            <div className="bg-white text-black p-8 shadow-sm border-2 border-slate-200 rounded-2xl mb-8 mt-10 print-area" style={{ display: 'block' }}>
-                <h3 style={{ marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
-                </h3>
+                <div className="bg-white text-black p-8 shadow-sm border-2 border-slate-200 rounded-2xl mb-8 mt-10 print-area" style={{ display: 'block' }}>
+                    <h3 style={{ marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
+                    </h3>
 
-                {/* SIGNATURE CONTROLS (NO PRINT) */}
-                <div className="no-print mb-8 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 justify-between items-center text-xs font-bold text-slate-700">
-                    <div>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                    <div className="flex gap-4">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-4 h-4 accent-orange-600" /> Operador
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-4 h-4 accent-orange-600" /> Supervisor
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-4 h-4 accent-orange-600" /> Profesional
-                        </label>
+                    {/* SIGNATURE CONTROLS (NO PRINT) */}
+                    <div className="no-print mb-8 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 justify-between items-center text-xs font-bold text-slate-700">
+                        <div>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                        <div className="flex gap-4">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-4 h-4 accent-orange-600" /> Operador
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-4 h-4 accent-orange-600" /> Supervisor
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-4 h-4 accent-orange-600" /> Profesional
+                            </label>
+                        </div>
                     </div>
-                </div>
 
-                <div className="flex flex-row justify-around items-start w-full gap-8">
-                    {showSignatures.operator && (
-                        <div className="flex-1 flex flex-col items-center pt-24">
-                            <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
-                            <div className="text-center w-full">
-                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
-                                <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words min-h-[0.8rem]">Aclaración y Firma</p>
+                    <div className="flex flex-row justify-around items-start w-full gap-8">
+                        {showSignatures.operator && (
+                            <div className="flex-1 flex flex-col items-center pt-24">
+                                <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
+                                <div className="text-center w-full">
+                                    <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
+                                    <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words min-h-[0.8rem]">Aclaración y Firma</p>
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
 
-                    {showSignatures.supervisor && (
-                        <div className="flex-1 flex flex-col items-center pt-24">
-                            <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
-                            <div className="text-center w-full">
-                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR</p>
-                                <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words min-h-[0.8rem]">DNI / ACLARACIÓN</p>
+                        {showSignatures.supervisor && (
+                            <div className="flex-1 flex flex-col items-center pt-24">
+                                <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
+                                <div className="text-center w-full">
+                                    <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR</p>
+                                    <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words min-h-[0.8rem]">DNI / ACLARACIÓN</p>
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
 
-                    {showSignatures.professional && (
-                        <div className="flex-1 flex flex-col items-center">
-                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', border: '1px dashed var(--color-border)', borderRadius: '4px', minHeight: '100px', background: 'white', padding: '0.5rem', width: '100%' }}>
-                                {professional.signature ? (
-                                    <img src={professional.signature} alt="Firma" style={{ height: '45px', maxWidth: '100%', objectFit: 'contain' }} />
-                                ) : (
-                                    <div style={{ height: '45px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', color: '#999' }}>Sin Firma</div>
-                                )}
+                        {showSignatures.professional && (
+                            <div className="flex-1 flex flex-col items-center">
+                                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', border: '1px dashed var(--color-border)', borderRadius: '4px', minHeight: '100px', background: 'white', padding: '0.5rem', width: '100%' }}>
+                                    {professional.signature ? (
+                                        <img src={professional.signature} alt="Firma" style={{ height: '45px', maxWidth: '100%', objectFit: 'contain' }} />
+                                    ) : (
+                                        <div style={{ height: '45px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', color: '#999' }}>Sin Firma</div>
+                                    )}
+                                </div>
+                                <div className="print:block hidden w-full border-t-2 border-slate-400 border-dashed mt-8 mb-3"></div>
+                                <div className="text-center w-full">
+                                    <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL ACTUANTE</p>
+                                    <p style={{ margin: 0, fontWeight: 700, fontSize: '0.8rem' }}>{professional.name}</p>
+                                    <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Matrícula: {professional.license}</p>
+                                </div>
                             </div>
-                            <div className="print:block hidden w-full border-t-2 border-slate-400 border-dashed mt-8 mb-3"></div>
-                            <div className="text-center w-full">
-                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL ACTUANTE</p>
-                                <p style={{ margin: 0, fontWeight: 700, fontSize: '0.8rem' }}>{professional.name}</p>
-                                <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Matrícula: {professional.license}</p>
-                            </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
     );
 }
+

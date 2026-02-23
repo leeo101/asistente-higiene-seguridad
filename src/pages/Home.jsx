@@ -85,9 +85,9 @@ export default function Home() {
 
     return (
         <div className="container" style={{ paddingBottom: '3rem', marginTop: '3rem' }}>
-            <div style={{ textAlign: 'left', marginBottom: '2.5rem', marginTop: '1.5rem', paddingLeft: '0.5rem' }}>
-                <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '0.3rem', color: '#172B4D' }}>Hola, <br /><span style={{ color: 'var(--color-primary)' }}>{userName}</span></h1>
-                <p style={{ color: 'var(--color-text-muted)', fontSize: '1.05rem', marginTop: '0.5rem', fontFamily: 'var(--font-heading)' }}>Dashboard de Seguridad e Higiene</p>
+            <div className="text-left mb-8 mt-6 px-2">
+                <h1 className="text-3xl sm:text-5xl font-extrabold mb-1 text-[#172B4D]">Hola, <br /><span className="text-[var(--color-primary)]">{userName}</span></h1>
+                <p className="text-slate-500 text-sm sm:text-lg mt-2 font-heading">Dashboard de Seguridad e Higiene</p>
             </div>
 
             <div className="card" style={{
@@ -118,14 +118,13 @@ export default function Home() {
                 <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: 'var(--color-secondary)' }}></div>
             </div>
 
-            <div style={{ marginBottom: '2.5rem' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: '0 0 1rem 0' }}>Historiales</h3>
-                <div className="grid-res-4" style={{ gap: '0.6rem' }}>
+            <div className="mb-10">
+                <h3 className="text-lg font-bold mb-4">Historiales</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
                     {stats.map((stat, i) => (
                         <div
                             key={i}
-                            className="card"
-                            style={{ textAlign: 'center', padding: '1rem 0.2rem', cursor: 'pointer', transition: 'transform 0.2s' }}
+                            className="card flex flex-col items-center justify-center text-center p-4 cursor-pointer transition-transform hover:scale-[1.02]"
                             onClick={() => {
                                 if (stat.key === 'ats_history') navigate('/ats-history');
                                 else if (stat.key === 'fireload_history') navigate('/fire-load-history');
@@ -134,112 +133,112 @@ export default function Home() {
                                 else navigate('/history');
                             }}
                         >
-                            <div style={{ color: stat.color, marginBottom: '0.4rem', display: 'flex', justifyContent: 'center' }}>
-                                {React.cloneElement(stat.icon, { size: 20 })}
+                            <div style={{ color: stat.color }} className="mb-2">
+                                {React.cloneElement(stat.icon, { size: 24 })}
                             </div>
-                            <div style={{ fontSize: '1.2rem', fontWeight: 800 }}>{stat.value}</div>
-                            <div style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>{stat.label}</div>
+                            <div className="text-xl font-extrabold">{stat.value}</div>
+                            <div className="text-[0.6rem] text-slate-500 uppercase font-bold tracking-tight">{stat.label}</div>
                         </div>
                     ))}
                 </div>
             </div>
 
-            <div style={{ marginBottom: '1.5rem' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: '0 0 1rem 0' }}>Accesos Rápidos</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.8rem' }}>
-                    <Link to="/create-inspection" style={{ textDecoration: 'none' }}>
-                        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.2rem', border: '1px solid var(--color-border)' }}>
-                            <div style={{ color: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px' }}>
-                                <PlusCircle size={28} />
+            <div className="mb-6">
+                <h3 className="text-lg font-bold mb-4">Accesos Rápidos</h3>
+                <div className="flex flex-col gap-4">
+                    <Link to="/create-inspection" className="no-underline">
+                        <div className="card flex items-center gap-4 p-5 border border-slate-100 hover:border-slate-300 transition-colors">
+                            <div className="text-[var(--color-primary)] flex items-center justify-center h-12 w-12 shrink-0">
+                                <PlusCircle size={32} />
                             </div>
-                            <div style={{ flex: 1 }}>
-                                <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: '#172B4D' }}>Nueva Inspección</h4>
-                                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Sincronización en la nube</p>
+                            <div className="flex-1">
+                                <h4 className="m-0 text-lg font-bold text-[#172B4D]">Nueva Inspección</h4>
+                                <p className="m-0 text-sm text-slate-500">Sincronización en la nube</p>
                             </div>
-                            <ChevronRight size={20} color="var(--color-border)" />
+                            <ChevronRight size={20} className="text-slate-300" />
                         </div>
                     </Link>
 
-                    <div className="grid-res-3" style={{ gap: '1rem' }}>
-                        <Link to="/ats" style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '0.6rem', padding: '1rem', minHeight: '100px', justifyContent: 'center', textAlign: 'center' }}>
-                                <div style={{ color: '#10b981', display: 'flex', justifyContent: 'center' }}><BarChart3 size={24} /></div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <Link to="/ats" className="no-underline">
+                            <div className="card flex flex-col items-center justify-center text-center p-4 min-h-[110px] gap-2 hover:bg-slate-50 transition-colors">
+                                <div className="text-[#10b981]"><BarChart3 size={28} /></div>
                                 <div>
-                                    <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700 }}>ATS</h4>
-                                    <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Seguridad</p>
+                                    <h4 className="m-0 text-sm font-bold">ATS</h4>
+                                    <p className="m-0 text-[0.65rem] text-slate-500">Seguridad</p>
                                 </div>
                             </div>
                         </Link>
 
-                        <Link to="/fire-load" style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', padding: '1rem', minHeight: '100px', justifyContent: 'center', textAlign: 'center' }}>
-                                <div style={{ color: '#f97316', display: 'flex', justifyContent: 'center' }}><Flame size={24} /></div>
+                        <Link to="/fire-load" className="no-underline">
+                            <div className="card flex flex-col items-center justify-center text-center p-4 min-h-[110px] gap-2 hover:bg-slate-50 transition-colors">
+                                <div className="text-[#f97316]"><Flame size={28} /></div>
                                 <div>
-                                    <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700 }}>Fuego</h4>
-                                    <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Cálculo</p>
+                                    <h4 className="m-0 text-sm font-bold">Fuego</h4>
+                                    <p className="m-0 text-[0.65rem] text-slate-500">Cálculo</p>
                                 </div>
                             </div>
                         </Link>
 
-                        <Link to="/risk-matrix" onClick={(e) => { if (!isSubscribed) { e.preventDefault(); navigate('/subscribe'); } }} style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '0.6rem', padding: '1rem', minHeight: '100px', justifyContent: 'center', textAlign: 'center' }}>
-                                {!isSubscribed && <div style={{ position: 'absolute', top: '8px', right: '8px', color: '#ef4444' }}><Lock size={14} /></div>}
-                                <div style={{ color: '#8b5cf6', display: 'flex', justifyContent: 'center' }}><ShieldAlert size={24} /></div>
+                        <Link to="/risk-matrix" onClick={(e) => { if (!isSubscribed) { e.preventDefault(); navigate('/subscribe'); } }} className="no-underline">
+                            <div className="card relative flex flex-col items-center justify-center text-center p-4 min-h-[110px] gap-2 hover:bg-slate-50 transition-colors">
+                                {!isSubscribed && <div className="absolute top-2 right-2 text-red-500"><Lock size={14} /></div>}
+                                <div className="text-[#8b5cf6]"><ShieldAlert size={28} /></div>
                                 <div>
-                                    <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700 }}>Matrices</h4>
-                                    <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Riesgos</p>
+                                    <h4 className="m-0 text-sm font-bold">Matrices</h4>
+                                    <p className="m-0 text-[0.65rem] text-slate-500">Riesgos</p>
                                 </div>
                             </div>
                         </Link>
 
-                        <Link to="/ergonomics" onClick={(e) => { if (!isSubscribed) { e.preventDefault(); navigate('/subscribe'); } }} style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '0.6rem', padding: '1rem', minHeight: '100px', justifyContent: 'center', textAlign: 'center' }}>
-                                {!isSubscribed && <div style={{ position: 'absolute', top: '8px', right: '8px', color: '#ef4444' }}><Lock size={14} /></div>}
-                                <div style={{ color: '#3b82f6', display: 'flex', justifyContent: 'center' }}><Accessibility size={24} /></div>
+                        <Link to="/ergonomics" onClick={(e) => { if (!isSubscribed) { e.preventDefault(); navigate('/subscribe'); } }} className="no-underline">
+                            <div className="card relative flex flex-col items-center justify-center text-center p-4 min-h-[110px] gap-2 hover:bg-slate-50 transition-colors">
+                                {!isSubscribed && <div className="absolute top-2 right-2 text-red-500"><Lock size={14} /></div>}
+                                <div className="text-[#3b82f6]"><Accessibility size={28} /></div>
                                 <div>
-                                    <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700 }}>Ergonomía</h4>
-                                    <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Res. 886/15</p>
+                                    <h4 className="m-0 text-sm font-bold">Ergonomía</h4>
+                                    <p className="m-0 text-[0.65rem] text-slate-500">Res. 886/15</p>
                                 </div>
                             </div>
                         </Link>
 
-                        <Link to="/reports" onClick={(e) => { if (!isSubscribed) { e.preventDefault(); navigate('/subscribe'); } }} style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '0.6rem', padding: '1rem', minHeight: '100px', justifyContent: 'center', textAlign: 'center' }}>
-                                {!isSubscribed && <div style={{ position: 'absolute', top: '8px', right: '8px', color: '#ef4444' }}><Lock size={14} /></div>}
-                                <div style={{ color: '#ec4899', display: 'flex', justifyContent: 'center' }}><FileText size={24} /></div>
+                        <Link to="/reports" onClick={(e) => { if (!isSubscribed) { e.preventDefault(); navigate('/subscribe'); } }} className="no-underline">
+                            <div className="card relative flex flex-col items-center justify-center text-center p-4 min-h-[110px] gap-2 hover:bg-slate-50 transition-colors">
+                                {!isSubscribed && <div className="absolute top-2 right-2 text-red-500"><Lock size={14} /></div>}
+                                <div className="text-[#ec4899]"><FileText size={28} /></div>
                                 <div>
-                                    <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700 }}>Informes</h4>
-                                    <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Técnicos</p>
+                                    <h4 className="m-0 text-sm font-bold">Informes</h4>
+                                    <p className="m-0 text-[0.65rem] text-slate-500">Técnicos</p>
                                 </div>
                             </div>
                         </Link>
 
-                        <Link to="/legislation" style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', padding: '1rem', minHeight: '100px', justifyContent: 'center', textAlign: 'center' }}>
-                                <div style={{ color: '#8b5cf6', display: 'flex', justifyContent: 'center' }}><Gavel size={24} /></div>
+                        <Link to="/legislation" className="no-underline">
+                            <div className="card flex flex-col items-center justify-center text-center p-4 min-h-[110px] gap-2 hover:bg-slate-50 transition-colors">
+                                <div className="text-[#8b5cf6]"><Gavel size={28} /></div>
                                 <div>
-                                    <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700 }}>Leyes</h4>
-                                    <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Biblioteca</p>
+                                    <h4 className="m-0 text-sm font-bold">Leyes</h4>
+                                    <p className="m-0 text-[0.65rem] text-slate-500">Biblioteca</p>
                                 </div>
                             </div>
                         </Link>
 
-                        <Link to="/ai-camera" style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '0.6rem', padding: '1rem', minHeight: '100px', justifyContent: 'center', textAlign: 'center', border: '1px solid var(--color-border)', background: 'white' }}>
-                                <div style={{ color: 'var(--color-primary)', display: 'flex', justifyContent: 'center' }}><PlusCircle size={24} /></div>
+                        <Link to="/ai-camera" className="no-underline">
+                            <div className="card flex flex-col items-center justify-center text-center p-4 min-h-[110px] gap-2 border border-slate-100 hover:bg-slate-50 transition-colors">
+                                <div className="text-[var(--color-primary)]"><PlusCircle size={28} /></div>
                                 <div>
-                                    <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: '#172B4D' }}>Cámara IA</h4>
-                                    <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Escaneo Libre</p>
+                                    <h4 className="m-0 text-sm font-bold text-[#172B4D]">Cámara IA</h4>
+                                    <p className="m-0 text-[0.65rem] text-slate-500">Escaneo Libre</p>
                                 </div>
                             </div>
                         </Link>
 
-                        <Link to="/checklists" style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '0.6rem', padding: '1rem', minHeight: '100px', justifyContent: 'center', textAlign: 'center', border: '1px solid var(--color-border)', background: 'white' }}>
-                                <div style={{ color: 'var(--color-primary)', display: 'flex', justifyContent: 'center' }}><ClipboardList size={24} /></div>
+                        <Link to="/checklists" className="no-underline">
+                            <div className="card flex flex-col items-center justify-center text-center p-4 min-h-[110px] gap-2 border border-slate-100 hover:bg-slate-50 transition-colors">
+                                <div className="text-[var(--color-primary)]"><ClipboardList size={28} /></div>
                                 <div>
-                                    <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: '#172B4D' }}>Checklists</h4>
-                                    <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Herramientas</p>
+                                    <h4 className="m-0 text-sm font-bold text-[#172B4D]">Checklists</h4>
+                                    <p className="m-0 text-[0.65rem] text-slate-500">Herramientas</p>
                                 </div>
                             </div>
                         </Link>

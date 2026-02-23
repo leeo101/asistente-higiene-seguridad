@@ -260,41 +260,41 @@ export default function ChecklistManager() {
 
     return (
         <div className="container" style={{ maxWidth: '1100px', paddingBottom: '4rem' }}>
-            <div className="no-print mb-8 p-6 md:p-8 rounded-2xl border shadow-sm flex flex-col md:flex-row justify-between items-center gap-6" style={{ background: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
+            <div className="no-print mb-8 p-4 sm:p-6 md:p-8 rounded-2xl border shadow-sm flex flex-col md:flex-row justify-between items-center gap-6" style={{ background: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
                 <div className="flex items-center gap-4 w-full md:w-auto">
                     <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
                         <ArrowLeft size={24} />
                     </button>
                     <div>
-                        <h1 style={{ margin: 0, fontSize: '1.5rem', md: { fontSize: '1.75rem' }, fontWeight: 800, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <ClipboardCheck className="text-blue-600" size={32} />
+                        <h1 className="text-xl sm:text-2xl font-extrabold flex items-center gap-2">
+                            <ClipboardCheck className="text-blue-600" size={28} />
                             Generador de Checklist
                         </h1>
                         <p style={{ margin: 0, color: 'var(--color-text-muted)', fontWeight: 500 }}>Control H&S</p>
                     </div>
                 </div>
 
-                <div className="flex flex-wrap gap-3 w-full md:w-auto justify-end">
+                <div className="flex flex-wrap gap-2 w-full md:w-auto justify-center sm:justify-end">
                     <button
                         onClick={handleSave}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-lg font-bold transition-all hover:bg-emerald-700 active:scale-95 shadow-sm border-0"
+                        className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg font-bold transition-all hover:bg-emerald-700 active:scale-95 shadow-sm border-0"
                     >
-                        <Save size={18} />
+                        <Save size={16} />
                         GUARDAR
                     </button>
                     <button
                         onClick={handleShare}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg font-bold transition-all hover:bg-blue-700 active:scale-95 border-0 shadow-sm"
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-bold transition-all hover:bg-blue-700 active:scale-95 border-0 shadow-sm"
                     >
-                        <Share2 size={18} />
+                        <Share2 size={16} />
                         COMPARTIR
                     </button>
                     <button
                         onClick={() => window.print()}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-orange-600 text-white rounded-lg font-bold transition-all hover:bg-orange-700 active:scale-95 border-0 shadow-sm"
+                        className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg font-bold transition-all hover:bg-orange-700 active:scale-95 border-0 shadow-sm"
                     >
-                        <Printer size={18} />
-                        IMPRIMIR PDF
+                        <Printer size={16} />
+                        IMPRIMIR
                     </button>
                 </div>
             </div>
@@ -318,24 +318,24 @@ export default function ChecklistManager() {
 
             <div className="bg-white text-black p-12 shadow-2xl mx-auto print-area border border-slate-200 rounded-2xl" style={{ width: '100%', maxWidth: '850px', boxSizing: 'border-box' }}>
 
-                <div className="flex flex-row justify-between items-end border-b-4 border-slate-200 pb-6 mb-8 w-full">
+                <div className="flex flex-col sm:flex-row justify-between items-center border-b-4 border-slate-200 pb-6 mb-8 w-full gap-6">
                     {/* Top Left Text */}
-                    <div className="flex-1 text-left hidden sm:block">
+                    <div className="hidden md:block flex-1 text-left">
                         <p className="font-bold text-[0.65rem] uppercase text-slate-500 tracking-wider">Sistema de Gestión</p>
                         <p className="font-black text-[0.75rem] uppercase text-slate-700">Control H&S</p>
                     </div>
 
                     {/* Center Main Title */}
-                    <div className="flex-1 flex flex-col items-center justify-center">
-                        <h1 className="font-black text-4xl tracking-tighter uppercase leading-none m-0">CHECK LIST</h1>
-                        <p className="text-slate-500 font-black text-[0.6rem] uppercase tracking-[0.4em] mt-1 m-0 text-center">Higiene y Seguridad</p>
+                    <div className="flex-1 flex flex-col items-center justify-center text-center">
+                        <h1 className="font-black text-3xl sm:text-4xl tracking-tighter uppercase leading-none m-0">CHECK LIST</h1>
+                        <p className="text-slate-500 font-black text-[0.6rem] uppercase tracking-[0.4em] mt-1 m-0">Higiene y Seguridad</p>
                     </div>
 
                     {/* Right Document Counter */}
-                    <div className="flex-1 text-right">
+                    <div className="w-full sm:w-auto text-center sm:text-right">
                         <div className="text-[0.6rem] font-black text-slate-400 uppercase tracking-widest mb-1">DOCUMENTO N°</div>
                         <input
-                            className="text-right font-black text-2xl outline-none bg-transparent w-32 border-b-2 border-slate-100 focus:border-black transition-colors"
+                            className="text-center sm:text-right font-black text-2xl outline-none bg-transparent w-full sm:w-32 border-b-2 border-slate-100 focus:border-black transition-colors"
                             value={inspectionInfo.serial}
                             onChange={e => setInspectionInfo({ ...inspectionInfo, serial: e.target.value })}
                         />
@@ -343,12 +343,14 @@ export default function ChecklistManager() {
                 </div>
 
                 <div className="border-2 border-slate-300 rounded-xl mb-10 w-full overflow-hidden text-left">
-                    <div className="flex border-b-2 border-slate-200">
+                    <div className="flex flex-col md:flex-row border-b md:border-b-2 border-slate-200">
                         <DocBox label="CLIENTE / EMPRESA" value={companyInfo.name} onChange={v => setCompanyInfo({ ...companyInfo, name: v })} flex={2} large />
-                        <DocBox label="CUIT / CUIL" value={companyInfo.cuit} onChange={v => setCompanyInfo({ ...companyInfo, cuit: v })} flex={1} />
-                        <DocBox label="UBICACIÓN / OBRA" value={companyInfo.location} onChange={v => setCompanyInfo({ ...companyInfo, location: v })} flex={1} />
+                        <div className="flex flex-row border-t md:border-t-0 md:flex-1">
+                            <DocBox label="CUIT / CUIL" value={companyInfo.cuit} onChange={v => setCompanyInfo({ ...companyInfo, cuit: v })} flex={1} />
+                            <DocBox label="UBICACIÓN / OBRA" value={companyInfo.location} onChange={v => setCompanyInfo({ ...companyInfo, location: v })} flex={1} />
+                        </div>
                     </div>
-                    <div className="flex">
+                    <div className="flex flex-col md:flex-row">
                         <DocBox
                             label="EQUIPO REVISADO"
                             value={inspectionInfo.item}
@@ -359,17 +361,10 @@ export default function ChecklistManager() {
                             list="equipment-examples"
                             placeholder="Ej: Amoladora, Andamio..."
                         />
-                        <datalist id="equipment-examples">
-                            <option value="Amoladora Angular 4.5 pulgadas" />
-                            <option value="Andamio Tubular Metálico" />
-                            <option value="Sierra Circular de Banco" />
-                            <option value="Retroexcavadora CAT 416" />
-                            <option value="Arnés de Seguridad Completo" />
-                            <option value="Escalera de Extensión (Dieléctrica)" />
-                            <option value="Tablero Eléctrico de Obra" />
-                        </datalist>
-                        <DocBox label="FECHA REVISIÓN" value={inspectionInfo.date} onChange={v => setInspectionInfo({ ...inspectionInfo, date: v })} type="date" flex={1} />
-                        <DocBox label="OPERADOR" value={companyInfo.inspector} onChange={v => setCompanyInfo({ ...companyInfo, inspector: v })} flex={1} />
+                        <div className="flex flex-row border-t md:border-t-0 md:flex-1">
+                            <DocBox label="FECHA REVISIÓN" value={inspectionInfo.date} onChange={v => setInspectionInfo({ ...inspectionInfo, date: v })} type="date" flex={1} />
+                            <DocBox label="OPERADOR" value={companyInfo.inspector} onChange={v => setCompanyInfo({ ...companyInfo, inspector: v })} flex={1} />
+                        </div>
                     </div>
                 </div>
 
@@ -471,38 +466,32 @@ export default function ChecklistManager() {
                     </div>
                 </div>
 
-                <div className="mt-16 px-4 signature-section">
-                    <div className="flex flex-row justify-around items-start w-full gap-8">
+                <div className="mt-16 sm:px-4 signature-section">
+                    <div className="flex flex-col sm:flex-row justify-around items-start w-full gap-8">
                         {showSignatures.operator && (
-                            <div className="flex-[1] flex flex-col items-center pt-28">
+                            <div className="flex-1 flex flex-col items-center pt-16 sm:pt-28 text-center w-full">
                                 <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
-                                <div className="text-center w-full">
-                                    <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
-                                    <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words min-h-[0.8rem]">{companyInfo.inspector || ' '}</p>
-                                    <p className="text-[0.55rem] font-bold text-blue-600 uppercase tracking-tighter mt-1">Firma y DNI</p>
-                                </div>
+                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
+                                <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words min-h-[0.8rem]">{companyInfo.inspector || ' '}</p>
+                                <p className="text-[0.55rem] font-bold text-blue-600 uppercase tracking-tighter mt-1">Firma y DNI</p>
                             </div>
                         )}
 
                         {showSignatures.supervisor && (
-                            <div className="flex-[1] flex flex-col items-center pt-28">
+                            <div className="flex-1 flex flex-col items-center pt-16 sm:pt-28 text-center w-full">
                                 <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
-                                <div className="text-center w-full">
-                                    <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR</p>
-                                    <p className="text-[0.8rem] font-black uppercase text-black leading-none">DNI / ACLARACIÓN</p>
-                                    <p className="text-[0.55rem] font-bold text-blue-600 uppercase tracking-tighter mt-1">Firma del Supervisor</p>
-                                </div>
+                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR</p>
+                                <p className="text-[0.8rem] font-black uppercase text-black leading-none">DNI / ACLARACIÓN</p>
+                                <p className="text-[0.55rem] font-bold text-blue-600 uppercase tracking-tighter mt-1">Firma del Supervisor</p>
                             </div>
                         )}
 
                         {showSignatures.professional && (
-                            <div className="flex-[1] flex flex-col items-center pt-28">
+                            <div className="flex-1 flex flex-col items-center pt-16 sm:pt-28 text-center w-full">
                                 <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
-                                <div className="text-center w-full">
-                                    <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL ACTUANTE</p>
-                                    <p className="text-[0.8rem] font-black uppercase text-black leading-none">SELLO Y FIRMA</p>
-                                    <p className="text-[0.55rem] font-bold text-blue-600 uppercase tracking-tighter mt-1">Matrícula</p>
-                                </div>
+                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL ACTUANTE</p>
+                                <p className="text-[0.8rem] font-black uppercase text-black leading-none">SELLO Y FIRMA</p>
+                                <p className="text-[0.55rem] font-bold text-blue-600 uppercase tracking-tighter mt-1">Matrícula</p>
                             </div>
                         )}
                     </div>
