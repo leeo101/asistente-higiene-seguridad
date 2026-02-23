@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, CreditCard, Sparkles, CheckCircle2, Lock, ArrowRight, ArrowLeft } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 export default function Subscription() {
     const navigate = useNavigate();
@@ -26,8 +27,7 @@ export default function Subscription() {
     const handleMercadoPago = async () => {
         setLoading(true);
         try {
-            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.');
-            const fetchUrl = isLocal ? `http://${window.location.hostname}:3001/api/create-subscription` : '/api/create-subscription';
+            const fetchUrl = `${API_BASE_URL}/api/create-subscription`;
 
             const response = await fetch(fetchUrl, {
                 method: 'POST',

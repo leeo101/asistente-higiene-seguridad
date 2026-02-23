@@ -1,11 +1,13 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { X, User, History, LogOut, Home, Settings, ClipboardList, Flame, FileText, Calendar, MessageSquare, Sun, Moon } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Sidebar({ isOpen, onClose }) {
     const navigate = useNavigate();
+    const { currentUser, logout } = useAuth();
     const [userInfo, setUserInfo] = React.useState({
-        name: 'Juan Pérez',
+        name: currentUser?.displayName || currentUser?.email || 'Usuario',
         photo: null
     });
 
@@ -26,16 +28,22 @@ export default function Sidebar({ isOpen, onClose }) {
     };
 
     React.useEffect(() => {
+        setUserInfo(prev => ({ ...prev, name: currentUser?.displayName || currentUser?.email || 'Usuario' }));
         const savedData = localStorage.getItem('personalData');
         if (savedData) {
-            setUserInfo(JSON.parse(savedData));
+            const parsed = JSON.parse(savedData);
+            setUserInfo(prev => ({ ...prev, photo: parsed.photo }));
         }
-    }, [isOpen]);
+    }, [isOpen, currentUser]);
 
-    const handleLogout = () => {
-        localStorage.removeItem('isAuthenticated');
-        onClose();
-        navigate('/login');
+    const handleLogout = async () => {
+        try {
+            await logout();
+            onClose();
+            navigate('/login');
+        } catch (error) {
+            console.error('Failed to log out', error);
+        }
     };
 
     return (

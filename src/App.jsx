@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import Home from './pages/Home.jsx';
@@ -36,6 +36,7 @@ import ResetPassword from './pages/ResetPassword.jsx';
 import ChecklistsHistory from './pages/ChecklistsHistory.jsx';
 import ChecklistManager from './pages/ChecklistManager.jsx';
 import Subscription from './pages/Subscription.jsx';
+import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
 
 function SubscriptionGuard({ children }) {
   const status = typeof window !== 'undefined' ? localStorage.getItem('subscriptionStatus') : null;
@@ -43,6 +44,14 @@ function SubscriptionGuard({ children }) {
 
   if (status !== 'active' && location.pathname !== '/subscribe' && location.pathname !== '/login') {
     return <Subscription />;
+  }
+  return children;
+}
+
+function ProtectedRoute({ children }) {
+  const { currentUser } = useAuth();
+  if (!currentUser) {
+    return <Navigate to="/login" replace />;
   }
   return children;
 }
@@ -61,89 +70,99 @@ function App() {
   }, []);
 
   return (
-    <div className="app-container">
-      {showMenuButton && (
-        <div
-          className="glass-panel"
-          style={{
-            position: 'fixed',
-            top: '1rem',
-            left: '1rem',
-            right: '1rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem',
-            zIndex: 10,
-            padding: '0.8rem 1rem',
-            background: 'rgba(24, 24, 27, 0.4)'
-          }}>
-          <button
-            onClick={() => setIsSidebarOpen(true)}
+    <AuthProvider>
+      <div className="app-container">
+        {showMenuButton && (
+          <div
+            className="glass-panel"
             style={{
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: '10px',
-              padding: '0.5rem',
-              cursor: 'pointer',
+              position: 'fixed',
+              top: '1rem',
+              left: '1rem',
+              right: '1rem',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--color-primary)'
-            }}
-          >
-            <Menu size={22} />
-          </button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-            <img src="/logo.png" alt="Logo" style={{ width: '36px', height: '36px', objectFit: 'contain', filter: 'drop-shadow(0 0 10px rgba(59, 130, 246, 0.5))' }} />
-            <h1 className="header-title" style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800 }}>Asistente H&S</h1>
+              gap: '1rem',
+              zIndex: 10,
+              padding: '0.8rem 1rem',
+              background: 'rgba(24, 24, 27, 0.4)'
+            }}>
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '10px',
+                padding: '0.5rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'var(--color-primary)'
+              }}
+            >
+              <Menu size={22} />
+            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+              <img src="/logo.png" alt="Logo" style={{ width: '36px', height: '36px', objectFit: 'contain', filter: 'drop-shadow(0 0 10px rgba(59, 130, 246, 0.5))' }} />
+              <h1 className="header-title" style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800 }}>Asistente H&S</h1>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/subscribe" element={<Subscription />} />
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* Unprotected / Basic Tier Routes */}
-        <Route path="/" element={<Home />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/personal-data" element={<PersonalData />} />
-        <Route path="/signature-stamp" element={<SignatureStamp />} />
-        <Route path="/security" element={<Security />} />
-        <Route path="/settings" element={<AppSettings />} />
-        <Route path="/calendar" element={<SafetyCalendar />} />
-        <Route path="/history" element={<History />} />
+          {/* Protected Routes Wrapper */}
+          <Route path="/*" element={
+            <ProtectedRoute>
+              <Routes>
+                <Route path="/subscribe" element={<Subscription />} />
 
-        {/* Unlocked Trial Modules */}
-        <Route path="/ats" element={<ATS />} />
-        <Route path="/ats-history" element={<ATSHistory />} />
-        <Route path="/fire-load" element={<FireLoad />} />
-        <Route path="/fire-load-history" element={<FireLoadHistory />} />
-        <Route path="/legislation" element={<Legislation />} />
-        <Route path="/checklists" element={<ChecklistManager />} />
-        <Route path="/checklists-history" element={<ChecklistsHistory />} />
-        <Route path="/create-inspection" element={<CreateInspection />} />
-        <Route path="/checklist" element={<Checklist />} />
-        <Route path="/observation" element={<Observation />} />
-        <Route path="/photos" element={<Photos />} />
-        <Route path="/ai-camera" element={<AICamera />} />
-        <Route path="/ai-report" element={<AIReport />} />
+                {/* Unprotected / Basic Tier Routes */}
+                <Route path="/" element={<Home />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/personal-data" element={<PersonalData />} />
+                <Route path="/signature-stamp" element={<SignatureStamp />} />
+                <Route path="/security" element={<Security />} />
+                <Route path="/settings" element={<AppSettings />} />
+                <Route path="/calendar" element={<SafetyCalendar />} />
+                <Route path="/history" element={<History />} />
 
-        {/* Premium / Protected Routes */}
-        <Route path="/risk" element={<SubscriptionGuard><RiskAssessment /></SubscriptionGuard>} />
-        <Route path="/report" element={<SubscriptionGuard><Report /></SubscriptionGuard>} />
-        <Route path="/risk-matrix" element={<SubscriptionGuard><RiskMatrix /></SubscriptionGuard>} />
-        <Route path="/risk-matrix-report" element={<SubscriptionGuard><RiskMatrixReport /></SubscriptionGuard>} />
-        <Route path="/reports" element={<SubscriptionGuard><Reports /></SubscriptionGuard>} />
-        <Route path="/reports-report" element={<SubscriptionGuard><ReportsReport /></SubscriptionGuard>} />
-        <Route path="/ergonomics" element={<SubscriptionGuard><Ergonomics /></SubscriptionGuard>} />
-        <Route path="/ergonomics-form" element={<SubscriptionGuard><ErgonomicsForm /></SubscriptionGuard>} />
-        <Route path="/ergonomics-report" element={<SubscriptionGuard><ErgonomicsReport /></SubscriptionGuard>} />
-      </Routes>
-    </div>
+                {/* Unlocked Trial Modules */}
+                <Route path="/ats" element={<ATS />} />
+                <Route path="/ats-history" element={<ATSHistory />} />
+                <Route path="/fire-load" element={<FireLoad />} />
+                <Route path="/fire-load-history" element={<FireLoadHistory />} />
+                <Route path="/legislation" element={<Legislation />} />
+                <Route path="/checklists" element={<ChecklistManager />} />
+                <Route path="/checklists-history" element={<ChecklistsHistory />} />
+                <Route path="/create-inspection" element={<CreateInspection />} />
+                <Route path="/checklist" element={<Checklist />} />
+                <Route path="/observation" element={<Observation />} />
+                <Route path="/photos" element={<Photos />} />
+                <Route path="/ai-camera" element={<AICamera />} />
+                <Route path="/ai-report" element={<AIReport />} />
+
+                {/* Premium / Protected Routes */}
+                <Route path="/risk" element={<SubscriptionGuard><RiskAssessment /></SubscriptionGuard>} />
+                <Route path="/report" element={<SubscriptionGuard><Report /></SubscriptionGuard>} />
+                <Route path="/risk-matrix" element={<SubscriptionGuard><RiskMatrix /></SubscriptionGuard>} />
+                <Route path="/risk-matrix-report" element={<SubscriptionGuard><RiskMatrixReport /></SubscriptionGuard>} />
+                <Route path="/reports" element={<SubscriptionGuard><Reports /></SubscriptionGuard>} />
+                <Route path="/reports-report" element={<SubscriptionGuard><ReportsReport /></SubscriptionGuard>} />
+                <Route path="/ergonomics" element={<SubscriptionGuard><Ergonomics /></SubscriptionGuard>} />
+                <Route path="/ergonomics-form" element={<SubscriptionGuard><ErgonomicsForm /></SubscriptionGuard>} />
+                <Route path="/ergonomics-report" element={<SubscriptionGuard><ErgonomicsReport /></SubscriptionGuard>} />
+              </Routes>
+            </ProtectedRoute>
+          } />
+        </Routes>
+      </div>
+    </AuthProvider>
   );
 }
 

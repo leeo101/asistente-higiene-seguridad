@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Lock, Eye, EyeOff, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 export default function ResetPassword() {
     const navigate = useNavigate();
@@ -34,8 +35,7 @@ export default function ResetPassword() {
         setStatus({ type: 'loading', message: 'Actualizando contraseña...' });
 
         try {
-            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.');
-            const fetchUrl = isLocal ? `http://${window.location.hostname}:3001/api/reset-password` : '/api/reset-password';
+            const fetchUrl = `${API_BASE_URL}/api/reset-password`;
 
             // Simulated API call to backend
             const response = await fetch(fetchUrl, {

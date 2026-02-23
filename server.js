@@ -13,26 +13,33 @@ dotenv.config();
 const resetTokens = new Map();
 
 // Constants
-const isProduction = process.env.NODE_ENV === 'production'
-const port = process.env.PORT || 5173
-const apiPort = 3001
-const base = process.env.BASE || '/'
-
-// Cached production assets
-const templateHtml = isProduction
-    ? await fs.readFile('./dist/client/index.html', 'utf-8')
-    : ''
-
 // ==========================================
-// SEPARATE API SERVER (Runs on port 3001)
+// UNIFIED SERVER (API + STATIC) 
 // ==========================================
-const apiApp = express()
-apiApp.use(cors({
-    origin: '*',
+const app = express()
+
+// Allow CORS for development and for the production Firebase URL
+const allowedOrigins = [
+    'http://localhost:5173',
+    'https://asistentehs-b594e.web.app',
+    'https://asistentehs-b594e.firebaseapp.com'
+];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            return callback(null, true); // Allow all for now to avoid issues, or restrict:
+            // var msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+            // return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }))
-apiApp.use(express.json())
+app.use(express.json({ limit: '50mb' })) // Increase limit for images
+app.use(express.urlencoded({ limit: '50mb', extended: true }))
 
 process.on('unhandledRejection', (reason, promise) => {
     console.error("Unhandled Rejection at:", promise, "reason:", reason);
@@ -43,7 +50,7 @@ process.on('uncaughtException', (err) => {
 
 const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN || 'APP_USR-8644102194347274-021115-95fc0f02072be336a791b34e4cfbee7f-183552286' });
 
-apiApp.post('/api/create-subscription', async (req, res) => {
+app.post('/api/create-subscription', async (req, res) => {
     try {
         console.log('API Request received for payment creation');
         const preference = new Preference(client);
@@ -60,9 +67,9 @@ apiApp.post('/api/create-subscription', async (req, res) => {
                     }
                 ],
                 back_urls: {
-                    success: 'http://localhost:5173/subscribe?status=approved',
-                    failure: 'http://localhost:5173/subscribe',
-                    pending: 'http://localhost:5173/subscribe'
+                    success: 'https://asistentehs-b594e.web.app/subscribe?status=approved',
+                    failure: 'https://asistentehs-b594e.web.app/subscribe',
+                    pending: 'https://asistentehs-b594e.web.app/subscribe'
                 }
             }
         });
@@ -83,7 +90,7 @@ apiApp.post('/api/create-subscription', async (req, res) => {
 // AI VISION API (Gemini)
 // ==========================================
 
-apiApp.post('/api/analyze-image', async (req, res) => {
+app.post('/api/analyze-image', async (req, res) => {
     try {
         const { image } = req.body;
         if (!image) return res.status(400).json({ error: 'No se envió imagen' });
@@ -152,7 +159,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-apiApp.post('/api/forgot-password', async (req, res) => {
+app.post('/api/forgot-password', async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Email requerido' });
 
@@ -194,7 +201,7 @@ apiApp.post('/api/forgot-password', async (req, res) => {
     }
 });
 
-apiApp.post('/api/reset-password', async (req, res) => {
+app.post('/api/reset-password', async (req, res) => {
     const { token, newPassword } = req.body;
     const session = resetTokens.get(token);
 
@@ -211,57 +218,10 @@ apiApp.post('/api/reset-password', async (req, res) => {
     }
 });
 
-apiApp.listen(apiPort, '0.0.0.0', () => {
-    console.log(`Backend API Server running at http://localhost:${apiPort}`)
-})
-
 // ==========================================
-// VITE DEV SERVER & HTML SERVING (Runs on port 5173)
+// START SERVER
 // ==========================================
-const app = express()
-
-let vite
-if (!isProduction) {
-    const { createServer } = await import('vite')
-    vite = await createServer({
-        server: { middlewareMode: true },
-        appType: 'custom',
-        base,
-    })
-    app.use(vite.middlewares);
-} else {
-    const compression = (await import('compression')).default
-    const sirv = (await import('sirv')).default
-    app.use(compression())
-    app.use(base, sirv('./dist/client', { extensions: [] }))
-}
-
-// Serve HTML
-app.use('*all', async (req, res, next) => {
-    try {
-        const url = req.originalUrl.replace(base, '')
-        let template, render;
-
-        if (!isProduction) {
-            template = await fs.readFile('./index.html', 'utf-8')
-            template = await vite.transformIndexHtml(url, template)
-            render = (await vite.ssrLoadModule('/src/entry-server.jsx')).render
-        } else {
-            template = templateHtml
-            render = (await import('./dist/server/entry-server.js')).render
-        }
-
-        const { html: appHtml } = await render(url)
-        const html = template.replace(`<!--app-html-->`, appHtml ?? '')
-        res.status(200).set({ 'Content-Type': 'text/html' }).send(html)
-    } catch (e) {
-        vite?.ssrFixStacktrace(e)
-        console.log(e.stack)
-        res.status(500).end(e.stack)
-    }
-})
-
-app.listen(port, '0.0.0.0', () => {
-    console.log(`Frontend Server started at http://localhost:${port}`)
-    console.log(`Mobile access available at your local network IP (e.g., http://192.168.x.x:${port})`)
-})
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
+});

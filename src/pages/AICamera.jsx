@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Camera, RefreshCw, CheckCircle, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 export default function AICamera() {
     const navigate = useNavigate();
@@ -56,12 +57,7 @@ export default function AICamera() {
     const analyzeImage = async (imageSrc) => {
         setIsAnalyzing(true);
         try {
-            // Se usa proxy en Vercel (o Serverless Functions), pero localmente puede usar 3001 si lo hacemos manual.
-            // La opción ideal para Vercel es ruta relativa directa:
-            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.');
-            const apiBaseUrl = isLocal ? `http://${window.location.hostname}:3001` : '';
-
-            const fetchUrl = isLocal ? `${apiBaseUrl}/api/analyze-image` : '/api/analyze-image';
+            const fetchUrl = `${API_BASE_URL}/api/analyze-image`;
             console.log("🚀 LEYENDO DESDE RUTA:", fetchUrl);
 
             const response = await fetch(fetchUrl, {

@@ -1,19 +1,52 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Lock, LogIn, Mail, ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
+import { User, Lock, LogIn, Mail, ArrowLeft, CheckCircle2, AlertCircle, ShieldCheck } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { API_BASE_URL } from '../config';
 
 export default function Login() {
     const navigate = useNavigate();
+    const { login, signup, currentUser } = useAuth();
+    const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [view, setView] = useState('login'); // 'login' or 'forgot'
+    const [view, setView] = useState('login'); // 'login', 'register', or 'forgot'
     const [status, setStatus] = useState({ type: '', message: '' });
 
-    const handleLogin = (e) => {
+    // Redirect if already logged in
+    useEffect(() => {
+        if (currentUser) {
+            navigate('/');
+        }
+    }, [currentUser, navigate]);
+
+    const handleLogin = async (e) => {
         e.preventDefault();
-        // Mock authentication
-        localStorage.setItem('isAuthenticated', 'true');
-        navigate('/');
+        setStatus({ type: 'loading', message: 'Iniciando sesión...' });
+        try {
+            await login(email, password);
+            navigate('/');
+        } catch (error) {
+            setStatus({ type: 'error', message: 'Correo o contraseña incorrectos.' });
+        }
+    };
+
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        setStatus({ type: 'loading', message: 'Creando cuenta...' });
+        try {
+            await signup(email, password, name);
+            navigate('/');
+        } catch (error) {
+            console.error(error);
+            if (error.code === 'auth/email-already-in-use') {
+                setStatus({ type: 'error', message: 'Ese correo ya está registrado.' });
+            } else if (error.code === 'auth/weak-password') {
+                setStatus({ type: 'error', message: 'La contraseña debe tener al menos 6 caracteres.' });
+            } else {
+                setStatus({ type: 'error', message: 'Error al crear la cuenta.' });
+            }
+        }
     };
 
     const handleForgotPassword = async (e) => {
@@ -21,8 +54,7 @@ export default function Login() {
         setStatus({ type: 'loading', message: 'Enviando...' });
 
         try {
-            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.');
-            const fetchUrl = isLocal ? `http://${window.location.hostname}:3001/api/forgot-password` : '/api/forgot-password';
+            const fetchUrl = `${API_BASE_URL}/api/forgot-password`;
 
             const response = await fetch(fetchUrl, {
                 method: 'POST',
@@ -55,7 +87,7 @@ export default function Login() {
                     margin: '0 auto 1.5rem auto',
                     boxShadow: '0 10px 15px -3px rgba(59, 130, 246, 0.5)'
                 }}>
-                    <LogIn size={40} color="white" />
+                    <ShieldCheck size={40} color="white" />
                 </div>
 
                 {view === 'login' ? (
@@ -96,13 +128,116 @@ export default function Login() {
                                 </div>
                             </div>
 
-                            <button type="submit" className="btn-primary" style={{ marginTop: '0' }}>
-                                Ingresar
+                            {status.message && (
+                                <div style={{
+                                    padding: '0.8rem',
+                                    borderRadius: '8px',
+                                    fontSize: '0.9rem',
+                                    marginBottom: '1rem',
+                                    background: status.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : 'transparent',
+                                    color: status.type === 'error' ? '#ef4444' : 'var(--color-text-muted)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem'
+                                }}>
+                                    {status.type === 'error' && <AlertCircle size={18} />}
+                                    {status.message}
+                                </div>
+                            )}
+
+                            <button type="submit" className="btn-primary" disabled={status.type === 'loading'} style={{ marginTop: '0' }}>
+                                {status.type === 'loading' ? 'Cargando...' : 'Ingresar'}
+                            </button>
+                        </form>
+
+                        <div style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
+                            <p style={{ marginBottom: '0.5rem' }}>
+                                ¿No tienes cuenta? <a href="#" onClick={(e) => { e.preventDefault(); setView('register'); setStatus({ type: '', message: '' }); }} style={{ color: 'var(--color-primary)', fontWeight: 'bold' }}>Regístrate</a>
+                            </p>
+                            <p>
+                                ¿Olvidaste tu contraseña? <a href="#" onClick={(e) => { e.preventDefault(); setView('forgot'); setStatus({ type: '', message: '' }); }} style={{ color: 'var(--color-primary)' }}>Recupérala aquí</a>
+                            </p>
+                        </div>
+                    </>
+                ) : view === 'register' ? (
+                    <>
+                        <h1 style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Crear Cuenta</h1>
+                        <p style={{ color: 'var(--color-text-muted)', marginBottom: '2rem' }}>Regístrate para comenzar</p>
+
+                        <form onSubmit={handleRegister} style={{ textAlign: 'left' }}>
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <label htmlFor="name">Nombre Completo</label>
+                                <div style={{ position: 'relative' }}>
+                                    <User size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                                    <input
+                                        type="text"
+                                        id="name"
+                                        placeholder="Tu Nombre"
+                                        style={{ paddingLeft: '40px' }}
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <label htmlFor="email">Correo Electrónico</label>
+                                <div style={{ position: 'relative' }}>
+                                    <Mail size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                                    <input
+                                        type="email"
+                                        id="email"
+                                        placeholder="tu@email.com"
+                                        style={{ paddingLeft: '40px' }}
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ marginBottom: '2rem' }}>
+                                <label htmlFor="password">Contraseña (Mín. 6 caracteres)</label>
+                                <div style={{ position: 'relative' }}>
+                                    <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                                    <input
+                                        type="password"
+                                        id="password"
+                                        placeholder="••••••••"
+                                        style={{ paddingLeft: '40px' }}
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                        minLength="6"
+                                    />
+                                </div>
+                            </div>
+
+                            {status.message && (
+                                <div style={{
+                                    padding: '0.8rem',
+                                    borderRadius: '8px',
+                                    fontSize: '0.9rem',
+                                    marginBottom: '1rem',
+                                    background: status.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : 'transparent',
+                                    color: status.type === 'error' ? '#ef4444' : 'var(--color-text-muted)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem'
+                                }}>
+                                    {status.type === 'error' && <AlertCircle size={18} />}
+                                    {status.message}
+                                </div>
+                            )}
+
+                            <button type="submit" className="btn-primary" disabled={status.type === 'loading'} style={{ marginTop: '0' }}>
+                                {status.type === 'loading' ? 'Registrando...' : 'Registrarse'}
                             </button>
                         </form>
 
                         <p style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
-                            ¿Olvidaste tu contraseña? <a href="#" onClick={(e) => { e.preventDefault(); setView('forgot'); setStatus({ type: '', message: '' }); }} style={{ color: 'var(--color-primary)' }}>Recupérala aquí</a>
+                            ¿Ya tienes cuenta? <a href="#" onClick={(e) => { e.preventDefault(); setView('login'); setStatus({ type: '', message: '' }); }} style={{ color: 'var(--color-primary)', fontWeight: 'bold' }}>Ingresa aquí</a>
                         </p>
                     </>
                 ) : (
@@ -160,6 +295,6 @@ export default function Login() {
             <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
                 Asistente de Higiene y Seguridad v1.0
             </p>
-        </div>
+        </div >
     );
 }

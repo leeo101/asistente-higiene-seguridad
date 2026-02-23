@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Shield, Key, Fingerprint, Smartphone, ChevronRight, Lock, Eye, EyeOff, CheckCircle2, Moon, Sun, Check } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 export default function Security() {
     const navigate = useNavigate();
@@ -23,7 +24,7 @@ export default function Security() {
         try {
             const userEmail = JSON.parse(localStorage.getItem('user'))?.email || 'usuario@ejemplo.com';
 
-            const response = await fetch('http://localhost:3001/api/forgot-password', {
+            const response = await fetch(`${API_BASE_URL}/api/forgot-password`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: userEmail })
