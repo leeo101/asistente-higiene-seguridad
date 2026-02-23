@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Printer, Share2, ShieldCheck, AlertTriangle, User, Building, MapPin } from 'lucide-react';
+import { ArrowLeft, Printer, Share2, Download, CheckCircle2, AlertTriangle, ShieldCheck, Info } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function AIReport() {
     const navigate = useNavigate();
+    const { currentUser } = useAuth();
     const [data, setData] = useState(null);
     const [profile, setProfile] = useState(null);
     const [signature, setSignature] = useState(null);
@@ -26,6 +28,15 @@ export default function AIReport() {
     if (!data) return <div className="container">Cargando...</div>;
 
     const handlePrint = () => {
+        if (!currentUser) {
+            navigate('/login');
+            return;
+        }
+        const status = localStorage.getItem('subscriptionStatus');
+        if (status !== 'active') {
+            navigate('/subscribe');
+            return;
+        }
         window.print();
     };
 

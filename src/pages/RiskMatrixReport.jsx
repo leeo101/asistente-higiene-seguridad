@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Printer, Share2, Download, AlertTriangle, ShieldCheck, FileText } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function RiskMatrixReport() {
     const navigate = useNavigate();
+    const { currentUser } = useAuth();
     const [matrix, setMatrix] = useState(null);
     const [profile, setProfile] = useState(null);
     const [signature, setSignature] = useState(null);
@@ -33,6 +35,15 @@ export default function RiskMatrixReport() {
     };
 
     const handlePrint = () => {
+        if (!currentUser) {
+            navigate('/login');
+            return;
+        }
+        const status = localStorage.getItem('subscriptionStatus');
+        if (status !== 'active') {
+            navigate('/subscribe');
+            return;
+        }
         window.print();
     };
 

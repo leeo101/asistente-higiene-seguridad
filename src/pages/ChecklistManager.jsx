@@ -7,6 +7,7 @@ import {
     Share2, Save, ArrowLeft
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
+import { useAuth } from '../contexts/AuthContext';
 
 const DEFAULT_TEMPLATES = {
     'manual_tools': {
@@ -89,6 +90,7 @@ const MANDATORY_SECTIONS = [
 
 export default function ChecklistManager() {
     const navigate = useNavigate();
+    const { currentUser } = useAuth();
     const [searchParams] = useSearchParams();
 
     const [companyInfo, setCompanyInfo] = useState({
@@ -165,12 +167,21 @@ export default function ChecklistManager() {
     };
 
     const handleShare = async () => {
+        if (!currentUser) {
+            navigate('/login');
+            return;
+        }
+        const status = localStorage.getItem('subscriptionStatus');
+        if (status !== 'active') {
+            navigate('/subscribe');
+            return;
+        }
         const text = `Checklist H&S - ${inspectionInfo.item}\nDocumento: ${inspectionInfo.serial}\nEmpresa: ${companyInfo.name}\nOperador: ${companyInfo.inspector}`;
         if (navigator.share) {
             try {
                 await navigator.share({
-                    title: 'Checklist de Higiene y Seguridad',
-                    text: text,
+                    title: `Checklist: ${inspectionInfo.item}`,
+                    text: `Resultado del checklist de ${inspectionInfo.item} en ${companyInfo.name}`,
                     url: window.location.href,
                 });
             } catch (err) {

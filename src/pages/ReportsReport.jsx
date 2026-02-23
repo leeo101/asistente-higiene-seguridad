@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Printer, Share2, FileText, Calendar, MapPin, User, Building } from 'lucide-react';
+import { ArrowLeft, Printer, Share2, Download, CheckCircle2, Info, Building2, User, HelpCircle } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function ReportsReport() {
     const navigate = useNavigate();
+    const { currentUser } = useAuth();
     const [report, setReport] = useState(null);
     const [profile, setProfile] = useState(null);
     const [signature, setSignature] = useState(null);
@@ -26,6 +28,15 @@ export default function ReportsReport() {
     if (!report) return <div className="container">Cargando...</div>;
 
     const handlePrint = () => {
+        if (!currentUser) {
+            navigate('/login');
+            return;
+        }
+        const status = localStorage.getItem('subscriptionStatus');
+        if (status !== 'active') {
+            navigate('/subscribe');
+            return;
+        }
         window.print();
     };
 

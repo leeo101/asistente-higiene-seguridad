@@ -106,30 +106,61 @@ export default function Sidebar({ isOpen, onClose }) {
                             <User size={20} color="var(--color-text-muted)" />
                         )}
                     </div>
-                    <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-text)' }}>{userInfo.name}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-text)' }}>
+                            {currentUser ? userInfo.name : 'Invitado'}
+                        </span>
+                        {!currentUser && (
+                            <Link to="/login" onClick={onClose} style={{ fontSize: '0.75rem', color: 'var(--color-primary)', textDecoration: 'none', fontWeight: 600 }}>
+                                Iniciar Sesión
+                            </Link>
+                        )}
+                    </div>
                 </div>
 
                 <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
-                    {/* Reusable Nav Item Style */}
-                    {[
-                        { to: '/', icon: Home, label: 'Inicio' },
-                        { to: '/profile', icon: User, label: 'Mi Perfil' },
-                        { to: '/history', icon: History, label: 'Historiales' },
-                        { to: '/calendar', icon: Calendar, label: 'Calendario' },
-                        { to: '/settings', icon: Settings, label: 'Configuración' }
-                    ].map((item, idx) => (
-                        <Link key={idx} to={item.to} onClick={onClose} style={{ textDecoration: 'none' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: '8px', color: 'var(--color-text)', background: 'transparent', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-background)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
-                                <item.icon size={20} color="var(--color-text-muted)" />
-                                <span style={{ fontWeight: 500 }}>{item.label}</span>
+                    <Link to="/" onClick={onClose} style={{ textDecoration: 'none' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: '8px', color: 'var(--color-text)', background: 'transparent' }}>
+                            <Home size={20} color="var(--color-text-muted)" />
+                            <span style={{ fontWeight: 500 }}>Inicio</span>
+                        </div>
+                    </Link>
+
+                    {currentUser && (
+                        <>
+                            <Link to="/profile" onClick={onClose} style={{ textDecoration: 'none' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: '8px', color: 'var(--color-text)', background: 'transparent' }}>
+                                    <User size={20} color="var(--color-text-muted)" />
+                                    <span style={{ fontWeight: 500 }}>Mi Perfil</span>
+                                </div>
+                            </Link>
+                            <Link to="/history" onClick={onClose} style={{ textDecoration: 'none' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: '8px', color: 'var(--color-text)', background: 'transparent' }}>
+                                    <History size={20} color="var(--color-text-muted)" />
+                                    <span style={{ fontWeight: 500 }}>Historiales</span>
+                                </div>
+                            </Link>
+                        </>
+                    )}
+
+                    <Link to="/calendar" onClick={onClose} style={{ textDecoration: 'none' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: '8px', color: 'var(--color-text)', background: 'transparent' }}>
+                            <Calendar size={20} color="var(--color-text-muted)" />
+                            <span style={{ fontWeight: 500 }}>Calendario</span>
+                        </div>
+                    </Link>
+
+                    {currentUser && (
+                        <Link to="/settings" onClick={onClose} style={{ textDecoration: 'none' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: '8px', color: 'var(--color-text)', background: 'transparent' }}>
+                                <Settings size={20} color="var(--color-text-muted)" />
+                                <span style={{ fontWeight: 500 }}>Configuración</span>
                             </div>
                         </Link>
-                    ))}
-
-
+                    )}
 
                     <a href="mailto:asistente.hs.soporte@gmail.com?subject=Sugerencia de Mejora - Asistente H&S" onClick={onClose} style={{ textDecoration: 'none' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: '8px', color: 'var(--color-text)', background: 'transparent', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-background)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: '8px', color: 'var(--color-text)', background: 'transparent' }}>
                             <MessageSquare size={20} color="var(--color-text-muted)" />
                             <span style={{ fontWeight: 500 }}>Sugerencias y Mejoras</span>
                         </div>
@@ -141,38 +172,36 @@ export default function Sidebar({ isOpen, onClose }) {
                             display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem',
                             borderRadius: '12px', color: 'var(--color-primary)',
                             background: 'rgba(37, 99, 235, 0.1)',
-                            boxShadow: 'none',
                             transition: 'transform 0.2s, background 0.2s'
-                        }}
-                            onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.background = 'rgba(37, 99, 235, 0.15)' }}
-                            onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.background = 'rgba(37, 99, 235, 0.1)' }}
-                        >
+                        }}>
                             <User size={20} color="var(--color-primary)" />
-                            <span style={{ fontWeight: 700, fontFamily: 'var(--font-heading)' }}>Activar Versión Pro</span>
+                            <span style={{ fontWeight: 700 }}>Activar Versión Pro</span>
                         </div>
                     </Link>
                 </nav>
 
-                <button
-                    onClick={handleLogout}
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '1rem',
-                        padding: '1rem',
-                        borderRadius: '8px',
-                        color: '#ef4444',
-                        background: 'rgba(239, 68, 68, 0.05)',
-                        border: 'none',
-                        cursor: 'pointer',
-                        marginTop: 'auto',
-                        textAlign: 'left',
-                        width: '100%',
-                    }}
-                >
-                    <LogOut size={20} />
-                    <span style={{ fontWeight: 600 }}>Cerrar Sesión</span>
-                </button>
+                {currentUser && (
+                    <button
+                        onClick={handleLogout}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '1rem',
+                            padding: '1rem',
+                            borderRadius: '8px',
+                            color: '#ef4444',
+                            background: 'rgba(239, 68, 68, 0.05)',
+                            border: 'none',
+                            cursor: 'pointer',
+                            marginTop: 'auto',
+                            textAlign: 'left',
+                            width: '100%',
+                        }}
+                    >
+                        <LogOut size={20} />
+                        <span style={{ fontWeight: 600 }}>Cerrar Sesión</span>
+                    </button>
+                )}
             </div>
         </>
     );

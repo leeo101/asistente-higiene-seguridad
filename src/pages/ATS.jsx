@@ -5,6 +5,7 @@ import {
     ShieldCheck, Building2, User, Calendar,
     CheckCircle2, AlertCircle, HelpCircle, Pencil, Info
 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const defaultChecklist = [
     // General
@@ -39,6 +40,7 @@ const defaultChecklist = [
 
 export default function ATS() {
     const navigate = useNavigate();
+    const { currentUser } = useAuth();
     const capatazCanvasRef = useRef(null);
     const [isDrawingCapataz, setIsDrawingCapataz] = useState(false);
 
@@ -150,6 +152,10 @@ export default function ATS() {
     };
 
     const handleSave = () => {
+        if (!currentUser) {
+            navigate('/login');
+            return;
+        }
         const historyRaw = localStorage.getItem('ats_history');
         const history = historyRaw ? JSON.parse(historyRaw) : [];
         const newEntry = {
@@ -166,6 +172,15 @@ export default function ATS() {
     };
 
     const handlePrint = () => {
+        if (!currentUser) {
+            navigate('/login');
+            return;
+        }
+        const status = localStorage.getItem('subscriptionStatus');
+        if (status !== 'active') {
+            navigate('/subscribe');
+            return;
+        }
         window.print();
     };
 

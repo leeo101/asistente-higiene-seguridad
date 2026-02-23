@@ -195,9 +195,8 @@ export default function Home() {
                             </div>
                         </Link>
 
-                        <Link to="/risk-matrix" onClick={(e) => { if (!isSubscribed) { e.preventDefault(); navigate('/subscribe'); } }} style={{ textDecoration: 'none' }}>
+                        <Link to="/risk-matrix" style={{ textDecoration: 'none' }}>
                             <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', margin: 0 }}>
-                                {!isSubscribed && <div style={{ position: 'absolute', top: '8px', right: '8px', color: '#ef4444' }}><Lock size={14} /></div>}
                                 <div style={{ color: '#8b5cf6' }}><ShieldAlert size={28} /></div>
                                 <div>
                                     <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Matrices</h4>
@@ -206,9 +205,8 @@ export default function Home() {
                             </div>
                         </Link>
 
-                        <Link to="/ergonomics" onClick={(e) => { if (!isSubscribed) { e.preventDefault(); navigate('/subscribe'); } }} style={{ textDecoration: 'none' }}>
+                        <Link to="/ergonomics" style={{ textDecoration: 'none' }}>
                             <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', margin: 0 }}>
-                                {!isSubscribed && <div style={{ position: 'absolute', top: '8px', right: '8px', color: '#ef4444' }}><Lock size={14} /></div>}
                                 <div style={{ color: '#3b82f6' }}><Accessibility size={28} /></div>
                                 <div>
                                     <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Ergonomía</h4>
@@ -217,9 +215,8 @@ export default function Home() {
                             </div>
                         </Link>
 
-                        <Link to="/reports" onClick={(e) => { if (!isSubscribed) { e.preventDefault(); navigate('/subscribe'); } }} style={{ textDecoration: 'none' }}>
+                        <Link to="/reports" style={{ textDecoration: 'none' }}>
                             <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', margin: 0 }}>
-                                {!isSubscribed && <div style={{ position: 'absolute', top: '8px', right: '8px', color: '#ef4444' }}><Lock size={14} /></div>}
                                 <div style={{ color: '#ec4899' }}><FileText size={28} /></div>
                                 <div>
                                     <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Informes</h4>

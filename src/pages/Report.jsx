@@ -1,8 +1,23 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Share2, Printer, CheckCircle2, AlertTriangle, FileText, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Save, Printer, Building2, User, Calendar, CheckCircle2, AlertCircle, Info, Pencil, AlertTriangle } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Report() {
     const navigate = useNavigate();
+    const { currentUser } = useAuth();
+
+    const handlePrint = () => {
+        if (!currentUser) {
+            navigate('/login');
+            return;
+        }
+        const status = localStorage.getItem('subscriptionStatus');
+        if (status !== 'active') {
+            navigate('/subscribe');
+            return;
+        }
+        window.print();
+    };
 
     React.useEffect(() => {
         const current = localStorage.getItem('current_inspection');

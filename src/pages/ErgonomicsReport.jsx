@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Printer, Share2, ShieldCheck, Accessibility, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, Printer, Share2, Download, CheckCircle2, AlertTriangle, Info } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function ErgonomicsReport() {
     const navigate = useNavigate();
+    const { currentUser } = useAuth();
     const [searchParams] = useSearchParams();
     const [data, setData] = useState(null);
     const [profile, setProfile] = useState(null);
@@ -30,6 +32,15 @@ export default function ErgonomicsReport() {
     if (!data) return <div className="container">Estudio no encontrado</div>;
 
     const handlePrint = () => {
+        if (!currentUser) {
+            navigate('/login');
+            return;
+        }
+        const status = localStorage.getItem('subscriptionStatus');
+        if (status !== 'active') {
+            navigate('/subscribe');
+            return;
+        }
         window.print();
     };
 

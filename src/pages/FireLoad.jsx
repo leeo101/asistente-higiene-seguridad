@@ -6,10 +6,12 @@ import {
     Info, AlertTriangle, ShieldCheck, History
 } from 'lucide-react';
 import { fireMaterials, riskActivityGroups } from '../data/fireMaterials';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function FireLoad() {
     const navigate = useNavigate();
     const location = useLocation();
+    const { currentUser } = useAuth();
 
     const [formData, setFormData] = useState({
         empresa: '',
@@ -188,10 +190,23 @@ export default function FireLoad() {
     };
 
     const handlePrint = () => {
+        if (!currentUser) {
+            navigate('/login');
+            return;
+        }
+        const status = localStorage.getItem('subscriptionStatus');
+        if (status !== 'active') {
+            navigate('/subscribe');
+            return;
+        }
         window.print();
     };
 
     const handleSave = () => {
+        if (!currentUser) {
+            navigate('/login');
+            return;
+        }
         try {
             const historyRaw = localStorage.getItem('fireload_history');
             const history = historyRaw ? JSON.parse(historyRaw) : [];
