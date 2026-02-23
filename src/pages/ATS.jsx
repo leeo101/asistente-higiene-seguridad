@@ -173,7 +173,7 @@ export default function ATS() {
     const categories = [...new Set(formData.checklist.map(i => i.categoria))];
 
     return (
-        <div className="container" style={{ maxWidth: '900px', paddingBottom: '5rem' }}>
+        <div className="container" style={{ maxWidth: '1200px', paddingBottom: '5rem' }}>
 
 
             <div className="no-print" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
@@ -187,24 +187,24 @@ export default function ATS() {
                 <h3 style={{ marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                     <Building2 size={20} color="var(--color-primary)" /> Datos de la Empresa y Tarea
                 </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
-                    <div>
+                <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '1.5rem', marginBottom: '1.5rem', width: '100%' }}>
+                    <div style={{ flex: '1 1 300px' }}>
                         <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Empresa Contratista</label>
-                        <input type="text" value={formData.empresa} onChange={e => setFormData({ ...formData, empresa: e.target.value })} placeholder="Ej: Techint S.A." style={{ margin: 0 }} />
+                        <input type="text" value={formData.empresa} onChange={e => setFormData({ ...formData, empresa: e.target.value })} placeholder="Ej: Techint S.A." style={{ margin: 0, width: '100%' }} />
                     </div>
-                    <div>
+                    <div style={{ flex: '1 1 300px' }}>
                         <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>CUIT</label>
-                        <input type="text" value={formData.cuit} onChange={e => setFormData({ ...formData, cuit: e.target.value })} placeholder="30-XXXXXXXX-X" style={{ margin: 0 }} />
+                        <input type="text" value={formData.cuit} onChange={e => setFormData({ ...formData, cuit: e.target.value })} placeholder="30-XXXXXXXX-X" style={{ margin: 0, width: '100%' }} />
                     </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
-                    <div>
+                <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '1.5rem', width: '100%' }}>
+                    <div style={{ flex: '1 1 300px' }}>
                         <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Obra / Frente de Trabajo</label>
-                        <input type="text" value={formData.obra} onChange={e => setFormData({ ...formData, obra: e.target.value })} placeholder="Ej: Sector Fundaciones" style={{ margin: 0 }} />
+                        <input type="text" value={formData.obra} onChange={e => setFormData({ ...formData, obra: e.target.value })} placeholder="Ej: Sector Fundaciones" style={{ margin: 0, width: '100%' }} />
                     </div>
-                    <div>
+                    <div style={{ flex: '1 1 300px' }}>
                         <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Fecha</label>
-                        <input type="date" value={formData.fecha} onChange={e => setFormData({ ...formData, fecha: e.target.value })} style={{ margin: 0 }} />
+                        <input type="date" value={formData.fecha} onChange={e => setFormData({ ...formData, fecha: e.target.value })} style={{ margin: 0, width: '100%' }} />
                     </div>
                 </div>
             </div>
@@ -224,7 +224,7 @@ export default function ATS() {
                         </div>
                         <div className="flex flex-col gap-8">
                             {formData.checklist.filter(i => i.categoria === cat).map(item => (
-                                <div key={item.id} style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', alignItems: 'center', marginBottom: '1.5rem' }}>
+                                <div key={item.id} className="flex flex-col md:flex-row gap-4 items-start md:items-center">
                                     <div className="flex-1 w-full">
                                         <div className="flex gap-2 items-start">
                                             <div
