@@ -1,0 +1,452 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Outfit', system-ui, -apple-system, sans-serif;
+
+  --line-height: 1.5;
+  --font-weight: 400;
+
+  /* SafetyCulture Clean Palette */
+  --color-primary: #2563EB;
+  /* Bright Safety Blue */
+  --color-primary-dark: #1D4ED8;
+  --color-secondary: #00875A;
+  /* Success Green */
+
+  --color-accent: #00B8D9;
+  /* Info Cyan */
+  --color-warning: #FF991F;
+  /* Alert Orange */
+  --color-danger: #DE350B;
+  /* Stop Red */
+
+  /* Minimalist Light Mode */
+  --color-background: #F4F5F7;
+  /* Cloud Gray - Flat canvas */
+  --color-surface: #FFFFFF;
+  /* Pure White Cards */
+  --color-surface-solid: #FFFFFF;
+  --color-text: #172B4D;
+  /* Deep Blue-Gray / High readability text */
+  --color-text-muted: #6B778C;
+  /* Softer text */
+  --color-border: #DFE1E6;
+  /* Very subtle borders */
+
+  color-scheme: light;
+  color: var(--color-text);
+  background-color: var(--color-background);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:root.dark {
+  /* Dark Mode Overrides */
+  --color-background: #111827;
+  /* Gray 900 */
+  --color-surface: #1F2937;
+  /* Gray 800 */
+  --color-surface-solid: #1F2937;
+  --color-text: #F3F4F6;
+  /* Gray 100 */
+  --color-text-muted: #9CA3AF;
+  /* Gray 400 */
+  --color-border: #374151;
+  /* Gray 700 */
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  font-family: var(--font-family);
+}
+
+#root {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: var(--color-surface);
+  cursor: pointer;
+  transition: border-color 0.25s;
+  color: var(--color-text);
+}
+
+button:hover {
+  border-color: var(--color-primary);
+}
+
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+a {
+  font-weight: 500;
+  color: var(--color-primary);
+  text-decoration: inherit;
+}
+
+a:hover {
+  color: var(--color-primary-dark);
+}
+
+/* Utilities & Animations */
+.glass-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(9, 30, 66, 0.05);
+  /* Flat SaaS shadow */
+}
+
+.container {
+  padding: 6rem 1.5rem 2rem 1.5rem;
+  /* Ensures clearance below the floating App header */
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  /* Softer radius typical in UI */
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 2px rgba(9, 30, 66, 0.03);
+  /* Almost flat */
+  text-align: left;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(9, 30, 66, 0.08);
+  /* Lift effect */
+  border-color: #C1C7D0;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  border-color: #cbd5e1;
+  /* slate-300 */
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  color: white;
+  border: none;
+  width: 100%;
+  padding: 0.8rem;
+  font-weight: 600;
+  font-family: var(--font-heading);
+  letter-spacing: 0.5px;
+  border-radius: 12px;
+  margin-top: 1rem;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* Typography Overrides */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.header-title {
+  font-family: var(--font-heading);
+  letter-spacing: -0.02em;
+}
+
+h1 {
+  font-size: 2.2rem;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+  font-weight: 800;
+  color: #172B4D;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: #ffffff;
+  color: var(--color-text);
+  font-family: var(--font-family);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+
+label {
+  display: block;
+  text-align: left;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+/* Responsive Grids & Layouts */
+.grid-res-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.grid-res-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.grid-res-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.flex-res {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Mobile Breakpoint (768px) */
+@media (max-width: 768px) {
+  .container {
+    padding: 1.5rem 1rem;
+    max-width: 100%;
+  }
+
+  .grid-res-4 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.6rem;
+  }
+
+  .grid-res-3 {
+    grid-template-columns: repeat(1, 1fr);
+    gap: 0.8rem;
+  }
+
+  .grid-res-2 {
+    grid-template-columns: repeat(1, 1fr);
+    gap: 0.8rem;
+  }
+
+  .flex-res {
+    flex-direction: column;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  /* Specific fix for Subscription Page */
+  .subscription-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2rem !important;
+    padding: 2rem 1rem !important;
+  }
+
+  .pricing-card {
+    padding: 2rem 1.5rem !important;
+  }
+}
+
+.header-title {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .header-title {
+    display: block;
+  }
+}
+
+/* Print UI Visibility Helpers */
+.print-only,
+.print-text-box,
+.print-header {
+  display: none;
+}
+
+/* Print Styles */
+@media print {
+  @page {
+    margin: 1.5cm;
+    size: A4;
+  }
+
+  /* Hide all UI elements */
+  .glass-panel,
+  .sidebar,
+  nav,
+  .app-header,
+  .header-actions,
+  button,
+  .no-print {
+    display: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box !important;
+  }
+
+  /* Reset layout structure for plain flowing document */
+  body,
+  html,
+  #root {
+    background: white !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .container {
+    padding: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    animation: none !important;
+  }
+
+  /* Flatten all cards and grids for linear printing */
+  .card,
+  .grid-res-2,
+  .grid-res-3,
+  .grid-res-4,
+  .main-layout {
+    display: block !important;
+    width: 100% !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: white !important;
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+    margin-bottom: 1rem !important;
+    padding: 1rem !important;
+    transform: none !important;
+  }
+
+  /* Show specific elements in print */
+  .print-only,
+  .print-text-box,
+  .print-header {
+    display: block !important;
+  }
+
+  /* Prevent elements from being sliced perfectly in half across pages */
+  tr,
+  .print-row,
+  .material-row,
+  .result-item {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .print-text-center {
+    text-align: center !important;
+  }
+
+  .signature-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 15mm !important;
+    page-break-inside: avoid;
+  }
+
+  /* Prevent overlapping inputs */
+  input,
+  select,
+  textarea {
+    border: none !important;
+    border-bottom: 1px solid #000 !important;
+    background: transparent !important;
+    color: #000 !important;
+    padding: 0.2rem 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    height: auto !important;
+    /* Forces Textareas to show fully */
+  }
+
+  /* Force color for text headers */
+  h1,
+  h2,
+  h3,
+  h4,
+  p,
+  span {
+    color: #000 !important;
+    background: transparent !important;
+    -webkit-text-fill-color: #000 !important;
+    text-shadow: none !important;
+  }
+}
