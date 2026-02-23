@@ -298,7 +298,7 @@ export default function ChecklistManager() {
                 </div>
 
                 {/* TEMPLATE SELECTOR - EXPLICITLY HIDDEN IN PRINT */}
-                <div className="no-print grid grid-cols-5 gap-6 mb-10 max-w-5xl mx-auto" id="template-selector">
+                <div className="pb-4 pt-1 print:hidden grid grid-cols-2 md:grid-cols-5 gap-6 mb-10 max-w-5xl mx-auto" id="template-selector">
                     {Object.entries(DEFAULT_TEMPLATES).map(([key, value]) => {
                         const active = activeSections.some(s => s.id === key);
                         return (

@@ -60,10 +60,10 @@ export default function Checklist() {
             {categories.map(cat => (
                 <div key={cat.id} style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
                     <h3 style={{ marginBottom: '1rem', fontSize: '1.1rem', color: 'var(--color-primary)', textAlign: 'left' }}>{cat.name}</h3>
-                    <div className="card" style={{ padding: '0', textAlign: 'left' }}>
+                    <div className="card" style={{ padding: '0', textAlign: 'left', background: 'var(--color-surface)', color: 'var(--color-text)' }}>
                         {(items[cat.id] || []).map(item => (
                             <div key={item.id} style={{ padding: '1rem', borderBottom: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', gap: '1rem', textAlign: 'left' }}>
-                                <div style={{ flex: 1, fontSize: '0.9rem', textAlign: 'left' }}>{item.text}</div>
+                                <div style={{ flex: 1, fontSize: '0.9rem', textAlign: 'left', color: 'var(--color-text)' }}>{item.text}</div>
                                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                                     <button
                                         onClick={() => handleToggle(item.id, 'ok')}
