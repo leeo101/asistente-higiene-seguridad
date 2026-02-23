@@ -4,7 +4,7 @@ import {
     ClipboardCheck, Printer, Plus,
     Settings, AlertTriangle, Building2, Calendar,
     Check, ShieldCheck, Trash2, Edit3, X,
-    Share2, Save
+    Share2, Save, ArrowLeft
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 
