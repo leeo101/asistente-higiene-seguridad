@@ -54,7 +54,7 @@ export default function RiskMatrixReport() {
 
             <div className="card report-print" style={{ padding: '2rem' }}>
                 {/* Header Section */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid var(--color-primary)', paddingBottom: '1.5rem', marginBottom: '2rem', gap: '1rem' }} className="flex-col md:flex-row">
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid var(--color-primary)', paddingBottom: '1.5rem', marginBottom: '2rem', gap: '1rem' }} className="flex-col sm:flex-row">
                     <div>
                         <h1 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-primary)', fontSize: '1.8rem' }}>Matriz de Evaluación de Riesgos</h1>
                         <p style={{ margin: 0, fontWeight: 700 }}>{matrix.name}</p>
@@ -67,7 +67,7 @@ export default function RiskMatrixReport() {
                 </div>
 
                 {/* Professional Info */}
-                <div style={{ display: 'flex', gap: '2rem', marginBottom: '2rem' }} className="flex-col md:flex-row">
+                <div style={{ display: 'flex', gap: '2rem', marginBottom: '2rem' }} className="flex-col sm:flex-row">
                     <div style={{ flex: 1 }}>
                         <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-primary)', fontSize: '0.9rem', textTransform: 'uppercase' }}>Responsable de Evaluación</h4>
                         <p style={{ margin: 0, fontWeight: 700 }}>{profile?.name || matrix.responsable}</p>

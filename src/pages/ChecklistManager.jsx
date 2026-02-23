@@ -351,14 +351,14 @@ export default function ChecklistManager() {
                 </div>
 
                 <div className="border-2 border-slate-300 rounded-xl mb-10 w-full overflow-hidden text-left">
-                    <div className="flex flex-col md:flex-row border-b md:border-b-2 border-slate-200">
+                    <div className="flex flex-col sm:flex-row border-b md:border-b-2 border-slate-200">
                         <DocBox label="CLIENTE / EMPRESA" value={companyInfo.name} onChange={v => setCompanyInfo({ ...companyInfo, name: v })} flex={2} large />
-                        <div className="flex flex-row border-t md:border-t-0 md:flex-1">
+                        <div className="flex flex-row border-t sm:border-t-0 sm:flex-1">
                             <DocBox label="CUIT / CUIL" value={companyInfo.cuit} onChange={v => setCompanyInfo({ ...companyInfo, cuit: v })} flex={1} />
                             <DocBox label="UBICACIÓN / OBRA" value={companyInfo.location} onChange={v => setCompanyInfo({ ...companyInfo, location: v })} flex={1} />
                         </div>
                     </div>
-                    <div className="flex flex-col md:flex-row">
+                    <div className="flex flex-col sm:flex-row">
                         <DocBox
                             label="EQUIPO REVISADO"
                             value={inspectionInfo.item}
@@ -369,7 +369,7 @@ export default function ChecklistManager() {
                             list="equipment-examples"
                             placeholder="Ej: Amoladora, Andamio..."
                         />
-                        <div className="flex flex-row border-t md:border-t-0 md:flex-1">
+                        <div className="flex flex-row border-t sm:border-t-0 sm:flex-1">
                             <DocBox label="FECHA REVISIÓN" value={inspectionInfo.date} onChange={v => setInspectionInfo({ ...inspectionInfo, date: v })} type="date" flex={1} />
                             <DocBox label="OPERADOR" value={companyInfo.inspector} onChange={v => setCompanyInfo({ ...companyInfo, inspector: v })} flex={1} />
                         </div>

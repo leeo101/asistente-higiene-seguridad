@@ -56,7 +56,7 @@ export default function ReportsReport() {
                 position: 'relative'
             }}>
                 {/* Header with Professional Info */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid var(--color-primary)', paddingBottom: '2rem', marginBottom: '2.5rem', gap: '1.5rem' }} className="flex-col md:flex-row">
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid var(--color-primary)', paddingBottom: '2rem', marginBottom: '2.5rem', gap: '1.5rem' }} className="flex-col sm:flex-row">
                     <div style={{ flex: 1 }}>
                         <h1 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-primary)', fontSize: '2.5rem', fontWeight: 900, tracking: '-1px' }}>CHECK LIST</h1>
                         <p style={{ margin: 0, fontSize: '0.9rem', color: '#475569', textTransform: 'uppercase', letterSpacing: '1px' }}>
