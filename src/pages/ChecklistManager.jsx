@@ -104,6 +104,11 @@ export default function ChecklistManager() {
 
     const [activeSections, setActiveSections] = useState([]);
     const [observations, setObservations] = useState('');
+    const [showSignatures, setShowSignatures] = useState({
+        operator: true,
+        supervisor: true,
+        professional: true
+    });
 
     useEffect(() => {
         const id = searchParams.get('id');
@@ -115,6 +120,7 @@ export default function ChecklistManager() {
                 setInspectionInfo(parsed.inspectionInfo);
                 setActiveSections(parsed.activeSections);
                 setObservations(parsed.observations || '');
+                if (parsed.showSignatures) setShowSignatures(parsed.showSignatures);
             }
         }
     }, [searchParams]);
@@ -128,6 +134,7 @@ export default function ChecklistManager() {
             inspectionInfo,
             activeSections,
             observations,
+            showSignatures,
             updatedAt: new Date().toISOString()
         };
 
@@ -448,36 +455,60 @@ export default function ChecklistManager() {
                     />
                 </div>
 
-                <div className="mt-32 px-4 signature-section">
-                    <div className="signature-grid w-full">
-                        <div className="flex-1 flex flex-col items-center">
-                            <div className="w-full border-t-2 border-slate-400 mb-3"></div>
-                            <div className="text-center">
-                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
-                                <p className="text-[0.8rem] font-black uppercase text-black leading-none">{companyInfo.inspector}</p>
-                                <p className="text-[0.55rem] font-bold text-blue-600 uppercase tracking-tighter mt-1">Firma y DNI</p>
-                            </div>
-                        </div>
-
-                        <div className="flex-1 flex flex-col items-center">
-                            <div className="w-full border-t-2 border-slate-400 mb-3"></div>
-                            <div className="text-center">
-                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR</p>
-                                <p className="text-[0.8rem] font-black uppercase text-black leading-none">DNI / ACLARACIÓN</p>
-                                <p className="text-[0.55rem] font-bold text-blue-600 uppercase tracking-tighter mt-1">Firma del Supervisor</p>
-                            </div>
-                        </div>
-
-                        <div className="flex-1 flex flex-col items-center">
-                            <div className="w-full border-t-2 border-slate-400 mb-3"></div>
-                            <div className="text-center">
-                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL ACTUANTE</p>
-                                <p className="text-[0.8rem] font-black uppercase text-black leading-none">SELLO Y FIRMA</p>
-                                <p className="text-[0.55rem] font-bold text-blue-600 uppercase tracking-tighter mt-1">Matrícula Profesional</p>
-                            </div>
-                        </div>
+                {/* SIGNATURE CONTROLS (NO PRINT) */}
+                <div className="no-print mt-10 p-6 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 justify-between items-center text-sm font-bold text-slate-700">
+                    <div>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                    <div className="flex gap-6">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Operador
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Supervisor
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Profesional
+                        </label>
                     </div>
-                    <p className="text-center mt-12 text-slate-400 font-black text-[0.6rem] uppercase tracking-[0.5em] leading-none opacity-50 italic">Documento certificado según normativas de seguridad industrial.</p>
+                </div>
+
+                <div className="mt-16 px-4 signature-section">
+                    <div className="flex justify-around w-full gap-8">
+                        {showSignatures.operator && (
+                            <div className="flex-[1] flex flex-col items-center pt-28">
+                                <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
+                                <div className="text-center w-full">
+                                    <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
+                                    <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words min-h-[0.8rem]">{companyInfo.inspector || ' '}</p>
+                                    <p className="text-[0.55rem] font-bold text-blue-600 uppercase tracking-tighter mt-1">Firma y DNI</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {showSignatures.supervisor && (
+                            <div className="flex-[1] flex flex-col items-center pt-28">
+                                <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
+                                <div className="text-center w-full">
+                                    <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR</p>
+                                    <p className="text-[0.8rem] font-black uppercase text-black leading-none">DNI / ACLARACIÓN</p>
+                                    <p className="text-[0.55rem] font-bold text-blue-600 uppercase tracking-tighter mt-1">Firma del Supervisor</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {showSignatures.professional && (
+                            <div className="flex-[1] flex flex-col items-center pt-28">
+                                <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
+                                <div className="text-center w-full">
+                                    <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL ACTUANTE</p>
+                                    <p className="text-[0.8rem] font-black uppercase text-black leading-none">SELLO Y FIRMA</p>
+                                    <p className="text-[0.55rem] font-bold text-blue-600 uppercase tracking-tighter mt-1">Matrícula</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    {(showSignatures.operator || showSignatures.supervisor || showSignatures.professional) && (
+                        <p className="text-center mt-12 text-slate-400 font-black text-[0.6rem] uppercase tracking-[0.5em] leading-none opacity-50 italic">Documento certificado según normativas de seguridad industrial.</p>
+                    )}
                 </div>
             </div>
         </div>
