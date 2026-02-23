@@ -20,6 +20,18 @@ export default function Checklist() {
         electrico: [
             { id: 'L1', text: 'Tableros eléctricos cerrados y señalizados' },
             { id: 'L2', text: 'Puesta a tierra comprobable en equipos' }
+        ],
+        epp: [
+            { id: 'p1', text: 'Personal utiliza calzado y casco de seguridad' },
+            { id: 'p2', text: 'Entrega de EPP registrada y firmada' }
+        ],
+        orden: [
+            { id: 'o1', text: 'Pasillos y pasarelas libres de obstáculos' },
+            { id: 'o2', text: 'Residuos segregados en recipientes adecuados' }
+        ],
+        senyalizacion: [
+            { id: 's1', text: 'Salidas de emergencia demarcadas claramente' },
+            { id: 's2', text: 'Planos de evacuación visibles y actualizados' }
         ]
     };
 
