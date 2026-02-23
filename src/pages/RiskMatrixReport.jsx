@@ -54,7 +54,7 @@ export default function RiskMatrixReport() {
 
             <div className="card report-print" style={{ padding: '2rem' }}>
                 {/* Header Section */}
-                <div className="flex flex-col md:flex-row justify-between border-b-2 border-[var(--color-primary)] pb-6 mb-8 gap-4">
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid var(--color-primary)', paddingBottom: '1.5rem', marginBottom: '2rem', gap: '1rem' }} className="flex-col md:flex-row">
                     <div>
                         <h1 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-primary)', fontSize: '1.8rem' }}>Matriz de Evaluación de Riesgos</h1>
                         <p style={{ margin: 0, fontWeight: 700 }}>{matrix.name}</p>
@@ -67,13 +67,13 @@ export default function RiskMatrixReport() {
                 </div>
 
                 {/* Professional Info */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                    <div>
+                <div style={{ display: 'flex', gap: '2rem', marginBottom: '2rem' }} className="flex-col md:flex-row">
+                    <div style={{ flex: 1 }}>
                         <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-primary)', fontSize: '0.9rem', textTransform: 'uppercase' }}>Responsable de Evaluación</h4>
                         <p style={{ margin: 0, fontWeight: 700 }}>{profile?.name || matrix.responsable}</p>
                         <p style={{ margin: 0, fontSize: '0.85rem' }}>{profile?.profession}</p>
                     </div>
-                    <div className="md:text-right">
+                    <div style={{ flex: 1 }} className="md:text-right">
                         <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-primary)', fontSize: '0.9rem', textTransform: 'uppercase' }}>Marco Legal</h4>
                         <p style={{ margin: 0, fontSize: '0.85rem' }}>Ley 19.587 de Higiene y Seguridad</p>
                         <p style={{ margin: 0, fontSize: '0.85rem' }}>Decreto 351/79</p>

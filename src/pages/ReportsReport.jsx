@@ -56,7 +56,7 @@ export default function ReportsReport() {
                 position: 'relative'
             }}>
                 {/* Header with Professional Info */}
-                <div className="flex flex-col md:flex-row justify-between border-b-2 border-[var(--color-primary)] pb-8 mb-10 gap-6">
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid var(--color-primary)', paddingBottom: '2rem', marginBottom: '2.5rem', gap: '1.5rem' }} className="flex-col md:flex-row">
                     <div style={{ flex: 1 }}>
                         <h1 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-primary)', fontSize: '2.5rem', fontWeight: 900, tracking: '-1px' }}>CHECK LIST</h1>
                         <p style={{ margin: 0, fontSize: '0.9rem', color: '#475569', textTransform: 'uppercase', letterSpacing: '1px' }}>
@@ -67,7 +67,7 @@ export default function ReportsReport() {
                         </p>
                     </div>
                     {profile && (
-                        <div className="md:text-right border-t md:border-t-0 md:border-l border-[#e2e8f0] pt-4 md:pt-0 md:pl-8">
+                        <div style={{ textAlign: 'right', borderLeft: '1px solid #e2e8f0', paddingLeft: '2rem' }} className="md:text-right md:border-t-0 md:border-l border-[#e2e8f0] pt-4 md:pt-0">
                             <p style={{ margin: 0, fontWeight: 700, fontSize: '1.2rem', color: '#1e293b' }}>{profile.name}</p>
                             <p style={{ margin: '0.2rem 0', fontSize: '0.9rem', color: '#475569' }}>{profile.profession}</p>
                             {profile.license && <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>Mat: {profile.license}</p>}
@@ -76,7 +76,7 @@ export default function ReportsReport() {
                 </div>
 
                 {/* Metadata Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 bg-[#f8fafc] p-6 rounded-lg border border-[#e2e8f0] text-[#1e293b]">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '3rem', background: '#f8fafc', padding: '1.5rem', borderRadius: '8px', border: '1px solid #e2e8f0', color: '#1e293b' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                         <Building size={20} color="var(--color-primary)" />
                         <div>

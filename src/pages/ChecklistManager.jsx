@@ -260,41 +260,49 @@ export default function ChecklistManager() {
 
     return (
         <div className="container" style={{ maxWidth: '1100px', paddingBottom: '4rem' }}>
-            <div className="no-print mb-8 p-4 sm:p-6 md:p-8 rounded-2xl border shadow-sm flex flex-col md:flex-row justify-between items-center gap-6" style={{ background: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
-                <div className="flex items-center gap-4 w-full md:w-auto">
-                    <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
-                        <ArrowLeft size={24} />
+            <div className="no-print" style={{
+                marginBottom: '2rem',
+                padding: '2.5rem',
+                background: '#fff',
+                borderRadius: '24px',
+                border: '1px solid #EBECF0',
+                display: 'flex',
+                justifyContent: 'space-between',
+                gap: '2rem',
+                alignItems: 'center',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                    <button onClick={() => navigate(-1)} style={{ padding: '0.6rem', background: '#F4F5F7', borderRadius: '12px', border: 'none', cursor: 'pointer', color: '#42526E', display: 'flex' }}>
+                        <ArrowLeft size={22} />
                     </button>
                     <div>
-                        <h1 className="text-xl sm:text-2xl font-extrabold flex items-center gap-2">
-                            <ClipboardCheck className="text-blue-600" size={28} />
+                        <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, color: '#172B4D', letterSpacing: '-1px', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                            <ClipboardCheck className="text-blue-600" size={32} />
                             Generador de Checklist
                         </h1>
-                        <p style={{ margin: 0, color: 'var(--color-text-muted)', fontWeight: 500 }}>Control H&S</p>
+                        <p style={{ margin: 0, color: '#6B778C', fontWeight: 600, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Control H&S</p>
                     </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2 w-full md:w-auto justify-center sm:justify-end">
+                <div style={{ display: 'flex', gap: '0.8rem' }}>
                     <button
                         onClick={handleSave}
-                        className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg font-bold transition-all hover:bg-emerald-700 active:scale-95 shadow-sm border-0"
+                        style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.8rem 1.4rem', background: '#36B37E', color: 'white', borderRadius: '12px', border: 'none', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(54, 179, 126, 0.2)' }}
                     >
-                        <Save size={16} />
-                        GUARDAR
+                        <Save size={18} /> GUARDAR
                     </button>
                     <button
                         onClick={handleShare}
-                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-bold transition-all hover:bg-blue-700 active:scale-95 border-0 shadow-sm"
+                        style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.8rem 1.4rem', background: '#0052CC', color: 'white', borderRadius: '12px', border: 'none', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(0, 82, 204, 0.2)' }}
                     >
-                        <Share2 size={16} />
-                        COMPARTIR
+                        <Share2 size={18} /> COMPARTIR
                     </button>
                     <button
                         onClick={() => window.print()}
-                        className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg font-bold transition-all hover:bg-orange-700 active:scale-95 border-0 shadow-sm"
+                        style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.8rem 1.4rem', background: '#FF8B00', color: 'white', borderRadius: '12px', border: 'none', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(255, 139, 0, 0.2)' }}
                     >
-                        <Printer size={16} />
-                        IMPRIMIR
+                        <Printer size={18} /> IMPRIMIR
                     </button>
                 </div>
             </div>
@@ -343,7 +351,7 @@ export default function ChecklistManager() {
                 </div>
 
                 <div className="border-2 border-slate-300 rounded-xl mb-10 w-full overflow-hidden text-left">
-                    <div className="flex flex-col md:flex-row border-b-2 border-slate-200">
+                    <div className="flex flex-col md:flex-row border-b md:border-b-2 border-slate-200">
                         <DocBox label="CLIENTE / EMPRESA" value={companyInfo.name} onChange={v => setCompanyInfo({ ...companyInfo, name: v })} flex={2} large />
                         <div className="flex flex-row border-t md:border-t-0 md:flex-1">
                             <DocBox label="CUIT / CUIL" value={companyInfo.cuit} onChange={v => setCompanyInfo({ ...companyInfo, cuit: v })} flex={1} />

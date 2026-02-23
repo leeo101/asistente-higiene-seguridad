@@ -62,12 +62,12 @@ export default function ErgonomicsReport() {
                 fontFamily: 'Arial, sans-serif'
             }}>
                 {/* Header Legal */}
-                <div className="flex flex-col md:flex-row justify-between border-b-2 border-[#333] pb-5 mb-8 gap-4">
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #333', paddingBottom: '20px', marginBottom: '30px', gap: '20px' }} className="flex-col md:flex-row">
                     <div>
                         <h1 style={{ margin: 0, fontSize: '22px', textTransform: 'uppercase' }}>Protocolo de Ergonomía</h1>
                         <p style={{ margin: '5px 0 0', fontSize: '14px', fontWeight: 'bold' }}>Resolución SRT N° 886/15</p>
                     </div>
-                    <div className="md:text-right">
+                    <div style={{ textAlign: 'right' }} className="md:text-right">
                         <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#3b82f6' }}>Estudio Ergonómico</div>
                         <div style={{ fontSize: '12px', color: '#666' }}>Fecha: {new Date(parseInt(data.id)).toLocaleDateString()}</div>
                     </div>

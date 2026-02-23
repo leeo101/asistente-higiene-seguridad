@@ -176,11 +176,11 @@ export default function ATS() {
         <div className="container" style={{ maxWidth: '900px', paddingBottom: '5rem' }}>
 
 
-            <div className="no-print flex flex-col sm:flex-row items-center gap-4 mb-8">
+            <div className="no-print" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
                 <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
                     <ArrowLeft />
                 </button>
-                <h1 className="text-xl sm:text-2xl font-bold text-center sm:text-left w-full">Análisis de Trabajo Seguro (ATS)</h1>
+                <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Análisis de Trabajo Seguro (ATS)</h1>
             </div>
 
             <div className="bg-white text-black p-6 sm:p-8 shadow-sm border-2 border-slate-200 rounded-2xl mb-8 w-full box-border">
@@ -273,6 +273,7 @@ export default function ATS() {
 
             <div className="card">
                 <h3 style={{ marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
+                    <Pencil size={20} color="var(--color-primary)" /> Firmas y Autorizaciones
                 </h3>
 
                 {/* SIGNATURE CONTROLS (NO PRINT) */}
@@ -293,7 +294,7 @@ export default function ATS() {
 
                 <div className="flex flex-col lg:flex-row justify-around items-start w-full gap-8">
                     {showSignatures.operator && (
-                        <div className="flex-1 flex flex-col items-center pt-16 sm:pt-20 text-center w-full">
+                        <div className="flex-1 flex flex-col items-center pt-28 text-center w-full">
                             <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
                             <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
                             <p className="text-[0.8rem] font-black uppercase text-black leading-none min-h-[0.8rem]">Aclaración y Firma</p>
