@@ -7,6 +7,11 @@ export default function AIReport() {
     const [data, setData] = useState(null);
     const [profile, setProfile] = useState(null);
     const [signature, setSignature] = useState(null);
+    const [showSignatures, setShowSignatures] = useState({
+        operator: true,
+        supervisor: true,
+        professional: true
+    });
 
     useEffect(() => {
         const current = localStorage.getItem('current_ai_inspection');
@@ -128,25 +133,54 @@ export default function AIReport() {
                     </div>
                 )}
 
-                {/* Signature Area */}
-                <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', paddingTop: '4rem' }}>
-                    <div style={{ textAlign: 'center', width: '250px' }}>
-                        <div style={{ height: '80px', borderBottom: '1px solid #000', marginBottom: '0.5rem' }}></div>
-                        <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700 }}>Firma del Trabajador</p>
-                        <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748b' }}>Aceptación de la observación</p>
+                {/* Signature Area / Controls */}
+                <div className="no-print mt-10 mb-8 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 justify-between items-center text-xs font-bold text-slate-700">
+                    <div>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                    <div className="flex gap-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-4 h-4 accent-red-600" /> Operador
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-4 h-4 accent-red-600" /> Supervisor
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-4 h-4 accent-red-600" /> Profesional
+                        </label>
                     </div>
+                </div>
 
-                    <div style={{ textAlign: 'center', width: '250px' }}>
-                        {signature?.signature ? (
-                            <img src={signature.signature} alt="Firma Prof" style={{ maxWidth: '180px', maxHeight: '80px' }} />
-                        ) : (
-                            <div style={{ height: '80px' }}></div>
-                        )}
-                        <div style={{ borderTop: '1px solid #000', paddingTop: '0.5rem' }}>
-                            <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700 }}>{profile?.name}</p>
-                            <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748b' }}>Responsable Higiene y Seguridad</p>
+                <div className="flex flex-row justify-around items-start w-full gap-8 mt-10">
+                    {showSignatures.operator && (
+                        <div className="flex-1 flex flex-col items-center pt-24 text-center">
+                            <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
+                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">TRABAJADOR / OPERADOR</p>
+                            <p className="text-[0.8rem] font-black uppercase text-black leading-none min-h-[0.8rem]">Aclaración y Firma</p>
                         </div>
-                    </div>
+                    )}
+
+                    {showSignatures.supervisor && (
+                        <div className="flex-1 flex flex-col items-center pt-24 text-center">
+                            <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
+                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR / TESTIGO</p>
+                            <p className="text-[0.8rem] font-black uppercase text-black leading-none min-h-[0.8rem]">Aclaración y Firma</p>
+                        </div>
+                    )}
+
+                    {showSignatures.professional && (
+                        <div className="flex-1 flex flex-col items-center text-center">
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', border: '1px dashed var(--color-border)', borderRadius: '4px', minHeight: '90px', background: 'white', padding: '0.5rem', width: '100%' }}>
+                                {signature?.signature ? (
+                                    <img src={signature.signature} alt="Firma" style={{ height: '40px', maxWidth: '100%', objectFit: 'contain' }} />
+                                ) : (
+                                    <div style={{ height: '40px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', color: '#999' }}>Sin Firma</div>
+                                )}
+                            </div>
+                            <div className="print:block hidden w-full border-t-2 border-slate-400 border-dashed mt-8 mb-3"></div>
+                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL ACTUANTE</p>
+                            <p style={{ margin: 0, fontWeight: 700, fontSize: '0.8rem' }}>{profile?.name}</p>
+                            <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Mat: {profile?.license}</p>
+                        </div>
+                    )}
                 </div>
 
                 {/* Footer */}

@@ -472,7 +472,7 @@ export default function ChecklistManager() {
                 </div>
 
                 <div className="mt-16 px-4 signature-section">
-                    <div className="flex justify-around w-full gap-8">
+                    <div className="flex flex-row justify-around items-start w-full gap-8">
                         {showSignatures.operator && (
                             <div className="flex-[1] flex flex-col items-center pt-28">
                                 <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>

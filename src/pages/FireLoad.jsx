@@ -31,6 +31,12 @@ export default function FireLoad() {
         signature: null
     });
 
+    const [showSignatures, setShowSignatures] = useState({
+        operator: true,
+        supervisor: true,
+        professional: true
+    });
+
     useEffect(() => {
         try {
             const savedData = localStorage.getItem('personalData');
@@ -452,41 +458,62 @@ export default function FireLoad() {
 
             <div className="bg-white text-black p-8 shadow-sm border-2 border-slate-200 rounded-2xl mb-8 mt-10 print-area" style={{ display: 'block' }}>
                 <h3 style={{ marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
-                    <ShieldCheck size={22} color="var(--color-primary)" /> Responsables del Estudio
                 </h3>
 
-                <div className="signature-grid w-full">
-                    {/* Operador Signature (Empty for manual signing) */}
-                    <div style={{ border: '1px solid var(--color-border)', borderRadius: '8px', padding: '1rem', background: '#fcfcfc', display: 'flex', flexDirection: 'column' }}>
-                        <label style={{ fontSize: '0.9rem', fontWeight: 600, display: 'block', marginBottom: '0.5rem', textAlign: 'center' }}>Responsable Cliente</label>
-                        <div style={{ flex: 1, border: '1px dashed var(--color-border)', borderRadius: '4px', minHeight: '150px', background: 'var(--color-surface)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '10px' }}>
-                            <p style={{ margin: 0, fontSize: '0.7rem', color: '#999' }}>Aclaración y Firma</p>
-                        </div>
+                {/* SIGNATURE CONTROLS (NO PRINT) */}
+                <div className="no-print mb-8 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 justify-between items-center text-xs font-bold text-slate-700">
+                    <div>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                    <div className="flex gap-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-4 h-4 accent-orange-600" /> Operador
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-4 h-4 accent-orange-600" /> Supervisor
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-4 h-4 accent-orange-600" /> Profesional
+                        </label>
                     </div>
+                </div>
 
-                    {/* Supervisor Signature (Empty for manual signing) */}
-                    <div style={{ border: '1px solid var(--color-border)', borderRadius: '8px', padding: '1rem', background: '#fcfcfc', display: 'flex', flexDirection: 'column' }}>
-                        <label style={{ fontSize: '0.9rem', fontWeight: 600, display: 'block', marginBottom: '0.5rem', textAlign: 'center' }}>Supervisor</label>
-                        <div style={{ flex: 1, border: '1px dashed var(--color-border)', borderRadius: '4px', minHeight: '150px', background: 'var(--color-surface)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '10px' }}>
-                            <p style={{ margin: 0, fontSize: '0.7rem', color: '#999' }}>Aclaración y Firma</p>
-                        </div>
-                    </div>
-
-                    {/* Professional Signature (Auto) */}
-                    <div style={{ border: '1px solid var(--color-border)', borderRadius: '8px', padding: '1rem', background: 'var(--color-surface-hover)', display: 'flex', flexDirection: 'column' }}>
-                        <label style={{ fontSize: '0.9rem', fontWeight: 600, display: 'block', marginBottom: '0.5rem', textAlign: 'center' }}>Profesional Actuante</label>
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', border: '1px dashed var(--color-border)', borderRadius: '4px', minHeight: '150px', background: 'white', padding: '1rem' }}>
-                            {professional.signature ? (
-                                <img src={professional.signature} alt="Firma" style={{ height: '60px', maxWidth: '100%', objectFit: 'contain' }} />
-                            ) : (
-                                <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', color: '#999' }}>Sin Firma</div>
-                            )}
-                            <div style={{ textAlign: 'center' }}>
-                                <p style={{ margin: 0, fontWeight: 700, fontSize: '0.85rem' }}>{professional.name}</p>
-                                <p style={{ margin: 0, fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Matrícula: {professional.license}</p>
+                <div className="flex flex-row justify-around items-start w-full gap-8">
+                    {showSignatures.operator && (
+                        <div className="flex-1 flex flex-col items-center pt-24">
+                            <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
+                            <div className="text-center w-full">
+                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
+                                <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words min-h-[0.8rem]">Aclaración y Firma</p>
                             </div>
                         </div>
-                    </div>
+                    )}
+
+                    {showSignatures.supervisor && (
+                        <div className="flex-1 flex flex-col items-center pt-24">
+                            <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
+                            <div className="text-center w-full">
+                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR</p>
+                                <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words min-h-[0.8rem]">DNI / ACLARACIÓN</p>
+                            </div>
+                        </div>
+                    )}
+
+                    {showSignatures.professional && (
+                        <div className="flex-1 flex flex-col items-center">
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', border: '1px dashed var(--color-border)', borderRadius: '4px', minHeight: '100px', background: 'white', padding: '0.5rem', width: '100%' }}>
+                                {professional.signature ? (
+                                    <img src={professional.signature} alt="Firma" style={{ height: '45px', maxWidth: '100%', objectFit: 'contain' }} />
+                                ) : (
+                                    <div style={{ height: '45px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', color: '#999' }}>Sin Firma</div>
+                                )}
+                            </div>
+                            <div className="print:block hidden w-full border-t-2 border-slate-400 border-dashed mt-8 mb-3"></div>
+                            <div className="text-center w-full">
+                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL ACTUANTE</p>
+                                <p style={{ margin: 0, fontWeight: 700, fontSize: '0.8rem' }}>{professional.name}</p>
+                                <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Matrícula: {professional.license}</p>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

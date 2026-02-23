@@ -7,6 +7,11 @@ export default function ReportsReport() {
     const [report, setReport] = useState(null);
     const [profile, setProfile] = useState(null);
     const [signature, setSignature] = useState(null);
+    const [showSignatures, setShowSignatures] = useState({
+        operator: true,
+        supervisor: true,
+        professional: true
+    });
 
     useEffect(() => {
         const current = localStorage.getItem('current_report');
@@ -132,53 +137,69 @@ export default function ReportsReport() {
                     </div>
                 )}
 
-                {/* THREE-COLUMN SIGNATURE GRID */}
+                {/* THREE-COLUMN SIGNATURE GRID / CONTROLS */}
+                <div className="no-print mt-10 mb-8 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 justify-between items-center text-xs font-bold text-slate-700">
+                    <div>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                    <div className="flex gap-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-4 h-4 accent-emerald-600" /> Operador
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-4 h-4 accent-emerald-600" /> Supervisor
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-4 h-4 accent-emerald-600" /> Profesional
+                        </label>
+                    </div>
+                </div>
+
                 <div className="signature-grid" style={{
                     marginTop: 'auto',
                     display: 'flex',
-                    justifyContent: 'space-between',
+                    flexDirection: 'row',
+                    justifyContent: 'space-around',
                     alignItems: 'flex-start',
                     gap: '2rem',
                     paddingTop: '3rem',
                     borderTop: '2px dashed #e2e8f0'
                 }}>
-                    <div style={{ flex: 1, textAlign: 'center' }}>
-                        <div style={{ height: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem' }}>
-                            <div style={{ height: '80px' }}></div>
+                    {showSignatures.operator && (
+                        <div style={{ flex: 1, textAlign: 'center', paddingTop: '60px' }}>
+                            <div style={{ borderTop: '2px solid #000', paddingTop: '0.5rem' }}>
+                                <p style={{ margin: 0, fontWeight: 800, fontSize: '0.9rem', color: '#1e293b', textTransform: 'uppercase' }}>OPERADOR</p>
+                                <p style={{ margin: '0.1rem 0', fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Firma y DNI</p>
+                            </div>
                         </div>
-                        <div style={{ borderTop: '2px solid #000', paddingTop: '0.5rem' }}>
-                            <p style={{ margin: 0, fontWeight: 800, fontSize: '0.9rem', color: '#1e293b', textTransform: 'uppercase' }}>OPERADOR</p>
-                            <p style={{ margin: '0.1rem 0', fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Firma y DNI</p>
-                        </div>
-                    </div>
+                    )}
 
-                    <div style={{ flex: 1, textAlign: 'center' }}>
-                        <div style={{ height: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem' }}>
-                            <div style={{ height: '80px' }}></div>
+                    {showSignatures.supervisor && (
+                        <div style={{ flex: 1, textAlign: 'center', paddingTop: '60px' }}>
+                            <div style={{ borderTop: '2px solid #000', paddingTop: '0.5rem' }}>
+                                <p style={{ margin: 0, fontWeight: 800, fontSize: '0.9rem', color: '#1e293b', textTransform: 'uppercase' }}>SUPERVISOR / RESPONSABLE</p>
+                                <p style={{ margin: '0.1rem 0', fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Firma y DNI</p>
+                            </div>
                         </div>
-                        <div style={{ borderTop: '2px solid #000', paddingTop: '0.5rem' }}>
-                            <p style={{ margin: 0, fontWeight: 800, fontSize: '0.9rem', color: '#1e293b', textTransform: 'uppercase' }}>SUPERVISOR</p>
-                            <p style={{ margin: '0.1rem 0', fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Firma y DNI</p>
-                        </div>
-                    </div>
+                    )}
 
-                    <div style={{ flex: 1, textAlign: 'center' }}>
-                        <div style={{ height: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem' }}>
-                            {signature?.signature || signature?.stamp ? (
-                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center' }}>
-                                    {signature.signature && <img src={signature.signature} alt="Firma" style={{ maxWidth: '120px', maxHeight: '80px' }} />}
-                                    {signature.stamp && <img src={signature.stamp} alt="Sello" style={{ maxWidth: '80px', maxHeight: '80px' }} />}
-                                </div>
-                            ) : (
-                                <div style={{ height: '80px' }}></div>
-                            )}
+                    {showSignatures.professional && (
+                        <div style={{ flex: 1, textAlign: 'center' }}>
+                            <div style={{ height: '70px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem' }}>
+                                {signature?.signature || signature?.stamp ? (
+                                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center' }}>
+                                        {signature.signature && <img src={signature.signature} alt="Firma" style={{ maxWidth: '100px', maxHeight: '60px' }} />}
+                                        {signature.stamp && <img src={signature.stamp} alt="Sello" style={{ maxWidth: '60px', maxHeight: '60px' }} />}
+                                    </div>
+                                ) : (
+                                    <div style={{ height: '60px' }}></div>
+                                )}
+                            </div>
+                            <div style={{ borderTop: '2px solid #000', paddingTop: '0.5rem' }}>
+                                <p style={{ margin: 0, fontWeight: 800, fontSize: '0.9rem', color: '#1e293b', textTransform: 'uppercase' }}>{profile?.name || report.responsable}</p>
+                                <p style={{ margin: '0.1rem 0', fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>PROFESIONAL ACTUANTE</p>
+                                {profile?.license && <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-primary)', fontWeight: 700 }}>Mat: {profile.license}</p>}
+                            </div>
                         </div>
-                        <div style={{ borderTop: '2px solid #000', paddingTop: '0.5rem' }}>
-                            <p style={{ margin: 0, fontWeight: 800, fontSize: '0.9rem', color: '#1e293b', textTransform: 'uppercase' }}>{profile?.name || report.responsable}</p>
-                            <p style={{ margin: '0.1rem 0', fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Sello, Firma y Matrícula</p>
-                            {profile?.license && <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-primary)', fontWeight: 700 }}>Mat: {profile.license}</p>}
-                        </div>
-                    </div>
+                    )}
                 </div>
 
                 {/* Footer Legal */}
