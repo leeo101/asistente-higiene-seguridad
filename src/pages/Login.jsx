@@ -44,7 +44,7 @@ export default function Login() {
             } else if (error.code === 'auth/weak-password') {
                 setStatus({ type: 'error', message: 'La contraseña debe tener al menos 6 caracteres.' });
             } else {
-                setStatus({ type: 'error', message: 'Error al crear la cuenta.' });
+                setStatus({ type: 'error', message: `Error: ${error.message}` });
             }
         }
     };
