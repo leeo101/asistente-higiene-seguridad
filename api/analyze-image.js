@@ -54,7 +54,6 @@ Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguie
             },
         };
 
-        const genAI = new GoogleGenerativeAI(apiKey);
         let result;
         const models = ["gemini-1.5-flash", "gemini-1.5-flash-latest"];
         let lastError;
