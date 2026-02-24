@@ -181,6 +181,27 @@ Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguie
     }
 });
 
+
+// Diagnostic endpoint to scan available models
+app.get('/api/scan-models', async (req, res) => {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) return res.status(500).json({ error: 'API Key missing' });
+
+    try {
+        const { GoogleGenerativeAI } = await import("@google/generative-ai");
+        const genAI = new GoogleGenerativeAI(apiKey);
+
+        res.json({
+            message: 'Diagnostic point reached',
+            keyPrefix: apiKey.substring(0, 6),
+            sdkVersion: '0.24.1',
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // ==========================================
 // PASSWORD RESET API
 // ==========================================

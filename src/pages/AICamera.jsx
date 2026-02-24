@@ -86,10 +86,12 @@ export default function AICamera() {
                 console.error("API Error details:", data);
                 if (response.status === 413) {
                     alert("Error: La imagen es demasiado pesada. Intente alejarse un poco o bajar la resolución.");
-                } else if (data.details && data.details.includes("API key not valid")) {
-                    alert("Error de Configuración: La API Key de Gemini en el servidor no es válida o ha expirado. Por favor, actualícela en el panel de Render.");
+                } else if (data.details && (data.details.includes("API key not valid") || data.details.includes("permission"))) {
+                    alert("Error de Configuración: La API Key de Gemini no tiene permisos suficientes o es inválida.\n\nPor favor, verifica que la llave en Render sea correcta y tenga habilitado el acceso a los modelos Gemini 1.5.");
+                } else if (data.details && (data.details.includes("v1beta/models") || data.details.includes("not found"))) {
+                    alert("Error de Modelos: El servidor intentó usar varios modelos de IA pero Google devolvió 404 (No Encontrado).\n\nEsto suele ser un problema regional de Google o que la API Key es muy antigua. Detalles: " + data.details);
                 } else {
-                    alert("Error del servidor: " + (data.error || "Error Desconocido") + "\nDetalles: " + (data.details || "Consulte los logs del servidor."));
+                    alert("Error del servidor: " + (data.error || "Error Desconocido") + "\n\nDetalles: " + (data.details || "Consulte los logs del servidor."));
                 }
                 handleRetry();
                 return;
