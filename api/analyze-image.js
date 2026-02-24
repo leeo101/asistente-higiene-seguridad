@@ -51,21 +51,8 @@ Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguie
             },
         };
 
-        const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-flash-latest", "gemini-2.0-flash", "gemini-pro-vision"];
-        let result = null;
-        let lastError = null;
-
-        for (const modelName of modelsToTry) {
-            try {
-                const model = genAI.getGenerativeModel({ model: modelName });
-                result = await model.generateContent([prompt, imagePart]);
-                break; // Break loop if successful
-            } catch (error) {
-                lastError = error;
-                console.log(`Model ${modelName} encountered an error: ${error.message}`);
-                continue; // Try the next model
-            }
-        }
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const result = await model.generateContent([prompt, imagePart]);
 
         if (!result) {
             console.error("All models failed. Last error: ", lastError);

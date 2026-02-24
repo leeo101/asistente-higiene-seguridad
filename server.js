@@ -102,6 +102,7 @@ app.post('/api/analyze-image', async (req, res) => {
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        console.log("Using model: gemini-1.5-flash");
 
         const base64Data = image.split(',')[1];
         const mimeType = image.split(';')[0].split(':')[1] || 'image/jpeg';
