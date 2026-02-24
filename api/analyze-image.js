@@ -55,7 +55,7 @@ Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguie
         };
 
         let result;
-        const models = ["gemini-1.5-flash", "gemini-1.5-flash-latest"];
+        const models = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.5-flash-8b"];
         let lastError;
 
         for (const modelName of models) {
@@ -65,14 +65,14 @@ Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguie
                 if (result) break;
             } catch (error) {
                 lastError = error;
-                console.error(`API Route: Model ${modelName} failed:`, error.message);
+                // console.error(`API Route: Model ${modelName} failed:`, error.message);
                 continue;
             }
         }
 
         if (!result) {
             console.error("All models failed in API route. Last error: ", lastError);
-            throw lastError;
+            throw new Error(`Error de modelos IA: ${lastError?.message}. Verifique si su API Key de Gemini soporta estos modelos.`);
         }
 
         if (!result) {

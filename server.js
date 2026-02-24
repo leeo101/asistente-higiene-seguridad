@@ -131,24 +131,28 @@ Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguie
         };
 
         let result;
-        const models = ["gemini-1.5-flash", "gemini-1.5-flash-latest"];
+        const models = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.5-flash-8b"];
         let lastError;
 
         for (const modelName of models) {
             try {
-                console.log(`Attempting analysis with ${modelName}...`);
+                process.stdout.write(`Attempting analysis with ${modelName}... `);
                 const model = genAI.getGenerativeModel({ model: modelName });
                 result = await model.generateContent([prompt, imagePart]);
-                if (result) break;
+                if (result) {
+                    console.log("SUCCESS");
+                    break;
+                }
             } catch (error) {
                 lastError = error;
-                console.error(`Model ${modelName} failed:`, error.message);
+                console.log(`FAILED: ${error.message}`);
                 continue;
             }
         }
 
         if (!result) {
-            throw new Error(`Todos los modelos fallaron. Error final: ${lastError?.message}`);
+            console.error("All models failed. Final error details:", lastError);
+            throw new Error(`Todos los modelos fallaron. Esto suele ocurrir si la API Key no tiene permisos para estos modelos o si hay un problema regional. Error final: ${lastError?.message}`);
         }
         const responseText = result.response.text();
 
