@@ -67,11 +67,13 @@ export default function AICamera() {
             });
             const data = await response.json();
             if (!response.ok) {
-                console.error("API Error:", data);
+                console.error("API Error details:", data);
                 if (response.status === 413) {
                     alert("Error: La imagen es demasiado pesada. Intente alejarse un poco o bajar la resolución.");
+                } else if (data.details && data.details.includes("API key not valid")) {
+                    alert("Error de Configuración: La API Key de Gemini en el servidor no es válida o ha expirado. Por favor, actualícela en el panel de Render.");
                 } else {
-                    alert("Error del servidor: " + (data.error || "Error Desconocido al analizar la imagen."));
+                    alert("Error del servidor: " + (data.error || "Error Desconocido") + "\nDetalles: " + (data.details || "Consulte los logs del servidor."));
                 }
                 handleRetry();
                 return;
