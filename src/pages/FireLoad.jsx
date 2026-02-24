@@ -166,7 +166,8 @@ export default function FireLoad() {
                 }
             }
         } else {
-            newMaterials[index][field] = parseFloat(value) || 0;
+            const val = value === '' ? 0 : parseFloat(value) || 0;
+            newMaterials[index][field] = val;
         }
 
         newMaterials[index].totalKcal = (newMaterials[index].peso || 0) * (newMaterials[index].poderCalorifico || 0);
@@ -304,7 +305,13 @@ export default function FireLoad() {
                         <div className="grid-res-2">
                             <div>
                                 <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Superficie del Sector (m²)</label>
-                                <input type="number" value={formData.superficie} onChange={e => setFormData({ ...formData, superficie: parseFloat(e.target.value) || 0 })} />
+                                <input
+                                    type="number"
+                                    value={formData.superficie === 0 ? '' : formData.superficie}
+                                    onChange={e => setFormData({ ...formData, superficie: e.target.value === '' ? 0 : parseFloat(e.target.value) || 0 })}
+                                    onFocus={(e) => e.target.select()}
+                                    placeholder="0"
+                                />
                                 <div className="print-only" style={{ padding: '8px', borderBottom: '1px solid #eee' }}>{formData.superficie} m²</div>
                             </div>
                             <div>
@@ -374,11 +381,23 @@ export default function FireLoad() {
                                         </div>
                                         <div>
                                             <label style={{ fontSize: '0.75rem', fontWeight: 600 }}>Peso (Kg)</label>
-                                            <input type="number" value={m.peso} onChange={e => handleMaterialChange(idx, 'peso', e.target.value)} />
+                                            <input
+                                                type="number"
+                                                value={m.peso === 0 ? '' : m.peso}
+                                                onChange={e => handleMaterialChange(idx, 'peso', e.target.value)}
+                                                onFocus={(e) => e.target.select()}
+                                                placeholder="0"
+                                            />
                                         </div>
                                         <div>
                                             <label style={{ fontSize: '0.75rem', fontWeight: 600 }}>Calor (Mcal/Kg)</label>
-                                            <input type="number" value={m.poderCalorifico} onChange={e => handleMaterialChange(idx, 'poderCalorifico', e.target.value)} />
+                                            <input
+                                                type="number"
+                                                value={m.poderCalorifico === 0 ? '' : m.poderCalorifico}
+                                                onChange={e => handleMaterialChange(idx, 'poderCalorifico', e.target.value)}
+                                                onFocus={(e) => e.target.select()}
+                                                placeholder="0"
+                                            />
                                         </div>
                                         <button onClick={() => removeMaterial(idx)} style={{ background: 'transparent', border: 'none', color: '#ef4444', padding: '0.5rem', cursor: 'pointer' }}>
                                             <Trash2 size={18} />
