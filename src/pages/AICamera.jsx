@@ -7,7 +7,13 @@ export default function AICamera() {
     const navigate = useNavigate();
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
-    const [stream, setStream] = useState(null);
+    const [stream, _setStream] = useState(null);
+    const streamRef = useRef(null);
+
+    const setStream = (newStream) => {
+        streamRef.current = newStream;
+        _setStream(newStream);
+    };
     const [capturedImage, setCapturedImage] = useState(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [analysisResult, setAnalysisResult] = useState(null);
@@ -15,7 +21,14 @@ export default function AICamera() {
     useEffect(() => {
         startCamera();
         return () => {
-            if (stream) stream.getTracks().forEach(track => track.stop());
+            if (streamRef.current) {
+                console.log("Stopping all camera tracks...");
+                streamRef.current.getTracks().forEach(track => {
+                    track.stop();
+                    console.log(`Track ${track.kind} stopped`);
+                });
+                streamRef.current = null;
+            }
         };
     }, []);
 
@@ -47,8 +60,11 @@ export default function AICamera() {
         setCapturedImage(imageData);
 
         // Stop stream
-        if (stream) stream.getTracks().forEach(track => track.stop());
-        setStream(null);
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
+            streamRef.current = null;
+        }
+        _setStream(null);
 
         // Start real analysis
         analyzeImage(imageData);

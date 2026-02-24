@@ -131,18 +131,24 @@ Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguie
         };
 
         let result;
-        try {
-            console.log("Attempting analysis with gemini-1.5-flash...");
-            result = await model.generateContent([prompt, imagePart]);
-        } catch (modelError) {
-            console.error("Primary model failed:", modelError.message);
-            if (modelError.message.includes("404") || modelError.message.includes("not found")) {
-                console.log("Trying fallback model gemini-1.5-flash-latest...");
-                const fallbackModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
-                result = await fallbackModel.generateContent([prompt, imagePart]);
-            } else {
-                throw modelError;
+        const models = ["gemini-1.5-flash", "gemini-1.5-flash-latest"];
+        let lastError;
+
+        for (const modelName of models) {
+            try {
+                console.log(`Attempting analysis with ${modelName}...`);
+                const model = genAI.getGenerativeModel({ model: modelName });
+                result = await model.generateContent([prompt, imagePart]);
+                if (result) break;
+            } catch (error) {
+                lastError = error;
+                console.error(`Model ${modelName} failed:`, error.message);
+                continue;
             }
+        }
+
+        if (!result) {
+            throw new Error(`Todos los modelos fallaron. Error final: ${lastError?.message}`);
         }
         const responseText = result.response.text();
 

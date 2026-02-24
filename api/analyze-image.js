@@ -54,18 +54,26 @@ Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguie
             },
         };
 
+        const genAI = new GoogleGenerativeAI(apiKey);
         let result;
-        try {
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-            result = await model.generateContent([prompt, imagePart]);
-        } catch (modelError) {
-            console.error("Primary model failed in API route:", modelError.message);
-            if (modelError.message.includes("404") || modelError.message.includes("not found")) {
-                const fallbackModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
-                result = await fallbackModel.generateContent([prompt, imagePart]);
-            } else {
-                throw modelError;
+        const models = ["gemini-1.5-flash", "gemini-1.5-flash-latest"];
+        let lastError;
+
+        for (const modelName of models) {
+            try {
+                const model = genAI.getGenerativeModel({ model: modelName });
+                result = await model.generateContent([prompt, imagePart]);
+                if (result) break;
+            } catch (error) {
+                lastError = error;
+                console.error(`API Route: Model ${modelName} failed:`, error.message);
+                continue;
             }
+        }
+
+        if (!result) {
+            console.error("All models failed in API route. Last error: ", lastError);
+            throw lastError;
         }
 
         if (!result) {

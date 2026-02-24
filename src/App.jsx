@@ -153,6 +153,7 @@ function App() {
           <Route path="/fire-load-history" element={<ProtectedRoute><FireLoadHistory /></ProtectedRoute>} />
           <Route path="/checklists-history" element={<ProtectedRoute><ChecklistsHistory /></ProtectedRoute>} />
 
+          <Route path="/matrices" element={<Navigate to="/risk-matrix" replace />} />
         </Routes>
       </div>
     </AuthProvider>
