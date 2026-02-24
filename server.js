@@ -105,6 +105,9 @@ app.post('/api/analyze-image', async (req, res) => {
         console.log("Using model: gemini-1.5-flash");
 
         const base64Data = image.split(',')[1];
+        if (!base64Data || base64Data.length < 10) {
+            return res.status(400).json({ error: 'La imagen enviada no es válida o está vacía.' });
+        }
         const mimeType = image.split(';')[0].split(':')[1] || 'image/jpeg';
 
         const prompt = `Analiza detalladamente esta imagen de un entorno laboral. 
@@ -127,7 +130,20 @@ Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguie
             },
         };
 
-        const result = await model.generateContent([prompt, imagePart]);
+        let result;
+        try {
+            console.log("Attempting analysis with gemini-1.5-flash...");
+            result = await model.generateContent([prompt, imagePart]);
+        } catch (modelError) {
+            console.error("Primary model failed:", modelError.message);
+            if (modelError.message.includes("404") || modelError.message.includes("not found")) {
+                console.log("Trying fallback model gemini-1.5-flash-latest...");
+                const fallbackModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+                result = await fallbackModel.generateContent([prompt, imagePart]);
+            } else {
+                throw modelError;
+            }
+        }
         const responseText = result.response.text();
 
         // Sanitize JSON
