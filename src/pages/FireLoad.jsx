@@ -496,14 +496,14 @@ export default function FireLoad() {
                         </div>
 
                         <button
-                            className="no-print flex items-center justify-center gap-2 px-6 py-4 bg-emerald-600 text-white rounded-xl font-bold transition-all hover:bg-emerald-700 active:scale-95 w-full mt-2 shadow-sm border-0"
+                            className="no-print flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-xl font-bold transition-all hover:scale-[1.02] hover:shadow-lg active:scale-95 w-full mt-2 shadow-sm border-0 cursor-pointer"
                             onClick={handleSave}
                         >
                             <Save size={18} /> GUARDAR DATOS
                         </button>
 
                         <button
-                            className="no-print flex items-center justify-center gap-2 px-6 py-4 bg-orange-600 text-white rounded-xl font-bold transition-all hover:bg-orange-700 active:scale-95 w-full mt-2 shadow-sm border-0"
+                            className="no-print flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-blue-700 to-indigo-800 text-white rounded-xl font-bold transition-all hover:scale-[1.02] hover:shadow-lg active:scale-95 w-full mt-2 shadow-sm border-0 cursor-pointer"
                             onClick={handlePrint}
                         >
                             <Printer size={18} /> IMPRIMIR / GENERAR PDF
@@ -511,11 +511,12 @@ export default function FireLoad() {
                     </div>
                 </div>
 
-                <div className="bg-white text-black p-8 shadow-sm border-2 border-slate-200 rounded-2xl mb-8 mt-10 print-area" style={{ display: 'block' }}>
+                {/* SECCIÓN DE FIRMAS */}
+                <div className="bg-white text-black p-8 shadow-sm border-2 border-slate-200 rounded-2xl mb-8 mt-10 print-area" style={{ display: 'block', clear: 'both' }}>
                     <h3 style={{ marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
+                        <ShieldCheck size={22} color="var(--color-primary)" /> Firmas y Validación
                     </h3>
 
-                    {/* SIGNATURE CONTROLS (NO PRINT) */}
                     <div className="no-print mb-8 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 justify-between items-center text-xs font-bold text-slate-700">
                         <div>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
                         <div className="flex gap-4">
