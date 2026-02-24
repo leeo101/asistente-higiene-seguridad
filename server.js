@@ -131,28 +131,36 @@ Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguie
         };
 
         let result;
-        const models = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.5-flash-8b"];
+        const models = [
+            "gemini-1.5-flash",
+            "gemini-1.5-flash-latest",
+            "gemini-1.5-pro",
+            "gemini-1.5-pro-latest",
+            "gemini-1.5-flash-8b",
+            "gemini-2.0-flash-exp",
+            "gemini-pro-vision"
+        ];
         let lastError;
 
         for (const modelName of models) {
             try {
-                process.stdout.write(`Attempting analysis with ${modelName}... `);
+                process.stdout.write(`[RECOVERY] Attempting ${modelName}... `);
                 const model = genAI.getGenerativeModel({ model: modelName });
                 result = await model.generateContent([prompt, imagePart]);
                 if (result) {
-                    console.log("SUCCESS");
+                    console.log("SUCCESS ✅");
                     break;
                 }
             } catch (error) {
                 lastError = error;
-                console.log(`FAILED: ${error.message}`);
+                console.log(`FAILED ❌ (${error.message})`);
                 continue;
             }
         }
 
         if (!result) {
-            console.error("All models failed. Final error details:", lastError);
-            throw new Error(`Todos los modelos fallaron. Esto suele ocurrir si la API Key no tiene permisos para estos modelos o si hay un problema regional. Error final: ${lastError?.message}`);
+            console.error("[RECOVERY] All models failed. Key info:", apiKey.substring(0, 8) + "...");
+            throw new Error(`Error Fatal de IA: Todos los modelos (${models.length}) fallaron. Esto suele ser un problema de permisos de la API Key en Google AI Studio o restricciones regionales. Error final: ${lastError?.message}`);
         }
         const responseText = result.response.text();
 
