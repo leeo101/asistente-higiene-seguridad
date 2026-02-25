@@ -23,8 +23,11 @@ export default async function handler(req, res) {
 
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) {
+            console.error("[ERROR] Missing GEMINI_API_KEY environment variable.");
             return res.status(500).json({ error: 'Falta la API Key de Gemini (Environment Variables en Vercel)' });
         }
+
+        console.log(`[AI] Attempting analysis with key ending in: ...${apiKey.slice(-4)}`);
 
         const genAI = new GoogleGenerativeAI(apiKey);
 
@@ -56,29 +59,44 @@ Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguie
 
         let result;
         const models = [
+            "gemini-2.0-flash",
+            "gemini-flash-latest",
             "gemini-1.5-flash",
-            "gemini-1.5-flash-latest",
-            "gemini-1.5-pro",
-            "gemini-1.5-pro-latest",
-            "gemini-1.5-flash-8b",
-            "gemini-2.0-flash-exp",
-            "gemini-pro-vision"
+            "gemini-1.5-pro"
         ];
         let lastError;
 
         for (const modelName of models) {
             try {
+                process.stdout.write(`[RECOVERY] Attempting ${modelName}... `);
                 const model = genAI.getGenerativeModel({ model: modelName });
-                result = await model.generateContent([prompt, imagePart]);
-                if (result) break;
+
+                // Add a local timeout for Vercel/Local (15 seconds)
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+                try {
+                    result = await model.generateContent([prompt, imagePart]);
+                    clearTimeout(timeoutId);
+                    if (result) {
+                        console.log("SUCCESS ✅");
+                        break;
+                    }
+                } catch (e) {
+                    clearTimeout(timeoutId);
+                    throw e;
+                }
             } catch (error) {
                 lastError = error;
+                console.log(`FAILED ❌ (${error.message})`);
                 continue;
             }
         }
 
         if (!result) {
-            throw new Error(`Falla crítica de modelos IA: ${lastError?.message}. Intentados: ${models.join(', ')}`);
+            const keyInfo = apiKey ? `${apiKey.substring(0, 6)}...${apiKey.slice(-4)}` : 'MISSING';
+            console.error("[RECOVERY] All models failed. Key info:", keyInfo);
+            throw new Error(`Falla crítica: Intentados ${models.join(', ')}. Todos devolvieron 404 (No Encontrado). Revisa si tu API Key tiene permisos para estos modelos. Key: ${keyInfo}.`);
         }
 
         if (!result) {

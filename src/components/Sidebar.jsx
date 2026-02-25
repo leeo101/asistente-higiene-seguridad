@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { X, User, History, LogOut, Home, Settings, ClipboardList, Flame, FileText, Calendar, MessageSquare, Sun, Moon } from 'lucide-react';
+import { X, User, History, LogOut, Home, Settings, ClipboardList, Flame, FileText, Calendar, MessageSquare, Sun, Moon, UserPlus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Sidebar({ isOpen, onClose }) {
@@ -151,12 +151,20 @@ export default function Sidebar({ isOpen, onClose }) {
                     </Link>
 
                     {currentUser && (
-                        <Link to="/settings" onClick={onClose} style={{ textDecoration: 'none' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: '8px', color: 'var(--color-text)', background: 'transparent' }}>
-                                <Settings size={20} color="var(--color-text-muted)" />
-                                <span style={{ fontWeight: 500 }}>Configuración</span>
-                            </div>
-                        </Link>
+                        <>
+                            <Link to="/settings" onClick={onClose} style={{ textDecoration: 'none' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: '8px', color: 'var(--color-text)', background: 'transparent' }}>
+                                    <Settings size={20} color="var(--color-text-muted)" />
+                                    <span style={{ fontWeight: 500 }}>Configuración</span>
+                                </div>
+                            </Link>
+                            <Link to="/admin/requests" onClick={onClose} style={{ textDecoration: 'none' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: '8px', color: 'var(--color-text)', background: 'transparent' }}>
+                                    <UserPlus size={20} color="var(--color-text-muted)" />
+                                    <span style={{ fontWeight: 500 }}>Solicitudes</span>
+                                </div>
+                            </Link>
+                        </>
                     )}
 
                     <a href="mailto:asistente.hs.soporte@gmail.com?subject=Sugerencia de Mejora - Asistente H&S" onClick={onClose} style={{ textDecoration: 'none' }}>

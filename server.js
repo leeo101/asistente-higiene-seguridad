@@ -97,8 +97,11 @@ app.post('/api/analyze-image', async (req, res) => {
 
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) {
+            console.error("[ERROR] Missing GEMINI_API_KEY environment variable.");
             return res.status(500).json({ error: 'Falta la API Key de Gemini en el backend' });
         }
+
+        console.log(`[AI] Attempting analysis with key ending in: ...${apiKey.slice(-4)}`);
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -132,13 +135,10 @@ Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguie
 
         let result;
         const models = [
+            "gemini-2.0-flash",
+            "gemini-flash-latest",
             "gemini-1.5-flash",
-            "gemini-1.5-flash-latest",
-            "gemini-1.5-pro",
-            "gemini-1.5-pro-latest",
-            "gemini-1.5-flash-8b",
-            "gemini-2.0-flash-exp",
-            "gemini-pro-vision"
+            "gemini-1.5-pro"
         ];
         let lastError;
 
@@ -146,10 +146,21 @@ Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguie
             try {
                 process.stdout.write(`[RECOVERY] Attempting ${modelName}... `);
                 const model = genAI.getGenerativeModel({ model: modelName });
-                result = await model.generateContent([prompt, imagePart]);
-                if (result) {
-                    console.log("SUCCESS ✅");
-                    break;
+
+                // Add a local timeout for the specific request (15 seconds)
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+                try {
+                    result = await model.generateContent([prompt, imagePart]);
+                    clearTimeout(timeoutId);
+                    if (result) {
+                        console.log("SUCCESS ✅");
+                        break;
+                    }
+                } catch (e) {
+                    clearTimeout(timeoutId);
+                    throw e;
                 }
             } catch (error) {
                 lastError = error;
@@ -159,8 +170,9 @@ Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguie
         }
 
         if (!result) {
-            console.error("[RECOVERY] All models failed. Key info:", apiKey.substring(0, 8) + "...");
-            throw new Error(`Error Fatal de IA: Todos los modelos (${models.length}) fallaron. Esto suele ser un problema de permisos de la API Key en Google AI Studio o restricciones regionales. Error final: ${lastError?.message}`);
+            const keyInfo = apiKey ? `${apiKey.substring(0, 6)}...${apiKey.slice(-4)}` : 'MISSING';
+            console.error("[RECOVERY] All models failed. Key info:", keyInfo);
+            throw new Error(`Error Fatal de IA: Intentados ${models.join(', ')}. Todos fallaron (404 Not Found). Esto suele ser porque la API Key no tiene habilitados estos modelos en tu región. Key actual: ${keyInfo}.`);
         }
         const responseText = result.response.text();
 
@@ -271,6 +283,87 @@ app.post('/api/reset-password', async (req, res) => {
         res.json({ message: 'Contraseña actualizada correctamente.' });
     } catch (error) {
         res.status(500).json({ error: 'Error al actualizar la contraseña' });
+    }
+});
+
+// ==========================================
+// REGISTRATION REQUESTS API
+// ==========================================
+
+const DATA_DIR = './data';
+const REQUESTS_FILE = `${DATA_DIR}/registration-requests.json`;
+
+async function ensureDataFile() {
+    try {
+        await fs.mkdir(DATA_DIR, { recursive: true });
+        try {
+            await fs.access(REQUESTS_FILE);
+        } catch {
+            await fs.writeFile(REQUESTS_FILE, JSON.stringify([]), 'utf-8');
+        }
+    } catch (error) {
+        console.error("Error creating data directory/file:", error);
+    }
+}
+
+// Ensure on startup
+ensureDataFile();
+
+app.post('/api/register-request', async (req, res) => {
+    try {
+        const { name, email, profession, phone } = req.body;
+        if (!name || !email) {
+            return res.status(400).json({ error: 'Nombre y correo son obligatorios' });
+        }
+        await ensureDataFile();
+        const fileContent = await fs.readFile(REQUESTS_FILE, 'utf-8');
+        const requests = fileContent ? JSON.parse(fileContent) : [];
+        const newRequest = {
+            id: Date.now().toString(),
+            name,
+            email,
+            profession: profession || '',
+            phone: phone || '',
+            status: 'pending',
+            date: new Date().toISOString()
+        };
+        requests.push(newRequest);
+        await fs.writeFile(REQUESTS_FILE, JSON.stringify(requests, null, 2), 'utf-8');
+        res.status(201).json({ message: 'Solicitud enviada correctamente', request: newRequest });
+    } catch (error) {
+        console.error("Error saving registration request:", error);
+        res.status(500).json({ error: 'Error al guardar la solicitud' });
+    }
+});
+
+app.get('/api/admin/requests', async (req, res) => {
+    try {
+        await ensureDataFile();
+        const fileContent = await fs.readFile(REQUESTS_FILE, 'utf-8');
+        const requests = fileContent ? JSON.parse(fileContent) : [];
+        res.json(requests);
+    } catch (error) {
+        console.error("Error reading registration requests:", error);
+        res.status(500).json({ error: 'Error al leer las solicitudes' });
+    }
+});
+
+app.delete('/api/admin/requests/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await ensureDataFile();
+        const fileContent = await fs.readFile(REQUESTS_FILE, 'utf-8');
+        let requests = fileContent ? JSON.parse(fileContent) : [];
+        const initialLength = requests.length;
+        requests = requests.filter(req => req.id !== id);
+        if (requests.length === initialLength) {
+            return res.status(404).json({ error: 'Solicitud no encontrada' });
+        }
+        await fs.writeFile(REQUESTS_FILE, JSON.stringify(requests, null, 2), 'utf-8');
+        res.json({ message: 'Solicitud eliminada' });
+    } catch (error) {
+        console.error("Error deleting registration request:", error);
+        res.status(500).json({ error: 'Error al eliminar la solicitud' });
     }
 });
 
