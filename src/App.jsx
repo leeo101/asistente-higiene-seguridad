@@ -61,7 +61,7 @@ function ProtectedRoute({ children }) {
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
-  const showMenuButton = location.pathname !== '/login';
+  const showMenuButton = location.pathname !== '/login' && location.pathname !== '/subscribe';
 
   // Apply theme on mount
   useEffect(() => {

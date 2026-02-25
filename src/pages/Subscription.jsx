@@ -128,14 +128,15 @@ export default function Subscription() {
 
     return (
         <div className="subscription-layout" style={{
-            padding: '4rem 2rem',
+            padding: '2rem 1rem', // Added horizontal padding for mobile
             maxWidth: '1200px',
             margin: '0 auto',
             display: 'grid',
-            gridTemplateColumns: '1fr 450px',
-            gap: '5rem',
+            gridTemplateColumns: 'minmax(300px, 1fr) 450px', // More flexible column
+            gap: '2rem', // Reduced gap for mobile
             alignItems: 'center',
-            minHeight: '80vh'
+            minHeight: '80vh',
+            paddingTop: '6rem' // Prevent overlap with fixed header
         }}>
             {/* Benefits Side */}
             <div>
@@ -219,7 +220,7 @@ export default function Subscription() {
 
                 <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', margin: '3rem 0 1rem' }}>
                     <span style={{ fontSize: '2rem', fontWeight: '800', marginRight: '0.5rem' }}>$</span>
-                    <span style={{ fontSize: '5rem', fontWeight: '900', letterSpacing: '-2px' }}>10.00</span>
+                    <span style={{ fontSize: '5rem', fontWeight: '900', letterSpacing: '-2px' }}>5.00</span>
                     <span style={{ fontSize: '1.5rem', color: 'var(--color-text-secondary)', marginLeft: '0.5rem' }}>USD / MES</span>
                 </div>
 
