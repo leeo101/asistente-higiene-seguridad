@@ -169,6 +169,31 @@ export default function AIReport() {
                     </div>
                 </div>
 
+                {/* Findings Legend (Numbered) */}
+                {data.analysis.detections && data.analysis.detections.length > 0 && (
+                    <div style={{ marginBottom: '2.5rem' }}>
+                        <h4 style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem', marginBottom: '1rem', color: '#1e293b' }}>Leyenda de Hallazgos</h4>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
+                            {data.analysis.detections.map((det, i) => {
+                                const isRisk = det.label.toLowerCase().includes('riesgo');
+                                return (
+                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', fontSize: '0.9rem' }}>
+                                        <div style={{
+                                            width: '24px', height: '24px', borderRadius: '50%',
+                                            background: isRisk ? '#ef4444' : '#3b82f6', color: '#fff',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            fontWeight: 800, fontSize: '0.75rem', flexShrink: 0
+                                        }}>
+                                            {i + 1}
+                                        </div>
+                                        <span style={{ color: '#475569' }}>{det.label}</span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
+
                 {/* Additional Findings */}
                 {data.analysis.foundRisks.length > 0 && (
                     <div style={{ marginBottom: '3rem' }}>

@@ -128,33 +128,36 @@ export default function AICamera() {
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0);
 
-                detections.forEach(det => {
+                detections.forEach((det, index) => {
                     if (!det.box_2d) return;
                     const [ymin, xmin, ymax, xmax] = det.box_2d;
-                    const left = (xmin / 1000) * canvas.width;
-                    const top = (ymin / 1000) * canvas.height;
-                    const width = ((xmax - xmin) / 1000) * canvas.width;
-                    const height = ((ymax - ymin) / 1000) * canvas.height;
+                    const centerX = ((xmin + xmax) / 2 / 1000) * canvas.width;
+                    const centerY = ((ymin + ymax) / 2 / 1000) * canvas.height;
+                    const radius = Math.max(((xmax - xmin) / 2000) * canvas.width, 20);
 
-                    // Set color based on label (Red for risks, Green for EPP)
+                    // Set color based on label (Red for risks, Blue for EPP)
                     const isRisk = det.label.toLowerCase().includes('riesgo');
-                    ctx.strokeStyle = isRisk ? '#ef4444' : '#10b981';
-                    ctx.lineWidth = 6;
+                    const color = isRisk ? '#ef4444' : '#3b82f6';
 
-                    // Draw Rounded Rectangle or Circle? User said circles or similar.
-                    // Let's use Rect with bold label for clarity.
-                    ctx.strokeRect(left, top, width, height);
+                    // Draw Thin Circle
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                    ctx.stroke();
 
-                    // Label background
-                    ctx.fillStyle = isRisk ? '#ef4444' : '#10b981';
-                    const labelText = det.label.toUpperCase();
-                    ctx.font = 'bold 24px Inter, system-ui, sans-serif';
-                    const textWidth = ctx.measureText(labelText).width;
-                    ctx.fillRect(left, top - 35, textWidth + 10, 35);
+                    // Draw Number Badge (solid circle)
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.arc(centerX + radius, centerY - radius, 15, 0, 2 * Math.PI);
+                    ctx.fill();
 
-                    // Label text
+                    // Draw Number Text
                     ctx.fillStyle = '#ffffff';
-                    ctx.fillText(labelText, left + 5, top - 8);
+                    ctx.font = 'bold 20px Inter, system-ui, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(index + 1, centerX + radius, centerY - radius);
                 });
 
                 resolve(canvas.toDataURL('image/jpeg', 0.8));
