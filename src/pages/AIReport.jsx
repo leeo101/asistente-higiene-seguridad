@@ -40,6 +40,43 @@ export default function AIReport() {
         window.print();
     };
 
+    const handleShare = async () => {
+        if (!data) return;
+
+        const statusText = data.analysis.ppeComplete ? '✅ EPP COMPLETO' : '⚠️ FALTA EPP / PELIGRO';
+        const risksText = data.analysis.foundRisks.length > 0
+            ? `\n\nRiesgos detectados:\n- ${data.analysis.foundRisks.join('\n- ')}`
+            : '';
+
+        const shareText = `*INFORME DE INSPECCIÓN IA*\n\n` +
+            `*Empresa:* ${data.company}\n` +
+            `*Ubicación:* ${data.location}\n` +
+            `*Fecha:* ${new Date(data.date).toLocaleString()}\n` +
+            `*Estado:* ${statusText}${risksText}\n\n` +
+            `Generado por *Asistente de Higiene y Seguridad*`;
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'Informe de Inspección IA',
+                    text: shareText
+                });
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.error("Error sharing:", err);
+                }
+            }
+        } else {
+            // Fallback for desktop: Copy to clipboard
+            try {
+                await navigator.clipboard.writeText(shareText);
+                alert("Resumen del informe copiado al portapapeles. ¡Ya puedes pegarlo en WhatsApp o Gmail!");
+            } catch (err) {
+                console.error("Clipboard error:", err);
+            }
+        }
+    };
+
     return (
         <div className="container" style={{ maxWidth: '1000px' }}>
             <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
@@ -50,7 +87,7 @@ export default function AIReport() {
                     <button onClick={handlePrint} className="btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <Printer size={18} /> Imprimir / PDF
                     </button>
-                    <button className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <button onClick={handleShare} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <Share2 size={18} /> Compartir
                     </button>
                 </div>

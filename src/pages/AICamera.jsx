@@ -101,6 +101,13 @@ export default function AICamera() {
             if (!data.personDetected && data.personDetected !== undefined) {
                 alert("La IA no detectó a ninguna persona clara en la imagen. Intente de nuevo.");
             }
+
+            // Draw visual markers if detections are present
+            if (data.detections && data.detections.length > 0) {
+                const markedImage = await drawDetections(imageSrc, data.detections);
+                setCapturedImage(markedImage);
+            }
+
             setAnalysisResult(data);
         } catch (error) {
             console.error("Red / Error:", error);
@@ -109,6 +116,51 @@ export default function AICamera() {
         } finally {
             setIsAnalyzing(false);
         }
+    };
+
+    const drawDetections = (imageSrc, detections) => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = canvasRef.current;
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+
+                detections.forEach(det => {
+                    if (!det.box_2d) return;
+                    const [ymin, xmin, ymax, xmax] = det.box_2d;
+                    const left = (xmin / 1000) * canvas.width;
+                    const top = (ymin / 1000) * canvas.height;
+                    const width = ((xmax - xmin) / 1000) * canvas.width;
+                    const height = ((ymax - ymin) / 1000) * canvas.height;
+
+                    // Set color based on label (Red for risks, Green for EPP)
+                    const isRisk = det.label.toLowerCase().includes('riesgo');
+                    ctx.strokeStyle = isRisk ? '#ef4444' : '#10b981';
+                    ctx.lineWidth = 6;
+
+                    // Draw Rounded Rectangle or Circle? User said circles or similar.
+                    // Let's use Rect with bold label for clarity.
+                    ctx.strokeRect(left, top, width, height);
+
+                    // Label background
+                    ctx.fillStyle = isRisk ? '#ef4444' : '#10b981';
+                    const labelText = det.label.toUpperCase();
+                    ctx.font = 'bold 24px Inter, system-ui, sans-serif';
+                    const textWidth = ctx.measureText(labelText).width;
+                    ctx.fillRect(left, top - 35, textWidth + 10, 35);
+
+                    // Label text
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText(labelText, left + 5, top - 8);
+                });
+
+                resolve(canvas.toDataURL('image/jpeg', 0.8));
+            };
+            img.src = imageSrc;
+        });
     };
 
     const handleSaveReport = () => {
@@ -184,7 +236,9 @@ export default function AICamera() {
                                     )}
                                 </div>
                                 <div style={{ display: 'flex', gap: '1rem' }}>
-                                    <button onClick={handleRetry} className="btn-outline" style={{ flex: 1, borderColor: '#fff', color: '#fff' }}>Reintentar</button>
+                                    <button onClick={handleRetry} className="btn-outline" style={{ flex: 1, borderColor: '#fff', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                                        <RefreshCw size={18} /> Reintentar
+                                    </button>
                                     <button onClick={handleSaveReport} className="btn-primary" style={{ flex: 2 }}>Generar Informe</button>
                                 </div>
                             </div>

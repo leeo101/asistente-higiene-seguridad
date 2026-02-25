@@ -123,8 +123,15 @@ Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguie
     "glovesUsed": true/false, // Guantes de trabajo
     "clothingUsed": true/false, // Ropa de trabajo, uniforme o chaleco reflectivo
     "ppeComplete": true/false, // Si tiene todos los EPP básicos listados antes
-    "foundRisks": ["Descripción del riesgo 1", "Riesgo 2"] // Array vacío si no hay riesgos evidentes adicionales a los EPP faltantes
-}`;
+    "foundRisks": ["Descripción del riesgo 1", "Riesgo 2"], 
+    "detections": [
+        {"label": "Casco", "box_2d": [ymin, xmin, ymax, xmax]},
+        {"label": "Calzado", "box_2d": [ymin, xmin, ymax, xmax]},
+        {"label": "Guantes", "box_2d": [ymin, xmin, ymax, xmax]},
+        {"label": "Riesgo: [Nombre]", "box_2d": [ymin, xmin, ymax, xmax]}
+    ]
+}
+Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de 0 a 1000.`;
 
         const imagePart = {
             inlineData: {
