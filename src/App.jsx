@@ -39,6 +39,7 @@ import AdminRequests from './pages/AdminRequests.jsx';
 import ChecklistsHistory from './pages/ChecklistsHistory.jsx';
 import ChecklistManager from './pages/ChecklistManager.jsx';
 import Subscription from './pages/Subscription.jsx';
+import AIHistory from './pages/AIHistory.jsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
 
 function SubscriptionGuard({ children }) {
@@ -132,6 +133,7 @@ function App() {
           <Route path="/photos" element={<Photos />} />
           <Route path="/ai-camera" element={<AICamera />} />
           <Route path="/ai-advisor" element={<AIChatAdvisor />} />
+          <Route path="/ai-history" element={<AIHistory />} />
           <Route path="/ai-report" element={<AIReport />} />
           <Route path="/calendar" element={<SafetyCalendar />} />
 

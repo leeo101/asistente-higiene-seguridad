@@ -187,6 +187,15 @@ export default function AIChatAdvisor() {
 
             const data = await response.json();
             setResult(data);
+
+            // Save to history
+            const history = JSON.parse(localStorage.getItem('ai_advisor_history') || '[]');
+            const newRecord = {
+                id: Date.now().toString(),
+                date: new Date().toISOString(),
+                ...data
+            };
+            localStorage.setItem('ai_advisor_history', JSON.stringify([newRecord, ...history]));
         } catch (error) {
             console.error('Error:', error);
             alert(`Error: ${error.message}. Por favor, verifica tu conexión o intenta más tarde.`);

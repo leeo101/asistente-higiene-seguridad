@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Search, FileText, Calendar, ChevronRight,
-    ClipboardList, Flame, BarChart3, ShieldAlert, Plus
+    ClipboardList, Flame, BarChart3, ShieldAlert, Plus, Sparkles
 } from 'lucide-react';
 
 export default function History() {
@@ -50,6 +50,13 @@ export default function History() {
             color: '#3b82f6',
             path: '/checklists-history',
             count: JSON.parse(localStorage.getItem('tool_checklists_history') || '[]').length
+        },
+        {
+            title: 'Consultas Asesor IA',
+            icon: <Sparkles />,
+            color: '#8b5cf6',
+            path: '/ai-history',
+            count: JSON.parse(localStorage.getItem('ai_advisor_history') || '[]').length
         }
     ];
 

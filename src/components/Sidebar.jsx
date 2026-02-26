@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { X, User, History, LogOut, Home, Settings, ClipboardList, Flame, FileText, Calendar, MessageSquare, Sun, Moon } from 'lucide-react';
+import { X, User, History, LogOut, Home, Settings, ClipboardList, Flame, FileText, Calendar, MessageSquare, Sun, Moon, Sparkles } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import AdBanner from './AdBanner';
 
@@ -150,6 +150,12 @@ export default function Sidebar({ isOpen, onClose }) {
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: '8px', color: 'var(--color-text)', background: 'transparent' }}>
                                     <History size={20} color="var(--color-text-muted)" />
                                     <span style={{ fontWeight: 500 }}>Historiales</span>
+                                </div>
+                            </Link>
+                            <Link to="/ai-history" onClick={onClose} style={{ textDecoration: 'none' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: '8px', color: 'var(--color-text)', background: 'transparent' }}>
+                                    <Sparkles size={20} color="var(--color-text-muted)" />
+                                    <span style={{ fontWeight: 500 }}>Consultas IA</span>
                                 </div>
                             </Link>
                         </>
