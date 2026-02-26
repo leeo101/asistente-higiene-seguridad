@@ -85,10 +85,10 @@ export default function Sidebar({ isOpen, onClose }) {
                     borderRight: '1px solid var(--color-border)',
                     maxHeight: '100vh'
                 }}>
-                <Link to="/" onClick={onClose} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1.5rem', cursor: 'pointer' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1.5rem' }}>
                     <img src="/logo.png" alt="Logo" style={{ width: '32px', height: '32px', objectFit: 'contain' }} />
                     <h2 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--color-text)', fontWeight: 800 }}>Asistente H&S</h2>
-                </Link>
+                </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', padding: '0.5rem' }}>
                     <div style={{

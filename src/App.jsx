@@ -106,10 +106,10 @@ function App() {
             >
               <Menu size={22} />
             </button>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+            <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', textDecoration: 'none', color: 'inherit' }}>
               <img src="/logo.png" alt="Logo" style={{ width: '36px', height: '36px', objectFit: 'contain', filter: 'drop-shadow(0 0 10px rgba(59, 130, 246, 0.5))' }} />
               <h1 className="header-title" style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800 }}>Asistente H&S</h1>
-            </div>
+            </Link>
           </div>
         )}
 
