@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { X, User, History, LogOut, Home, Settings, ClipboardList, Flame, FileText, Calendar, MessageSquare, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import AdBanner from './AdBanner';
 
 export default function Sidebar({ isOpen, onClose }) {
     const navigate = useNavigate();
@@ -180,6 +181,7 @@ export default function Sidebar({ isOpen, onClose }) {
                             <span style={{ fontWeight: 700 }}>Activar Versión Pro</span>
                         </div>
                     </Link>
+                    <AdBanner placement="sidebar" />
                 </nav>
 
                 {currentUser && (

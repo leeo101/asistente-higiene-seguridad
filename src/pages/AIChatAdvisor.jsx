@@ -9,6 +9,7 @@ import {
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { API_BASE_URL } from '../config';
+import AdBanner from '../components/AdBanner';
 
 export default function AIChatAdvisor() {
     const navigate = useNavigate();
@@ -387,7 +388,7 @@ export default function AIChatAdvisor() {
                             </ul>
                         </div>
                     </div>
-
+                    <AdBanner />
                 </div>
             )}
         </div>

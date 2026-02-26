@@ -6,6 +6,7 @@ import {
     Accessibility, AlertTriangle, Lock, UserPlus, LogIn, Sparkles
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import AdBanner from '../components/AdBanner';
 
 export default function Home() {
     const navigate = useNavigate();
@@ -177,6 +178,8 @@ export default function Home() {
                     ))}
                 </div>
             </div>
+
+            <AdBanner />
 
             <div className="mb-6">
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', color: '#172B4D' }}>Accesos Rápidos</h3>
