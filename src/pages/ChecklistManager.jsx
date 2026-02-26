@@ -319,17 +319,31 @@ export default function ChecklistManager() {
             </div>
 
             {/* TEMPLATE SELECTOR - EXPLICITLY HIDDEN IN PRINT */}
-            <div className="pb-4 pt-1 print:hidden grid grid-cols-2 md:grid-cols-5 gap-6 mb-10 max-w-5xl mx-auto" id="template-selector">
+            <div className="pb-4 pt-1 no-print grid-4-cols gap-6 mb-10 max-w-5xl mx-auto" id="template-selector">
                 {Object.entries(DEFAULT_TEMPLATES).map(([key, value]) => {
                     const active = activeSections.some(s => s.id === key);
                     return (
                         <button
                             key={key}
                             onClick={() => toggleTemplate(key)}
-                            className={`p-4 rounded-xl border-2 transition-all text-left ${active ? 'border-blue-600 bg-blue-50 shadow-sm' : 'border-slate-300 bg-white hover:border-slate-400 shadow-sm'
-                                }`}
+                            className="card"
+                            style={{
+                                padding: '1rem',
+                                margin: 0,
+                                border: active ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
+                                background: active ? 'var(--color-background)' : 'var(--color-surface)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '0.5rem',
+                                textAlign: 'center'
+                            }}
                         >
-                            <div className="font-black text-[0.75rem] text-slate-700 uppercase tracking-tight">{value.title}</div>
+                            <div style={{ color: active ? 'var(--color-primary)' : 'var(--color-text-muted)' }}>
+                                {React.cloneElement(value.icon, { size: 24 })}
+                            </div>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 800, lineHeight: 1.2 }}>{value.title}</span>
                         </button>
                     );
                 })}
@@ -385,43 +399,53 @@ export default function ChecklistManager() {
 
                 <div className="space-y-12">
                     {activeSections.map(section => (
-                        <div key={section.id} className="border-2 border-slate-300 rounded-xl w-full overflow-hidden mb-6">
-                            <div className="bg-slate-50 p-4 border-b-2 border-slate-200 flex justify-between items-center h-16">
+                        <div key={section.id} className="card w-full overflow-hidden mb-6" style={{ padding: 0 }}>
+                            <div style={{ background: '#f8fafc', padding: '1rem', borderBottom: '2px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', minHeight: '4rem' }}>
                                 <input
                                     className="font-black text-xl uppercase tracking-tighter bg-transparent outline-none w-full border-none focus:ring-0 text-black text-center placeholder:text-slate-400 print-text-center block"
-                                    style={{ textAlign: 'center' }}
+                                    style={{ textAlign: 'center', margin: 0 }}
                                     value={section.title}
                                     onChange={e => updateSectionTitle(section.id, e.target.value)}
                                 />
                                 <div className="flex gap-2 no-print shrink-0 ml-4">
                                     <button
                                         onClick={() => removeSection(section.id)}
-                                        className="px-3 py-1 bg-red-600 text-white text-[0.65rem] font-black hover:bg-red-700 transition-colors flex items-center gap-1"
+                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-danger)', color: 'white', fontSize: '0.65rem', fontWeight: 900, border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
                                     >
-                                        <X size={12} strokeWidth={4} /> QUITAR SECCIÓN
+                                        <X size={12} strokeWidth={4} /> QUITAR
                                     </button>
-                                    <button onClick={() => checkAllOk(section.id)} className="px-3 py-1 bg-black text-white font-black text-[0.65rem] uppercase hover:bg-slate-800 transition-colors">TODO OK</button>
-                                    <button onClick={() => addItem(section.id)} className="px-3 py-1 bg-blue-600 text-white font-black text-[0.65rem] uppercase hover:bg-blue-700 transition-colors">+ ITEM</button>
+                                    <button
+                                        onClick={() => checkAllOk(section.id)}
+                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-text)', color: 'white', fontSize: '0.65rem', fontWeight: 900, border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                    >
+                                        TODO OK
+                                    </button>
+                                    <button
+                                        onClick={() => addItem(section.id)}
+                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-primary)', color: 'white', fontSize: '0.65rem', fontWeight: 900, border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                    >
+                                        + ITEM
+                                    </button>
                                 </div>
                             </div>
 
-                            <table className="w-full border-collapse" style={{ tableLayout: 'fixed', textAlign: 'left', width: '100%' }}>
+                            <table className="w-full border-collapse" style={{ tableLayout: 'fixed', width: '100%', border: 'none' }}>
                                 <colgroup>
-                                    <col style={{ width: '2rem' }} /> {/* Number */}
+                                    <col style={{ width: '35px' }} /> {/* Number */}
                                     <col style={{ width: 'auto' }} /> {/* Question */}
-                                    <col className="no-print" style={{ width: '150px' }} /> {/* Action Buttons */}
-                                    <col className="print-only" style={{ width: '60px' }} /> {/* Print Result Icon */}
-                                    <col className="no-print" style={{ width: '2rem' }} /> {/* Trash */}
+                                    <col className="no-print" style={{ width: '135px' }} /> {/* Action Buttons */}
+                                    <col className="print-only" style={{ width: '50px' }} /> {/* Print Result Icon */}
+                                    <col className="no-print" style={{ width: '35px' }} /> {/* Trash */}
                                 </colgroup>
-                                <tbody className="divide-y divide-slate-200" style={{ textAlign: 'left', width: '100%' }}>
+                                <tbody className="divide-y divide-slate-200">
                                     {section.items.map((item, idx) => (
-                                        <tr key={idx} className="group hover:bg-slate-50/20 transition-colors" style={{ textAlign: 'left' }}>
-                                            <td className="w-8 text-center font-black text-[0.6rem] bg-slate-50/50 h-12 leading-none shrink-0 text-slate-400">{idx + 1}</td>
-                                            <td className="w-full p-0 align-middle text-left" style={{ textAlign: 'left' }}>
+                                        <tr key={idx} className="group hover:bg-slate-50/20 transition-colors">
+                                            <td className="text-center font-black text-[0.6rem] bg-slate-50/50 h-10 leading-none text-slate-400 border-r border-slate-100">{idx + 1}</td>
+                                            <td className="p-0 align-middle">
                                                 <textarea
                                                     rows={1}
-                                                    className="w-full px-4 py-4 font-bold text-slate-800 text-[0.85rem] outline-none bg-transparent resize-none leading-tight border-b border-transparent focus:border-blue-500/20 focus:bg-blue-50/10 text-left placeholder:text-slate-300"
-                                                    style={{ textAlign: 'left', minHeight: '48px' }}
+                                                    className="w-full px-4 py-3 font-bold text-slate-800 text-[0.85rem] outline-none bg-transparent resize-none leading-tight border-none focus:ring-0 placeholder:text-slate-300"
+                                                    style={{ display: 'block', minHeight: '40px', overflow: 'hidden' }}
                                                     value={item.text}
                                                     onInput={(e) => {
                                                         e.target.style.height = 'auto';
@@ -430,22 +454,22 @@ export default function ChecklistManager() {
                                                     onChange={e => updateItem(section.id, idx, 'text', e.target.value)}
                                                 />
                                             </td>
-                                            <td className="w-[150px] no-print px-2 py-2">
-                                                <div className="flex gap-1 h-9">
+                                            <td className="no-print px-1 py-1 align-middle">
+                                                <div className="checklist-status-buttons">
                                                     <StatusBtn active={item.status === 'OK'} type="OK" onClick={() => updateItem(section.id, idx, 'status', 'OK')} />
                                                     <StatusBtn active={item.status === 'FAIL'} type="FAIL" onClick={() => updateItem(section.id, idx, 'status', 'FAIL')} />
                                                     <StatusBtn active={item.status === 'NA'} type="NA" onClick={() => updateItem(section.id, idx, 'status', 'NA')} />
                                                 </div>
                                             </td>
-                                            <td className="w-[60px] hidden print:table-cell text-center bg-white align-middle print-only">
+                                            <td className="hidden print:table-cell text-center bg-white align-middle print-only border-l border-slate-200">
                                                 <div className="flex items-center justify-center h-full font-black text-black">
-                                                    {item.status === 'OK' ? <Check size={20} strokeWidth={4} /> :
-                                                        item.status === 'FAIL' ? <X size={20} strokeWidth={4} /> :
+                                                    {item.status === 'OK' ? <Check size={18} strokeWidth={4} /> :
+                                                        item.status === 'FAIL' ? <X size={18} strokeWidth={4} /> :
                                                             item.status === 'NA' ? <span className="text-[0.6rem]">N/A</span> : ''}
                                                 </div>
                                             </td>
-                                            <td className="no-print w-8 text-center shrink-0">
-                                                <button onClick={() => removeItem(section.id, idx)} className="text-red-200 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all p-1 active:scale-95"><Trash2 size={14} /></button>
+                                            <td className="no-print text-center align-middle">
+                                                <button onClick={() => removeItem(section.id, idx)} className="text-red-300 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all p-1 active:scale-95"><Trash2 size={14} /></button>
                                             </td>
                                         </tr>
                                     ))}
@@ -482,31 +506,31 @@ export default function ChecklistManager() {
                 </div>
 
                 <div className="mt-16 sm:px-4 signature-section">
-                    <div className="flex flex-col sm:flex-row justify-around items-start w-full gap-8">
+                    <div className="signature-container-row">
                         {showSignatures.operator && (
-                            <div className="flex-1 flex flex-col items-center pt-16 sm:pt-28 text-center w-full">
-                                <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
-                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
-                                <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words min-h-[0.8rem]">{companyInfo.inspector || ' '}</p>
-                                <p className="text-[0.55rem] font-bold text-blue-600 uppercase tracking-tighter mt-1">Firma y DNI</p>
+                            <div className="signature-item-box">
+                                <div className="signature-line"></div>
+                                <p className="text-[0.6rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
+                                <p className="text-[0.7rem] font-black uppercase text-black leading-none break-words min-h-[0.7rem]">{companyInfo.inspector || ' '}</p>
+                                <p className="text-[0.5rem] font-bold text-blue-600 uppercase tracking-tighter mt-1" style={{ color: 'var(--color-primary)' }}>Firma / Aclaración</p>
                             </div>
                         )}
 
                         {showSignatures.supervisor && (
-                            <div className="flex-1 flex flex-col items-center pt-16 sm:pt-28 text-center w-full">
-                                <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
-                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR</p>
-                                <p className="text-[0.8rem] font-black uppercase text-black leading-none">DNI / ACLARACIÓN</p>
-                                <p className="text-[0.55rem] font-bold text-blue-600 uppercase tracking-tighter mt-1">Firma del Supervisor</p>
+                            <div className="signature-item-box">
+                                <div className="signature-line"></div>
+                                <p className="text-[0.6rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR</p>
+                                <p className="text-[0.7rem] font-black uppercase text-black leading-none">DNI / ACLARACIÓN</p>
+                                <p className="text-[0.5rem] font-bold text-blue-600 uppercase tracking-tighter mt-1" style={{ color: 'var(--color-primary)' }}>Firma del Supervisor</p>
                             </div>
                         )}
 
                         {showSignatures.professional && (
-                            <div className="flex-1 flex flex-col items-center pt-16 sm:pt-28 text-center w-full">
-                                <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
-                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL ACTUANTE</p>
-                                <p className="text-[0.8rem] font-black uppercase text-black leading-none">SELLO Y FIRMA</p>
-                                <p className="text-[0.55rem] font-bold text-blue-600 uppercase tracking-tighter mt-1">Matrícula</p>
+                            <div className="signature-item-box">
+                                <div className="signature-line"></div>
+                                <p className="text-[0.6rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL ACTUANTE</p>
+                                <p className="text-[0.7rem] font-black uppercase text-black leading-none">SELLO Y FIRMA</p>
+                                <p className="text-[0.5rem] font-bold text-blue-600 uppercase tracking-tighter mt-1" style={{ color: 'var(--color-primary)' }}>Matrícula</p>
                             </div>
                         )}
                     </div>
@@ -537,16 +561,15 @@ function DocBox({ label, value, onChange, type = "text", large = false, highligh
 
 function StatusBtn({ active, type, onClick }) {
     const config = {
-        OK: { label: 'SI', activeClass: 'bg-green-600 border-green-700 text-white shadow-md' },
-        FAIL: { label: 'NO', activeClass: 'bg-red-600 border-red-700 text-white shadow-md' },
-        NA: { label: 'NA', activeClass: 'bg-black text-white shadow-sm' }
+        OK: { label: 'SI', activeClass: 'active-ok' },
+        FAIL: { label: 'NO', activeClass: 'active-fail' },
+        NA: { label: 'NA', activeClass: 'active-na' }
     };
     const c = config[type];
     return (
         <button
             onClick={onClick}
-            className={`flex-1 flex items-center justify-center border-2 font-black text-[0.65rem] transition-all uppercase ${active ? c.activeClass : 'bg-white text-slate-200 border-slate-100 hover:border-slate-300'
-                }`}
+            className={`status-btn ${active ? c.activeClass : ''}`}
         >
             {c.label}
         </button>
