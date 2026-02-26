@@ -676,6 +676,83 @@ label {
   margin-bottom: 0.75rem;
 }
 
+/* Floating Action Bar & Responsive Buttons */
+.floating-action-bar {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 900;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.8rem 0;
+  white-space: nowrap;
+  max-width: 95vw;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  /* Allow clicking through the container edges */
+}
+
+.floating-action-bar>* {
+  pointer-events: auto;
+  /* Re-enable for buttons */
+}
+
+.btn-floating-action {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.6rem !important;
+  padding: 0.75rem 1.4rem !important;
+  border-radius: 25px !important;
+  border: none !important;
+  font-weight: 800 !important;
+  font-size: 0.85rem !important;
+  cursor: pointer !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.btn-floating-action:hover {
+  transform: translateY(-2px);
+}
+
+.btn-floating-action:active {
+  transform: translateY(0) scale(0.98);
+}
+
+@media (max-width: 640px) {
+
+  /* Fix header overlap in mobile */
+  .container {
+    padding-top: 5rem !important;
+  }
+
+  .floating-action-bar {
+    bottom: 1rem;
+    padding: 0.5rem;
+    gap: 0.4rem;
+    border-radius: 12px;
+    white-space: nowrap;
+    overflow-x: auto;
+    /* Allow horizontal scroll if too many buttons */
+    flex-wrap: nowrap;
+    /* Side-by-side as requested */
+    width: 90vw;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    border: none;
+  }
+
+  .btn-floating-action {
+    padding: 0.6rem 0.8rem !important;
+    font-size: 0.7rem !important;
+    gap: 0.3rem !important;
+    flex-shrink: 0;
+  }
+}
+
 /* Print Styles */
 @media print {
   @page {

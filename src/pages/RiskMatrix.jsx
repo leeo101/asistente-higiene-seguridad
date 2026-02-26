@@ -80,76 +80,25 @@ export default function RiskMatrix() {
             />
 
             {/* Floating Action Buttons */}
-            <div className="no-print" style={{
-                position: 'fixed',
-                bottom: '2rem',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                zIndex: 1000,
-                display: 'flex',
-                gap: '1rem',
-                background: 'rgba(255, 255, 255, 0.9)',
-                padding: '0.8rem 1.5rem',
-                borderRadius: '50px',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255,255,255,0.5)',
-                whiteSpace: 'nowrap'
-            }}>
+            <div className="no-print floating-action-bar">
                 <button
                     onClick={handleSave}
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.6rem',
-                        padding: '0.7rem 1.4rem',
-                        background: '#36B37E',
-                        color: 'white',
-                        borderRadius: '25px',
-                        border: 'none',
-                        fontWeight: 800,
-                        fontSize: '0.85rem',
-                        cursor: 'pointer',
-                        boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)'
-                    }}
+                    className="btn-floating-action"
+                    style={{ background: '#36B37E', color: 'white' }}
                 >
                     <Save size={18} /> GUARDAR
                 </button>
                 <button
                     onClick={() => setShowShare(true)}
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.6rem',
-                        padding: '0.7rem 1.4rem',
-                        background: '#0052CC',
-                        color: 'white',
-                        borderRadius: '25px',
-                        border: 'none',
-                        fontWeight: 800,
-                        fontSize: '0.85rem',
-                        cursor: 'pointer',
-                        boxShadow: '0 4px 12px rgba(0, 82, 204, 0.3)'
-                    }}
+                    className="btn-floating-action"
+                    style={{ background: '#0052CC', color: 'white' }}
                 >
                     <Share2 size={18} /> COMPARTIR
                 </button>
                 <button
                     onClick={() => window.print()}
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.6rem',
-                        padding: '0.7rem 1.4rem',
-                        background: '#FF8B00',
-                        color: 'white',
-                        borderRadius: '25px',
-                        border: 'none',
-                        fontWeight: 800,
-                        fontSize: '0.85rem',
-                        cursor: 'pointer',
-                        boxShadow: '0 4px 12px rgba(255, 139, 0, 0.3)'
-                    }}
+                    className="btn-floating-action"
+                    style={{ background: '#FF8B00', color: 'white' }}
                 >
                     <Printer size={18} /> IMPRIMIR PDF
                 </button>
