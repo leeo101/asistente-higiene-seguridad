@@ -11,7 +11,7 @@ import autoTable from 'jspdf-autotable';
 
 export default function AIHistory() {
     const navigate = useNavigate();
-    const { syncCollection } = useSync();
+    const { syncCollection, syncPulse } = useSync();
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedItem, setSelectedItem] = useState(null);
@@ -19,7 +19,7 @@ export default function AIHistory() {
     useEffect(() => {
         const raw = localStorage.getItem('ai_advisor_history');
         if (raw) setHistory(JSON.parse(raw));
-    }, []);
+    }, [syncPulse]);
 
     const handleDelete = (id, e) => {
         e.stopPropagation();

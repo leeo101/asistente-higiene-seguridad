@@ -5,12 +5,41 @@
  */
 import { db } from '../firebase';
 import {
-    doc, getDoc, setDoc, updateDoc
+    doc, getDoc, setDoc, updateDoc, onSnapshot
 } from 'firebase/firestore';
 
 // ─── Helpers ───────────────────────────────────────────────────────
 
 const userDocRef = (uid, key) => doc(db, 'users', uid, 'data', key);
+
+/**
+ * Escucha cambios en tiempo real en un documento de usuario.
+ */
+export function listenToCollection(uid, key, callback) {
+    if (!uid) return () => { };
+    return onSnapshot(userDocRef(uid, key), (snap) => {
+        if (snap.exists()) {
+            callback(snap.data().items || []);
+        } else {
+            callback([]);
+        }
+    });
+}
+
+/**
+ * Escucha cambios en tiempo real en un documento simple.
+ */
+export function listenToDocument(uid, key, callback) {
+    if (!uid) return () => { };
+    return onSnapshot(userDocRef(uid, key), (snap) => {
+        if (snap.exists()) {
+            const { updatedAt, ...rest } = snap.data();
+            callback(rest);
+        } else {
+            callback(null);
+        }
+    });
+}
 
 /**
  * Guarda un array de items a Firestore para el usuario.

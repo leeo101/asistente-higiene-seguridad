@@ -6,11 +6,13 @@ import {
     Accessibility, AlertTriangle, Lock, UserPlus, LogIn, Sparkles
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useSync } from '../contexts/SyncContext';
 import AdBanner from '../components/AdBanner';
 
 export default function Home() {
     const navigate = useNavigate();
     const { currentUser } = useAuth();
+    const { syncPulse } = useSync();
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [stats, setStats] = useState([
         { label: 'Inspecciones', value: 0, icon: <ClipboardList />, color: '#3b82f6', key: 'inspections_history' },
@@ -84,7 +86,7 @@ export default function Home() {
 
         loadStats();
         loadRecent();
-    }, []);
+    }, [syncPulse]);
 
     return (
         <div className="container" style={{ paddingBottom: '3rem', marginTop: '3rem' }}>

@@ -44,7 +44,7 @@ function DeleteConfirm({ onConfirm, onCancel }) {
 
 export default function History() {
     const navigate = useNavigate();
-    const { syncCollection } = useSync();
+    const { syncCollection, syncPulse } = useSync();
     const [view, setView] = useState('hub');
     const [historicalData, setHistoricalData] = useState([]);
     const [matrixData, setMatrixData] = useState([]);
@@ -64,7 +64,7 @@ export default function History() {
         });
     };
 
-    useEffect(() => { refreshCounts(); }, []);
+    useEffect(() => { refreshCounts(); }, [syncPulse]);
 
     useEffect(() => {
         if (view === 'inspections') {
@@ -77,7 +77,7 @@ export default function History() {
             const raw = localStorage.getItem('reports_history');
             setReportsData(raw ? JSON.parse(raw) : []);
         }
-    }, [view]);
+    }, [view, syncPulse]);
 
     // ─── Delete helpers ───────────────────────────────────────────
     const askDelete = (e, storageKey, id) => {

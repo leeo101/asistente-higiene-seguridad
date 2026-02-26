@@ -8,13 +8,13 @@ import { useSync } from '../contexts/SyncContext';
 
 export default function Ergonomics() {
     const navigate = useNavigate();
-    const { syncCollection } = useSync();
+    const { syncCollection, syncPulse } = useSync();
     const [history, setHistory] = useState([]);
 
     useEffect(() => {
         const saved = localStorage.getItem('ergonomics_history');
         if (saved) setHistory(JSON.parse(saved));
-    }, []);
+    }, [syncPulse]);
 
     const handleDelete = (id, e) => {
         e.stopPropagation();

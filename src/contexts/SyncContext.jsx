@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
-import { pullAllFromCloud, pushAllToCloud, saveCollection, saveDocument, SYNC_COLLECTIONS, SYNC_DOCUMENTS } from '../services/cloudSync';
+import { pullAllFromCloud, pushAllToCloud, saveCollection, saveDocument, SYNC_COLLECTIONS, SYNC_DOCUMENTS, listenToCollection, listenToDocument } from '../services/cloudSync';
 
 const SyncContext = createContext();
 
@@ -17,6 +17,7 @@ export const SyncProvider = ({ children }) => {
     const [syncing, setSyncing] = useState(false);
     const [lastSync, setLastSync] = useState(null);
     const [syncReady, setSyncReady] = useState(false);
+    const [syncPulse, setSyncPulse] = useState(0); // Trigger para re-render de componentes
 
     useEffect(() => {
         if (!currentUser) {
@@ -32,6 +33,7 @@ export const SyncProvider = ({ children }) => {
                 // 2. Download cloud data into localStorage (sobreescribe con datos del cloud)
                 await pullAllFromCloud(currentUser.uid);
                 setLastSync(new Date());
+                setSyncPulse(p => p + 1);
             } catch (e) {
                 console.warn('[SyncContext] sync error:', e.message);
             } finally {
@@ -41,6 +43,41 @@ export const SyncProvider = ({ children }) => {
         };
 
         syncOnLogin();
+    }, [currentUser?.uid]);
+
+    // Escucha cambios en tiempo real desde otros dispositivos
+    useEffect(() => {
+        if (!currentUser) return;
+
+        const unsubscribes = [];
+
+        // Colecciones (Arrays)
+        SYNC_COLLECTIONS.forEach(key => {
+            const unsub = listenToCollection(currentUser.uid, key, (items) => {
+                const local = JSON.parse(localStorage.getItem(key) || '[]');
+                // Solo actualizar si es diferente (evitar loops si nosotros mismos escribimos)
+                if (JSON.stringify(local) !== JSON.stringify(items)) {
+                    localStorage.setItem(key, JSON.stringify(items));
+                    setSyncPulse(p => p + 1);
+                }
+            });
+            unsubscribes.push(unsub);
+        });
+
+        // Documentos (Objetos)
+        SYNC_DOCUMENTS.forEach(key => {
+            const unsub = listenToDocument(currentUser.uid, key, (data) => {
+                const local = JSON.parse(localStorage.getItem(key) || 'null');
+                if (JSON.stringify(local) !== JSON.stringify(data)) {
+                    if (data) localStorage.setItem(key, JSON.stringify(data));
+                    else localStorage.removeItem(key);
+                    setSyncPulse(p => p + 1);
+                }
+            });
+            unsubscribes.push(unsub);
+        });
+
+        return () => unsubscribes.forEach(u => u());
     }, [currentUser?.uid]);
 
     /**
@@ -85,7 +122,7 @@ export const SyncProvider = ({ children }) => {
     };
 
     return (
-        <SyncContext.Provider value={{ syncing, lastSync, syncReady, syncCollection, syncDocument, deleteFromCollection }}>
+        <SyncContext.Provider value={{ syncing, lastSync, syncReady, syncPulse, syncCollection, syncDocument, deleteFromCollection }}>
             {children}
         </SyncContext.Provider>
     );

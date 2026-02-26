@@ -29,7 +29,7 @@ function DeleteConfirm({ onConfirm, onCancel }) {
 
 export default function ChecklistsHistory() {
     const navigate = useNavigate();
-    const { syncCollection } = useSync();
+    const { syncCollection, syncPulse } = useSync();
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteTarget, setDeleteTarget] = useState(null);
@@ -37,7 +37,7 @@ export default function ChecklistsHistory() {
     useEffect(() => {
         const historyRaw = localStorage.getItem('tool_checklists_history');
         if (historyRaw) setHistory(JSON.parse(historyRaw));
-    }, []);
+    }, [syncPulse]);
 
     const confirmDelete = () => {
         const updated = history.filter(item => item.id !== deleteTarget);

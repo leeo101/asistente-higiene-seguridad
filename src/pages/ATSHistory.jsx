@@ -29,7 +29,7 @@ function DeleteConfirm({ onConfirm, onCancel }) {
 
 export default function ATSHistory() {
     const navigate = useNavigate();
-    const { syncCollection } = useSync();
+    const { syncCollection, syncPulse } = useSync();
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteTarget, setDeleteTarget] = useState(null);
@@ -37,7 +37,7 @@ export default function ATSHistory() {
     useEffect(() => {
         const historyRaw = localStorage.getItem('ats_history');
         if (historyRaw) setHistory(JSON.parse(historyRaw));
-    }, []);
+    }, [syncPulse]);
 
     const confirmDelete = () => {
         const updated = history.filter(item => item.id !== deleteTarget);
