@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Shield, Key, Fingerprint, Smartphone, ChevronRight, Lock, Eye, EyeOff, CheckCircle2, Moon, Sun, Check } from 'lucide-react';
+import { ArrowLeft, Shield, Key, Fingerprint, Smartphone, ChevronRight, Lock, Eye, EyeOff, CheckCircle2, Moon, Sun, Check, ExternalLink } from 'lucide-react';
 import { API_BASE_URL } from '../config';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Security() {
     const navigate = useNavigate();
+    const { currentUser } = useAuth();
     const [showPasswordChange, setShowPasswordChange] = useState(false);
     const [toggles, setToggles] = useState({
         biometrics: false,
         twoFactor: false
     });
-    const [status, setStatus] = useState({ type: '', message: '' });
+    const [status, setStatus] = useState({ type: '', message: '', resetLink: '' });
 
     const toggleFeature = (key) => {
         setToggles(prev => ({ ...prev, [key]: !prev[key] }));
@@ -18,31 +20,46 @@ export default function Security() {
 
     const handlePasswordChange = async (e) => {
         e.preventDefault();
-
-        setStatus({ type: 'loading', message: 'Enviando link de recuperación...' });
+        setStatus({ type: 'loading', message: 'Enviando...', resetLink: '' });
 
         try {
-            const userEmail = JSON.parse(localStorage.getItem('user'))?.email || 'usuario@ejemplo.com';
+            const userEmail = currentUser?.email;
+            if (!userEmail) throw new Error('Usuario no identificado');
+
+            // Add a timeout to the fetch request
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s
 
             const response = await fetch(`${API_BASE_URL}/api/forgot-password`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: userEmail })
+                body: JSON.stringify({ email: userEmail }),
+                signal: controller.signal
             });
 
+            clearTimeout(timeoutId);
             const data = await response.json();
 
             if (response.ok) {
-                setStatus({ type: 'success', message: '¡Link enviado con éxito! Revisa tu Gmail.' });
-                setTimeout(() => {
-                    setShowPasswordChange(false);
-                    setStatus({ type: '', message: '' });
-                }, 3000);
+                setStatus({
+                    type: 'success',
+                    message: data.devLink ? 'No se pudo enviar el mail (faltan credenciales), pero puedes usar este link directo:' : '¡Link enviado con éxito! Revisa tu Gmail.',
+                    resetLink: data.devLink || ''
+                });
+
+                if (!data.devLink) {
+                    setTimeout(() => {
+                        setShowPasswordChange(false);
+                        setStatus({ type: '', message: '', resetLink: '' });
+                    }, 3000);
+                }
             } else {
-                setStatus({ type: 'error', message: data.error || 'Error al enviar el link.' });
+                setStatus({ type: 'error', message: data.error || 'Error al enviar el link.', resetLink: '' });
             }
         } catch (error) {
-            setStatus({ type: 'error', message: 'Error de conexión con el servidor.' });
+            console.error('[SECURITY] Password reset error:', error);
+            const errorMsg = error.name === 'AbortError' ? 'El servidor tardó demasiado en responder.' : 'Error de conexión con el servidor.';
+            setStatus({ type: 'error', message: errorMsg, resetLink: '' });
         }
     };
 
@@ -197,18 +214,45 @@ export default function Security() {
                     <form onSubmit={handlePasswordChange}>
                         {status.message && (
                             <div style={{
-                                padding: '1rem',
-                                borderRadius: '8px',
-                                fontSize: '0.85rem',
-                                marginBottom: '1rem',
+                                padding: '1.2rem',
+                                borderRadius: '12px',
+                                fontSize: '0.9rem',
+                                marginBottom: '1.5rem',
                                 background: status.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : status.type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(59, 130, 246, 0.1)',
                                 color: status.type === 'error' ? '#ef4444' : status.type === 'success' ? '#10b981' : 'var(--color-primary)',
                                 display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.5rem'
+                                flexDirection: 'column',
+                                gap: '0.8rem',
+                                border: `1px solid ${status.type === 'error' ? 'rgba(239, 68, 68, 0.2)' : status.type === 'success' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(59, 130, 246, 0.2)'}`
                             }}>
-                                {status.type === 'success' && <CheckCircle2 size={16} />}
-                                {status.message}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    {status.type === 'success' && <CheckCircle2 size={18} />}
+                                    <span style={{ fontWeight: 600 }}>{status.message}</span>
+                                </div>
+
+                                {status.resetLink && (
+                                    <a
+                                        href={status.resetLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '0.5rem',
+                                            padding: '0.8rem',
+                                            background: 'var(--color-primary)',
+                                            color: 'white',
+                                            borderRadius: '8px',
+                                            textDecoration: 'none',
+                                            fontWeight: 700,
+                                            marginTop: '0.5rem',
+                                            fontSize: '0.85rem'
+                                        }}
+                                    >
+                                        <ExternalLink size={16} /> Cambiar Contraseña Ahora
+                                    </a>
+                                )}
                             </div>
                         )}
 
