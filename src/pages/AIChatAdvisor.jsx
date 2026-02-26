@@ -215,24 +215,25 @@ export default function AIChatAdvisor() {
                                 position: 'absolute',
                                 right: '1rem',
                                 top: '1rem',
-                                background: isListening ? '#ef4444' : 'var(--color-background)',
+                                background: isListening ? '#ef4444' : '#f8fafc',
                                 border: '1px solid var(--color-border)',
                                 borderRadius: '50%',
-                                width: '44px',
-                                height: '44px',
+                                width: '46px',
+                                height: '46px',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
+                                padding: 0,
                                 color: isListening ? 'white' : 'var(--color-primary)',
                                 cursor: 'pointer',
                                 transition: 'all 0.3s ease',
-                                boxShadow: isListening ? '0 0 15px rgba(239, 68, 68, 0.5)' : '0 2px 5px rgba(0,0,0,0.05)',
+                                boxShadow: isListening ? '0 0 15px rgba(239, 68, 68, 0.4)' : '0 2px 4px rgba(0,0,0,0.05)',
                                 animation: isListening ? 'pulse 1.5s infinite' : 'none',
                                 zIndex: 10
                             }}
                             title={isListening ? 'Escuchando...' : 'Hablar'}
                         >
-                            {isListening ? <MicOff size={20} /> : <Mic size={20} />}
+                            {isListening ? <MicOff size={24} /> : <Mic size={24} />}
                         </button>
                     </div>
                     <button
