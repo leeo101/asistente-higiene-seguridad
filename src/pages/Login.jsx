@@ -508,7 +508,7 @@ export default function Login() {
             </div>
 
             <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-                Asistente de Higiene y Seguridad v1.0
+                Asistente de Higiene y Seguridad v1.1
             </p>
         </div >
     );

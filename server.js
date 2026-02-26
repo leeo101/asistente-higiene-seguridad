@@ -334,7 +334,7 @@ app.post('/api/forgot-password', async (req, res) => {
         console.log(`[PASSWORD RESET] Link for ${email}: ${resetLink}`);
 
         const mailOptions = {
-            from: `"Asistente HYS" <${process.env.EMAIL_USER || 'asistente.hs.soporte@gmail.com'}>`,
+            from: `"Asistente HYS" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: 'Restablecer tu contraseña - Asistente HYS',
             html: `
@@ -497,7 +497,7 @@ app.post('/api/welcome-email', async (req, res) => {
     console.log(`[WELCOME EMAIL] Preparing email for ${email}...`);
 
     const mailOptions = {
-        from: `"Asistente HYS" <${process.env.EMAIL_USER || 'asistente.hs.soporte@gmail.com'}>`,
+        from: `"Asistente HYS" <${process.env.EMAIL_USER}>`,
         to: email,
         subject: '¡Bienvenido al Asistente HYS!',
         html: `

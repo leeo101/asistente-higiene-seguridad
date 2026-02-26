@@ -67,9 +67,11 @@ export default function PersonalData() {
                             style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '3px solid var(--color-primary)' }}
                         />
                     ) : (
-                        <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'var(--color-surface)', border: '2px dashed var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>
-                            <User size={48} />
-                        </div>
+                        <img
+                            src="/logo.png"
+                            alt="Default Logo"
+                            style={{ width: '80%', height: '80%', borderRadius: '0', objectFit: 'contain' }}
+                        />
                     )}
                     <label
                         htmlFor="photo-upload"
