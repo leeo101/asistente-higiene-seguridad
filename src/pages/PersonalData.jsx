@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, User, Mail, CreditCard, Award, Phone, MapPin, Camera, Trash2, GraduationCap } from 'lucide-react';
+import { useSync } from '../contexts/SyncContext';
 
 export default function PersonalData() {
     const navigate = useNavigate();
+    const { syncDocument } = useSync();
     const [formData, setFormData] = useState({
         name: 'Juan Pérez',
         email: 'juan.perez@seguridad.com',
@@ -22,8 +24,8 @@ export default function PersonalData() {
         }
     }, []);
 
-    const handleSave = () => {
-        localStorage.setItem('personalData', JSON.stringify(formData));
+    const handleSave = async () => {
+        await syncDocument('personalData', formData);
         alert('Datos guardados correctamente');
         navigate('/profile');
     };

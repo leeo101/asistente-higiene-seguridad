@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, Trash2, Upload } from 'lucide-react';
+import { useSync } from '../contexts/SyncContext';
 
 export default function SignatureStamp() {
     const navigate = useNavigate();
+    const { syncDocument } = useSync();
     const signatureCanvasRef = useRef(null);
     const stampCanvasRef = useRef(null);
     const [isDrawingSignature, setIsDrawingSignature] = useState(false);
@@ -76,12 +78,12 @@ export default function SignatureStamp() {
         }
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         const data = {
             signature: signatureImage || signatureCanvasRef.current?.toDataURL(),
             stamp: stampImage || stampCanvasRef.current?.toDataURL()
         };
-        localStorage.setItem('signatureStampData', JSON.stringify(data));
+        await syncDocument('signatureStampData', data);
         alert('Firma y Sello guardados correctamente');
         navigate('/profile');
     };

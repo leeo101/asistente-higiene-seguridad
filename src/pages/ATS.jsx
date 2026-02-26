@@ -6,6 +6,7 @@ import {
     CheckCircle2, AlertCircle, HelpCircle, Pencil, Info
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useSync } from '../contexts/SyncContext';
 
 const defaultChecklist = [
     // General
@@ -151,7 +152,8 @@ export default function ATS() {
         });
     };
 
-    const handleSave = () => {
+    const { syncCollection } = useSync();
+    const handleSave = async () => {
         if (!currentUser) {
             navigate('/login');
             return;
@@ -167,6 +169,7 @@ export default function ATS() {
             professionalLicense: professional.license
         };
         localStorage.setItem('ats_history', JSON.stringify([newEntry, ...history]));
+        await syncCollection('ats_history', [newEntry, ...history]);
         alert('Análisis de Trabajo Seguro guardado con éxito');
         navigate('/ats-history');
     };

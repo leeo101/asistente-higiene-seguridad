@@ -7,11 +7,13 @@ import {
 } from 'lucide-react';
 import { fireMaterials, riskActivityGroups } from '../data/fireMaterials';
 import { useAuth } from '../contexts/AuthContext';
+import { useSync } from '../contexts/SyncContext';
 
 export default function FireLoad() {
     const navigate = useNavigate();
     const location = useLocation();
     const { currentUser } = useAuth();
+    const { syncCollection } = useSync();
 
     const [formData, setFormData] = useState({
         empresa: '',
@@ -203,7 +205,7 @@ export default function FireLoad() {
         window.print();
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!currentUser) {
             navigate('/login');
             return;
@@ -226,6 +228,7 @@ export default function FireLoad() {
             }
 
             localStorage.setItem('fireload_history', JSON.stringify(newHistory));
+            await syncCollection('fireload_history', newHistory);
             alert('Carga de Fuego guardada con éxito');
             navigate('/fire-load-history');
         } catch (error) {

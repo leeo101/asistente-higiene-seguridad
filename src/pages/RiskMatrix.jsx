@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Save, AlertTriangle, ShieldCheck, Flame, Zap, Leaf, Activity, Brain, Wrench } from 'lucide-react';
+import { useSync } from '../contexts/SyncContext';
 
 const HAZARD_TYPES = [
     { value: '', label: 'Seleccionar...', icon: null, color: '#94a3b8' },
@@ -31,6 +32,7 @@ const emptyRow = () => ({
 
 export default function RiskMatrix() {
     const navigate = useNavigate();
+    const { syncCollection } = useSync();
     const [projectData, setProjectData] = useState({
         name: '', location: '',
         date: new Date().toISOString().split('T')[0],
@@ -50,11 +52,12 @@ export default function RiskMatrix() {
     const removeRow = (id) => { if (rows.length > 1) setRows(rows.filter(r => r.id !== id)); };
     const updateRow = (id, field, value) => setRows(rows.map(r => r.id === id ? { ...r, [field]: value } : r));
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!projectData.name) { alert('Ingresá el nombre de la obra / proyecto.'); return; }
         const entry = { id: Date.now(), ...projectData, rows, createdAt: new Date().toISOString() };
         const history = JSON.parse(localStorage.getItem('risk_matrix_history') || '[]');
-        localStorage.setItem('risk_matrix_history', JSON.stringify([entry, ...history]));
+        const updated = [entry, ...history];
+        await syncCollection('risk_matrix_history', updated);
         localStorage.setItem('current_risk_matrix', JSON.stringify(entry));
         navigate('/risk-matrix-report');
     };

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, FileText, AlertCircle, GraduationCap, ClipboardCheck, Package, Plus, Trash2, History } from 'lucide-react';
+import { useSync } from '../contexts/SyncContext';
 
 export default function Reports() {
     const navigate = useNavigate();
+    const { syncCollection } = useSync();
     const [template, setTemplate] = useState('general'); // general, accident, training, rgrl, epp
     const [projectData, setProjectData] = useState({
         title: '',
@@ -41,7 +43,7 @@ export default function Reports() {
         setPersonnel(personnel.map(p => p.id === id ? { ...p, [field]: value } : p));
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!projectData.title || !projectData.company) {
             alert('Por favor, complete al menos el título y la empresa.');
             return;
@@ -58,7 +60,8 @@ export default function Reports() {
         };
 
         const history = JSON.parse(localStorage.getItem('reports_history') || '[]');
-        localStorage.setItem('reports_history', JSON.stringify([newReport, ...history]));
+        const updated = [newReport, ...history];
+        await syncCollection('reports_history', updated);
         localStorage.setItem('current_report', JSON.stringify(newReport));
         navigate('/reports-report');
     };
