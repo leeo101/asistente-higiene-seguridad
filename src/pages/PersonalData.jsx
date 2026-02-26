@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, User, Mail, CreditCard, Award, Phone, MapPin, Camera, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, User, Mail, CreditCard, Award, Phone, MapPin, Camera, Trash2, GraduationCap } from 'lucide-react';
 
 export default function PersonalData() {
     const navigate = useNavigate();
@@ -11,7 +11,8 @@ export default function PersonalData() {
         license: 'MP 5567',
         phone: '+54 9 11 1234-5678',
         address: 'Av. Corrientes 1234, CABA',
-        photo: null
+        photo: null,
+        profession: ''
     });
 
     useEffect(() => {
@@ -127,6 +128,22 @@ export default function PersonalData() {
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     />
+                </div>
+
+                <div style={{ marginBottom: '1.5rem' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <GraduationCap size={16} color="var(--color-primary)" /> Título / Profesión
+                    </label>
+                    <select
+                        value={formData.profession}
+                        onChange={(e) => setFormData({ ...formData, profession: e.target.value })}
+                        style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'white' }}
+                    >
+                        <option value="">Seleccione su título</option>
+                        <option value="Técnico">Técnico</option>
+                        <option value="Ingeniero">Ingeniero</option>
+                        <option value="Licenciado">Licenciado</option>
+                    </select>
                 </div>
 
                 <div style={{ marginBottom: '1.5rem' }}>

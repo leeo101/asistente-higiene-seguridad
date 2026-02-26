@@ -67,6 +67,9 @@ export default function Profile() {
                     )}
                 </div>
                 <h2 style={{ margin: '0 0 0.5rem 0' }}>{userData.name}</h2>
+                {userData.profession && (
+                    <p style={{ margin: '0 0 0.5rem 0', color: 'var(--color-primary)', fontWeight: 700, fontSize: '1rem' }}>{userData.profession}</p>
+                )}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                     <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>Matrícula: {userData.license}</p>
                     <span style={{
