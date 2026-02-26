@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
     ClipboardList, PlusCircle, History, User, Settings,
     Flame, ShieldAlert, BarChart3, ChevronRight, Plus, FileText, Gavel,
-    Accessibility, AlertTriangle, Lock, UserPlus, LogIn
+    Accessibility, AlertTriangle, Lock, UserPlus, LogIn, Sparkles
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
