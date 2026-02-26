@@ -42,6 +42,9 @@ export default function Login() {
         e.preventDefault();
 
         // Basic Validations
+        if (!name || !email || !password || !confirmPassword || !dni || !license || !profession || !phone || !address) {
+            return setStatus({ type: 'error', message: 'Todos los campos son obligatorios.' });
+        }
         if (password.length < 6) {
             return setStatus({ type: 'error', message: 'La contraseña debe tener al menos 6 caracteres.' });
         }
@@ -309,6 +312,7 @@ export default function Login() {
                                             style={{ paddingLeft: '40px' }}
                                             value={license}
                                             onChange={(e) => setLicense(e.target.value)}
+                                            required
                                         />
                                     </div>
                                 </div>
@@ -323,6 +327,7 @@ export default function Login() {
                                         value={profession}
                                         onChange={(e) => setProfession(e.target.value)}
                                         style={{ paddingLeft: '40px' }}
+                                        required
                                     >
                                         <option value="">Seleccione profesión</option>
                                         <option value="Técnico">Técnico</option>
@@ -343,6 +348,7 @@ export default function Login() {
                                         style={{ paddingLeft: '40px' }}
                                         value={phone}
                                         onChange={(e) => setPhone(e.target.value)}
+                                        required
                                     />
                                 </div>
                             </div>
@@ -358,6 +364,7 @@ export default function Login() {
                                         style={{ paddingLeft: '40px' }}
                                         value={address}
                                         onChange={(e) => setAddress(e.target.value)}
+                                        required
                                     />
                                 </div>
                             </div>

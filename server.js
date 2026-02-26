@@ -302,6 +302,11 @@ const transporter = nodemailer.createTransport({
 });
 
 // Verify connection on startup
+console.log('[NODEMAILER] Verificando configuración de correo...');
+if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.warn('[NODEMAILER] ADVERTENCIA: EMAIL_USER o EMAIL_PASS no están configurados. El sistema de correos no funcionará.');
+}
+
 transporter.verify((error, success) => {
     if (error) {
         console.error('[NODEMAILER] Error de conexión:', error.message);
