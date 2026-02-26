@@ -48,8 +48,8 @@ export default function AdBanner({ placement = 'general' }) {
             style={{
                 background: isSidebar ? 'rgba(37, 99, 235, 0.03)' : '#ffffff',
                 border: isSidebar ? '1px dashed var(--color-border)' : '1px solid var(--color-border)',
-                padding: isSidebar ? '0.8rem' : '1.2rem',
-                margin: isSidebar ? '1rem 0' : '2rem 0',
+                padding: isSidebar ? '0.6rem' : '1.2rem',
+                margin: isSidebar ? '0.5rem 0' : '2rem 0',
                 display: 'flex',
                 flexDirection: isSidebar ? 'column' : 'row',
                 alignItems: isSidebar ? 'flex-start' : 'center',

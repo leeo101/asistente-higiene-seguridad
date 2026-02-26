@@ -82,7 +82,8 @@ export default function Sidebar({ isOpen, onClose }) {
                     flexDirection: 'column',
                     padding: '1.5rem',
                     pointerEvents: isOpen ? 'all' : 'none',
-                    borderRight: '1px solid var(--color-border)'
+                    borderRight: '1px solid var(--color-border)',
+                    maxHeight: '100vh'
                 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1.5rem' }}>
                     <img src="/logo.png" alt="Logo" style={{ width: '32px', height: '32px', objectFit: 'contain' }} />
@@ -119,7 +120,16 @@ export default function Sidebar({ isOpen, onClose }) {
                     </div>
                 </div>
 
-                <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
+                <nav style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.5rem',
+                    flex: 1,
+                    overflowY: 'auto',
+                    marginRight: '-0.5rem',
+                    paddingRight: '0.5rem',
+                    scrollbarWidth: 'thin'
+                }}>
                     <Link to="/" onClick={onClose} style={{ textDecoration: 'none' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: '8px', color: 'var(--color-text)', background: 'transparent' }}>
                             <Home size={20} color="var(--color-text-muted)" />
