@@ -9,6 +9,8 @@ export default function AIReport() {
     const [data, setData] = useState(null);
     const [profile, setProfile] = useState(null);
     const [signature, setSignature] = useState(null);
+    const [company, setCompany] = useState('');
+    const [location, setLocation] = useState('');
     const [showSignatures, setShowSignatures] = useState({
         operator: true,
         supervisor: true,
@@ -20,7 +22,12 @@ export default function AIReport() {
         const prof = localStorage.getItem('personalData');
         const sig = localStorage.getItem('signatureStampData');
 
-        if (current) setData(JSON.parse(current));
+        if (current) {
+            const parsedData = JSON.parse(current);
+            setData(parsedData);
+            setCompany(parsedData.company || 'Empresa Local');
+            setLocation(parsedData.location || 'Planta Principal');
+        }
         if (prof) setProfile(JSON.parse(prof));
         if (sig) setSignature(JSON.parse(sig));
     }, []);
@@ -49,8 +56,8 @@ export default function AIReport() {
             : '';
 
         const shareText = `*INFORME DE INSPECCIÓN IA*\n\n` +
-            `*Empresa:* ${data.company}\n` +
-            `*Ubicación:* ${data.location}\n` +
+            `*Empresa:* ${company}\n` +
+            `*Ubicación:* ${location}\n` +
             `*Fecha:* ${new Date(data.date).toLocaleString()}\n` +
             `*Estado:* ${statusText}${risksText}\n\n` +
             `Generado por *Asistente de Higiene y Seguridad*`;
@@ -84,7 +91,7 @@ export default function AIReport() {
                     <ArrowLeft size={20} /> Volver a Cámara
                 </button>
                 <div style={{ display: 'flex', gap: '0.8rem' }}>
-                    <button onClick={handlePrint} className="btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <button onClick={handlePrint} className="btn-success" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: 'auto', marginTop: 0 }}>
                         <Printer size={18} /> Imprimir / PDF
                     </button>
                     <button onClick={handleShare} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -120,7 +127,14 @@ export default function AIReport() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '2.5rem', background: '#f8fafc', padding: '1.2rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                     <div>
                         <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748b' }}>Empresa</p>
-                        <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9rem' }}>{data.company}</p>
+                        <input
+                            type="text"
+                            value={company}
+                            onChange={(e) => setCompany(e.target.value)}
+                            className="no-print"
+                            style={{ margin: 0, padding: '0.2rem 0', fontWeight: 600, fontSize: '0.9rem', border: 'none', borderBottom: '1px solid #e2e8f0', background: 'transparent' }}
+                        />
+                        <p className="print-only" style={{ margin: 0, fontWeight: 600, fontSize: '0.9rem' }}>{company}</p>
                     </div>
                     <div>
                         <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748b' }}>Fecha del Escaneo</p>
@@ -128,7 +142,14 @@ export default function AIReport() {
                     </div>
                     <div>
                         <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748b' }}>Ubicación</p>
-                        <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9rem' }}>{data.location}</p>
+                        <input
+                            type="text"
+                            value={location}
+                            onChange={(e) => setLocation(e.target.value)}
+                            className="no-print"
+                            style={{ margin: 0, padding: '0.2rem 0', fontWeight: 600, fontSize: '0.9rem', border: 'none', borderBottom: '1px solid #e2e8f0', background: 'transparent' }}
+                        />
+                        <p className="print-only" style={{ margin: 0, fontWeight: 600, fontSize: '0.9rem' }}>{location}</p>
                     </div>
                 </div>
 
