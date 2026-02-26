@@ -64,6 +64,16 @@ export default function Profile() {
             </div>
 
             <div className="card" style={{ textAlign: 'center', padding: '2.5rem 1.5rem' }}>
+                <img
+                    src="/logo.png"
+                    alt="Logo"
+                    style={{
+                        width: 'auto',
+                        height: '40px',
+                        margin: '0 auto 1.5rem auto',
+                        display: 'block'
+                    }}
+                />
                 <div style={{
                     width: '100px',
                     height: '100px',
@@ -198,6 +208,6 @@ export default function Profile() {
             >
                 <Trash2 size={16} /> Eliminar mi cuenta permanentemente
             </button>
-        </div>
+        </div >
     );
 }

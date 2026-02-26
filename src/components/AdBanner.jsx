@@ -17,7 +17,7 @@ const MOCK_ADS = [
         icon: <Tag size={20} color="#10b981" />
     },
     {
-        title: "Software Gestión H&S",
+        title: "Software Gestión HYS",
         desc: "Digitalizá tus planillas y reportes con nuestra suite premium.",
         link: "#",
         tag: "Software",

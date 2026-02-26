@@ -199,7 +199,7 @@ export default function ATS() {
                 open={showShare}
                 onClose={() => setShowShare(false)}
                 title={`ATS – ${formData.empresa}`}
-                text={`📋 Análisis de Trabajo Seguro\n🏗️ Empresa: ${formData.empresa}\n🚧 Obra: ${formData.obra}\n📅 Fecha: ${formData.fecha}\n👷 Responsable: ${formData.capatazNombre}\n\nGenerado con Asistente H&S`}
+                text={`📋 Análisis de Trabajo Seguro\n🏗️ Empresa: ${formData.empresa}\n🚧 Obra: ${formData.obra}\n📅 Fecha: ${formData.fecha}\n👷 Responsable: ${formData.capatazNombre}\n\nGenerado con Asistente HYS`}
             />
 
             {/* Floating Action Buttons */}
@@ -249,7 +249,7 @@ export default function ATS() {
                             <ShieldCheck className="text-blue-600" size={32} />
                             Análisis de Trabajo Seguro
                         </h1>
-                        <p style={{ margin: 0, color: '#6B778C', fontWeight: 600, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Control H&S</p>
+                        <p style={{ margin: 0, color: '#6B778C', fontWeight: 600, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Control HYS</p>
                     </div>
                 </div>
             </div>
@@ -260,7 +260,7 @@ export default function ATS() {
                     {/* Top Left Text */}
                     <div style={{ flex: 1, textAlign: 'left' }}>
                         <p style={{ margin: 0, fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', letterSpacing: '0.05em' }}>Sistema de Gestión</p>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--color-text)' }}>Control H&S</p>
+                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--color-text)' }}>Control HYS</p>
                     </div>
 
                     {/* Center Main Title */}
@@ -285,7 +285,7 @@ export default function ATS() {
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', width: '100%' }}>
                         <DocBox label="FECHA" value={formData.fecha} onChange={v => setFormData({ ...formData, fecha: v })} type="date" flex={1} />
                         <DocBox label="RESPONSABLE" value={formData.capatazNombre} onChange={v => setFormData({ ...formData, capatazNombre: v })} flex={1} />
-                        <DocBox label="PROFESIONAL H&S" value={professional.name} onChange={() => { }} flex={2} />
+                        <DocBox label="PROFESIONAL HYS" value={professional.name} onChange={() => { }} flex={2} />
                     </div>
                 </div>
 

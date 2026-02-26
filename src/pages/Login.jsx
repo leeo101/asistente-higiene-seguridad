@@ -131,19 +131,16 @@ export default function Login() {
     return (
         <div className="container" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: '100vh' }}>
             <div className="card" style={{ textAlign: 'center' }}>
-                <div style={{
-                    width: '80px',
-                    height: '80px',
-                    background: 'var(--color-primary)',
-                    borderRadius: '20px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    margin: '0 auto 1.5rem auto',
-                    boxShadow: '0 10px 15px -3px rgba(59, 130, 246, 0.5)'
-                }}>
-                    <ShieldCheck size={40} color="white" />
-                </div>
+                <img
+                    src="/logo.png"
+                    alt="Logo"
+                    style={{
+                        width: 'auto',
+                        height: '60px',
+                        margin: '0 auto 1.5rem auto',
+                        display: 'block'
+                    }}
+                />
 
                 {view === 'login' ? (
                     <>

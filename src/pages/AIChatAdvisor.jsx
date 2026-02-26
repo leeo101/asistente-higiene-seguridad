@@ -74,7 +74,7 @@ export default function AIChatAdvisor() {
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(22);
             doc.setFont('helvetica', 'bold');
-            doc.text('ASISTENTE H&S', 15, 15);
+            doc.text('ASISTENTE HYS', 15, 15);
 
             doc.setFontSize(10);
             doc.setFont('helvetica', 'normal');
@@ -157,7 +157,7 @@ export default function AIChatAdvisor() {
             doc.setLineWidth(1);
             doc.rect(115, currentY + 10, 80, 28);
 
-            doc.save(`Analisis_H&S_${new Date().getTime()}.pdf`);
+            doc.save(`Analisis_HYS_${new Date().getTime()}.pdf`);
         } catch (error) {
             console.error('[PDF ERROR]', error);
             alert('Error al generar el PDF. Revisa que el navegador no esté bloqueando las descargas.');

@@ -245,7 +245,7 @@ export default function FireLoad() {
                 open={showShare}
                 onClose={() => setShowShare(false)}
                 title={`Carga de Fuego – ${formData.empresa}`}
-                text={`🔥 Estudio de Carga de Fuego\n🏗️ Empresa: ${formData.empresa}\n📍 Sector: ${formData.sector}\n🔥 Carga Qf: ${results.cargaDeFuego.toFixed(2)} Kg/m²\n🛡️ RF Requerida: ${results.rfRequerida}\n\nGenerado con Asistente H&S`}
+                text={`🔥 Estudio de Carga de Fuego\n🏗️ Empresa: ${formData.empresa}\n📍 Sector: ${formData.sector}\n🔥 Carga Qf: ${results.cargaDeFuego.toFixed(2)} Kg/m²\n🛡️ RF Requerida: ${results.rfRequerida}\n\nGenerado con Asistente HYS`}
             />
 
             {/* Floating Action Buttons */}

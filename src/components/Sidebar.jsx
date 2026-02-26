@@ -87,7 +87,7 @@ export default function Sidebar({ isOpen, onClose }) {
                 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1.5rem' }}>
                     <img src="/logo.png" alt="Logo" style={{ width: '32px', height: '32px', objectFit: 'contain' }} />
-                    <h2 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--color-text)', fontWeight: 800 }}>Asistente H&S</h2>
+                    <h2 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--color-text)', fontWeight: 800 }}>Asistente HYS</h2>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', padding: '0.5rem' }}>
@@ -173,7 +173,7 @@ export default function Sidebar({ isOpen, onClose }) {
                         </>
                     )}
 
-                    <a href="mailto:asistente.hs.soporte@gmail.com?subject=Sugerencia de Mejora - Asistente H&S" onClick={onClose} style={{ textDecoration: 'none' }}>
+                    <a href="mailto:asistente.hs.soporte@gmail.com?subject=Sugerencia de Mejora - Asistente HYS" onClick={onClose} style={{ textDecoration: 'none' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: '8px', color: 'var(--color-text)', background: 'transparent' }}>
                             <MessageSquare size={20} color="var(--color-text-muted)" />
                             <span style={{ fontWeight: 500 }}>Sugerencias y Mejoras</span>

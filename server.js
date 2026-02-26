@@ -334,14 +334,19 @@ app.post('/api/forgot-password', async (req, res) => {
         const mailOptions = {
             from: '"Asistente H&S" <asistente.hs.soporte@gmail.com>',
             to: email,
-            subject: 'Restablecer tu contraseña - Asistente H&S',
+            subject: 'Restablecer tu contraseña - Asistente HYS',
             html: `
-                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e1e1e1; border-radius: 12px;">
-                    <h2 style="color: #3b82f6;">Restablecer Contraseña</h2>
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e1e1e1; border-radius: 12px; background-color: #ffffff;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <img src="https://asistentehs-b594e.web.app/logo.png" alt="Asistente H&S" style="height: 60px; width: auto;">
+                    </div>
+                    <h2 style="color: #3b82f6; text-align: center;">Restablecer Contraseña</h2>
                     <p>Has solicitado restablecer tu contraseña en el <strong>Asistente de Higiene y Seguridad</strong>.</p>
                     <p>Haz clic en el siguiente botón para continuar (expira en 1 hora):</p>
-                    <a href="${resetLink}" style="display: inline-block; padding: 12px 24px; background-color: #3b82f6; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0;">Restablecer Contraseña</a>
-                    <p style="color: #666; font-size: 0.85rem;">Si no solicitaste este cambio, puedes ignorar este correo.</p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${resetLink}" style="display: inline-block; padding: 14px 28px; background-color: #3b82f6; color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">Restablecer Contraseña</a>
+                    </div>
+                    <p style="color: #666; font-size: 0.85rem; border-top: 1px solid #eee; padding-top: 15px; margin-top: 20px;">Si no solicitaste este cambio, puedes ignorar este correo.</p>
                 </div>
             `
         };
@@ -483,10 +488,11 @@ app.post('/api/welcome-email', async (req, res) => {
     const mailOptions = {
         from: '"Asistente H&S" <asistente.hs.soporte@gmail.com>',
         to: email,
-        subject: '¡Bienvenido al Asistente de Higiene y Seguridad!',
+        subject: '¡Bienvenido al Asistente HYS!',
         html: `
             <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; border: 1px solid #e1e1e1; border-radius: 16px; overflow: hidden; background-color: #ffffff;">
-                <div style="background-color: #2563eb; padding: 40px 20px; text-align: center; color: white;">
+                <div style="background-color: #2563eb; padding: 30px 20px; text-align: center; color: white;">
+                    <img src="https://asistentehs-b594e.web.app/logo.png" alt="Logo" style="height: 70px; width: auto; margin-bottom: 15px; filter: brightness(0) invert(1);">
                     <h1 style="margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">Asistente H&S</h1>
                     <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 16px;">Tu aliado digital en Prevención</p>
                 </div>

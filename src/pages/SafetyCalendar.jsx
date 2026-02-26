@@ -26,7 +26,7 @@ export default function SafetyCalendar() {
         'Inspection': { color: '#3b82f6', label: 'Inspección', icon: <Construction size={14} /> },
         'Training': { color: '#10b981', label: 'Capacitación', icon: <Award size={14} /> },
         'Legal': { color: '#ef4444', label: 'Vencimiento Legal', icon: <Scale size={14} /> },
-        'Commemorative': { color: '#8b5cf6', label: 'Efeméride H&S', icon: <CalendarDays size={14} /> },
+        'Commemorative': { color: '#8b5cf6', label: 'Efeméride HYS', icon: <CalendarDays size={14} /> },
         'Other': { color: '#64748b', label: 'Otro', icon: <CalendarIcon size={14} /> }
     };
 

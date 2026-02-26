@@ -76,7 +76,7 @@ export default function RiskMatrix() {
                 open={showShare}
                 onClose={() => setShowShare(false)}
                 title={`Matriz de Riesgos – ${projectData.name}`}
-                text={`📋 Matriz de Riesgos\n🏗️ Proyecto: ${projectData.name}\n📍 Ubicación: ${projectData.location}\n👷 Responsable: ${projectData.responsable}\n\nGenerado con Asistente H&S`}
+                text={`📋 Matriz de Riesgos\n🏗️ Proyecto: ${projectData.name}\n📍 Ubicación: ${projectData.location}\n👷 Responsable: ${projectData.responsable}\n\nGenerado con Asistente HYS`}
             />
 
             {/* Floating Action Buttons */}
@@ -123,7 +123,7 @@ export default function RiskMatrix() {
                             <AlertTriangle size={28} color="#f59e0b" /> Matriz de Riesgos
                         </h1>
                         <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>
-                            Ley 19.587 / Dec. 351/79
+                            Ley 19.587 / Dec. 351/79 - HYS
                         </p>
                     </div>
                 </div>
@@ -147,7 +147,7 @@ export default function RiskMatrix() {
                 {[
                     { label: 'OBRA / PROYECTO', key: 'name', placeholder: 'Ej: Edificio Central' },
                     { label: 'UBICACIÓN', key: 'location', placeholder: 'Ej: Planta Norte' },
-                    { label: 'RESPONSABLE H&S', key: 'responsable', placeholder: 'Profesional actuante' },
+                    { label: 'RESPONSABLE HYS', key: 'responsable', placeholder: 'Profesional actuante' },
                 ].map(f => (
                     <div key={f.key} style={{
                         background: '#fff', borderRadius: '14px', padding: '1.2rem',

@@ -134,7 +134,7 @@ export default function Home() {
                     </div>
                     <div style={{ flex: 1 }}>
                         <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#172B4D' }}>
-                            Asistente H&S PRO
+                            Asistente HYS PRO
                         </h4>
                         <p style={{ margin: 0, fontSize: '0.85rem', color: '#6B778C' }}>
                             Bienvenido a tu suite de gestión profesional.
@@ -170,7 +170,7 @@ export default function Home() {
                         </div>
                         <div style={{ flex: 1 }}>
                             <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#172B4D', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                Asistente H&S Básico <ChevronRight size={16} color="var(--color-primary)" />
+                                Asistente HYS Básico <ChevronRight size={16} color="var(--color-primary)" />
                             </h4>
                             <p style={{ margin: 0, fontSize: '0.85rem', color: '#6B778C' }}>
                                 Crea tu cuenta y actualízate a la versión PRO para habilitar todas las funciones e impresiones.
