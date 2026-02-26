@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../contexts/AuthContext';
+import ShareModal from '../components/ShareModal';
 
 const DEFAULT_TEMPLATES = {
     'manual_tools': {
@@ -106,6 +107,7 @@ export default function ChecklistManager() {
 
     const [activeSections, setActiveSections] = useState([]);
     const [observations, setObservations] = useState('');
+    const [showShare, setShowShare] = useState(false);
     const [showSignatures, setShowSignatures] = useState({
         operator: true,
         supervisor: true,
@@ -271,6 +273,12 @@ export default function ChecklistManager() {
 
     return (
         <div className="container" style={{ maxWidth: '1100px', paddingBottom: '4rem' }}>
+            <ShareModal
+                open={showShare}
+                onClose={() => setShowShare(false)}
+                title={`Checklist – ${companyInfo?.name || ''}`}
+                text={`📋 Checklist de Inspección\n🏗️ Empresa: ${companyInfo?.name || '-'}\n📍 Ubicación: ${companyInfo?.address || '-'}\n👷 Responsable: ${companyInfo?.responsable || '-'}\n\nGenerado con Asistente H&S`}
+            />
             <div className="no-print" style={{
                 marginBottom: '2rem',
                 padding: '2.5rem',
@@ -304,7 +312,7 @@ export default function ChecklistManager() {
                         <Save size={18} /> GUARDAR
                     </button>
                     <button
-                        onClick={handleShare}
+                        onClick={() => setShowShare(true)}
                         style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.8rem 1.4rem', background: '#0052CC', color: 'white', borderRadius: '12px', border: 'none', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(0, 82, 204, 0.2)' }}
                     >
                         <Share2 size={18} /> COMPARTIR

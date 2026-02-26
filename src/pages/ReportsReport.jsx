@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Printer, Share2, Download, CheckCircle2, Info, Building2, User, HelpCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import ShareModal from '../components/ShareModal';
 
 export default function ReportsReport() {
     const navigate = useNavigate();
@@ -9,6 +10,7 @@ export default function ReportsReport() {
     const [report, setReport] = useState(null);
     const [profile, setProfile] = useState(null);
     const [signature, setSignature] = useState(null);
+    const [showShare, setShowShare] = useState(false);
     const [showSignatures, setShowSignatures] = useState({
         operator: true,
         supervisor: true,
@@ -42,6 +44,12 @@ export default function ReportsReport() {
 
     return (
         <div className="container" style={{ maxWidth: '1000px' }}>
+            <ShareModal
+                open={showShare}
+                onClose={() => setShowShare(false)}
+                title={`Checklist – ${report.company || ''}`}
+                text={`📋 Checklist de Inspección\n🏗️ Empresa: ${report.company}\n📍 Ubicación: ${report.location || '-'}\n📅 Fecha: ${new Date(report.date).toLocaleDateString()}\n\nGenerado con Asistente H&S`}
+            />
             {/* Control Panel - Absolute Print Hide */}
             <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                 <button onClick={() => navigate('/reports')} style={{ background: 'transparent', border: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--color-text)' }}>
@@ -51,7 +59,7 @@ export default function ReportsReport() {
                     <button onClick={handlePrint} className="btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <Printer size={18} /> Imprimir / PDF
                     </button>
-                    <button className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <button onClick={() => setShowShare(true)} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <Share2 size={18} /> Compartir
                     </button>
                 </div>

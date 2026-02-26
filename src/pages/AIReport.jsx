@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Printer, Share2, Download, CheckCircle2, AlertTriangle, ShieldCheck, Info } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import ShareModal from '../components/ShareModal';
 
 export default function AIReport() {
     const navigate = useNavigate();
@@ -11,6 +12,7 @@ export default function AIReport() {
     const [signature, setSignature] = useState(null);
     const [company, setCompany] = useState('');
     const [location, setLocation] = useState('');
+    const [showShare, setShowShare] = useState(false);
     const [showSignatures, setShowSignatures] = useState({
         operator: true,
         supervisor: true,
@@ -47,45 +49,14 @@ export default function AIReport() {
         window.print();
     };
 
-    const handleShare = async () => {
-        if (!data) return;
-
-        const statusText = data.analysis.ppeComplete ? '✅ EPP COMPLETO' : '⚠️ FALTA EPP / PELIGRO';
-        const risksText = data.analysis.foundRisks.length > 0
-            ? `\n\nRiesgos detectados:\n- ${data.analysis.foundRisks.join('\n- ')}`
-            : '';
-
-        const shareText = `*INFORME DE INSPECCIÓN IA*\n\n` +
-            `*Empresa:* ${company}\n` +
-            `*Ubicación:* ${location}\n` +
-            `*Fecha:* ${new Date(data.date).toLocaleString()}\n` +
-            `*Estado:* ${statusText}${risksText}\n\n` +
-            `Generado por *Asistente de Higiene y Seguridad*`;
-
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: 'Informe de Inspección IA',
-                    text: shareText
-                });
-            } catch (err) {
-                if (err.name !== 'AbortError') {
-                    console.error("Error sharing:", err);
-                }
-            }
-        } else {
-            // Fallback for desktop: Copy to clipboard
-            try {
-                await navigator.clipboard.writeText(shareText);
-                alert("Resumen del informe copiado al portapapeles. ¡Ya puedes pegarlo en WhatsApp o Gmail!");
-            } catch (err) {
-                console.error("Clipboard error:", err);
-            }
-        }
-    };
-
     return (
         <div className="container" style={{ maxWidth: '1000px' }}>
+            <ShareModal
+                open={showShare}
+                onClose={() => setShowShare(false)}
+                title={`Informe IA – ${company}`}
+                text={`🤖 INFORME DE INSPECCIÓN IA\n\n🏗️ Empresa: ${company}\n📍 Ubicación: ${location}\n📅 Fecha: ${data ? new Date(data.date).toLocaleString() : ''}\n⚠️ Estado: ${data?.analysis?.ppeComplete ? '✅ EPP Completo' : '⚠️ Falta EPP / Peligro'}\n\nGenerado con Asistente H&S`}
+            />
             <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                 <button onClick={() => navigate('/ai-camera')} style={{ background: 'transparent', border: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--color-text)' }}>
                     <ArrowLeft size={20} /> Volver a Cámara
@@ -94,7 +65,7 @@ export default function AIReport() {
                     <button onClick={handlePrint} className="btn-success" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: 'auto', marginTop: 0 }}>
                         <Printer size={18} /> Imprimir / PDF
                     </button>
-                    <button onClick={handleShare} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <button onClick={() => setShowShare(true)} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <Share2 size={18} /> Compartir
                     </button>
                 </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Printer, Share2, Download, CheckCircle2, AlertTriangle, Info } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import ShareModal from '../components/ShareModal';
 
 export default function ErgonomicsReport() {
     const navigate = useNavigate();
@@ -10,6 +11,7 @@ export default function ErgonomicsReport() {
     const [data, setData] = useState(null);
     const [profile, setProfile] = useState(null);
     const [signature, setSignature] = useState(null);
+    const [showShare, setShowShare] = useState(false);
     const [showSignatures, setShowSignatures] = useState({
         operator: true,
         supervisor: true,
@@ -46,6 +48,12 @@ export default function ErgonomicsReport() {
 
     return (
         <div className="container" style={{ paddingBottom: '3rem' }}>
+            <ShareModal
+                open={showShare}
+                onClose={() => setShowShare(false)}
+                title={`Protocolo Ergonómico – ${data.empresa}`}
+                text={`📋 Protocolo de Ergonomía\n🏗️ Empresa: ${data.empresa}\n🪑 Puesto: ${data.puesto}\n📍 Sector: ${data.sector}\n⚠️ Nivel de Riesgo: ${data.riesgo || 'N/A'}\n\nGenerado con Asistente H&S`}
+            />
             <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', marginTop: '1rem' }}>
                 <button
                     onClick={() => navigate('/ergonomics')}
@@ -57,7 +65,7 @@ export default function ErgonomicsReport() {
                     <button onClick={handlePrint} className="btn-secondary" style={{ padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <Printer size={18} /> IMPRIMIR
                     </button>
-                    <button className="btn-primary" style={{ padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <button onClick={() => setShowShare(true)} className="btn-primary" style={{ padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <Share2 size={18} /> COMPARTIR
                     </button>
                 </div>
