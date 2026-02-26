@@ -65,30 +65,6 @@ function App() {
   const location = useLocation();
   const showMenuButton = location.pathname !== '/login' && location.pathname !== '/subscribe' && location.pathname !== '/ai-camera';
 
-  // Analytics tracking
-  useEffect(() => {
-    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.');
-    const trackUrl = isLocal ? `http://${window.location.hostname}:3001/api/track-visit` : '/api/track-visit';
-
-    let visitorId = localStorage.getItem('visitor_id');
-    let isNewVisitor = false;
-    if (!visitorId) {
-      visitorId = crypto.randomUUID();
-      localStorage.setItem('visitor_id', visitorId);
-      isNewVisitor = true;
-    }
-
-    fetch(trackUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        page: location.pathname,
-        visitorId,
-        isNewVisitor
-      })
-    }).catch(err => console.error('Error tracking visit:', err));
-  }, [location.pathname]);
-
   // Apply theme on mount
   useEffect(() => {
     if (typeof document !== 'undefined') {

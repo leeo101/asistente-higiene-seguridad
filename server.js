@@ -392,7 +392,6 @@ app.post('/api/reset-password', async (req, res) => {
 
 const DATA_DIR = './data';
 const REQUESTS_FILE = `${DATA_DIR}/registration-requests.json`;
-const STATS_FILE = `${DATA_DIR}/stats.json`;
 
 async function ensureDataFile() {
     try {
@@ -403,19 +402,6 @@ async function ensureDataFile() {
             await fs.access(REQUESTS_FILE);
         } catch {
             await fs.writeFile(REQUESTS_FILE, JSON.stringify([]), 'utf-8');
-        }
-
-        // Stats
-        try {
-            await fs.access(STATS_FILE);
-        } catch {
-            const initialStats = {
-                totalVisits: 0,
-                uniqueUsers: 0,
-                pageHits: {},
-                lastReset: new Date().toISOString()
-            };
-            await fs.writeFile(STATS_FILE, JSON.stringify(initialStats, null, 2), 'utf-8');
         }
     } catch (error) {
         console.error("Error creating data directory/file:", error);
@@ -480,45 +466,6 @@ app.delete('/api/admin/requests/:id', async (req, res) => {
     } catch (error) {
         console.error("Error deleting registration request:", error);
         res.status(500).json({ error: 'Error al eliminar la solicitud' });
-    }
-});
-
-// ==========================================
-// VISITOR ANALYTICS API
-// ==========================================
-
-app.post('/api/track-visit', async (req, res) => {
-    try {
-        const { page, visitorId, isNewVisitor } = req.body;
-        await ensureDataFile();
-        const fileContent = await fs.readFile(STATS_FILE, 'utf-8');
-        const stats = JSON.parse(fileContent);
-
-        stats.totalVisits += 1;
-        if (isNewVisitor) {
-            stats.uniqueUsers += 1;
-        }
-
-        if (page) {
-            stats.pageHits[page] = (stats.pageHits[page] || 0) + 1;
-        }
-
-        await fs.writeFile(STATS_FILE, JSON.stringify(stats, null, 2), 'utf-8');
-        res.json({ success: true });
-    } catch (error) {
-        console.error("Error tracking visit:", error);
-        res.status(500).json({ error: 'Error al trackear visita' });
-    }
-});
-
-app.get('/api/admin/stats', async (req, res) => {
-    try {
-        await ensureDataFile();
-        const fileContent = await fs.readFile(STATS_FILE, 'utf-8');
-        res.json(JSON.parse(fileContent));
-    } catch (error) {
-        console.error("Error reading stats:", error);
-        res.status(500).json({ error: 'Error al leer estadísticas' });
     }
 });
 
