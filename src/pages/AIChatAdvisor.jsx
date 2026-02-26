@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Send, ShieldAlert, HardHat,
     Lightbulb, Gavel, ClipboardList, Copy,
-    Check, Download, Sparkles, Loader2
+    Check, Download, Sparkles, Loader2,
+    Mic, MicOff
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
@@ -15,6 +16,37 @@ export default function AIChatAdvisor() {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
     const [copied, setCopied] = useState(false);
+    const [isListening, setIsListening] = useState(false);
+
+    const toggleListening = () => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert('Tu navegador no soporta reconocimiento de voz. Prueba con Chrome.');
+            return;
+        }
+
+        if (isListening) {
+            setIsListening(false);
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'es-AR';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onstart = () => setIsListening(true);
+        recognition.onend = () => setIsListening(false);
+        recognition.onerror = () => setIsListening(false);
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            setTask(prev => prev ? `${prev} ${transcript}` : transcript);
+            setIsListening(false);
+        };
+
+        recognition.start();
+    };
 
     const handleDownloadPDF = () => {
         if (!result) return;
@@ -158,21 +190,50 @@ export default function AIChatAdvisor() {
             <div className="card" style={{ padding: '1.5rem', marginBottom: '2rem', background: 'var(--color-surface)' }}>
                 <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: 700 }}>¿Qué tarea vas a analizar?</h3>
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <textarea
-                        placeholder="Ej: Pintura de fachada con hidroelevador, limpieza de tanque de combustible, etc."
-                        value={task}
-                        onChange={(e) => setTask(e.target.value)}
-                        style={{
-                            minHeight: '100px',
-                            padding: '1rem',
-                            borderRadius: '12px',
-                            border: '1px solid var(--color-border)',
-                            background: 'var(--color-background)',
-                            color: 'var(--color-text)',
-                            fontSize: '1rem',
-                            resize: 'vertical'
-                        }}
-                    />
+                    <div style={{ position: 'relative' }}>
+                        <textarea
+                            placeholder="Ej: Pintura de fachada con hidroelevador, limpieza de tanque de combustible, etc."
+                            value={task}
+                            onChange={(e) => setTask(e.target.value)}
+                            style={{
+                                width: '100%',
+                                minHeight: '120px',
+                                padding: '1rem',
+                                paddingRight: '3.5rem',
+                                borderRadius: '12px',
+                                border: '1px solid var(--color-border)',
+                                background: 'var(--color-background)',
+                                color: 'var(--color-text)',
+                                fontSize: '1rem',
+                                resize: 'vertical'
+                            }}
+                        />
+                        <button
+                            type="button"
+                            onClick={toggleListening}
+                            style={{
+                                position: 'absolute',
+                                right: '1rem',
+                                top: '1rem',
+                                background: isListening ? '#ef4444' : 'var(--color-surface-hover)',
+                                border: 'none',
+                                borderRadius: '50%',
+                                width: '40px',
+                                height: '40px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: isListening ? 'white' : 'var(--color-primary)',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s ease',
+                                boxShadow: isListening ? '0 0 15px rgba(239, 68, 68, 0.5)' : 'none',
+                                animation: isListening ? 'pulse 1.5s infinite' : 'none'
+                            }}
+                            title={isListening ? 'Escuchando...' : 'Hablar'}
+                        >
+                            {isListening ? <MicOff size={20} /> : <Mic size={20} />}
+                        </button>
+                    </div>
                     <button
                         type="submit"
                         disabled={loading || !task.trim()}
