@@ -167,6 +167,8 @@ Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de
                     }
                 } catch (e) {
                     clearTimeout(timeoutId);
+                    // This catch block is for errors during generateContent for a specific model.
+                    // The outer catch block will handle logging and setting lastError.
                     throw e;
                 }
             } catch (error) {
@@ -209,7 +211,12 @@ app.post('/api/ai-advisor', async (req, res) => {
         if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini' });
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const models = [
+            "gemini-2.0-flash",
+            "gemini-flash-latest",
+            "gemini-1.5-flash",
+            "gemini-1.5-pro"
+        ];
 
         const prompt = `Actúa como un experto en Higiene y Seguridad Laboral en Argentina. 
 Analiza la siguiente tarea o situación laboral: "${taskDescription}".
@@ -223,7 +230,20 @@ Proporciona un análisis detallado en formato JSON con los siguientes campos EXA
 }
 IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON, sin texto adicional. Asegúrate de incluir normativas argentinas (ej: Ley 19587, Dec 351/79, Dec 911/96).`;
 
-        const result = await model.generateContent(prompt);
+        let result;
+        for (const modelName of models) {
+            try {
+                const model = genAI.getGenerativeModel({ model: modelName });
+                result = await model.generateContent(prompt);
+                if (result) break;
+            } catch (err) {
+                console.warn(`[AI Advisor] Model ${modelName} failed, trying next...`);
+                continue;
+            }
+        }
+
+        if (!result) throw new Error('Todos los modelos de IA fallaron');
+
         const responseText = result.response.text();
 
         // Sanitize JSON

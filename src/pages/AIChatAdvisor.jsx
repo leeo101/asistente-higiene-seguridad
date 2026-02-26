@@ -28,13 +28,16 @@ export default function AIChatAdvisor() {
                 body: JSON.stringify({ taskDescription: task })
             });
 
-            if (!response.ok) throw new Error('Error en la consulta');
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `Error del servidor (${response.status})`);
+            }
 
             const data = await response.json();
             setResult(data);
         } catch (error) {
             console.error('Error:', error);
-            alert('No se pudo conectar con el asesor IA. Inténtalo de nuevo.');
+            alert(`Error: ${error.message}. Por favor, verifica tu conexión o intenta más tarde.`);
         } finally {
             setLoading(false);
         }
