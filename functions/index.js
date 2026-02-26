@@ -117,13 +117,37 @@ exports.forgotPassword = onRequest((req, res) => {
         if (!email) return res.status(400).json({ error: 'Email requerido' });
 
         try {
-            // Nota: En Cloud Functions sin DB persistente (Firestore), 
-            // el manejo de tokens manual es difícil. 
-            // Se recomienda usar el SDK de Firebase Auth directamente en el Frontend
-            // para enviar el email de recuperación.
+            const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
 
-            res.json({ message: 'Para producción, usa el método sendPasswordResetEmail de Firebase Auth en el frontend.' });
+            const mailOptions = {
+                from: `"Asistente HYS" <${process.env.EMAIL_USER}>`,
+                to: email,
+                subject: 'Restablecer tu contraseña - Asistente HYS',
+                html: `
+                    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e1e1e1; border-radius: 12px; background-color: #ffffff;">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <img src="https://asistentehs-b594e.web.app/logo.png" alt="Asistente HYS" style="height: 60px; width: auto;">
+                        </div>
+                        <h2 style="color: #3b82f6; text-align: center;">Tu Código de Seguridad</h2>
+                        <p style="text-align: center; font-size: 1.1rem;">Has solicitado restablecer tu contraseña en el <strong>Asistente HYS</strong>.</p>
+                        
+                        <div style="background-color: #f3f4f6; padding: 20px; border-radius: 10px; text-align: center; margin: 25px 0;">
+                            <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #111827;">${code}</span>
+                        </div>
+
+                        <p style="text-align: center;">Usa este código en la aplicación para verificar tu identidad.</p>
+                        <p style="color: #666; font-size: 0.85rem; border-top: 1px solid #eee; padding-top: 15px; margin-top: 20px;">Si no solicitaste este cambio, puedes ignorar este correo.</p>
+                    </div>
+                `
+            };
+
+            await transporter.sendMail(mailOptions);
+            res.json({
+                message: 'Código de recuperación enviado.',
+                code: code
+            });
         } catch (error) {
+            logger.error("Error sending forgot password email", error);
             res.status(500).json({ error: error.message });
         }
     });

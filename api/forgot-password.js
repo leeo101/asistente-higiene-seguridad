@@ -31,7 +31,8 @@ export default async function handler(req, res) {
         }
 
         const token = crypto.randomBytes(32).toString('hex');
-        resetTokens.set(token, { email, expires: Date.now() + 3600000 }); // 1 hr expiration
+        const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
+        resetTokens.set(token, { email, code, expires: Date.now() + 3600000 }); // 1 hr expiration
 
         // Set up Nodemailer
         const transporter = nodemailer.createTransport({
@@ -45,23 +46,36 @@ export default async function handler(req, res) {
         const resetLink = `https://${req.headers.host}/reset-password?token=${token}`;
 
         const mailOptions = {
-            from: process.env.EMAIL_USER,
+            from: `"Asistente HYS" <${process.env.EMAIL_USER}>`,
             to: email,
-            subject: 'Asistente H&S - Recuperación de Contraseña',
+            subject: 'Restablecer tu contraseña - Asistente HYS',
             html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                    <h2 style="color: #3b82f6;">Recuperación de Contraseña</h2>
-                    <p>Hola,</p>
-                    <p>Has solicitado restablecer tu contraseña para Asistente H&S. Haz clic en el siguiente enlace para crear una nueva:</p>
-                    <a href="${resetLink}" style="display: inline-block; padding: 12px 24px; background-color: #3b82f6; color: white; text-decoration: none; border-radius: 6px; margin: 20px 0;">Restablecer mi contraseña</a>
-                    <p>Si no fuiste tú, simplemente ignora este correo.</p>
-                    <p>Saludos,<br>El equipo de Asistente H&S</p>
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e1e1e1; border-radius: 12px; background-color: #ffffff;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <img src="https://asistentehs-b594e.web.app/logo.png" alt="Asistente HYS" style="height: 60px; width: auto;">
+                    </div>
+                    <h2 style="color: #3b82f6; text-align: center;">Tu Código de Seguridad</h2>
+                    <p style="text-align: center; font-size: 1.1rem;">Has solicitado restablecer tu contraseña en el <strong>Asistente HYS</strong>.</p>
+                    
+                    <div style="background-color: #f3f4f6; padding: 20px; border-radius: 10px; text-align: center; margin: 25px 0;">
+                        <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #111827;">${code}</span>
+                    </div>
+
+                    <p style="text-align: center;">O haz clic en el siguiente botón para continuar directamente:</p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${resetLink}" style="display: inline-block; padding: 14px 28px; background-color: #3b82f6; color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">Restablecer Contraseña</a>
+                    </div>
+                    <p style="color: #666; font-size: 0.85rem; border-top: 1px solid #eee; padding-top: 15px; margin-top: 20px;">Si no solicitaste este cambio, puedes ignorar este correo. El código expira en 1 hora.</p>
                 </div>
             `
         };
 
         await transporter.sendMail(mailOptions);
-        return res.status(200).json({ message: 'Correo enviado. Revisa tu bandeja de entrada.' });
+        return res.status(200).json({
+            message: 'Correo enviado. Revisa tu bandeja de entrada.',
+            code: code,
+            devLink: resetLink
+        });
 
     } catch (error) {
         console.error("Mail Error:", error);
