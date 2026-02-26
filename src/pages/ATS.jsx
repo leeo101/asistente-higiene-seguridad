@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Save, Plus, Trash2, Printer,
     ShieldCheck, Building2, User, Calendar,
-    CheckCircle2, AlertCircle, HelpCircle, Pencil, Info
+    CheckCircle2, AlertCircle, HelpCircle, Pencil, Info, Share2
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
+import ShareModal from '../components/ShareModal';
 
 const defaultChecklist = [
     // General
@@ -64,6 +65,8 @@ export default function ATS() {
         supervisor: true,
         professional: true
     });
+
+    const [showShare, setShowShare] = useState(false);
 
     const [professional, setProfessional] = useState({
         name: 'Juan Pérez',
@@ -191,7 +194,89 @@ export default function ATS() {
     const categories = [...new Set(formData.checklist.map(i => i.categoria))];
 
     return (
-        <div className="container" style={{ maxWidth: '1200px', paddingBottom: '5rem' }}>
+        <div className="container" style={{ maxWidth: '1200px', paddingBottom: '8rem' }}>
+            <ShareModal
+                open={showShare}
+                onClose={() => setShowShare(false)}
+                title={`ATS – ${formData.empresa}`}
+                text={`📋 Análisis de Trabajo Seguro\n🏗️ Empresa: ${formData.empresa}\n🚧 Obra: ${formData.obra}\n📅 Fecha: ${formData.fecha}\n👷 Responsable: ${formData.capatazNombre}\n\nGenerado con Asistente H&S`}
+            />
+
+            {/* Floating Action Buttons */}
+            <div className="no-print" style={{
+                position: 'fixed',
+                bottom: '2rem',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 1000,
+                display: 'flex',
+                gap: '1rem',
+                background: 'rgba(255, 255, 255, 0.9)',
+                padding: '0.8rem 1.5rem',
+                borderRadius: '50px',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255,255,255,0.5)',
+                whiteSpace: 'nowrap'
+            }}>
+                <button
+                    onClick={handleSave}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.6rem',
+                        padding: '0.7rem 1.4rem',
+                        background: '#36B37E',
+                        color: 'white',
+                        borderRadius: '25px',
+                        border: 'none',
+                        fontWeight: 800,
+                        fontSize: '0.85rem',
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)'
+                    }}
+                >
+                    <Save size={18} /> GUARDAR
+                </button>
+                <button
+                    onClick={() => setShowShare(true)}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.6rem',
+                        padding: '0.7rem 1.4rem',
+                        background: '#0052CC',
+                        color: 'white',
+                        borderRadius: '25px',
+                        border: 'none',
+                        fontWeight: 800,
+                        fontSize: '0.85rem',
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 12px rgba(0, 82, 204, 0.3)'
+                    }}
+                >
+                    <Share2 size={18} /> COMPARTIR
+                </button>
+                <button
+                    onClick={handlePrint}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.6rem',
+                        padding: '0.7rem 1.4rem',
+                        background: '#FF8B00',
+                        color: 'white',
+                        borderRadius: '25px',
+                        border: 'none',
+                        fontWeight: 800,
+                        fontSize: '0.85rem',
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 12px rgba(255, 139, 0, 0.3)'
+                    }}
+                >
+                    <Printer size={18} /> IMPRIMIR PDF
+                </button>
+            </div>
 
 
             <div className="no-print" style={{

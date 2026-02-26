@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Trash2, Save, AlertTriangle, ShieldCheck, Flame, Zap, Leaf, Activity, Brain, Wrench } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Save, AlertTriangle, ShieldCheck, Flame, Zap, Leaf, Activity, Brain, Wrench, Share2, Printer } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
+import ShareModal from '../components/ShareModal';
 
 const HAZARD_TYPES = [
     { value: '', label: 'Seleccionar...', icon: null, color: '#94a3b8' },
@@ -39,6 +40,7 @@ export default function RiskMatrix() {
         responsable: ''
     });
     const [rows, setRows] = useState([emptyRow()]);
+    const [showShare, setShowShare] = useState(false);
 
     useEffect(() => {
         const saved = localStorage.getItem('personalData');
@@ -69,7 +71,89 @@ export default function RiskMatrix() {
     };
 
     return (
-        <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '2rem 1rem', paddingBottom: '6rem' }}>
+        <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '2rem 1rem', paddingBottom: '8rem' }}>
+            <ShareModal
+                open={showShare}
+                onClose={() => setShowShare(false)}
+                title={`Matriz de Riesgos – ${projectData.name}`}
+                text={`📋 Matriz de Riesgos\n🏗️ Proyecto: ${projectData.name}\n📍 Ubicación: ${projectData.location}\n👷 Responsable: ${projectData.responsable}\n\nGenerado con Asistente H&S`}
+            />
+
+            {/* Floating Action Buttons */}
+            <div className="no-print" style={{
+                position: 'fixed',
+                bottom: '2rem',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 1000,
+                display: 'flex',
+                gap: '1rem',
+                background: 'rgba(255, 255, 255, 0.9)',
+                padding: '0.8rem 1.5rem',
+                borderRadius: '50px',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255,255,255,0.5)',
+                whiteSpace: 'nowrap'
+            }}>
+                <button
+                    onClick={handleSave}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.6rem',
+                        padding: '0.7rem 1.4rem',
+                        background: '#36B37E',
+                        color: 'white',
+                        borderRadius: '25px',
+                        border: 'none',
+                        fontWeight: 800,
+                        fontSize: '0.85rem',
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)'
+                    }}
+                >
+                    <Save size={18} /> GUARDAR
+                </button>
+                <button
+                    onClick={() => setShowShare(true)}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.6rem',
+                        padding: '0.7rem 1.4rem',
+                        background: '#0052CC',
+                        color: 'white',
+                        borderRadius: '25px',
+                        border: 'none',
+                        fontWeight: 800,
+                        fontSize: '0.85rem',
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 12px rgba(0, 82, 204, 0.3)'
+                    }}
+                >
+                    <Share2 size={18} /> COMPARTIR
+                </button>
+                <button
+                    onClick={() => window.print()}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.6rem',
+                        padding: '0.7rem 1.4rem',
+                        background: '#FF8B00',
+                        color: 'white',
+                        borderRadius: '25px',
+                        border: 'none',
+                        fontWeight: 800,
+                        fontSize: '0.85rem',
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 12px rgba(255, 139, 0, 0.3)'
+                    }}
+                >
+                    <Printer size={18} /> IMPRIMIR PDF
+                </button>
+            </div>
 
             {/* ─── HEADER ─── */}
             <div style={{
