@@ -5,6 +5,8 @@ import {
     Lightbulb, Gavel, ClipboardList, Copy,
     Check, Download, Sparkles, Loader2
 } from 'lucide-react';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 import { API_BASE_URL } from '../config';
 
 export default function AIChatAdvisor() {
@@ -13,6 +15,91 @@ export default function AIChatAdvisor() {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
     const [copied, setCopied] = useState(false);
+
+    const handleDownloadPDF = () => {
+        if (!result) return;
+
+        const doc = new jsPDF();
+        const pageWidth = doc.internal.pageSize.getWidth();
+
+        // Color Palette
+        const colors = {
+            primary: [37, 99, 235],    // blue-600
+            danger: [239, 68, 68],     // red-500
+            success: [16, 185, 129],   // emerald-500
+            warning: [249, 115, 22],   // orange-500
+            text: [31, 41, 55],        // gray-800
+            muted: [107, 114, 128]     // gray-500
+        };
+
+        // Header
+        doc.setFillColor(...colors.primary);
+        doc.rect(0, 0, pageWidth, 35, 'F');
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(22);
+        doc.setFont('helvetica', 'bold');
+        doc.text('ASISTENTE H&S', 15, 15);
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Análisis de Seguridad con Inteligencia Artificial', 15, 22);
+
+        doc.setFontSize(8);
+        doc.text(`Fecha de consulta: ${new Date().toLocaleString()}`, 15, 28);
+
+        // Task Title
+        doc.setTextColor(...colors.text);
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Análisis de Tarea:', 15, 45);
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'normal');
+        const taskLines = doc.splitTextToSize(result.task, pageWidth - 30);
+        doc.text(taskLines, 15, 52);
+
+        let currentY = 52 + (taskLines.length * 7);
+
+        // Sections
+        const createSection = (title, items, color) => {
+            doc.setFillColor(...color);
+            doc.rect(15, currentY, 4, 8, 'F');
+
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(12);
+            doc.setTextColor(...colors.text);
+            doc.text(title, 22, currentY + 6);
+            currentY += 12;
+
+            doc.autoTable({
+                startY: currentY,
+                body: items.map(item => [item]),
+                columns: [{ header: '', dataKey: 'item' }],
+                theme: 'plain',
+                styles: { fontSize: 10, cellPadding: 2 },
+                columnStyles: { 0: { cellWidth: pageWidth - 30 } },
+                margin: { left: 20 },
+                didDrawPage: (data) => { currentY = data.cursor.y; }
+            });
+            currentY += 10;
+        };
+
+        createSection('Riesgos Detectados', result.riesgos, colors.danger);
+        createSection('EPP Recomendado', result.epp, colors.primary);
+        createSection('Medidas Preventivas', result.recomendaciones, colors.success);
+        createSection('Marco Legal (Argentina)', result.normativa, [139, 92, 246]);
+
+        // Footer
+        doc.setFontSize(8);
+        doc.setTextColor(...colors.muted);
+        doc.setFont('helvetica', 'italic');
+        const disclaimer = 'Este análisis es generado por IA y debe ser validado por un profesional matriculado bajo su propia responsabilidad.';
+        const disclaimerLines = doc.splitTextToSize(disclaimer, pageWidth - 30);
+        doc.text(disclaimerLines, 15, doc.internal.pageSize.getHeight() - 15);
+
+        doc.save(`Analisis_Seguridad_${result.task.replace(/\s+/g, '_').substring(0, 20)}.pdf`);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -116,26 +203,48 @@ export default function AIChatAdvisor() {
             {/* Results Section */}
             {result && (
                 <div style={{ animation: 'fadeIn 0.5s ease' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
                         <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>Resultados del Análisis</h2>
-                        <button
-                            onClick={handleCopy}
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.5rem',
-                                background: 'transparent',
-                                border: '1px solid var(--color-border)',
-                                padding: '0.5rem 1rem',
-                                borderRadius: '8px',
-                                color: 'var(--color-text)',
-                                cursor: 'pointer',
-                                fontSize: '0.85rem'
-                            }}
-                        >
-                            {copied ? <Check size={16} color="#10b981" /> : <Copy size={16} />}
-                            {copied ? 'Copiado' : 'Copiar Todo'}
-                        </button>
+                        <div style={{ display: 'flex', gap: '0.8rem' }}>
+                            <button
+                                onClick={handleDownloadPDF}
+                                className="btn-secondary"
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem',
+                                    padding: '0.5rem 1rem',
+                                    borderRadius: '8px',
+                                    marginTop: 0,
+                                    width: 'auto',
+                                    background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+                                    color: 'white',
+                                    border: 'none',
+                                    fontSize: '0.85rem'
+                                }}
+                            >
+                                <Download size={16} />
+                                Descargar PDF
+                            </button>
+                            <button
+                                onClick={handleCopy}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem',
+                                    background: 'transparent',
+                                    border: '1px solid var(--color-border)',
+                                    padding: '0.5rem 1rem',
+                                    borderRadius: '8px',
+                                    color: 'var(--color-text)',
+                                    cursor: 'pointer',
+                                    fontSize: '0.85rem'
+                                }}
+                            >
+                                {copied ? <Check size={16} color="#10b981" /> : <Copy size={16} />}
+                                {copied ? 'Copiado' : 'Copiar Todo'}
+                            </button>
+                        </div>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.2rem' }}>
