@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { User, Lock, LogIn, Mail, ArrowLeft, CheckCircle2, AlertCircle, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { API_BASE_URL } from '../config';
@@ -7,10 +7,11 @@ import { API_BASE_URL } from '../config';
 export default function Login() {
     const navigate = useNavigate();
     const { login, signup, currentUser } = useAuth();
+    const location = useLocation();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [view, setView] = useState('login'); // 'login', 'register', or 'forgot'
+    const [view, setView] = useState(location.state?.view || 'login'); // 'login', 'register', or 'forgot'
     const [status, setStatus] = useState({ type: '', message: '' });
 
     // Redirect if already logged in

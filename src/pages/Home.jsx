@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
     ClipboardList, PlusCircle, History, User, Settings,
     Flame, ShieldAlert, BarChart3, ChevronRight, Plus, FileText, Gavel,
-    Accessibility, AlertTriangle, Lock
+    Accessibility, AlertTriangle, Lock, UserPlus, LogIn
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -87,12 +87,24 @@ export default function Home() {
 
     return (
         <div className="container" style={{ paddingBottom: '3rem', marginTop: '3rem' }}>
-            <div style={{ textAlign: 'left', marginBottom: '2.5rem', marginTop: '1.5rem', padding: '0 0.5rem' }}>
-                <h1 style={{ fontSize: '2.8rem', fontWeight: 900, marginBottom: '0.2rem', color: '#172B4D', letterSpacing: '-1.5px', lineHeight: 1.1 }}>
-                    Hola, <br />
-                    <span style={{ color: 'var(--color-primary)' }}>{userName}</span>
-                </h1>
-                <p style={{ color: '#6B778C', fontSize: '1.1rem', marginTop: '0.5rem', fontWeight: 500 }}>Dashboard de Seguridad e Higiene</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2.5rem', marginTop: '1.5rem', padding: '0 0.5rem' }}>
+                <div>
+                    <h1 style={{ fontSize: '2.8rem', fontWeight: 900, marginBottom: '0.2rem', color: '#172B4D', letterSpacing: '-1.5px', lineHeight: 1.1 }}>
+                        Hola, <br />
+                        <span style={{ color: 'var(--color-primary)' }}>{userName}</span>
+                    </h1>
+                    <p style={{ color: '#6B778C', fontSize: '1.1rem', marginTop: '0.5rem', fontWeight: 500 }}>Dashboard de Seguridad e Higiene</p>
+                </div>
+                {!currentUser && (
+                    <div style={{ display: 'flex', gap: '0.8rem' }}>
+                        <button onClick={() => navigate('/login', { state: { view: 'login' } })} className="btn-outline" style={{ padding: '0.7rem 1.2rem', marginTop: 0 }}>
+                            <LogIn size={18} /> Ingresar
+                        </button>
+                        <button onClick={() => navigate('/login', { state: { view: 'register' } })} className="btn-primary" style={{ padding: '0.7rem 1.2rem', marginTop: 0, width: 'auto' }}>
+                            <UserPlus size={18} /> Registrarse
+                        </button>
+                    </div>
+                )}
             </div>
 
             <div className="card" style={{
