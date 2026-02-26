@@ -215,21 +215,6 @@ export default function ATS() {
                         <p style={{ margin: 0, color: '#6B778C', fontWeight: 600, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Control H&S</p>
                     </div>
                 </div>
-
-                <div style={{ display: 'flex', gap: '0.8rem' }}>
-                    <button
-                        onClick={handleSave}
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.8rem 1.4rem', background: '#36B37E', color: 'white', borderRadius: '12px', border: 'none', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(54, 179, 126, 0.2)' }}
-                    >
-                        <Save size={18} /> GUARDAR
-                    </button>
-                    <button
-                        onClick={handlePrint}
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.8rem 1.4rem', background: '#FF8B00', color: 'white', borderRadius: '12px', border: 'none', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(255, 139, 0, 0.2)' }}
-                    >
-                        <Printer size={18} /> IMPRIMIR
-                    </button>
-                </div>
             </div>
 
             <div className="bg-white text-black p-12 shadow-2xl mx-auto print-area border border-slate-200 rounded-2xl" style={{ width: '100%', maxWidth: '950px', boxSizing: 'border-box' }}>
