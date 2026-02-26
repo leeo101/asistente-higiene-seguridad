@@ -265,6 +265,16 @@ export default function Home() {
                             </div>
                         </Link>
 
+                        <Link to="/ai-advisor" style={{ textDecoration: 'none' }}>
+                            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', border: '1px solid #EBECF0', margin: 0, background: 'linear-gradient(135deg, #fff, rgba(37, 99, 235, 0.05))' }}>
+                                <div style={{ color: 'var(--color-primary)' }}><Sparkles size={28} /></div>
+                                <div>
+                                    <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Asesor IA</h4>
+                                    <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Riesgos y EPP</p>
+                                </div>
+                            </div>
+                        </Link>
+
                         <Link to="/checklists" style={{ textDecoration: 'none' }}>
                             <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', border: '1px solid #EBECF0', margin: 0 }}>
                                 <div style={{ color: 'var(--color-primary)' }}><ClipboardList size={28} /></div>

@@ -1,0 +1,193 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+    ArrowLeft, Send, ShieldAlert, HardHat,
+    Lightbulb, Gavel, ClipboardList, Copy,
+    Check, Download, Sparkles, Loader2
+} from 'lucide-react';
+import { API_BASE_URL } from '../config';
+
+export default function AIChatAdvisor() {
+    const navigate = useNavigate();
+    const [task, setTask] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [result, setResult] = useState(null);
+    const [copied, setCopied] = useState(false);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!task.trim()) return;
+
+        setLoading(true);
+        setResult(null);
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/ai-advisor`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ taskDescription: task })
+            });
+
+            if (!response.ok) throw new Error('Error en la consulta');
+
+            const data = await response.json();
+            setResult(data);
+        } catch (error) {
+            console.error('Error:', error);
+            alert('No se pudo conectar con el asesor IA. Inténtalo de nuevo.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleCopy = () => {
+        if (!result) return;
+        const text = `ANÁLISIS DE SEGURIDAD IA\nTarea: ${result.task}\n\nRIESGOS:\n- ${result.riesgos.join('\n- ')}\n\nEPP RECOMENDADO:\n- ${result.epp.join('\n- ')}\n\nRECOMENDACIONES:\n- ${result.recomendaciones.join('\n- ')}\n\nNORMATIVA:\n- ${result.normativa.join('\n- ')}`;
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+        <div className="container" style={{ paddingBottom: '3rem' }}>
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', marginTop: '1rem' }}>
+                <button
+                    onClick={() => navigate('/')}
+                    style={{ background: 'none', border: 'none', padding: 0, color: 'var(--color-text)' }}
+                >
+                    <ArrowLeft size={24} />
+                </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Sparkles size={24} color="var(--color-primary)" />
+                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Asesor de Seguridad IA</h1>
+                </div>
+            </div>
+
+            {/* Input Section */}
+            <div className="card" style={{ padding: '1.5rem', marginBottom: '2rem', background: 'var(--color-surface)' }}>
+                <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: 700 }}>¿Qué tarea vas a analizar?</h3>
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <textarea
+                        placeholder="Ej: Pintura de fachada con hidroelevador, limpieza de tanque de combustible, etc."
+                        value={task}
+                        onChange={(e) => setTask(e.target.value)}
+                        style={{
+                            minHeight: '100px',
+                            padding: '1rem',
+                            borderRadius: '12px',
+                            border: '1px solid var(--color-border)',
+                            background: 'var(--color-background)',
+                            color: 'var(--color-text)',
+                            fontSize: '1rem',
+                            resize: 'vertical'
+                        }}
+                    />
+                    <button
+                        type="submit"
+                        disabled={loading || !task.trim()}
+                        className="btn-primary"
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.8rem',
+                            marginTop: 0
+                        }}
+                    >
+                        {loading ? (
+                            <>
+                                <Loader2 size={20} className="animate-spin" />
+                                Analizando situación...
+                            </>
+                        ) : (
+                            <>
+                                <Send size={20} />
+                                Generar Análisis IA
+                            </>
+                        )}
+                    </button>
+                </form>
+            </div>
+
+            {/* Results Section */}
+            {result && (
+                <div style={{ animation: 'fadeIn 0.5s ease' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                        <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>Resultados del Análisis</h2>
+                        <button
+                            onClick={handleCopy}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                background: 'transparent',
+                                border: '1px solid var(--color-border)',
+                                padding: '0.5rem 1rem',
+                                borderRadius: '8px',
+                                color: 'var(--color-text)',
+                                cursor: 'pointer',
+                                fontSize: '0.85rem'
+                            }}
+                        >
+                            {copied ? <Check size={16} color="#10b981" /> : <Copy size={16} />}
+                            {copied ? 'Copiado' : 'Copiar Todo'}
+                        </button>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.2rem' }}>
+                        {/* Risks */}
+                        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', borderLeft: '4px solid #ef4444' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: '#ef4444' }}>
+                                <ShieldAlert size={20} />
+                                <h4 style={{ margin: 0, fontWeight: 700 }}>Riesgos Detectados</h4>
+                            </div>
+                            <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', lineHeight: '1.5' }}>
+                                {result.riesgos.map((item, i) => <li key={i}>{item}</li>)}
+                            </ul>
+                        </div>
+
+                        {/* PPE */}
+                        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', borderLeft: '4px solid #3b82f6' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: '#3b82f6' }}>
+                                <HardHat size={20} />
+                                <h4 style={{ margin: 0, fontWeight: 700 }}>EPP Recomendado</h4>
+                            </div>
+                            <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', lineHeight: '1.5' }}>
+                                {result.epp.map((item, i) => <li key={i}>{item}</li>)}
+                            </ul>
+                        </div>
+
+                        {/* Recommendations */}
+                        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', borderLeft: '4px solid #10b981' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: '#10b981' }}>
+                                <Lightbulb size={20} />
+                                <h4 style={{ margin: 0, fontWeight: 700 }}>Medidas Preventivas</h4>
+                            </div>
+                            <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', lineHeight: '1.5' }}>
+                                {result.recomendaciones.map((item, i) => <li key={i}>{item}</li>)}
+                            </ul>
+                        </div>
+
+                        {/* Legislation */}
+                        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', borderLeft: '4px solid #8b5cf6' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: '#8b5cf6' }}>
+                                <Gavel size={20} />
+                                <h4 style={{ margin: 0, fontWeight: 700 }}>Marco Legal (Arg)</h4>
+                            </div>
+                            <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', lineHeight: '1.5', listStyleType: 'none' }}>
+                                {result.normativa.map((item, i) => <li key={i} style={{ marginBottom: '0.4rem' }}>• {item}</li>)}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', maxWidth: '500px', margin: '0 auto' }}>
+                            * Este análisis es generado por IA y debe ser validado por un profesional matriculado bajo su propia responsabilidad.
+                        </p>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}

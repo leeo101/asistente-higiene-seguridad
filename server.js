@@ -200,6 +200,49 @@ Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de
     }
 });
 
+app.post('/api/ai-advisor', async (req, res) => {
+    try {
+        const { taskDescription } = req.body;
+        if (!taskDescription) return res.status(400).json({ error: 'Falta la descripción de la tarea' });
+
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini' });
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        const prompt = `Actúa como un experto en Higiene y Seguridad Laboral en Argentina. 
+Analiza la siguiente tarea o situación laboral: "${taskDescription}".
+Proporciona un análisis detallado en formato JSON con los siguientes campos EXACTOS:
+{
+    "task": "Nombre de la tarea",
+    "riesgos": ["Detalle del riesgo 1", "Riesgo 2"],
+    "epp": ["EPP recomendado 1", "EPP 2"],
+    "recomendaciones": ["Medida preventiva 1", "2"],
+    "normativa": ["Ley o Decreto aplicable"]
+}
+IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON, sin texto adicional. Asegúrate de incluir normativas argentinas (ej: Ley 19587, Dec 351/79, Dec 911/96).`;
+
+        const result = await model.generateContent(prompt);
+        const responseText = result.response.text();
+
+        // Sanitize JSON
+        let cleanedJson = responseText.trim();
+        if (cleanedJson.startsWith('\`\`\`json')) {
+            cleanedJson = cleanedJson.replace(/\`\`\`json/, '').replace(/\`\`\`$/, '').trim();
+        } else if (cleanedJson.startsWith('\`\`\`')) {
+            cleanedJson = cleanedJson.replace(/\`\`\`/, '').replace(/\`\`\`$/, '').trim();
+        }
+
+        const parsedData = JSON.parse(cleanedJson);
+        res.json(parsedData);
+
+    } catch (error) {
+        console.error("Error in AI Advisor:", error);
+        res.status(500).json({ error: 'Error procesando la consulta', details: error.message });
+    }
+});
+
 
 // Diagnostic endpoint to scan available models
 app.get('/api/scan-models', async (req, res) => {

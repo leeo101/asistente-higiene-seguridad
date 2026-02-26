@@ -25,6 +25,7 @@ import RiskMatrixReport from './pages/RiskMatrixReport.jsx';
 import Reports from './pages/Reports.jsx';
 import ReportsReport from './pages/ReportsReport.jsx';
 import AICamera from './pages/AICamera.jsx';
+import AIChatAdvisor from './pages/AIChatAdvisor.jsx';
 import AIReport from './pages/AIReport.jsx';
 import Legislation from './pages/Legislation.jsx';
 import Ergonomics from './pages/Ergonomics.jsx';
@@ -130,6 +131,7 @@ function App() {
           <Route path="/observation" element={<Observation />} />
           <Route path="/photos" element={<Photos />} />
           <Route path="/ai-camera" element={<AICamera />} />
+          <Route path="/ai-advisor" element={<AIChatAdvisor />} />
           <Route path="/ai-report" element={<AIReport />} />
           <Route path="/calendar" element={<SafetyCalendar />} />
 
