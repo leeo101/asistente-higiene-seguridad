@@ -469,6 +469,65 @@ app.delete('/api/admin/requests/:id', async (req, res) => {
     }
 });
 
+app.post('/api/welcome-email', async (req, res) => {
+    const { email, name } = req.body;
+    if (!email || !name) return res.status(400).json({ error: 'Email y nombre requeridos' });
+
+    console.log(`[WELCOME EMAIL] Preparing email for ${email}...`);
+
+    const mailOptions = {
+        from: '"Asistente H&S" <asistente.hs.soporte@gmail.com>',
+        to: email,
+        subject: '¡Bienvenido al Asistente de Higiene y Seguridad!',
+        html: `
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; border: 1px solid #e1e1e1; border-radius: 16px; overflow: hidden; background-color: #ffffff;">
+                <div style="background-color: #2563eb; padding: 40px 20px; text-align: center; color: white;">
+                    <h1 style="margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">Asistente H&S</h1>
+                    <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 16px;">Tu aliado digital en Prevención</p>
+                </div>
+                
+                <div style="padding: 40px 30px; color: #1f2937; line-height: 1.6;">
+                    <h2 style="color: #111827; font-size: 22px; margin-top: 0;">¡Hola, ${name}!</h2>
+                    <p style="font-size: 16px;">Es un gusto saludarte. Gracias por unirte a nuestra comunidad de profesionales de Higiene y Seguridad.</p>
+                    
+                    <p style="font-size: 16px;">Ya puedes empezar a potenciar tu trabajo con nuestras herramientas inteligentes:</p>
+                    
+                    <ul style="padding-left: 20px; color: #4b5563;">
+                        <li style="margin-bottom: 12px;"><strong>Cámara de Riesgos IA:</strong> Detecta riesgos y EPP faltantes en segundos con fotos reales.</li>
+                        <li style="margin-bottom: 12px;"><strong>Asesor de Seguridad:</strong> Consulta normativas y medidas preventivas por chat.</li>
+                        <li style="margin-bottom: 12px;"><strong>Gestión de Reportes:</strong> Crea ATS, Informes y Matrices con firma profesional.</li>
+                    </ul>
+                    
+                    <div style="text-align: center; margin-top: 40px; margin-bottom: 20px;">
+                        <a href="https://asistentehs-b594e.web.app" style="display: inline-block; padding: 14px 28px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);">Entrar al Panel de Control</a>
+                    </div>
+                </div>
+                
+                <div style="background-color: #f9fafb; padding: 25px; text-align: center; border-top: 1px solid #e1e1e1;">
+                    <p style="margin: 0; font-size: 13px; color: #6b7280;">Este es un correo automático, no es necesario responder.</p>
+                    <p style="margin: 5px 0 0 0; font-size: 13px; color: #6b7280;">&copy; 2026 Asistente de Higiene y Seguridad</p>
+                </div>
+            </div>
+        `
+    };
+
+    try {
+        await new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => reject(new Error('Timeout enviando email')), 15000);
+            transporter.sendMail(mailOptions, (err, info) => {
+                clearTimeout(timeout);
+                if (err) reject(err);
+                else resolve(info);
+            });
+        });
+        console.log(`[WELCOME EMAIL] Sent successfully to ${email}`);
+        res.json({ success: true });
+    } catch (err) {
+        console.error('[WELCOME EMAIL] Error:', err.message);
+        res.status(500).json({ error: 'No se pudo enviar el correo de bienvenida' });
+    }
+});
+
 // ==========================================
 // START SERVER
 // ==========================================

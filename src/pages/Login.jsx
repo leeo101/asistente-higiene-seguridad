@@ -42,6 +42,18 @@ export default function Login() {
         setStatus({ type: 'loading', message: 'Creando cuenta...' });
         try {
             await signup(email, password, name);
+
+            // Send Welcome Email (Background-ish, don't block navigation)
+            try {
+                fetch(`${API_BASE_URL}/api/welcome-email`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, name })
+                }).catch(err => console.error('[WELCOME EMAIL ERR]', err));
+            } catch (e) {
+                console.warn('Welcome email call failed', e);
+            }
+
             // Save professional data to localStorage
             const personalData = {
                 name,
