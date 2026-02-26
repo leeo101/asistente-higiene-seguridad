@@ -43,7 +43,7 @@ export default function Security() {
             if (response.ok) {
                 setStatus({
                     type: 'success',
-                    message: data.devLink ? 'No se pudo enviar el mail (faltan credenciales), pero puedes usar este link directo:' : '¡Link enviado con éxito! Revisa tu Gmail.',
+                    message: data.devLink ? 'No se pudo enviar el mail, pero puedes usar este link directo:' : '¡Link enviado con éxito! Revisa tu Gmail.',
                     resetLink: data.devLink || ''
                 });
 

@@ -332,7 +332,7 @@ app.post('/api/forgot-password', async (req, res) => {
         console.log(`[PASSWORD RESET] Link for ${email}: ${resetLink}`);
 
         const mailOptions = {
-            from: '"Asistente H&S" <asistente.hs.soporte@gmail.com>',
+            from: `"Asistente HYS" <${process.env.EMAIL_USER || 'asistente.hs.soporte@gmail.com'}>`,
             to: email,
             subject: 'Restablecer tu contraseña - Asistente HYS',
             html: `
@@ -369,7 +369,7 @@ app.post('/api/forgot-password', async (req, res) => {
             console.error('[PASSWORD RESET] Error sending email:', err.message);
             // Return reset link in response if email fails as a fallback
             return res.json({
-                message: 'No se pudo enviar el mail, pero puedes usar este link directo.',
+                message: resetLink ? 'No se pudo enviar el mail, pero puedes usar este link directo:' : '¡Link enviado con éxito! Revisa tu Gmail.',
                 devLink: resetLink
             });
         }
@@ -486,7 +486,7 @@ app.post('/api/welcome-email', async (req, res) => {
     console.log(`[WELCOME EMAIL] Preparing email for ${email}...`);
 
     const mailOptions = {
-        from: '"Asistente H&S" <asistente.hs.soporte@gmail.com>',
+        from: `"Asistente HYS" <${process.env.EMAIL_USER || 'asistente.hs.soporte@gmail.com'}>`,
         to: email,
         subject: '¡Bienvenido al Asistente HYS!',
         html: `
@@ -516,7 +516,7 @@ app.post('/api/welcome-email', async (req, res) => {
                 
                 <div style="background-color: #f9fafb; padding: 25px; text-align: center; border-top: 1px solid #e1e1e1;">
                     <p style="margin: 0; font-size: 13px; color: #6b7280;">Este es un correo automático, no es necesario responder.</p>
-                    <p style="margin: 5px 0 0 0; font-size: 13px; color: #6b7280;">&copy; 2026 Asistente de Higiene y Seguridad</p>
+                    <p style="margin: 5px 0 0 0; font-size: 13px; color: #6b7280;">&copy; 2026 Asistente HYS</p>
                 </div>
             </div>
         `

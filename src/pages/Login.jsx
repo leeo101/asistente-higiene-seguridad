@@ -117,7 +117,7 @@ export default function Login() {
             if (response.ok) {
                 setStatus({
                     type: 'success',
-                    message: data.devLink ? 'No se pudo enviar el mail (faltan credenciales), pero aquí tienes tu link:' : 'Enlace enviado a tu email.',
+                    message: data.devLink ? 'No se pudo enviar el mail, pero aquí tienes tu link:' : 'Enlace enviado a tu email.',
                     resetLink: data.devLink || ''
                 });
             } else {
