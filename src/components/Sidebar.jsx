@@ -152,12 +152,6 @@ export default function Sidebar({ isOpen, onClose }) {
                                     <span style={{ fontWeight: 500 }}>Historiales</span>
                                 </div>
                             </Link>
-                            <Link to="/ai-history" onClick={onClose} style={{ textDecoration: 'none' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: '8px', color: 'var(--color-text)', background: 'transparent' }}>
-                                    <Sparkles size={20} color="var(--color-text-muted)" />
-                                    <span style={{ fontWeight: 500 }}>Consultas IA</span>
-                                </div>
-                            </Link>
                         </>
                     )}
 

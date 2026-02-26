@@ -4,9 +4,11 @@ import {
     ArrowLeft, ChevronRight, ChevronLeft,
     Save, Accessibility, AlertCircle, Info, User, Building2
 } from 'lucide-react';
+import { useSync } from '../contexts/SyncContext';
 
 export default function ErgonomicsForm() {
     const navigate = useNavigate();
+    const { syncCollection } = useSync();
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
         empresa: '',
@@ -61,6 +63,7 @@ export default function ErgonomicsForm() {
         const newEntry = { ...formData, id, riesgo };
         history.push(newEntry);
         localStorage.setItem('ergonomics_history', JSON.stringify(history));
+        syncCollection('ergonomics_history', history);
         navigate(`/ergonomics-report?id=${id}`);
     };
 

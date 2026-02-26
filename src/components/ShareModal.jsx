@@ -27,6 +27,20 @@ export default function ShareModal({ open, onClose, title = '', text = '' }) {
             url: `https://wa.me/?text=${encoded}`,
         },
         {
+            label: 'LinkedIn',
+            icon: '🔗',
+            color: '#0077b5',
+            bg: '#e0f2fe',
+            url: `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
+        },
+        {
+            label: 'Facebook',
+            icon: '👥',
+            color: '#1877f2',
+            bg: '#e7f3ff',
+            url: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+        },
+        {
             label: 'Telegram',
             icon: '✈️',
             color: '#229ED9',

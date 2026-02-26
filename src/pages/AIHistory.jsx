@@ -5,11 +5,13 @@ import {
     Trash2, Sparkles, Download, FileText, HardHat,
     ShieldAlert, Lightbulb, Gavel
 } from 'lucide-react';
+import { useSync } from '../contexts/SyncContext';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 export default function AIHistory() {
     const navigate = useNavigate();
+    const { syncCollection } = useSync();
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedItem, setSelectedItem] = useState(null);
@@ -25,6 +27,7 @@ export default function AIHistory() {
             const updated = history.filter(item => item.id !== id);
             setHistory(updated);
             localStorage.setItem('ai_advisor_history', JSON.stringify(updated));
+            syncCollection('ai_advisor_history', updated);
             if (selectedItem?.id === id) setSelectedItem(null);
         }
     };

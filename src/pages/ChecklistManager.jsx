@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../contexts/AuthContext';
+import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
 
 const DEFAULT_TEMPLATES = {
@@ -92,6 +93,7 @@ const MANDATORY_SECTIONS = [
 export default function ChecklistManager() {
     const navigate = useNavigate();
     const { currentUser } = useAuth();
+    const { syncCollection } = useSync();
     const [searchParams] = useSearchParams();
 
     const [companyInfo, setCompanyInfo] = useState({
@@ -129,7 +131,7 @@ export default function ChecklistManager() {
         }
     }, [searchParams]);
 
-    const handleSave = () => {
+    const handleSave = async () => {
         const id = searchParams.get('id') || Date.now().toString();
 
         const data = {
@@ -165,6 +167,7 @@ export default function ChecklistManager() {
         }
 
         localStorage.setItem('tool_checklists_history', JSON.stringify(history));
+        await syncCollection('tool_checklists_history', history);
         alert('Checklist guardado con éxito y registrado en el historial ✅');
     };
 

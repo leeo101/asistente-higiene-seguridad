@@ -4,6 +4,7 @@ import {
     ArrowLeft, Search, FileText, Calendar, ChevronRight,
     ClipboardList, Flame, BarChart3, ShieldAlert, Plus, Sparkles, Trash2
 } from 'lucide-react';
+import { useSync } from '../contexts/SyncContext';
 
 // ─── Reusable delete confirmation dialog ───────────────────────────
 function DeleteConfirm({ onConfirm, onCancel }) {
@@ -43,6 +44,7 @@ function DeleteConfirm({ onConfirm, onCancel }) {
 
 export default function History() {
     const navigate = useNavigate();
+    const { syncCollection } = useSync();
     const [view, setView] = useState('hub');
     const [historicalData, setHistoricalData] = useState([]);
     const [matrixData, setMatrixData] = useState([]);
@@ -88,6 +90,7 @@ export default function History() {
         const current = JSON.parse(localStorage.getItem(storageKey) || '[]');
         const updated = current.filter(item => String(item.id) !== String(id));
         localStorage.setItem(storageKey, JSON.stringify(updated));
+        syncCollection(storageKey, updated);
         setDeleteTarget(null);
         // refresh the right list
         if (storageKey === 'inspections_history') setHistoricalData(updated);

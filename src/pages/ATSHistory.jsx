@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, Trash2, FileText, Printer, Building2, Calendar, ClipboardList, X } from 'lucide-react';
+import { useSync } from '../contexts/SyncContext';
 
 function DeleteConfirm({ onConfirm, onCancel }) {
     return (
@@ -28,6 +29,7 @@ function DeleteConfirm({ onConfirm, onCancel }) {
 
 export default function ATSHistory() {
     const navigate = useNavigate();
+    const { syncCollection } = useSync();
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteTarget, setDeleteTarget] = useState(null);
@@ -41,6 +43,7 @@ export default function ATSHistory() {
         const updated = history.filter(item => item.id !== deleteTarget);
         setHistory(updated);
         localStorage.setItem('ats_history', JSON.stringify(updated));
+        syncCollection('ats_history', updated);
         setDeleteTarget(null);
     };
 

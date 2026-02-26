@@ -4,6 +4,7 @@ import {
     ArrowLeft, Search, Trash2, FileText, Printer,
     Calendar, Building2, Flame, ExternalLink, Plus
 } from 'lucide-react';
+import { useSync } from '../contexts/SyncContext';
 
 function DeleteConfirm({ onConfirm, onCancel }) {
     return (
@@ -31,6 +32,7 @@ function DeleteConfirm({ onConfirm, onCancel }) {
 
 export default function FireLoadHistory() {
     const navigate = useNavigate();
+    const { syncCollection } = useSync();
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteTarget, setDeleteTarget] = useState(null);
@@ -44,6 +46,7 @@ export default function FireLoadHistory() {
         const updated = history.filter(item => item.id !== deleteTarget);
         setHistory(updated);
         localStorage.setItem('fireload_history', JSON.stringify(updated));
+        syncCollection('fireload_history', updated);
         setDeleteTarget(null);
     };
 

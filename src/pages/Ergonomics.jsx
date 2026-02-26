@@ -2,17 +2,29 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
     ArrowLeft, Plus, History, FileText,
-    Accessibility, CheckCircle2, AlertTriangle, Clock
+    Accessibility, CheckCircle2, AlertTriangle, Clock, Trash2
 } from 'lucide-react';
+import { useSync } from '../contexts/SyncContext';
 
 export default function Ergonomics() {
     const navigate = useNavigate();
+    const { syncCollection } = useSync();
     const [history, setHistory] = useState([]);
 
     useEffect(() => {
         const saved = localStorage.getItem('ergonomics_history');
         if (saved) setHistory(JSON.parse(saved));
     }, []);
+
+    const handleDelete = (id, e) => {
+        e.stopPropagation();
+        if (window.confirm('¿Desea eliminar este estudio?')) {
+            const updated = history.filter(item => item.id !== id);
+            setHistory(updated);
+            localStorage.setItem('ergonomics_history', JSON.stringify(updated));
+            syncCollection('ergonomics_history', updated);
+        }
+    };
 
     return (
         <div className="container" style={{ paddingBottom: '3rem' }}>
@@ -64,13 +76,21 @@ export default function Ergonomics() {
                                     <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 700 }}>{item.empresa}</h4>
                                     <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{item.puesto} • {item.sector}</p>
                                 </div>
-                                <div style={{ textAlign: 'right' }}>
-                                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: item.riesgo === 'Moderado' ? '#f97316' : '#10b981' }}>
-                                        {item.riesgo || 'Tolerable'}
+                                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div style={{ fontSize: '0.75rem', fontWeight: 700, color: item.riesgo === 'Moderado' ? '#f97316' : '#10b981' }}>
+                                            {item.riesgo || 'Tolerable'}
+                                        </div>
+                                        <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
+                                            {new Date(parseInt(item.id)).toLocaleDateString()}
+                                        </div>
                                     </div>
-                                    <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
-                                        {new Date(parseInt(item.id)).toLocaleDateString()}
-                                    </div>
+                                    <button
+                                        onClick={(e) => handleDelete(item.id, e)}
+                                        style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.5rem' }}
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
                                 </div>
                             </div>
                         ))

@@ -1,10 +1,12 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, Printer, Building2, User, Calendar, CheckCircle2, AlertCircle, Info, Pencil, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Save, Printer, Building2, User, Calendar, CheckCircle2, AlertCircle, Info, Pencil, AlertTriangle, ChevronRight, Share2, FileText } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import ShareModal from '../components/ShareModal';
 
 export default function Report() {
     const navigate = useNavigate();
     const { currentUser } = useAuth();
+    const [showShare, setShowShare] = React.useState(false);
 
     const handlePrint = () => {
         if (!currentUser) {
@@ -44,6 +46,13 @@ export default function Report() {
                 <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Resumen de Inspección</h1>
             </div>
 
+            <ShareModal
+                open={showShare}
+                onClose={() => setShowShare(false)}
+                title="Resumen de Inspección"
+                text={`📋 Resumen de Inspección\n🏗️ Obra: Edificio Alvear\n📅 Fecha: 15/02/2024\n✅ Cumplimiento: 95%\n⚠️ Hallazgos: 2\n\nGenerado con Asistente H&S`}
+            />
+
             <div className="card" style={{ background: 'var(--color-primary)', color: 'white', textAlign: 'center', padding: '2rem' }}>
                 <CheckCircle2 size={48} style={{ marginBottom: '1rem' }} />
                 <h2 style={{ fontSize: '1.8rem', margin: '0 0 0.5rem 0' }}>Inspección Finalizada</h2>
@@ -72,18 +81,10 @@ export default function Report() {
                     <ChevronRight size={18} />
                 </button>
 
-                <button className="btn-secondary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.2rem' }}>
+                <button onClick={() => setShowShare(true)} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.2rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                         <Share2 size={20} />
-                        <span>Compartir vía WhatsApp</span>
-                    </div>
-                    <ChevronRight size={18} />
-                </button>
-
-                <button className="btn-secondary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.2rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <FileText size={20} />
-                        <span>Enviar por Email</span>
+                        <span>Compartir / Enviar</span>
                     </div>
                     <ChevronRight size={18} />
                 </button>

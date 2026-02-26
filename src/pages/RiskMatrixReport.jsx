@@ -2,99 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Printer, Share2, AlertTriangle, X, Copy, Check, Mail } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-
-// ─── Share Modal ─────────────────────────────────────────────────────
-function ShareModal({ open, onClose, matrix }) {
-    const [copied, setCopied] = useState(false);
-    if (!open || !matrix) return null;
-
-    const text = `📋 Matriz de Riesgos\n🏗️ Proyecto: ${matrix.name}\n📍 Ubicación: ${matrix.location || '-'}\n📅 Fecha: ${matrix.date}\n👷 Responsable: ${matrix.responsable}\n\n✅ Riesgos evaluados: ${matrix.rows?.length || 0}\n\nGenerado con Asistente H&S`;
-    const encoded = encodeURIComponent(text);
-    const subject = encodeURIComponent(`Matriz de Riesgos – ${matrix.name}`);
-
-    const handleCopy = async () => {
-        await navigator.clipboard.writeText(text);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2500);
-    };
-
-    const options = [
-        {
-            label: 'WhatsApp', color: '#25D366', bg: '#dcfce7',
-            icon: '📱',
-            url: `https://wa.me/?text=${encoded}`
-        },
-        {
-            label: 'Telegram', color: '#229ED9', bg: '#e0f2fe',
-            icon: '✈️',
-            url: `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encoded}`
-        },
-        {
-            label: 'Twitter / X', color: '#000', bg: '#f1f5f9',
-            icon: '𝕏',
-            url: `https://twitter.com/intent/tweet?text=${encoded}`
-        },
-        {
-            label: 'Email', color: '#6366f1', bg: '#eef2ff',
-            icon: '📧',
-            url: `mailto:?subject=${subject}&body=${encoded}`
-        },
-    ];
-
-    return (
-        <div style={{
-            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
-            zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            backdropFilter: 'blur(4px)'
-        }} onClick={onClose}>
-            <div style={{
-                background: '#fff', borderRadius: '24px', padding: '2rem',
-                maxWidth: '420px', width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
-                position: 'relative'
-            }} onClick={e => e.stopPropagation()}>
-                <button onClick={onClose} style={{
-                    position: 'absolute', top: '1rem', right: '1rem',
-                    background: '#f1f5f9', border: 'none', borderRadius: '50%',
-                    width: '32px', height: '32px', cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center'
-                }}><X size={16} /></button>
-
-                <h2 style={{ margin: '0 0 0.3rem', fontSize: '1.2rem', fontWeight: 900 }}>Compartir Reporte</h2>
-                <p style={{ margin: '0 0 1.5rem', fontSize: '0.8rem', color: '#94a3b8' }}>{matrix.name}</p>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginBottom: '1.2rem' }}>
-                    {options.map(opt => (
-                        <a key={opt.label} href={opt.url} target="_blank" rel="noreferrer" style={{
-                            display: 'flex', alignItems: 'center', gap: '0.7rem',
-                            padding: '0.9rem 1rem', background: opt.bg,
-                            borderRadius: '14px', border: `1.5px solid ${opt.color}30`,
-                            textDecoration: 'none', color: opt.color,
-                            fontWeight: 800, fontSize: '0.85rem',
-                            transition: 'transform 0.15s'
-                        }}
-                            onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.03)'}
-                            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-                        >
-                            <span style={{ fontSize: '1.2rem' }}>{opt.icon}</span> {opt.label}
-                        </a>
-                    ))}
-                </div>
-
-                <button onClick={handleCopy} style={{
-                    width: '100%', padding: '0.9rem',
-                    background: copied ? '#dcfce7' : '#f8fafc',
-                    border: `1.5px solid ${copied ? '#86efac' : '#e2e8f0'}`,
-                    borderRadius: '14px', cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    gap: '0.6rem', fontWeight: 800, fontSize: '0.85rem',
-                    color: copied ? '#16a34a' : '#475569', transition: 'all 0.2s'
-                }}>
-                    {copied ? <><Check size={16} /> ¡Copiado al portapapeles!</> : <><Copy size={16} /> Copiar texto del reporte</>}
-                </button>
-            </div>
-        </div>
-    );
-}
+import ShareModal from '../components/ShareModal';
 
 // ─── Visual Risk Grid (Probability × Impact) ───────────────────────
 // Rows: Probability (top = high), Columns: Impact (left = low)
@@ -222,7 +130,12 @@ export default function RiskMatrixReport() {
 
     return (
         <div className="container" style={{ maxWidth: '1100px' }}>
-            <ShareModal open={showShare} onClose={() => setShowShare(false)} matrix={matrix} />
+            <ShareModal
+                open={showShare}
+                onClose={() => setShowShare(false)}
+                title={`Matriz de Riesgos – ${matrix.name}`}
+                text={`📋 Matriz de Riesgos\n🏗️ Proyecto: ${matrix.name}\n📍 Ubicación: ${matrix.location || '-'}\n📅 Fecha: ${matrix.date}\n👷 Responsable: ${profile?.name || matrix.responsable}\n\n✅ Riesgos evaluados: ${matrix.rows?.length || 0}\n\nGenerado con Asistente H&S`}
+            />
 
             {/* ─── Action Bar (no-print) ─── */}
             <div className="no-print" style={{
