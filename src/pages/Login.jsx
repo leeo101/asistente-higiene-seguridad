@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { User, Lock, LogIn, Mail, ArrowLeft, CheckCircle2, AlertCircle, ShieldCheck, CreditCard, Award, GraduationCap, Phone, MapPin } from 'lucide-react';
+import { User, Lock, LogIn, Mail, ArrowLeft, CheckCircle2, AlertCircle, ShieldCheck, CreditCard, Award, GraduationCap, Phone, MapPin, Smartphone, ExternalLink } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { API_BASE_URL } from '../config';
 
@@ -18,7 +18,7 @@ export default function Login() {
     const [phone, setPhone] = useState('');
     const [address, setAddress] = useState('');
     const [view, setView] = useState(location.state?.view || 'login'); // 'login', 'register', or 'forgot'
-    const [status, setStatus] = useState({ type: '', message: '', resetLink: '' });
+    const [status, setStatus] = useState({ type: '', message: '', resetLink: '', code: '' });
 
     // Redirect if already logged in
     useEffect(() => {
@@ -117,8 +117,9 @@ export default function Login() {
             if (response.ok) {
                 setStatus({
                     type: 'success',
-                    message: data.devLink ? 'No se pudo enviar el mail, pero aquí tienes tu link:' : 'Enlace enviado a tu email.',
-                    resetLink: data.devLink || ''
+                    message: data.devLink ? 'No se pudo enviar el mail, pero aquí tienes tu link o código:' : 'Enlace enviado a tu email.',
+                    resetLink: data.devLink || '',
+                    code: data.code || ''
                 });
             } else {
                 setStatus({ type: 'error', message: data.error || 'Error al enviar email.' });
@@ -436,16 +437,64 @@ export default function Login() {
                                 </div>
                             )}
 
-                            {status.resetLink && (
+                            {status.code && (
                                 <div style={{
-                                    padding: '1rem',
-                                    borderRadius: '8px',
-                                    background: 'var(--color-primary-light)',
-                                    marginBottom: '1.5rem',
-                                    textAlign: 'center'
+                                    background: 'rgba(59, 130, 246, 0.05)',
+                                    padding: '1.2rem',
+                                    borderRadius: '12px',
+                                    textAlign: 'center',
+                                    border: '1px solid rgba(59, 130, 246, 0.1)',
+                                    marginBottom: '1.5rem'
                                 }}>
-                                    <a href={status.resetLink} style={{ color: 'var(--color-primary)', fontWeight: 'bold', wordBreak: 'break-all' }}>
-                                        Haz clic aquí para restablecer
+                                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 500 }}>Tu código de seguridad:</p>
+                                    <span style={{ fontSize: '1.8rem', fontWeight: 'bold', letterSpacing: '6px', color: 'var(--color-primary)' }}>{status.code}</span>
+                                </div>
+                            )}
+
+                            {status.resetLink && (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', marginBottom: '1.5rem' }}>
+                                    <a
+                                        href={status.resetLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '0.6rem',
+                                            padding: '1rem',
+                                            background: 'var(--color-primary)',
+                                            color: 'white',
+                                            borderRadius: '10px',
+                                            textDecoration: 'none',
+                                            fontWeight: 700,
+                                            fontSize: '0.9rem',
+                                            boxShadow: '0 4px 6px -1px rgba(37, 99, 235, 0.2)'
+                                        }}
+                                    >
+                                        <ExternalLink size={18} /> Restablecer Ahora
+                                    </a>
+
+                                    <a
+                                        href={`https://wa.me/?text=${encodeURIComponent(`Hola, mi código de seguridad HYS es: ${status.code}. \n\nO puedes entrar directamente aquí: ${status.resetLink}`)}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '0.6rem',
+                                            padding: '1rem',
+                                            background: '#25D366',
+                                            color: 'white',
+                                            borderRadius: '10px',
+                                            textDecoration: 'none',
+                                            fontWeight: 700,
+                                            fontSize: '0.9rem',
+                                            boxShadow: '0 4px 6px -1px rgba(37, 211, 102, 0.2)'
+                                        }}
+                                    >
+                                        <Smartphone size={18} /> Enviar por WhatsApp
                                     </a>
                                 </div>
                             )}

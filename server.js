@@ -321,14 +321,16 @@ app.post('/api/forgot-password', async (req, res) => {
 
     try {
         const token = crypto.randomBytes(32).toString('hex');
+        const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
         const expires = Date.now() + 3600000; // 1 hour
 
-        resetTokens.set(token, { email, expires });
+        resetTokens.set(token, { email, code, expires });
 
         // Use origin to generate the link, or a fallback
         const origin = req.headers.origin || 'http://localhost:5173';
         const resetLink = `${origin}/reset-password?token=${token}`;
 
+        console.log(`[PASSWORD RESET] Code for ${email}: ${code}`);
         console.log(`[PASSWORD RESET] Link for ${email}: ${resetLink}`);
 
         const mailOptions = {
@@ -338,15 +340,20 @@ app.post('/api/forgot-password', async (req, res) => {
             html: `
                 <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e1e1e1; border-radius: 12px; background-color: #ffffff;">
                     <div style="text-align: center; margin-bottom: 20px;">
-                        <img src="https://asistentehs-b594e.web.app/logo.png" alt="Asistente H&S" style="height: 60px; width: auto;">
+                        <img src="https://asistentehs-b594e.web.app/logo.png" alt="Asistente HYS" style="height: 60px; width: auto;">
                     </div>
-                    <h2 style="color: #3b82f6; text-align: center;">Restablecer Contraseña</h2>
-                    <p>Has solicitado restablecer tu contraseña en el <strong>Asistente de Higiene y Seguridad</strong>.</p>
-                    <p>Haz clic en el siguiente botón para continuar (expira en 1 hora):</p>
+                    <h2 style="color: #3b82f6; text-align: center;">Tu Código de Seguridad</h2>
+                    <p style="text-align: center; font-size: 1.1rem;">Has solicitado restablecer tu contraseña en el <strong>Asistente HYS</strong>.</p>
+                    
+                    <div style="background-color: #f3f4f6; padding: 20px; border-radius: 10px; text-align: center; margin: 25px 0;">
+                        <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #111827;">${code}</span>
+                    </div>
+
+                    <p style="text-align: center;">O haz clic en el siguiente botón para continuar directamente:</p>
                     <div style="text-align: center; margin: 30px 0;">
                         <a href="${resetLink}" style="display: inline-block; padding: 14px 28px; background-color: #3b82f6; color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">Restablecer Contraseña</a>
                     </div>
-                    <p style="color: #666; font-size: 0.85rem; border-top: 1px solid #eee; padding-top: 15px; margin-top: 20px;">Si no solicitaste este cambio, puedes ignorar este correo.</p>
+                    <p style="color: #666; font-size: 0.85rem; border-top: 1px solid #eee; padding-top: 15px; margin-top: 20px;">Si no solicitaste este cambio, puedes ignorar este correo. El código expira en 1 hora.</p>
                 </div>
             `
         };
@@ -364,13 +371,17 @@ app.post('/api/forgot-password', async (req, res) => {
                 });
             });
             console.log(`[PASSWORD RESET] Email sent successfully to ${email}`);
-            return res.json({ message: 'Email de recuperación enviado con éxito.' });
+            return res.json({
+                message: 'Email de recuperación enviado con éxito.',
+                code: code // Also return code if they want to copy it manually
+            });
         } catch (err) {
             console.error('[PASSWORD RESET] Error sending email:', err.message);
             // Return reset link in response if email fails as a fallback
             return res.json({
-                message: resetLink ? 'No se pudo enviar el mail, pero puedes usar este link directo:' : '¡Link enviado con éxito! Revisa tu Gmail.',
-                devLink: resetLink
+                message: 'No se pudo enviar el mail, pero puedes usar este link directo o código:',
+                devLink: resetLink,
+                code: code
             });
         }
 
