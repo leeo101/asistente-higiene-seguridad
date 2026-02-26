@@ -46,7 +46,7 @@ export default async function handler(req, res) {
         const resetLink = `https://${req.headers.host}/reset-password?token=${token}`;
 
         const mailOptions = {
-            from: `"Asistente HYS" <${process.env.EMAIL_USER}>`,
+            from: { name: 'Asistente HYS', address: process.env.EMAIL_USER },
             to: email,
             subject: 'Restablecer tu contraseña - Asistente HYS',
             html: `

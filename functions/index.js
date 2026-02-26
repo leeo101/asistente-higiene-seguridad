@@ -120,7 +120,7 @@ exports.forgotPassword = onRequest((req, res) => {
             const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
 
             const mailOptions = {
-                from: `"Asistente HYS" <${process.env.EMAIL_USER}>`,
+                from: { name: 'Asistente HYS', address: process.env.EMAIL_USER },
                 to: email,
                 subject: 'Restablecer tu contraseña - Asistente HYS',
                 html: `
