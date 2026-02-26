@@ -521,10 +521,15 @@ app.post('/api/welcome-email', async (req, res) => {
             });
         });
         console.log(`[WELCOME EMAIL] Sent successfully to ${email}`);
-        res.json({ success: true });
+        res.json({ success: true, message: 'Correo de bienvenida enviado' });
     } catch (err) {
         console.error('[WELCOME EMAIL] Error:', err.message);
-        res.status(500).json({ error: 'No se pudo enviar el correo de bienvenida' });
+        // We still return 200 to not break registration, but with an error flag
+        res.json({
+            success: false,
+            error: err.message,
+            message: 'No se pudo enviar el correo, pero el registro fue exitoso.'
+        });
     }
 });
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, User, Settings, PenTool, Database, Shield, LogOut, ChevronRight } from 'lucide-react';
+import { ArrowLeft, User, Settings, PenTool, Database, Shield, LogOut, ChevronRight, Trash2, AlertCircle } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Profile() {
     const navigate = useNavigate();
@@ -29,9 +30,28 @@ export default function Profile() {
         { id: 'privacy', label: 'Seguridad', icon: <Shield />, path: '/security' },
     ];
 
+    const { logout, deleteAccount } = useAuth();
+
     const handleLogout = () => {
-        localStorage.removeItem('isAuthenticated');
+        logout();
         navigate('/login');
+    };
+
+    const handleDeleteAccount = async () => {
+        const confirmStr = "ELIMINAR MI CUENTA";
+        const userInput = prompt(`¿Estás seguro de que quieres eliminar tu cuenta permanentemente? Esta acción NO se puede deshacer.\n\nEscribe "${confirmStr}" para confirmar:`);
+
+        if (userInput === confirmStr) {
+            try {
+                await deleteAccount();
+                localStorage.clear(); // Limpiar todo el rastro local
+                alert("Cuenta eliminada con éxito. Lamentamos verte partir.");
+                navigate('/login');
+            } catch (error) {
+                console.error("Error al eliminar cuenta:", error);
+                alert("Hubo un error al intentar eliminar la cuenta. Por favor, intenta cerrar sesión e ingresar de nuevo antes de reintentar.");
+            }
+        }
     };
 
     return (
@@ -154,6 +174,29 @@ export default function Profile() {
                 }}
             >
                 <LogOut size={20} /> Cerrar Sesión
+            </button>
+
+            <button
+                onClick={handleDeleteAccount}
+                style={{
+                    width: '100%',
+                    padding: '1rem',
+                    background: 'transparent',
+                    border: '1px solid rgba(239, 68, 68, 0.2)',
+                    borderRadius: '12px',
+                    color: '#ef4444',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    marginTop: '2rem',
+                    cursor: 'pointer',
+                    opacity: 0.7
+                }}
+            >
+                <Trash2 size={16} /> Eliminar mi cuenta permanentemente
             </button>
         </div>
     );

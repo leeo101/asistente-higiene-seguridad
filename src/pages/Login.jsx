@@ -11,6 +11,7 @@ export default function Login() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [dni, setDni] = useState('');
     const [license, setLicense] = useState('');
     const [profession, setProfession] = useState('');
@@ -39,6 +40,15 @@ export default function Login() {
 
     const handleRegister = async (e) => {
         e.preventDefault();
+
+        // Basic Validations
+        if (password.length < 6) {
+            return setStatus({ type: 'error', message: 'La contraseña debe tener al menos 6 caracteres.' });
+        }
+        if (password !== confirmPassword) {
+            return setStatus({ type: 'error', message: 'Las contraseñas no coinciden.' });
+        }
+
         setStatus({ type: 'loading', message: 'Creando cuenta...' });
         try {
             await signup(email, password, name);
@@ -250,6 +260,23 @@ export default function Login() {
                                         style={{ paddingLeft: '40px' }}
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                        minLength="6"
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <label htmlFor="confirmPassword">Confirmar Contraseña</label>
+                                <div style={{ position: 'relative' }}>
+                                    <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                                    <input
+                                        type="password"
+                                        id="confirmPassword"
+                                        placeholder="••••••••"
+                                        style={{ paddingLeft: '40px' }}
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
                                         required
                                         minLength="6"
                                     />
