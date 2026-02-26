@@ -231,6 +231,19 @@ const transporter = nodemailer.createTransport({
     auth: {
         user: process.env.EMAIL_USER || 'asistente.hs.soporte@gmail.com',
         pass: process.env.EMAIL_PASS || 'your-app-password'
+    },
+    // Add timeouts to prevent hanging
+    connectionTimeout: 10000, // 10s
+    greetingTimeout: 10000,
+    socketTimeout: 10000
+});
+
+// Verify connection on startup
+transporter.verify((error, success) => {
+    if (error) {
+        console.error('[NODEMAILER] Error de conexión:', error.message);
+    } else {
+        console.log('[NODEMAILER] Servidor de correo listo para enviar mensajes');
     }
 });
 
@@ -246,14 +259,14 @@ app.post('/api/forgot-password', async (req, res) => {
 
         const resetLink = `http://localhost:5173/reset-password?token=${token}`;
 
-        console.log(`[PASWORD RESET] Link for ${email}: ${resetLink}`);
+        console.log(`[PASSWORD RESET] Link for ${email}: ${resetLink}`);
 
         const mailOptions = {
             from: '"Asistente H&S" <asistente.hs.soporte@gmail.com>',
             to: email,
             subject: 'Restablecer tu contraseña - Asistente H&S',
             html: `
-                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e1e1e1; borderRadius: 12px;">
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e1e1e1; border-radius: 12px;">
                     <h2 style="color: #3b82f6;">Restablecer Contraseña</h2>
                     <p>Has solicitado restablecer tu contraseña en el <strong>Asistente de Higiene y Seguridad</strong>.</p>
                     <p>Haz clic en el siguiente botón para continuar (expira en 1 hora):</p>
@@ -263,13 +276,28 @@ app.post('/api/forgot-password', async (req, res) => {
             `
         };
 
-        transporter.sendMail(mailOptions, (err, info) => {
-            if (err) {
-                console.log('Error sending email (likely missing credentials):', err.message);
-                return res.json({ message: 'Link de recuperación generado (ver consola)', devLink: resetLink });
-            }
-            res.json({ message: 'Email de recuperación enviado con éxito.' });
-        });
+        // Send email and wait for result
+        console.log(`[PASSWORD RESET] Sending email to ${email}...`);
+
+        try {
+            await new Promise((resolve, reject) => {
+                const timeout = setTimeout(() => reject(new Error('Timeout enviando email')), 15000);
+                transporter.sendMail(mailOptions, (err, info) => {
+                    clearTimeout(timeout);
+                    if (err) reject(err);
+                    else resolve(info);
+                });
+            });
+            console.log(`[PASSWORD RESET] Email sent successfully to ${email}`);
+            return res.json({ message: 'Email de recuperación enviado con éxito.' });
+        } catch (err) {
+            console.error('[PASSWORD RESET] Error sending email:', err.message);
+            // Return reset link in response if email fails as a fallback
+            return res.json({
+                message: 'No se pudo enviar el mail, pero puedes usar este link directo.',
+                devLink: resetLink
+            });
+        }
 
     } catch (error) {
         res.status(500).json({ error: 'Error interno del servidor' });
