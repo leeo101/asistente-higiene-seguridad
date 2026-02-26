@@ -128,6 +128,7 @@ export default function Sidebar({ isOpen, onClose }) {
                     overflowY: 'auto',
                     marginRight: '-0.5rem',
                     paddingRight: '0.5rem',
+                    paddingBottom: '2rem', // Safe area for taskbar
                     scrollbarWidth: 'thin'
                 }}>
                     <Link to="/" onClick={onClose} style={{ textDecoration: 'none' }}>
@@ -191,31 +192,32 @@ export default function Sidebar({ isOpen, onClose }) {
                             <span style={{ fontWeight: 700 }}>Activar Versión Pro</span>
                         </div>
                     </Link>
-                    <AdBanner placement="sidebar" />
-                </nav>
 
-                {currentUser && (
-                    <button
-                        onClick={handleLogout}
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '1rem',
-                            padding: '1rem',
-                            borderRadius: '8px',
-                            color: '#ef4444',
-                            background: 'rgba(239, 68, 68, 0.05)',
-                            border: 'none',
-                            cursor: 'pointer',
-                            marginTop: 'auto',
-                            textAlign: 'left',
-                            width: '100%',
-                        }}
-                    >
-                        <LogOut size={20} />
-                        <span style={{ fontWeight: 600 }}>Cerrar Sesión</span>
-                    </button>
-                )}
+                    <AdBanner placement="sidebar" />
+
+                    {currentUser && (
+                        <button
+                            onClick={handleLogout}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '1rem',
+                                padding: '1rem',
+                                borderRadius: '8px',
+                                color: '#ef4444',
+                                background: 'rgba(239, 68, 68, 0.05)',
+                                border: 'none',
+                                cursor: 'pointer',
+                                marginTop: '1rem',
+                                textAlign: 'left',
+                                width: '100%',
+                            }}
+                        >
+                            <LogOut size={20} />
+                            <span style={{ fontWeight: 600 }}>Cerrar Sesión</span>
+                        </button>
+                    )}
+                </nav>
             </div>
         </>
     );

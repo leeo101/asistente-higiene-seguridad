@@ -26,7 +26,7 @@ const MOCK_ADS = [
 ];
 
 export default function AdBanner({ placement = 'general' }) {
-    const [isSubscribed, setIsSubscribed] = useState(true);
+    const [isSubscribed, setIsSubscribed] = useState(false);
     const [currentAd, setCurrentAd] = useState(null);
 
     useEffect(() => {
