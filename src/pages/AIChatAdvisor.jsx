@@ -7,7 +7,7 @@ import {
     Mic, MicOff
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { API_BASE_URL } from '../config';
 
 export default function AIChatAdvisor() {
@@ -50,87 +50,95 @@ export default function AIChatAdvisor() {
 
     const handleDownloadPDF = () => {
         if (!result) return;
+        setLoading(true);
 
-        const doc = new jsPDF();
-        const pageWidth = doc.internal.pageSize.getWidth();
+        try {
+            const doc = new jsPDF();
+            const pageWidth = doc.internal.pageSize.getWidth();
 
-        // Color Palette
-        const colors = {
-            primary: [37, 99, 235],    // blue-600
-            danger: [239, 68, 68],     // red-500
-            success: [16, 185, 129],   // emerald-500
-            warning: [249, 115, 22],   // orange-500
-            text: [31, 41, 55],        // gray-800
-            muted: [107, 114, 128]     // gray-500
-        };
+            // Color Palette
+            const colors = {
+                primary: [37, 99, 235],    // blue-600
+                danger: [239, 68, 68],     // red-500
+                success: [16, 185, 129],   // emerald-500
+                warning: [249, 115, 22],   // orange-500
+                text: [31, 41, 55],        // gray-800
+                muted: [107, 114, 128]     // gray-500
+            };
 
-        // Header
-        doc.setFillColor(...colors.primary);
-        doc.rect(0, 0, pageWidth, 35, 'F');
+            // Header
+            doc.setFillColor(...colors.primary);
+            doc.rect(0, 0, pageWidth, 35, 'F');
 
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(22);
-        doc.setFont('helvetica', 'bold');
-        doc.text('ASISTENTE H&S', 15, 15);
-
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'normal');
-        doc.text('Análisis de Seguridad con Inteligencia Artificial', 15, 22);
-
-        doc.setFontSize(8);
-        doc.text(`Fecha de consulta: ${new Date().toLocaleString()}`, 15, 28);
-
-        // Task Title
-        doc.setTextColor(...colors.text);
-        doc.setFontSize(14);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Análisis de Tarea:', 15, 45);
-
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'normal');
-        const taskLines = doc.splitTextToSize(result.task, pageWidth - 30);
-        doc.text(taskLines, 15, 52);
-
-        let currentY = 52 + (taskLines.length * 7);
-
-        // Sections
-        const createSection = (title, items, color) => {
-            doc.setFillColor(...color);
-            doc.rect(15, currentY, 4, 8, 'F');
-
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(22);
             doc.setFont('helvetica', 'bold');
-            doc.setFontSize(12);
+            doc.text('ASISTENTE H&S', 15, 15);
+
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Análisis de Seguridad con Inteligencia Artificial', 15, 22);
+
+            doc.setFontSize(8);
+            doc.text(`Fecha de consulta: ${new Date().toLocaleString()}`, 15, 28);
+
+            // Task Title
             doc.setTextColor(...colors.text);
-            doc.text(title, 22, currentY + 6);
-            currentY += 12;
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Análisis de Tarea:', 15, 45);
 
-            doc.autoTable({
-                startY: currentY,
-                body: items.map(item => [item]),
-                columns: [{ header: '', dataKey: 'item' }],
-                theme: 'plain',
-                styles: { fontSize: 10, cellPadding: 2 },
-                columnStyles: { 0: { cellWidth: pageWidth - 30 } },
-                margin: { left: 20 },
-                didDrawPage: (data) => { currentY = data.cursor.y; }
-            });
-            currentY += 10;
-        };
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'normal');
+            const taskLines = doc.splitTextToSize(result.task, pageWidth - 30);
+            doc.text(taskLines, 15, 52);
 
-        createSection('Riesgos Detectados', result.riesgos, colors.danger);
-        createSection('EPP Recomendado', result.epp, colors.primary);
-        createSection('Medidas Preventivas', result.recomendaciones, colors.success);
-        createSection('Marco Legal (Argentina)', result.normativa, [139, 92, 246]);
+            let currentY = 52 + (taskLines.length * 7);
 
-        // Footer
-        doc.setFontSize(8);
-        doc.setTextColor(...colors.muted);
-        doc.setFont('helvetica', 'italic');
-        const disclaimer = 'Este análisis es generado por IA y debe ser validado por un profesional matriculado bajo su propia responsabilidad.';
-        const disclaimerLines = doc.splitTextToSize(disclaimer, pageWidth - 30);
-        doc.text(disclaimerLines, 15, doc.internal.pageSize.getHeight() - 15);
+            // Sections
+            const createSection = (title, items, color) => {
+                doc.setFillColor(...color);
+                doc.rect(15, currentY, 4, 8, 'F');
 
-        doc.save(`Analisis_Seguridad_${result.task.replace(/\s+/g, '_').substring(0, 20)}.pdf`);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(12);
+                doc.setTextColor(...colors.text);
+                doc.text(title, 22, currentY + 6);
+                currentY += 12;
+
+                autoTable(doc, {
+                    startY: currentY,
+                    body: items.map(item => [item]),
+                    columns: [{ header: '', dataKey: 'item' }],
+                    theme: 'plain',
+                    styles: { fontSize: 10, cellPadding: 2 },
+                    columnStyles: { 0: { cellWidth: pageWidth - 30 } },
+                    margin: { left: 20 },
+                    didDrawPage: (data) => { currentY = data.cursor.y; }
+                });
+                currentY += 10;
+            };
+
+            createSection('Riesgos Detectados', result.riesgos, colors.danger);
+            createSection('EPP Recomendado', result.epp, colors.primary);
+            createSection('Medidas Preventivas', result.recomendaciones, colors.success);
+            createSection('Marco Legal (Argentina)', result.normativa, [139, 92, 246]);
+
+            // Footer
+            doc.setFontSize(8);
+            doc.setTextColor(...colors.muted);
+            doc.setFont('helvetica', 'italic');
+            const disclaimer = 'Este análisis es generado por IA y debe ser validado por un profesional matriculado bajo su propia responsabilidad.';
+            const disclaimerLines = doc.splitTextToSize(disclaimer, pageWidth - 30);
+            doc.text(disclaimerLines, 15, doc.internal.pageSize.getHeight() - 15);
+
+            doc.save(`Analisis_H&S_${new Date().getTime()}.pdf`);
+        } catch (error) {
+            console.error('[PDF ERROR]', error);
+            alert('Error al generar el PDF. Revisa que el navegador no esté bloqueando las descargas.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleSubmit = async (e) => {
