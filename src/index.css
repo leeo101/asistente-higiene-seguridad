@@ -32,6 +32,7 @@
   --color-text-muted: #6B778C;
   /* Softer text */
   --color-border: #DFE1E6;
+  --color-surface-hover: #F8FAFC;
   /* Very subtle borders */
 
   color-scheme: light;
@@ -56,6 +57,7 @@
   --color-text-muted: #9CA3AF;
   /* Gray 400 */
   --color-border: #374151;
+  --color-surface-hover: #374151;
   /* Gray 700 */
   color-scheme: dark;
 }
@@ -140,6 +142,23 @@ a:hover {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+
+  70% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
   }
 }
 

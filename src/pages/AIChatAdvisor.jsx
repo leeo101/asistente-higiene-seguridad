@@ -215,19 +215,20 @@ export default function AIChatAdvisor() {
                                 position: 'absolute',
                                 right: '1rem',
                                 top: '1rem',
-                                background: isListening ? '#ef4444' : 'var(--color-surface-hover)',
-                                border: 'none',
+                                background: isListening ? '#ef4444' : 'var(--color-background)',
+                                border: '1px solid var(--color-border)',
                                 borderRadius: '50%',
-                                width: '40px',
-                                height: '40px',
+                                width: '44px',
+                                height: '44px',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 color: isListening ? 'white' : 'var(--color-primary)',
                                 cursor: 'pointer',
                                 transition: 'all 0.3s ease',
-                                boxShadow: isListening ? '0 0 15px rgba(239, 68, 68, 0.5)' : 'none',
-                                animation: isListening ? 'pulse 1.5s infinite' : 'none'
+                                boxShadow: isListening ? '0 0 15px rgba(239, 68, 68, 0.5)' : '0 2px 5px rgba(0,0,0,0.05)',
+                                animation: isListening ? 'pulse 1.5s infinite' : 'none',
+                                zIndex: 10
                             }}
                             title={isListening ? 'Escuchando...' : 'Hablar'}
                         >
