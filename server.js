@@ -257,7 +257,9 @@ app.post('/api/forgot-password', async (req, res) => {
 
         resetTokens.set(token, { email, expires });
 
-        const resetLink = `http://localhost:5173/reset-password?token=${token}`;
+        // Use origin to generate the link, or a fallback
+        const origin = req.headers.origin || 'http://localhost:5173';
+        const resetLink = `${origin}/reset-password?token=${token}`;
 
         console.log(`[PASSWORD RESET] Link for ${email}: ${resetLink}`);
 

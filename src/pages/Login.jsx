@@ -73,12 +73,20 @@ export default function Login() {
 
         try {
             const fetchUrl = `${API_BASE_URL}/api/forgot-password`;
+            console.log(`[AUTH] Requesting password reset from: ${fetchUrl}`);
+
+            // Add a timeout to the fetch request
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s
 
             const response = await fetch(fetchUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
+                body: JSON.stringify({ email }),
+                signal: controller.signal
             });
+
+            clearTimeout(timeoutId);
 
             const data = await response.json();
             if (response.ok) {
