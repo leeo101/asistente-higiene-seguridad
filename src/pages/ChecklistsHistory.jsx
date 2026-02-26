@@ -2,25 +2,47 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, Trash2, FileText, Calendar, Building2, ClipboardCheck } from 'lucide-react';
 
+function DeleteConfirm({ onConfirm, onCancel }) {
+    return (
+        <div style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',
+            zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            backdropFilter: 'blur(4px)'
+        }}>
+            <div style={{
+                background: '#fff', borderRadius: '20px', padding: '2rem',
+                maxWidth: '360px', width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+                textAlign: 'center'
+            }}>
+                <div style={{ fontSize: '2.5rem', marginBottom: '0.8rem' }}>🗑️</div>
+                <h3 style={{ margin: '0 0 0.5rem', fontWeight: 900, color: '#0f172a' }}>¿Eliminar checklist?</h3>
+                <p style={{ margin: '0 0 1.5rem', color: '#64748b', fontSize: '0.85rem' }}>Esta acción no se puede deshacer.</p>
+                <div style={{ display: 'flex', gap: '0.8rem' }}>
+                    <button onClick={onCancel} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: '#f1f5f9', border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: '0.85rem', color: '#475569' }}>Cancelar</button>
+                    <button onClick={onConfirm} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: 'linear-gradient(135deg,#ef4444,#dc2626)', border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: '0.85rem', color: 'white' }}>Eliminar</button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 export default function ChecklistsHistory() {
     const navigate = useNavigate();
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [deleteTarget, setDeleteTarget] = useState(null);
 
     useEffect(() => {
         const historyRaw = localStorage.getItem('tool_checklists_history');
-        if (historyRaw) {
-            setHistory(JSON.parse(historyRaw));
-        }
+        if (historyRaw) setHistory(JSON.parse(historyRaw));
     }, []);
 
-    const deleteEntry = (id) => {
-        if (window.confirm('¿Estás seguro de que deseas eliminar este checklist?')) {
-            const newHistory = history.filter(item => item.id !== id);
-            setHistory(newHistory);
-            localStorage.setItem('tool_checklists_history', JSON.stringify(newHistory));
-            localStorage.removeItem(`checklist_${id}`);
-        }
+    const confirmDelete = () => {
+        const updated = history.filter(item => item.id !== deleteTarget);
+        setHistory(updated);
+        localStorage.setItem('tool_checklists_history', JSON.stringify(updated));
+        localStorage.removeItem(`checklist_${deleteTarget}`);
+        setDeleteTarget(null);
     };
 
     const filteredHistory = history.filter(item =>
@@ -31,6 +53,7 @@ export default function ChecklistsHistory() {
 
     return (
         <div className="container" style={{ maxWidth: '800px', paddingBottom: '5rem' }}>
+            {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', marginTop: '1rem' }}>
                 <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
                     <ArrowLeft />
@@ -89,7 +112,7 @@ export default function ChecklistsHistory() {
                                     <FileText size={16} /> Ver / Editar
                                 </button>
                                 <button
-                                    onClick={() => deleteEntry(item.id)}
+                                    onClick={() => setDeleteTarget(item.id)}
                                     style={{
                                         padding: '0.6rem',
                                         background: 'rgba(239, 68, 68, 0.05)',
