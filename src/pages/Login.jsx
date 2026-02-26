@@ -17,7 +17,7 @@ export default function Login() {
     const [phone, setPhone] = useState('');
     const [address, setAddress] = useState('');
     const [view, setView] = useState(location.state?.view || 'login'); // 'login', 'register', or 'forgot'
-    const [status, setStatus] = useState({ type: '', message: '' });
+    const [status, setStatus] = useState({ type: '', message: '', resetLink: '' });
 
     // Redirect if already logged in
     useEffect(() => {
@@ -82,7 +82,11 @@ export default function Login() {
 
             const data = await response.json();
             if (response.ok) {
-                setStatus({ type: 'success', message: 'Enlace enviado a tu email (ver consola en dev).' });
+                setStatus({
+                    type: 'success',
+                    message: data.devLink ? 'No se pudo enviar el mail (faltan credenciales), pero aquí tienes tu link:' : 'Enlace enviado a tu email.',
+                    resetLink: data.devLink || ''
+                });
             } else {
                 setStatus({ type: 'error', message: data.error || 'Error al enviar email.' });
             }
@@ -378,6 +382,20 @@ export default function Login() {
                                 }}>
                                     {status.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
                                     {status.message}
+                                </div>
+                            )}
+
+                            {status.resetLink && (
+                                <div style={{
+                                    padding: '1rem',
+                                    borderRadius: '8px',
+                                    background: 'var(--color-primary-light)',
+                                    marginBottom: '1.5rem',
+                                    textAlign: 'center'
+                                }}>
+                                    <a href={status.resetLink} style={{ color: 'var(--color-primary)', fontWeight: 'bold', wordBreak: 'break-all' }}>
+                                        Haz clic aquí para restablecer
+                                    </a>
                                 </div>
                             )}
 
