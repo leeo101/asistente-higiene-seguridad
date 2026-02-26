@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { User, Lock, LogIn, Mail, ArrowLeft, CheckCircle2, AlertCircle, ShieldCheck } from 'lucide-react';
+import { User, Lock, LogIn, Mail, ArrowLeft, CheckCircle2, AlertCircle, ShieldCheck, CreditCard, Award, GraduationCap, Phone, MapPin } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { API_BASE_URL } from '../config';
 
@@ -11,6 +11,11 @@ export default function Login() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [dni, setDni] = useState('');
+    const [license, setLicense] = useState('');
+    const [profession, setProfession] = useState('');
+    const [phone, setPhone] = useState('');
+    const [address, setAddress] = useState('');
     const [view, setView] = useState(location.state?.view || 'login'); // 'login', 'register', or 'forgot'
     const [status, setStatus] = useState({ type: '', message: '' });
 
@@ -37,6 +42,18 @@ export default function Login() {
         setStatus({ type: 'loading', message: 'Creando cuenta...' });
         try {
             await signup(email, password, name);
+            // Save professional data to localStorage
+            const personalData = {
+                name,
+                email,
+                dni,
+                license,
+                profession,
+                phone,
+                address,
+                photo: null
+            };
+            localStorage.setItem('personalData', JSON.stringify(personalData));
             navigate('/');
         } catch (error) {
             console.error(error);
@@ -198,7 +215,7 @@ export default function Login() {
                                 </div>
                             </div>
 
-                            <div style={{ marginBottom: '2rem' }}>
+                            <div style={{ marginBottom: '1.5rem' }}>
                                 <label htmlFor="password">Contraseña (Mín. 6 caracteres)</label>
                                 <div style={{ position: 'relative' }}>
                                     <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
@@ -211,6 +228,85 @@ export default function Login() {
                                         onChange={(e) => setPassword(e.target.value)}
                                         required
                                         minLength="6"
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                                <div>
+                                    <label htmlFor="dni">DNI</label>
+                                    <div style={{ position: 'relative' }}>
+                                        <CreditCard size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                                        <input
+                                            type="text"
+                                            id="dni"
+                                            placeholder="DNI"
+                                            style={{ paddingLeft: '40px' }}
+                                            value={dni}
+                                            onChange={(e) => setDni(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label htmlFor="license">Matrícula</label>
+                                    <div style={{ position: 'relative' }}>
+                                        <Award size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                                        <input
+                                            type="text"
+                                            id="license"
+                                            placeholder="Matrícula"
+                                            style={{ paddingLeft: '40px' }}
+                                            value={license}
+                                            onChange={(e) => setLicense(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <label htmlFor="profession">Profesión</label>
+                                <div style={{ position: 'relative' }}>
+                                    <GraduationCap size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)', zIndex: 1 }} />
+                                    <select
+                                        id="profession"
+                                        value={profession}
+                                        onChange={(e) => setProfession(e.target.value)}
+                                        style={{ paddingLeft: '40px' }}
+                                    >
+                                        <option value="">Seleccione profesión</option>
+                                        <option value="Técnico">Técnico</option>
+                                        <option value="Ingeniero">Ingeniero</option>
+                                        <option value="Licenciado">Licenciado</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <label htmlFor="phone">Teléfono</label>
+                                <div style={{ position: 'relative' }}>
+                                    <Phone size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                                    <input
+                                        type="text"
+                                        id="phone"
+                                        placeholder="Teléfono"
+                                        style={{ paddingLeft: '40px' }}
+                                        value={phone}
+                                        onChange={(e) => setPhone(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ marginBottom: '2rem' }}>
+                                <label htmlFor="address">Dirección</label>
+                                <div style={{ position: 'relative' }}>
+                                    <MapPin size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                                    <input
+                                        type="text"
+                                        id="address"
+                                        placeholder="Dirección"
+                                        style={{ paddingLeft: '40px' }}
+                                        value={address}
+                                        onChange={(e) => setAddress(e.target.value)}
                                     />
                                 </div>
                             </div>
