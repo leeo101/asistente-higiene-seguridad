@@ -415,20 +415,60 @@ export default function ATS() {
                 </div>
             </div>
 
-            <div className="no-print flex flex-col md:flex-row gap-4 mt-8">
+            {/* Floating action bar */}
+            <div className="no-print" style={{
+                position: 'fixed',
+                bottom: '2rem',
+                right: '2rem',
+                display: 'flex',
+                gap: '0.8rem',
+                zIndex: 100,
+            }}>
                 <button
                     onClick={handleSave}
-                    className="flex-1 flex justify-center items-center gap-2 px-6 py-4 bg-emerald-600 text-white rounded-xl font-bold transition-all hover:bg-emerald-700 active:scale-95 shadow-sm border-0"
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        padding: '0.65rem 1.2rem',
+                        background: 'linear-gradient(135deg, #36B37E, #00875A)',
+                        color: 'white',
+                        borderRadius: '50px',
+                        border: 'none',
+                        fontWeight: 800,
+                        fontSize: '0.8rem',
+                        cursor: 'pointer',
+                        boxShadow: '0 6px 20px rgba(54,179,126,0.45)',
+                        transition: 'transform 0.15s, box-shadow 0.15s',
+                        letterSpacing: '0.03em'
+                    }}
+                    onMouseEnter={e => { e.target.style.transform = 'scale(1.05)'; e.target.style.boxShadow = '0 8px 24px rgba(54,179,126,0.55)'; }}
+                    onMouseLeave={e => { e.target.style.transform = 'scale(1)'; e.target.style.boxShadow = '0 6px 20px rgba(54,179,126,0.45)'; }}
                 >
-                    <Save size={20} />
-                    GUARDAR DATOS
+                    <Save size={16} /> GUARDAR
                 </button>
                 <button
                     onClick={handlePrint}
-                    className="flex-1 flex justify-center items-center gap-2 px-6 py-4 bg-orange-600 text-white rounded-xl font-bold transition-all hover:bg-orange-700 active:scale-95 shadow-sm border-0"
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        padding: '0.65rem 1.2rem',
+                        background: 'linear-gradient(135deg, #FF8B00, #FF5630)',
+                        color: 'white',
+                        borderRadius: '50px',
+                        border: 'none',
+                        fontWeight: 800,
+                        fontSize: '0.8rem',
+                        cursor: 'pointer',
+                        boxShadow: '0 6px 20px rgba(255,86,48,0.4)',
+                        transition: 'transform 0.15s, box-shadow 0.15s',
+                        letterSpacing: '0.03em'
+                    }}
+                    onMouseEnter={e => { e.target.style.transform = 'scale(1.05)'; e.target.style.boxShadow = '0 8px 24px rgba(255,86,48,0.55)'; }}
+                    onMouseLeave={e => { e.target.style.transform = 'scale(1)'; e.target.style.boxShadow = '0 6px 20px rgba(255,86,48,0.4)'; }}
                 >
-                    <Printer size={20} />
-                    IMPRIMIR / GENERAR PDF
+                    <Printer size={16} /> IMPRIMIR PDF
                 </button>
             </div>
         </div>
