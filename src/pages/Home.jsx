@@ -95,14 +95,16 @@ export default function Home() {
                     </h1>
                     <p style={{ color: '#6B778C', fontSize: '1.1rem', marginTop: '0.5rem', fontWeight: 500 }}>Dashboard de Seguridad e Higiene</p>
                 </div>
-                <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'nowrap', alignItems: 'center' }}>
-                    <button onClick={() => navigate('/login', { state: { view: 'login' } })} className="btn-outline" style={{ padding: '0.7rem 1.2rem', marginTop: 0, whiteSpace: 'nowrap', minWidth: '110px' }}>
-                        <LogIn size={18} /> Ingresar
-                    </button>
-                    <button onClick={() => navigate('/login', { state: { view: 'register' } })} className="btn-primary" style={{ padding: '0.7rem 1.2rem', marginTop: 0, width: 'auto', whiteSpace: 'nowrap', minWidth: '110px' }}>
-                        <UserPlus size={18} /> Registrarse
-                    </button>
-                </div>
+                {!currentUser && (
+                    <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'nowrap', alignItems: 'center' }}>
+                        <button onClick={() => navigate('/login', { state: { view: 'login' } })} className="btn-outline" style={{ padding: '0.7rem 1.2rem', marginTop: 0, whiteSpace: 'nowrap', minWidth: '110px' }}>
+                            <LogIn size={18} /> Ingresar
+                        </button>
+                        <button onClick={() => navigate('/login', { state: { view: 'register' } })} className="btn-primary" style={{ padding: '0.7rem 1.2rem', marginTop: 0, width: 'auto', whiteSpace: 'nowrap', minWidth: '110px' }}>
+                            <UserPlus size={18} /> Registrarse
+                        </button>
+                    </div>
+                )}
             </div>
 
             <div className="card" style={{
