@@ -108,39 +108,76 @@ export default function Home() {
                 )}
             </div>
 
-            <div className="card" style={{
-                background: '#ffffff',
-                padding: '1.5rem',
-                marginBottom: '2.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1.2rem',
-                boxShadow: '0 1px 3px rgba(9, 30, 66, 0.05)',
-                color: '#172B4D'
-            }}>
-                <div style={{
-                    width: '48px',
-                    height: '48px',
-                    flexShrink: 0,
-                    background: 'var(--color-background)',
-                    borderRadius: '8px',
-                    padding: '8px',
-                    border: '1px solid var(--color-border)'
+            {isSubscribed ? (
+                <div className="card" style={{
+                    background: '#ffffff',
+                    padding: '1.5rem',
+                    marginBottom: '2.5rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1.2rem',
+                    boxShadow: '0 1px 3px rgba(9, 30, 66, 0.05)',
+                    color: '#172B4D'
                 }}>
-                    <img src="/logo.png" alt="Icon" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                    <div style={{
+                        width: '48px',
+                        height: '48px',
+                        flexShrink: 0,
+                        background: 'var(--color-background)',
+                        borderRadius: '8px',
+                        padding: '8px',
+                        border: '1px solid var(--color-border)'
+                    }}>
+                        <img src="/logo.png" alt="Icon" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                        <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#172B4D' }}>
+                            Asistente H&S PRO
+                        </h4>
+                        <p style={{ margin: 0, fontSize: '0.85rem', color: '#6B778C' }}>
+                            Bienvenido a tu suite de gestión profesional.
+                        </p>
+                    </div>
+                    <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: 'var(--color-secondary)' }}></div>
                 </div>
-                <div style={{ flex: 1 }}>
-                    <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#172B4D' }}>
-                        Asistente H&S {isSubscribed ? 'PRO' : 'Básico'}
-                    </h4>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#6B778C' }}>
-                        {isSubscribed
-                            ? 'Bienvenido a tu suite de gestión profesional.'
-                            : 'Crea tu cuenta y actualízate a la versión PRO para habilitar todas las funciones e impresiones.'}
-                    </p>
-                </div>
-                <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: isSubscribed ? 'var(--color-secondary)' : '#6B778C' }}></div>
-            </div>
+            ) : (
+                <Link to="/subscribe" style={{ textDecoration: 'none' }}>
+                    <div className="card" style={{
+                        background: '#ffffff',
+                        padding: '1.5rem',
+                        marginBottom: '2.5rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '1.2rem',
+                        boxShadow: '0 1px 3px rgba(9, 30, 66, 0.05)',
+                        color: '#172B4D',
+                        cursor: 'pointer',
+                        border: '1px solid rgba(37, 99, 235, 0.2)',
+                        transition: 'transform 0.2s, border-color 0.2s'
+                    }}>
+                        <div style={{
+                            width: '48px',
+                            height: '48px',
+                            flexShrink: 0,
+                            background: 'var(--color-background)',
+                            borderRadius: '8px',
+                            padding: '8px',
+                            border: '1px solid var(--color-border)'
+                        }}>
+                            <img src="/logo.png" alt="Icon" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                            <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#172B4D', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                Asistente H&S Básico <ChevronRight size={16} color="var(--color-primary)" />
+                            </h4>
+                            <p style={{ margin: 0, fontSize: '0.85rem', color: '#6B778C' }}>
+                                Crea tu cuenta y actualízate a la versión PRO para habilitar todas las funciones e impresiones.
+                            </p>
+                        </div>
+                        <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#6B778C' }}></div>
+                    </div>
+                </Link>
+            )}
 
             <div style={{ marginBottom: '2.5rem' }}>
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', color: '#172B4D' }}>Historiales</h3>
