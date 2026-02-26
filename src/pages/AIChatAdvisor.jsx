@@ -124,13 +124,37 @@ export default function AIChatAdvisor() {
             createSection('Medidas Preventivas', result.recomendaciones, colors.success);
             createSection('Marco Legal (Argentina)', result.normativa, [139, 92, 246]);
 
-            // Footer
-            doc.setFontSize(8);
-            doc.setTextColor(...colors.muted);
-            doc.setFont('helvetica', 'italic');
-            const disclaimer = 'Este análisis es generado por IA y debe ser validado por un profesional matriculado bajo su propia responsabilidad.';
-            const disclaimerLines = doc.splitTextToSize(disclaimer, pageWidth - 30);
-            doc.text(disclaimerLines, 15, doc.internal.pageSize.getHeight() - 15);
+            // Professional Signature Section
+            const personalData = JSON.parse(localStorage.getItem('personalData') || '{}');
+            const profName = personalData.fullName || 'Profesional de HyS';
+            const profMat = personalData.matricula || '---';
+            const profTitle = personalData.profesion || 'Higiene y Seguridad';
+
+            currentY += 20;
+            if (currentY > doc.internal.pageSize.getHeight() - 60) {
+                doc.addPage();
+                currentY = 20;
+            }
+
+            // Divider line
+            doc.setDrawColor(...colors.muted);
+            doc.setLineWidth(0.5);
+            doc.line(120, currentY + 15, 190, currentY + 15);
+
+            doc.setTextColor(...colors.text);
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.text(profName, 120, currentY + 22);
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9);
+            doc.text(`${profTitle}`, 120, currentY + 27);
+            doc.text(`Matrícula: ${profMat}`, 120, currentY + 32);
+
+            // Stamp-like decoration
+            doc.setDrawColor(...colors.primary);
+            doc.setLineWidth(1);
+            doc.rect(115, currentY + 10, 80, 28);
 
             doc.save(`Analisis_H&S_${new Date().getTime()}.pdf`);
         } catch (error) {
@@ -364,11 +388,6 @@ export default function AIChatAdvisor() {
                         </div>
                     </div>
 
-                    <div style={{ marginTop: '2rem', textAlign: 'center' }}>
-                        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', maxWidth: '500px', margin: '0 auto' }}>
-                            * Este análisis es generado por IA y debe ser validado por un profesional matriculado bajo su propia responsabilidad.
-                        </p>
-                    </div>
                 </div>
             )}
         </div>
