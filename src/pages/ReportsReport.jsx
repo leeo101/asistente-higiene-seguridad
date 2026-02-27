@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Printer, Share2, Download, CheckCircle2, Info, Building2, User, HelpCircle } from 'lucide-react';
+import { ArrowLeft, Printer, Share2, Download, CheckCircle2, Info, Building2, User, HelpCircle, MapPin, Calendar } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
@@ -80,7 +80,7 @@ export default function ReportsReport() {
                 {/* Metadata Grid */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '3rem', background: '#f8fafc', padding: '1.5rem', borderRadius: '8px', border: '1px solid #e2e8f0', color: '#1e293b' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                        <Building size={20} color="var(--color-primary)" />
+                        <Building2 size={20} color="var(--color-primary)" />
                         <div>
                             <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b' }}>Empresa</p>
                             <p style={{ margin: 0, fontWeight: 600 }}>{report.company}</p>
