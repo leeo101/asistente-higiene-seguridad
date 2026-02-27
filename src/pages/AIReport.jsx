@@ -52,14 +52,6 @@ export default function AIReport() {
                 <button onClick={() => navigate('/ai-camera')} style={{ background: 'transparent', border: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--color-text)' }}>
                     <ArrowLeft size={20} /> Volver a Cámara
                 </button>
-                <div style={{ display: 'flex', gap: '0.8rem' }}>
-                    <button onClick={handlePrint} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.2rem', fontWeight: 700 }}>
-                        <Printer size={18} /> Imprimir / PDF
-                    </button>
-                    <button onClick={() => requirePro(() => setShowShare(true))} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.2rem', fontWeight: 700 }}>
-                        <Share2 size={18} /> Compartir
-                    </button>
-                </div>
             </div>
 
             <div className="card report-print" style={{
@@ -243,6 +235,16 @@ export default function AIReport() {
                 <div style={{ position: 'absolute', bottom: '30px', left: '0', width: '100%', textAlign: 'center', fontSize: '0.7rem', color: '#94a3b8' }}>
                     Documento de verificación instantánea generado por Asistente HYS.
                 </div>
+            </div>
+
+            {/* Floating Action Buttons */}
+            <div className="no-print floating-action-bar">
+                <button onClick={() => requirePro(() => setShowShare(true))} className="btn-floating-action" style={{ background: '#0052CC', color: 'white' }}>
+                    <Share2 size={18} /> COMPARTIR
+                </button>
+                <button onClick={handlePrint} className="btn-floating-action" style={{ background: '#FF8B00', color: 'white' }}>
+                    <Printer size={18} /> IMPRIMIR PDF
+                </button>
             </div>
 
             <style>

@@ -272,13 +272,16 @@ export default function Reports() {
                 />
             </div>
 
-            <button
-                onClick={handleSave}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl border-0 shadow-sm transition-all font-bold"
-                style={{ width: '100%', padding: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}
-            >
-                <Save size={20} /> Generar Informe Final
-            </button>
+            {/* Floating Action Buttons */}
+            <div className="no-print floating-action-bar">
+                <button
+                    onClick={handleSave}
+                    className="btn-floating-action"
+                    style={{ background: '#36B37E', color: 'white' }}
+                >
+                    <Save size={18} /> GENERAR INFORME
+                </button>
+            </div>
         </div>
     );
 }

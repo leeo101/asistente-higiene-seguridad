@@ -52,14 +52,6 @@ export default function ErgonomicsReport() {
                 >
                     <ArrowLeft size={24} /> Volver
                 </button>
-                <div style={{ display: 'flex', gap: '0.8rem' }}>
-                    <button onClick={handlePrint} className="btn-secondary" style={{ padding: '0.6rem 1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}>
-                        <Printer size={18} /> Imprimir / PDF
-                    </button>
-                    <button onClick={() => requirePro(() => setShowShare(true))} className="btn-primary" style={{ padding: '0.6rem 1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}>
-                        <Share2 size={18} /> Compartir
-                    </button>
-                </div>
             </div>
 
             <div className="report-print" style={{
@@ -214,6 +206,15 @@ export default function ErgonomicsReport() {
                         <img src={signature.stamp} alt="Sello" style={{ maxWidth: '90px' }} />
                     </div>
                 )}
+            </div>
+            {/* Floating Action Buttons */}
+            <div className="no-print floating-action-bar">
+                <button onClick={() => requirePro(() => setShowShare(true))} className="btn-floating-action" style={{ background: '#0052CC', color: 'white' }}>
+                    <Share2 size={18} /> COMPARTIR
+                </button>
+                <button onClick={handlePrint} className="btn-floating-action" style={{ background: '#FF8B00', color: 'white' }}>
+                    <Printer size={18} /> IMPRIMIR PDF
+                </button>
             </div>
         </div>
     );

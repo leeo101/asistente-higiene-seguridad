@@ -137,38 +137,14 @@ export default function RiskMatrixReport() {
             {/* ─── Action Bar (no-print) ─── */}
             <div className="no-print" style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                marginBottom: '2rem', background: '#fff', borderRadius: '16px',
-                padding: '1.2rem 1.5rem', border: '1px solid #e2e8f0',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.04)'
+                marginBottom: '2rem', background: 'transparent'
             }}>
                 <button onClick={() => navigate('/history')} style={{
-                    background: '#f1f5f9', border: 'none', display: 'flex', alignItems: 'center',
-                    gap: '0.5rem', cursor: 'pointer', color: '#475569', fontWeight: 700,
-                    fontSize: '0.85rem', padding: '0.5rem 1rem', borderRadius: '10px'
+                    background: 'transparent', border: 'none', display: 'flex', alignItems: 'center',
+                    gap: '0.5rem', cursor: 'pointer', color: 'var(--color-text)', fontWeight: 700
                 }}>
                     <ArrowLeft size={18} /> Volver
                 </button>
-
-                <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
-                    <button onClick={() => requirePro(() => setShowShare(true))} style={{
-                        display: 'flex', alignItems: 'center', gap: '0.5rem',
-                        padding: '0.6rem 1.2rem', background: 'linear-gradient(135deg,#6366f1,#4f46e5)',
-                        color: 'white', border: 'none', borderRadius: '50px',
-                        fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer',
-                        boxShadow: '0 4px 12px rgba(99,102,241,0.35)'
-                    }}>
-                        <Share2 size={16} /> COMPARTIR
-                    </button>
-                    <button onClick={handlePrint} style={{
-                        display: 'flex', alignItems: 'center', gap: '0.5rem',
-                        padding: '0.6rem 1.2rem', background: 'linear-gradient(135deg,#FF8B00,#FF5630)',
-                        color: 'white', border: 'none', borderRadius: '50px',
-                        fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer',
-                        boxShadow: '0 4px 12px rgba(255,86,48,0.35)'
-                    }}>
-                        <Printer size={16} /> IMPRIMIR PDF
-                    </button>
-                </div>
             </div>
 
             {/* ─── Printable Report ─── */}
@@ -274,6 +250,15 @@ export default function RiskMatrixReport() {
                         </div>
                     )}
                 </div>
+            </div>
+            {/* Floating Action Buttons */}
+            <div className="no-print floating-action-bar">
+                <button onClick={() => requirePro(() => setShowShare(true))} className="btn-floating-action" style={{ background: '#0052CC', color: 'white' }}>
+                    <Share2 size={18} /> COMPARTIR
+                </button>
+                <button onClick={handlePrint} className="btn-floating-action" style={{ background: '#FF8B00', color: 'white' }}>
+                    <Printer size={18} /> IMPRIMIR PDF
+                </button>
             </div>
         </div>
     );

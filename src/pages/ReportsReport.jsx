@@ -46,14 +46,6 @@ export default function ReportsReport() {
                 <button onClick={() => navigate('/reports')} style={{ background: 'transparent', border: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--color-text)' }}>
                     <ArrowLeft size={20} /> Volver a Formulario
                 </button>
-                <div style={{ display: 'flex', gap: '0.8rem' }}>
-                    <button onClick={handlePrint} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.2rem', fontWeight: 700 }}>
-                        <Printer size={18} /> Imprimir / PDF
-                    </button>
-                    <button onClick={() => requirePro(() => setShowShare(true))} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.2rem', fontWeight: 700 }}>
-                        <Share2 size={18} /> Compartir
-                    </button>
-                </div>
             </div>
 
             <div className="card report-print" style={{
@@ -208,9 +200,14 @@ export default function ReportsReport() {
                 </div>
             </div>
 
-            {/* Accesos Rápidos */}
-            <div className="no-print" style={{ textAlign: 'center', marginTop: '3rem' }}>
-                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>Reporte de Sistema de Gestión de Higiene y Seguridad</p>
+            {/* Floating Action Buttons */}
+            <div className="no-print floating-action-bar">
+                <button onClick={() => requirePro(() => setShowShare(true))} className="btn-floating-action" style={{ background: '#0052CC', color: 'white' }}>
+                    <Share2 size={18} /> COMPARTIR
+                </button>
+                <button onClick={handlePrint} className="btn-floating-action" style={{ background: '#FF8B00', color: 'white' }}>
+                    <Printer size={18} /> IMPRIMIR PDF
+                </button>
             </div>
         </div>
     );

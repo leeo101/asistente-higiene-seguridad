@@ -288,8 +288,16 @@ export default function ErgonomicsForm() {
                         <button className="btn-secondary" onClick={handleBack} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                             <ChevronLeft size={18} /> Atrás
                         </button>
-                        <button className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl border-0 shadow-sm transition-all font-bold" onClick={handleSave} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '1rem' }}>
-                            <Save size={18} /> Guardar Estudio
+                    </div>
+
+                    {/* Floating Action Buttons */}
+                    <div className="no-print floating-action-bar">
+                        <button
+                            onClick={handleSave}
+                            className="btn-floating-action"
+                            style={{ background: '#36B37E', color: 'white' }}
+                        >
+                            <Save size={18} /> GUARDAR ESTUDIO
                         </button>
                     </div>
                 </div>

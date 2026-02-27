@@ -43,9 +43,9 @@ export default function Security() {
             if (response.ok) {
                 setStatus({
                     type: 'success',
-                    message: data.devLink ? 'No se pudo enviar el mail, pero puedes usar este link directo o código:' : '¡Link enviado con éxito! Revisa tu Gmail.',
-                    resetLink: data.devLink || '',
-                    code: data.code || ''
+                    message: '¡Link enviado con éxito! Revisa tu Gmail.',
+                    resetLink: '',
+                    code: ''
                 });
 
                 if (!data.devLink) {
@@ -230,66 +230,6 @@ export default function Security() {
                                     {status.type === 'success' && <CheckCircle2 size={18} />}
                                     <span style={{ fontWeight: 600 }}>{status.message}</span>
                                 </div>
-
-                                {status.code && (
-                                    <div style={{
-                                        background: 'var(--color-surface)',
-                                        padding: '1rem',
-                                        borderRadius: '8px',
-                                        textAlign: 'center',
-                                        border: '1px solid var(--color-border)',
-                                        marginTop: '0.5rem'
-                                    }}>
-                                        <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Tu código de recuperación:</p>
-                                        <span style={{ fontSize: '1.5rem', fontWeight: 'bold', letterSpacing: '4px', color: 'var(--color-text)' }}>{status.code}</span>
-                                    </div>
-                                )}
-
-                                {status.resetLink && (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', marginTop: '0.5rem' }}>
-                                        <a
-                                            href={status.resetLink}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            style={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                gap: '0.5rem',
-                                                padding: '0.8rem',
-                                                background: 'var(--color-primary)',
-                                                color: 'white',
-                                                borderRadius: '8px',
-                                                textDecoration: 'none',
-                                                fontWeight: 700,
-                                                fontSize: '0.85rem'
-                                            }}
-                                        >
-                                            <ExternalLink size={16} /> Cambiar Contraseña Ahora
-                                        </a>
-
-                                        <a
-                                            href={`https://wa.me/?text=${encodeURIComponent(`Hola, mi código de recuperación HYS es: ${status.code}. \n\nLink directo: ${status.resetLink}`)}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            style={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                gap: '0.5rem',
-                                                padding: '0.8rem',
-                                                background: '#25D366',
-                                                color: 'white',
-                                                borderRadius: '8px',
-                                                textDecoration: 'none',
-                                                fontWeight: 700,
-                                                fontSize: '0.85rem'
-                                            }}
-                                        >
-                                            <Smartphone size={16} /> Enviar por WhatsApp
-                                        </a>
-                                    </div>
-                                )}
                             </div>
                         )}
 

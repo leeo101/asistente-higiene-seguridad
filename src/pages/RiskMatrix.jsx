@@ -131,16 +131,6 @@ export default function RiskMatrix() {
                         </p>
                     </div>
                 </div>
-                <button onClick={handleSave} style={{
-                    display: 'flex', alignItems: 'center', gap: '0.6rem',
-                    padding: '0.75rem 1.5rem',
-                    background: 'linear-gradient(135deg, #36B37E, #00875A)',
-                    color: 'white', borderRadius: '50px', border: 'none',
-                    fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer',
-                    boxShadow: '0 4px 16px rgba(54,179,126,0.35)'
-                }}>
-                    <Save size={16} /> GUARDAR Y GENERAR PDF
-                </button>
             </div>
 
             {/* ─── PROJECT DATA ─── */}

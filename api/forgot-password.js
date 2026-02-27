@@ -72,9 +72,7 @@ export default async function handler(req, res) {
 
         await transporter.sendMail(mailOptions);
         return res.status(200).json({
-            message: 'Correo enviado. Revisa tu bandeja de entrada.',
-            code: code,
-            devLink: resetLink
+            message: 'Correo enviado. Revisa tu bandeja de entrada.'
         });
 
     } catch (error) {
