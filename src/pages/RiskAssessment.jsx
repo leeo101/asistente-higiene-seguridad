@@ -73,7 +73,10 @@ export default function RiskAssessment() {
                 <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
                     <ArrowLeft />
                 </button>
-                <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Evaluación de Riesgo</h1>
+                <div>
+                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Evaluación de Riesgo</h1>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Matriz probabilidad × severidad</p>
+                </div>
             </div>
 
             <div className="card" style={{ textAlign: 'center' }}>

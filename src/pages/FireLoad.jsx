@@ -9,12 +9,14 @@ import { fireMaterials, riskActivityGroups } from '../data/fireMaterials';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
+import { usePaywall } from '../hooks/usePaywall';
 
 export default function FireLoad() {
     const navigate = useNavigate();
     const location = useLocation();
     const { currentUser } = useAuth();
     const { syncCollection } = useSync();
+    const { requirePro } = usePaywall();
 
     const [formData, setFormData] = useState({
         empresa: '',
@@ -258,7 +260,7 @@ export default function FireLoad() {
                     <Save size={18} /> GUARDAR
                 </button>
                 <button
-                    onClick={() => setShowShare(true)}
+                    onClick={() => requirePro(() => setShowShare(true))}
                     className="btn-floating-action"
                     style={{ background: '#0052CC', color: 'white' }}
                 >

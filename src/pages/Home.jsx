@@ -3,11 +3,33 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
     ClipboardList, PlusCircle, History, User, Settings,
     Flame, ShieldAlert, BarChart3, ChevronRight, Plus, FileText, Gavel,
-    Accessibility, AlertTriangle, Lock, UserPlus, LogIn, Sparkles
+    Accessibility, AlertTriangle, Lock, UserPlus, LogIn, Sparkles,
+    Camera, CalendarCheck, Shield, Cpu
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import AdBanner from '../components/AdBanner';
+
+const typeColors = {
+    'ATS': { bg: 'rgba(16,185,129,0.12)', text: '#10b981', icon: <BarChart3 size={18} /> },
+    'Carga Fuego': { bg: 'rgba(249,115,22,0.12)', text: '#f97316', icon: <Flame size={18} /> },
+    'Inspección': { bg: 'rgba(59,130,246,0.12)', text: '#3b82f6', icon: <ClipboardList size={18} /> },
+    'Matriz': { bg: 'rgba(139,92,246,0.12)', text: '#8b5cf6', icon: <ShieldAlert size={18} /> },
+    'Informe': { bg: 'rgba(236,72,153,0.12)', text: '#ec4899', icon: <FileText size={18} /> },
+    'Checklist': { bg: 'rgba(20,184,166,0.12)', text: '#14b8a6', icon: <ClipboardList size={18} /> },
+};
+
+const quickLinks = [
+    { to: '/ats', icon: <BarChart3 size={26} />, label: 'ATS', sub: 'Análisis Trabajo Seguro', color: '#10b981', bg: 'rgba(16,185,129,0.1)' },
+    { to: '/fire-load', icon: <Flame size={26} />, label: 'Carga Fuego', sub: 'Dec. 351/79', color: '#f97316', bg: 'rgba(249,115,22,0.1)' },
+    { to: '/risk-matrix', icon: <ShieldAlert size={26} />, label: 'Matrices', sub: 'Riesgo Laboral', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
+    { to: '/ergonomics', icon: <Accessibility size={26} />, label: 'Ergonomía', sub: 'Res. SRT 886/15', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
+    { to: '/reports', icon: <FileText size={26} />, label: 'Informes', sub: 'Técnicos', color: '#ec4899', bg: 'rgba(236,72,153,0.1)' },
+    { to: '/legislation', icon: <Gavel size={26} />, label: 'Legislación', sub: 'Biblioteca Legal', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
+    { to: '/ai-camera', icon: <Camera size={26} />, label: 'Cámara IA', sub: 'Detección EPP', color: '#06b6d4', bg: 'rgba(6,182,212,0.1)' },
+    { to: '/ai-advisor', icon: <Sparkles size={26} />, label: 'Asesor IA', sub: 'Consultas de Seguridad', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
+    { to: '/checklists', icon: <ClipboardList size={26} />, label: 'Checklists', sub: 'Herramientas y Equipos', color: '#14b8a6', bg: 'rgba(20,184,166,0.1)' },
+];
 
 export default function Home() {
     const navigate = useNavigate();
@@ -15,26 +37,19 @@ export default function Home() {
     const { syncPulse } = useSync();
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [stats, setStats] = useState([
-        { label: 'Inspecciones', value: 0, icon: <ClipboardList />, color: '#3b82f6', key: 'inspections_history' },
-        { label: 'ATS Realizados', value: 0, icon: <BarChart3 />, color: '#10b981', key: 'ats_history' },
-        { label: 'Checklists', value: 0, icon: <ClipboardList />, color: '#8b5cf6', key: 'tool_checklists_history' },
-        { label: 'Carga de Fuego', value: 0, icon: <Flame />, color: '#f97316', key: 'fireload_history' },
-        { label: 'Matrices', value: 0, icon: <ShieldAlert />, color: '#8b5cf6', key: 'risk_matrix_history' },
-        { label: 'Informes', value: 0, icon: <FileText />, color: '#ec4899', key: 'reports_history' }
+        { label: 'Inspecciones', value: 0, icon: <ClipboardList />, color: '#3b82f6', grad: 'linear-gradient(135deg,#3b82f6,#2563eb)', key: 'inspections_history' },
+        { label: 'ATS', value: 0, icon: <BarChart3 />, color: '#10b981', grad: 'linear-gradient(135deg,#10b981,#059669)', key: 'ats_history' },
+        { label: 'Checklists', value: 0, icon: <ClipboardList />, color: '#14b8a6', grad: 'linear-gradient(135deg,#14b8a6,#0d9488)', key: 'tool_checklists_history' },
+        { label: 'Carga Fuego', value: 0, icon: <Flame />, color: '#f97316', grad: 'linear-gradient(135deg,#f97316,#ea580c)', key: 'fireload_history' },
+        { label: 'Matrices', value: 0, icon: <ShieldAlert />, color: '#8b5cf6', grad: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', key: 'risk_matrix_history' },
+        { label: 'Informes', value: 0, icon: <FileText />, color: '#ec4899', grad: 'linear-gradient(135deg,#ec4899,#db2777)', key: 'reports_history' },
     ]);
     const [recentWorks, setRecentWorks] = useState([]);
     const [userName, setUserName] = useState('Profesional');
 
-    useEffect(() => {
-        // ... Load Profile Name omitted for brevity, keeping only the relevant parts if possible, but replace_file_content needs contiguous block.
-        // Wait, handle the whole useEffect if needed or just the internal functions.
-        // Let's replace the whole state and useEffect to be safe if they are close.
-
-        // I'll try to target just the loadRecent part if it's contiguous.
-    }, []); // This is not ideal.
+    useEffect(() => { }, []);
 
     useEffect(() => {
-        // Load Profile Name and Subscription Status
         if (typeof window !== 'undefined') {
             const savedData = localStorage.getItem('personalData');
             if (savedData) {
@@ -48,12 +63,10 @@ export default function Home() {
                 }
                 setUserName(name);
             }
-
             const status = localStorage.getItem('subscriptionStatus');
             setIsSubscribed(status === 'active');
         }
 
-        // Load Stats
         const loadStats = () => {
             const newStats = stats.map(stat => {
                 const history = localStorage.getItem(stat.key);
@@ -63,7 +76,6 @@ export default function Home() {
             setStats(newStats);
         };
 
-        // Load Recent Works (Merge all histories and sort by date)
         const loadRecent = () => {
             const ats = JSON.parse(localStorage.getItem('ats_history') || '[]');
             const fire = JSON.parse(localStorage.getItem('fireload_history') || '[]');
@@ -78,9 +90,8 @@ export default function Home() {
                 ...insp.map(i => ({ id: i.id, title: i.name, subtitle: i.location, date: i.date, type: 'Inspección' })),
                 ...matrix.map(m => ({ id: m.id, title: m.name, subtitle: m.location, date: m.createdAt, type: 'Matriz' })),
                 ...reports.map(r => ({ id: r.id, title: r.title, subtitle: r.company, date: r.createdAt, type: 'Informe' })),
-                ...tools.map(t => ({ id: t.id, title: t.equipo, subtitle: t.empresa, date: t.fecha, type: 'Checklist' }))
-            ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 3);
-
+                ...tools.map(t => ({ id: t.id, title: t.equipo, subtitle: t.empresa, date: t.fecha, type: 'Checklist' })),
+            ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 4);
             setRecentWorks(combined);
         };
 
@@ -89,282 +100,242 @@ export default function Home() {
     }, [syncPulse]);
 
     return (
-        <div className="container" style={{ paddingBottom: '3rem', marginTop: '3rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '2.5rem', marginTop: '1.5rem', padding: '0 0.5rem' }}>
-                <div style={{ flex: '1 1 250px' }}>
-                    <h1 style={{ fontSize: '2.8rem', fontWeight: 900, marginBottom: '0.2rem', color: '#172B4D', letterSpacing: '-1.5px', lineHeight: 1.1 }}>
-                        Hola, <br />
-                        <span style={{ color: 'var(--color-primary)' }}>{userName}</span>
-                    </h1>
-                    <p style={{ color: '#6B778C', fontSize: '1.1rem', marginTop: '0.5rem', fontWeight: 500 }}>Dashboard de Seguridad e Higiene</p>
-                </div>
-                {!currentUser && (
-                    <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'nowrap', alignItems: 'center' }}>
-                        <button onClick={() => navigate('/login', { state: { view: 'login' } })} className="btn-outline" style={{ padding: '0.7rem 1.2rem', marginTop: 0, whiteSpace: 'nowrap', minWidth: '110px' }}>
-                            <LogIn size={18} /> Ingresar
-                        </button>
-                        <button onClick={() => navigate('/login', { state: { view: 'register' } })} className="btn-primary" style={{ padding: '0.7rem 1.2rem', marginTop: 0, width: 'auto', whiteSpace: 'nowrap', minWidth: '110px' }}>
-                            <UserPlus size={18} /> Registrarse
-                        </button>
-                    </div>
-                )}
-            </div>
+        <div style={{ paddingBottom: '4rem' }}>
+            {/* ── HERO BANNER ── */}
+            <div style={{
+                background: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #0ea5e9 100%)',
+                padding: '5.5rem 1.5rem 2.5rem',
+                position: 'relative',
+                overflow: 'hidden',
+                marginBottom: '0'
+            }}>
+                {/* decorative circles */}
+                <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '180px', height: '180px', borderRadius: '50%', background: 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
+                <div style={{ position: 'absolute', bottom: '-60px', left: '60px', width: '220px', height: '220px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
 
-            {isSubscribed ? (
-                <div className="card" style={{
-                    background: '#ffffff',
-                    padding: '1.5rem',
-                    marginBottom: '2.5rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1.2rem',
-                    boxShadow: '0 1px 3px rgba(9, 30, 66, 0.05)',
-                    color: '#172B4D'
-                }}>
-                    <div style={{
-                        width: '48px',
-                        height: '48px',
-                        flexShrink: 0,
-                        background: 'var(--color-background)',
-                        borderRadius: '8px',
-                        padding: '8px',
-                        border: '1px solid var(--color-border)'
-                    }}>
-                        <img src="/logo.png" alt="Icon" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                        <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#172B4D' }}>
-                            Asistente HYS PRO
-                        </h4>
-                        <p style={{ margin: 0, fontSize: '0.85rem', color: '#6B778C' }}>
-                            Bienvenido a tu suite de gestión profesional.
-                        </p>
-                    </div>
-                    <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: 'var(--color-secondary)' }}></div>
-                </div>
-            ) : (
-                <Link to="/subscribe" style={{ textDecoration: 'none' }}>
-                    <div className="card" style={{
-                        background: '#ffffff',
-                        padding: '1.5rem',
-                        marginBottom: '2.5rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '1.2rem',
-                        boxShadow: '0 1px 3px rgba(9, 30, 66, 0.05)',
-                        color: '#172B4D',
-                        cursor: 'pointer',
-                        border: '1px solid rgba(37, 99, 235, 0.2)',
-                        transition: 'transform 0.2s, border-color 0.2s'
-                    }}>
-                        <div style={{
-                            width: '48px',
-                            height: '48px',
-                            flexShrink: 0,
-                            background: 'var(--color-background)',
-                            borderRadius: '8px',
-                            padding: '8px',
-                            border: '1px solid var(--color-border)'
-                        }}>
-                            <img src="/logo.png" alt="Icon" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                        </div>
-                        <div style={{ flex: 1 }}>
-                            <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#172B4D', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                Asistente HYS Básico <ChevronRight size={16} color="var(--color-primary)" />
-                            </h4>
-                            <p style={{ margin: 0, fontSize: '0.85rem', color: '#6B778C' }}>
-                                Crea tu cuenta y actualízate a la versión PRO para habilitar todas las funciones e impresiones.
+                <div style={{ position: 'relative', zIndex: 1, maxWidth: '700px', margin: '0 auto' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+                        <div>
+                            <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.85rem', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 0.3rem' }}>
+                                Bienvenido de vuelta
+                            </p>
+                            <h1 style={{ fontSize: 'clamp(1.8rem, 5vw, 2.8rem)', fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.1, letterSpacing: '-1px' }}>
+                                {userName} 👋
+                            </h1>
+                            <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.95rem', marginTop: '0.5rem', fontWeight: 400 }}>
+                                Dashboard de Higiene y Seguridad Laboral
                             </p>
                         </div>
-                        <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#6B778C' }}></div>
-                    </div>
-                </Link>
-            )}
-
-            <div style={{ marginBottom: '2.5rem' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', color: '#172B4D' }}>Historiales</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
-                    {stats.map((stat, i) => (
-                        <div
-                            key={i}
-                            className="card"
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                textAlign: 'center',
-                                padding: '1.2rem',
-                                cursor: 'pointer',
-                                transition: 'transform 0.2s',
-                                background: '#fff',
-                                margin: 0 /* Reset margin if card has it */
-                            }}
-                            onClick={() => {
-                                if (stat.key === 'ats_history') navigate('/ats-history');
-                                else if (stat.key === 'fireload_history') navigate('/fire-load-history');
-                                else if (stat.key === 'reports_history') navigate('/reports');
-                                else if (stat.key === 'risk_matrix_history') navigate('/risk-matrix');
-                                else navigate('/history');
-                            }}
-                        >
-                            <div style={{ color: stat.color, marginBottom: '0.6rem' }}>
-                                {React.cloneElement(stat.icon, { size: 24 })}
+                        {!currentUser && (
+                            <div style={{ display: 'flex', gap: '0.7rem', flexWrap: 'wrap', alignItems: 'center', marginTop: '0.5rem' }}>
+                                <button onClick={() => navigate('/login', { state: { view: 'login' } })}
+                                    style={{ padding: '0.6rem 1.2rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.15)', color: 'white', fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(8px)', fontSize: '0.9rem' }}>
+                                    <LogIn size={16} style={{ verticalAlign: 'middle', marginRight: '0.4rem' }} />Ingresar
+                                </button>
+                                <button onClick={() => navigate('/login', { state: { view: 'register' } })}
+                                    style={{ padding: '0.6rem 1.2rem', borderRadius: '10px', border: 'none', background: '#fff', color: '#2563eb', fontWeight: 800, cursor: 'pointer', fontSize: '0.9rem', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
+                                    <UserPlus size={16} style={{ verticalAlign: 'middle', marginRight: '0.4rem' }} />Registrarse
+                                </button>
                             </div>
-                            <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#172B4D' }}>{stat.value}</div>
-                            <div style={{ fontSize: '0.65rem', color: '#6B778C', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>{stat.label}</div>
-                        </div>
-                    ))}
+                        )}
+                    </div>
+
+                    {/* STATS ROW inside hero */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))', gap: '0.8rem', marginTop: '1.8rem' }}>
+                        {stats.map((stat, i) => (
+                            <div key={i}
+                                onClick={() => {
+                                    if (stat.key === 'ats_history') navigate('/ats-history');
+                                    else if (stat.key === 'fireload_history') navigate('/fire-load-history');
+                                    else if (stat.key === 'reports_history') navigate('/reports');
+                                    else if (stat.key === 'risk_matrix_history') navigate('/risk-matrix');
+                                    else navigate('/history');
+                                }}
+                                style={{
+                                    background: 'rgba(255,255,255,0.12)',
+                                    backdropFilter: 'blur(10px)',
+                                    borderRadius: '14px',
+                                    padding: '0.9rem 0.6rem',
+                                    textAlign: 'center',
+                                    cursor: 'pointer',
+                                    border: '1px solid rgba(255,255,255,0.2)',
+                                    transition: 'transform 0.2s, background 0.2s',
+                                }}
+                                onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.22)'}
+                                onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
+                            >
+                                <div style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '0.3rem' }}>
+                                    {React.cloneElement(stat.icon, { size: 20 })}
+                                </div>
+                                <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#fff', lineHeight: 1 }}>{stat.value}</div>
+                                <div style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.7)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '0.2rem' }}>{stat.label}</div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
 
-            <AdBanner />
-
-            <div className="mb-6">
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', color: '#172B4D' }}>Accesos Rápidos</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                    <Link to="/create-inspection" style={{ textDecoration: 'none' }}>
-                        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', padding: '1.5rem', border: '1px solid var(--color-border)', background: 'var(--color-primary)' }}>
-                            <div style={{ color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <PlusCircle size={40} />
+            {/* ── Pro/Free Banner ── */}
+            <div style={{ maxWidth: '700px', margin: '0 auto', padding: '0 1rem' }}>
+                {isSubscribed ? (
+                    <div style={{
+                        display: 'flex', alignItems: 'center', gap: '1rem',
+                        background: 'linear-gradient(135deg,rgba(16,185,129,0.12),rgba(5,150,105,0.06))',
+                        border: '1px solid rgba(16,185,129,0.3)',
+                        borderRadius: '16px', padding: '1rem 1.5rem', marginTop: '1.5rem',
+                    }}>
+                        <div style={{ width: '42px', height: '42px', background: 'rgba(16,185,129,0.15)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Shield size={22} color="#10b981" />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                            <h4 style={{ margin: 0, fontWeight: 800, fontSize: '0.95rem' }}>Asistente HYS <span style={{ color: '#10b981' }}>PRO</span> activo ✓</h4>
+                            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Todas las funciones e impresiones habilitadas.</p>
+                        </div>
+                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
+                    </div>
+                ) : (
+                    <Link to="/subscribe" style={{ textDecoration: 'none' }}>
+                        <div style={{
+                            display: 'flex', alignItems: 'center', gap: '1rem',
+                            background: 'linear-gradient(135deg,rgba(37,99,235,0.08),rgba(14,165,233,0.06))',
+                            border: '1px solid rgba(37,99,235,0.25)',
+                            borderRadius: '16px', padding: '1rem 1.5rem', marginTop: '1.5rem',
+                            cursor: 'pointer', transition: 'transform 0.2s',
+                        }}
+                            onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                            onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}
+                        >
+                            <div style={{ width: '42px', height: '42px', background: 'rgba(37,99,235,0.1)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Cpu size={22} color="var(--color-primary)" />
                             </div>
                             <div style={{ flex: 1 }}>
-                                <h4 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: 'white' }}>Nueva Inspección</h4>
-                                <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)' }}>Sincronización en la nube</p>
+                                <h4 style={{ margin: 0, fontWeight: 800, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    Activar Asistente HYS PRO <ChevronRight size={16} color="var(--color-primary)" />
+                                </h4>
+                                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Habilitá impresiones, PDF e historial completo.</p>
                             </div>
-                            <ChevronRight size={24} style={{ color: 'white', opacity: 0.5 }} />
+                            <span style={{ background: 'var(--color-primary)', color: 'white', fontSize: '0.7rem', fontWeight: 900, padding: '0.3rem 0.7rem', borderRadius: '20px', whiteSpace: 'nowrap' }}>
+                                $5/mes
+                            </span>
                         </div>
                     </Link>
+                )}
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
-                        <Link to="/ats" style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', margin: 0 }}>
-                                <div style={{ color: '#10b981' }}><BarChart3 size={28} /></div>
-                                <div>
-                                    <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>ATS</h4>
-                                    <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Seguridad</p>
-                                </div>
-                            </div>
-                        </Link>
+                <AdBanner />
 
-                        <Link to="/fire-load" style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', margin: 0 }}>
-                                <div style={{ color: '#f97316' }}><Flame size={28} /></div>
-                                <div>
-                                    <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Fuego</h4>
-                                    <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Cálculo</p>
-                                </div>
-                            </div>
-                        </Link>
+                {/* ── NEW INSPECTION (CTA) ── */}
+                <Link to="/create-inspection" style={{ textDecoration: 'none' }}>
+                    <div style={{
+                        display: 'flex', alignItems: 'center', gap: '1.2rem',
+                        background: 'linear-gradient(135deg,#1e3a8a,#2563eb)',
+                        borderRadius: '18px', padding: '1.3rem 1.5rem', marginTop: '1.5rem',
+                        cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s',
+                        boxShadow: '0 8px 24px rgba(37,99,235,0.35)',
+                        position: 'relative', overflow: 'hidden',
+                    }}
+                        onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(37,99,235,0.45)'; }}
+                        onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(37,99,235,0.35)'; }}
+                    >
+                        <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
+                        <div style={{ width: '50px', height: '50px', background: 'rgba(255,255,255,0.2)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <PlusCircle size={28} color="white" />
+                        </div>
+                        <div style={{ flex: 1, zIndex: 1 }}>
+                            <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900, color: 'white' }}>Nueva Inspección</h4>
+                            <p style={{ margin: 0, fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)' }}>Crear y sincronizar en la nube</p>
+                        </div>
+                        <ChevronRight size={22} color="rgba(255,255,255,0.7)" />
+                    </div>
+                </Link>
 
-                        <Link to="/risk-matrix" style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', margin: 0 }}>
-                                <div style={{ color: '#8b5cf6' }}><ShieldAlert size={28} /></div>
-                                <div>
-                                    <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Matrices</h4>
-                                    <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Riesgos</p>
+                {/* ── QUICK ACCESS GRID ── */}
+                <div style={{ marginTop: '2rem', marginBottom: '1rem' }}>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '1rem', letterSpacing: '-0.3px' }}>Accesos Rápidos</h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '0.9rem' }}>
+                        {quickLinks.map((item, i) => (
+                            <Link key={i} to={item.to} style={{ textDecoration: 'none' }}>
+                                <div style={{
+                                    background: 'var(--color-surface)',
+                                    borderRadius: '16px',
+                                    padding: '1.1rem 0.8rem',
+                                    display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
+                                    gap: '0.6rem',
+                                    border: '1px solid var(--color-border)',
+                                    cursor: 'pointer',
+                                    transition: 'transform 0.2s, box-shadow 0.2s, border-color 0.2s',
+                                    minHeight: '110px', justifyContent: 'center',
+                                }}
+                                    onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = `0 8px 20px ${item.color}30`; e.currentTarget.style.borderColor = item.color + '60'; }}
+                                    onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = 'var(--color-border)'; }}
+                                >
+                                    <div style={{
+                                        width: '48px', height: '48px', borderRadius: '14px',
+                                        background: item.bg,
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        color: item.color,
+                                        transition: 'transform 0.2s',
+                                    }}>
+                                        {item.icon}
+                                    </div>
+                                    <div>
+                                        <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-text)' }}>{item.label}</div>
+                                        <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', marginTop: '0.1rem' }}>{item.sub}</div>
+                                    </div>
                                 </div>
-                            </div>
-                        </Link>
-
-                        <Link to="/ergonomics" style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', margin: 0 }}>
-                                <div style={{ color: '#3b82f6' }}><Accessibility size={28} /></div>
-                                <div>
-                                    <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Ergonomía</h4>
-                                    <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Res. 886/15</p>
-                                </div>
-                            </div>
-                        </Link>
-
-                        <Link to="/reports" style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', margin: 0 }}>
-                                <div style={{ color: '#ec4899' }}><FileText size={28} /></div>
-                                <div>
-                                    <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Informes</h4>
-                                    <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Técnicos</p>
-                                </div>
-                            </div>
-                        </Link>
-
-                        <Link to="/legislation" style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', margin: 0 }}>
-                                <div style={{ color: '#8b5cf6' }}><Gavel size={28} /></div>
-                                <div>
-                                    <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Leyes</h4>
-                                    <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Biblioteca</p>
-                                </div>
-                            </div>
-                        </Link>
-
-                        <Link to="/ai-camera" style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', border: '1px solid #EBECF0', margin: 0 }}>
-                                <div style={{ color: 'var(--color-primary)' }}><PlusCircle size={28} /></div>
-                                <div>
-                                    <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Cámara IA</h4>
-                                    <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Escaneo Libre</p>
-                                </div>
-                            </div>
-                        </Link>
-
-                        <Link to="/ai-advisor" style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', border: '1px solid #EBECF0', margin: 0, background: 'linear-gradient(135deg, #fff, rgba(37, 99, 235, 0.05))' }}>
-                                <div style={{ color: 'var(--color-primary)' }}><Sparkles size={28} /></div>
-                                <div>
-                                    <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Asesor IA</h4>
-                                    <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Riesgos y EPP</p>
-                                </div>
-                            </div>
-                        </Link>
-
-                        <Link to="/checklists" style={{ textDecoration: 'none' }}>
-                            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.2rem', minHeight: '110px', gap: '0.5rem', border: '1px solid #EBECF0', margin: 0 }}>
-                                <div style={{ color: 'var(--color-primary)' }}><ClipboardList size={28} /></div>
-                                <div>
-                                    <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Checklists</h4>
-                                    <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B778C' }}>Herramientas</p>
-                                </div>
-                            </div>
-                        </Link>
+                            </Link>
+                        ))}
                     </div>
                 </div>
-            </div>
 
-            <div style={{ marginTop: '3.5rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>Obras Recientes</h3>
-                    {recentWorks.length > 0 && (
-                        <Link to="/history" style={{ fontSize: '0.85rem', color: 'var(--color-primary)', textDecoration: 'none', fontWeight: 600 }}>Ver todo</Link>
-                    )}
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                    {recentWorks.length > 0 ? (
-                        recentWorks.map((work, i) => (
-                            <div key={i} className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem' }}>
-                                <div style={{
-                                    width: '40px', height: '40px', borderRadius: '10px',
-                                    background: work.type === 'ATS' ? 'rgba(16, 185, 129, 0.1)' : work.type === 'Carga Fuego' ? 'rgba(249, 115, 22, 0.1)' : work.type === 'Matriz' ? 'rgba(139, 92, 246, 0.1)' : work.type === 'Informe' ? 'rgba(236, 72, 153, 0.1)' : 'rgba(59, 130, 246, 0.1)',
-                                    color: work.type === 'ATS' ? '#10b981' : work.type === 'Carga Fuego' ? '#f97316' : work.type === 'Matriz' ? '#8b5cf6' : work.type === 'Informe' ? '#ec4899' : 'var(--color-primary)',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center'
-                                }}>
-                                    {work.type === 'ATS' ? <BarChart3 size={20} /> : work.type === 'Carga Fuego' ? <Flame size={20} /> : work.type === 'Matriz' ? <ShieldAlert size={20} /> : work.type === 'Informe' ? <FileText size={20} /> : <ClipboardList size={20} />}
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700 }}>{work.title}</h4>
-                                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{work.subtitle} • {work.type}</p>
-                                </div>
-                                <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
-                                    {new Date(work.date || work.createdAt).toLocaleDateString()}
-                                </div>
+                {/* ── RECENT ACTIVITY ── */}
+                <div style={{ marginTop: '2rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                        <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: 0 }}>Actividad Reciente</h3>
+                        {recentWorks.length > 0 && (
+                            <Link to="/history" style={{ fontSize: '0.82rem', color: 'var(--color-primary)', textDecoration: 'none', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                                Ver todo <ChevronRight size={14} />
+                            </Link>
+                        )}
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
+                        {recentWorks.length > 0 ? (
+                            recentWorks.map((work, i) => {
+                                const tc = typeColors[work.type] || typeColors['Inspección'];
+                                return (
+                                    <div key={i} style={{
+                                        display: 'flex', alignItems: 'center', gap: '1rem',
+                                        background: 'var(--color-surface)',
+                                        border: '1px solid var(--color-border)',
+                                        borderRadius: '14px', padding: '0.9rem 1rem',
+                                        transition: 'transform 0.2s',
+                                    }}
+                                        onMouseOver={e => e.currentTarget.style.transform = 'translateX(4px)'}
+                                        onMouseOut={e => e.currentTarget.style.transform = 'translateX(0)'}
+                                    >
+                                        <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: tc.bg, color: tc.text, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                            {tc.icon}
+                                        </div>
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                            <div style={{ fontWeight: 700, fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{work.title || '—'}</div>
+                                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'flex', gap: '0.5rem', marginTop: '0.1rem', alignItems: 'center' }}>
+                                                <span style={{ background: tc.bg, color: tc.text, padding: '0.1rem 0.5rem', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700 }}>{work.type}</span>
+                                                {work.subtitle && <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{work.subtitle}</span>}
+                                            </div>
+                                        </div>
+                                        <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                                            {new Date(work.date || work.createdAt).toLocaleDateString()}
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        ) : (
+                            <div style={{ textAlign: 'center', padding: '2.5rem', border: '1.5px dashed var(--color-border)', borderRadius: '16px', opacity: 0.6 }}>
+                                <History size={36} style={{ marginBottom: '0.8rem', opacity: 0.4 }} />
+                                <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>No hay actividad reciente</p>
+                                <p style={{ margin: '0.3rem 0 0', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Comenzá creando una nueva inspección</p>
                             </div>
-                        ))
-                    ) : (
-                        <div style={{ textAlign: 'center', padding: '2rem', border: '1px dashed var(--color-border)', borderRadius: '12px' }}>
-                            <History size={32} style={{ opacity: 0.2, marginBottom: '0.5rem' }} />
-                            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>No hay actividad reciente</p>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

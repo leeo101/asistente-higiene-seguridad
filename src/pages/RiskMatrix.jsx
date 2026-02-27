@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Save, AlertTriangle, ShieldCheck, Flame, Zap, Leaf, Activity, Brain, Wrench, Share2, Printer } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
+import { usePaywall } from '../hooks/usePaywall';
 
 const HAZARD_TYPES = [
     { value: '', label: 'Seleccionar...', icon: null, color: '#94a3b8' },
@@ -34,6 +35,7 @@ const emptyRow = () => ({
 export default function RiskMatrix() {
     const navigate = useNavigate();
     const { syncCollection } = useSync();
+    const { requirePro } = usePaywall();
     const [projectData, setProjectData] = useState({
         name: '', location: '',
         date: new Date().toISOString().split('T')[0],
@@ -55,13 +57,15 @@ export default function RiskMatrix() {
     const updateRow = (id, field, value) => setRows(rows.map(r => r.id === id ? { ...r, [field]: value } : r));
 
     const handleSave = async () => {
-        if (!projectData.name) { alert('Ingresá el nombre de la obra / proyecto.'); return; }
-        const entry = { id: Date.now(), ...projectData, rows, createdAt: new Date().toISOString() };
-        const history = JSON.parse(localStorage.getItem('risk_matrix_history') || '[]');
-        const updated = [entry, ...history];
-        await syncCollection('risk_matrix_history', updated);
-        localStorage.setItem('current_risk_matrix', JSON.stringify(entry));
-        navigate('/risk-matrix-report');
+        requirePro(async () => {
+            if (!projectData.name) { alert('Ingresá el nombre de la obra / proyecto.'); return; }
+            const entry = { id: Date.now(), ...projectData, rows, createdAt: new Date().toISOString() };
+            const history = JSON.parse(localStorage.getItem('risk_matrix_history') || '[]');
+            const updated = [entry, ...history];
+            await syncCollection('risk_matrix_history', updated);
+            localStorage.setItem('current_risk_matrix', JSON.stringify(entry));
+            navigate('/risk-matrix-report');
+        });
     };
 
     const summary = {
@@ -89,14 +93,14 @@ export default function RiskMatrix() {
                     <Save size={18} /> GUARDAR
                 </button>
                 <button
-                    onClick={() => setShowShare(true)}
+                    onClick={() => requirePro(() => setShowShare(true))}
                     className="btn-floating-action"
                     style={{ background: '#0052CC', color: 'white' }}
                 >
                     <Share2 size={18} /> COMPARTIR
                 </button>
                 <button
-                    onClick={() => window.print()}
+                    onClick={() => requirePro(() => window.print())}
                     className="btn-floating-action"
                     style={{ background: '#FF8B00', color: 'white' }}
                 >

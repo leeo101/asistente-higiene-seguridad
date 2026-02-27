@@ -2,9 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Camera, RefreshCw, CheckCircle, AlertTriangle, ShieldCheck } from 'lucide-react';
 import { API_BASE_URL } from '../config';
+import { usePaywall } from '../hooks/usePaywall';
 
 export default function AICamera() {
     const navigate = useNavigate();
+    const { requirePro } = usePaywall();
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
     const [stream, _setStream] = useState(null);
@@ -167,16 +169,23 @@ export default function AICamera() {
     };
 
     const handleSaveReport = () => {
-        const report = {
-            id: Date.now(),
-            image: capturedImage,
-            analysis: analysisResult,
-            date: new Date().toISOString(),
-            company: JSON.parse(localStorage.getItem('current_report') || '{}').company || 'Empresa Local',
-            location: JSON.parse(localStorage.getItem('current_report') || '{}').location || 'Planta Principal'
-        };
-        localStorage.setItem('current_ai_inspection', JSON.stringify(report));
-        navigate('/ai-report');
+        requirePro(() => {
+            const report = {
+                id: Date.now(),
+                image: capturedImage,
+                analysis: analysisResult,
+                date: new Date().toISOString(),
+                company: JSON.parse(localStorage.getItem('current_report') || '{}').company || 'Empresa Local',
+                location: JSON.parse(localStorage.getItem('current_report') || '{}').location || 'Planta Principal'
+            };
+            // Save as current (for the report page)
+            localStorage.setItem('current_ai_inspection', JSON.stringify(report));
+            // Also persist to history list
+            const history = JSON.parse(localStorage.getItem('ai_camera_history') || '[]');
+            history.unshift({ id: report.id, date: report.date, company: report.company, location: report.location, ppeComplete: report.analysis?.ppeComplete });
+            localStorage.setItem('ai_camera_history', JSON.stringify(history));
+            navigate('/ai-report');
+        });
     };
 
     const handleRetry = () => {

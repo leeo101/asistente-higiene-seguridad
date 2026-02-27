@@ -8,6 +8,7 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
+import { usePaywall } from '../hooks/usePaywall';
 
 const defaultChecklist = [
     // General
@@ -43,6 +44,7 @@ const defaultChecklist = [
 export default function ATS() {
     const navigate = useNavigate();
     const { currentUser } = useAuth();
+    const { requirePro } = usePaywall();
     const capatazCanvasRef = useRef(null);
     const [isDrawingCapataz, setIsDrawingCapataz] = useState(false);
 
@@ -155,40 +157,27 @@ export default function ATS() {
         });
     };
 
-    const { syncCollection } = useSync();
     const handleSave = async () => {
-        if (!currentUser) {
-            navigate('/login');
-            return;
-        }
-        const historyRaw = localStorage.getItem('ats_history');
-        const history = historyRaw ? JSON.parse(historyRaw) : [];
-        const newEntry = {
-            ...formData,
-            id: Date.now().toString(),
-            capatazSignature: capatazCanvasRef.current?.toDataURL(),
-            professionalSignature: professional.signature,
-            professionalName: professional.name,
-            professionalLicense: professional.license
-        };
-        localStorage.setItem('ats_history', JSON.stringify([newEntry, ...history]));
-        await syncCollection('ats_history', [newEntry, ...history]);
-        alert('Análisis de Trabajo Seguro guardado con éxito');
-        navigate('/ats-history');
+        requirePro(async () => {
+            const historyRaw = localStorage.getItem('ats_history');
+            const history = historyRaw ? JSON.parse(historyRaw) : [];
+            const newEntry = {
+                ...formData,
+                id: Date.now().toString(),
+                capatazSignature: capatazCanvasRef.current?.toDataURL(),
+                professionalSignature: professional.signature,
+                professionalName: professional.name,
+                professionalLicense: professional.license
+            };
+            localStorage.setItem('ats_history', JSON.stringify([newEntry, ...history]));
+            await syncCollection('ats_history', [newEntry, ...history]);
+            alert('Análisis de Trabajo Seguro guardado con éxito');
+            navigate('/ats-history');
+        });
     };
 
-    const handlePrint = () => {
-        if (!currentUser) {
-            navigate('/login');
-            return;
-        }
-        const status = localStorage.getItem('subscriptionStatus');
-        if (status !== 'active') {
-            navigate('/subscribe');
-            return;
-        }
-        window.print();
-    };
+    const handlePrint = () => requirePro(() => window.print());
+    const handleShare = () => requirePro(() => setShowShare(true));
 
     // Grouping checklist by category
     const categories = [...new Set(formData.checklist.map(i => i.categoria))];
@@ -212,7 +201,7 @@ export default function ATS() {
                     <Save size={18} /> GUARDAR
                 </button>
                 <button
-                    onClick={() => setShowShare(true)}
+                    onClick={handleShare}
                     className="btn-floating-action"
                     style={{ background: '#0052CC', color: 'white' }}
                 >

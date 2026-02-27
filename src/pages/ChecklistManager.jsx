@@ -10,6 +10,7 @@ import Sidebar from '../components/Sidebar';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
+import { usePaywall } from '../hooks/usePaywall';
 
 const DEFAULT_TEMPLATES = {
     'manual_tools': {
@@ -94,6 +95,7 @@ export default function ChecklistManager() {
     const navigate = useNavigate();
     const { currentUser } = useAuth();
     const { syncCollection } = useSync();
+    const { requirePro } = usePaywall();
     const [searchParams] = useSearchParams();
 
     const [companyInfo, setCompanyInfo] = useState({
@@ -171,32 +173,7 @@ export default function ChecklistManager() {
         alert('Checklist guardado con éxito y registrado en el historial ✅');
     };
 
-    const handleShare = async () => {
-        if (!currentUser) {
-            navigate('/login');
-            return;
-        }
-        const status = localStorage.getItem('subscriptionStatus');
-        if (status !== 'active') {
-            navigate('/subscribe');
-            return;
-        }
-        const text = `Checklist H&S - ${inspectionInfo.item}\nDocumento: ${inspectionInfo.serial}\nEmpresa: ${companyInfo.name}\nOperador: ${companyInfo.inspector}`;
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: `Checklist: ${inspectionInfo.item}`,
-                    text: `Resultado del checklist de ${inspectionInfo.item} en ${companyInfo.name}`,
-                    url: window.location.href,
-                });
-            } catch (err) {
-                console.error('Error al compartir:', err);
-            }
-        } else {
-            await navigator.clipboard.writeText(text);
-            alert('Enlace y resumen copiados al portapapeles 📋');
-        }
-    };
+    const handleShare = () => requirePro(() => setShowShare(true));
 
     useEffect(() => {
         const initial = MANDATORY_SECTIONS.map(s => ({
@@ -300,7 +277,7 @@ export default function ChecklistManager() {
                     <Share2 size={18} /> COMPARTIR
                 </button>
                 <button
-                    onClick={() => window.print()}
+                    onClick={() => requirePro(() => window.print())}
                     className="btn-floating-action"
                     style={{ background: '#FF8B00', color: 'white' }}
                 >
@@ -346,7 +323,7 @@ export default function ChecklistManager() {
                         <Share2 size={18} /> COMPARTIR
                     </button>
                     <button
-                        onClick={() => window.print()}
+                        onClick={() => requirePro(() => window.print())}
                         style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.8rem 1.4rem', background: '#FF8B00', color: 'white', borderRadius: '12px', border: 'none', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(255, 139, 0, 0.2)' }}
                     >
                         <Printer size={18} /> IMPRIMIR

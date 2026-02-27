@@ -2,24 +2,15 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, Printer, Building2, User, Calendar, CheckCircle2, AlertCircle, Info, Pencil, AlertTriangle, ChevronRight, Share2, FileText } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
+import { usePaywall } from '../hooks/usePaywall';
 
 export default function Report() {
     const navigate = useNavigate();
     const { currentUser } = useAuth();
+    const { requirePro } = usePaywall();
     const [showShare, setShowShare] = React.useState(false);
 
-    const handlePrint = () => {
-        if (!currentUser) {
-            navigate('/login');
-            return;
-        }
-        const status = localStorage.getItem('subscriptionStatus');
-        if (status !== 'active') {
-            navigate('/subscribe');
-            return;
-        }
-        window.print();
-    };
+    const handlePrint = () => requirePro(() => window.print());
 
     React.useEffect(() => {
         const current = localStorage.getItem('current_inspection');
@@ -81,7 +72,7 @@ export default function Report() {
                     <ChevronRight size={18} />
                 </button>
 
-                <button onClick={() => setShowShare(true)} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.2rem' }}>
+                <button onClick={() => requirePro(() => setShowShare(true))} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.2rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                         <Share2 size={20} />
                         <span>Compartir / Enviar</span>

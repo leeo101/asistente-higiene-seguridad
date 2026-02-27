@@ -1,17 +1,29 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { X, User, History, LogOut, Home, Settings, ClipboardList, Flame, FileText, Calendar, MessageSquare, Sun, Moon, Sparkles } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import {
+    X, User, History, LogOut, Home, Settings,
+    Calendar, MessageSquare, Sun, Moon, Sparkles, Star
+} from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import AdBanner from './AdBanner';
 
+const navItems = [
+    { to: '/', icon: <Home size={18} />, label: 'Inicio', always: true },
+    { to: '/profile', icon: <User size={18} />, label: 'Mi Perfil', auth: true },
+    { to: '/history', icon: <History size={18} />, label: 'Historiales', auth: true },
+    { to: '/calendar', icon: <Calendar size={18} />, label: 'Calendario', always: true },
+    { to: '/settings', icon: <Settings size={18} />, label: 'Configuración', auth: true },
+];
+
 export default function Sidebar({ isOpen, onClose }) {
     const navigate = useNavigate();
+    const location = useLocation();
     const { currentUser, logout } = useAuth();
     const [userInfo, setUserInfo] = React.useState({
         name: currentUser?.displayName || currentUser?.email || 'Usuario',
-        photo: null
+        photo: null,
+        profession: ''
     });
-
     const [isDarkMode, setIsDarkMode] = React.useState(() => {
         return typeof document !== 'undefined' ? document.documentElement.classList.contains('dark') : false;
     });
@@ -33,7 +45,7 @@ export default function Sidebar({ isOpen, onClose }) {
         const savedData = localStorage.getItem('personalData');
         if (savedData) {
             const parsed = JSON.parse(savedData);
-            setUserInfo(prev => ({ ...prev, photo: parsed.photo }));
+            setUserInfo(prev => ({ ...prev, photo: parsed.photo, profession: parsed.profession || '' }));
         }
     }, [isOpen, currentUser]);
 
@@ -47,151 +59,169 @@ export default function Sidebar({ isOpen, onClose }) {
         }
     };
 
+    const isActive = (path) => location.pathname === path;
+
+    const visibleItems = navItems.filter(item =>
+        item.always || (item.auth && currentUser)
+    );
+
     return (
         <>
-            {/* Overlay */}
+            {/* Backdrop */}
             {isOpen && (
                 <div
                     onClick={onClose}
                     style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        background: 'rgba(0, 0, 0, 0.5)',
+                        position: 'fixed', inset: 0,
+                        background: 'rgba(0,0,0,0.55)',
+                        backdropFilter: 'blur(4px)',
                         zIndex: 999,
+                        animation: 'fadeIn 0.2s ease'
                     }}
                 />
             )}
 
             <div
-                className={isOpen ? "shadow-2xl" : ""}
                 style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: '280px',
-                    height: '100%',
-                    background: isOpen ? 'var(--color-surface)' : 'transparent',
+                    position: 'fixed', top: 0, left: 0,
+                    width: '285px', height: '100%',
                     zIndex: 1000,
-                    transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s',
+                    transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1), visibility 0.3s',
                     transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
                     visibility: isOpen ? 'visible' : 'hidden',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    padding: '1.5rem',
+                    display: 'flex', flexDirection: 'column',
                     pointerEvents: isOpen ? 'all' : 'none',
+                    background: 'var(--color-surface)',
                     borderRight: '1px solid var(--color-border)',
-                    maxHeight: '100vh'
+                    maxHeight: '100vh',
+                    overflow: 'hidden',
+                    boxShadow: isOpen ? '8px 0 32px rgba(0,0,0,0.2)' : 'none',
+                }}
+            >
+                {/* ── HEADER ── */}
+                <div style={{
+                    background: 'linear-gradient(135deg, #1e3a8a, #2563eb)',
+                    padding: '1.5rem 1.2rem 1.8rem',
+                    position: 'relative', overflow: 'hidden',
+                    flexShrink: 0,
                 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1.5rem' }}>
-                    <img src="/logo.png" alt="Logo" style={{ width: '32px', height: '32px', objectFit: 'contain' }} />
-                    <h2 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--color-text)', fontWeight: 800 }}>Asistente HYS</h2>
+                    <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '120px', height: '120px', borderRadius: '50%', background: 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
+
+                    {/* Top row: Logo + close */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.2rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
+                            <div style={{ width: '36px', height: '36px', background: 'rgba(255,255,255,0.15)', borderRadius: '10px', padding: '5px', flexShrink: 0, backdropFilter: 'blur(8px)' }}>
+                                <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+                            </div>
+                            <span style={{ fontSize: '1.1rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.5px' }}>Asistente HYS</span>
+                        </div>
+                        <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white', backdropFilter: 'blur(8px)' }}>
+                            <X size={18} />
+                        </button>
+                    </div>
+
+                    {/* User card */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.9rem' }}>
+                        <div style={{
+                            width: '46px', height: '46px', borderRadius: '50%',
+                            background: 'rgba(255,255,255,0.2)',
+                            border: '2px solid rgba(255,255,255,0.4)',
+                            overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            flexShrink: 0,
+                        }}>
+                            {userInfo.photo ? (
+                                <img src={userInfo.photo} alt="Perfil" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                                <User size={22} color="rgba(255,255,255,0.9)" />
+                            )}
+                        </div>
+                        <div>
+                            <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff' }}>
+                                {currentUser ? userInfo.name : 'Invitado'}
+                            </div>
+                            {currentUser ? (
+                                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.75)', marginTop: '0.1rem' }}>
+                                    {userInfo.profession || 'Profesional H&S'}
+                                </div>
+                            ) : (
+                                <Link to="/login" onClick={onClose} style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.9)', textDecoration: 'none', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                                    Iniciar sesión →
+                                </Link>
+                            )}
+                        </div>
+                        {/* Theme toggle */}
+                        <button
+                            onClick={toggleTheme}
+                            style={{ marginLeft: 'auto', background: 'rgba(255,255,255,0.15)', border: 'none', width: '34px', height: '34px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white', flexShrink: 0 }}
+                            title={isDarkMode ? 'Modo Claro' : 'Modo Oscuro'}
+                        >
+                            {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
+                        </button>
+                    </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', padding: '0.5rem' }}>
-                    <div style={{
-                        width: '40px',
-                        height: '40px',
-                        borderRadius: '50%',
-                        background: 'var(--color-background)',
-                        overflow: 'hidden',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        border: '1px solid var(--color-border)'
-                    }}>
-                        {userInfo.photo ? (
-                            <img src={userInfo.photo} alt="Perfil" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        ) : (
-                            <User size={20} color="var(--color-text-muted)" />
-                        )}
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-text)' }}>
-                            {currentUser ? userInfo.name : 'Invitado'}
-                        </span>
-                        {!currentUser && (
-                            <Link to="/login" onClick={onClose} style={{ fontSize: '0.75rem', color: 'var(--color-primary)', textDecoration: 'none', fontWeight: 600 }}>
-                                Iniciar Sesión
-                            </Link>
-                        )}
-                    </div>
-                </div>
-
+                {/* ── NAVIGATION ── */}
                 <nav style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.5rem',
-                    flex: 1,
-                    overflowY: 'auto',
-                    marginRight: '-0.5rem',
-                    paddingRight: '0.5rem',
-                    paddingBottom: '2rem', // Safe area for taskbar
-                    scrollbarWidth: 'thin'
+                    flex: 1, overflowY: 'auto', padding: '1rem 0.8rem',
+                    display: 'flex', flexDirection: 'column', gap: '0.25rem',
+                    scrollbarWidth: 'thin',
+                    paddingBottom: '2rem',
                 }}>
-                    <Link to="/" onClick={onClose} style={{ textDecoration: 'none' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: '8px', color: 'var(--color-text)', background: 'transparent' }}>
-                            <Home size={20} color="var(--color-text-muted)" />
-                            <span style={{ fontWeight: 500 }}>Inicio</span>
-                        </div>
-                    </Link>
-
-                    {currentUser && (
-                        <>
-                            <Link to="/profile" onClick={onClose} style={{ textDecoration: 'none' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: '8px', color: 'var(--color-text)', background: 'transparent' }}>
-                                    <User size={20} color="var(--color-text-muted)" />
-                                    <span style={{ fontWeight: 500 }}>Mi Perfil</span>
+                    {visibleItems.map((item, i) => {
+                        const active = isActive(item.to);
+                        return (
+                            <Link key={i} to={item.to} onClick={onClose} style={{ textDecoration: 'none' }}>
+                                <div style={{
+                                    display: 'flex', alignItems: 'center', gap: '0.9rem',
+                                    padding: '0.7rem 1rem', borderRadius: '12px',
+                                    color: active ? '#fff' : 'var(--color-text)',
+                                    background: active ? 'linear-gradient(135deg,#2563eb,#3b82f6)' : 'transparent',
+                                    fontWeight: active ? 700 : 500,
+                                    fontSize: '0.9rem',
+                                    transition: 'background 0.15s, transform 0.15s',
+                                    boxShadow: active ? '0 4px 12px rgba(37,99,235,0.35)' : 'none',
+                                }}
+                                    onMouseOver={e => { if (!active) e.currentTarget.style.background = 'var(--color-background)'; }}
+                                    onMouseOut={e => { if (!active) e.currentTarget.style.background = 'transparent'; }}
+                                >
+                                    <span style={{ color: active ? 'white' : 'var(--color-text-muted)', flexShrink: 0 }}>
+                                        {item.icon}
+                                    </span>
+                                    <span>{item.label}</span>
                                 </div>
                             </Link>
-                            <Link to="/history" onClick={onClose} style={{ textDecoration: 'none' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: '8px', color: 'var(--color-text)', background: 'transparent' }}>
-                                    <History size={20} color="var(--color-text-muted)" />
-                                    <span style={{ fontWeight: 500 }}>Historiales</span>
-                                </div>
-                            </Link>
-                        </>
-                    )}
+                        );
+                    })}
 
-                    <Link to="/calendar" onClick={onClose} style={{ textDecoration: 'none' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: '8px', color: 'var(--color-text)', background: 'transparent' }}>
-                            <Calendar size={20} color="var(--color-text-muted)" />
-                            <span style={{ fontWeight: 500 }}>Calendario</span>
-                        </div>
-                    </Link>
+                    <div style={{ height: '1px', background: 'var(--color-border)', margin: '0.8rem 0.5rem' }} />
 
-                    {currentUser && (
-                        <>
-                            <Link to="/settings" onClick={onClose} style={{ textDecoration: 'none' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: '8px', color: 'var(--color-text)', background: 'transparent' }}>
-                                    <Settings size={20} color="var(--color-text-muted)" />
-                                    <span style={{ fontWeight: 500 }}>Configuración</span>
-                                </div>
-                            </Link>
-                        </>
-                    )}
-
-                    <a href="mailto:asistente.hs.soporte@gmail.com?subject=Sugerencia de Mejora - Asistente HYS" onClick={onClose} style={{ textDecoration: 'none' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: '8px', color: 'var(--color-text)', background: 'transparent' }}>
-                            <MessageSquare size={20} color="var(--color-text-muted)" />
-                            <span style={{ fontWeight: 500 }}>Sugerencias y Mejoras</span>
-                        </div>
-                    </a>
-
-                    <div style={{ margin: '1rem 0', borderTop: '1px solid var(--color-border)' }}></div>
+                    {/* PRO banner */}
                     <Link to="/subscribe" onClick={onClose} style={{ textDecoration: 'none' }}>
                         <div style={{
-                            display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem',
-                            borderRadius: '12px', color: 'var(--color-primary)',
-                            background: 'rgba(37, 99, 235, 0.1)',
-                            transition: 'transform 0.2s, background 0.2s'
+                            display: 'flex', alignItems: 'center', gap: '0.8rem',
+                            padding: '0.9rem 1rem', borderRadius: '14px',
+                            background: 'linear-gradient(135deg,rgba(37,99,235,0.12),rgba(14,165,233,0.08))',
+                            border: '1px solid rgba(37,99,235,0.25)',
+                            cursor: 'pointer',
                         }}>
-                            <User size={20} color="var(--color-primary)" />
-                            <span style={{ fontWeight: 700 }}>Activar Versión Pro</span>
+                            <Star size={18} color="#f59e0b" fill="#f59e0b" />
+                            <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-primary)' }}>Activar Versión Pro</span>
                         </div>
                     </Link>
+
+                    <a href="mailto:asistente.hs.soporte@gmail.com?subject=Sugerencia - Asistente HYS" onClick={onClose} style={{ textDecoration: 'none' }}>
+                        <div style={{
+                            display: 'flex', alignItems: 'center', gap: '0.9rem',
+                            padding: '0.7rem 1rem', borderRadius: '12px',
+                            color: 'var(--color-text)', fontWeight: 500, fontSize: '0.9rem',
+                        }}
+                            onMouseOver={e => e.currentTarget.style.background = 'var(--color-background)'}
+                            onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+                        >
+                            <MessageSquare size={18} color="var(--color-text-muted)" />
+                            <span>Sugerencias y Mejoras</span>
+                        </div>
+                    </a>
 
                     <AdBanner placement="sidebar" />
 
@@ -199,22 +229,20 @@ export default function Sidebar({ isOpen, onClose }) {
                         <button
                             onClick={handleLogout}
                             style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '1rem',
-                                padding: '1rem',
-                                borderRadius: '8px',
-                                color: '#ef4444',
-                                background: 'rgba(239, 68, 68, 0.05)',
-                                border: 'none',
-                                cursor: 'pointer',
-                                marginTop: '1rem',
-                                textAlign: 'left',
-                                width: '100%',
+                                display: 'flex', alignItems: 'center', gap: '0.9rem',
+                                padding: '0.8rem 1rem', borderRadius: '12px',
+                                color: '#ef4444', background: 'rgba(239,68,68,0.05)',
+                                border: '1px solid rgba(239,68,68,0.2)',
+                                cursor: 'pointer', marginTop: '0.5rem',
+                                textAlign: 'left', width: '100%',
+                                fontWeight: 600, fontSize: '0.9rem',
+                                transition: 'background 0.15s',
                             }}
+                            onMouseOver={e => e.currentTarget.style.background = 'rgba(239,68,68,0.1)'}
+                            onMouseOut={e => e.currentTarget.style.background = 'rgba(239,68,68,0.05)'}
                         >
-                            <LogOut size={20} />
-                            <span style={{ fontWeight: 600 }}>Cerrar Sesión</span>
+                            <LogOut size={18} />
+                            <span>Cerrar Sesión</span>
                         </button>
                     )}
                 </nav>

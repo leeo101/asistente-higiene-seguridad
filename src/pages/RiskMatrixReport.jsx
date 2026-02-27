@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Printer, Share2, AlertTriangle, X, Copy, Check, Mail } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
+import { usePaywall } from '../hooks/usePaywall';
 
 // ─── Visual Risk Grid (Probability × Impact) ───────────────────────
 // Rows: Probability (top = high), Columns: Impact (left = low)
@@ -97,6 +98,7 @@ function RiskMatrixGrid() {
 export default function RiskMatrixReport() {
     const navigate = useNavigate();
     const { currentUser } = useAuth();
+    const { requirePro } = usePaywall();
     const [matrix, setMatrix] = useState(null);
     const [profile, setProfile] = useState(null);
     const [signature, setSignature] = useState(null);
@@ -121,12 +123,7 @@ export default function RiskMatrixReport() {
         return { label: 'CRÍTICO', color: '#dc2626', bg: '#fee2e2' };
     };
 
-    const handlePrint = () => {
-        if (!currentUser) { navigate('/login'); return; }
-        const status = localStorage.getItem('subscriptionStatus');
-        if (status !== 'active') { navigate('/subscribe'); return; }
-        window.print();
-    };
+    const handlePrint = () => requirePro(() => window.print());
 
     return (
         <div className="container" style={{ maxWidth: '1100px' }}>
@@ -153,7 +150,7 @@ export default function RiskMatrixReport() {
                 </button>
 
                 <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
-                    <button onClick={() => setShowShare(true)} style={{
+                    <button onClick={() => requirePro(() => setShowShare(true))} style={{
                         display: 'flex', alignItems: 'center', gap: '0.5rem',
                         padding: '0.6rem 1.2rem', background: 'linear-gradient(135deg,#6366f1,#4f46e5)',
                         color: 'white', border: 'none', borderRadius: '50px',

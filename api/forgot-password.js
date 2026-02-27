@@ -26,7 +26,7 @@ export default async function handler(req, res) {
         const { email } = req.body;
 
         // Simulating user lookup
-        if (email !== "leorodriguezbordon99@gmail.com") {
+        if (email !== "asistente.hs.soporte@gmail.com") {
             return res.status(404).json({ error: 'Usuario no encontrado. Asegúrese de ingresar el correo registrado.' });
         }
 

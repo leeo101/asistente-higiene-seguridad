@@ -72,11 +72,14 @@ export default function ErgonomicsForm() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', marginTop: '1rem' }}>
                 <button
                     onClick={() => navigate('/ergonomics')}
-                    style={{ background: 'none', border: 'none', padding: 0, color: 'var(--color-text)' }}
+                    style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}
                 >
-                    <ArrowLeft size={24} />
+                    <ArrowLeft />
                 </button>
-                <h1 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>Protocolo Res. 886/15</h1>
+                <div>
+                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Nuevo Estudio Ergonómico</h1>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Protocolo Res. SRT 886/15</p>
+                </div>
             </div>
 
             {/* Stepper Header */}

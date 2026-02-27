@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Search, FileText, Calendar, ChevronRight,
-    ClipboardList, Flame, BarChart3, ShieldAlert, Plus, Sparkles, Trash2
+    ClipboardList, Flame, BarChart3, ShieldAlert, Plus, Sparkles, Trash2, Camera
 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 
@@ -61,6 +61,7 @@ export default function History() {
             reports: JSON.parse(localStorage.getItem('reports_history') || '[]').length,
             checklists: JSON.parse(localStorage.getItem('tool_checklists_history') || '[]').length,
             ai: JSON.parse(localStorage.getItem('ai_advisor_history') || '[]').length,
+            aiCamera: JSON.parse(localStorage.getItem('ai_camera_history') || '[]').length,
         });
     };
 
@@ -123,6 +124,7 @@ export default function History() {
         { title: 'Matrices de Riesgo', icon: <ShieldAlert />, color: '#8b5cf6', path: '/history-list-matrix', countKey: 'matrices', view: 'matrices' },
         { title: 'Informes Profesionales', icon: <FileText />, color: '#ec4899', path: '/reports-history', countKey: 'reports', view: 'reports' },
         { title: 'Checklist Herramientas', icon: <ClipboardList />, color: '#3b82f6', path: '/checklists-history', countKey: 'checklists' },
+        { title: 'Cámara IA — Inspección Visual', icon: <Camera />, color: '#06b6d4', path: '/ai-camera-history', countKey: 'aiCamera' },
         { title: 'Consultas Asesor IA', icon: <Sparkles />, color: '#8b5cf6', path: '/ai-history', countKey: 'ai' },
     ];
 

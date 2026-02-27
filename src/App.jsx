@@ -40,6 +40,7 @@ import ChecklistsHistory from './pages/ChecklistsHistory.jsx';
 import ChecklistManager from './pages/ChecklistManager.jsx';
 import Subscription from './pages/Subscription.jsx';
 import AIHistory from './pages/AIHistory.jsx';
+import AICameraHistory from './pages/AICameraHistory.jsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
 import { SyncProvider } from './contexts/SyncContext.jsx';
 
@@ -91,27 +92,32 @@ function App() {
                 gap: '1rem',
                 zIndex: 10,
                 padding: '0.8rem 1rem',
-                background: 'rgba(24, 24, 27, 0.4)'
+                background: 'rgba(15, 23, 42, 0.65)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
+                borderRadius: '14px',
+                border: '1px solid rgba(255,255,255,0.1)',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
               }}>
               <button
                 onClick={() => setIsSidebarOpen(true)}
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.15)',
                   borderRadius: '10px',
                   padding: '0.5rem',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: 'var(--color-primary)'
+                  color: 'white'
                 }}
               >
                 <Menu size={22} />
               </button>
-              <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', textDecoration: 'none', color: 'inherit' }}>
-                <img src="/logo.png" alt="Logo" style={{ width: '36px', height: '36px', objectFit: 'contain', filter: 'drop-shadow(0 0 10px rgba(59, 130, 246, 0.5))' }} />
-                <h1 className="header-title" style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800 }}>Asistente HYS</h1>
+              <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', textDecoration: 'none', color: 'white', flex: 1 }}>
+                <img src="/logo.png" alt="Logo" style={{ width: '34px', height: '34px', objectFit: 'contain', filter: 'brightness(0) invert(1) drop-shadow(0 0 8px rgba(99,179,237,0.6))' }} />
+                <h1 className="header-title" style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: 'white', letterSpacing: '-0.3px' }}>Asistente HYS</h1>
               </Link>
             </div>
           )}
@@ -138,6 +144,7 @@ function App() {
             <Route path="/ai-history" element={<AIHistory />} />
             <Route path="/ai-report" element={<AIReport />} />
             <Route path="/calendar" element={<SafetyCalendar />} />
+            <Route path="/ai-camera-history" element={<AICameraHistory />} />
 
             {/* Tools that are now accessible but will have paywall on print */}
             <Route path="/risk" element={<RiskAssessment />} />

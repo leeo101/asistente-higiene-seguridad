@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Printer, Share2, Download, CheckCircle2, AlertTriangle, ShieldCheck, Info } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
+import { usePaywall } from '../hooks/usePaywall';
 
 export default function AIReport() {
     const navigate = useNavigate();
     const { currentUser } = useAuth();
+    const { requirePro } = usePaywall();
     const [data, setData] = useState(null);
     const [profile, setProfile] = useState(null);
     const [signature, setSignature] = useState(null);
@@ -36,18 +38,7 @@ export default function AIReport() {
 
     if (!data) return <div className="container">Cargando...</div>;
 
-    const handlePrint = () => {
-        if (!currentUser) {
-            navigate('/login');
-            return;
-        }
-        const status = localStorage.getItem('subscriptionStatus');
-        if (status !== 'active') {
-            navigate('/subscribe');
-            return;
-        }
-        window.print();
-    };
+    const handlePrint = () => requirePro(() => window.print());
 
     return (
         <div className="container" style={{ maxWidth: '1000px' }}>
@@ -62,10 +53,10 @@ export default function AIReport() {
                     <ArrowLeft size={20} /> Volver a Cámara
                 </button>
                 <div style={{ display: 'flex', gap: '0.8rem' }}>
-                    <button onClick={handlePrint} className="btn-success" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: 'auto', marginTop: 0 }}>
+                    <button onClick={handlePrint} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.2rem', fontWeight: 700 }}>
                         <Printer size={18} /> Imprimir / PDF
                     </button>
-                    <button onClick={() => setShowShare(true)} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <button onClick={() => requirePro(() => setShowShare(true))} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.2rem', fontWeight: 700 }}>
                         <Share2 size={18} /> Compartir
                     </button>
                 </div>

@@ -107,7 +107,7 @@ const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: process.env.EMAIL_USER || 'asistente.hs.soporte@gmail.com',
-        pass: process.env.EMAIL_PASS || 'your-app-password'
+        pass: process.env.EMAIL_PASS || 'bslx yhce ffli lmoc'
     }
 });
 

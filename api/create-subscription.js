@@ -31,11 +31,11 @@ export default async function handler(req, res) {
                 items: [
                     {
                         id: 'pro_subscription',
-                        title: 'Modo Profesional (Suscripción Anual)',
-                        description: 'Acceso total a Ergonomía, Matriz de Riesgos y Reportes Avanzados.',
+                        title: 'Asistente HYS – Versión PRO',
+                        description: 'Acceso completo: informes, PDF, compartir, Cámara IA y más. Suscripción mensual.',
                         quantity: 1,
-                        unit_price: 15,
-                        currency_id: 'ARS', // Adapt to required currency
+                        unit_price: 5,
+                        currency_id: 'USD',
                     }
                 ],
                 back_urls: {
