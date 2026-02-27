@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Lock, Eye, EyeOff, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
 import { API_BASE_URL } from '../config';
+import toast from 'react-hot-toast';
 
 export default function ResetPassword() {
     const navigate = useNavigate();

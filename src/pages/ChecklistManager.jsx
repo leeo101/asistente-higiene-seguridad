@@ -11,6 +11,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
+import toast from 'react-hot-toast';
 
 const DEFAULT_TEMPLATES = {
     'manual_tools': {
@@ -170,7 +171,7 @@ export default function ChecklistManager() {
 
         localStorage.setItem('tool_checklists_history', JSON.stringify(history));
         await syncCollection('tool_checklists_history', history);
-        alert('Checklist guardado con éxito y registrado en el historial ✅');
+        toast.success('Checklist guardado con éxito y registrado en el historial ✅');
     };
 
     const handleShare = () => requirePro(() => setShowShare(true));

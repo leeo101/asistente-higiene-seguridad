@@ -10,6 +10,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
+import toast from 'react-hot-toast';
 
 export default function FireLoad() {
     const navigate = useNavigate();
@@ -234,10 +235,10 @@ export default function FireLoad() {
 
             localStorage.setItem('fireload_history', JSON.stringify(newHistory));
             await syncCollection('fireload_history', newHistory);
-            alert('Carga de Fuego guardada con éxito');
+            toast.success('Carga de Fuego guardada con éxito');
             navigate('/fire-load-history');
         } catch (error) {
-            alert('Error al guardar: ' + error.message);
+            toast.error('Error al guardar: ' + error.message);
         }
     };
 

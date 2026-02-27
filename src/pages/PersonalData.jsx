@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, User, Mail, CreditCard, Award, Phone, MapPin, Camera, Trash2, GraduationCap } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
+import toast from 'react-hot-toast';
 
 export default function PersonalData() {
     const navigate = useNavigate();
@@ -26,7 +27,7 @@ export default function PersonalData() {
 
     const handleSave = async () => {
         await syncDocument('personalData', formData);
-        alert('Datos guardados correctamente');
+        toast.success('Datos guardados correctamente');
         navigate('/profile');
     };
 
@@ -34,7 +35,7 @@ export default function PersonalData() {
         const file = e.target.files[0];
         if (file) {
             if (file.size > 1024 * 1024) { // 1MB limit for localStorage
-                alert('La foto es demasiado grande. Por favor elige una de menos de 1MB.');
+                toast.error('La foto es demasiado grande. Por favor elige una de menos de 1MB.');
                 return;
             }
             const reader = new FileReader();

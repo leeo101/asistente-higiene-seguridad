@@ -43,6 +43,7 @@ import AIHistory from './pages/AIHistory.jsx';
 import AICameraHistory from './pages/AICameraHistory.jsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
 import { SyncProvider } from './contexts/SyncContext.jsx';
+import { Toaster, toast } from 'react-hot-toast';
 
 function SubscriptionGuard({ children }) {
   const status = typeof window !== 'undefined' ? localStorage.getItem('subscriptionStatus') : null;
@@ -76,7 +77,20 @@ function App() {
         if (status !== 'active') {
           e.preventDefault();
           e.stopPropagation();
-          alert('⚠️ La función de impresión está reservada para usuarios PRO.\nPor favor, suscríbete para exportar tus informes.');
+          toast.error('La función de impresión es exclusiva para usuarios PRO.', {
+            id: 'print-blocked-toast',
+            duration: 4000,
+            icon: '⚠️',
+            style: {
+              borderRadius: '12px',
+              background: '#1e293b',
+              color: '#fff',
+              fontSize: '14px',
+              fontWeight: '600',
+              border: '1px solid rgba(255,255,255,0.1)',
+              boxShadow: '0 10px 15px -3px rgba(0,0,0,0.2)'
+            }
+          });
         }
       }
     };
@@ -96,6 +110,35 @@ function App() {
   return (
     <AuthProvider>
       <SyncProvider>
+        <Toaster
+          position="top-center"
+          reverseOrder={false}
+          gutter={8}
+          toastOptions={{
+            duration: 3000,
+            style: {
+              borderRadius: '12px',
+              background: '#fff',
+              color: '#1e293b',
+              fontSize: '14px',
+              fontWeight: '600',
+              boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+              padding: '12px 20px',
+            },
+            success: {
+              style: {
+                background: '#10b981',
+                color: '#fff',
+              },
+            },
+            error: {
+              style: {
+                background: '#ef4444',
+                color: '#fff',
+              },
+            },
+          }}
+        />
         <div className="app-container">
           {showMenuButton && (
             <div

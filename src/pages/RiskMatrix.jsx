@@ -4,6 +4,7 @@ import { ArrowLeft, Plus, Trash2, Save, AlertTriangle, ShieldCheck, Flame, Zap, 
 import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
+import toast from 'react-hot-toast';
 
 const HAZARD_TYPES = [
     { value: '', label: 'Seleccionar...', icon: null, color: '#94a3b8' },
@@ -58,7 +59,7 @@ export default function RiskMatrix() {
 
     const handleSave = async () => {
         requirePro(async () => {
-            if (!projectData.name) { alert('Ingresá el nombre de la obra / proyecto.'); return; }
+            if (!projectData.name) { toast.error('Ingresá el nombre de la obra / proyecto.'); return; }
             const entry = { id: Date.now(), ...projectData, rows, createdAt: new Date().toISOString() };
             const history = JSON.parse(localStorage.getItem('risk_matrix_history') || '[]');
             const updated = [entry, ...history];

@@ -5,6 +5,7 @@ import {
     Save, Accessibility, AlertCircle, Info, User, Building2
 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
+import toast from 'react-hot-toast';
 
 export default function ErgonomicsForm() {
     const navigate = useNavigate();

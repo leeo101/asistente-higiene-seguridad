@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, Trash2, Camera, Calendar, Building2, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
+import toast from 'react-hot-toast';
 
 function DeleteConfirm({ onConfirm, onCancel }) {
     return (

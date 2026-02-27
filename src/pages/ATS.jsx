@@ -9,6 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
+import toast from 'react-hot-toast';
 
 const defaultChecklist = [
     // General
@@ -171,7 +172,7 @@ export default function ATS() {
             };
             localStorage.setItem('ats_history', JSON.stringify([newEntry, ...history]));
             await syncCollection('ats_history', [newEntry, ...history]);
-            alert('Análisis de Trabajo Seguro guardado con éxito');
+            toast.success('Análisis de Trabajo Seguro guardado con éxito');
             navigate('/ats-history');
         });
     };

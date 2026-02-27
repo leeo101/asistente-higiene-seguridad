@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, FileText, AlertCircle, GraduationCap, ClipboardCheck, Package, Plus, Trash2, History } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
+import toast from 'react-hot-toast';
 
 export default function Reports() {
     const navigate = useNavigate();
@@ -45,7 +46,7 @@ export default function Reports() {
 
     const handleSave = async () => {
         if (!projectData.title || !projectData.company) {
-            alert('Por favor, complete al menos el título y la empresa.');
+            toast.error('Por favor, complete al menos el título y la empresa.');
             return;
         }
 

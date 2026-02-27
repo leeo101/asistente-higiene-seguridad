@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Camera, RefreshCw, CheckCircle, AlertTriangle, ShieldCheck } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { usePaywall } from '../hooks/usePaywall';
+import toast from 'react-hot-toast';
 
 export default function AICamera() {
     const navigate = useNavigate();
@@ -43,7 +44,7 @@ export default function AICamera() {
             if (videoRef.current) videoRef.current.srcObject = newStream;
         } catch (err) {
             console.error("Error accessing camera:", err);
-            alert("No se pudo acceder a la cámara. Por favor, asegúrese de dar los permisos necesarios.");
+            toast.error("No se pudo acceder a la cámara. Por favor, asegúrese de dar los permisos necesarios.");
         }
     };
 
@@ -87,21 +88,21 @@ export default function AICamera() {
             if (!response.ok) {
                 console.error("API Error details:", data);
                 if (response.status === 413) {
-                    alert("Error: La imagen es demasiado pesada. Intente alejarse un poco o bajar la resolución.");
+                    toast.error("Error: La imagen es demasiado pesada. Intente alejarse un poco o bajar la resolución.");
                 } else if (data.details && (data.details.includes("API key not valid") || data.details.includes("permission") || data.details.includes("Key:"))) {
                     const keyMatch = data.details.match(/Key:\s*(\S+)/);
                     const keyMsg = keyMatch ? `\n\nLlave detectada: ${keyMatch[1]}` : "";
-                    alert("Error de Configuración: La API Key de Gemini no tiene permisos suficientes o es inválida." + keyMsg + "\n\nPor favor, verifica que la llave en Render o en tu .env sea la correcta y tenga acceso a Gemini 1.5.");
+                    toast.error("Error de Configuración: La API Key de Gemini no tiene permisos suficientes o es inválida." + keyMsg + "\n\nPor favor, verifica que la llave en Render o en tu .env sea la correcta y tenga acceso a Gemini 1.5.");
                 } else if (data.details && (data.details.includes("v1beta/models") || data.details.includes("not found"))) {
-                    alert("Error de Modelos: El servidor intentó usar varios modelos de IA pero Google devolvió 404 (No Encontrado).\n\nEsto suele ser un problema regional de Google o que la API Key es muy antigua. Detalles: " + data.details);
+                    toast.error("Error de Modelos: El servidor intentó usar varios modelos de IA pero Google devolvió 404 (No Encontrado).\n\nEsto suele ser un problema regional de Google o que la API Key es muy antigua.");
                 } else {
-                    alert("Error del servidor: " + (data.error || "Error Desconocido") + "\n\nDetalles: " + (data.details || "Consulte los logs del servidor."));
+                    toast.error("Error del servidor: " + (data.error || "Error Desconocido"));
                 }
                 handleRetry();
                 return;
             }
             if (!data.personDetected && data.personDetected !== undefined) {
-                alert("La IA no detectó a ninguna persona clara en la imagen. Intente de nuevo.");
+                toast.error("La IA no detectó a ninguna persona clara en la imagen. Intente de nuevo.");
             }
 
             // Draw visual markers if detections are present
@@ -113,7 +114,7 @@ export default function AICamera() {
             setAnalysisResult(data);
         } catch (error) {
             console.error("Red / Error:", error);
-            alert("Error de conexión con el servidor IA. Asegúrese de que el backend esté corriendo.");
+            toast.error("Error de conexión con el servidor IA. Asegúrese de que el backend esté corriendo.");
             handleRetry();
         } finally {
             setIsAnalyzing(false);

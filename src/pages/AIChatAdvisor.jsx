@@ -10,6 +10,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { API_BASE_URL } from '../config';
 import AdBanner from '../components/AdBanner';
+import toast from 'react-hot-toast';
 
 export default function AIChatAdvisor() {
     const navigate = useNavigate();
@@ -22,7 +23,7 @@ export default function AIChatAdvisor() {
     const toggleListening = () => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
-            alert('Tu navegador no soporta reconocimiento de voz. Prueba con Chrome.');
+            toast.error('Tu navegador no soporta reconocimiento de voz. Prueba con Chrome.');
             return;
         }
 
@@ -160,7 +161,7 @@ export default function AIChatAdvisor() {
             doc.save(`Analisis_HYS_${new Date().getTime()}.pdf`);
         } catch (error) {
             console.error('[PDF ERROR]', error);
-            alert('Error al generar el PDF. Revisa que el navegador no esté bloqueando las descargas.');
+            toast.error('Error al generar el PDF. Revisa que el navegador no esté bloqueando las descargas.');
         } finally {
             setLoading(false);
         }
@@ -198,7 +199,7 @@ export default function AIChatAdvisor() {
             localStorage.setItem('ai_advisor_history', JSON.stringify([newRecord, ...history]));
         } catch (error) {
             console.error('Error:', error);
-            alert(`Error: ${error.message}. Por favor, verifica tu conexión o intenta más tarde.`);
+            toast.error(`Error: ${error.message}. Por favor, verifica tu conexión o intenta más tarde.`);
         } finally {
             setLoading(false);
         }

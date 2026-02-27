@@ -8,6 +8,7 @@ import {
 import { useSync } from '../contexts/SyncContext';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import toast from 'react-hot-toast';
 
 export default function AIHistory() {
     const navigate = useNavigate();
@@ -104,7 +105,7 @@ export default function AIHistory() {
             doc.save(`Analisis_IA_${new Date(result.date).getTime()}.pdf`);
         } catch (error) {
             console.error('[PDF ERROR]', error);
-            alert('Error al generar el PDF.');
+            toast.error('Error al generar el PDF.');
         }
     };
 

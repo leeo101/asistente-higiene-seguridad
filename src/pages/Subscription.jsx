@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, CreditCard, Sparkles, CheckCircle2, Lock, ArrowRight, ArrowLeft } from 'lucide-react';
 import { API_BASE_URL } from '../config';
+import toast from 'react-hot-toast';
 
 export default function Subscription() {
     const navigate = useNavigate();
@@ -52,12 +53,12 @@ export default function Subscription() {
                 // Redirect user to Mercado Pago checkout for subscription
                 window.location.href = data.init_point;
             } else {
-                alert('Error al generar el link de pago.');
+                toast.error('Error al generar el link de pago.');
                 setLoading(false);
             }
         } catch (error) {
             console.error(error);
-            alert('Error de conexión con el servidor de pago.');
+            toast.error('Error de conexión con el servidor de pago.');
             setLoading(false);
         }
     };
@@ -125,7 +126,7 @@ export default function Subscription() {
                             localStorage.removeItem('subscriptionExpiry');
                             setIsSubscribed(false);
                             setExpiryDate(null);
-                            alert('Suscripción cancelada con éxito.');
+                            toast.success('Suscripción cancelada con éxito.');
                         }
                     }}
                     style={{

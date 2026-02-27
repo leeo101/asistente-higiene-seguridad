@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, User, Settings, PenTool, Database, Shield, LogOut, ChevronRight, Trash2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import toast from 'react-hot-toast';
 
 export default function Profile() {
     const navigate = useNavigate();
@@ -45,11 +46,11 @@ export default function Profile() {
             try {
                 await deleteAccount();
                 localStorage.clear(); // Limpiar todo el rastro local
-                alert("Cuenta eliminada con éxito. Lamentamos verte partir.");
+                toast.success("Cuenta eliminada con éxito. Lamentamos verte partir.");
                 navigate('/login');
             } catch (error) {
                 console.error("Error al eliminar cuenta:", error);
-                alert("Hubo un error al intentar eliminar la cuenta. Por favor, intenta cerrar sesión e ingresar de nuevo antes de reintentar.");
+                toast.error("Hubo un error al intentar eliminar la cuenta. Por favor, intenta cerrar sesión e ingresar de nuevo antes de reintentar.");
             }
         }
     };
