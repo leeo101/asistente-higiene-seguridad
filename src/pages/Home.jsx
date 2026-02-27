@@ -36,6 +36,7 @@ export default function Home() {
     const { currentUser } = useAuth();
     const { syncPulse } = useSync();
     const [isSubscribed, setIsSubscribed] = useState(false);
+    const [daysLeft, setDaysLeft] = useState(null);
     const [stats, setStats] = useState([
         { label: 'Inspecciones', value: 0, icon: <ClipboardList />, color: '#3b82f6', grad: 'linear-gradient(135deg,#3b82f6,#2563eb)', key: 'inspections_history' },
         { label: 'ATS', value: 0, icon: <BarChart3 />, color: '#10b981', grad: 'linear-gradient(135deg,#10b981,#059669)', key: 'ats_history' },
@@ -64,7 +65,20 @@ export default function Home() {
                 setUserName(name);
             }
             const status = localStorage.getItem('subscriptionStatus');
-            setIsSubscribed(status === 'active');
+            const expiry = parseInt(localStorage.getItem('subscriptionExpiry') || '0', 10);
+            if (status === 'active') {
+                if (!expiry || Date.now() <= expiry) {
+                    setIsSubscribed(true);
+                    if (expiry) {
+                        const days = Math.max(0, Math.ceil((expiry - Date.now()) / (1000 * 60 * 60 * 24)));
+                        setDaysLeft(days);
+                    }
+                } else {
+                    // Expired — clear
+                    localStorage.removeItem('subscriptionStatus');
+                    localStorage.removeItem('subscriptionExpiry');
+                }
+            }
         }
 
         const loadStats = () => {
@@ -189,7 +203,9 @@ export default function Home() {
                         </div>
                         <div style={{ flex: 1 }}>
                             <h4 style={{ margin: 0, fontWeight: 800, fontSize: '0.95rem' }}>Asistente HYS <span style={{ color: '#10b981' }}>PRO</span> activo ✓</h4>
-                            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Todas las funciones e impresiones habilitadas.</p>
+                            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                                {daysLeft !== null ? `Vence en ${daysLeft} día${daysLeft !== 1 ? 's' : ''}` : 'Todas las funciones habilitadas.'}
+                            </p>
                         </div>
                         <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
                     </div>

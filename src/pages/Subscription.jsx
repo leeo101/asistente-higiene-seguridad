@@ -7,19 +7,30 @@ export default function Subscription() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [isSubscribed, setIsSubscribed] = useState(false);
+    const [expiryDate, setExpiryDate] = useState(null);
 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const paymentStatus = urlParams.get('status');
 
         if (paymentStatus === 'approved') {
+            const expiry = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 days
             localStorage.setItem('subscriptionStatus', 'active');
+            localStorage.setItem('subscriptionExpiry', String(expiry));
+            setExpiryDate(new Date(expiry));
             setIsSubscribed(true);
             window.history.replaceState({}, document.title, window.location.pathname);
         } else {
             const status = localStorage.getItem('subscriptionStatus');
-            if (status === 'active') {
+            const expiry = parseInt(localStorage.getItem('subscriptionExpiry') || '0', 10);
+            // Check not expired
+            if (status === 'active' && (expiry === 0 || Date.now() <= expiry)) {
                 setIsSubscribed(true);
+                if (expiry) setExpiryDate(new Date(expiry));
+            } else if (status === 'active' && expiry > 0 && Date.now() > expiry) {
+                // Grace period passed — clean up
+                localStorage.removeItem('subscriptionStatus');
+                localStorage.removeItem('subscriptionExpiry');
             }
         }
     }, []);
@@ -77,10 +88,16 @@ export default function Subscription() {
                 }}>
                     <CheckCircle2 size={40} />
                 </div>
-                <h1 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Suscripción Activa</h1>
-                <p style={{ color: 'var(--color-text-secondary)', marginBottom: '2rem' }}>
+                <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Suscripción Activa ✓</h1>
+                <p style={{ color: 'var(--color-text-secondary)', marginBottom: '0.5rem' }}>
                     Ya tienes acceso ilimitado a todas las funciones profesionales.
                 </p>
+                {expiryDate && (
+                    <p style={{ fontSize: '0.85rem', color: '#10b981', fontWeight: 700, marginBottom: '2rem', background: 'rgba(16,185,129,0.08)', padding: '0.5rem 1rem', borderRadius: '10px', display: 'inline-block' }}>
+                        ✅ Válida hasta: {expiryDate.toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                    </p>
+                )}
+                {!expiryDate && <div style={{ marginBottom: '2rem' }} />}
                 <button
                     onClick={() => navigate('/')}
                     style={{
@@ -105,7 +122,9 @@ export default function Subscription() {
                     onClick={() => {
                         if (window.confirm('¿Estás seguro de que deseas cancelar tu suscripción? Perderás acceso a las funciones Premium.')) {
                             localStorage.removeItem('subscriptionStatus');
+                            localStorage.removeItem('subscriptionExpiry');
                             setIsSubscribed(false);
+                            setExpiryDate(null);
                             alert('Suscripción cancelada con éxito.');
                         }
                     }}
