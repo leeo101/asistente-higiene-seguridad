@@ -30,49 +30,6 @@ export default function AppSettings() {
                 <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Configuración</h1>
             </div>
 
-            <div className="card">
-                <h3 style={{ marginTop: 0, marginBottom: '1.5rem', fontSize: '1.1rem' }}>Apariencia</h3>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    <div
-                        onClick={() => toggleTheme('dark')}
-                        style={{
-                            padding: '1rem',
-                            borderRadius: '12px',
-                            border: `2px solid ${theme === 'dark' ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                            background: theme === 'dark' ? 'var(--color-surface-hover)' : 'var(--color-surface)',
-                            cursor: 'pointer',
-                            textAlign: 'center',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: '0.5rem'
-                        }}
-                    >
-                        <Moon size={24} color={theme === 'dark' ? 'var(--color-primary)' : 'var(--color-text-muted)'} />
-                        <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>Oscuro</span>
-                    </div>
-
-                    <div
-                        onClick={() => toggleTheme('light')}
-                        style={{
-                            padding: '1rem',
-                            borderRadius: '12px',
-                            border: `2px solid ${theme === 'light' ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                            background: theme === 'light' ? 'rgba(59, 130, 246, 0.05)' : 'var(--color-surface)',
-                            cursor: 'pointer',
-                            textAlign: 'center',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: '0.5rem'
-                        }}
-                    >
-                        <Sun size={24} color={theme === 'light' ? 'var(--color-primary)' : 'var(--color-text-muted)'} />
-                        <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>Claro</span>
-                    </div>
-                </div>
-            </div>
 
             <div className="card">
                 <h3 style={{ marginTop: 0, marginBottom: '1.5rem', fontSize: '1.1rem' }}>Preferencias</h3>

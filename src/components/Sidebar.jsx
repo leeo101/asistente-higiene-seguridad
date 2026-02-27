@@ -135,9 +135,30 @@ export default function Sidebar({ isOpen, onClose }) {
                                 <User size={22} color="rgba(255,255,255,0.9)" />
                             )}
                         </div>
-                        <div>
-                            <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff' }}>
-                                {currentUser ? userInfo.name : 'Invitado'}
+                        <div style={{ flex: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff' }}>
+                                    {currentUser ? userInfo.name : 'Invitado'}
+                                </div>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); toggleTheme(); }}
+                                    style={{
+                                        background: 'rgba(255,255,255,0.15)',
+                                        border: 'none',
+                                        width: '28px',
+                                        height: '28px',
+                                        borderRadius: '8px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        cursor: 'pointer',
+                                        color: 'white',
+                                        flexShrink: 0
+                                    }}
+                                    title={isDarkMode ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro'}
+                                >
+                                    {isDarkMode ? <Moon size={14} fill="white" /> : <Sun size={14} />}
+                                </button>
                             </div>
                             {currentUser ? (
                                 <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.75)', marginTop: '0.1rem' }}>
@@ -149,14 +170,6 @@ export default function Sidebar({ isOpen, onClose }) {
                                 </Link>
                             )}
                         </div>
-                        {/* Theme toggle */}
-                        <button
-                            onClick={toggleTheme}
-                            style={{ marginLeft: 'auto', background: 'rgba(255,255,255,0.15)', border: 'none', width: '34px', height: '34px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white', flexShrink: 0 }}
-                            title={isDarkMode ? 'Modo Claro' : 'Modo Oscuro'}
-                        >
-                            {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
-                        </button>
                     </div>
                 </div>
 
