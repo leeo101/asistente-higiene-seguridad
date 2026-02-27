@@ -65,7 +65,7 @@ export default function AIReport() {
                 {/* Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid var(--color-primary)', paddingBottom: '2rem', marginBottom: '2.5rem' }}>
                     <div>
-                        <h1 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-primary)', fontSize: '1.8rem', fontWeight: 800 }}>Informe de Inspección Visual IA</h1>
+                        <h1 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-primary)', fontSize: '2.5rem', fontWeight: 800 }}>INFORME</h1>
                         <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569', textTransform: 'uppercase' }}>Sistema de Detección de Riesgos y EPP</p>
                     </div>
                     {profile && (
@@ -197,7 +197,7 @@ export default function AIReport() {
                     </div>
                 </div>
 
-                <div className="flex flex-row justify-around items-start w-full gap-8 mt-10">
+                <div className="flex flex-row justify-around items-start w-full gap-4 mt-10 print:flex-row">
                     {showSignatures.operator && (
                         <div className="flex-1 flex flex-col items-center pt-24 text-center">
                             <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>

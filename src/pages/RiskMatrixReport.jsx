@@ -153,8 +153,8 @@ export default function RiskMatrixReport() {
                 {/* Report Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '3px solid #6366f1', paddingBottom: '1.5rem', marginBottom: '2rem', gap: '1rem' }}>
                     <div>
-                        <h1 style={{ margin: '0 0 0.3rem 0', fontSize: '1.8rem', fontWeight: 900, color: '#0f172a', letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
-                            <AlertTriangle size={28} color="#f59e0b" /> Evaluación de Riesgos
+                        <h1 style={{ margin: '0 0 0.3rem 0', fontSize: '2.5rem', fontWeight: 900, color: 'var(--color-primary)', letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
+                            <AlertTriangle size={28} color="#f59e0b" /> INFORME
                         </h1>
                         <p style={{ margin: '0 0 0.2rem 0', fontWeight: 700, color: '#334155', fontSize: '1rem' }}>{matrix.name}</p>
                         <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.85rem' }}>{matrix.location}</p>

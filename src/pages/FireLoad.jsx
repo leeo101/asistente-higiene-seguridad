@@ -276,7 +276,7 @@ export default function FireLoad() {
             </div>
 
             <div className="print-header">
-                <h1 style={{ margin: 0, fontSize: '1.8rem' }}>INFORME TÉCNICO: ESTUDIO DE CARGA DE FUEGO</h1>
+                <h1 style={{ margin: 0, fontSize: '2.5rem', fontWeight: 900, color: 'var(--color-primary)' }}>INFORME</h1>
                 <p style={{ margin: '5px 0', fontSize: '1rem', color: '#444' }}>Determinación de Carga Térmica y Resistencia al Fuego - Dec. 351/79</p>
                 <div style={{ textAlign: 'left', marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.9rem' }}>
                     <div className="flex flex-col md:flex-row gap-2 md:gap-8">

@@ -66,7 +66,7 @@ export default function ErgonomicsReport() {
                 {/* Header Legal */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #333', paddingBottom: '20px', marginBottom: '30px', gap: '20px' }} className="flex-col md:flex-row">
                     <div>
-                        <h1 style={{ margin: 0, fontSize: '22px', textTransform: 'uppercase' }}>Protocolo de Ergonomía</h1>
+                        <h1 style={{ margin: 0, fontSize: '2.5rem', textTransform: 'uppercase', color: 'var(--color-primary)', fontWeight: 900 }}>INFORME</h1>
                         <p style={{ margin: '5px 0 0', fontSize: '14px', fontWeight: 'bold' }}>Resolución SRT N° 886/15</p>
                     </div>
                     <div style={{ textAlign: 'right' }} className="md:text-right">
@@ -166,7 +166,7 @@ export default function ErgonomicsReport() {
                     </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row justify-around items-start w-full gap-8 mt-10">
+                <div className="flex flex-row justify-around items-start w-full gap-4 mt-10 print:flex-row">
                     {showSignatures.operator && (
                         <div className="flex-1 flex flex-col items-center pt-16 sm:pt-20 text-center w-full">
                             <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>

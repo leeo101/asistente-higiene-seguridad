@@ -60,7 +60,7 @@ export default function ReportsReport() {
                 {/* Header with Professional Info */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid var(--color-primary)', paddingBottom: '2rem', marginBottom: '2.5rem', gap: '1.5rem' }} className="flex-col sm:flex-row">
                     <div style={{ flex: 1 }}>
-                        <h1 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-primary)', fontSize: '2.5rem', fontWeight: 900, tracking: '-1px' }}>CHECK LIST</h1>
+                        <h1 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-primary)', fontSize: '2.5rem', fontWeight: 900, tracking: '-1px' }}>INFORME</h1>
                         <p style={{ margin: 0, fontSize: '0.9rem', color: '#475569', textTransform: 'uppercase', letterSpacing: '1px' }}>
                             {report.template === 'general' ? 'Informe Técnico' :
                                 report.template === 'accident' ? 'Registro de Accidente' :
@@ -157,7 +157,7 @@ export default function ReportsReport() {
                     </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row justify-around items-start w-full gap-8 mt-12 pt-8 border-t-2 border-dashed border-[#e2e8f0]">
+                <div className="flex flex-row justify-around items-start w-full gap-4 mt-12 pt-8 border-t-2 border-dashed border-[#e2e8f0] print:flex-row">
                     {showSignatures.operator && (
                         <div className="flex-1 flex flex-col items-center pt-16 sm:pt-20 text-center w-full">
                             <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
