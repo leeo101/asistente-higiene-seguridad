@@ -309,26 +309,6 @@ export default function ChecklistManager() {
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.8rem' }}>
-                    <button
-                        onClick={handleSave}
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.8rem 1.4rem', background: '#36B37E', color: 'white', borderRadius: '12px', border: 'none', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(54, 179, 126, 0.2)' }}
-                    >
-                        <Save size={18} /> GUARDAR
-                    </button>
-                    <button
-                        onClick={() => setShowShare(true)}
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.8rem 1.4rem', background: '#0052CC', color: 'white', borderRadius: '12px', border: 'none', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(0, 82, 204, 0.2)' }}
-                    >
-                        <Share2 size={18} /> COMPARTIR
-                    </button>
-                    <button
-                        onClick={() => requirePro(() => window.print())}
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.8rem 1.4rem', background: '#FF8B00', color: 'white', borderRadius: '12px', border: 'none', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(255, 139, 0, 0.2)' }}
-                    >
-                        <Printer size={18} /> IMPRIMIR
-                    </button>
-                </div>
             </div>
 
             {/* TEMPLATE SELECTOR - EXPLICITLY HIDDEN IN PRINT */}
