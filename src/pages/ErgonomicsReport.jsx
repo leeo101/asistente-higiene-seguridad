@@ -61,6 +61,7 @@ export default function ErgonomicsReport() {
                 borderRadius: '8px',
                 boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
                 minHeight: '29.7cm',
+                height: 'auto',
                 fontFamily: 'Arial, sans-serif'
             }}>
                 {/* Header Legal */}

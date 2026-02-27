@@ -51,6 +51,7 @@ export default function ReportsReport() {
             <div className="card report-print" style={{
                 padding: '3rem',
                 minHeight: '29.7cm',
+                height: 'auto',
                 paddingBottom: '5rem',
                 background: '#ffffff',
                 color: '#1e293b',

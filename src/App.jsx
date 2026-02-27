@@ -67,6 +67,24 @@ function App() {
   const location = useLocation();
   const showMenuButton = location.pathname !== '/login' && location.pathname !== '/subscribe' && location.pathname !== '/ai-camera';
 
+  // Global Ctrl+P Prevention for Paywall
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Check for Ctrl+P (Windows/Linux) or Cmd+P (Mac)
+      if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+        const status = localStorage.getItem('subscriptionStatus');
+        if (status !== 'active') {
+          e.preventDefault();
+          e.stopPropagation();
+          alert('⚠️ La función de impresión está reservada para usuarios PRO.\nPor favor, suscríbete para exportar tus informes.');
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown, true);
+    return () => window.removeEventListener('keydown', handleKeyDown, true);
+  }, []);
+
   // Apply theme on mount
   useEffect(() => {
     if (typeof document !== 'undefined') {

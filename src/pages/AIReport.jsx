@@ -57,6 +57,7 @@ export default function AIReport() {
             <div className="card report-print" style={{
                 padding: '3rem',
                 minHeight: '29.7cm',
+                height: 'auto',
                 background: '#ffffff',
                 color: '#1e293b',
                 boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)',
