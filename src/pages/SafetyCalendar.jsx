@@ -106,31 +106,34 @@ export default function SafetyCalendar() {
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                marginBottom: '2rem',
+                marginBottom: '1.5rem',
                 background: 'rgba(255, 255, 255, 0.03)',
-                padding: '1.5rem',
+                padding: '1rem',
                 borderRadius: '16px',
                 backdropFilter: 'blur(10px)',
                 border: '1px solid var(--color-border)',
-                boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.2)'
+                boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.2)',
+                flexWrap: 'wrap',
+                gap: '1rem'
             }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', maxWidth: '70%', overflow: 'hidden' }}>
                     <div style={{
                         background: 'var(--color-primary)',
-                        padding: '0.8rem',
-                        borderRadius: '12px',
+                        padding: '0.6rem',
+                        borderRadius: '10px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
+                        boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+                        flexShrink: 0
                     }}>
-                        <CalendarIcon size={24} color="white" />
+                        <CalendarIcon size={20} color="white" />
                     </div>
-                    <div>
-                        <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, letterSpacing: '-0.02em' }}>
+                    <div style={{ overflow: 'hidden' }}>
+                        <h1 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 900, letterSpacing: '-0.02em', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
                             {months[currentMonth]}
                         </h1>
-                        <span style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>
                             {currentYear}
                         </span>
                     </div>
@@ -217,12 +220,12 @@ export default function SafetyCalendar() {
     const renderDays = () => {
         const days = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
         return (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', marginBottom: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', marginBottom: '0.5rem', minWidth: '700px' }}>
                 {days.map(day => (
                     <div key={day} style={{
                         textAlign: 'center',
-                        padding: '1rem',
-                        fontSize: '0.75rem',
+                        padding: '0.75rem 0.25rem',
+                        fontSize: '0.7rem',
                         fontWeight: 800,
                         color: 'var(--color-text-muted)',
                         textTransform: 'uppercase',
@@ -253,8 +256,8 @@ export default function SafetyCalendar() {
 
             cells.push(
                 <div key={day} style={{
-                    padding: '0.75rem',
-                    minHeight: '110px',
+                    padding: '0.5rem',
+                    minHeight: '80px',
                     border: '1px solid var(--color-border)',
                     background: isToday ? 'rgba(59, 130, 246, 0.08)' : 'transparent',
                     display: 'flex',
@@ -336,7 +339,8 @@ export default function SafetyCalendar() {
                 border: '1px solid var(--color-border)',
                 borderRadius: '12px',
                 overflow: 'hidden',
-                background: 'rgba(0,0,0,0.1)'
+                background: 'rgba(0,0,0,0.1)',
+                minWidth: '700px'
             }}>
                 {cells}
             </div>
@@ -367,31 +371,31 @@ export default function SafetyCalendar() {
         <div className="container" style={{ paddingBottom: '5rem', maxWidth: '1200px' }}>
             {renderHeader()}
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '2rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <div className="card" style={{ padding: '1rem', border: '1px solid var(--color-border)' }}>
+            <div className="calendar-layout-container">
+                <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                    <div className="card calendar-card" style={{ padding: '0.5rem', border: '1px solid var(--color-border)', overflowX: 'auto' }}>
                         {renderDays()}
                         {renderCells()}
-                        <button
-                            onClick={() => setIsAddingEvent(true)}
-                            className="btn-primary"
-                            style={{
-                                marginTop: '1.5rem',
-                                width: '100%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '0.7rem',
-                                padding: '1rem',
-                                borderRadius: '14px',
-                                fontSize: '1rem',
-                                boxShadow: '0 4px 15px rgba(59, 130, 246, 0.4)',
-                                border: 'none'
-                            }}
-                        >
-                            <Plus size={20} /> AGREGAR EVENTO / TAREA
-                        </button>
                     </div>
+                    <button
+                        onClick={() => setIsAddingEvent(true)}
+                        className="btn-primary"
+                        style={{
+                            marginTop: '1rem',
+                            width: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.7rem',
+                            padding: '1rem',
+                            borderRadius: '14px',
+                            fontSize: '1rem',
+                            boxShadow: '0 4px 15px rgba(59, 130, 246, 0.4)',
+                            border: 'none'
+                        }}
+                    >
+                        <Plus size={20} /> AGREGAR EVENTO / TAREA
+                    </button>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -565,6 +569,22 @@ export default function SafetyCalendar() {
                     }
                     .btn-secondary:hover {
                         background: rgba(255,255,255,0.1) !important;
+                    }
+                    .calendar-layout-container {
+                        display: grid;
+                        grid-template-columns: 1fr 320px;
+                        gap: 2rem;
+                    }
+                    @media (max-width: 1024px) {
+                        .calendar-layout-container {
+                            grid-template-columns: 1fr;
+                            gap: 1.5rem;
+                        }
+                    }
+                    @media (max-width: 640px) {
+                        .calendar-card {
+                            padding: 0.25rem !important;
+                        }
                     }
                 `}
             </style>
