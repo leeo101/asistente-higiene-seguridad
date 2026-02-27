@@ -28,7 +28,7 @@ export default function Security() {
 
             // Add a timeout to the fetch request
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s
+            const timeoutId = setTimeout(() => controller.abort(), 45000); // 45s
 
             const response = await fetch(`${API_BASE_URL}/api/forgot-password`, {
                 method: 'POST',

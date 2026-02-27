@@ -24,11 +24,11 @@ export default async function handler(req, res) {
 
     try {
         const { email } = req.body;
+        console.log(`[FORGOT-PASSWORD] Request for: ${email}`);
 
-        // Simulating user lookup
-        if (email !== "asistente.hs.soporte@gmail.com") {
-            return res.status(404).json({ error: 'Usuario no encontrado. Asegúrese de ingresar el correo registrado.' });
-        }
+        // In a real app, you would check if the email exists in Firebase/DB
+        // For now, we allow the flow to proceed to test email delivery.
+        // We can add a warning if it's not a known email if we had a user list.
 
         const token = crypto.randomBytes(32).toString('hex');
         const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
