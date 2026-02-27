@@ -136,28 +136,40 @@ export default function Sidebar({ isOpen, onClose }) {
                             )}
                         </div>
                         <div style={{ flex: 1 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff' }}>
                                     {currentUser ? userInfo.name : 'Invitado'}
                                 </div>
                                 <button
                                     onClick={(e) => { e.stopPropagation(); toggleTheme(); }}
                                     style={{
-                                        background: 'rgba(255,255,255,0.15)',
-                                        border: 'none',
-                                        width: '28px',
-                                        height: '28px',
-                                        borderRadius: '8px',
+                                        background: 'rgba(255,255,255,0.25)',
+                                        border: '1px solid rgba(255,255,255,0.35)',
+                                        width: '36px',
+                                        height: '36px',
+                                        borderRadius: '10px',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         cursor: 'pointer',
-                                        color: 'white',
-                                        flexShrink: 0
+                                        color: '#fff',
+                                        flexShrink: 0,
+                                        transition: 'all 0.2s ease',
+                                        boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
                                     }}
-                                    title={isDarkMode ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro'}
+                                    title={isDarkMode ? 'Activar Modo Claro' : 'Activar Modo Oscuro'}
+                                    onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.35)'}
+                                    onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
                                 >
-                                    {isDarkMode ? <Moon size={14} fill="white" /> : <Sun size={14} />}
+                                    {isDarkMode ? (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                            <Sun size={20} stroke="white" strokeWidth={2.5} />
+                                        </div>
+                                    ) : (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                            <Moon size={20} stroke="white" strokeWidth={2.5} />
+                                        </div>
+                                    )}
                                 </button>
                             </div>
                             {currentUser ? (
