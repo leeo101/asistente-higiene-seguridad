@@ -298,9 +298,9 @@ const transporter = nodemailer.createTransport({
         pass: process.env.EMAIL_PASS || 'bslx yhce ffli lmoc'
     },
     // Add timeouts to prevent hanging
-    connectionTimeout: 15000,
-    greetingTimeout: 15000,
-    socketTimeout: 15000,
+    connectionTimeout: 30000,
+    greetingTimeout: 30000,
+    socketTimeout: 30000,
     debug: true,
     logger: true
 });
@@ -367,11 +367,16 @@ app.post('/api/forgot-password', async (req, res) => {
 
         try {
             await new Promise((resolve, reject) => {
-                const timeout = setTimeout(() => reject(new Error('Timeout enviando email')), 15000);
+                // Aumentamos a 30 segundos para dar margen en conexiones lentas
+                const timeout = setTimeout(() => reject(new Error('Timeout enviando email (30s superados)')), 30000);
                 transporter.sendMail(mailOptions, (err, info) => {
                     clearTimeout(timeout);
-                    if (err) reject(err);
-                    else resolve(info);
+                    if (err) {
+                        console.error('[NODEMAILER] Error interno en sendMail:', err);
+                        reject(err);
+                    } else {
+                        resolve(info);
+                    }
                 });
             });
             console.log(`[PASSWORD RESET] Email sent successfully to ${email}`);
