@@ -73,17 +73,26 @@ Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de
             "gemini-flash-latest",
             "gemini-1.5-pro"
         ];
-        let lastError;
 
+        const safetySettings = [
+            { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+            { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+            { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+            { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" },
+        ];
+
+        let lastError;
         for (const modelName of models) {
             try {
                 process.stdout.write(`[AI RECOVERY] Intentando con ${modelName}... `);
-                const model = genAI.getGenerativeModel({ model: modelName });
+                const model = genAI.getGenerativeModel({
+                    model: modelName,
+                    safetySettings
+                });
 
-                // For Vercel, we use a simpler Promise.race for timeout
                 const fetchPromise = model.generateContent([prompt, imagePart]);
                 const timeoutPromise = new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('Timeout local de 15s')), 15000)
+                    setTimeout(() => reject(new Error('Timeout local de 25s')), 25000)
                 );
 
                 result = await Promise.race([fetchPromise, timeoutPromise]);

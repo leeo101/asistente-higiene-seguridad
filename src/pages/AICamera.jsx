@@ -113,6 +113,7 @@ export default function AICamera() {
             });
             const data = await response.json();
             if (!response.ok) {
+                console.error("Error from AI API:", data);
                 toast.error(data.error || "Error del servidor");
                 handleRetry();
                 return;
