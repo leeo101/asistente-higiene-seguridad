@@ -55,7 +55,7 @@ exports.analyzeImage = onRequest({ timeoutSeconds: 300, memory: "1GiB" }, (req, 
             const { image } = req.body;
             if (!image) return res.status(400).json({ error: 'No se envió imagen' });
 
-            const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyC-Mu42GtzPHvTMCvvlESBMl5n82_riwwk';
+            const apiKey = process.env.GEMINI_API_KEY;
             if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini' });
 
             const genAI = new GoogleGenerativeAI(apiKey);

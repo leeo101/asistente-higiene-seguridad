@@ -11,13 +11,7 @@ async function testVision() {
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const models = [
-        "gemini-2.0-flash",
-        "gemini-1.5-flash-latest",
-        "gemini-1.5-pro-latest",
-        "gemini-1.5-flash",
-        "models/gemini-1.5-flash",
-        "gemini-flash-latest",
-        "gemini-1.5-pro"
+        "gemini-1.5-flash"
     ];
 
     // Tiny 1x1 black pixel image base64
@@ -46,10 +40,12 @@ async function testVision() {
             break;
         } catch (error) {
             console.log(`FALLÓ ❌`);
-            console.error("Error Detail:", error);
-            if (error.response) {
-                console.error("Response:", JSON.stringify(error.response, null, 2));
-            }
+            import('fs').then(fs => fs.writeFileSync('error.json', JSON.stringify({
+                message: error.message,
+                status: error.status,
+                statusText: error.statusText,
+                response: error.response
+            }, null, 2)));
         }
     }
 
