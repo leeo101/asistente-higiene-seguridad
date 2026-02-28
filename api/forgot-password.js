@@ -1,8 +1,21 @@
-import crypto from 'crypto';
 import { Resend } from 'resend';
+import admin from 'firebase-admin';
+
+// Initialize Firebase Admin if not already initialized
+if (!admin.apps.length) {
+    try {
+        if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+            const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+            admin.initializeApp({
+                credential: admin.credential.cert(serviceAccount)
+            });
+        }
+    } catch (error) {
+        console.error("Firebase Admin initialization error in forgot-password:", error);
+    }
+}
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const resetTokens = new Map();
 
 export default async function handler(req, res) {
     if (req.method === 'OPTIONS') {
@@ -19,14 +32,27 @@ export default async function handler(req, res) {
 
     try {
         const { email } = req.body;
-        const token = crypto.randomBytes(32).toString('hex');
-        const code = Math.floor(100000 + Math.random() * 900000).toString();
-        resetTokens.set(token, { email, code, expires: Date.now() + 3600000 });
 
-        const resetLink = `https://${req.headers.host}/reset-password?token=${token}`;
+        if (!process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+            throw new Error("Missing FIREBASE_SERVICE_ACCOUNT_KEY env var. Cannot generate Firebase token.");
+        }
+
+        // Generate password reset link using Firebase Admin SDK
+        const actionCodeSettings = {
+            url: `https://${req.headers.host}/reset-password`,
+            handleCodeInApp: false,
+        };
+
+        let resetLink;
+        try {
+            resetLink = await admin.auth().generatePasswordResetLink(email, actionCodeSettings);
+        } catch (authErr) {
+            console.error("Error generating Firebase link:", authErr);
+            return res.status(400).json({ error: "Usuario no encontrado o error en Firebase." });
+        }
 
         const { data, error } = await resend.emails.send({
-            from: 'Asistente HYS <soporte@asistentehs.com>',
+            from: 'Asistente H&S <soporte@asistentehs.com>',
             to: email,
             subject: 'Restablecer Contraseña - Asistente HYS',
             html: `
@@ -42,24 +68,13 @@ export default async function handler(req, res) {
                             Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en el <strong>Asistente de Higiene y Seguridad</strong>.
                         </p>
                         
-                        <div style="margin: 35px 0; text-align: center;">
-                            <p style="color: #64748b; font-size: 14px; margin-bottom: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Tu Código de Verificación</p>
-                            <div style="background-color: #f1f5f9; padding: 20px; border-radius: 12px; display: inline-block; border: 1px dashed #cbd5e1;">
-                                <span style="font-size: 36px; font-weight: 800; color: #1e3a8a; letter-spacing: 8px; font-family: monospace;">${code}</span>
-                            </div>
-                        </div>
-
-                        <p style="color: #475569; line-height: 1.6; font-size: 16px; text-align: center;">
-                            O si lo prefieres, puedes acceder directamente haciendo clic en el siguiente botón:
-                        </p>
-                        
-                        <div style="text-align: center; margin: 30px 0;">
+                        <div style="text-align: center; margin: 40px 0;">
                             <a href="${resetLink}" style="display: inline-block; padding: 16px 32px; background-color: #2563eb; color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);">Restablecer Contraseña</a>
                         </div>
 
                         <p style="color: #94a3b8; font-size: 14px; line-height: 1.5; border-top: 1px solid #f1f5f9; padding-top: 25px; margin-top: 35px;">
                             <strong>¿No solicitaste este cambio?</strong><br>
-                            Puedes ignorar este correo de forma segura. El código y el enlace expirarán en 1 hora por tu seguridad.
+                            Puedes ignorar este correo de forma segura. El enlace expirará pronto por tu seguridad.
                         </p>
                     </div>
                     
@@ -81,7 +96,7 @@ export default async function handler(req, res) {
     } catch (error) {
         console.error("Resend Error:", error);
         return res.status(500).json({
-            error: 'Error al enviar el correo.',
+            error: 'Error al procesar la solicitud.',
             details: error.message
         });
     }

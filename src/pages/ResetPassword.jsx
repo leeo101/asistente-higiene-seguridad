@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Lock, Eye, EyeOff, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
 import { API_BASE_URL } from '../config';
+import { auth } from '../firebase';
+import { confirmPasswordReset, verifyPasswordResetCode } from 'firebase/auth';
 import toast from 'react-hot-toast';
 
 export default function ResetPassword() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const token = searchParams.get('token');
+    const oobCode = searchParams.get('oobCode') || searchParams.get('token');
 
     const [passwords, setPasswords] = useState({
         new: '',
@@ -17,10 +19,10 @@ export default function ResetPassword() {
     const [status, setStatus] = useState({ type: '', message: '' });
 
     useEffect(() => {
-        if (!token) {
-            setStatus({ type: 'error', message: 'Token de restablecimiento no válido o ausente.' });
+        if (!oobCode) {
+            setStatus({ type: 'error', message: 'Enlace de restablecimiento no válido o ausente.' });
         }
-    }, [token]);
+    }, [oobCode]);
 
     const handleReset = async (e) => {
         e.preventDefault();
@@ -36,28 +38,34 @@ export default function ResetPassword() {
         setStatus({ type: 'loading', message: 'Actualizando contraseña...' });
 
         try {
-            const fetchUrl = `${API_BASE_URL}/api/reset-password`;
+            // First verify code to get email for the notification
+            const email = await verifyPasswordResetCode(auth, oobCode);
 
-            // Simulated API call to backend
-            const response = await fetch(fetchUrl, {
+            // Apply new password to Firebase Auth
+            await confirmPasswordReset(auth, oobCode, passwords.new);
+
+            // Notify user of successful change asynchronously
+            fetch(`${API_BASE_URL}/api/send-password-changed-email`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token, newPassword: passwords.new })
-            });
+                body: JSON.stringify({ email })
+            }).catch(e => console.error("Notification failed", e));
 
-            const data = await response.json();
+            setStatus({ type: 'success', message: '¡Contraseña actualizada con éxito!' });
+            toast.success("Tu contraseña ha sido cambiada");
+            setTimeout(() => navigate('/login'), 2000);
 
-            if (response.ok) {
-                setStatus({ type: 'success', message: '¡Contraseña actualizada con éxito!' });
-                setTimeout(() => navigate('/login'), 2000);
-            } else {
-                setStatus({ type: 'error', message: data.error || 'Error al restablecer la contraseña.' });
-            }
         } catch (error) {
-            setStatus({ type: 'error', message: 'Error de conexión con el servidor.' });
+            console.error("Firebase Reset Error:", error);
+            let errorMessage = 'El enlace ha expirado o ya fue utilizado.';
+            if (error.code === 'auth/weak-password') {
+                errorMessage = 'La contraseña es demasiado débil (mínimo 6 caracteres).';
+            } else if (error.code === 'auth/invalid-action-code') {
+                errorMessage = 'El enlace de recuperación es inválido o ya ha caducado.';
+            }
+            setStatus({ type: 'error', message: errorMessage });
         }
     };
-
     return (
         <div className="container" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: '100vh', maxWidth: '450px' }}>
             <div className="card shadow-lg" style={{ padding: '2.5rem' }}>
