@@ -100,16 +100,9 @@ exports.analyzeImage = onRequest({ timeoutSeconds: 300, memory: "1GiB" }, (req, 
     });
 });
 
-// ==========================================
-// EMAIL FORGOT PASSWORD (Using Firebase Auth is better, but migrating this for compatibility)
-// ==========================================
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER || 'asistente.hs.soporte@gmail.com',
-        pass: process.env.EMAIL_PASS || 'bslx yhce ffli lmoc'
-    }
-});
+const { Resend } = require("resend");
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 exports.forgotPassword = onRequest((req, res) => {
     return cors(req, res, async () => {
@@ -119,8 +112,8 @@ exports.forgotPassword = onRequest((req, res) => {
         try {
             const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
 
-            const mailOptions = {
-                from: { name: 'Asistente HYS', address: process.env.EMAIL_USER || 'asistente.hs.soporte@gmail.com' },
+            const { data, error } = await resend.emails.send({
+                from: 'Asistente HYS <soporte@asistentehs.com>',
                 to: email,
                 subject: 'Restablecer tu contraseña - Asistente HYS',
                 html: `
@@ -139,14 +132,15 @@ exports.forgotPassword = onRequest((req, res) => {
                         <p style="color: #666; font-size: 0.85rem; border-top: 1px solid #eee; padding-top: 15px; margin-top: 20px;">Si no solicitaste este cambio, puedes ignorar este correo.</p>
                     </div>
                 `
-            };
+            });
 
-            await transporter.sendMail(mailOptions);
+            if (error) throw error;
+
             res.json({
                 message: 'Código de recuperación enviado a tu correo.'
             });
         } catch (error) {
-            logger.error("Error sending forgot password email", error);
+            logger.error("Error sending forgot password email via Resend", error);
             res.status(500).json({ error: error.message });
         }
     });

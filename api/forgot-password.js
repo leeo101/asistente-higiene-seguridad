@@ -1,21 +1,16 @@
 import crypto from 'crypto';
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
-// In Serverless, memory state resets between function invocations. 
-// A real database should be used here. We will use a fallback logic or global if needed, 
-// though this isn't strictly persistent across different edge nodes.
+const resend = new Resend(process.env.RESEND_API_KEY);
 const resetTokens = new Map();
 
-// Vercel Serverless Function for Forgot Password
 export default async function handler(req, res) {
-    res.setHeader('Access-Control-Allow-Credentials', true)
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS,POST')
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-
     if (req.method === 'OPTIONS') {
-        res.status(200).end()
-        return
+        res.setHeader('Access-Control-Allow-Credentials', true);
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'OPTIONS,POST');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        return res.status(200).end();
     }
 
     if (req.method !== 'POST') {
@@ -24,29 +19,14 @@ export default async function handler(req, res) {
 
     try {
         const { email } = req.body;
-        console.log(`[FORGOT-PASSWORD] Request for: ${email}`);
-
-        // In a real app, you would check if the email exists in Firebase/DB
-        // For now, we allow the flow to proceed to test email delivery.
-        // We can add a warning if it's not a known email if we had a user list.
-
         const token = crypto.randomBytes(32).toString('hex');
-        const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
-        resetTokens.set(token, { email, code, expires: Date.now() + 3600000 }); // 1 hr expiration
-
-        // Set up Nodemailer
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            }
-        });
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        resetTokens.set(token, { email, code, expires: Date.now() + 3600000 });
 
         const resetLink = `https://${req.headers.host}/reset-password?token=${token}`;
 
-        const mailOptions = {
-            from: { name: 'Asistente HYS', address: process.env.EMAIL_USER },
+        const { data, error } = await resend.emails.send({
+            from: 'Asistente HYS <soporte@asistentehs.com>',
             to: email,
             subject: 'Restablecer tu contraseña - Asistente HYS',
             html: `
@@ -68,15 +48,19 @@ export default async function handler(req, res) {
                     <p style="color: #666; font-size: 0.85rem; border-top: 1px solid #eee; padding-top: 15px; margin-top: 20px;">Si no solicitaste este cambio, puedes ignorar este correo. El código expira en 1 hora.</p>
                 </div>
             `
-        };
+        });
 
-        await transporter.sendMail(mailOptions);
+        if (error) throw error;
+
         return res.status(200).json({
             message: 'Correo enviado. Revisa tu bandeja de entrada.'
         });
 
     } catch (error) {
-        console.error("Mail Error:", error);
-        return res.status(500).json({ error: 'Error al enviar el correo, verifique la configuración SMTP' });
+        console.error("Resend Error:", error);
+        return res.status(500).json({
+            error: 'Error al enviar el correo.',
+            details: error.message
+        });
     }
 }
