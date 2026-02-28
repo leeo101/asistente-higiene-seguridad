@@ -64,46 +64,45 @@ Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de
             },
         };
 
-        let result;
         const models = [
             "gemini-2.0-flash",
-            "gemini-flash-latest",
+            "gemini-1.5-flash-latest",
+            "gemini-1.5-pro-latest",
             "gemini-1.5-flash",
+            "models/gemini-1.5-flash",
+            "gemini-flash-latest",
             "gemini-1.5-pro"
         ];
         let lastError;
 
         for (const modelName of models) {
             try {
-                process.stdout.write(`[RECOVERY] Attempting ${modelName}... `);
+                process.stdout.write(`[AI RECOVERY] Intentando con ${modelName}... `);
                 const model = genAI.getGenerativeModel({ model: modelName });
 
-                // Add a local timeout for Vercel/Local (15 seconds)
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 15000);
+                // For Vercel, we use a simpler Promise.race for timeout
+                const fetchPromise = model.generateContent([prompt, imagePart]);
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Timeout local de 15s')), 15000)
+                );
 
-                try {
-                    result = await model.generateContent([prompt, imagePart]);
-                    clearTimeout(timeoutId);
-                    if (result) {
-                        console.log("SUCCESS ✅");
-                        break;
-                    }
-                } catch (e) {
-                    clearTimeout(timeoutId);
-                    throw e;
+                result = await Promise.race([fetchPromise, timeoutPromise]);
+
+                if (result) {
+                    console.log("ÉXITO ✅");
+                    break;
                 }
             } catch (error) {
                 lastError = error;
-                console.log(`FAILED ❌ (${error.message})`);
+                console.log(`FALLÓ ❌ (${error.message})`);
                 continue;
             }
         }
 
         if (!result) {
             const keyInfo = apiKey ? `${apiKey.substring(0, 6)}...${apiKey.slice(-4)}` : 'MISSING';
-            console.error("[RECOVERY] All models failed. Key info:", keyInfo);
-            throw new Error(`Falla crítica: Intentados ${models.join(', ')}. Todos devolvieron 404 (No Encontrado). Revisa si tu API Key tiene permisos para estos modelos. Key: ${keyInfo}.`);
+            console.error("[RECOVERY] Todos los modelos han fallado. Info Key:", keyInfo);
+            throw new Error(`Falla crítica: Se intentaron los modelos ${models.join(', ')}. Todos fallaron. Por favor verifica tu API Key y cuotas en Vercel/Google. Key: ${keyInfo}.`);
         }
 
         if (!result) {

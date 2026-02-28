@@ -128,8 +128,9 @@ export default function AICamera() {
 
             setAnalysisResult(data);
         } catch (error) {
-            console.error("Red / Error:", error);
-            toast.error("Error de conexión con el servidor IA.");
+            console.error("Red / Error crítico de IA:", error);
+            const detail = error.message || "Error desconocido";
+            toast.error(`Falla de IA: ${detail.includes('404') ? 'Modelo no disponible temporalmente.' : 'Error de conexión.'}`);
             handleRetry();
         } finally {
             setIsAnalyzing(false);

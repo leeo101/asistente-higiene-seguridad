@@ -143,45 +143,45 @@ Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de
         let result;
         const models = [
             "gemini-2.0-flash",
-            "gemini-flash-latest",
+            "gemini-1.5-flash-latest",
+            "gemini-1.5-pro-latest",
             "gemini-1.5-flash",
+            "models/gemini-1.5-flash",
+            "gemini-flash-latest",
             "gemini-1.5-pro"
         ];
         let lastError;
 
         for (const modelName of models) {
             try {
-                process.stdout.write(`[RECOVERY] Attempting ${modelName}... `);
+                process.stdout.write(`[AI RECOVERY] Intentando con ${modelName}... `);
                 const model = genAI.getGenerativeModel({ model: modelName });
 
-                // Add a local timeout for the specific request (15 seconds)
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 15000);
+                // Timeouts are handled by the SDK or infra, but we use a local check for safety
+                const fetchPromise = model.generateContent([prompt, imagePart]);
 
-                try {
-                    result = await model.generateContent([prompt, imagePart]);
-                    clearTimeout(timeoutId);
-                    if (result) {
-                        console.log("SUCCESS ✅");
-                        break;
-                    }
-                } catch (e) {
-                    clearTimeout(timeoutId);
-                    // This catch block is for errors during generateContent for a specific model.
-                    // The outer catch block will handle logging and setting lastError.
-                    throw e;
+                // Add a local timeout for the specific request (20 seconds)
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Timeout local de 20s')), 20000)
+                );
+
+                result = await Promise.race([fetchPromise, timeoutPromise]);
+
+                if (result) {
+                    console.log("ÉXITO ✅");
+                    break;
                 }
             } catch (error) {
                 lastError = error;
-                console.log(`FAILED ❌ (${error.message})`);
+                console.log(`FALLÓ ❌ (${error.message})`);
                 continue;
             }
         }
 
         if (!result) {
             const keyInfo = apiKey ? `${apiKey.substring(0, 6)}...${apiKey.slice(-4)}` : 'MISSING';
-            console.error("[RECOVERY] All models failed. Key info:", keyInfo);
-            throw new Error(`Error Fatal de IA: Intentados ${models.join(', ')}. Todos fallaron (404 Not Found). Esto suele ser porque la API Key no tiene habilitados estos modelos en tu región. Key actual: ${keyInfo}.`);
+            console.error("[RECOVERY] Todos los modelos han fallado. Info Key:", keyInfo);
+            throw new Error(`Falla crítica: Se intentaron los modelos ${models.join(', ')}. Todos fallaron. Por favor verifica tu API Key y cuotas en Google AI Studio. Key: ${keyInfo}.`);
         }
         const responseText = result.response.text();
 
@@ -213,9 +213,10 @@ app.post('/api/ai-advisor', async (req, res) => {
         const genAI = new GoogleGenerativeAI(apiKey);
         const models = [
             "gemini-2.0-flash",
-            "gemini-flash-latest",
+            "gemini-1.5-flash-latest",
+            "gemini-1.5-pro-latest",
             "gemini-1.5-flash",
-            "gemini-1.5-pro"
+            "models/gemini-1.5-flash"
         ];
 
         const prompt = `Actúa como un experto en Higiene y Seguridad Laboral en Argentina. 
@@ -233,11 +234,15 @@ IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON, sin texto adicional. Asegúrate
         let result;
         for (const modelName of models) {
             try {
+                console.log(`[AI ADVISOR] Intentando con ${modelName}...`);
                 const model = genAI.getGenerativeModel({ model: modelName });
                 result = await model.generateContent(prompt);
-                if (result) break;
+                if (result) {
+                    console.log(`[AI ADVISOR] Éxito con ${modelName}`);
+                    break;
+                }
             } catch (err) {
-                console.warn(`[AI Advisor] Model ${modelName} failed, trying next...`);
+                console.warn(`[AI Advisor] Model ${modelName} failed (${err.message}), trying next...`);
                 continue;
             }
         }
