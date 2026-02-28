@@ -89,8 +89,13 @@ export default function AICamera() {
 
         const video = videoRef.current;
         const canvas = canvasRef.current;
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+
+        // Manual resizing to ensure small payload (max 800px width)
+        const maxWidth = 800;
+        const scale = video.videoWidth > maxWidth ? maxWidth / video.videoWidth : 1;
+        canvas.width = video.videoWidth * scale;
+        canvas.height = video.videoHeight * scale;
+        console.log(`[CAPTURE] Resizing to ${canvas.width}x${canvas.height} (scale: ${scale.toFixed(2)})`);
 
         const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);

@@ -21,7 +21,7 @@ export default async function handler(req, res) {
         const { image } = req.body;
         if (!image) return res.status(400).json({ error: 'No se envió imagen' });
 
-        const apiKey = process.env.GEMINI_API_KEY;
+        const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyC-Mu42GtzPHvTMCvvlESBMl5n82_riwwk';
         if (!apiKey) {
             console.error("[ERROR] Missing GEMINI_API_KEY environment variable.");
             return res.status(500).json({ error: 'Falta la API Key de Gemini (Environment Variables en Vercel)' });
