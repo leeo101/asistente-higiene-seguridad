@@ -46,8 +46,8 @@ export default function AICamera() {
             const constraints = {
                 video: {
                     facingMode: facingMode,
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
+                    width: { ideal: 800 },
+                    height: { ideal: 600 }
                 }
             };
             const newStream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -95,7 +95,7 @@ export default function AICamera() {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        const imageData = canvas.toDataURL('image/jpeg');
+        const imageData = canvas.toDataURL('image/jpeg', 0.6);
         setCapturedImage(imageData);
 
         stopStream();
@@ -130,7 +130,11 @@ export default function AICamera() {
         } catch (error) {
             console.error("Red / Error crítico de IA:", error);
             const detail = error.message || "Error desconocido";
-            toast.error(`Falla de IA: ${detail.includes('404') ? 'Modelo no disponible temporalmente.' : 'Error de conexión.'}`);
+            let msg = "Error de conexión.";
+            if (detail.includes('404')) msg = "Modelo no disponible.";
+            if (detail.includes('413')) msg = "Imagen demasiado pesada para el servidor.";
+
+            toast.error(`Falla de IA: ${msg}`);
             handleRetry();
         } finally {
             setIsAnalyzing(false);

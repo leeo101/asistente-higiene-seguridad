@@ -101,13 +101,11 @@ Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de
 
         if (!result) {
             const keyInfo = apiKey ? `${apiKey.substring(0, 6)}...${apiKey.slice(-4)}` : 'MISSING';
-            console.error("[RECOVERY] Todos los modelos han fallado. Info Key:", keyInfo);
-            throw new Error(`Falla crítica: Se intentaron los modelos ${models.join(', ')}. Todos fallaron. Por favor verifica tu API Key y cuotas en Vercel/Google. Key: ${keyInfo}.`);
-        }
-
-        if (!result) {
-            console.error("All models failed. Last error: ", lastError);
-            throw lastError; // Throw the error to be caught by the outer catch block
+            console.error("[RECOVERY] Todos los modelos han fallado. Último error:", lastError?.message);
+            return res.status(500).json({
+                error: 'Todos los modelos de IA fallaron',
+                details: lastError?.message || 'Error desconocido durante la recuperación'
+            });
         }
 
         const responseText = result.response.text();
