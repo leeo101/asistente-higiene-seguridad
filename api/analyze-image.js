@@ -82,6 +82,7 @@ Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de
         ];
 
         let lastError;
+        let result;
         for (const modelName of models) {
             try {
                 process.stdout.write(`[AI RECOVERY] Intentando con ${modelName}... `);

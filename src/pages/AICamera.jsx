@@ -111,10 +111,20 @@ export default function AICamera() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ image: imageSrc })
             });
-            const data = await response.json();
+            const contentType = response.headers.get("content-type");
+            let data;
+
+            if (contentType && contentType.includes("application/json")) {
+                data = await response.json();
+            } else {
+                const text = await response.text();
+                console.error("Non-JSON response received:", text.substring(0, 200));
+                throw new Error("El servidor no devolvió JSON (posible error de ruta o servidor)");
+            }
+
             if (!response.ok) {
                 console.error("Error from AI API:", data);
-                toast.error(data.error || "Error del servidor");
+                toast.error(data.error || `Error ${response.status}`);
                 handleRetry();
                 return;
             }
