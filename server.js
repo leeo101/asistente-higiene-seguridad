@@ -290,15 +290,19 @@ app.get('/api/scan-models', async (req, res) => {
 
 // Email config (Use environment variables in production!)
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // Use SSL
     auth: {
         user: process.env.EMAIL_USER || 'asistente.hs.soporte@gmail.com',
         pass: process.env.EMAIL_PASS || 'bslx yhce ffli lmoc'
     },
     // Add timeouts to prevent hanging
-    connectionTimeout: 10000, // 10s
-    greetingTimeout: 10000,
-    socketTimeout: 10000
+    connectionTimeout: 15000,
+    greetingTimeout: 15000,
+    socketTimeout: 15000,
+    debug: true,
+    logger: true
 });
 
 // Verify connection on startup
@@ -375,10 +379,12 @@ app.post('/api/forgot-password', async (req, res) => {
                 message: 'Email de recuperación enviado con éxito. Por favor, revisa tu bandeja de entrada.'
             });
         } catch (err) {
-            console.error('[PASSWORD RESET] Error sending email:', err.message);
-            // DO NOT return the code or link if email fails in production!
+            console.error('[PASSWORD RESET] Error sending email:', err);
+            // In development or debugging, returning the error message is helpful
             return res.status(500).json({
-                error: 'No se pudo enviar el email de recuperación. Por favor, inténtalo más tarde o contacta a soporte.'
+                error: 'No se pudo enviar el email de recuperación.',
+                details: err.message,
+                suggestion: 'Verifique que las credenciales de Gmail (App Password) sean correctas y que la cuenta no esté bloqueada.'
             });
         }
 

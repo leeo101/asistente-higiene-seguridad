@@ -44,23 +44,28 @@ export default function Security() {
                 setStatus({
                     type: 'success',
                     message: '¡Link enviado con éxito! Revisa tu Gmail.',
-                    resetLink: '',
-                    code: ''
+                    details: '',
+                    suggestion: ''
                 });
 
                 if (!data.devLink) {
                     setTimeout(() => {
                         setShowPasswordChange(false);
-                        setStatus({ type: '', message: '', resetLink: '' });
+                        setStatus({ type: '', message: '', details: '', suggestion: '' });
                     }, 3000);
                 }
             } else {
-                setStatus({ type: 'error', message: data.error || 'Error al enviar el link.', resetLink: '' });
+                setStatus({
+                    type: 'error',
+                    message: data.error || 'Error al enviar el link.',
+                    details: data.details || '',
+                    suggestion: data.suggestion || ''
+                });
             }
         } catch (error) {
             console.error('[SECURITY] Password reset error:', error);
             const errorMsg = error.name === 'AbortError' ? 'El servidor tardó demasiado en responder.' : 'Error de conexión con el servidor.';
-            setStatus({ type: 'error', message: errorMsg, resetLink: '' });
+            setStatus({ type: 'error', message: errorMsg, details: error.message, suggestion: 'Asegúrate de que el servidor backend esté corriendo.' });
         }
     };
 
@@ -230,6 +235,16 @@ export default function Security() {
                                     {status.type === 'success' && <CheckCircle2 size={18} />}
                                     <span style={{ fontWeight: 600 }}>{status.message}</span>
                                 </div>
+                                {status.details && (
+                                    <p style={{ margin: 0, fontSize: '0.8rem', opacity: 0.8 }}>
+                                        <strong>Error técnico:</strong> {status.details}
+                                    </p>
+                                )}
+                                {status.suggestion && (
+                                    <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: 500 }}>
+                                        💡 {status.suggestion}
+                                    </p>
+                                )}
                             </div>
                         )}
 

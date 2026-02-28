@@ -118,15 +118,27 @@ export default function Login() {
             if (response.ok) {
                 setStatus({
                     type: 'success',
-                    message: data.devLink ? 'No se pudo enviar el mail, pero aquí tienes tu link o código:' : 'Enlace enviado a tu email.',
-                    resetLink: data.devLink || '',
-                    code: data.code || ''
+                    message: data.devLink ? 'No se pudo enviar el mail, pero aquí tienes tu link o código:' : 'Enlace enviado a tu email. Revisa tu spam.',
+                    details: data.devLink || '',
+                    suggestion: ''
                 });
             } else {
-                setStatus({ type: 'error', message: data.error || 'Error al enviar email.' });
+                setStatus({
+                    type: 'error',
+                    message: data.error || 'Error al enviar email.',
+                    details: data.details || '',
+                    suggestion: data.suggestion || ''
+                });
             }
         } catch (error) {
-            setStatus({ type: 'error', message: 'Error de conexión.' });
+            console.error('[AUTH] Reset error:', error);
+            const msg = error.name === 'AbortError' ? 'El servidor tardó demasiado.' : 'Error de conexión.';
+            setStatus({
+                type: 'error',
+                message: msg,
+                details: error.message,
+                suggestion: 'Asegúrate de que el servidor backend esté encendido.'
+            });
         }
     };
 
@@ -430,11 +442,23 @@ export default function Login() {
                                     background: status.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
                                     color: status.type === 'error' ? '#ef4444' : '#10b981',
                                     display: 'flex',
-                                    alignItems: 'center',
+                                    flexDirection: 'column',
                                     gap: '0.5rem'
                                 }}>
-                                    {status.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
-                                    {status.message}
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                        {status.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
+                                        <span style={{ fontWeight: 600 }}>{status.message}</span>
+                                    </div>
+                                    {status.details && (
+                                        <p style={{ margin: 0, fontSize: '0.8rem', opacity: 0.8 }}>
+                                            <strong>Error:</strong> {status.details}
+                                        </p>
+                                    )}
+                                    {status.suggestion && (
+                                        <p style={{ margin: 0, fontSize: '0.8rem' }}>
+                                            💡 {status.suggestion}
+                                        </p>
+                                    )}
                                 </div>
                             )}
 
