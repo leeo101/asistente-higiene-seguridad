@@ -355,7 +355,7 @@ app.post('/api/forgot-password', async (req, res) => {
 
         try {
             const { data: resendData, error: resendError } = await resend.emails.send({
-                from: 'Asistente HYS <onboarding@resend.dev>',
+                from: 'Asistente HYS <soporte@asistentehs.com>',
                 to: email,
                 subject: 'Restablecer Contraseña - Asistente HYS',
                 html: mailOptions.html
