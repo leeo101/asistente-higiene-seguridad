@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera, RefreshCw, CheckCircle, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Camera, RefreshCw, CheckCircle, AlertTriangle, ShieldCheck, Zap, ZapOff, FlipHorizontal } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
@@ -12,40 +12,76 @@ export default function AICamera() {
     const canvasRef = useRef(null);
     const [stream, _setStream] = useState(null);
     const streamRef = useRef(null);
+    const [capturedImage, setCapturedImage] = useState(null);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [analysisResult, setAnalysisResult] = useState(null);
+    const [torchOn, setTorchOn] = useState(false);
+    const [facingMode, setFacingMode] = useState('environment'); // 'environment' or 'user'
 
     const setStream = (newStream) => {
         streamRef.current = newStream;
         _setStream(newStream);
     };
-    const [capturedImage, setCapturedImage] = useState(null);
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
-    const [analysisResult, setAnalysisResult] = useState(null);
 
     useEffect(() => {
         startCamera();
         return () => {
-            if (streamRef.current) {
-                console.log("Stopping all camera tracks...");
-                streamRef.current.getTracks().forEach(track => {
-                    track.stop();
-                    console.log(`Track ${track.kind} stopped`);
-                });
-                streamRef.current = null;
-            }
+            stopStream();
         };
-    }, []);
+    }, [facingMode]);
+
+    const stopStream = () => {
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => {
+                track.stop();
+            });
+            streamRef.current = null;
+        }
+        _setStream(null);
+    };
 
     const startCamera = async () => {
+        stopStream();
         try {
-            const newStream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'environment' }
-            });
+            const constraints = {
+                video: {
+                    facingMode: facingMode,
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                }
+            };
+            const newStream = await navigator.mediaDevices.getUserMedia(constraints);
             setStream(newStream);
             if (videoRef.current) videoRef.current.srcObject = newStream;
+            setTorchOn(false);
         } catch (err) {
             console.error("Error accessing camera:", err);
             toast.error("No se pudo acceder a la cámara. Por favor, asegúrese de dar los permisos necesarios.");
         }
+    };
+
+    const toggleTorch = async () => {
+        if (!streamRef.current) return;
+        const track = streamRef.current.getVideoTracks()[0];
+        try {
+            const capabilities = track.getCapabilities();
+            if (!capabilities.torch) {
+                toast.error("Este dispositivo no soporta linterna o no está disponible en esta cámara.");
+                return;
+            }
+            const newTorchState = !torchOn;
+            await track.applyConstraints({
+                advanced: [{ torch: newTorchState }]
+            });
+            setTorchOn(newTorchState);
+        } catch (err) {
+            console.error("Torch error:", err);
+            toast.error("Error al controlar la linterna.");
+        }
+    };
+
+    const switchCamera = () => {
+        setFacingMode(prev => prev === 'environment' ? 'user' : 'environment');
     };
 
     const handleCapture = () => {
@@ -62,14 +98,7 @@ export default function AICamera() {
         const imageData = canvas.toDataURL('image/jpeg');
         setCapturedImage(imageData);
 
-        // Stop stream
-        if (streamRef.current) {
-            streamRef.current.getTracks().forEach(track => track.stop());
-            streamRef.current = null;
-        }
-        _setStream(null);
-
-        // Start real analysis
+        stopStream();
         analyzeImage(imageData);
     };
 
@@ -77,8 +106,6 @@ export default function AICamera() {
         setIsAnalyzing(true);
         try {
             const fetchUrl = `${API_BASE_URL}/api/analyze-image`;
-            console.log("🚀 LEYENDO DESDE RUTA:", fetchUrl);
-
             const response = await fetch(fetchUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -86,26 +113,14 @@ export default function AICamera() {
             });
             const data = await response.json();
             if (!response.ok) {
-                console.error("API Error details:", data);
-                if (response.status === 413) {
-                    toast.error("Error: La imagen es demasiado pesada. Intente alejarse un poco o bajar la resolución.");
-                } else if (data.details && (data.details.includes("API key not valid") || data.details.includes("permission") || data.details.includes("Key:"))) {
-                    const keyMatch = data.details.match(/Key:\s*(\S+)/);
-                    const keyMsg = keyMatch ? `\n\nLlave detectada: ${keyMatch[1]}` : "";
-                    toast.error("Error de Configuración: La API Key de Gemini no tiene permisos suficientes o es inválida." + keyMsg + "\n\nPor favor, verifica que la llave en Render o en tu .env sea la correcta y tenga acceso a Gemini 1.5.");
-                } else if (data.details && (data.details.includes("v1beta/models") || data.details.includes("not found"))) {
-                    toast.error("Error de Modelos: El servidor intentó usar varios modelos de IA pero Google devolvió 404 (No Encontrado).\n\nEsto suele ser un problema regional de Google o que la API Key es muy antigua.");
-                } else {
-                    toast.error("Error del servidor: " + (data.error || "Error Desconocido"));
-                }
+                toast.error(data.error || "Error del servidor");
                 handleRetry();
                 return;
             }
             if (!data.personDetected && data.personDetected !== undefined) {
-                toast.error("La IA no detectó a ninguna persona clara en la imagen. Intente de nuevo.");
+                toast.error("La IA no detectó a ninguna persona clara.");
             }
 
-            // Draw visual markers if detections are present
             if (data.detections && data.detections.length > 0) {
                 const markedImage = await drawDetections(imageSrc, data.detections);
                 setCapturedImage(markedImage);
@@ -114,7 +129,7 @@ export default function AICamera() {
             setAnalysisResult(data);
         } catch (error) {
             console.error("Red / Error:", error);
-            toast.error("Error de conexión con el servidor IA. Asegúrese de que el backend esté corriendo.");
+            toast.error("Error de conexión con el servidor IA.");
             handleRetry();
         } finally {
             setIsAnalyzing(false);
@@ -137,27 +152,22 @@ export default function AICamera() {
                     const centerX = ((xmin + xmax) / 2 / 1000) * canvas.width;
                     const centerY = ((ymin + ymax) / 2 / 1000) * canvas.height;
                     const radius = Math.max(((xmax - xmin) / 2000) * canvas.width, 20);
-
-                    // Set color based on label (Red for risks, Blue for EPP)
                     const isRisk = det.label.toLowerCase().includes('riesgo');
                     const color = isRisk ? '#ef4444' : '#3b82f6';
 
-                    // Draw Thin Circle
                     ctx.strokeStyle = color;
                     ctx.lineWidth = 4;
                     ctx.beginPath();
                     ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
                     ctx.stroke();
 
-                    // Draw Number Badge (solid circle)
                     ctx.fillStyle = color;
                     ctx.beginPath();
                     ctx.arc(centerX + radius, centerY - radius, 15, 0, 2 * Math.PI);
                     ctx.fill();
 
-                    // Draw Number Text
                     ctx.fillStyle = '#ffffff';
-                    ctx.font = 'bold 20px Inter, system-ui, sans-serif';
+                    ctx.font = 'bold 20px Inter, sans-serif';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillText(index + 1, centerX + radius, centerY - radius);
@@ -179,9 +189,7 @@ export default function AICamera() {
                 company: JSON.parse(localStorage.getItem('current_report') || '{}').company || 'Empresa Local',
                 location: JSON.parse(localStorage.getItem('current_report') || '{}').location || 'Planta Principal'
             };
-            // Save as current (for the report page)
             localStorage.setItem('current_ai_inspection', JSON.stringify(report));
-            // Also persist to history list
             const history = JSON.parse(localStorage.getItem('ai_camera_history') || '[]');
             history.unshift({ id: report.id, date: report.date, company: report.company, location: report.location, ppeComplete: report.analysis?.ppeComplete });
             localStorage.setItem('ai_camera_history', JSON.stringify(history));
@@ -197,7 +205,7 @@ export default function AICamera() {
 
     return (
         <div className="container" style={{ paddingBottom: '3rem', position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', zIndex: 5 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', zIndex: 10 }}>
                 <button onClick={() => navigate('/')} style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.1)', border: 'none', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-primary)' }}>
                     <ArrowLeft />
                 </button>
@@ -213,7 +221,17 @@ export default function AICamera() {
                             playsInline
                             style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
                         />
-                        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', border: '2px dashed rgba(255,255,255,0.5)', width: '70%', height: '60%', borderRadius: '20px', pointerEvents: 'none' }}></div>
+                        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', border: '2px dashed rgba(255,255,255,0.3)', width: '70%', height: '60%', borderRadius: '20px', pointerEvents: 'none' }}></div>
+
+                        {/* Controles de cámara superior */}
+                        <div style={{ position: 'absolute', top: '1rem', right: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <button onClick={toggleTorch} style={{ width: '44px', height: '44px', borderRadius: '50%', background: torchOn ? 'var(--color-primary)' : 'rgba(0,0,0,0.5)', border: 'none', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                                {torchOn ? <Zap size={20} /> : <ZapOff size={20} />}
+                            </button>
+                            <button onClick={switchCamera} style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'rgba(0,0,0,0.5)', border: 'none', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                                <FlipHorizontal size={20} />
+                            </button>
+                        </div>
 
                         <div style={{ position: 'absolute', bottom: '2rem', left: '0', width: '100%', display: 'flex', justifyContent: 'center' }}>
                             <button
@@ -229,30 +247,30 @@ export default function AICamera() {
                         <img src={capturedImage} alt="Captured" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
 
                         {isAnalyzing && (
-                            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+                            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.7)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
                                 <RefreshCw size={48} className="spin" style={{ marginBottom: '1rem', color: 'var(--color-primary)' }} />
                                 <p style={{ fontWeight: 700, fontSize: '1.2rem' }}>Analizando Persona...</p>
                             </div>
                         )}
 
                         {analysisResult && (
-                            <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', padding: '2rem', background: 'linear-gradient(transparent, rgba(0,0,0,0.9))', color: '#fff' }}>
+                            <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', padding: '1.5rem', background: 'linear-gradient(transparent, rgba(0,0,0,0.95))', color: '#fff' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
                                     {analysisResult.helmetUsed ? (
-                                        <div style={{ background: '#10b981', padding: '0.8rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                            <ShieldCheck size={20} /> <span style={{ fontWeight: 700 }}>Casco Detectado</span>
+                                        <div style={{ background: '#10b981', padding: '0.6rem 1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            <ShieldCheck size={18} /> <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>Casco Detectado</span>
                                         </div>
                                     ) : (
-                                        <div style={{ background: '#ef4444', padding: '0.8rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                            <AlertTriangle size={20} /> <span style={{ fontWeight: 700 }}>⚠️ FALTA CASCO</span>
+                                        <div style={{ background: '#ef4444', padding: '0.6rem 1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            <AlertTriangle size={18} /> <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>⚠️ FALTA CASCO</span>
                                         </div>
                                     )}
                                 </div>
-                                <div style={{ display: 'flex', gap: '1rem' }}>
-                                    <button onClick={handleRetry} className="btn-outline" style={{ flex: 1, borderColor: '#fff', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                                <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap' }}>
+                                    <button onClick={handleRetry} className="btn-outline" style={{ flex: '1 1 120px', borderColor: '#fff', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', height: '48px', margin: 0 }}>
                                         <RefreshCw size={18} /> Reintentar
                                     </button>
-                                    <button onClick={handleSaveReport} className="btn-primary" style={{ flex: 2 }}>Generar Informe</button>
+                                    <button onClick={handleSaveReport} className="btn-primary" style={{ flex: '2 1 180px', height: '48px', margin: 0 }}>Generar Informe</button>
                                 </div>
                             </div>
                         )}
