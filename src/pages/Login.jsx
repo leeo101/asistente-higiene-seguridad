@@ -103,7 +103,7 @@ export default function Login() {
 
             // Add a timeout to the fetch request
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s
+            const timeoutId = setTimeout(() => controller.abort(), 40000); // 40s
 
             const response = await fetch(fetchUrl, {
                 method: 'POST',
