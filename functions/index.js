@@ -66,6 +66,36 @@ exports.analyzeImage = onRequest({ timeoutSeconds: 300, memory: "1GiB" }, (req, 
                 { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" },
             ];
 
+            const base64Data = image.split(',')[1];
+            if (!base64Data || base64Data.length < 10) {
+                return res.status(400).json({ error: 'La imagen enviada no es válida o está vacía.' });
+            }
+            const mimeType = image.split(';')[0].split(':')[1] || 'image/jpeg';
+
+            const prompt = `Analiza detalladamente esta imagen de un entorno laboral. 
+Tu tarea es verificar el uso de Elementos de Protección Personal (EPP) y detectar riesgos.
+Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguiente formato exacto:
+{
+    "personDetected": true/false,
+    "helmetUsed": true/false, // Casco
+    "shoesUsed": true/false,  // Calzado de seguridad o botines
+    "glovesUsed": true/false, // Guantes de trabajo
+    "clothingUsed": true/false, // Ropa de trabajo, uniforme o chaleco reflectivo
+    "ppeComplete": true/false, // Si tiene todos los EPP básicos listados antes
+    "foundRisks": ["Descripción del riesgo 1", "Riesgo 2"],
+    "detections": [
+        {"label": "Casco", "box_2d": [ymin, xmin, ymax, xmax]},
+        {"label": "Calzado", "box_2d": [ymin, xmin, ymax, xmax]},
+        {"label": "Guantes", "box_2d": [ymin, xmin, ymax, xmax]},
+        {"label": "Riesgo: [Nombre]", "box_2d": [ymin, xmin, ymax, xmax]}
+    ]
+}
+Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de 0 a 1000.`;
+
+            const imagePart = {
+                inlineData: { data: base64Data, mimeType }
+            };
+
             const models = [
                 "gemini-2.0-flash",
                 "gemini-1.5-flash-latest",
