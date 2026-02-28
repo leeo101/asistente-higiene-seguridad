@@ -2,7 +2,7 @@ import fs from 'node:fs/promises'
 import express from 'express'
 import { MercadoPagoConfig, Preference } from 'mercadopago';
 import cors from 'cors';
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import crypto from 'crypto';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import dotenv from 'dotenv';
@@ -289,21 +289,14 @@ app.get('/api/scan-models', async (req, res) => {
 // ==========================================
 
 // Email config (Use environment variables in production!)
-const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, // Use SSL
-    auth: {
-        user: process.env.EMAIL_USER || 'asistente.hs.soporte@gmail.com',
-        pass: process.env.EMAIL_PASS || 'bslx yhce ffli lmoc'
-    },
-    // Add timeouts to prevent hanging
-    connectionTimeout: 30000,
-    greetingTimeout: 30000,
-    socketTimeout: 30000,
-    debug: true,
-    logger: true
-});
+// Resend config
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Verify connection on startup
+console.log('[RESEND] Configuración de correo mediante API inicializada');
+if (!process.env.RESEND_API_KEY) {
+    console.warn('[RESEND] ADVERTENCIA: RESEND_API_KEY no está configurada. El sistema de correos no funcionará.');
+}
 
 // Verify connection on startup
 console.log('[NODEMAILER] Verificando configuración de correo...');
@@ -311,13 +304,8 @@ if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     console.warn('[NODEMAILER] ADVERTENCIA: EMAIL_USER o EMAIL_PASS no están configurados. El sistema de correos no funcionará.');
 }
 
-transporter.verify((error, success) => {
-    if (error) {
-        console.error('[NODEMAILER] Error de conexión:', error.message);
-    } else {
-        console.log('[NODEMAILER] Servidor de correo listo para enviar mensajes');
-    }
-});
+// Verify connection placeholder (Resend doesn't need persistent connection)
+console.log('[RESEND] Listo para enviar mensajes vía API');
 
 app.post('/api/forgot-password', async (req, res) => {
     const { email } = req.body;
@@ -362,34 +350,31 @@ app.post('/api/forgot-password', async (req, res) => {
             `
         };
 
-        // Send email and wait for result
-        console.log(`[PASSWORD RESET] Sending email to ${email}...`);
+        // Send email via Resend
+        console.log(`[PASSWORD RESET] Sending email via Resend to ${email}...`);
 
         try {
-            await new Promise((resolve, reject) => {
-                // Aumentamos a 30 segundos para dar margen en conexiones lentas
-                const timeout = setTimeout(() => reject(new Error('Timeout enviando email (30s superados)')), 30000);
-                transporter.sendMail(mailOptions, (err, info) => {
-                    clearTimeout(timeout);
-                    if (err) {
-                        console.error('[NODEMAILER] Error interno en sendMail:', err);
-                        reject(err);
-                    } else {
-                        resolve(info);
-                    }
-                });
+            const { data: resendData, error: resendError } = await resend.emails.send({
+                from: 'Asistente HYS <onboarding@resend.dev>',
+                to: email,
+                subject: 'Restablecer Contraseña - Asistente HYS',
+                html: mailOptions.html
             });
-            console.log(`[PASSWORD RESET] Email sent successfully to ${email}`);
+
+            if (resendError) {
+                throw resendError;
+            }
+
+            console.log(`[PASSWORD RESET] Email sent successfully via Resend to ${email}. ID: ${resendData.id}`);
             return res.json({
                 message: 'Email de recuperación enviado con éxito. Por favor, revisa tu bandeja de entrada.'
             });
         } catch (err) {
-            console.error('[PASSWORD RESET] Error sending email:', err);
-            // In development or debugging, returning the error message is helpful
+            console.error('[PASSWORD RESET] Error sending email via Resend:', err);
             return res.status(500).json({
                 error: 'No se pudo enviar el email de recuperación.',
                 details: err.message,
-                suggestion: 'Verifique que las credenciales de Gmail (App Password) sean correctas y que la cuenta no esté bloqueada.'
+                suggestion: 'Verifique su configuración de Resend y que el dominio esté permitido.'
             });
         }
 
