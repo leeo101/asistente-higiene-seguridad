@@ -11,7 +11,6 @@ async function testVision() {
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const models = [
-        "gemini-1.5-pro",
         "gemini-1.5-flash"
     ];
 
@@ -32,7 +31,7 @@ async function testVision() {
             process.stdout.write(`Probando ${modelName} con imagen... `);
             const model = genAI.getGenerativeModel({ model: modelName });
 
-            const result = await model.generateContent("Describe brevemente qué ves en esta imagen. Responde solo 'TEST OK' si puedes procesar la imagen.");
+            const result = await model.generateContent(["Describe brevemente qué ves en esta imagen. Responde solo 'TEST OK' si puedes procesar la imagen.", imagePart]);
             const responseText = result.response.text();
 
             console.log("ÉXITO ✅");
