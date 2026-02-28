@@ -438,68 +438,6 @@ export default function Login() {
                                 </div>
                             )}
 
-                            {status.code && (
-                                <div style={{
-                                    background: 'rgba(59, 130, 246, 0.05)',
-                                    padding: '1.2rem',
-                                    borderRadius: '12px',
-                                    textAlign: 'center',
-                                    border: '1px solid rgba(59, 130, 246, 0.1)',
-                                    marginBottom: '1.5rem'
-                                }}>
-                                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 500 }}>Tu código de seguridad:</p>
-                                    <span style={{ fontSize: '1.8rem', fontWeight: 'bold', letterSpacing: '6px', color: 'var(--color-primary)' }}>{status.code}</span>
-                                </div>
-                            )}
-
-                            {status.resetLink && (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', marginBottom: '1.5rem' }}>
-                                    <a
-                                        href={status.resetLink}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            gap: '0.6rem',
-                                            padding: '1rem',
-                                            background: 'var(--color-primary)',
-                                            color: 'white',
-                                            borderRadius: '10px',
-                                            textDecoration: 'none',
-                                            fontWeight: 700,
-                                            fontSize: '0.9rem',
-                                            boxShadow: '0 4px 6px -1px rgba(37, 99, 235, 0.2)'
-                                        }}
-                                    >
-                                        <ExternalLink size={18} /> Restablecer Ahora
-                                    </a>
-
-                                    <a
-                                        href={`https://wa.me/?text=${encodeURIComponent(`Hola, mi código de seguridad HYS es: ${status.code}. \n\nO puedes entrar directamente aquí: ${status.resetLink}`)}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            gap: '0.6rem',
-                                            padding: '1rem',
-                                            background: '#25D366',
-                                            color: 'white',
-                                            borderRadius: '10px',
-                                            textDecoration: 'none',
-                                            fontWeight: 700,
-                                            fontSize: '0.9rem',
-                                            boxShadow: '0 4px 6px -1px rgba(37, 211, 102, 0.2)'
-                                        }}
-                                    >
-                                        <Smartphone size={18} /> Enviar por WhatsApp
-                                    </a>
-                                </div>
-                            )}
-
                             <button type="submit" className="btn-primary" disabled={status.type === 'loading'} style={{ marginTop: '0' }}>
                                 {status.type === 'loading' ? 'Enviando...' : 'Enviar Enlace'}
                             </button>

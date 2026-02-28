@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Building2, MapPin, ClipboardList, Play } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function CreateInspection() {
     const navigate = useNavigate();
@@ -11,7 +12,7 @@ export default function CreateInspection() {
     });
 
     const handleStart = () => {
-        if (!project.name) return alert('Ingrese el nombre de la obra/cliente');
+        if (!project.name) return toast.error('Ingrese el nombre de la obra/cliente');
 
         // Guardar sesión actual de inspección
         const inspectionSession = {

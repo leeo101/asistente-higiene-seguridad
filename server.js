@@ -334,7 +334,7 @@ app.post('/api/forgot-password', async (req, res) => {
         console.log(`[PASSWORD RESET] Link for ${email}: ${resetLink}`);
 
         const mailOptions = {
-            from: { name: 'Asistente HYS', address: process.env.EMAIL_USER },
+            from: { name: 'Asistente HYS', address: process.env.EMAIL_USER || 'asistente.hs.soporte@gmail.com' },
             to: email,
             subject: 'Restablecer tu contraseña - Asistente HYS',
             html: `
@@ -372,16 +372,13 @@ app.post('/api/forgot-password', async (req, res) => {
             });
             console.log(`[PASSWORD RESET] Email sent successfully to ${email}`);
             return res.json({
-                message: 'Email de recuperación enviado con éxito.',
-                code: code // Also return code if they want to copy it manually
+                message: 'Email de recuperación enviado con éxito. Por favor, revisa tu bandeja de entrada.'
             });
         } catch (err) {
             console.error('[PASSWORD RESET] Error sending email:', err.message);
-            // Return reset link in response if email fails as a fallback
-            return res.json({
-                message: 'No se pudo enviar el mail, pero puedes usar este link directo o código:',
-                devLink: resetLink,
-                code: code
+            // DO NOT return the code or link if email fails in production!
+            return res.status(500).json({
+                error: 'No se pudo enviar el email de recuperación. Por favor, inténtalo más tarde o contacta a soporte.'
             });
         }
 
@@ -497,7 +494,7 @@ app.post('/api/welcome-email', async (req, res) => {
     console.log(`[WELCOME EMAIL] Preparing email for ${email}...`);
 
     const mailOptions = {
-        from: { name: 'Asistente HYS', address: process.env.EMAIL_USER },
+        from: { name: 'Asistente HYS', address: process.env.EMAIL_USER || 'asistente.hs.soporte@gmail.com' },
         to: email,
         subject: '¡Bienvenido al Asistente HYS!',
         html: `

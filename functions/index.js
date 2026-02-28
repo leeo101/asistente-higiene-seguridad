@@ -120,7 +120,7 @@ exports.forgotPassword = onRequest((req, res) => {
             const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
 
             const mailOptions = {
-                from: { name: 'Asistente HYS', address: process.env.EMAIL_USER },
+                from: { name: 'Asistente HYS', address: process.env.EMAIL_USER || 'asistente.hs.soporte@gmail.com' },
                 to: email,
                 subject: 'Restablecer tu contraseña - Asistente HYS',
                 html: `
@@ -143,8 +143,7 @@ exports.forgotPassword = onRequest((req, res) => {
 
             await transporter.sendMail(mailOptions);
             res.json({
-                message: 'Código de recuperación enviado.',
-                code: code
+                message: 'Código de recuperación enviado a tu correo.'
             });
         } catch (error) {
             logger.error("Error sending forgot password email", error);

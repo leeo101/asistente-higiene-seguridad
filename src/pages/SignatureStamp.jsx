@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, Trash2, Upload } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
+import toast from 'react-hot-toast';
 
 export default function SignatureStamp() {
     const navigate = useNavigate();
@@ -84,7 +85,7 @@ export default function SignatureStamp() {
             stamp: stampImage || stampCanvasRef.current?.toDataURL()
         };
         await syncDocument('signatureStampData', data);
-        alert('Firma y Sello guardados correctamente');
+        toast.success('Firma y Sello guardados correctamente');
         navigate('/profile');
     };
 

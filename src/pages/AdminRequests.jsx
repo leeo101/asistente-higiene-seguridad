@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { UserPlus, Trash2, Mail, Phone, Briefcase, RefreshCw, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 export default function AdminRequests() {
     const navigate = useNavigate();
@@ -43,8 +44,9 @@ export default function AdminRequests() {
 
             if (!response.ok) throw new Error('Error al eliminar');
             setRequests(requests.filter(req => req.id !== id));
+            toast.success('Solicitud eliminada');
         } catch (err) {
-            alert(err.message);
+            toast.error(err.message);
         }
     };
 
