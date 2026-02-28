@@ -8,6 +8,10 @@
     ],
     "rewrites": [
       {
+        "source": "/api/analyze-image",
+        "function": "analyzeImage"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
