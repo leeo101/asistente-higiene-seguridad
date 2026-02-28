@@ -1,0 +1,22 @@
+{
+    "short_name": "Asistente HYS",
+    "name": "Asistente de Higiene y Seguridad",
+    "icons": [
+        {
+            "src": "/logo.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "/logo.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ],
+    "start_url": "/",
+    "background_color": "#0f172a",
+    "display": "standalone",
+    "scope": "/",
+    "theme_color": "#3b82f6",
+    "description": "Tu asistente inteligente en Higiene y Seguridad Laboral."
+}
