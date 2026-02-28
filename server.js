@@ -298,16 +298,16 @@ if (!process.env.RESEND_API_KEY) {
     console.warn('[RESEND] ADVERTENCIA: RESEND_API_KEY no está configurada. El sistema de correos no funcionará.');
 }
 
-// Verify connection on startup
-console.log('[NODEMAILER] Verificando configuración de correo...');
-if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.warn('[NODEMAILER] ADVERTENCIA: EMAIL_USER o EMAIL_PASS no están configurados. El sistema de correos no funcionará.');
+// Verify Resend on startup
+if (process.env.RESEND_API_KEY) {
+    console.log(`[RESEND] API Key detectada (comienza con: ${process.env.RESEND_API_KEY.substring(0, 5)}...)`);
+    console.log('[RESEND] Listo para enviar mensajes vía API');
+} else {
+    console.error('[RESEND] ERROR: RESEND_API_KEY no encontrada en el .env');
 }
 
-// Verify connection placeholder (Resend doesn't need persistent connection)
-console.log('[RESEND] Listo para enviar mensajes vía API');
-
 app.post('/api/forgot-password', async (req, res) => {
+    console.log('[API] Recibida solicitud de recuperación para:', req.body.email);
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Email requerido' });
 
@@ -372,9 +372,9 @@ app.post('/api/forgot-password', async (req, res) => {
         } catch (err) {
             console.error('[PASSWORD RESET] Error sending email via Resend:', err);
             return res.status(500).json({
-                error: 'No se pudo enviar el email de recuperación.',
+                error: 'No se pudo enviar el email de recuperación (v-Resend).',
                 details: err.message,
-                suggestion: 'Verifique su configuración de Resend y que el dominio esté permitido.'
+                suggestion: 'Verifique que la API Key de Resend esté configurada en el panel de RENDER (no solo en Vercel).'
             });
         }
 
