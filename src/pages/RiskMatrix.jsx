@@ -54,13 +54,20 @@ export default function RiskMatrix() {
     }, []);
 
     const addRow = () => setRows([...rows, emptyRow()]);
-    const removeRow = (id) => { if (rows.length > 1) setRows(rows.filter(r => r.id !== id)); };
+    const removeRow = (id) => {
+        setRows(rows.filter(r => r.id !== id));
+    };
     const updateRow = (id, field, value) => setRows(rows.map(r => r.id === id ? { ...r, [field]: value } : r));
 
     const handleSave = async () => {
         requirePro(async () => {
             if (!projectData.name) { toast.error('Ingresá el nombre de la obra / proyecto.'); return; }
-            const entry = { id: Date.now(), ...projectData, rows, createdAt: new Date().toISOString() };
+            const activeRowsToSave = rows.filter(r => r.task.trim() || r.hazard.trim());
+            if (activeRowsToSave.length === 0) {
+                toast.error('Agregue al menos una evaluación con contenido.');
+                return;
+            }
+            const entry = { id: Date.now(), ...projectData, rows: activeRowsToSave, createdAt: new Date().toISOString() };
             const history = JSON.parse(localStorage.getItem('risk_matrix_history') || '[]');
             const updated = [entry, ...history];
             await syncCollection('risk_matrix_history', updated);
@@ -69,10 +76,13 @@ export default function RiskMatrix() {
         });
     };
 
+    const activeRows = rows.filter(r => r.task.trim() || r.hazard.trim() || r.hazardType);
+
     const summary = {
-        bajo: rows.filter(r => getRiskLevel(r.probability, r.severity).label === 'BAJO').length,
-        moderado: rows.filter(r => getRiskLevel(r.probability, r.severity).label === 'MODERADO').length,
-        critico: rows.filter(r => getRiskLevel(r.probability, r.severity).label === 'CRÍTICO').length,
+        bajo: activeRows.filter(r => getRiskLevel(r.probability, r.severity).label === 'BAJO').length,
+        moderado: activeRows.filter(r => getRiskLevel(r.probability, r.severity).label === 'MODERADO').length,
+        critico: activeRows.filter(r => getRiskLevel(r.probability, r.severity).label === 'CRÍTICO').length,
+        total: activeRows.length
     };
 
     return (
@@ -176,7 +186,7 @@ export default function RiskMatrix() {
                     { label: 'Riesgos Bajos', count: summary.bajo, bg: '#dcfce7', color: '#16a34a', border: '#86efac' },
                     { label: 'Riesgos Moderados', count: summary.moderado, bg: '#fef9c3', color: '#ca8a04', border: '#fde047' },
                     { label: 'Riesgos Críticos', count: summary.critico, bg: '#fee2e2', color: '#dc2626', border: '#fca5a5' },
-                    { label: 'Total Evaluados', count: rows.length, bg: '#eff6ff', color: '#2563eb', border: '#bfdbfe' },
+                    { label: 'Total Evaluados', count: summary.total, bg: '#eff6ff', color: '#2563eb', border: '#bfdbfe' },
                 ].map(s => (
                     <div key={s.label} style={{
                         flex: '1 1 140px', background: s.bg, border: `2px solid ${s.border}`,

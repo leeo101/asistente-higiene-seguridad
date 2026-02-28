@@ -243,7 +243,7 @@ export default function FireLoad() {
     };
 
     return (
-        <div className="container" style={{ maxWidth: '900px', paddingBottom: '8rem' }}>
+        <div className="container" style={{ maxWidth: '900px', paddingBottom: '8rem', paddingTop: '8rem' }}>
             <ShareModal
                 open={showShare}
                 onClose={() => setShowShare(false)}
