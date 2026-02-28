@@ -59,29 +59,35 @@ exports.analyzeImage = onRequest({ timeoutSeconds: 300, memory: "1GiB" }, (req, 
             if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini' });
 
             const genAI = new GoogleGenerativeAI(apiKey);
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const safetySettings = [
+                { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" },
+            ];
 
-            const base64Data = image.split(',')[1];
-            const mimeType = image.split(';')[0].split(':')[1] || 'image/jpeg';
+            const models = [
+                "gemini-2.0-flash",
+                "gemini-1.5-flash-latest",
+                "gemini-1.5-pro-latest",
+                "gemini-1.5-flash"
+            ];
 
-            const prompt = `Analiza detalladamente esta imagen de un entorno laboral. 
-            Tu tarea es verificar el uso de Elementos de Protección Personal (EPP) y detectar riesgos.
-            Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguiente formato exacto:
-            {
-                "personDetected": true/false,
-                "helmetUsed": true/false,
-                "shoesUsed": true/false,
-                "glovesUsed": true/false,
-                "clothingUsed": true/false,
-                "ppeComplete": true/false,
-                "foundRisks": ["Descripción"]
-            }`;
+            let result;
+            let lastError;
+            for (const modelName of models) {
+                try {
+                    const model = genAI.getGenerativeModel({ model: modelName, safetySettings });
+                    result = await model.generateContent([prompt, imagePart]);
+                    if (result) break;
+                } catch (err) {
+                    lastError = err;
+                    continue;
+                }
+            }
 
-            const imagePart = {
-                inlineData: { data: base64Data, mimeType }
-            };
+            if (!result) throw lastError || new Error('Todos los modelos fallaron');
 
-            const result = await model.generateContent([prompt, imagePart]);
             const responseText = result.response.text();
 
             let cleanedJson = responseText.trim();
