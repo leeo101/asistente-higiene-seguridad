@@ -87,7 +87,7 @@ export default function ResetPassword() {
                     <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>Introduce tu nueva clave de acceso</p>
                 </div>
 
-                {!token ? (
+                {!oobCode ? (
                     <div style={{
                         padding: '1rem',
                         borderRadius: '12px',
