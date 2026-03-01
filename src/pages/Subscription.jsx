@@ -182,10 +182,10 @@ export default function Subscription() {
                 </button>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#3b82f6', marginBottom: '1.5rem' }}>
-                    <div style={{ padding: '0.5rem', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '10px' }}>
-                        <Sparkles size={28} />
+                    <div style={{ background: 'transparent', borderRadius: '10px' }}>
+                        <img src="/logo2.png" alt="Logo de Asistente H&S" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
                     </div>
-                    <span style={{ fontWeight: '800', letterSpacing: '2px', fontSize: '1rem', textTransform: 'uppercase' }}>ASISTENTE DE HIGIENE Y SEGURIDAD</span>
+                    <span style={{ fontWeight: '800', letterSpacing: '2px', fontSize: '1.3rem', textTransform: 'uppercase', color: 'var(--color-text)' }}>ASISTENTE H&S</span>
                 </div>
 
                 <h1 style={{ fontSize: '3rem', fontWeight: '900', marginBottom: '1.5rem', lineHeight: '1.2', color: 'var(--color-text)' }}>
