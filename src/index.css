@@ -531,6 +531,15 @@ label {
   border-color: #e2e8f0;
 }
 
+/* ─── Global Scroll Lock strictly for Mobile Sidebar ─── */
+@media (max-width: 768px) {
+  .sidebar-open-lock {
+    overflow: hidden !important;
+    height: 100vh !important;
+    touch-action: none !important;
+  }
+}
+
 .border-slate-400 {
   border-color: #94a3b8;
 }

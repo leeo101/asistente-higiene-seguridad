@@ -47,6 +47,18 @@ export default function Sidebar({ isOpen, onClose }) {
             const parsed = JSON.parse(savedData);
             setUserInfo(prev => ({ ...prev, photo: parsed.photo, profession: parsed.profession || '' }));
         }
+
+        // Lock background scroll when sidebar is open on mobile
+        if (isOpen) {
+            document.body.classList.add('sidebar-open-lock');
+        } else {
+            document.body.classList.remove('sidebar-open-lock');
+        }
+
+        // Cleanup on unmount or close
+        return () => {
+            document.body.classList.remove('sidebar-open-lock');
+        };
     }, [isOpen, currentUser]);
 
     const handleLogout = async () => {
