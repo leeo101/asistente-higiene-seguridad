@@ -261,9 +261,10 @@ export default function LightingReport() {
                                 type="text"
                                 value={formData.empresa}
                                 onChange={(e) => handleDataChange('empresa', e.target.value)}
-                                className="form-input"
+                                className="form-input no-print"
                                 placeholder="Nombre de la empresa..."
                             />
+                            <div className="print-only" style={{ padding: '0.6rem', borderBottom: '1px solid #eee', fontSize: '1rem', color: '#000' }}>{formData.empresa || '-'}</div>
                         </div>
                         <div style={{ marginBottom: '1rem' }}>
                             <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600 }}>Sector / Área de Estudio</label>
@@ -271,9 +272,10 @@ export default function LightingReport() {
                                 type="text"
                                 value={formData.sector}
                                 onChange={(e) => handleDataChange('sector', e.target.value)}
-                                className="form-input"
+                                className="form-input no-print"
                                 placeholder="Ej: Nave Industrial, Administración..."
                             />
+                            <div className="print-only" style={{ padding: '0.6rem', borderBottom: '1px solid #eee', fontSize: '1rem', color: '#000' }}>{formData.sector || '-'}</div>
                         </div>
                         <div>
                             <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600 }}>Descripción de las Tareas</label>
@@ -281,9 +283,10 @@ export default function LightingReport() {
                                 type="text"
                                 value={formData.descripcionActividad}
                                 onChange={(e) => handleDataChange('descripcionActividad', e.target.value)}
-                                className="form-input"
+                                className="form-input no-print"
                                 placeholder="Ej: Trabajo en escritorio, torno mecánico..."
                             />
+                            <div className="print-only" style={{ padding: '0.6rem', borderBottom: '1px solid #eee', fontSize: '1rem', color: '#000' }}>{formData.descripcionActividad || '-'}</div>
                         </div>
                     </div>
 
@@ -298,10 +301,11 @@ export default function LightingReport() {
                                 list="visualTasksList"
                                 value={formData.tipoTarea}
                                 onChange={(e) => handleDataChange('tipoTarea', e.target.value)}
-                                className="form-input"
+                                className="form-input no-print"
                                 style={{ width: '100%' }}
                                 placeholder="Seleccione o escriba el tipo de tarea..."
                             />
+                            <div className="print-only" style={{ padding: '0.6rem', borderBottom: '1px solid #eee', fontSize: '1rem', color: '#000', fontWeight: 'bold' }}>{formData.tipoTarea || '-'}</div>
                             <datalist id="visualTasksList">
                                 {visualTasks.map((t) => (
                                     <option key={t.id} value={t.label} />
@@ -356,8 +360,9 @@ export default function LightingReport() {
                                                     onChange={(e) => updateMedicion(index, 'ubicacion', e.target.value)}
                                                     style={{ width: '100%', padding: '0.5rem', border: 'none', background: 'transparent' }}
                                                     placeholder="Puesto X"
-                                                    className="form-input-transparent"
+                                                    className="form-input-transparent no-print"
                                                 />
+                                                <div className="print-only" style={{ padding: '0.5rem' }}>{med.ubicacion}</div>
                                             </td>
                                             <td style={{ padding: '0.5rem', borderBottom: '1px solid var(--color-border)', width: '100px' }}>
                                                 <input
@@ -367,7 +372,9 @@ export default function LightingReport() {
                                                     style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--color-border)', borderRadius: '4px', textAlign: 'center' }}
                                                     placeholder="0"
                                                     min="0"
+                                                    className="no-print"
                                                 />
+                                                <div className="print-only" style={{ textAlign: 'center', fontWeight: 'bold' }}>{med.luxMedido}</div>
                                             </td>
                                             <td style={{ padding: '0.5rem', borderBottom: '1px solid var(--color-border)', textAlign: 'center', width: '50px' }} className="no-print">
                                                 <button
@@ -397,7 +404,7 @@ export default function LightingReport() {
                                     <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Nivel Promedio Registrado</p>
                                     <p style={{ margin: 0, fontSize: '2rem', fontWeight: 800, color: results.cumplePromedio ? '#10b981' : '#ef4444' }}>{results.promedioLux} Lux</p>
                                 </div>
-                                <div style={{ background: results.cumplePromedio ? '#10b981' : '#ef4444', color: 'white', padding: '0.5rem 1rem', borderRadius: '20px', fontWeight: 800, fontSize: '0.85rem' }}>
+                                <div className="result-badge-print" style={{ background: results.cumplePromedio ? '#10b981' : '#ef4444', color: 'white', padding: '0.5rem 1rem', borderRadius: '20px', fontWeight: 800, fontSize: '0.85rem' }}>
                                     {results.cumplePromedio ? 'CUMPLE' : 'NO CUMPLE'}
                                 </div>
                             </div>
@@ -528,12 +535,17 @@ export default function LightingReport() {
                         text-align: center !important;
                         min-width: 0 !important;
                     }
-                    .signature-line {
-                        border-top: 1px solid #000 !important;
+                     .signature-line {
+                        border-top: 2px solid #000 !important;
                         margin: 0 auto 10px auto !important;
                         width: 80% !important;
                         min-height: 1px !important;
                         display: block !important;
+                    }
+                    .result-badge-print {
+                        border: 2px solid #000 !important;
+                        color: #000 !important;
+                        background: none !important;
                     }
                 }
                 
