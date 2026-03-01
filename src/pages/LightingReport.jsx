@@ -186,20 +186,38 @@ export default function LightingReport() {
 
     return (
         <div className="container" style={{ paddingTop: '6rem', paddingBottom: '5rem', maxWidth: '1000px' }}>
-            <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', background: '#fff', padding: '1rem', borderRadius: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
-                <button onClick={() => navigate(-1)} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, padding: '0.5rem 1rem' }}>
-                    <ArrowLeft size={18} /> <span className="hide-mobile">Volver</span>
+            {/* Floating Action Buttons */}
+            <div className="no-print floating-action-bar">
+                <button
+                    onClick={saveReport}
+                    className="btn-floating-action"
+                    style={{ background: '#36B37E', color: 'white' }}
+                >
+                    <Save size={18} /> GUARDAR
                 </button>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button onClick={saveReport} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, flex: 1, justifyContent: 'center' }}>
-                        <Save size={18} /> <span className="hide-mobile">Guardar</span>
-                    </button>
-                    <button onClick={handlePrint} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, flex: 1, justifyContent: 'center' }}>
-                        <Printer size={18} /> <span className="hide-mobile">Imprimir</span>
-                    </button>
-                    <button onClick={() => { if (requirePro('generar enlace compartido')) setShowShare(true); }} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, flex: 1, justifyContent: 'center' }}>
-                        <Share2 size={18} /> <span className="hide-mobile">Compartir</span>
-                    </button>
+                <button
+                    onClick={() => { if (requirePro('generar enlace compartido')) setShowShare(true); }}
+                    className="btn-floating-action"
+                    style={{ background: '#0052CC', color: 'white' }}
+                >
+                    <Share2 size={18} /> COMPARTIR
+                </button>
+                <button
+                    onClick={handlePrint}
+                    className="btn-floating-action"
+                    style={{ background: '#FF8B00', color: 'white' }}
+                >
+                    <Printer size={18} /> IMPRIMIR PDF
+                </button>
+            </div>
+
+            <div className="no-print" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
+                <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
+                    <ArrowLeft />
+                </button>
+                <div>
+                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Estudio de Iluminación</h1>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Medición Dec. 351/79 Anexo IV</p>
                 </div>
             </div>
 
