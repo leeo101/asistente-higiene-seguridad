@@ -32,7 +32,7 @@ export default function LightingReport() {
         empresa: '',
         sector: '',
         descripcionActividad: '',
-        tipoTarea: 'moderadas',
+        tipoTarea: '',
         luxRequerido: 500,
         mediciones: [
             { id: Date.now().toString(), ubicacion: 'Puesto 1', luxMedido: 0 }
@@ -96,9 +96,10 @@ export default function LightingReport() {
         puntosNoCumplen: 0
     });
 
-    // Actualizar lux requerido cuando cambia la tarea
+    // Actualizar lux requerido cuando cambia la tarea Y NO SE ESCRIBIÓ MANUALMENTE
     useEffect(() => {
-        const task = visualTasks.find(t => t.id === formData.tipoTarea);
+        // Find if the current text matches any of the labels exactly (via the datalist)
+        const task = visualTasks.find(t => t.label === formData.tipoTarea);
         if (task) {
             setFormData(prev => ({ ...prev, luxRequerido: task.minLux }));
         }
@@ -292,23 +293,33 @@ export default function LightingReport() {
 
                     <div className="card" style={{ padding: '1.5rem' }}>
                         <div style={{ marginBottom: '1.5rem' }}>
-                            <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600 }}>Tipo de Tarea Visual (Dec 351/79)</label>
-                            <select
+                            <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600 }}>Tipo de Tarea Visual (Dec 351/79 o Especial)</label>
+                            <input
+                                list="visualTasksList"
                                 value={formData.tipoTarea}
                                 onChange={(e) => handleDataChange('tipoTarea', e.target.value)}
-                                className="form-input scrollable-select"
+                                className="form-input"
                                 style={{ width: '100%' }}
-                            >
+                                placeholder="Seleccione o escriba el tipo de tarea..."
+                            />
+                            <datalist id="visualTasksList">
                                 {visualTasks.map((t) => (
-                                    <option key={t.id} value={t.id}>{t.label}</option>
+                                    <option key={t.id} value={t.label} />
                                 ))}
-                            </select>
+                            </datalist>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
                             <Sun size={32} color="var(--color-primary)" />
                             <div>
-                                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Iluminación Mínima Exigida</p>
-                                <p style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-primary)' }}>{formData.luxRequerido} Lux</p>
+                                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase', marginBottom: '0.3rem' }}>Iluminación Mínima Exigida (Lux)</p>
+                                <input
+                                    type="number"
+                                    value={formData.luxRequerido}
+                                    onChange={(e) => handleDataChange('luxRequerido', e.target.value === '' ? '' : Number(e.target.value))}
+                                    className="form-input"
+                                    style={{ width: '120px', fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-primary)', padding: '0.2rem 0.5rem', background: 'transparent' }}
+                                    min="0"
+                                />
                             </div>
                         </div>
                     </div>
