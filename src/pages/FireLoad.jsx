@@ -199,16 +199,7 @@ export default function FireLoad() {
     };
 
     const handlePrint = () => {
-        if (!currentUser) {
-            navigate('/login');
-            return;
-        }
-        const status = localStorage.getItem('subscriptionStatus');
-        if (status !== 'active') {
-            navigate('/subscribe');
-            return;
-        }
-        window.print();
+        requirePro(() => window.print());
     };
 
     const handleSave = async () => {

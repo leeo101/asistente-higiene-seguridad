@@ -153,36 +153,36 @@ export default function LightingReport() {
     };
 
     const handlePrint = () => {
-        if (!requirePro('imprimir este informe de iluminación')) return;
-        window.print();
+        requirePro(() => window.print());
     };
 
     const saveReport = async () => {
-        if (!requirePro('guardar este tipo de informe especial')) return;
-        try {
-            const reportData = {
-                id: Date.now().toString(),
-                date: new Date().toISOString(),
-                empresa: formData.empresa || 'Empresa Sin Nombre',
-                sector: formData.sector || 'Sin Sector',
-                resultados: results,
-                datos: formData,
-                profesionalResponsable: professional?.name || 'Profesional no registrado'
-            };
+        requirePro(async () => {
+            try {
+                const reportData = {
+                    id: Date.now().toString(),
+                    date: new Date().toISOString(),
+                    empresa: formData.empresa || 'Empresa Sin Nombre',
+                    sector: formData.sector || 'Sin Sector',
+                    resultados: results,
+                    datos: formData,
+                    profesionalResponsable: professional?.name || 'Profesional no registrado'
+                };
 
-            const existingHistory = JSON.parse(localStorage.getItem('lighting_history') || '[]');
-            existingHistory.push(reportData);
-            localStorage.setItem('lighting_history', JSON.stringify(existingHistory));
+                const existingHistory = JSON.parse(localStorage.getItem('lighting_history') || '[]');
+                existingHistory.push(reportData);
+                localStorage.setItem('lighting_history', JSON.stringify(existingHistory));
 
-            if (currentUser) {
-                await syncCollection('lighting_history', reportData);
+                if (currentUser) {
+                    await syncCollection('lighting_history', reportData);
+                }
+
+                toast.success('Informe guardado en el Historial');
+            } catch (err) {
+                console.error("Error saving document:", err);
+                toast.error("Error al guardar en la base de datos.");
             }
-
-            toast.success('Informe guardado en el Historial');
-        } catch (err) {
-            console.error("Error saving document:", err);
-            toast.error("Error al guardar en la base de datos.");
-        }
+        });
     };
 
     return (
@@ -197,7 +197,7 @@ export default function LightingReport() {
                     <Save size={18} /> GUARDAR
                 </button>
                 <button
-                    onClick={() => { if (requirePro('generar enlace compartido')) setShowShare(true); }}
+                    onClick={() => requirePro(() => setShowShare(true))}
                     className="btn-floating-action"
                     style={{ background: '#0052CC', color: 'white' }}
                 >
