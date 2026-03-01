@@ -19,6 +19,7 @@ export default function Login() {
     const [phone, setPhone] = useState('');
     const [address, setAddress] = useState('');
     const [view, setView] = useState(location.state?.view || 'login'); // 'login', 'register', or 'forgot'
+    const [acceptedTerms, setAcceptedTerms] = useState(false);
     const [status, setStatus] = useState({ type: '', message: '', resetLink: '', code: '' });
 
     // Redirect if already logged in
@@ -45,6 +46,9 @@ export default function Login() {
         // Basic Validations
         if (!name || !email || !password || !confirmPassword || !dni || !license || !profession || !phone || !address) {
             return setStatus({ type: 'error', message: 'Todos los campos son obligatorios.' });
+        }
+        if (!acceptedTerms) {
+            return setStatus({ type: 'error', message: 'Debes aceptar las Políticas de Privacidad para registrarte.' });
         }
         if (password.length < 6) {
             return setStatus({ type: 'error', message: 'La contraseña debe tener al menos 6 caracteres.' });
@@ -378,6 +382,23 @@ export default function Login() {
                                         required
                                     />
                                 </div>
+                            </div>
+
+                            <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'flex-start', gap: '0.8rem' }}>
+                                <input
+                                    type="checkbox"
+                                    id="terms"
+                                    checked={acceptedTerms}
+                                    onChange={(e) => setAcceptedTerms(e.target.checked)}
+                                    style={{ marginTop: '0.2rem', accentColor: 'var(--color-primary)' }}
+                                />
+                                <label htmlFor="terms" style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', lineHeight: '1.4', margin: 0, fontWeight: 'normal' }}>
+                                    Declaro que he leído y acepto las{' '}
+                                    <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-primary)', fontWeight: 'bold', textDecoration: 'underline' }}>
+                                        Políticas de Privacidad
+                                    </a>{' '}
+                                    y de tratamiento de datos.
+                                </label>
                             </div>
 
                             {status.message && (

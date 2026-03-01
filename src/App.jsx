@@ -34,6 +34,7 @@ import ErgonomicsReport from './pages/ErgonomicsReport.jsx';
 import SafetyCalendar from './pages/SafetyCalendar.jsx';
 import ResetPassword from './pages/ResetPassword.jsx';
 import AdminRequests from './pages/AdminRequests.jsx';
+import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
 
 
 import ChecklistsHistory from './pages/ChecklistsHistory.jsx';
@@ -189,6 +190,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/subscribe" element={<Subscription />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
 
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
