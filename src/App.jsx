@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Routes, Route, useLocation, Navigate, Link } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 import Sidebar from './components/Sidebar';
+import Footer from './components/Footer';
 import Home from './pages/Home.jsx';
 import CreateInspection from './pages/CreateInspection.jsx';
 import Checklist from './pages/Checklist.jsx';
@@ -235,6 +236,7 @@ function App() {
 
             <Route path="/matrices" element={<Navigate to="/risk-matrix" replace />} />
           </Routes>
+          <Footer />
         </div>
       </SyncProvider>
     </AuthProvider >
