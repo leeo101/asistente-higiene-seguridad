@@ -1,100 +1,100 @@
 import React from 'react';
-import { ArrowLeft, ShieldCheck, FileText, Server, Eye, Cloud } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, ShieldCheck, Lock, Eye, FileText } from 'lucide-react';
 
 export default function PrivacyPolicy() {
     const navigate = useNavigate();
 
     return (
-        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem 1rem', paddingBottom: '6rem' }}>
+        <div className="container" style={{ paddingTop: '6rem', paddingBottom: '5rem', maxWidth: '800px' }}>
             <button
                 onClick={() => navigate(-1)}
                 style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.5rem',
-                    background: 'none',
+                    background: 'transparent',
                     border: 'none',
-                    color: 'var(--color-primary)',
                     cursor: 'pointer',
-                    marginBottom: '2rem',
-                    padding: '0',
-                    fontWeight: '600'
+                    color: 'var(--color-text-muted)',
+                    marginBottom: '2rem'
                 }}
             >
-                <ArrowLeft size={20} /> Volver
+                <ArrowLeft size={18} /> Volver
             </button>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', color: 'var(--color-primary)' }}>
-                <ShieldCheck size={40} />
-                <h1 style={{ fontSize: '2.5rem', margin: 0, fontWeight: '800', color: 'var(--color-text)' }}>Políticas de Privacidad</h1>
+            <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+                <div style={{
+                    width: '60px',
+                    height: '60px',
+                    background: 'rgba(59, 130, 246, 0.1)',
+                    color: 'var(--color-primary)',
+                    borderRadius: '15px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 1rem'
+                }}>
+                    <ShieldCheck size={32} />
+                </div>
+                <h1 style={{ fontSize: '2.5rem', fontWeight: 900 }}>Política de Privacidad</h1>
+                <p style={{ color: 'var(--color-text-muted)' }}>Última actualización: 1 de marzo, 2026</p>
             </div>
 
-            <p style={{ color: 'var(--color-text-secondary)', fontSize: '1.1rem', marginBottom: '2rem' }}>
-                Última actualización: {new Date().toLocaleDateString('es-AR')}
-            </p>
-
-            <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '16px', padding: '2rem', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
+            <div className="card" style={{ padding: '2.5rem', lineHeight: '1.7', color: 'var(--color-text)' }}>
+                <section style={{ marginBottom: '2rem' }}>
+                    <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.7rem', fontSize: '1.25rem', marginBottom: '1rem' }}>
+                        <Eye size={20} color="var(--color-primary)" /> 1. Introducción
+                    </h2>
+                    <p>
+                        En <strong>Asistente de Higiene y Seguridad</strong>, valoramos tu privacidad. Esta política describe cómo recopilamos y protegemos tu información cuando utilizas nuestra aplicación web y móvil.
+                    </p>
+                </section>
 
                 <section style={{ marginBottom: '2rem' }}>
-                    <h2 style={{ fontSize: '1.5rem', color: 'var(--color-primary)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <FileText size={24} /> 1. Información que Recopilamos
+                    <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.7rem', fontSize: '1.25rem', marginBottom: '1rem' }}>
+                        <FileText size={20} color="var(--color-primary)" /> 2. Información que Recopilamos
                     </h2>
-                    <p style={{ color: 'var(--color-text-secondary)', lineHeight: '1.7', marginBottom: '1rem' }}>
-                        Para brindar una experiencia completa en <strong>Asistente de Higiene y Seguridad</strong>, recopilamos los siguientes datos al momento de registrarse y utilizar la plataforma:
-                    </p>
-                    <ul style={{ color: 'var(--color-text-secondary)', lineHeight: '1.7', paddingLeft: '1.5rem' }}>
-                        <li><strong>Datos de Identidad del Profesional:</strong> Nombre completo, correo electrónico, DNI, matrícula profesional y número de teléfono.</li>
-                        <li><strong>Datos del Proyecto:</strong> Nombres de las empresas, ubicaciones, responsables y contenidos cargados manualmente en hojas de firma, reportes y checklists.</li>
-                        <li><strong>Archivos Multimedia:</strong> Fotografías y capturas subidas para ser analizadas por Inteligencia Artificial y adjuntadas en la Matriz de Riesgo o Reportes Ergonómicos y Generales.</li>
+                    <ul>
+                        <li><strong>Datos de Cuenta:</strong> Correo electrónico y nombre (si te registras vía Firebase Auth).</li>
+                        <li><strong>Datos de Informes:</strong> Los datos cargados en formularios (Carga de Fuego, Iluminación, ATS) se guardan localmente en tu dispositivo y se sincronizan de forma cifrada si tienes una cuenta activa.</li>
+                        <li><strong>Cámara e Imágenes:</strong> Nuestra función de IA procesa imágenes en tiempo real para detectar EPP. **No almacenamos fotos en nuestros servidores** a menos que decidas guardarlas explícitamente en un reporte.</li>
                     </ul>
                 </section>
 
                 <section style={{ marginBottom: '2rem' }}>
-                    <h2 style={{ fontSize: '1.5rem', color: 'var(--color-primary)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <Server size={24} /> 2. Uso y Finalidad de los Datos
+                    <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.7rem', fontSize: '1.25rem', marginBottom: '1rem' }}>
+                        <Lock size={20} color="var(--color-primary)" /> 3. Seguridad de los Datos
                     </h2>
-                    <p style={{ color: 'var(--color-text-secondary)', lineHeight: '1.7', marginBottom: '1rem' }}>
-                        Toda la información ingresada tiene un propósito estricto, orientado al funcionamiento core de la herramienta profesional:
+                    <p>
+                        Implementamos medidas de seguridad estándar de la industria, incluyendo cifrado SSL/TLS y autenticación segura para garantizar que tu información profesional esté protegida contra accesos no autorizados.
                     </p>
-                    <ul style={{ color: 'var(--color-text-secondary)', lineHeight: '1.7', paddingLeft: '1.5rem' }}>
-                        <li>Generar Reportes en formato PDF listos para imprimir o compartir, autocompletando firmas e información del profesional.</li>
-                        <li>Proporcionar historiales sincronizados de Análisis de Trabajo Seguro (ATS), Cálculos de Carga de Fuego y checkeos preventivos para su fácil auditoría médica y técnica.</li>
-                        <li>Gestionar de forma segura la habilitación de cuenta, acceso Premium e identidad mediante autenticación oficial de Firebase (Google).</li>
+                </section>
+
+                <section style={{ marginBottom: '2rem' }}>
+                    <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.7rem', fontSize: '1.25rem', marginBottom: '1rem' }}>
+                        <ShieldCheck size={20} color="var(--color-primary)" /> 4. Uso de la Información
+                    </h2>
+                    <p>
+                        Utilizamos tus datos exclusivamente para:
+                    </p>
+                    <ul>
+                        <li>Generar los reportes técnicos en formato PDF.</li>
+                        <li>Proveer asesoría legal técnica mediante Inteligencia Artificial.</li>
+                        <li>Gestionar tu suscripción Premium.</li>
                     </ul>
-                </section>
-
-                <section style={{ marginBottom: '2rem' }}>
-                    <h2 style={{ fontSize: '1.5rem', color: 'var(--color-primary)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <Eye size={24} /> 3. Tratamiento de Inteligencia Artificial
-                    </h2>
-                    <p style={{ color: 'var(--color-text-secondary)', lineHeight: '1.7', marginBottom: '1rem' }}>
-                        Nuestra herramienta insignia de <strong>Cámara IA</strong> utiliza la API de Google Gemini para procesar las imágenes subidas a la plataforma.
-                        Dichas imágenes son analizadas temporalmente en la nube de Google para detectar elementos de protección personal (EPP), riesgos eléctricos, desniveles, fuego, y maquinaria pesada, devolviendo un texto sugerido.
-                        <br /><br />
-                        <strong>Ninguna fotografía confidencial de su cliente es usada para entrenar nuestros modelos subyacentes ni almacenada públicamente</strong>. La eliminación del reporte en su Historial desencadena mecanismos para ocultar dichas imágenes de su panel.
-                    </p>
-                </section>
-
-                <section style={{ marginBottom: '2rem' }}>
-                    <h2 style={{ fontSize: '1.5rem', color: 'var(--color-primary)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <Cloud size={24} /> 4. Almacenamiento, Pagos y Terceros
-                    </h2>
-                    <p style={{ color: 'var(--color-text-secondary)', lineHeight: '1.7', marginBottom: '1rem' }}>
-                        Los pagos y suscripciones de nivel PRO son encriptados y gestionados enteramente por <strong>Mercado Pago</strong>. Asistente H&S no almacena, procesa, ni tiene acceso a tarjetas de crédito vinculadas.
-                        <br /><br />
-                        Sus bases de datos de reportes están fuertemente encriptadas en tránsito utilizando Firestore y Firebase Storage de Google, limitando el acceso arquitectónicamente solo al usuario propietario del registro (Reglas de Seguridad Zero-Trust).
-                    </p>
                 </section>
 
                 <section>
-                    <h2 style={{ fontSize: '1.5rem', color: 'var(--color-primary)', marginBottom: '1rem' }}>
-                        5. Aceptación
-                    </h2>
-                    <p style={{ color: 'var(--color-text-secondary)', lineHeight: '1.7' }}>
-                        Al marcar la casilla "Acepto las Políticas de Privacidad" durante la creación de su cuenta e ingresar a la aplicación, usted como Profesional certifica que ha leído y comprende la forma en la que sus datos y los relevamientos de sus clientes y empresas son tratados por Asistente H&S para facilitarle la generación en la nube de sus documentos.
+                    <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>5. Contacto</h2>
+                    <p>
+                        Si tienes dudas sobre tus datos, puedes contactarnos a través de la sección de Soporte en la aplicación o enviando un correo a nuestro equipo técnico.
                     </p>
                 </section>
+            </div>
+
+            <div style={{ textAlign: 'center', marginTop: '3rem', fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
+                &copy; 2026 Asistente H&S - Gestión Profesional
             </div>
         </div>
     );
