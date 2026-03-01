@@ -17,6 +17,7 @@ const typeColors = {
     'Matriz': { bg: 'rgba(139,92,246,0.12)', text: '#8b5cf6', icon: <ShieldAlert size={18} /> },
     'Informe': { bg: 'rgba(236,72,153,0.12)', text: '#ec4899', icon: <FileText size={18} /> },
     'Checklist': { bg: 'rgba(20,184,166,0.12)', text: '#14b8a6', icon: <ClipboardList size={18} /> },
+    'Iluminación': { bg: 'rgba(234,179,8,0.12)', text: '#eab308', icon: <Lightbulb size={18} /> },
 };
 
 const quickLinks = [
@@ -44,6 +45,7 @@ export default function Home() {
         { label: 'Checklists', value: 0, icon: <ClipboardList />, color: '#14b8a6', grad: 'linear-gradient(135deg,#14b8a6,#0d9488)', key: 'tool_checklists_history' },
         { label: 'Carga Fuego', value: 0, icon: <Flame />, color: '#f97316', grad: 'linear-gradient(135deg,#f97316,#ea580c)', key: 'fireload_history' },
         { label: 'Matrices', value: 0, icon: <ShieldAlert />, color: '#8b5cf6', grad: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', key: 'risk_matrix_history' },
+        { label: 'Iluminación', value: 0, icon: <Lightbulb />, color: '#eab308', grad: 'linear-gradient(135deg,#eab308,#ca8a04)', key: 'lighting_history' },
         { label: 'Informes', value: 0, icon: <FileText />, color: '#ec4899', grad: 'linear-gradient(135deg,#ec4899,#db2777)', key: 'reports_history' },
     ]);
     const [recentWorks, setRecentWorks] = useState([]);
@@ -98,6 +100,7 @@ export default function Home() {
             const matrix = JSON.parse(localStorage.getItem('risk_matrix_history') || '[]');
             const reports = JSON.parse(localStorage.getItem('reports_history') || '[]');
             const tools = JSON.parse(localStorage.getItem('tool_checklists_history') || '[]');
+            const lighting = JSON.parse(localStorage.getItem('lighting_history') || '[]');
 
             const combined = [
                 ...ats.map(a => ({ id: a.id, title: a.empresa, subtitle: a.obra, date: a.fecha, type: 'ATS' })),
@@ -106,7 +109,8 @@ export default function Home() {
                 ...matrix.map(m => ({ id: m.id, title: m.name, subtitle: m.location, date: m.createdAt, type: 'Matriz' })),
                 ...reports.map(r => ({ id: r.id, title: r.title, subtitle: r.company, date: r.createdAt, type: 'Informe' })),
                 ...tools.map(t => ({ id: t.id, title: t.equipo, subtitle: t.empresa, date: t.fecha, type: 'Checklist' })),
-            ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 4);
+                ...lighting.map(l => ({ id: l.id, title: l.empresa, subtitle: l.sector, date: l.date, type: 'Iluminación' })),
+            ].sort((a, b) => new Date(b.date || b.fecha || b.createdAt) - new Date(a.date || a.fecha || a.createdAt)).slice(0, 4);
             setRecentWorks(combined);
         };
 
