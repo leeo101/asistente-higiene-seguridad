@@ -220,8 +220,23 @@ export default function Sidebar({ isOpen, onClose }) {
 
                     <div style={{ height: '1px', background: 'var(--color-border)', margin: '0.8rem 0.5rem' }} />
 
+                    <a href="mailto:asistente.hs.soporte@gmail.com?subject=Sugerencia - Asistente HYS" onClick={onClose} style={{ textDecoration: 'none' }}>
+                        <div style={{
+                            display: 'flex', alignItems: 'center', gap: '0.9rem',
+                            padding: '0.7rem 1rem', borderRadius: '12px',
+                            color: 'var(--color-text)', fontWeight: 500, fontSize: '0.9rem',
+                            marginBottom: '0.5rem'
+                        }}
+                            onMouseOver={e => e.currentTarget.style.background = 'var(--color-background)'}
+                            onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+                        >
+                            <MessageSquare size={18} color="var(--color-text-muted)" />
+                            <span>Sugerencias y Mejoras</span>
+                        </div>
+                    </a>
+
                     {/* PRO banner */}
-                    <Link to="/subscribe" onClick={onClose} style={{ textDecoration: 'none' }}>
+                    <Link to="/subscribe" onClick={onClose} style={{ textDecoration: 'none', marginBottom: '0.5rem' }}>
                         <div style={{
                             display: 'flex', alignItems: 'center', gap: '0.8rem',
                             padding: '0.9rem 1rem', borderRadius: '14px',
@@ -233,20 +248,6 @@ export default function Sidebar({ isOpen, onClose }) {
                             <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-primary)' }}>Activar Versión Pro</span>
                         </div>
                     </Link>
-
-                    <a href="mailto:asistente.hs.soporte@gmail.com?subject=Sugerencia - Asistente HYS" onClick={onClose} style={{ textDecoration: 'none' }}>
-                        <div style={{
-                            display: 'flex', alignItems: 'center', gap: '0.9rem',
-                            padding: '0.7rem 1rem', borderRadius: '12px',
-                            color: 'var(--color-text)', fontWeight: 500, fontSize: '0.9rem',
-                        }}
-                            onMouseOver={e => e.currentTarget.style.background = 'var(--color-background)'}
-                            onMouseOut={e => e.currentTarget.style.background = 'transparent'}
-                        >
-                            <MessageSquare size={18} color="var(--color-text-muted)" />
-                            <span>Sugerencias y Mejoras</span>
-                        </div>
-                    </a>
 
                     <AdBanner placement="sidebar" />
 

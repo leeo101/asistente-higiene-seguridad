@@ -97,25 +97,25 @@ export default function FireLoadHistory() {
                 {filteredHistory.length > 0 ? (
                     filteredHistory.map((item) => (
                         <div key={item.id} className="card" style={{ padding: '1.2rem', transition: 'transform 0.2s' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                                    <div style={{ width: '45px', height: '45px', background: 'rgba(249, 115, 22, 0.1)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f97316' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem', gap: '1rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', minWidth: 0, flex: 1 }}>
+                                    <div style={{ width: '45px', height: '45px', background: 'rgba(249, 115, 22, 0.1)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f97316', flexShrink: 0 }}>
                                         <Flame size={21} />
                                     </div>
-                                    <div>
-                                        <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700 }}>{item.empresa || 'Empresa sin nombre'}</h3>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
-                                            <Calendar size={14} /> {new Date(item.createdAt).toLocaleDateString()} - <Building2 size={14} /> {item.sector}
+                                    <div style={{ minWidth: 0, flex: 1 }}>
+                                        <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.empresa || 'Empresa sin nombre'}</h3>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.2rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                            <Calendar size={14} style={{ flexShrink: 0 }} /> <span style={{ flexShrink: 0 }}>{new Date(item.createdAt).toLocaleDateString()}</span> - <Building2 size={14} style={{ flexShrink: 0 }} /> <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.sector}</span>
                                         </div>
                                     </div>
                                 </div>
-                                <div style={{ textAlign: 'right' }}>
+                                <div style={{ textAlign: 'right', flexShrink: 0 }}>
                                     <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f97316' }}>{item.results?.cargaDeFuego?.toFixed(2)}</div>
                                     <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Kg/m² - {item.results?.rfRequerida}</div>
                                 </div>
                             </div>
 
-                            <div style={{ display: 'flex', gap: '0.8rem', marginTop: '1rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.8rem', marginTop: '1rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
                                 <button
                                     onClick={() => navigate('/fire-load', { state: { editData: item } })}
                                     className="btn-secondary"

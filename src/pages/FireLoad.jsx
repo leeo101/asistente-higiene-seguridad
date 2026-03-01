@@ -577,42 +577,37 @@ export default function FireLoad() {
                     </div>
                 </div>
 
-                <div className="flex flex-row justify-around items-start w-full gap-8">
+                <div className="signature-container-row mt-10">
                     {showSignatures.operator && (
-                        <div className="flex-1 flex flex-col items-center pt-24">
-                            <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
-                            <div className="text-center w-full">
-                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
-                                <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words min-h-[0.8rem]">Aclaración y Firma</p>
-                            </div>
+                        <div className="signature-item-box">
+                            <div className="signature-line"></div>
+                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
+                            <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words min-h-[0.8rem]">Aclaración y Firma</p>
                         </div>
                     )}
 
                     {showSignatures.supervisor && (
-                        <div className="flex-1 flex flex-col items-center pt-24">
-                            <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
-                            <div className="text-center w-full">
-                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR</p>
-                                <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words min-h-[0.8rem]">DNI / ACLARACIÓN</p>
-                            </div>
+                        <div className="signature-item-box">
+                            <div className="signature-line"></div>
+                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR</p>
+                            <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words min-h-[0.8rem]">DNI / ACLARACIÓN</p>
                         </div>
                     )}
 
                     {showSignatures.professional && (
-                        <div className="flex-1 flex flex-col items-center">
-                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', border: '1px dashed var(--color-border)', borderRadius: '4px', minHeight: '100px', background: 'white', padding: '0.5rem', width: '100%' }}>
-                                {professional.signature ? (
-                                    <img src={professional.signature} alt="Firma" style={{ height: '45px', maxWidth: '100%', objectFit: 'contain' }} />
-                                ) : (
-                                    <div style={{ height: '45px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', color: '#999' }}>Sin Firma</div>
-                                )}
-                            </div>
-                            <div className="print:block hidden w-full border-t-2 border-slate-400 border-dashed mt-8 mb-3"></div>
-                            <div className="text-center w-full">
-                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL ACTUANTE</p>
-                                <p style={{ margin: 0, fontWeight: 700, fontSize: '0.8rem' }}>{professional.name}</p>
-                                <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Matrícula: {professional.license}</p>
-                            </div>
+                        <div className="signature-item-box">
+                            {professional?.signature || professional?.stamp ? (
+                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', height: '60px' }}>
+                                    {professional.signature && <img src={professional.signature} alt="Firma" style={{ maxWidth: '100px', maxHeight: '60px' }} />}
+                                    {professional.stamp && <img src={professional.stamp} alt="Sello" style={{ maxWidth: '60px', maxHeight: '60px' }} />}
+                                </div>
+                            ) : (
+                                <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', color: '#999', marginBottom: '0.5rem' }}>Sin Firma</div>
+                            )}
+                            <div className="signature-line"></div>
+                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL ACTUANTE</p>
+                            <p style={{ margin: 0, fontWeight: 700, fontSize: '0.8rem' }}>{professional?.name}</p>
+                            <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Matrícula: {professional?.license}</p>
                         </div>
                     )}
                 </div>
