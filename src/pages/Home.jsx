@@ -148,7 +148,7 @@ export default function Home() {
                             </p>
                         </div>
                         {!currentUser && (
-                            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', marginTop: '2rem', width: '100%', maxWidth: '450px' }}>
+                            <div className="hero-buttons" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', marginTop: '2rem', width: '100%', maxWidth: '450px' }}>
                                 <button onClick={() => navigate('/login', { state: { view: 'register' } })}
                                     style={{ flex: 2, padding: '1rem 1.5rem', borderRadius: '12px', border: 'none', background: '#fff', color: '#2563eb', fontWeight: 800, cursor: 'pointer', fontSize: '1rem', boxShadow: '0 10px 25px rgba(0,0,0,0.2)', transition: 'transform 0.2s' }}
                                     onMouseOver={e => e.currentTarget.style.transform = 'scale(1.03)'}

@@ -411,6 +411,31 @@ label {
   }
 }
 
+/* Extra small mobile fixes (< 350px) */
+@media (max-width: 350px) {
+  :root {
+    --font-size-base: 14px;
+  }
+
+  .container {
+    padding-left: 0.8rem !important;
+    padding-right: 0.8rem !important;
+  }
+
+  .btn-floating-action {
+    padding: 0.5rem 0.6rem !important;
+    font-size: 0.65rem !important;
+  }
+
+  .hero-buttons {
+    flex-direction: column !important;
+  }
+
+  .hero-buttons button {
+    width: 100% !important;
+  }
+}
+
 .header-title {
   display: none;
 }
@@ -847,6 +872,25 @@ label {
   .result-item {
     page-break-inside: avoid;
     break-inside: avoid;
+  }
+
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+    margin-bottom: 2rem !important;
+    color: #000 !important;
+  }
+
+  th,
+  td {
+    border: 1px solid #000 !important;
+    padding: 4pt !important;
+    word-break: break-word !important;
+    color: #000 !important;
+  }
+
+  thead {
+    display: table-header-group !important;
   }
 
   .print-text-center {
