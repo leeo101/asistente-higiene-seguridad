@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
     X, User, History, LogOut, Home, Settings,
-    Calendar, MessageSquare, Sun, Moon, Sparkles, Star
+    Calendar, MessageSquare, Sun, Moon, Sparkles, Star, ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import AdBanner from './AdBanner';
