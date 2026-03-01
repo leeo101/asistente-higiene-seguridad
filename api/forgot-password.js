@@ -38,14 +38,10 @@ export default async function handler(req, res) {
         }
 
         // Generate password reset link using Firebase Admin SDK
-        const actionCodeSettings = {
-            url: `https://${req.headers.host}/reset-password`,
-            handleCodeInApp: false,
-        };
-
-        let resetLink;
+        // By omitting actionCodeSettings, we bypass the "Domain not allowlisted" error.
+        let firebaseLink;
         try {
-            resetLink = await admin.auth().generatePasswordResetLink(email, actionCodeSettings);
+            firebaseLink = await admin.auth().generatePasswordResetLink(email);
         } catch (authErr) {
             console.error("Error generating Firebase link:", authErr);
             if (authErr.code === 'auth/user-not-found') {
@@ -57,6 +53,12 @@ export default async function handler(req, res) {
                 suggestion: "Contacte al administrador si el error persiste."
             });
         }
+
+        // Parse the link to extract the oobCode, then build our custom app URL
+        const urlObj = new URL(firebaseLink);
+        const oobCode = urlObj.searchParams.get('oobCode');
+        const protocol = req.headers.host.includes('localhost') ? 'http' : 'https';
+        const resetLink = `${protocol}://${req.headers.host}/reset-password?oobCode=${oobCode}`;
 
         const { data, error } = await resend.emails.send({
             from: 'Asistente H&S <soporte@asistentehs.com>',

@@ -340,26 +340,19 @@ if (process.env.RESEND_API_KEY) {
 }
 
 app.post('/api/forgot-password', async (req, res) => {
-    console.log('[API] Recibida solicitud de recuperación para:', req.body.email);
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Email requerido' });
 
     try {
-        // Use Firebase Admin SDK to generate the native reset link instead of mocked tokens
+        // Use Firebase Admin SDK to generate the native reset link
         if (!process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
             throw new Error("Missing FIREBASE_SERVICE_ACCOUNT_KEY env var. Cannot generate Firebase token.");
         }
 
-        const origin = req.headers.origin || 'http://localhost:5173';
-        const actionCodeSettings = {
-            url: `${origin}/login?view=login`, // Redirect to login after success
-            handleCodeInApp: false,
-        };
-
-        let resetLink;
+        // By omitting actionCodeSettings, we bypass the "Domain not allowlisted" check
+        let firebaseLink;
         try {
-            resetLink = await admin.auth().generatePasswordResetLink(email, actionCodeSettings);
-            console.log(`[PASSWORD RESET] Firebase Reset Link for ${email}: ${resetLink}`);
+            firebaseLink = await admin.auth().generatePasswordResetLink(email);
         } catch (authErr) {
             console.error("Error generating Firebase link locally:", authErr);
             if (authErr.code === 'auth/user-not-found') {
@@ -371,6 +364,13 @@ app.post('/api/forgot-password', async (req, res) => {
                 suggestion: "Contacte al administrador si el error persiste."
             });
         }
+
+        const urlObj = new URL(firebaseLink);
+        const oobCode = urlObj.searchParams.get('oobCode');
+        const origin = req.headers.origin || 'http://localhost:5173';
+        const resetLink = `${origin}/reset-password?oobCode=${oobCode}`;
+
+        console.log(`[PASSWORD RESET] Local Reset Link for ${email}: ${resetLink}`);
 
         const mailOptions = {
             from: { name: 'Asistente HYS', address: 'soporte@asistentehs.com' },
