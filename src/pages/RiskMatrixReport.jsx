@@ -210,7 +210,7 @@ export default function RiskMatrixReport() {
                 {/* ─── Signature Controls (no-print) ─── */}
                 <div className="no-print" style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1rem 1.5rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
                     <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Incluir firmas:</span>
-                    <div style={{ display: 'flex', gap: '1.5rem' }}>
+                    <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
                         {['operator', 'supervisor', 'professional'].map(key => (
                             <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700, color: '#475569' }}>
                                 <input type="checkbox" checked={showSignatures[key]} onChange={e => setShowSignatures(s => ({ ...s, [key]: e.target.checked }))} style={{ accentColor: '#6366f1', width: '16px', height: '16px' }} />

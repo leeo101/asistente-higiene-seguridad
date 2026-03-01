@@ -87,13 +87,13 @@ export default function ATSHistory() {
                 {filteredHistory.length > 0 ? (
                     filteredHistory.map((item) => (
                         <div key={item.id} className="card" style={{ padding: '1.2rem', transition: 'transform 0.2s' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', flex: 1, minWidth: 0 }}>
                                     <div style={{ width: '45px', height: '45px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-secondary)' }}>
                                         <ClipboardList size={22} />
                                     </div>
                                     <div>
-                                        <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700 }}>{item.empresa || 'Empresa sin nombre'}</h3>
+                                        <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.empresa || 'Empresa sin nombre'}</h3>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
                                             <Calendar size={14} /> {item.fecha} - <Building2 size={14} /> {item.obra}
                                         </div>

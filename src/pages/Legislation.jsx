@@ -144,6 +144,7 @@ export default function Legislation() {
                             <button
                                 onClick={() => window.open(doc.url, '_blank')}
                                 style={{
+                                    flex: 1,
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',

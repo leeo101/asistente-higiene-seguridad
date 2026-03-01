@@ -89,19 +89,19 @@ export default function ChecklistsHistory() {
                 {filteredHistory.length > 0 ? (
                     filteredHistory.map((item) => (
                         <div key={item.id} className="card" style={{ padding: '1.2rem', transition: 'transform 0.2s' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', flex: 1, minWidth: 0 }}>
                                     <div style={{ width: '45px', height: '45px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6' }}>
                                         <ClipboardCheck size={22} />
                                     </div>
                                     <div>
-                                        <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700 }}>{item.equipo || 'Equipo sin nombre'}</h3>
+                                        <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.equipo || 'Equipo sin nombre'}</h3>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
                                             <Calendar size={14} /> {new Date(item.fecha).toLocaleDateString()} - <Building2 size={14} /> {item.empresa}
                                         </div>
                                     </div>
                                 </div>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600, flexShrink: 0 }}>
                                     #{item.serial}
                                 </div>
                             </div>

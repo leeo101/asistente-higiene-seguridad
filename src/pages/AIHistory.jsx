@@ -124,8 +124,8 @@ export default function AIHistory() {
                 </div>
 
                 <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem', background: 'var(--color-surface)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                        <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
                             <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', display: 'block', marginBottom: '0.3rem' }}>
                                 {new Date(selectedItem.date).toLocaleString()}
                             </span>
@@ -214,15 +214,15 @@ export default function AIHistory() {
                             <div style={{ background: 'rgba(37, 99, 235, 0.1)', padding: '0.8rem', borderRadius: '12px', color: 'var(--color-primary)' }}>
                                 <Sparkles size={24} />
                             </div>
-                            <div style={{ flex: 1 }}>
-                                <h4 style={{ margin: '0 0 0.3rem 0', fontWeight: 700 }}>{item.task}</h4>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                                <h4 style={{ margin: '0 0 0.3rem 0', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.task}</h4>
                                 <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
                                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                                         <Calendar size={14} /> {new Date(item.date).toLocaleDateString()}
                                     </span>
                                 </div>
                             </div>
-                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
                                 <button
                                     onClick={(e) => { e.stopPropagation(); handleDownloadPDF(item); }}
                                     style={{ background: 'transparent', border: 'none', color: 'var(--color-primary)', cursor: 'pointer', padding: '0.5rem' }}

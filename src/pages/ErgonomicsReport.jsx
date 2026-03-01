@@ -154,7 +154,7 @@ export default function ErgonomicsReport() {
                 {/* Firmas */}
                 <div className="no-print mt-10 mb-8 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 justify-between items-center text-xs font-bold text-slate-700">
                     <div>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                    <div className="flex gap-4">
+                    <div className="flex gap-4 flex-wrap justify-center">
                         <label className="flex items-center gap-2 cursor-pointer">
                             <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-4 h-4 accent-blue-600" /> Operador
                         </label>
@@ -167,33 +167,31 @@ export default function ErgonomicsReport() {
                     </div>
                 </div>
 
-                <div className="flex flex-row justify-around items-start w-full gap-4 mt-10 print:flex-row">
+                <div className="signature-container-row mt-10">
                     {showSignatures.operator && (
-                        <div className="flex-1 flex flex-col items-center pt-16 sm:pt-20 text-center w-full">
-                            <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
+                        <div className="signature-item-box">
+                            <div className="signature-line" />
                             <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
                             <p className="text-[0.8rem] font-black uppercase text-black leading-none min-h-[0.8rem]">Aclaración y Firma</p>
                         </div>
                     )}
 
                     {showSignatures.supervisor && (
-                        <div className="flex-1 flex flex-col items-center pt-16 sm:pt-20 text-center w-full">
-                            <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
+                        <div className="signature-item-box">
+                            <div className="signature-line" />
                             <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR / EMPLEADOR</p>
                             <p className="text-[0.8rem] font-black uppercase text-black leading-none min-h-[0.8rem]">Firma Autorizada</p>
                         </div>
                     )}
 
                     {showSignatures.professional && (
-                        <div className="flex-1 flex flex-col items-center text-center w-full mt-8 sm:mt-0">
-                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', border: '1px dashed var(--color-border)', borderRadius: '4px', minHeight: '90px', background: 'white', padding: '0.5rem', width: '100%' }}>
-                                {signature?.signature ? (
-                                    <img src={signature.signature} alt="Firma" style={{ height: '40px', maxWidth: '100%', objectFit: 'contain' }} />
-                                ) : (
-                                    <div style={{ height: '40px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', color: '#999' }}>Sin Firma</div>
-                                )}
-                            </div>
-                            <div className="print:block hidden w-full border-t-2 border-slate-400 border-dashed mt-8 mb-3"></div>
+                        <div className="signature-item-box">
+                            {signature?.signature && (
+                                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>
+                                    <img src={signature.signature} alt="Firma" style={{ maxHeight: '50px', maxWidth: '100%', objectFit: 'contain' }} />
+                                </div>
+                            )}
+                            <div className="signature-line" />
                             <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL ACTUANTE</p>
                             <p style={{ margin: 0, fontWeight: 700, fontSize: '0.8rem' }}>{profile?.name}</p>
                             <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Mat: {profile?.license}</p>

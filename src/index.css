@@ -654,11 +654,19 @@ label {
 
 .signature-container-row {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-start;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
   width: 100%;
-  gap: 1rem;
+  gap: 2rem;
+}
+
+@media (min-width: 640px) {
+  .signature-container-row {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1rem;
+  }
 }
 
 .signature-item-box {

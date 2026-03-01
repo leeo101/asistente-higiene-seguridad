@@ -141,13 +141,13 @@ export default function Home() {
                             </p>
                         </div>
                         {!currentUser && (
-                            <div style={{ display: 'flex', gap: '0.7rem', flexWrap: 'wrap', alignItems: 'center', marginTop: '0.5rem' }}>
+                            <div style={{ display: 'flex', gap: '0.7rem', flexWrap: 'wrap', alignItems: 'center', marginTop: '0.5rem', width: '100%' }}>
                                 <button onClick={() => navigate('/login', { state: { view: 'login' } })}
-                                    style={{ padding: '0.6rem 1.2rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.15)', color: 'white', fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(8px)', fontSize: '0.9rem' }}>
+                                    style={{ flex: 1, padding: '0.6rem 1.2rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.15)', color: 'white', fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(8px)', fontSize: '0.9rem' }}>
                                     <LogIn size={16} style={{ verticalAlign: 'middle', marginRight: '0.4rem' }} />Ingresar
                                 </button>
                                 <button onClick={() => navigate('/login', { state: { view: 'register' } })}
-                                    style={{ padding: '0.6rem 1.2rem', borderRadius: '10px', border: 'none', background: '#fff', color: '#2563eb', fontWeight: 800, cursor: 'pointer', fontSize: '0.9rem', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
+                                    style={{ flex: 1, padding: '0.6rem 1.2rem', borderRadius: '10px', border: 'none', background: '#fff', color: '#2563eb', fontWeight: 800, cursor: 'pointer', fontSize: '0.9rem', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
                                     <UserPlus size={16} style={{ verticalAlign: 'middle', marginRight: '0.4rem' }} />Registrarse
                                 </button>
                             </div>
@@ -155,7 +155,7 @@ export default function Home() {
                     </div>
 
                     {/* STATS ROW inside hero */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))', gap: '0.8rem', marginTop: '1.8rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '0.8rem', marginTop: '1.8rem' }}>
                         {stats.map((stat, i) => (
                             <div key={i}
                                 onClick={() => {

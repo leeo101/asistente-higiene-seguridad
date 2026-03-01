@@ -93,13 +93,13 @@ export default function AICameraHistory() {
                 {filtered.length > 0 ? (
                     filtered.map((item) => (
                         <div key={item.id} className="card" style={{ padding: '1.2rem' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', flex: 1, minWidth: 0 }}>
                                     <div style={{ width: '45px', height: '45px', background: 'rgba(6,182,212,0.1)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#06b6d4' }}>
                                         <Camera size={22} />
                                     </div>
                                     <div>
-                                        <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700 }}>{item.company || 'Empresa sin nombre'}</h3>
+                                        <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.company || 'Empresa sin nombre'}</h3>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
                                             <Calendar size={14} /> {new Date(item.date).toLocaleDateString()} — <Building2 size={14} /> {item.location}
                                         </div>
@@ -110,7 +110,8 @@ export default function AICameraHistory() {
                                     fontSize: '0.75rem', fontWeight: 700,
                                     padding: '0.3rem 0.7rem', borderRadius: '20px',
                                     background: item.ppeComplete ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
-                                    color: item.ppeComplete ? '#10b981' : '#ef4444'
+                                    color: item.ppeComplete ? '#10b981' : '#ef4444',
+                                    flexShrink: 0
                                 }}>
                                     {item.ppeComplete ? <ShieldCheck size={14} /> : <AlertTriangle size={14} />}
                                     {item.ppeComplete ? 'EPP OK' : 'Falta EPP'}

@@ -1,0 +1,114 @@
+﻿git : remote: error: 
+GH013: Repository rule 
+violations found for 
+refs/heads/main.        
+En línea: 1 Carácter: 1
++ git push origin main 2> 
+error.txt ; cat error.txt
++ ~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~
+    + CategoryInfo         
+     : NotSpecified: (rem  
+  ote: error: ...s/main.   
+         :String) [], R    
+emoteException
+    + FullyQualifiedErrorI 
+   d : NativeCommandError
+ 
+remote: 
+remote: - GITHUB PUSH 
+PROTECTION        
+remote:   ÔÇöÔÇöÔÇöÔÇöÔÇöÔÇ
+öÔÇöÔÇöÔÇöÔÇöÔÇöÔÇöÔÇöÔÇöÔÇ
+öÔÇöÔÇöÔÇöÔÇöÔÇöÔÇöÔÇöÔÇöÔÇ
+öÔÇöÔÇöÔÇöÔÇöÔÇöÔÇöÔÇöÔÇöÔÇ
+öÔÇöÔÇöÔÇöÔÇöÔÇöÔÇöÔÇöÔÇö  
+      
+remote:     Resolve the 
+following violations 
+before pushing again       
+ 
+remote: 
+remote:     - Push cannot 
+contain secrets        
+remote: 
+remote:             
+remote:      (?) Learn how 
+to resolve a blocked push  
+      
+remote:      https://docs.g
+ithub.com/code-security/sec
+ret-scanning/working-with-s
+ecret-scanning-and-push-pro
+tection/working-with-push-p
+rotection-from-the-command-
+line#resolving-a-blocked-pu
+sh        
+remote:             
+remote:             
+remote:       ÔÇöÔÇö 
+Google Cloud Service 
+Account Credentials ÔÇöÔÇöÔ
+ÇöÔÇöÔÇöÔÇöÔÇöÔÇöÔÇöÔÇö    
+    
+remote:        locations:  
+      
+remote:          - commit: 
+f053a31d5d016ae9e2752296bb9
+5aa9d0d1ae5b8        
+remote:            path: 
+vercel-env-string.txt:1    
+    
+remote:             
+remote:        (?) To 
+push, remove secret from 
+commit(s) or follow this 
+URL to allow the secret.   
+     
+remote:        https://gith
+ub.com/leeo101/asistente-hi
+giene-seguridad/security/se
+cret-scanning/unblock-secre
+t/3AJsI0DxgFTzVtnFktM9tYu0i
+Ke        
+remote:             
+remote:             
+remote:       ÔÇöÔÇö 
+Google Cloud Service 
+Account Credentials ÔÇöÔÇöÔ
+ÇöÔÇöÔÇöÔÇöÔÇöÔÇöÔÇöÔÇö    
+    
+remote:        locations:  
+      
+remote:          - commit: 
+f053a31d5d016ae9e2752296bb9
+5aa9d0d1ae5b8        
+remote:            path: 
+inject-firebase.cjs:3      
+  
+remote:             
+remote:        (?) To 
+push, remove secret from 
+commit(s) or follow this 
+URL to allow the secret.   
+     
+remote:        https://gith
+ub.com/leeo101/asistente-hi
+giene-seguridad/security/se
+cret-scanning/unblock-secre
+t/3AJsHy7r8eWNF4KUIg1w27LDo
+Gs        
+remote:             
+remote: 
+remote: 
+To https://github.com/leeo1
+01/asistente-higiene-seguri
+dad.git
+ ! [remote rejected] main 
+-> main (push declined due 
+to repository rule 
+violations)
+error: failed to push some 
+refs to 'https://github.com
+/leeo101/asistente-higiene-
+seguridad.git'
