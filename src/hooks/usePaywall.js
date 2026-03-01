@@ -1,25 +1,25 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { ADMIN_EMAILS } from '../config';
 
 /**
  * usePaywall – call this in any page that has premium actions.
- *
- * Subscription lifecycle:
- *   • On payment: Subscription.jsx stores subscriptionStatus='active' + subscriptionExpiry (ms timestamp, 30 days ahead)
- *   • On every requirePro check: expiry is verified
- *   • If expired: clears status and redirects to /subscribe
  */
 export function usePaywall() {
     const navigate = useNavigate();
     const { currentUser } = useAuth();
 
-    /** Returns true if the subscription exists AND has not expired yet */
+    /** Returns true if the subscription exists AND has not expired yet OR if user is admin */
     const isActive = () => {
+        // Master Bypass for Owner/Admin
+        if (currentUser?.email && ADMIN_EMAILS.includes(currentUser.email)) {
+            return true;
+        }
+
         if (localStorage.getItem('subscriptionStatus') !== 'active') return false;
         const expiry = parseInt(localStorage.getItem('subscriptionExpiry') || '0', 10);
-        if (!expiry) return true; // legacy: no expiry stored → migration grace period
+        if (!expiry) return true;
         if (Date.now() > expiry) {
-            // Subscription expired – clean up
             localStorage.removeItem('subscriptionStatus');
             localStorage.removeItem('subscriptionExpiry');
             return false;

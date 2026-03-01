@@ -2,15 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, CreditCard, Sparkles, CheckCircle2, Lock, ArrowRight, ArrowLeft } from 'lucide-react';
 import { API_BASE_URL } from '../config';
+import { usePaywall } from '../hooks/usePaywall';
+import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 
 export default function Subscription() {
     const navigate = useNavigate();
+    const { isPro } = usePaywall();
+    const { currentUser } = useAuth();
     const [loading, setLoading] = useState(false);
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [expiryDate, setExpiryDate] = useState(null);
 
     useEffect(() => {
+        // First check if user is admin or has active sub via hook
+        if (isPro()) {
+            setIsSubscribed(true);
+            const expiry = parseInt(localStorage.getItem('subscriptionExpiry') || '0', 10);
+            if (expiry) setExpiryDate(new Date(expiry));
+            return;
+        }
+
         const urlParams = new URLSearchParams(window.location.search);
         const paymentStatus = urlParams.get('status');
 
@@ -21,20 +33,8 @@ export default function Subscription() {
             setExpiryDate(new Date(expiry));
             setIsSubscribed(true);
             window.history.replaceState({}, document.title, window.location.pathname);
-        } else {
-            const status = localStorage.getItem('subscriptionStatus');
-            const expiry = parseInt(localStorage.getItem('subscriptionExpiry') || '0', 10);
-            // Check not expired
-            if (status === 'active' && (expiry === 0 || Date.now() <= expiry)) {
-                setIsSubscribed(true);
-                if (expiry) setExpiryDate(new Date(expiry));
-            } else if (status === 'active' && expiry > 0 && Date.now() > expiry) {
-                // Grace period passed — clean up
-                localStorage.removeItem('subscriptionStatus');
-                localStorage.removeItem('subscriptionExpiry');
-            }
         }
-    }, []);
+    }, [isPro]);
 
     const handleMercadoPago = async () => {
         setLoading(true);

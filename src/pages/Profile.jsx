@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, User, Settings, PenTool, Database, Shield, LogOut, ChevronRight, Trash2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
 
 export default function Profile() {
     const navigate = useNavigate();
+    const { isPro } = usePaywall();
     const [userData, setUserData] = useState({
         name: 'Juan Pérez',
         license: 'MP 5567'
@@ -19,10 +21,9 @@ export default function Profile() {
             if (savedData) {
                 setUserData(JSON.parse(savedData));
             }
-            const status = localStorage.getItem('subscriptionStatus');
-            setIsSubscribed(status === 'active');
+            setIsSubscribed(isPro());
         }
-    }, []);
+    }, [isPro]);
 
     const menuItems = [
         { id: 'data', label: 'Datos Personales', icon: <User />, path: '/personal-data' },

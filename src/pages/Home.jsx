@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
+import { usePaywall } from '../hooks/usePaywall';
 import AdBanner from '../components/AdBanner';
 
 const typeColors = {
@@ -37,6 +38,7 @@ export default function Home() {
     const navigate = useNavigate();
     const { currentUser } = useAuth();
     const { syncPulse } = useSync();
+    const { isPro, daysRemaining } = usePaywall();
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [daysLeft, setDaysLeft] = useState(null);
     const [stats, setStats] = useState([
@@ -50,8 +52,6 @@ export default function Home() {
     ]);
     const [recentWorks, setRecentWorks] = useState([]);
     const [userName, setUserName] = useState('Profesional');
-
-    useEffect(() => { }, []);
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -67,21 +67,10 @@ export default function Home() {
                 }
                 setUserName(name);
             }
-            const status = localStorage.getItem('subscriptionStatus');
-            const expiry = parseInt(localStorage.getItem('subscriptionExpiry') || '0', 10);
-            if (status === 'active') {
-                if (!expiry || Date.now() <= expiry) {
-                    setIsSubscribed(true);
-                    if (expiry) {
-                        const days = Math.max(0, Math.ceil((expiry - Date.now()) / (1000 * 60 * 60 * 24)));
-                        setDaysLeft(days);
-                    }
-                } else {
-                    // Expired — clear
-                    localStorage.removeItem('subscriptionStatus');
-                    localStorage.removeItem('subscriptionExpiry');
-                }
-            }
+
+            // Re-sync with paywall hook
+            setIsSubscribed(isPro());
+            setDaysLeft(daysRemaining());
         }
 
         const loadStats = () => {
