@@ -9,7 +9,24 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// In-memory token store (for demo purposes)
+// Require Firebase Admin (already in dependencies)
+import admin from 'firebase-admin';
+
+// Initialize Firebase Admin if not already initialized
+if (!admin.apps.length) {
+    try {
+        if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+            const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+            admin.initializeApp({
+                credential: admin.credential.cert(serviceAccount)
+            });
+        }
+    } catch (error) {
+        console.error("Firebase Admin initialization error:", error);
+    }
+}
+
+// In-memory token store (for demo purposes - now unused for auth but kept for compatibility)
 const resetTokens = new Map();
 
 // Constants
@@ -328,18 +345,32 @@ app.post('/api/forgot-password', async (req, res) => {
     if (!email) return res.status(400).json({ error: 'Email requerido' });
 
     try {
-        const token = crypto.randomBytes(32).toString('hex');
-        const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
-        const expires = Date.now() + 3600000; // 1 hour
+        // Use Firebase Admin SDK to generate the native reset link instead of mocked tokens
+        if (!process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+            throw new Error("Missing FIREBASE_SERVICE_ACCOUNT_KEY env var. Cannot generate Firebase token.");
+        }
 
-        resetTokens.set(token, { email, code, expires });
-
-        // Use origin to generate the link, or a fallback
         const origin = req.headers.origin || 'http://localhost:5173';
-        const resetLink = `${origin}/reset-password?token=${token}`;
+        const actionCodeSettings = {
+            url: `${origin}/login?view=login`, // Redirect to login after success
+            handleCodeInApp: false,
+        };
 
-        console.log(`[PASSWORD RESET] Code for ${email}: ${code}`);
-        console.log(`[PASSWORD RESET] Link for ${email}: ${resetLink}`);
+        let resetLink;
+        try {
+            resetLink = await admin.auth().generatePasswordResetLink(email, actionCodeSettings);
+            console.log(`[PASSWORD RESET] Firebase Reset Link for ${email}: ${resetLink}`);
+        } catch (authErr) {
+            console.error("Error generating Firebase link locally:", authErr);
+            if (authErr.code === 'auth/user-not-found') {
+                return res.status(404).json({ error: "No existe ninguna cuenta registrada con este correo electrónico." });
+            }
+            return res.status(400).json({
+                error: "Error interno en Firebase.",
+                details: authErr.message,
+                suggestion: "Contacte al administrador si el error persiste."
+            });
+        }
 
         const mailOptions = {
             from: { name: 'Asistente HYS', address: 'soporte@asistentehs.com' },
@@ -359,10 +390,7 @@ app.post('/api/forgot-password', async (req, res) => {
                         </p>
                         
                         <div style="margin: 35px 0; text-align: center;">
-                            <p style="color: #64748b; font-size: 14px; margin-bottom: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Tu Código de Verificación</p>
-                            <div style="background-color: #f1f5f9; padding: 20px; border-radius: 12px; display: inline-block; border: 1px dashed #cbd5e1;">
-                                <span style="font-size: 36px; font-weight: 800; color: #1e3a8a; letter-spacing: 8px; font-family: monospace;">${code}</span>
-                            </div>
+                            <p style="color: #64748b; font-size: 14px; margin-bottom: 12px; font-weight: 600; text-transform: uppercase;">Pulsa el botón de abajo para cambiar tu contraseña de forma segura:</p>
                         </div>
 
                         <p style="color: #475569; line-height: 1.6; font-size: 16px; text-align: center;">
@@ -375,7 +403,7 @@ app.post('/api/forgot-password', async (req, res) => {
 
                         <p style="color: #94a3b8; font-size: 14px; line-height: 1.5; border-top: 1px solid #f1f5f9; padding-top: 25px; margin-top: 35px;">
                             <strong>¿No solicitaste este cambio?</strong><br>
-                            Puedes ignorar este correo de forma segura. El código y el enlace expirarán en 1 hora por tu seguridad.
+                            Puedes ignorar este correo de forma segura. El enlace expirará pronto por tu seguridad.
                         </p>
                     </div>
                     

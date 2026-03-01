@@ -48,7 +48,14 @@ export default async function handler(req, res) {
             resetLink = await admin.auth().generatePasswordResetLink(email, actionCodeSettings);
         } catch (authErr) {
             console.error("Error generating Firebase link:", authErr);
-            return res.status(400).json({ error: "Usuario no encontrado o error en Firebase." });
+            if (authErr.code === 'auth/user-not-found') {
+                return res.status(404).json({ error: "No existe ninguna cuenta registrada con este correo electrónico." });
+            }
+            return res.status(400).json({
+                error: "Error interno en Firebase.",
+                details: authErr.message,
+                suggestion: "Contacte al administrador si el error persiste."
+            });
         }
 
         const { data, error } = await resend.emails.send({
