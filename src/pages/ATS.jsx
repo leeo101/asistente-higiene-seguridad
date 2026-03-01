@@ -267,15 +267,15 @@ export default function ATS() {
                 </div>
 
                 <div style={{ border: '2px solid var(--color-border)', borderRadius: '12px', marginBottom: '2.5rem', width: '100%', overflow: 'hidden' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', borderBottom: '2px solid var(--color-border)', width: '100%' }}>
-                        <DocBox label="CLIENTE / EMPRESA" value={formData.empresa} onChange={v => setFormData({ ...formData, empresa: v })} flex={2} large />
-                        <DocBox label="CUIT / CUIL" value={formData.cuit} onChange={v => setFormData({ ...formData, cuit: v })} flex={1} />
-                        <DocBox label="UBICACIÓN / OBRA" value={formData.obra} onChange={v => setFormData({ ...formData, obra: v })} flex={1} />
+                    <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ borderBottom: '2px solid var(--color-border)', width: '100%' }}>
+                        <div className="sm:col-span-2 print:col-span-2"><DocBox label="CLIENTE / EMPRESA" value={formData.empresa} onChange={v => setFormData({ ...formData, empresa: v })} large /></div>
+                        <div className="sm:col-span-1 print:col-span-1"><DocBox label="CUIT / CUIL" value={formData.cuit} onChange={v => setFormData({ ...formData, cuit: v })} borderLeft /></div>
+                        <div className="sm:col-span-1 print:col-span-1"><DocBox label="UBICACIÓN / OBRA" value={formData.obra} onChange={v => setFormData({ ...formData, obra: v })} borderLeft /></div>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', width: '100%' }}>
-                        <DocBox label="FECHA" value={formData.fecha} onChange={v => setFormData({ ...formData, fecha: v })} type="date" flex={1} />
-                        <DocBox label="RESPONSABLE" value={formData.capatazNombre} onChange={v => setFormData({ ...formData, capatazNombre: v })} flex={1} />
-                        <DocBox label="PROFESIONAL HYS" value={professional.name} onChange={() => { }} flex={2} />
+                    <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ width: '100%' }}>
+                        <div className="sm:col-span-1 print:col-span-1"><DocBox label="FECHA" value={formData.fecha} onChange={v => setFormData({ ...formData, fecha: v })} type="date" /></div>
+                        <div className="sm:col-span-1 print:col-span-1"><DocBox label="RESPONSABLE" value={formData.capatazNombre} onChange={v => setFormData({ ...formData, capatazNombre: v })} borderLeft /></div>
+                        <div className="sm:col-span-2 print:col-span-2"><DocBox label="PROFESIONAL HYS" value={professional.name} onChange={() => { }} borderLeft /></div>
                     </div>
                 </div>
 
@@ -299,46 +299,38 @@ export default function ATS() {
                                 </button>
                             </div>
 
-                            <table className="w-full border-collapse" style={{ tableLayout: 'fixed', width: '100%', border: 'none' }}>
-                                <colgroup>
-                                    <col style={{ width: 'auto' }} />
-                                    <col className="no-print" style={{ width: '140px' }} />
-                                    <col className="print-only" style={{ width: '60px' }} />
-                                    <col className="no-print" style={{ width: '40px' }} />
-                                </colgroup>
-                                <tbody className="divide-y divide-slate-200">
-                                    {formData.checklist.filter(i => i.categoria === cat).map((item, idx) => (
-                                        <tr key={item.id} className="group hover:bg-slate-50/20 transition-colors">
-                                            <td className="p-4 align-middle">
-                                                <div
-                                                    contentEditable
-                                                    suppressContentEditableWarning
-                                                    onBlur={(e) => updateChecklist(item.id, 'pregunta', e.target.innerText)}
-                                                    className="font-bold text-slate-800 text-[0.9rem] mb-2 outline-none border-b border-dashed border-transparent focus:border-[var(--color-primary)] leading-tight"
-                                                >
-                                                    {item.pregunta}
-                                                </div>
-                                                <input
-                                                    type="text"
-                                                    placeholder="Observaciones / Medidas tomadas..."
-                                                    value={item.observaciones}
-                                                    onChange={(e) => updateChecklist(item.id, 'observaciones', e.target.value)}
-                                                    style={{ margin: 0, padding: '0.4rem', fontSize: '0.7rem', background: 'transparent', border: '1px solid #efefef', borderRadius: '4px', width: '100%', color: 'var(--color-text-muted)' }}
-                                                />
-                                            </td>
-                                            <td className="no-print p-2 align-middle">
+                            <div className="w-full flex-col">
+                                {formData.checklist.filter(i => i.categoria === cat).map((item, idx) => (
+                                    <div key={item.id} className="group hover:bg-slate-50/20 transition-colors flex flex-col sm:flex-row print:flex-row items-stretch sm:items-center print:items-center border-b border-slate-200 p-4">
+                                        <div className="flex-1 min-w-0 mb-3 sm:mb-0 print:mb-0 sm:pr-4 print:pr-4">
+                                            <div
+                                                contentEditable
+                                                suppressContentEditableWarning
+                                                onBlur={(e) => updateChecklist(item.id, 'pregunta', e.target.innerText)}
+                                                className="font-bold text-slate-800 text-[0.9rem] mb-2 outline-none border-b border-dashed border-transparent focus:border-[var(--color-primary)] leading-tight"
+                                            >
+                                                {item.pregunta}
+                                            </div>
+                                            <input
+                                                type="text"
+                                                placeholder="Observaciones / Medidas tomadas..."
+                                                value={item.observaciones}
+                                                onChange={(e) => updateChecklist(item.id, 'observaciones', e.target.value)}
+                                                style={{ margin: 0, padding: '0.4rem', fontSize: '0.7rem', background: 'transparent', border: '1px solid #efefef', borderRadius: '4px', width: '100%', color: 'var(--color-text-muted)' }}
+                                            />
+                                        </div>
+                                        <div className="flex items-center justify-between sm:justify-end print:justify-end gap-2 w-full sm:w-auto print:w-auto mt-2 sm:mt-0 print:mt-0">
+                                            <div className="no-print w-[140px] flex-shrink-0">
                                                 <div className="checklist-status-buttons" style={{ justifyContent: 'center' }}>
                                                     <StatusBtn active={item.estado === 'Cumple'} type="OK" onClick={() => updateChecklist(item.id, 'estado', 'Cumple')} label="SI" />
                                                     <StatusBtn active={item.estado === 'No Cumple'} type="FAIL" onClick={() => updateChecklist(item.id, 'estado', 'No Cumple')} label="NO" />
                                                     <StatusBtn active={item.estado === 'N/A'} type="NA" onClick={() => updateChecklist(item.id, 'estado', 'N/A')} label="NA" />
                                                 </div>
-                                            </td>
-                                            <td className="hidden print:table-cell text-center align-middle border-l border-slate-100">
-                                                <div className="font-black text-black text-[0.8rem]">
-                                                    {item.estado === 'Cumple' ? '✓' : item.estado === 'No Cumple' ? '✗' : '-'}
-                                                </div>
-                                            </td>
-                                            <td className="no-print text-center align-middle">
+                                            </div>
+                                            <div className="hidden print:block text-center font-black w-[60px] text-[0.8rem]">
+                                                {item.estado === 'Cumple' ? '✓' : item.estado === 'No Cumple' ? '✗' : '-'}
+                                            </div>
+                                            <div className="no-print w-[40px] text-right">
                                                 <button
                                                     onClick={() => removeQuestion(item.id)}
                                                     className="text-red-300 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all p-1"
@@ -346,11 +338,11 @@ export default function ATS() {
                                                 >
                                                     <Trash2 size={16} />
                                                 </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -441,9 +433,9 @@ function StatusBtn({ active, type, onClick, label }) {
     );
 }
 
-function DocBox({ label, value, onChange, type = "text", flex = 1, large = false }) {
+function DocBox({ label, value, onChange, type = "text", large = false, borderLeft = false }) {
     return (
-        <div style={{ flex: flex, padding: '1.2rem', borderRight: '2px solid var(--color-border)', display: 'flex', flexDirection: 'column', gap: '0.4rem', justifyContent: 'center' }}>
+        <div className={`p-4 flex flex-col gap-1 justify-center ${borderLeft ? 'sm:border-l sm:print:border-l border-t sm:border-t-0 sm:print:border-t-0 border-[var(--color-border)]' : ''}`}>
             <span style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{label}</span>
             <input
                 type={type}

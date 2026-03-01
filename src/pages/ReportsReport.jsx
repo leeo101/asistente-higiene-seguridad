@@ -158,36 +158,34 @@ export default function ReportsReport() {
                     </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row justify-around items-center sm:items-start w-full gap-8 mt-12 pt-8 border-t-2 border-dashed border-[#e2e8f0] print:flex-row">
+                <div className="signature-container-row mt-12 pt-8 border-t-2 border-dashed border-[#e2e8f0]">
                     {showSignatures.operator && (
-                        <div className="flex-1 flex flex-col items-center pt-16 sm:pt-20 text-center w-full">
-                            <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
+                        <div className="signature-item-box">
+                            <div className="signature-line"></div>
                             <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
                             <p className="text-[0.8rem] font-black uppercase text-black leading-none min-h-[0.8rem]">Firma y DNI</p>
                         </div>
                     )}
 
                     {showSignatures.supervisor && (
-                        <div className="flex-1 flex flex-col items-center pt-16 sm:pt-20 text-center w-full">
-                            <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
+                        <div className="signature-item-box">
+                            <div className="signature-line"></div>
                             <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR / RESPONSABLE</p>
                             <p className="text-[0.8rem] font-black uppercase text-black leading-none min-h-[0.8rem]">Firma y DNI</p>
                         </div>
                     )}
 
                     {showSignatures.professional && (
-                        <div className="flex-1 flex flex-col items-center text-center w-full mt-8 sm:mt-0">
-                            <div style={{ height: '70px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', width: '100%', border: '1px dashed #e2e8f0', borderRadius: '4px', background: 'white' }}>
-                                {signature?.signature || signature?.stamp ? (
-                                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center' }}>
-                                        {signature.signature && <img src={signature.signature} alt="Firma" style={{ maxWidth: '100px', maxHeight: '60px' }} />}
-                                        {signature.stamp && <img src={signature.stamp} alt="Sello" style={{ maxWidth: '60px', maxHeight: '60px' }} />}
-                                    </div>
-                                ) : (
-                                    <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', color: '#999' }}>Sin Firma</div>
-                                )}
-                            </div>
-                            <div className="print:block hidden w-full border-t-2 border-slate-400 border-dashed mb-3 mt-4"></div>
+                        <div className="signature-item-box">
+                            {signature?.signature || signature?.stamp ? (
+                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', height: '60px' }}>
+                                    {signature.signature && <img src={signature.signature} alt="Firma" style={{ maxWidth: '100px', maxHeight: '60px' }} />}
+                                    {signature.stamp && <img src={signature.stamp} alt="Sello" style={{ maxWidth: '60px', maxHeight: '60px' }} />}
+                                </div>
+                            ) : (
+                                <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', color: '#999', marginBottom: '0.5rem' }}>Sin Firma</div>
+                            )}
+                            <div className="signature-line"></div>
                             <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">{profile?.name || report.responsable}</p>
                             <p style={{ margin: 0, fontWeight: 700, fontSize: '0.8rem' }}>PROFESIONAL ACTUANTE</p>
                             {profile?.license && <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--color-primary)', fontWeight: 700 }}>Mat: {profile.license}</p>}

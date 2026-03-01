@@ -370,24 +370,25 @@ export default function ChecklistManager() {
                 </div>
 
                 <div style={{ border: '2px solid var(--color-border)', borderRadius: '12px', marginBottom: '2.5rem', width: '100%', overflow: 'hidden' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', borderBottom: '2px solid var(--color-border)', width: '100%' }}>
-                        <DocBox label="CLIENTE / EMPRESA" value={companyInfo.name} onChange={v => setCompanyInfo({ ...companyInfo, name: v })} flex={2} large />
-                        <DocBox label="CUIT / CUIL" value={companyInfo.cuit} onChange={v => setCompanyInfo({ ...companyInfo, cuit: v })} flex={1} />
-                        <DocBox label="UBICACIÓN / OBRA" value={companyInfo.location} onChange={v => setCompanyInfo({ ...companyInfo, location: v })} flex={1} />
+                    <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ borderBottom: '2px solid var(--color-border)', width: '100%' }}>
+                        <div className="sm:col-span-2 print:col-span-2"><DocBox label="CLIENTE / EMPRESA" value={companyInfo.name} onChange={v => setCompanyInfo({ ...companyInfo, name: v })} large /></div>
+                        <div className="sm:col-span-1 print:col-span-1 border-t sm:border-t-0 border-[var(--color-border)] sm:border-l"><DocBox label="CUIT / CUIL" value={companyInfo.cuit} onChange={v => setCompanyInfo({ ...companyInfo, cuit: v })} /></div>
+                        <div className="sm:col-span-1 print:col-span-1 border-t sm:border-t-0 border-[var(--color-border)] sm:border-l"><DocBox label="UBICACIÓN / OBRA" value={companyInfo.location} onChange={v => setCompanyInfo({ ...companyInfo, location: v })} /></div>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', width: '100%' }}>
-                        <DocBox
-                            label="EQUIPO REVISADO"
-                            value={inspectionInfo.item}
-                            onChange={v => setInspectionInfo({ ...inspectionInfo, item: v })}
-                            flex={2}
-                            large
-                            highlight
-                            list="equipment-examples"
-                            placeholder="Ej: Amoladora, Andamio..."
-                        />
-                        <DocBox label="FECHA REVISIÓN" value={inspectionInfo.date} onChange={v => setInspectionInfo({ ...inspectionInfo, date: v })} type="date" flex={1} />
-                        <DocBox label="OPERADOR" value={companyInfo.inspector} onChange={v => setCompanyInfo({ ...companyInfo, inspector: v })} flex={1} />
+                    <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ width: '100%' }}>
+                        <div className="sm:col-span-2 print:col-span-2">
+                            <DocBox
+                                label="EQUIPO REVISADO"
+                                value={inspectionInfo.item}
+                                onChange={v => setInspectionInfo({ ...inspectionInfo, item: v })}
+                                large
+                                highlight
+                                list="equipment-examples"
+                                placeholder="Ej: Amoladora, Andamio..."
+                            />
+                        </div>
+                        <div className="sm:col-span-1 print:col-span-1 border-t sm:border-t-0 border-[var(--color-border)] sm:border-l"><DocBox label="FECHA REVISIÓN" value={inspectionInfo.date} onChange={v => setInspectionInfo({ ...inspectionInfo, date: v })} type="date" /></div>
+                        <div className="sm:col-span-1 print:col-span-1 border-t sm:border-t-0 border-[var(--color-border)] sm:border-l"><DocBox label="OPERADOR" value={companyInfo.inspector} onChange={v => setCompanyInfo({ ...companyInfo, inspector: v })} /></div>
                     </div>
                 </div>
 
@@ -423,52 +424,42 @@ export default function ChecklistManager() {
                                 </div>
                             </div>
 
-                            <table className="w-full border-collapse" style={{ tableLayout: 'fixed', width: '100%', border: 'none' }}>
-                                <colgroup>
-                                    <col style={{ width: '35px' }} /> {/* Number */}
-                                    <col style={{ width: 'auto' }} /> {/* Question */}
-                                    <col className="no-print" style={{ width: '135px' }} /> {/* Action Buttons */}
-                                    <col className="print-only" style={{ width: '50px' }} /> {/* Print Result Icon */}
-                                    <col className="no-print" style={{ width: '35px' }} /> {/* Trash */}
-                                </colgroup>
-                                <tbody className="divide-y divide-slate-200">
-                                    {section.items.map((item, idx) => (
-                                        <tr key={idx} className="group hover:bg-slate-50/20 transition-colors">
-                                            <td className="text-center font-black text-[0.6rem] bg-slate-50/50 h-10 leading-none text-slate-400 border-r border-slate-100">{idx + 1}</td>
-                                            <td className="p-0 align-middle">
-                                                <textarea
-                                                    rows={1}
-                                                    className="w-full px-4 py-3 font-bold text-slate-800 text-[0.85rem] outline-none bg-transparent resize-none leading-tight border-none focus:ring-0 placeholder:text-slate-300"
-                                                    style={{ display: 'block', minHeight: '40px', overflow: 'hidden' }}
-                                                    value={item.text}
-                                                    onInput={(e) => {
-                                                        e.target.style.height = 'auto';
-                                                        e.target.style.height = e.target.scrollHeight + 'px';
-                                                    }}
-                                                    onChange={e => updateItem(section.id, idx, 'text', e.target.value)}
-                                                />
-                                            </td>
-                                            <td className="no-print px-1 py-1 align-middle">
+                            <div className="w-full flex-col divide-y divide-slate-200">
+                                {section.items.map((item, idx) => (
+                                    <div key={idx} className="group hover:bg-slate-50/20 transition-colors flex flex-col sm:flex-row print:flex-row items-stretch sm:items-center print:items-center">
+                                        <div className="flex-1 flex flex-row items-start sm:items-center min-w-0 p-4 pb-0 sm:pb-4 print:pb-4 border-b border-transparent sm:pr-4 print:pr-4">
+                                            <div className="text-center font-black text-[0.6rem] bg-slate-50/50 h-10 w-8 flex items-center justify-center rounded-md mr-3 text-slate-400 border border-slate-100 shrink-0">{idx + 1}</div>
+                                            <textarea
+                                                rows={1}
+                                                className="w-full px-1 py-2 font-bold text-slate-800 text-[0.85rem] outline-none bg-transparent resize-none leading-tight border-none focus:ring-0 placeholder:text-slate-300 min-h-[40px] overflow-hidden"
+                                                value={item.text}
+                                                onInput={(e) => {
+                                                    e.target.style.height = 'auto';
+                                                    e.target.style.height = e.target.scrollHeight + 'px';
+                                                }}
+                                                onChange={e => updateItem(section.id, idx, 'text', e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="flex items-center justify-between sm:justify-end print:justify-end gap-2 w-full sm:w-auto print:w-auto p-4 pt-2 sm:pt-4 print:pt-4">
+                                            <div className="no-print w-[135px] flex-shrink-0">
                                                 <div className="checklist-status-buttons">
                                                     <StatusBtn active={item.status === 'OK'} type="OK" onClick={() => updateItem(section.id, idx, 'status', 'OK')} />
                                                     <StatusBtn active={item.status === 'FAIL'} type="FAIL" onClick={() => updateItem(section.id, idx, 'status', 'FAIL')} />
                                                     <StatusBtn active={item.status === 'NA'} type="NA" onClick={() => updateItem(section.id, idx, 'status', 'NA')} />
                                                 </div>
-                                            </td>
-                                            <td className="hidden print:table-cell text-center bg-white align-middle print-only border-l border-slate-200">
-                                                <div className="flex items-center justify-center h-full font-black text-black">
-                                                    {item.status === 'OK' ? <Check size={18} strokeWidth={4} /> :
-                                                        item.status === 'FAIL' ? <X size={18} strokeWidth={4} /> :
-                                                            item.status === 'NA' ? <span className="text-[0.6rem]">N/A</span> : ''}
-                                                </div>
-                                            </td>
-                                            <td className="no-print text-center align-middle">
-                                                <button onClick={() => removeItem(section.id, idx)} className="text-red-300 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all p-1 active:scale-95"><Trash2 size={14} /></button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                            </div>
+                                            <div className="hidden print:flex items-center justify-center font-black text-black w-[50px]">
+                                                {item.status === 'OK' ? <Check size={18} strokeWidth={4} /> :
+                                                    item.status === 'FAIL' ? <X size={18} strokeWidth={4} /> :
+                                                        item.status === 'NA' ? <span className="text-[0.6rem]">N/A</span> : ''}
+                                            </div>
+                                            <div className="no-print w-[35px] text-right">
+                                                <button onClick={() => removeItem(section.id, idx)} className="text-red-300 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all p-1 active:scale-95 bg-transparent border-none cursor-pointer"><Trash2 size={16} /></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -539,7 +530,7 @@ export default function ChecklistManager() {
 
 function DocBox({ label, value, onChange, type = "text", large = false, highlight = false, flex = 1, list = null }) {
     return (
-        <div className={`p-3 min-w-0 flex flex-col justify-center border-r-2 last:border-r-0 border-slate-200 ${highlight ? 'bg-slate-50/50' : ''}`} style={{ flex }}>
+        <div className={`p-3 min-w-0 flex flex-col justify-center sm:border-r-2 last:border-r-0 sm:print:border-r-2 border-slate-200 ${highlight ? 'bg-slate-50/50' : ''}`}>
             <label className="text-[0.55rem] font-black text-slate-400 uppercase tracking-widest block mb-1 whitespace-nowrap leading-none text-left">{label}</label>
             <input
                 type={type}

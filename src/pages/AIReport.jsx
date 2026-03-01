@@ -79,7 +79,7 @@ export default function AIReport() {
                 </div>
 
                 {/* Info Block */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '2.5rem', background: '#f8fafc', padding: '1.2rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-4 mb-10 bg-slate-50 p-5 rounded-lg border border-slate-200">
                     <div>
                         <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748b' }}>Empresa</p>
                         <input
@@ -125,7 +125,7 @@ export default function AIReport() {
                 {/* Analysis Results */}
                 <div style={{ marginBottom: '2.5rem' }}>
                     <h3 style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem', marginBottom: '1rem', color: '#1e293b' }}>Evaluación de EPP Detectada</h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-4">
                         {[
                             { label: 'Casco de Seguridad', pass: data.analysis.helmetUsed },
                             { label: 'Calzado de Seguridad', pass: data.analysis.shoesUsed },
@@ -149,7 +149,7 @@ export default function AIReport() {
                 {data.analysis.detections && data.analysis.detections.length > 0 && (
                     <div style={{ marginBottom: '2.5rem' }}>
                         <h4 style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem', marginBottom: '1rem', color: '#1e293b' }}>Leyenda de Hallazgos</h4>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-3">
                             {data.analysis.detections.map((det, i) => {
                                 const isRisk = det.label.toLowerCase().includes('riesgo');
                                 return (
@@ -198,33 +198,34 @@ export default function AIReport() {
                     </div>
                 </div>
 
-                <div className="flex flex-row justify-around items-start w-full gap-4 mt-10 print:flex-row">
+                <div className="signature-container-row mt-10">
                     {showSignatures.operator && (
-                        <div className="flex-1 flex flex-col items-center pt-24 text-center">
-                            <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
+                        <div className="signature-item-box">
+                            <div className="signature-line"></div>
                             <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">TRABAJADOR / OPERADOR</p>
                             <p className="text-[0.8rem] font-black uppercase text-black leading-none min-h-[0.8rem]">Aclaración y Firma</p>
                         </div>
                     )}
 
                     {showSignatures.supervisor && (
-                        <div className="flex-1 flex flex-col items-center pt-24 text-center">
-                            <div className="w-full border-t-2 border-slate-400 border-dashed mb-3"></div>
+                        <div className="signature-item-box">
+                            <div className="signature-line"></div>
                             <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR / TESTIGO</p>
                             <p className="text-[0.8rem] font-black uppercase text-black leading-none min-h-[0.8rem]">Aclaración y Firma</p>
                         </div>
                     )}
 
                     {showSignatures.professional && (
-                        <div className="flex-1 flex flex-col items-center text-center">
-                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', border: '1px dashed var(--color-border)', borderRadius: '4px', minHeight: '90px', background: 'white', padding: '0.5rem', width: '100%' }}>
-                                {signature?.signature ? (
-                                    <img src={signature.signature} alt="Firma" style={{ height: '40px', maxWidth: '100%', objectFit: 'contain' }} />
-                                ) : (
-                                    <div style={{ height: '40px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', color: '#999' }}>Sin Firma</div>
-                                )}
-                            </div>
-                            <div className="print:block hidden w-full border-t-2 border-slate-400 border-dashed mt-8 mb-3"></div>
+                        <div className="signature-item-box">
+                            {signature?.signature || signature?.stamp ? (
+                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', height: '60px' }}>
+                                    {signature.signature && <img src={signature.signature} alt="Firma" style={{ maxWidth: '100px', maxHeight: '60px' }} />}
+                                    {signature.stamp && <img src={signature.stamp} alt="Sello" style={{ maxWidth: '60px', maxHeight: '60px' }} />}
+                                </div>
+                            ) : (
+                                <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', color: '#999', marginBottom: '0.5rem' }}>Sin Firma</div>
+                            )}
+                            <div className="signature-line"></div>
                             <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL ACTUANTE</p>
                             <p style={{ margin: 0, fontWeight: 700, fontSize: '0.8rem' }}>{profile?.name}</p>
                             <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Mat: {profile?.license}</p>
