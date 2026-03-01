@@ -71,17 +71,15 @@ export default function ResetPassword() {
             <div className="card shadow-lg" style={{ padding: '2.5rem' }}>
                 <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
                     <div style={{
-                        width: '64px',
-                        height: '64px',
-                        background: 'rgba(59, 130, 246, 0.1)',
-                        borderRadius: '16px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        margin: '0 auto 1rem auto',
-                        color: 'var(--color-primary)'
+                        width: '80px',
+                        height: '80px',
+                        margin: '0 auto 1rem auto'
                     }}>
-                        <Lock size={32} />
+                        <img
+                            src="/logo2.png"
+                            alt="Asistente H&S Logo"
+                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                        />
                     </div>
                     <h1 style={{ fontSize: '1.6rem', marginBottom: '0.5rem' }}>Nueva Contraseña</h1>
                     <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>Introduce tu nueva clave de acceso</p>
