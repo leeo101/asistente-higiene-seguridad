@@ -132,24 +132,28 @@ export default function Home() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
                         <div>
                             <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.85rem', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 0.3rem' }}>
-                                Bienvenido de vuelta
+                                {currentUser ? 'Bienvenido de vuelta' : 'Potenciá tu trabajo con IA'}
                             </p>
                             <h1 style={{ fontSize: 'clamp(1.8rem, 5vw, 2.8rem)', fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.1, letterSpacing: '-1px' }}>
-                                {userName} 👋
+                                {currentUser ? `${userName} 👋` : 'Asistente de Higiene y Seguridad'}
                             </h1>
-                            <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.95rem', marginTop: '0.5rem', fontWeight: 400 }}>
-                                Dashboard de Higiene y Seguridad Laboral
+                            <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1.1rem', marginTop: '1rem', fontWeight: 400, maxWidth: '500px' }}>
+                                {currentUser
+                                    ? 'Dashboard de Gestión de Riesgos'
+                                    : 'Cálculos normativos, reportes inteligentes y asesoría legal con Inteligencia Artificial. Todo en un solo lugar.'}
                             </p>
                         </div>
                         {!currentUser && (
-                            <div style={{ display: 'flex', gap: '0.7rem', flexWrap: 'wrap', alignItems: 'center', marginTop: '0.5rem', width: '100%' }}>
-                                <button onClick={() => navigate('/login', { state: { view: 'login' } })}
-                                    style={{ flex: 1, padding: '0.6rem 1.2rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.15)', color: 'white', fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(8px)', fontSize: '0.9rem' }}>
-                                    <LogIn size={16} style={{ verticalAlign: 'middle', marginRight: '0.4rem' }} />Ingresar
-                                </button>
+                            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', marginTop: '2rem', width: '100%', maxWidth: '450px' }}>
                                 <button onClick={() => navigate('/login', { state: { view: 'register' } })}
-                                    style={{ flex: 1, padding: '0.6rem 1.2rem', borderRadius: '10px', border: 'none', background: '#fff', color: '#2563eb', fontWeight: 800, cursor: 'pointer', fontSize: '0.9rem', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
-                                    <UserPlus size={16} style={{ verticalAlign: 'middle', marginRight: '0.4rem' }} />Registrarse
+                                    style={{ flex: 2, padding: '1rem 1.5rem', borderRadius: '12px', border: 'none', background: '#fff', color: '#2563eb', fontWeight: 800, cursor: 'pointer', fontSize: '1rem', boxShadow: '0 10px 25px rgba(0,0,0,0.2)', transition: 'transform 0.2s' }}
+                                    onMouseOver={e => e.currentTarget.style.transform = 'scale(1.03)'}
+                                    onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}>
+                                    Comenzar Gratis
+                                </button>
+                                <button onClick={() => navigate('/login', { state: { view: 'login' } })}
+                                    style={{ flex: 1, padding: '1rem 1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.15)', color: 'white', fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(8px)', fontSize: '1rem' }}>
+                                    Ingresar
                                 </button>
                             </div>
                         )}
@@ -236,6 +240,36 @@ export default function Home() {
                             </span>
                         </div>
                     </Link>
+                )}
+
+                {/* ── FEATURES SHOWCASE (Only for new users) ── */}
+                {!currentUser && (
+                    <div style={{ marginTop: '3rem', padding: '0 1rem' }}>
+                        <h3 style={{ fontSize: '1.2rem', fontWeight: 900, textAlign: 'center', marginBottom: '2rem' }}>Todo lo que necesitás en una sola App</h3>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+                            <div className="card" style={{ padding: '1.5rem', borderLeft: '4px solid #f59e0b' }}>
+                                <Sparkles size={24} color="#f59e0b" style={{ marginBottom: '1rem' }} />
+                                <h4 style={{ margin: '0 0 0.5rem 0', fontWeight: 800 }}>Asesoría Legal con IA</h4>
+                                <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+                                    Consultá normativas argentinas (Ley 19587, Dec 351/79) y recibí recomendaciones preventivas al instante.
+                                </p>
+                            </div>
+                            <div className="card" style={{ padding: '1.5rem', borderLeft: '4px solid #06b6d4' }}>
+                                <Camera size={24} color="#06b6d4" style={{ marginBottom: '1rem' }} />
+                                <h4 style={{ margin: '0 0 0.5rem 0', fontWeight: 800 }}>Cámara de Riesgos</h4>
+                                <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+                                    Detectá automáticamente la falta de casco, guantes o calzado de seguridad usando solo la cámara de tu celular.
+                                </p>
+                            </div>
+                            <div className="card" style={{ padding: '1.5rem', borderLeft: '4px solid #f97316' }}>
+                                <Flame size={24} color="#f97316" style={{ marginBottom: '1rem' }} />
+                                <h4 style={{ margin: '0 0 0.5rem 0', fontWeight: 800 }}>Cálculos Normativos</h4>
+                                <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+                                    Carga de fuego, niveles de iluminación y matrices de riesgo personalizadas con protocolos listos para imprimir.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 )}
 
                 <AdBanner />
