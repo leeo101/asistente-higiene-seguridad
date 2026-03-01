@@ -29,7 +29,9 @@ export default async function handler(req, res) {
             "gemini-1.5-flash-latest",
             "gemini-1.5-pro-latest",
             "gemini-1.5-flash",
-            "models/gemini-1.5-flash"
+            "models/gemini-1.5-flash",
+            "gemini-flash-latest",
+            "gemini-1.5-pro"
         ];
 
         const prompt = `Actúa como un experto en Higiene y Seguridad Laboral en Argentina. 
@@ -69,7 +71,12 @@ IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON, sin texto adicional. Asegúrate
             }
         }
 
-        if (!result) throw new Error(lastError?.message || 'Todos los modelos de IA fallaron');
+        if (!result) {
+            return res.status(500).json({
+                error: 'Todos los modelos de IA fallaron',
+                details: lastError?.message || 'Error desconocido'
+            });
+        }
 
         const responseText = result.response.text();
 
