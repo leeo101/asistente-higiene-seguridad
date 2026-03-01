@@ -208,12 +208,12 @@ export default function RiskMatrixReport() {
                 </div>
 
                 {/* ─── Signature Controls (no-print) ─── */}
-                <div className="no-print" style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1rem 1.5rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Incluir firmas:</span>
-                    <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                <div className="no-print mt-10 mb-8 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-xs font-bold text-slate-700">
+                    <div>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                    <div className="flex gap-4 flex-wrap justify-center">
                         {['operator', 'supervisor', 'professional'].map(key => (
-                            <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700, color: '#475569' }}>
-                                <input type="checkbox" checked={showSignatures[key]} onChange={e => setShowSignatures(s => ({ ...s, [key]: e.target.checked }))} style={{ accentColor: '#6366f1', width: '16px', height: '16px' }} />
+                            <label key={key} className="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" checked={showSignatures[key]} onChange={e => setShowSignatures(s => ({ ...s, [key]: e.target.checked }))} className="w-4 h-4 accent-indigo-600" />
                                 {key === 'operator' ? 'Operador' : key === 'supervisor' ? 'Supervisor' : 'Profesional'}
                             </label>
                         ))}
@@ -253,6 +253,9 @@ export default function RiskMatrixReport() {
             </div>
             {/* Floating Action Buttons */}
             <div className="no-print floating-action-bar">
+                <button onClick={() => window.alert('Este reporte ya se encuentra guardado.')} className="btn-floating-action" style={{ background: '#36B37E', color: 'white' }}>
+                    <CheckCircle2 size={18} /> GUARDADO
+                </button>
                 <button onClick={() => requirePro(() => setShowShare(true))} className="btn-floating-action" style={{ background: '#0052CC', color: 'white' }}>
                     <Share2 size={18} /> COMPARTIR
                 </button>

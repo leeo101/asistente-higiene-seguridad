@@ -182,8 +182,7 @@ export default function AIReport() {
                     </div>
                 )}
 
-                {/* Signature Area / Controls */}
-                <div className="no-print mt-10 mb-8 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 justify-between items-center text-xs font-bold text-slate-700">
+                <div className="no-print mt-10 mb-8 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-xs font-bold text-slate-700">
                     <div>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
                     <div className="flex gap-4">
                         <label className="flex items-center gap-2 cursor-pointer">
@@ -241,6 +240,9 @@ export default function AIReport() {
 
             {/* Floating Action Buttons */}
             <div className="no-print floating-action-bar">
+                <button onClick={() => window.alert('Los reportes de IA se guardan automáticamente en tu Historial.')} className="btn-floating-action" style={{ background: '#36B37E', color: 'white' }}>
+                    <CheckCircle2 size={18} /> GUARDADO
+                </button>
                 <button onClick={() => requirePro(() => setShowShare(true))} className="btn-floating-action" style={{ background: '#0052CC', color: 'white' }}>
                     <Share2 size={18} /> COMPARTIR
                 </button>
