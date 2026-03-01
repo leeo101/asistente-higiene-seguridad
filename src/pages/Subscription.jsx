@@ -183,7 +183,7 @@ export default function Subscription() {
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#3b82f6', marginBottom: '1.5rem' }}>
                     <div style={{ background: 'transparent', borderRadius: '10px' }}>
-                        <img src="/logo2.png" alt="Logo de Asistente H&S" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
+                        <img src="/logo.png" alt="Logo de Asistente H&S" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
                     </div>
                     <span style={{ fontWeight: '800', letterSpacing: '2px', fontSize: '1.3rem', textTransform: 'uppercase', color: 'var(--color-text)' }}>ASISTENTE H&S</span>
                 </div>

@@ -76,7 +76,7 @@ export default function ResetPassword() {
                         margin: '0 auto 1rem auto'
                     }}>
                         <img
-                            src="/logo2.png"
+                            src="/logo.png"
                             alt="Asistente H&S Logo"
                             style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                         />
