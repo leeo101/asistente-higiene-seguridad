@@ -4,7 +4,7 @@ import {
     ClipboardList, PlusCircle, History, User, Settings,
     Flame, ShieldAlert, BarChart3, ChevronRight, Plus, FileText, Gavel,
     Accessibility, AlertTriangle, Lock, UserPlus, LogIn, Sparkles,
-    Camera, CalendarCheck, Shield, Cpu
+    Camera, CalendarCheck, Shield, Cpu, Lightbulb
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
@@ -26,6 +26,7 @@ const quickLinks = [
     { to: '/ergonomics', icon: <Accessibility size={26} />, label: 'Ergonomía', sub: 'Res. SRT 886/15', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
     { to: '/reports', icon: <FileText size={26} />, label: 'Informes', sub: 'Técnicos', color: '#ec4899', bg: 'rgba(236,72,153,0.1)' },
     { to: '/legislation', icon: <Gavel size={26} />, label: 'Legislación', sub: 'Biblioteca Legal', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
+    { to: '/lighting', icon: <Lightbulb size={26} />, label: 'Iluminación', sub: 'Dec. 351/79', color: '#eab308', bg: 'rgba(234,179,8,0.1)' },
     { to: '/ai-camera', icon: <Camera size={26} />, label: 'Cámara IA', sub: 'Detección EPP', color: '#06b6d4', bg: 'rgba(6,182,212,0.1)' },
     { to: '/ai-advisor', icon: <Sparkles size={26} />, label: 'Asesor IA', sub: 'Consultas de Seguridad', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
     { to: '/checklists', icon: <ClipboardList size={26} />, label: 'Checklists', sub: 'Herramientas y Equipos', color: '#14b8a6', bg: 'rgba(20,184,166,0.1)' },

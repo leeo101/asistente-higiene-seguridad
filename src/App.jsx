@@ -35,7 +35,7 @@ import SafetyCalendar from './pages/SafetyCalendar.jsx';
 import ResetPassword from './pages/ResetPassword.jsx';
 import AdminRequests from './pages/AdminRequests.jsx';
 import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
-
+import LightingReport from './pages/LightingReport.jsx';
 
 import ChecklistsHistory from './pages/ChecklistsHistory.jsx';
 import ChecklistManager from './pages/ChecklistManager.jsx';
@@ -208,6 +208,7 @@ function App() {
             <Route path="/ai-report" element={<AIReport />} />
             <Route path="/calendar" element={<SafetyCalendar />} />
             <Route path="/ai-camera-history" element={<AICameraHistory />} />
+            <Route path="/lighting" element={<LightingReport />} />
 
             {/* Tools that are now accessible but will have paywall on print */}
             <Route path="/risk" element={<RiskAssessment />} />
