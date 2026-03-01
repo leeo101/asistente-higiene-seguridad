@@ -285,8 +285,14 @@ export default function ErgonomicsForm() {
                         />
                     </div>
 
-                    {/* Floating Action Buttons */}
-                    <div className="no-print floating-action-bar">
+                    {/* Botones de acción estables (no fijos) para evitar saltos en móvil */}
+                    <div className="no-print" style={{
+                        marginTop: '2rem',
+                        display: 'flex',
+                        gap: '1rem',
+                        justifyContent: 'center',
+                        flexWrap: 'wrap'
+                    }}>
                         <button
                             className="btn-floating-action"
                             onClick={handleBack}
