@@ -12,6 +12,18 @@ export default function Observation() {
     });
 
     const handleSave = () => {
+        // Guardar la observación actual en el relevamiento
+        const current = localStorage.getItem('current_inspection');
+        if (current) {
+            const inspection = JSON.parse(current);
+            if (!inspection.observations) inspection.observations = [];
+            inspection.observations.push({
+                ...observation,
+                id: Date.now(),
+                timestamp: new Date().toISOString()
+            });
+            localStorage.setItem('current_inspection', JSON.stringify(inspection));
+        }
         navigate('/photos');
     };
 
