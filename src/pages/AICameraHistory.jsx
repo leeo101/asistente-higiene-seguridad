@@ -120,11 +120,21 @@ export default function AICameraHistory() {
 
                             <div style={{ display: 'flex', gap: '0.8rem', marginTop: '1rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
                                 <button
+                                    onClick={() => {
+                                        localStorage.setItem('current_ai_inspection', JSON.stringify(item));
+                                        navigate('/ai-report');
+                                    }}
+                                    className="btn-primary"
+                                    style={{ flex: 2, padding: '0.6rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'center' }}
+                                >
+                                    <FileText size={16} /> Ver Reporte
+                                </button>
+                                <button
                                     onClick={() => navigate('/ai-camera')}
                                     className="btn-secondary"
                                     style={{ flex: 1, padding: '0.6rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'center' }}
                                 >
-                                    <Camera size={16} /> Nueva inspección
+                                    <Camera size={16} /> Re-inspección
                                 </button>
                                 <button
                                     onClick={() => setDeleteTarget(item.id)}
