@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, FileText, AlertCircle, GraduationCap, ClipboardCheck, Package, Plus, Trash2, History } from 'lucide-react';
+import { ArrowLeft, Save, FileText, AlertCircle, GraduationCap, ClipboardCheck, Package, Plus, Trash2, History, Share2, Printer } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Printer, Share2, AlertTriangle, X, Copy, Check, Mail } from 'lucide-react';
+import { ArrowLeft, Printer, Share2, AlertTriangle, X, Copy, Check, Mail, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
