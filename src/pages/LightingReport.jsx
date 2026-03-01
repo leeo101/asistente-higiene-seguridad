@@ -185,7 +185,7 @@ export default function LightingReport() {
     };
 
     return (
-        <div className="container" style={{ paddingTop: '1rem', paddingBottom: '5rem', maxWidth: '1000px' }}>
+        <div className="container" style={{ paddingTop: '6rem', paddingBottom: '5rem', maxWidth: '1000px' }}>
             <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', background: '#fff', padding: '1rem', borderRadius: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
                 <button onClick={() => navigate(-1)} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, padding: '0.5rem 1rem' }}>
                     <ArrowLeft size={18} /> <span className="hide-mobile">Volver</span>
