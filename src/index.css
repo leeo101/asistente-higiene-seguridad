@@ -824,10 +824,9 @@ label {
     background: white !important;
     height: auto !important;
     min-height: auto !important;
-    max-height: max-content !important;
-    overflow: hidden !important;
     margin: 0 !important;
     padding: 0 !important;
+    display: block !important;
   }
 
   .container {
@@ -838,6 +837,9 @@ label {
     animation: none !important;
     box-shadow: none !important;
     border: none !important;
+    display: block !important;
+    height: auto !important;
+    min-height: auto !important;
   }
 
   /* Prevent blank extra pages by removing bottom margins on the last element */
@@ -849,6 +851,8 @@ label {
     margin-bottom: 0 !important;
     padding-bottom: 0 !important;
     border-bottom: none !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
   }
 
   /* Flatten all cards and grids for linear printing */
@@ -867,7 +871,7 @@ label {
     background: white !important;
     box-shadow: none !important;
     border: none !important;
-    margin-bottom: 2rem !important;
+    margin-bottom: 0 !important;
     padding: 0 !important;
     transform: none !important;
   }
