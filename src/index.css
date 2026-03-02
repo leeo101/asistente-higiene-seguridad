@@ -823,10 +823,11 @@ label {
   #root {
     background: white !important;
     height: auto !important;
-    min-height: auto !important;
+    min-height: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
     display: block !important;
+    overflow: visible !important;
   }
 
   .container {

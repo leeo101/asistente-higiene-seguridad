@@ -428,7 +428,7 @@ export default function LightingReport() {
             </div>
 
             {/* SECCIÓN DE DATOS OBTENIDOS POR */}
-            <div className="bg-white text-black p-8 shadow-sm border-2 border-slate-200 rounded-2xl mb-8 mt-10 print-area" style={{ display: 'block', clear: 'both' }}>
+            <div className="bg-white text-black p-8 shadow-sm border-2 border-slate-200 rounded-2xl print:mb-0 mb-8 mt-10 print-area" style={{ display: 'block', clear: 'both' }}>
                 <h3 style={{ marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
                     <ShieldCheck size={22} color="var(--color-primary)" /> Firmas y Validación
                 </h3>

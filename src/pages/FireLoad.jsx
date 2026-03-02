@@ -468,7 +468,7 @@ export default function FireLoad() {
                         </div>
                     </div>
 
-                    <div className="bg-white text-black p-4 md:p-8 shadow-sm border-2 border-slate-200 rounded-2xl mb-8 mt-10 print-area" style={{ display: 'block' }}>
+                    <div className="bg-white text-black p-4 md:p-8 shadow-sm border-2 border-slate-200 rounded-2xl print:mb-0 mb-8 mt-10 print-area" style={{ display: 'block' }}>
                         <h3 style={{ marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
                             <ShieldCheck size={22} color="var(--color-primary)" /> Resultados Finales del Cálculo
                         </h3>

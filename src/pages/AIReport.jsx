@@ -55,7 +55,7 @@ export default function AIReport() {
                 </button>
             </div>
 
-            <div className="card report-print" style={{
+            <div className="card report-print print:mb-0 print:border-none print:shadow-none print:min-h-0" style={{
                 padding: '3rem',
                 minHeight: '29.7cm',
                 height: 'auto',
@@ -183,7 +183,7 @@ export default function AIReport() {
                     </div>
                 )}
 
-                <div className="no-print mt-10 mb-8 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-xs font-bold text-slate-700">
+                <div className="no-print mt-10 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-xs font-bold text-slate-700">
                     <div className="text-center">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
                     <div className="flex gap-4 flex-wrap justify-center">
                         <label className="flex items-center gap-2 cursor-pointer">
@@ -234,7 +234,7 @@ export default function AIReport() {
                 </div>
 
                 {/* Footer */}
-                <div style={{ position: 'absolute', bottom: '30px', left: '0', width: '100%', textAlign: 'center', fontSize: '0.7rem', color: '#94a3b8' }}>
+                <div style={{ position: 'relative', marginTop: '30px', paddingBottom: '30px', width: '100%', textAlign: 'center', fontSize: '0.7rem', color: '#94a3b8' }}>
                     Documento de verificación instantánea generado por Asistente HYS.
                 </div>
             </div>

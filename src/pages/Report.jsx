@@ -108,7 +108,7 @@ export default function Report() {
             />
 
             {/* PRINTABLE AREA */}
-            <div className="bg-white text-black p-4 md:p-12 shadow-sm border border-slate-200 rounded-2xl print-area">
+            <div className="bg-white text-black p-4 md:p-12 shadow-sm border border-slate-200 rounded-2xl print-area print:mb-0 print:border-none print:shadow-none">
                 {/* Header Section */}
                 <div className="report-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '3px solid var(--color-primary)', paddingBottom: '1.5rem', marginBottom: '2rem' }}>
                     <div>

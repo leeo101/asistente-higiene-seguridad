@@ -69,7 +69,7 @@ export default function ErgonomicsForm() {
     };
 
     return (
-        <div className="container" style={{ paddingBottom: '3rem' }}>
+        <div className="container print:pt-0 print:pb-0" style={{ paddingTop: '6rem', paddingBottom: '5rem', maxWidth: '1000px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', marginTop: '1rem' }}>
                 <button
                     onClick={() => navigate('/ergonomics')}
