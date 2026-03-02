@@ -55,7 +55,7 @@ export default function ErgonomicsReport() {
                 </button>
             </div>
 
-            <div className="report-print" style={{
+            <div className="report-print print:p-0 print:m-0 print:border-none print:shadow-none print:min-h-0" style={{
                 background: 'white',
                 color: '#1a1a1a',
                 padding: '40px',

@@ -55,7 +55,7 @@ export default function AIReport() {
                 </button>
             </div>
 
-            <div className="card report-print print:mb-0 print:border-none print:shadow-none print:min-h-0" style={{
+            <div className="card report-print print:p-0 print:m-0 print:border-none print:shadow-none print:min-h-0" style={{
                 padding: '3rem',
                 minHeight: '29.7cm',
                 height: 'auto',
@@ -233,7 +233,7 @@ export default function AIReport() {
                     )}
                 </div>
 
-                {/* Footer */}
+                {/* Footer Content (Static in report) */}
                 <div style={{ position: 'relative', marginTop: '30px', paddingBottom: '30px', width: '100%', textAlign: 'center', fontSize: '0.7rem', color: '#94a3b8' }}>
                     Documento de verificación instantánea generado por Asistente HYS.
                 </div>
@@ -256,6 +256,16 @@ export default function AIReport() {
                 {`
                 .spin { animation: spin 1.5s linear infinite; }
                 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                
+                @media print {
+                    .report-print {
+                        min-height: 0 !important;
+                        padding: 0 !important;
+                        margin: 0 !important;
+                        box-shadow: none !important;
+                        border: none !important;
+                    }
+                }
                 `}
             </style>
         </div>

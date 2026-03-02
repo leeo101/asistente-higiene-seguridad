@@ -811,16 +811,13 @@ label {
     display: none !important;
   }
 
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box !important;
-  }
-
   /* Reset layout structure for plain flowing document */
   body,
   html,
-  #root {
+  #root,
+  .app-container,
+  .main-content,
+  .app-layout {
     background: white !important;
     height: auto !important;
     min-height: 0 !important;
@@ -828,19 +825,48 @@ label {
     padding: 0 !important;
     display: block !important;
     overflow: visible !important;
+    box-shadow: none !important;
+    border: none !important;
   }
 
-  .container {
+  footer,
+  .glass-panel,
+  .sidebar,
+  nav,
+  .app-header,
+  .header-actions,
+  button,
+  .no-print,
+  .floating-action-bar,
+  .btn-floating-action {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
     padding: 0 !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  .container,
+  .print-area,
+  .report-area,
+  .report-print,
+  .report-print-container {
+    padding: 0 !important;
+    margin: 0 !important;
     max-width: 100% !important;
     width: 100% !important;
-    margin: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
     animation: none !important;
     box-shadow: none !important;
     border: none !important;
     display: block !important;
-    height: auto !important;
-    min-height: auto !important;
+    float: none !important;
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
   }
 
   /* Prevent blank extra pages by removing bottom margins on the last element */
@@ -865,6 +891,7 @@ label {
     gap: 1rem !important;
     page-break-inside: avoid !important;
     margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
   }
 
   /* Flatten all cards and grids for linear printing */
