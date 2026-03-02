@@ -27,7 +27,10 @@ export default function Subscription() {
         const paymentStatus = urlParams.get('status');
 
         if (paymentStatus === 'approved') {
-            const expiry = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 days
+            const date = new Date();
+            date.setMonth(date.getMonth() + 1);
+            const expiry = date.getTime();
+
             localStorage.setItem('subscriptionStatus', 'active');
             localStorage.setItem('subscriptionExpiry', String(expiry));
             setExpiryDate(new Date(expiry));
