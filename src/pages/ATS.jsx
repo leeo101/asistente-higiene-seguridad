@@ -290,7 +290,7 @@ export default function ATS() {
                 </div>
             </div>
 
-            <div className="bg-white text-black p-12 shadow-2xl mx-auto print-area border border-slate-200 rounded-2xl print:mb-0 print:shadow-none print:border-none" style={{ width: '100%', maxWidth: '950px', boxSizing: 'border-box' }}>
+            <div className="bg-white text-black p-4 sm:p-12 shadow-2xl mx-auto print-area border border-slate-200 rounded-2xl print:mb-0 print:shadow-none print:border-none" style={{ width: '100%', maxWidth: '950px', boxSizing: 'border-box' }}>
 
                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottom: '4px solid var(--color-border)', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
                     {/* Top Left Text */}
@@ -354,7 +354,7 @@ export default function ATS() {
                             {formData.tareas.map((t) => (
                                 <div key={t.id} className="flex flex-col sm:flex-row print:flex-row border-b border-[var(--color-border)] last:border-0">
                                     {/* Paso */}
-                                    <div className="flex-1 sm:flex-[3] print:flex-[3] p-4 sm:border-r print:border-r border-[var(--color-border)]">
+                                    <div className="flex-1 sm:flex-[3] print:flex-[3] px-2 py-4 sm:p-4 sm:border-r print:border-r border-[var(--color-border)]">
                                         <span className="sm:hidden print:hidden block text-[0.6rem] font-black text-blue-600 uppercase mb-1">Paso de la Tarea:</span>
                                         <textarea
                                             rows={1}
@@ -371,7 +371,7 @@ export default function ATS() {
                                     </div>
 
                                     {/* Riesgo */}
-                                    <div className="flex-1 sm:flex-[3] print:flex-[3] p-4 sm:border-r print:border-r border-[var(--color-border)] bg-slate-50/30 sm:bg-transparent">
+                                    <div className="flex-1 sm:flex-[3] print:flex-[3] px-2 py-4 sm:p-4 sm:border-r print:border-r border-[var(--color-border)] bg-slate-50/30 sm:bg-transparent">
                                         <span className="sm:hidden print:hidden block text-[0.6rem] font-black text-blue-600 uppercase mb-1">Riesgos Existentes:</span>
                                         <textarea
                                             rows={1}
@@ -388,7 +388,7 @@ export default function ATS() {
                                     </div>
 
                                     {/* Control */}
-                                    <div className="flex-1 sm:flex-[4] print:flex-[4] p-4">
+                                    <div className="flex-1 sm:flex-[4] print:flex-[4] px-2 py-4 sm:p-4">
                                         <span className="sm:hidden print:hidden block text-[0.6rem] font-black text-blue-600 uppercase mb-1">Medidas de Control:</span>
                                         <textarea
                                             rows={1}
