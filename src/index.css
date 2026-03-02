@@ -800,14 +800,14 @@ label {
     size: A4;
   }
 
-  /* Hide all UI elements */
   .glass-panel,
   .sidebar,
   nav,
   .app-header,
   .header-actions,
   button,
-  .no-print {
+  .no-print,
+  .floating-action-bar {
     display: none !important;
   }
 
@@ -835,6 +835,17 @@ label {
     width: 100% !important;
     margin: 0 !important;
     animation: none !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Prevent blank extra pages by removing bottom margins on the last element */
+  body>*:last-child,
+  #root>*:last-child,
+  .container>*:last-child,
+  #root>div>*:last-child {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
   }
 
   /* Flatten all cards and grids for linear printing */
