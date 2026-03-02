@@ -4,7 +4,7 @@ import {
     ClipboardList, PlusCircle, History, User, Settings,
     Flame, ShieldAlert, BarChart3, ChevronRight, Plus, FileText, Gavel,
     Accessibility, AlertTriangle, Lock, UserPlus, LogIn, Sparkles,
-    Camera, CalendarCheck, Shield, Cpu, Lightbulb
+    Camera, CalendarCheck, Shield, Cpu, Lightbulb, HardHat
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';

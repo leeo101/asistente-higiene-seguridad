@@ -23,13 +23,14 @@ export default function WorkPermit() {
     // Default state
     const [formData, setFormData] = useState({
         id: null,
+        numeroPermiso: '',
         empresa: '',
         obra: '',
         fecha: new Date().toISOString().split('T')[0],
         tipoPermiso: permitTypes[0].id,
         validezDesde: '08:00',
         validezHasta: '18:00',
-        checklist: permitTypes[0].questions.map((q, i) => ({ id: i, pregunta: q, estado: 'Cumple', observaciones: '' })),
+        checklist: permitTypes[0].questions.map((q, i) => ({ id: Date.now() + i, pregunta: q, estado: 'Cumple', observaciones: '' })),
         personal: [
             { id: 1, nombre: '', dni: '', firma: true }
         ],
@@ -81,7 +82,7 @@ export default function WorkPermit() {
             setFormData({
                 ...formData,
                 tipoPermiso: typeId,
-                checklist: selectedType.questions.map((q, i) => ({ id: i, pregunta: q, estado: 'Cumple', observaciones: '' }))
+                checklist: selectedType.questions.map((q, i) => ({ id: Date.now() + i, pregunta: q, estado: 'Cumple', observaciones: '' }))
             });
         }
     };
@@ -91,6 +92,26 @@ export default function WorkPermit() {
             item.id === id ? { ...item, [field]: value } : item
         );
         setFormData({ ...formData, checklist: newList });
+    };
+
+    const addChecklistItem = () => {
+        const newItem = {
+            id: Date.now(),
+            pregunta: '',
+            estado: 'Cumple',
+            observaciones: ''
+        };
+        setFormData({
+            ...formData,
+            checklist: [...formData.checklist, newItem]
+        });
+    };
+
+    const removeChecklistItem = (id) => {
+        setFormData({
+            ...formData,
+            checklist: formData.checklist.filter(item => item.id !== id)
+        });
     };
 
     const addPersonnel = () => {
@@ -210,7 +231,25 @@ export default function WorkPermit() {
                     </div>
                     <div style={{ textAlign: 'right' }}>
                         <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#999' }}>SISTEMA DE GESTIÓN HYS</div>
-                        <div style={{ fontSize: '1.2rem', fontWeight: 900 }}>N° {formData.id ? formData.id.slice(-6) : 'NUEVO'}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' }}>
+                            <span style={{ fontSize: '1.2rem', fontWeight: 900 }}>N°</span>
+                            <input
+                                type="text"
+                                value={formData.numeroPermiso}
+                                placeholder="####"
+                                onChange={e => setFormData({ ...formData, numeroPermiso: e.target.value })}
+                                style={{
+                                    border: 'none',
+                                    background: 'transparent',
+                                    fontSize: '1.2rem',
+                                    fontWeight: 900,
+                                    textAlign: 'right',
+                                    width: '80px',
+                                    outline: 'none',
+                                    color: '#333'
+                                }}
+                            />
+                        </div>
                     </div>
                 </div>
 
@@ -240,18 +279,56 @@ export default function WorkPermit() {
 
                 {/* Checklist Section */}
                 <div style={{ marginBottom: '2.5rem' }}>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 900, marginBottom: '1rem', color: '#172B4D', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <ShieldCheck size={20} /> VERIFICACIÓN PREVENTIVA (CHECKLIST)
-                    </h3>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                        <h3 style={{ fontSize: '1rem', fontWeight: 900, margin: 0, color: '#172B4D', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <ShieldCheck size={20} /> VERIFICACIÓN PREVENTIVA (CHECKLIST)
+                        </h3>
+                        <button className="no-print" onClick={addChecklistItem} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 800, cursor: 'pointer' }}>
+                            + AGREGAR PREGUNTA
+                        </button>
+                    </div>
                     <div style={{ border: '1px solid #eee', borderRadius: '12px', overflow: 'hidden' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 100px 1.5fr 40px', background: '#f8fafc', padding: '0.6rem 1rem', borderBottom: '2px solid #ddd', fontWeight: 800, fontSize: '0.7rem', color: '#666' }} className="hidden sm:grid">
+                            <div>PREGUNTA / ITEM</div>
+                            <div style={{ textAlign: 'center' }}>ESTADO</div>
+                            <div>OBSERVACIONES</div>
+                            <div className="no-print"></div>
+                        </div>
                         {formData.checklist.map((item, idx) => (
-                            <div key={idx} style={{ padding: '0.8rem 1rem', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: idx % 2 === 0 ? '#fafafa' : '#fff' }}>
-                                <div style={{ flex: 1, fontSize: '0.9rem', fontWeight: 600 }}>{item.pregunta}</div>
-                                <div className="no-print" style={{ display: 'flex', gap: '5px' }}>
-                                    <StatusBtn active={item.estado === 'Cumple'} onClick={() => updateChecklist(item.id, 'estado', 'Cumple')} label="SI" />
-                                    <StatusBtn active={item.estado === 'No Cumple'} onClick={() => updateChecklist(item.id, 'estado', 'No Cumple')} label="NO" />
+                            <div key={item.id} style={{ padding: '1rem', borderBottom: '1px solid #f0f0f0', background: idx % 2 === 0 ? '#fafafa' : '#fff' }} className="grid grid-cols-1 sm:grid-cols-[2fr_100px_1.5fr_40px] gap-4 sm:gap-4 items-center">
+                                <div className="flex flex-col sm:block">
+                                    <span className="sm:hidden text-[0.6rem] font-bold text-blue-500 uppercase mb-1">Item/Pregunta:</span>
+                                    <input
+                                        type="text"
+                                        value={item.pregunta}
+                                        onChange={e => updateChecklist(item.id, 'pregunta', e.target.value)}
+                                        style={{ border: 'none', background: 'transparent', width: '100%', outline: 'none', fontWeight: 600, fontSize: '0.85rem' }}
+                                        placeholder="Descripción de la tarea o riesgo..."
+                                    />
                                 </div>
-                                <div className="print-only" style={{ fontWeight: 900 }}>{item.estado === 'Cumple' ? 'SI' : 'NO'}</div>
+                                <div className="flex items-center justify-between sm:justify-center">
+                                    <span className="sm:hidden text-[0.6rem] font-bold text-blue-500 uppercase">Estado:</span>
+                                    <div className="no-print" style={{ display: 'flex', gap: '5px' }}>
+                                        <StatusBtn active={item.estado === 'Cumple'} onClick={() => updateChecklist(item.id, 'estado', 'Cumple')} label="SI" />
+                                        <StatusBtn active={item.estado === 'No Cumple'} onClick={() => updateChecklist(item.id, 'estado', 'No Cumple')} label="NO" color="#FF4D4F" />
+                                    </div>
+                                    <div className="print-only" style={{ fontWeight: 900, color: item.estado === 'No Cumple' ? '#FF4D4F' : 'inherit' }}>{item.estado === 'Cumple' ? 'SI' : 'NO'}</div>
+                                </div>
+                                <div className="flex flex-col sm:block">
+                                    <span className="sm:hidden text-[0.6rem] font-bold text-blue-500 uppercase mb-1">Observaciones:</span>
+                                    <input
+                                        type="text"
+                                        value={item.observaciones}
+                                        onChange={e => updateChecklist(item.id, 'observaciones', e.target.value)}
+                                        style={{ border: 'none', borderBottom: '1px solid #eee', background: 'transparent', width: '100%', outline: 'none', fontSize: '0.8rem' }}
+                                        placeholder="Detalle / Sector..."
+                                    />
+                                </div>
+                                <div className="no-print text-right">
+                                    <button onClick={() => removeChecklistItem(item.id)} style={{ background: 'transparent', border: 'none', color: '#ff4d4f', cursor: 'pointer' }}>
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -299,7 +376,6 @@ export default function WorkPermit() {
                                 <div className="flex items-center gap-2">
                                     <span className="sm:hidden text-[0.6rem] font-bold text-blue-500 uppercase">Firma:</span>
                                     <div style={{ width: '100%', height: '1px', background: '#ccc' }} className="hidden sm:block"></div>
-                                    <div style={{ fontSize: '0.7rem', opacity: 0.5 }} className="sm:hidden">Lugar para firma</div>
                                 </div>
                                 <button className="no-print" onClick={() => removePersonnel(p.id)} style={{ background: 'transparent', border: 'none', color: '#ff4d4f', cursor: 'pointer', textAlign: 'right' }}>
                                     <Trash2 size={16} />
@@ -348,7 +424,7 @@ export default function WorkPermit() {
     );
 }
 
-function StatusBtn({ active, onClick, label }) {
+function StatusBtn({ active, onClick, label, color = '#36B37E' }) {
     return (
         <button
             onClick={onClick}
@@ -356,7 +432,7 @@ function StatusBtn({ active, onClick, label }) {
                 padding: '4px 12px',
                 borderRadius: '6px',
                 border: '1px solid #ddd',
-                background: active ? '#36B37E' : '#fff',
+                background: active ? color : '#fff',
                 color: active ? 'white' : '#666',
                 fontSize: '0.7rem',
                 fontWeight: 800,
