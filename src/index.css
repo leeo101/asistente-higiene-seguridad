@@ -824,7 +824,8 @@ label {
     background: white !important;
     height: auto !important;
     min-height: auto !important;
-    overflow: visible !important;
+    max-height: max-content !important;
+    overflow: hidden !important;
     margin: 0 !important;
     padding: 0 !important;
   }
@@ -843,9 +844,11 @@ label {
   body>*:last-child,
   #root>*:last-child,
   .container>*:last-child,
-  #root>div>*:last-child {
+  #root>div>*:last-child,
+  .signature-container-row {
     margin-bottom: 0 !important;
     padding-bottom: 0 !important;
+    border-bottom: none !important;
   }
 
   /* Flatten all cards and grids for linear printing */
@@ -888,7 +891,7 @@ label {
   table {
     border-collapse: collapse !important;
     width: 100% !important;
-    margin-bottom: 2rem !important;
+    margin-bottom: 0.5rem !important;
     color: #000 !important;
   }
 

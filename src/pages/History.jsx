@@ -299,19 +299,19 @@ export default function History() {
                             style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1, cursor: 'pointer' }}
                             onClick={() => { localStorage.setItem('current_inspection', JSON.stringify(item)); navigate('/report'); }}
                         >
-                            <div style={{ background: 'rgba(59,130,246,0.1)', padding: '0.8rem', borderRadius: '12px', color: 'var(--color-primary)' }}>
+                            <div style={{ background: 'rgba(59,130,246,0.1)', padding: '0.8rem', borderRadius: '12px', color: 'var(--color-primary)', flexShrink: 0 }}>
                                 <FileText />
                             </div>
-                            <div style={{ flex: 1 }}>
-                                <h4 style={{ margin: '0 0 0.3rem 0', fontWeight: 700 }}>{item.name || 'Sin nombre'}</h4>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                                <h4 style={{ margin: '0 0 0.3rem 0', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name || 'Sin nombre'}</h4>
                                 <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap' }}>
                                         <Calendar size={14} /> {new Date(item.date).toLocaleDateString()}
                                     </span>
-                                    <span>{item.type}</span>
+                                    <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.type}</span>
                                 </div>
                             </div>
-                            <div style={{ textAlign: 'right' }}>
+                            <div style={{ textAlign: 'right', flexShrink: 0 }}>
                                 <div style={{ fontWeight: 800, color: 'var(--color-secondary)' }}>{item.result || '--'}</div>
                                 <ChevronRight size={18} color="var(--color-text-muted)" />
                             </div>
