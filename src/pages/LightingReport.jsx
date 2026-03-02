@@ -362,7 +362,7 @@ export default function LightingReport() {
                                                     placeholder="Puesto X"
                                                     className="form-input-transparent no-print"
                                                 />
-                                                <div className="print-only" style={{ padding: '0.5rem' }}>{med.ubicacion}</div>
+                                                <div className="print-only" style={{ padding: '0.5rem', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{med.ubicacion}</div>
                                             </td>
                                             <td style={{ padding: '0.5rem', borderBottom: '1px solid var(--color-border)', width: '100px' }}>
                                                 <input

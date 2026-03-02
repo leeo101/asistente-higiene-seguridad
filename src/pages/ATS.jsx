@@ -311,13 +311,21 @@ export default function ATS() {
                                             >
                                                 {item.pregunta}
                                             </div>
-                                            <input
-                                                type="text"
+                                            <textarea
+                                                rows={1}
                                                 placeholder="Observaciones / Medidas tomadas..."
                                                 value={item.observaciones}
+                                                className="no-print block overflow-hidden"
+                                                onInput={(e) => {
+                                                    e.target.style.height = 'auto';
+                                                    e.target.style.height = e.target.scrollHeight + 'px';
+                                                }}
                                                 onChange={(e) => updateChecklist(item.id, 'observaciones', e.target.value)}
-                                                style={{ margin: 0, padding: '0.4rem', fontSize: '0.7rem', background: 'transparent', border: '1px solid #efefef', borderRadius: '4px', width: '100%', color: 'var(--color-text-muted)' }}
+                                                style={{ margin: 0, padding: '0.4rem', fontSize: '0.7rem', background: 'transparent', border: '1px solid #efefef', borderRadius: '4px', width: '100%', color: 'var(--color-text-muted)', resize: 'none', minHeight: '30px' }}
                                             />
+                                            <div className="print-only w-full padding-0.4rem text-[0.7rem] text-slate-500 whitespace-pre-wrap break-words mt-1">
+                                                {item.observaciones || ''}
+                                            </div>
                                         </div>
                                         <div className="flex items-center justify-between sm:justify-end print:justify-end gap-2 w-full sm:w-auto print:w-auto mt-2 sm:mt-0 print:mt-0">
                                             <div className="no-print w-[140px] flex-shrink-0">

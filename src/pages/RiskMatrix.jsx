@@ -248,6 +248,7 @@ export default function RiskMatrix() {
                                 <div>
                                     <label style={labelStyle}>Tarea / Proceso</label>
                                     <textarea value={row.task} onChange={e => updateRow(row.id, 'task', e.target.value)}
+                                        onInput={e => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
                                         placeholder="Describa la tarea o proceso..." style={textareaStyle} />
                                 </div>
                                 <div>
@@ -259,11 +260,13 @@ export default function RiskMatrix() {
                                 <div>
                                     <label style={labelStyle}>Peligro / Riesgo Identificado</label>
                                     <textarea value={row.hazard} onChange={e => updateRow(row.id, 'hazard', e.target.value)}
+                                        onInput={e => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
                                         placeholder="¿Qué puede causar daño?" style={textareaStyle} />
                                 </div>
                                 <div>
                                     <label style={labelStyle}>Efecto Probable</label>
                                     <textarea value={row.probableEffect} onChange={e => updateRow(row.id, 'probableEffect', e.target.value)}
+                                        onInput={e => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
                                         placeholder="Ej: Laceración, Hipoacusia..." style={textareaStyle} />
                                 </div>
                             </div>
@@ -315,6 +318,7 @@ export default function RiskMatrix() {
                                 <div>
                                     <label style={labelStyle}>Medidas de Control</label>
                                     <textarea value={row.controls} onChange={e => updateRow(row.id, 'controls', e.target.value)}
+                                        onInput={e => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
                                         placeholder="EPP, capacitación, procedimientos..." style={textareaStyle} />
                                 </div>
                             </div>
@@ -369,7 +373,7 @@ const labelStyle = {
 const textareaStyle = {
     width: '100%', minHeight: '72px', padding: '0.6rem 0.8rem', margin: 0,
     background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '10px',
-    fontSize: '0.82rem', resize: 'vertical', color: '#0f172a', fontFamily: 'inherit',
+    fontSize: '0.82rem', resize: 'none', overflow: 'hidden', color: '#0f172a', fontFamily: 'inherit',
     outline: 'none', boxSizing: 'border-box'
 };
 const selectStyle = {

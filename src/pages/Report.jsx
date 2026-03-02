@@ -164,7 +164,7 @@ export default function Report() {
                                         <td style={{ border: '1px solid #e2e8f0', padding: '0.8rem' }}>
                                             <div style={{ fontWeight: 800, color: '#172B4D' }}>{obs.category}</div>
                                         </td>
-                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.8rem' }}>
+                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.8rem', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                                             {obs.description}
                                         </td>
                                         <td style={{ border: '1px solid #e2e8f0', padding: '0.8rem', textAlign: 'center' }}>

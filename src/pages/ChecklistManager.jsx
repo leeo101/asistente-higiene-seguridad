@@ -431,7 +431,7 @@ export default function ChecklistManager() {
                                             <div className="text-center font-black text-[0.6rem] bg-slate-50/50 h-10 w-8 flex items-center justify-center rounded-md mr-3 text-slate-400 border border-slate-100 shrink-0">{idx + 1}</div>
                                             <textarea
                                                 rows={1}
-                                                className="w-full px-1 py-2 font-bold text-slate-800 text-[0.85rem] outline-none bg-transparent resize-none leading-tight border-none focus:ring-0 placeholder:text-slate-300 min-h-[40px] overflow-hidden"
+                                                className="w-full px-1 py-2 font-bold text-slate-800 text-[0.85rem] outline-none bg-transparent resize-none leading-tight border-none focus:ring-0 placeholder:text-slate-300 min-h-[40px] overflow-hidden no-print block"
                                                 value={item.text}
                                                 onInput={(e) => {
                                                     e.target.style.height = 'auto';
@@ -439,6 +439,9 @@ export default function ChecklistManager() {
                                                 }}
                                                 onChange={e => updateItem(section.id, idx, 'text', e.target.value)}
                                             />
+                                            <div className="print-only w-full px-1 py-2 font-bold text-slate-800 text-[0.85rem] leading-tight whitespace-pre-wrap break-words">
+                                                {item.text}
+                                            </div>
                                         </div>
                                         <div className="flex items-center justify-between sm:justify-end print:justify-end gap-2 w-full sm:w-auto print:w-auto p-4 pt-2 sm:pt-4 print:pt-4">
                                             <div className="no-print w-[135px] flex-shrink-0">
@@ -467,11 +470,18 @@ export default function ChecklistManager() {
                 <div className="mt-8 border-2 border-slate-300 rounded-xl p-8 bg-slate-50 relative overflow-hidden text-left">
                     <div className="absolute -top-4 left-8 bg-slate-800 text-white px-5 py-0.5 font-black text-[0.65rem] uppercase italic tracking-[0.2em] shadow-sm z-10 rounded-b-md">OBSERVACIONES</div>
                     <textarea
-                        className="w-full bg-transparent outline-none text-[1rem] font-bold leading-relaxed resize-none min-h-[140px] placeholder:text-slate-300 relative z-20 text-left"
+                        className="w-full bg-transparent outline-none text-[1rem] font-bold leading-relaxed resize-none min-h-[140px] placeholder:text-slate-300 relative z-20 text-left no-print block overflow-hidden"
                         placeholder="Ingrese observaciones, hallazgos o medidas correctivas..."
                         value={observations}
+                        onInput={(e) => {
+                            e.target.style.height = 'auto';
+                            e.target.style.height = e.target.scrollHeight + 'px';
+                        }}
                         onChange={e => setObservations(e.target.value)}
                     />
+                    <div className="print-only w-full text-[1rem] font-bold leading-relaxed whitespace-pre-wrap break-words relative z-20 text-left min-h-[140px]">
+                        {observations || 'Sin observaciones adicionales.'}
+                    </div>
                 </div>
 
                 {/* SIGNATURE CONTROLS (NO PRINT) */}

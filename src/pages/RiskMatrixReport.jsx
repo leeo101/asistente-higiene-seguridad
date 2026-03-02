@@ -188,10 +188,10 @@ export default function RiskMatrixReport() {
                                 return (
                                     <tr key={i} style={{ background: i % 2 === 0 ? '#fff' : '#fafafa' }}>
                                         <td style={{ border: '1px solid #e2e8f0', padding: '0.6rem', textAlign: 'center', fontWeight: 800, color: '#94a3b8' }}>{i + 1}</td>
-                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.6rem' }}>{row.task}</td>
-                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.6rem' }}>{row.hazardType}</td>
-                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.6rem' }}>{row.hazard}</td>
-                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.6rem' }}>{row.probableEffect}</td>
+                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.6rem', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{row.task}</td>
+                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.6rem', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{row.hazardType}</td>
+                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.6rem', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{row.hazard}</td>
+                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.6rem', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{row.probableEffect}</td>
                                         <td style={{ border: '1px solid #e2e8f0', padding: '0.6rem', textAlign: 'center' }}>{row.exposedCount}</td>
                                         <td style={{ border: '1px solid #e2e8f0', padding: '0.6rem', textAlign: 'center', fontWeight: 800 }}>{row.probability}</td>
                                         <td style={{ border: '1px solid #e2e8f0', padding: '0.6rem', textAlign: 'center', fontWeight: 800 }}>{row.severity}</td>
@@ -199,7 +199,7 @@ export default function RiskMatrixReport() {
                                         <td style={{ border: '1px solid #e2e8f0', padding: '0.4rem', textAlign: 'center' }}>
                                             <span style={{ background: lv.bg, color: lv.color, border: `1px solid ${lv.color}40`, borderRadius: '12px', padding: '0.25rem 0.6rem', fontWeight: 900, fontSize: '0.65rem', whiteSpace: 'nowrap' }}>{lv.label}</span>
                                         </td>
-                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.6rem' }}>{row.controls}</td>
+                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.6rem', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{row.controls}</td>
                                     </tr>
                                 );
                             })}

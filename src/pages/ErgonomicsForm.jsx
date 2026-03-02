@@ -279,10 +279,18 @@ export default function ErgonomicsForm() {
                         <label>Recomendaciones de Acción</label>
                         <textarea
                             rows={3}
+                            className="no-print block overflow-hidden w-full"
                             value={formData.recomendaciones}
+                            onInput={e => {
+                                e.target.style.height = 'auto';
+                                e.target.style.height = e.target.scrollHeight + 'px';
+                            }}
                             onChange={(e) => setFormData({ ...formData, recomendaciones: e.target.value })}
                             placeholder="Proponga medidas correctivas o ingenieriles..."
                         />
+                        <div className="print-only whitespace-pre-wrap break-words mt-2 font-semibold">
+                            {formData.recomendaciones || 'Sin recomendaciones especificadas.'}
+                        </div>
                     </div>
 
                     {/* Botones de acción estables (no fijos) para evitar saltos en móvil */}

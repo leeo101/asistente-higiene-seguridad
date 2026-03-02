@@ -322,6 +322,7 @@ export default function FireLoad() {
                         <div style={{ marginBottom: '1rem' }}>
                             <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Descripción de Actividad</label>
                             <textarea
+                                className="no-print"
                                 value={formData.descripcionActividad}
                                 onChange={e => setFormData({ ...formData, descripcionActividad: e.target.value })}
                                 onInput={e => {

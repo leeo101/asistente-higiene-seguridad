@@ -539,10 +539,15 @@ export default function SafetyCalendar() {
                             <div>
                                 <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-text)', marginBottom: '0.6rem', display: 'block' }}>Descripción (Opcional)</label>
                                 <textarea
+                                    className="overflow-hidden block"
                                     value={newEvent.description}
+                                    onInput={e => {
+                                        e.target.style.height = 'auto';
+                                        e.target.style.height = e.target.scrollHeight + 'px';
+                                    }}
                                     onChange={e => setNewEvent({ ...newEvent, description: e.target.value })}
                                     placeholder="Detalles adicionales sobre esta agenda..."
-                                    style={{ height: '80px', borderRadius: '12px', padding: '1rem', width: '100%' }}
+                                    style={{ minHeight: '80px', borderRadius: '12px', padding: '1rem', width: '100%', resize: 'none' }}
                                 />
                             </div>
                             <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>

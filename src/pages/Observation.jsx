@@ -44,10 +44,18 @@ export default function Observation() {
                     <label>Descripción de la Anomalía</label>
                     <textarea
                         rows={4}
+                        className="no-print block overflow-hidden w-full"
                         placeholder="Detalle el riesgo observado..."
                         value={observation.description}
+                        onInput={e => {
+                            e.target.style.height = 'auto';
+                            e.target.style.height = e.target.scrollHeight + 'px';
+                        }}
                         onChange={(e) => setObservation({ ...observation, description: e.target.value })}
                     />
+                    <div className="print-only whitespace-pre-wrap break-words mt-2 font-semibold">
+                        {observation.description || 'Sin descripción detallada.'}
+                    </div>
                 </div>
 
                 <div style={{ marginBottom: '1.5rem' }}>
