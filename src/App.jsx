@@ -197,7 +197,7 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/subscribe" element={<Subscription />} />
+            <Route path="/subscribe" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
 
             {/* Public Routes */}
