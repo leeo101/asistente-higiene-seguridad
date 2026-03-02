@@ -446,7 +446,7 @@ export default function ATS() {
 
                             <div className="w-full flex-col">
                                 {formData.checklist.filter(i => i.categoria === cat).map((item, idx) => (
-                                    <div key={item.id} className="group hover:bg-slate-50/20 transition-colors flex flex-col sm:flex-row print:flex-row items-stretch sm:items-center print:items-center border-b border-slate-200 p-4">
+                                    <div key={item.id} className="group hover:bg-slate-50/20 transition-colors flex flex-col sm:flex-row print:flex-row items-stretch sm:items-center print:items-center border-b border-slate-200 p-3 sm:p-4">
                                         <div className="flex-1 min-w-0 mb-3 sm:mb-0 print:mb-0 sm:pr-4 print:pr-4">
                                             <div
                                                 contentEditable
@@ -483,13 +483,13 @@ export default function ATS() {
                                             <div className="hidden print:block text-center font-black w-[60px] text-[0.8rem]">
                                                 {item.estado === 'Cumple' ? '✓' : item.estado === 'No Cumple' ? '✗' : '-'}
                                             </div>
-                                            <div className="no-print w-[40px] text-right">
+                                            <div className="no-print w-[30px] sm:w-[40px] flex justify-end items-center">
                                                 <button
                                                     onClick={() => removeQuestion(item.id)}
-                                                    className="text-red-300 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all p-1"
-                                                    style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}
+                                                    className="text-red-400 hover:text-red-600 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all p-1"
+                                                    style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                                 >
-                                                    <Trash2 size={16} />
+                                                    <Trash2 size={18} />
                                                 </button>
                                             </div>
                                         </div>
