@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
     ArrowLeft, Search, FileText, Calendar, ChevronRight,
     ClipboardList, Flame, BarChart3, ShieldAlert, Plus, Sparkles, Trash2, Camera
@@ -44,8 +44,16 @@ function DeleteConfirm({ onConfirm, onCancel }) {
 
 export default function History() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { syncCollection, syncPulse } = useSync();
-    const [view, setView] = useState('hub');
+    const [view, setView] = useState(location.state?.view || 'hub');
+
+    useEffect(() => {
+        if (location.state?.view) {
+            setView(location.state.view);
+        }
+    }, [location.state?.view]);
+
     const [historicalData, setHistoricalData] = useState([]);
     const [matrixData, setMatrixData] = useState([]);
     const [reportsData, setReportsData] = useState([]);

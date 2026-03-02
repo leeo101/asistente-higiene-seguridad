@@ -159,9 +159,9 @@ export default function Home() {
                                 onClick={() => {
                                     if (stat.key === 'ats_history') navigate('/ats-history');
                                     else if (stat.key === 'fireload_history') navigate('/fire-load-history');
-                                    else if (stat.key === 'reports_history') navigate('/reports');
-                                    else if (stat.key === 'risk_matrix_history') navigate('/risk-matrix');
-                                    else navigate('/history');
+                                    else if (stat.key === 'reports_history') navigate('/history', { state: { view: 'reports' } });
+                                    else if (stat.key === 'risk_matrix_history') navigate('/history', { state: { view: 'matrices' } });
+                                    else navigate('/history', { state: { view: 'inspections' } });
                                 }}
                                 style={{
                                     background: 'rgba(255,255,255,0.12)',
@@ -352,7 +352,17 @@ export default function Home() {
                                         border: '1px solid var(--color-border)',
                                         borderRadius: '14px', padding: '0.9rem 1rem',
                                         transition: 'transform 0.2s',
+                                        cursor: 'pointer'
                                     }}
+                                        onClick={() => {
+                                            if (work.type === 'ATS') navigate('/ats-history');
+                                            else if (work.type === 'Carga Fuego') navigate('/fire-load-history');
+                                            else if (work.type === 'Inspección') navigate('/history', { state: { view: 'inspections' } });
+                                            else if (work.type === 'Matriz') navigate('/history', { state: { view: 'matrices' } });
+                                            else if (work.type === 'Informe') navigate('/history', { state: { view: 'reports' } });
+                                            else if (work.type === 'Checklist') navigate('/checklists-history');
+                                            else if (work.type === 'Iluminación') navigate('/lighting-history');
+                                        }}
                                         onMouseOver={e => e.currentTarget.style.transform = 'translateX(4px)'}
                                         onMouseOut={e => e.currentTarget.style.transform = 'translateX(0)'}
                                     >
