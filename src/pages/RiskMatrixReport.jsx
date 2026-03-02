@@ -210,7 +210,7 @@ export default function RiskMatrixReport() {
 
                 {/* ─── Signature Controls (no-print) ─── */}
                 <div className="no-print mt-10 mb-8 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-xs font-bold text-slate-700">
-                    <div>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                    <div className="text-center">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
                     <div className="flex gap-4 flex-wrap justify-center">
                         {['operator', 'supervisor', 'professional'].map(key => (
                             <label key={key} className="flex items-center gap-2 cursor-pointer">

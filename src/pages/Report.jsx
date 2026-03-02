@@ -204,17 +204,19 @@ export default function Report() {
                 <div style={{ marginTop: '4rem' }}>
                     <h3 className="no-print" style={{ fontSize: '0.9rem', fontWeight: 800, marginBottom: '1.5rem', color: '#6B778C' }}>VALIDACIÓN DEL REPORTE</h3>
 
-                    <div className="no-print mb-8 p-4 bg-slate-50 border border-slate-200 rounded-xl flex gap-6 text-xs font-bold">
-                        <span>INCLUIR FIRMAS:</span>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-4 h-4" /> Operador
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-4 h-4" /> Supervisor
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-4 h-4" /> Profesional
-                        </label>
+                    <div className="no-print mb-8 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-xs font-bold text-slate-700">
+                        <div className="text-center">INCLUIR FIRMAS:</div>
+                        <div className="flex gap-4 flex-wrap justify-center">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-4 h-4 accent-blue-600" /> Operador
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-4 h-4 accent-blue-600" /> Supervisor
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-4 h-4 accent-blue-600" /> Profesional
+                            </label>
+                        </div>
                     </div>
 
                     <div className="signature-container-row mt-10" style={{ pageBreakInside: 'avoid' }}>

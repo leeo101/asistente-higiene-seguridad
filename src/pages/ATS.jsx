@@ -361,8 +361,8 @@ export default function ATS() {
                     </h3>
 
                     <div className="no-print mb-8 p-6 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-sm font-bold text-slate-700">
-                        <div>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                        <div className="flex gap-6">
+                        <div className="text-center">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                        <div className="flex gap-4 flex-wrap justify-center">
                             <label className="flex items-center gap-2 cursor-pointer">
                                 <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Operador
                             </label>
