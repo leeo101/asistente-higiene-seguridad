@@ -1,7 +1,29 @@
+import React, { useState, useEffect } from 'react';
+import { ExternalLink, ShieldCheck, Tag } from 'lucide-react';
 import { usePaywall } from '../hooks/usePaywall';
 
 const MOCK_ADS = [
-    // ... items stay the same
+    {
+        title: "Pack de Protectores 3M",
+        desc: "Equipamiento profesional con 20% de descuento para matriculados.",
+        link: "https://www.3m.com.ar",
+        tag: "Patrocinado",
+        icon: <ShieldCheck size={20} color="#2563EB" />
+    },
+    {
+        title: "Curso: Res. 886/15",
+        desc: "Capacitación online en Ergonomía. Inicia este lunes. ¡Inscribite!",
+        link: "https://www.srt.gob.ar",
+        tag: "Formación",
+        icon: <Tag size={20} color="#10b981" />
+    },
+    {
+        title: "Software Gestión HYS",
+        desc: "Digitalizá tus planillas y reportes con nuestra suite premium.",
+        link: "#",
+        tag: "Software",
+        icon: <ShieldCheck size={20} color="#8b5cf6" />
+    }
 ];
 
 export default function AdBanner({ placement = 'general' }) {
