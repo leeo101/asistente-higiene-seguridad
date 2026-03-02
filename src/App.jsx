@@ -37,6 +37,7 @@ import ResetPassword from './pages/ResetPassword.jsx';
 import AdminRequests from './pages/AdminRequests.jsx';
 import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
 import LightingReport from './pages/LightingReport.jsx';
+import LightingHistory from './pages/LightingHistory.jsx';
 
 import ChecklistsHistory from './pages/ChecklistsHistory.jsx';
 import ChecklistManager from './pages/ChecklistManager.jsx';
@@ -238,6 +239,7 @@ function App() {
             <Route path="/ats-history" element={<ProtectedRoute><ATSHistory /></ProtectedRoute>} />
             <Route path="/fire-load-history" element={<ProtectedRoute><FireLoadHistory /></ProtectedRoute>} />
             <Route path="/checklists-history" element={<ProtectedRoute><ChecklistsHistory /></ProtectedRoute>} />
+            <Route path="/lighting-history" element={<ProtectedRoute><LightingHistory /></ProtectedRoute>} />
             <Route path="/admin/requests" element={<ProtectedRoute><AdminRequests /></ProtectedRoute>} />
 
             <Route path="/matrices" element={<Navigate to="/risk-matrix" replace />} />

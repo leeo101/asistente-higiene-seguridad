@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
     ArrowLeft, Search, FileText, Calendar, ChevronRight,
-    ClipboardList, Flame, BarChart3, ShieldAlert, Plus, Sparkles, Trash2, Camera
+    ClipboardList, Flame, BarChart3, ShieldAlert, Plus, Sparkles, Trash2, Camera, Lightbulb
 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 
@@ -70,6 +70,7 @@ export default function History() {
             checklists: JSON.parse(localStorage.getItem('tool_checklists_history') || '[]').length,
             ai: JSON.parse(localStorage.getItem('ai_advisor_history') || '[]').length,
             aiCamera: JSON.parse(localStorage.getItem('ai_camera_history') || '[]').length,
+            lighting: JSON.parse(localStorage.getItem('lighting_history') || '[]').length,
         });
     };
 
@@ -129,6 +130,7 @@ export default function History() {
         { title: 'Inspecciones', icon: <FileText />, color: '#3b82f6', path: '/history-list', countKey: 'inspections', view: 'inspections' },
         { title: 'ATS (Análisis Seguro)', icon: <BarChart3 />, color: '#10b981', path: '/ats-history', countKey: 'ats' },
         { title: 'Carga de Fuego', icon: <Flame />, color: '#f97316', path: '/fire-load-history', countKey: 'fireload' },
+        { title: 'Iluminación', icon: <Lightbulb />, color: '#eab308', path: '/lighting-history', countKey: 'lighting' },
         { title: 'Matrices de Riesgo', icon: <ShieldAlert />, color: '#8b5cf6', path: '/history-list-matrix', countKey: 'matrices', view: 'matrices' },
         { title: 'Informes Profesionales', icon: <FileText />, color: '#ec4899', path: '/reports-history', countKey: 'reports', view: 'reports' },
         { title: 'Checklist Herramientas', icon: <ClipboardList />, color: '#3b82f6', path: '/checklists-history', countKey: 'checklists' },

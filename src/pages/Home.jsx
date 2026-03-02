@@ -161,6 +161,8 @@ export default function Home() {
                                     else if (stat.key === 'fireload_history') navigate('/fire-load-history');
                                     else if (stat.key === 'reports_history') navigate('/history', { state: { view: 'reports' } });
                                     else if (stat.key === 'risk_matrix_history') navigate('/history', { state: { view: 'matrices' } });
+                                    else if (stat.key === 'lighting_history') navigate('/lighting-history');
+                                    else if (stat.key === 'tool_checklists_history') navigate('/checklists-history');
                                     else navigate('/history', { state: { view: 'inspections' } });
                                 }}
                                 style={{
