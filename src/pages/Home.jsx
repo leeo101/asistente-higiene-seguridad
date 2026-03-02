@@ -19,6 +19,7 @@ const typeColors = {
     'Informe': { bg: 'rgba(236,72,153,0.12)', text: '#ec4899', icon: <FileText size={18} /> },
     'Checklist': { bg: 'rgba(20,184,166,0.12)', text: '#14b8a6', icon: <ClipboardList size={18} /> },
     'Iluminación': { bg: 'rgba(234,179,8,0.12)', text: '#eab308', icon: <Lightbulb size={18} /> },
+    'Permiso': { bg: 'rgba(37,99,235,0.12)', text: '#2563eb', icon: <HardHat size={18} /> },
 };
 
 const quickLinks = [
@@ -32,6 +33,7 @@ const quickLinks = [
     { to: '/ai-camera', icon: <Camera size={26} />, label: 'Cámara IA', sub: 'Detección EPP', color: '#06b6d4', bg: 'rgba(6,182,212,0.1)' },
     { to: '/ai-advisor', icon: <Sparkles size={26} />, label: 'Asesor IA', sub: 'Consultas de Seguridad', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
     { to: '/checklists', icon: <ClipboardList size={26} />, label: 'Checklists', sub: 'Herramientas y Equipos', color: '#14b8a6', bg: 'rgba(20,184,166,0.1)' },
+    { to: '/work-permit', icon: <HardHat size={26} />, label: 'Permisos', sub: 'Tareas Críticas', color: '#2563eb', bg: 'rgba(37,99,235,0.1)' },
 ];
 
 export default function Home() {
@@ -48,6 +50,7 @@ export default function Home() {
         { label: 'Carga Fuego', value: 0, icon: <Flame />, color: '#f97316', grad: 'linear-gradient(135deg,#f97316,#ea580c)', key: 'fireload_history' },
         { label: 'Matrices', value: 0, icon: <ShieldAlert />, color: '#8b5cf6', grad: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', key: 'risk_matrix_history' },
         { label: 'Iluminación', value: 0, icon: <Lightbulb />, color: '#eab308', grad: 'linear-gradient(135deg,#eab308,#ca8a04)', key: 'lighting_history' },
+        { label: 'Permisos', value: 0, icon: <HardHat />, color: '#2563eb', grad: 'linear-gradient(135deg,#2563eb,#1d4ed8)', key: 'work_permits_history' },
         { label: 'Informes', value: 0, icon: <FileText />, color: '#ec4899', grad: 'linear-gradient(135deg,#ec4899,#db2777)', key: 'reports_history' },
     ]);
     const [recentWorks, setRecentWorks] = useState([]);
@@ -99,6 +102,7 @@ export default function Home() {
                 ...reports.map(r => ({ id: r.id, title: r.title, subtitle: r.company, date: r.createdAt, type: 'Informe' })),
                 ...tools.map(t => ({ id: t.id, title: t.equipo, subtitle: t.empresa, date: t.fecha, type: 'Checklist' })),
                 ...lighting.map(l => ({ id: l.id, title: l.empresa, subtitle: l.sector, date: l.date, type: 'Iluminación' })),
+                ...JSON.parse(localStorage.getItem('work_permits_history') || '[]').map(p => ({ id: p.id, title: p.empresa, subtitle: p.obra, date: p.createdAt, type: 'Permiso' })),
             ].sort((a, b) => new Date(b.date || b.fecha || b.createdAt) - new Date(a.date || a.fecha || a.createdAt)).slice(0, 4);
             setRecentWorks(combined);
         };
@@ -162,6 +166,7 @@ export default function Home() {
                                     else if (stat.key === 'reports_history') navigate('/history', { state: { view: 'reports' } });
                                     else if (stat.key === 'risk_matrix_history') navigate('/history', { state: { view: 'matrices' } });
                                     else if (stat.key === 'lighting_history') navigate('/lighting-history');
+                                    else if (stat.key === 'work_permits_history') navigate('/work-permit-history');
                                     else if (stat.key === 'tool_checklists_history') navigate('/checklists-history');
                                     else navigate('/history', { state: { view: 'inspections' } });
                                 }}
@@ -372,6 +377,7 @@ export default function Home() {
                                             else if (work.type === 'Informe') navigate('/history', { state: { view: 'reports' } });
                                             else if (work.type === 'Checklist') navigate('/checklists-history');
                                             else if (work.type === 'Iluminación') navigate('/lighting-history');
+                                            else if (work.type === 'Permiso') navigate('/work-permit-history');
                                         }}
                                         onMouseOver={e => e.currentTarget.style.transform = 'translateX(4px)'}
                                         onMouseOut={e => e.currentTarget.style.transform = 'translateX(0)'}
