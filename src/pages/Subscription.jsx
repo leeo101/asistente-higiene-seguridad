@@ -40,6 +40,12 @@ export default function Subscription() {
     }, [isPro]);
 
     const handleMercadoPago = async () => {
+        if (!currentUser) {
+            toast.error('Debes crear una cuenta o iniciar sesión para suscribirte.', { duration: 4000 });
+            navigate('/login', { state: { view: 'register' } });
+            return;
+        }
+
         setLoading(true);
         try {
             const fetchUrl = `${API_BASE_URL}/api/create-subscription`;
