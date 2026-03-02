@@ -4,6 +4,7 @@ import { ArrowLeft, Printer, Share2, Download, CheckCircle2, AlertTriangle, Shie
 import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
+import { toast } from 'react-hot-toast';
 
 export default function AIReport() {
     const navigate = useNavigate();
@@ -240,7 +241,7 @@ export default function AIReport() {
 
             {/* Floating Action Buttons */}
             <div className="no-print floating-action-bar">
-                <button onClick={() => window.alert('Los reportes de IA se guardan automáticamente en tu Historial.')} className="btn-floating-action" style={{ background: '#36B37E', color: 'white' }}>
+                <button onClick={() => toast.success('Los reportes de IA se guardan automáticamente en tu Historial.')} className="btn-floating-action" style={{ background: '#36B37E', color: 'white' }}>
                     <CheckCircle2 size={18} /> GUARDADO
                 </button>
                 <button onClick={() => requirePro(() => setShowShare(true))} className="btn-floating-action" style={{ background: '#0052CC', color: 'white' }}>

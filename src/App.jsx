@@ -46,6 +46,7 @@ import AICameraHistory from './pages/AICameraHistory.jsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
 import { SyncProvider } from './contexts/SyncContext.jsx';
 import { Toaster, toast } from 'react-hot-toast';
+import { usePaywall } from './hooks/usePaywall.js';
 
 function SubscriptionGuard({ children }) {
   const status = typeof window !== 'undefined' ? localStorage.getItem('subscriptionStatus') : null;
@@ -57,29 +58,17 @@ function SubscriptionGuard({ children }) {
   return children;
 }
 
-function ProtectedRoute({ children }) {
-  const { currentUser } = useAuth();
-  if (!currentUser) {
-    return <Navigate to="/login" replace />;
-  }
-  return children;
-}
+function GlobalPrintGuard() {
+  const { isPro } = usePaywall();
 
-function App() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const location = useLocation();
-  const showMenuButton = location.pathname !== '/login' && location.pathname !== '/subscribe' && location.pathname !== '/ai-camera';
-
-  // Global Ctrl+P Prevention for Paywall
   useEffect(() => {
     const handleKeyDown = (e) => {
       // Check for Ctrl+P (Windows/Linux) or Cmd+P (Mac)
       if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
-        const status = localStorage.getItem('subscriptionStatus');
-        if (status !== 'active') {
+        if (!isPro()) {
           e.preventDefault();
           e.stopPropagation();
-          toast.error('La función de impresión es exclusiva para usuarios PRO.', {
+          toast.error('La función de impresión es exclusiva para usuarios PRO y Administradores.', {
             id: 'print-blocked-toast',
             duration: 4000,
             icon: '⚠️',
@@ -99,7 +88,23 @@ function App() {
 
     window.addEventListener('keydown', handleKeyDown, true);
     return () => window.removeEventListener('keydown', handleKeyDown, true);
-  }, []);
+  }, [isPro]);
+
+  return null;
+}
+
+function ProtectedRoute({ children }) {
+  const { currentUser } = useAuth();
+  if (!currentUser) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+}
+
+function App() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const location = useLocation();
+  const showMenuButton = location.pathname !== '/login' && location.pathname !== '/subscribe' && location.pathname !== '/ai-camera';
 
   // Apply theme on mount
   useEffect(() => {
@@ -112,6 +117,7 @@ function App() {
   return (
     <AuthProvider>
       <SyncProvider>
+        <GlobalPrintGuard />
         <Toaster
           position="top-center"
           reverseOrder={false}

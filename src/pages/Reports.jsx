@@ -283,14 +283,14 @@ export default function Reports() {
                     <Save size={18} /> GENERAR INFORME
                 </button>
                 <button
-                    onClick={() => window.alert('Selecciona "Generar Informe" primero para poder compartirlo.')}
+                    onClick={() => toast.error('Selecciona "Generar Informe" primero para poder compartirlo.')}
                     className="btn-floating-action"
                     style={{ background: '#0052CC', color: 'white' }}
                 >
                     <Share2 size={18} /> COMPARTIR
                 </button>
                 <button
-                    onClick={() => window.alert('Selecciona "Generar Informe" primero para poder imprimirlo.')}
+                    onClick={() => toast.error('Selecciona "Generar Informe" primero para poder imprimirlo.')}
                     className="btn-floating-action"
                     style={{ background: '#FF8B00', color: 'white' }}
                 >

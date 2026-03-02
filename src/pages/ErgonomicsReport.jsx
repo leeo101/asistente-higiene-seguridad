@@ -4,6 +4,7 @@ import { ArrowLeft, Printer, Share2, Download, CheckCircle2, AlertTriangle, Info
 import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
+import { toast } from 'react-hot-toast';
 
 export default function ErgonomicsReport() {
     const navigate = useNavigate();
@@ -208,7 +209,7 @@ export default function ErgonomicsReport() {
             </div>
             {/* Floating Action Buttons */}
             <div className="no-print floating-action-bar">
-                <button onClick={() => window.alert('Este reporte ya se encuentra guardado en tu historial.')} className="btn-floating-action" style={{ background: '#36B37E', color: 'white' }}>
+                <button onClick={() => toast.success('Este reporte ya se encuentra guardado en tu historial.')} className="btn-floating-action" style={{ background: '#36B37E', color: 'white' }}>
                     <CheckCircle2 size={18} /> GUARDADO
                 </button>
                 <button onClick={() => requirePro(() => setShowShare(true))} className="btn-floating-action" style={{ background: '#0052CC', color: 'white' }}>
