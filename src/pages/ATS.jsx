@@ -341,69 +341,78 @@ export default function ATS() {
                     </div>
 
                     <div style={{ border: '2px solid var(--color-border)', borderRadius: '16px', overflow: 'hidden' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-                            <thead>
-                                <tr style={{ background: '#f8fafc', borderBottom: '2px solid var(--color-border)' }}>
-                                    <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 900, textTransform: 'uppercase', color: 'var(--color-text-muted)', borderRight: '1px solid var(--color-border)', width: '30%' }}>Paso de la Tarea</th>
-                                    <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 900, textTransform: 'uppercase', color: 'var(--color-text-muted)', borderRight: '1px solid var(--color-border)', width: '30%' }}>Riesgos Existentes</th>
-                                    <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 900, textTransform: 'uppercase', color: 'var(--color-text-muted)', width: '35%' }}>Medidas de Control</th>
-                                    <th className="no-print" style={{ width: '5%' }}></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {formData.tareas.map((t) => (
-                                    <tr key={t.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
-                                        <td style={{ padding: '0.8rem', borderRight: '1px solid var(--color-border)' }}>
-                                            <textarea
-                                                rows={1}
-                                                value={t.paso}
-                                                onChange={(e) => updateTask(t.id, 'paso', e.target.value)}
-                                                onInput={(e) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
-                                                className="no-print"
-                                                style={{ width: '100%', border: 'none', background: 'transparent', outline: 'none', resize: 'none', fontWeight: 700, overflow: 'hidden' }}
-                                                placeholder="Ej: Preparación de área..."
-                                            />
-                                            <div className="print-only font-bold text-slate-800 text-[0.85rem] whitespace-pre-wrap break-words">
-                                                {t.paso}
-                                            </div>
-                                        </td>
-                                        <td style={{ padding: '0.8rem', borderRight: '1px solid var(--color-border)' }}>
-                                            <textarea
-                                                rows={1}
-                                                value={t.riesgo}
-                                                onChange={(e) => updateTask(t.id, 'riesgo', e.target.value)}
-                                                onInput={(e) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
-                                                className="no-print"
-                                                style={{ width: '100%', border: 'none', background: 'transparent', outline: 'none', resize: 'none', overflow: 'hidden' }}
-                                                placeholder="Ej: Caídas, Golpes..."
-                                            />
-                                            <div className="print-only text-slate-700 text-[0.8rem] whitespace-pre-wrap break-words">
-                                                {t.riesgo}
-                                            </div>
-                                        </td>
-                                        <td style={{ padding: '0.8rem' }}>
-                                            <textarea
-                                                rows={1}
-                                                value={t.control}
-                                                onChange={(e) => updateTask(t.id, 'control', e.target.value)}
-                                                onInput={(e) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
-                                                className="no-print"
-                                                style={{ width: '100%', border: 'none', background: 'transparent', outline: 'none', resize: 'none', overflow: 'hidden' }}
-                                                placeholder="Ej: Delimitación, Uso EPP..."
-                                            />
-                                            <div className="print-only text-slate-700 text-[0.8rem] whitespace-pre-wrap break-words">
-                                                {t.control}
-                                            </div>
-                                        </td>
-                                        <td className="no-print" style={{ padding: '0.5rem', textAlign: 'center' }}>
-                                            <button onClick={() => removeTask(t.id)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#ff4d4f' }}>
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        {/* Table Header - Only Desktop/Print */}
+                        <div className="hidden sm:flex print:flex" style={{ background: '#f8fafc', borderBottom: '2px solid var(--color-border)', fontWeight: 900, textTransform: 'uppercase', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                            <div style={{ padding: '1rem', flex: 3, borderRight: '1px solid var(--color-border)' }}>Paso de la Tarea</div>
+                            <div style={{ padding: '1rem', flex: 3, borderRight: '1px solid var(--color-border)' }}>Riesgos Existentes</div>
+                            <div style={{ padding: '1rem', flex: 4 }}>Medidas de Control</div>
+                            <div className="no-print" style={{ width: '50px' }}></div>
+                        </div>
+
+                        {/* Table Body / Mobile Cards */}
+                        <div className="flex flex-col">
+                            {formData.tareas.map((t) => (
+                                <div key={t.id} className="flex flex-col sm:flex-row print:flex-row border-b border-[var(--color-border)] last:border-0">
+                                    {/* Paso */}
+                                    <div className="flex-1 sm:flex-[3] print:flex-[3] p-4 sm:border-r print:border-r border-[var(--color-border)]">
+                                        <span className="sm:hidden print:hidden block text-[0.6rem] font-black text-blue-600 uppercase mb-1">Paso de la Tarea:</span>
+                                        <textarea
+                                            rows={1}
+                                            value={t.paso}
+                                            onChange={(e) => updateTask(t.id, 'paso', e.target.value)}
+                                            onInput={(e) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
+                                            className="no-print"
+                                            style={{ width: '100%', border: 'none', background: 'transparent', outline: 'none', resize: 'none', fontWeight: 700, overflow: 'hidden', fontSize: '0.9rem' }}
+                                            placeholder="Ej: Preparación de área..."
+                                        />
+                                        <div className="print-only font-bold text-slate-800 text-[0.85rem] whitespace-pre-wrap break-words">
+                                            {t.paso}
+                                        </div>
+                                    </div>
+
+                                    {/* Riesgo */}
+                                    <div className="flex-1 sm:flex-[3] print:flex-[3] p-4 sm:border-r print:border-r border-[var(--color-border)] bg-slate-50/30 sm:bg-transparent">
+                                        <span className="sm:hidden print:hidden block text-[0.6rem] font-black text-blue-600 uppercase mb-1">Riesgos Existentes:</span>
+                                        <textarea
+                                            rows={1}
+                                            value={t.riesgo}
+                                            onChange={(e) => updateTask(t.id, 'riesgo', e.target.value)}
+                                            onInput={(e) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
+                                            className="no-print"
+                                            style={{ width: '100%', border: 'none', background: 'transparent', outline: 'none', resize: 'none', overflow: 'hidden', fontSize: '0.85rem' }}
+                                            placeholder="Ej: Caídas, Golpes..."
+                                        />
+                                        <div className="print-only text-slate-700 text-[0.8rem] whitespace-pre-wrap break-words">
+                                            {t.riesgo}
+                                        </div>
+                                    </div>
+
+                                    {/* Control */}
+                                    <div className="flex-1 sm:flex-[4] print:flex-[4] p-4">
+                                        <span className="sm:hidden print:hidden block text-[0.6rem] font-black text-blue-600 uppercase mb-1">Medidas de Control:</span>
+                                        <textarea
+                                            rows={1}
+                                            value={t.control}
+                                            onChange={(e) => updateTask(t.id, 'control', e.target.value)}
+                                            onInput={(e) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
+                                            className="no-print"
+                                            style={{ width: '100%', border: 'none', background: 'transparent', outline: 'none', resize: 'none', overflow: 'hidden', fontSize: '0.85rem' }}
+                                            placeholder="Ej: Delimitación, Uso EPP..."
+                                        />
+                                        <div className="print-only text-slate-700 text-[0.8rem] whitespace-pre-wrap break-words">
+                                            {t.control}
+                                        </div>
+                                    </div>
+
+                                    {/* Remove Button */}
+                                    <div className="no-print p-2 sm:p-0 flex items-center justify-center border-t sm:border-t-0 border-[var(--color-border)]" style={{ width: '50px' }}>
+                                        <button onClick={() => removeTask(t.id)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#ff4d4f', padding: '10px' }}>
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
