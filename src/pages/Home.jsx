@@ -127,8 +127,8 @@ export default function Home() {
                             <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.85rem', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 0.3rem' }}>
                                 {currentUser ? 'Bienvenido de vuelta' : 'Potenciá tu trabajo con IA'}
                             </p>
-                            <h1 style={{ fontSize: 'clamp(1.8rem, 5vw, 2.8rem)', fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.1, letterSpacing: '-1px' }}>
-                                {currentUser ? `${userName} 👋` : 'Asistente de Higiene y Seguridad'}
+                            <h1 style={{ fontSize: 'clamp(1.8rem, 5vw, 2.8rem)', fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.1, letterSpacing: '-1px', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                                {currentUser ? <>{userName} {isSubscribed && <Sparkles size={24} color="#f59e0b" fill="#f59e0b" title="Plan PRO Activo" />}</> : 'Asistente de Higiene y Seguridad'}
                             </h1>
                             <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1.1rem', marginTop: '1rem', fontWeight: 400, maxWidth: '500px' }}>
                                 {currentUser
@@ -192,23 +192,31 @@ export default function Home() {
             {/* ── Pro/Free Banner ── */}
             <div style={{ maxWidth: '700px', margin: '0 auto', padding: '0 1rem' }}>
                 {isSubscribed ? (
-                    <div style={{
-                        display: 'flex', alignItems: 'center', gap: '1rem',
-                        background: 'linear-gradient(135deg,rgba(16,185,129,0.12),rgba(5,150,105,0.06))',
-                        border: '1px solid rgba(16,185,129,0.3)',
-                        borderRadius: '16px', padding: '1rem 1.5rem', marginTop: '1.5rem',
-                    }}>
-                        <div style={{ width: '42px', height: '42px', background: 'rgba(16,185,129,0.15)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <Shield size={22} color="#10b981" />
-                        </div>
-                        <div style={{ flex: 1 }}>
-                            <h4 style={{ margin: 0, fontWeight: 800, fontSize: '0.95rem' }}>Asistente HYS <span style={{ color: '#10b981' }}>PRO</span> activo ✓</h4>
-                            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-                                {daysLeft !== null ? `Vence en ${daysLeft} día${daysLeft !== 1 ? 's' : ''}` : 'Todas las funciones habilitadas.'}
-                            </p>
-                        </div>
-                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
-                    </div>
+                    daysLeft !== null && daysLeft <= 7 ? (
+                        <Link to="/subscribe" style={{ textDecoration: 'none' }}>
+                            <div style={{
+                                display: 'flex', alignItems: 'center', gap: '1rem',
+                                background: 'linear-gradient(135deg,rgba(245,158,11,0.12),rgba(217,119,6,0.06))',
+                                border: '1px solid rgba(245,158,11,0.3)',
+                                borderRadius: '16px', padding: '1rem 1.5rem', marginTop: '1.5rem',
+                                cursor: 'pointer', transition: 'transform 0.2s',
+                            }}
+                                onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                                onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}
+                            >
+                                <div style={{ width: '42px', height: '42px', background: 'rgba(245,158,11,0.15)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <AlertTriangle size={22} color="#f59e0b" />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <h4 style={{ margin: 0, fontWeight: 800, fontSize: '0.95rem' }}>Renovación Próxima <ChevronRight size={16} style={{ verticalAlign: 'middle' }} /></h4>
+                                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                                        Tu suscripción vence en {daysLeft} día{daysLeft !== 1 ? 's' : ''}. ¡Renová ahora para no perder el acceso!
+                                    </p>
+                                </div>
+                                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#f59e0b', boxShadow: '0 0 8px #f59e0b' }} />
+                            </div>
+                        </Link>
+                    ) : null
                 ) : (
                     <Link to="/subscribe" style={{ textDecoration: 'none' }}>
                         <div style={{

@@ -5,6 +5,7 @@ import {
     Calendar, MessageSquare, Sun, Moon, Sparkles, Star, ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { usePaywall } from '../hooks/usePaywall';
 import AdBanner from './AdBanner';
 
 const navItems = [
@@ -20,6 +21,7 @@ export default function Sidebar({ isOpen, onClose }) {
     const navigate = useNavigate();
     const location = useLocation();
     const { currentUser, logout } = useAuth();
+    const { isPro } = usePaywall();
     const [userInfo, setUserInfo] = React.useState({
         name: currentUser?.displayName || currentUser?.email || 'Usuario',
         photo: null,
@@ -150,8 +152,9 @@ export default function Sidebar({ isOpen, onClose }) {
                         </div>
                         <div style={{ flex: 1 }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff' }}>
+                                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                     {currentUser ? userInfo.name : 'Invitado'}
+                                    {isPro() && <Sparkles size={14} color="#f59e0b" fill="#f59e0b" title="Plan PRO Activo" />}
                                 </div>
                                 <button
                                     onClick={(e) => { e.stopPropagation(); toggleTheme(); }}
@@ -249,18 +252,20 @@ export default function Sidebar({ isOpen, onClose }) {
                     </a>
 
                     {/* PRO banner */}
-                    <Link to="/subscribe" onClick={onClose} style={{ textDecoration: 'none', marginBottom: '0.5rem' }}>
-                        <div style={{
-                            display: 'flex', alignItems: 'center', gap: '0.8rem',
-                            padding: '0.9rem 1rem', borderRadius: '14px',
-                            background: 'linear-gradient(135deg,rgba(37,99,235,0.12),rgba(14,165,233,0.08))',
-                            border: '1px solid rgba(37,99,235,0.25)',
-                            cursor: 'pointer',
-                        }}>
-                            <Star size={18} color="#f59e0b" fill="#f59e0b" />
-                            <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-primary)' }}>Activar Versión Pro</span>
-                        </div>
-                    </Link>
+                    {!isPro() && (
+                        <Link to="/subscribe" onClick={onClose} style={{ textDecoration: 'none', marginBottom: '0.5rem' }}>
+                            <div style={{
+                                display: 'flex', alignItems: 'center', gap: '0.8rem',
+                                padding: '0.9rem 1rem', borderRadius: '14px',
+                                background: 'linear-gradient(135deg,rgba(37,99,235,0.12),rgba(14,165,233,0.08))',
+                                border: '1px solid rgba(37,99,235,0.25)',
+                                cursor: 'pointer',
+                            }}>
+                                <Star size={18} color="#f59e0b" fill="#f59e0b" />
+                                <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-primary)' }}>Activar Versión Pro</span>
+                            </div>
+                        </Link>
+                    )}
 
                     <AdBanner placement="sidebar" />
 
