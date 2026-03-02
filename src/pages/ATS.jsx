@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
     ArrowLeft, Save, Plus, Trash2, Printer,
     ShieldCheck, Building2, User, Calendar,
@@ -44,6 +44,7 @@ const defaultChecklist = [
 
 export default function ATS() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { currentUser } = useAuth();
     const { requirePro } = usePaywall();
     const capatazCanvasRef = useRef(null);
@@ -76,6 +77,13 @@ export default function ATS() {
         license: '',
         signature: null
     });
+
+    // Cargar datos de edición si existen
+    useEffect(() => {
+        if (location.state?.editData) {
+            setFormData(location.state.editData);
+        }
+    }, [location.state]);
 
     // Cargar datos del profesional
     useEffect(() => {
@@ -133,6 +141,7 @@ export default function ATS() {
 
     const clearCapatazSignature = () => {
         const canvas = capatazCanvasRef.current;
+        if (!canvas) return;
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.beginPath();
@@ -162,16 +171,25 @@ export default function ATS() {
         requirePro(async () => {
             const historyRaw = localStorage.getItem('ats_history');
             const history = historyRaw ? JSON.parse(historyRaw) : [];
+            const entryId = formData.id || Date.now().toString();
             const newEntry = {
                 ...formData,
-                id: Date.now().toString(),
-                capatazSignature: capatazCanvasRef.current?.toDataURL(),
+                id: entryId,
+                capatazSignature: capatazCanvasRef.current?.toDataURL() || null,
                 professionalSignature: professional.signature,
                 professionalName: professional.name,
                 professionalLicense: professional.license
             };
-            localStorage.setItem('ats_history', JSON.stringify([newEntry, ...history]));
-            await syncCollection('ats_history', [newEntry, ...history]);
+
+            let updated;
+            if (formData.id) {
+                updated = history.map(h => h.id === entryId ? newEntry : h);
+            } else {
+                updated = [newEntry, ...history];
+            }
+
+            localStorage.setItem('ats_history', JSON.stringify(updated));
+            await syncCollection('ats_history', updated);
             toast.success('Análisis de Trabajo Seguro guardado con éxito');
             navigate('/ats-history');
         });
@@ -285,7 +303,7 @@ export default function ATS() {
                     </h3>
 
                     {categories.map(cat => (
-                        <div key={cat} className="card overflow-hidden mb-10" style={{ padding: 0, border: '2px solid var(--color-border)' }}>
+                        <div key={cat} className="card mt-10 mb-10" style={{ padding: 0, border: '2px solid var(--color-border)' }}>
                             <div style={{ background: '#f8fafc', padding: '1.2rem', borderBottom: '2px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <h4 style={{ margin: 0, color: 'var(--color-text)', fontWeight: 900, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                     <Info size={18} className="text-blue-600" /> {cat}

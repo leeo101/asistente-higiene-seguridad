@@ -279,7 +279,7 @@ export default function ErgonomicsForm() {
                         <label>Recomendaciones de Acción</label>
                         <textarea
                             rows={3}
-                            className="no-print block overflow-hidden w-full"
+                            className="no-print block w-full"
                             value={formData.recomendaciones}
                             onInput={e => {
                                 e.target.style.height = 'auto';

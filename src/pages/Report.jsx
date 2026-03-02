@@ -33,7 +33,11 @@ export default function Report() {
             const historyRaw = localStorage.getItem('inspections_history');
             const history = historyRaw ? JSON.parse(historyRaw) : [];
 
-            if (!history.find(item => item.id === inspection.id)) {
+            const existingIndex = history.findIndex(item => item.id === inspection.id);
+            if (existingIndex >= 0) {
+                history[existingIndex] = { ...inspection, status: 'Finalizada' };
+                localStorage.setItem('inspections_history', JSON.stringify(history));
+            } else {
                 const updatedHistory = [{ ...inspection, status: 'Finalizada' }, ...history];
                 localStorage.setItem('inspections_history', JSON.stringify(updatedHistory));
             }

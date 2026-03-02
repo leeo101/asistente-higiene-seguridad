@@ -394,7 +394,7 @@ export default function ChecklistManager() {
 
                 <div className="space-y-12">
                     {activeSections.map(section => (
-                        <div key={section.id} className="card w-full overflow-hidden mb-6" style={{ padding: 0 }}>
+                        <div key={section.id} className="card w-full mb-6" style={{ padding: 0 }}>
                             <div style={{ background: '#f8fafc', padding: '1rem', borderBottom: '2px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', minHeight: '4rem' }}>
                                 <input
                                     className="font-black text-xl uppercase tracking-tighter bg-transparent outline-none w-full border-none focus:ring-0 text-black text-center placeholder:text-slate-400 print-text-center block"
@@ -431,7 +431,7 @@ export default function ChecklistManager() {
                                             <div className="text-center font-black text-[0.6rem] bg-slate-50/50 h-10 w-8 flex items-center justify-center rounded-md mr-3 text-slate-400 border border-slate-100 shrink-0">{idx + 1}</div>
                                             <textarea
                                                 rows={1}
-                                                className="w-full px-1 py-2 font-bold text-slate-800 text-[0.85rem] outline-none bg-transparent resize-none leading-tight border-none focus:ring-0 placeholder:text-slate-300 min-h-[40px] overflow-hidden no-print block"
+                                                className="w-full px-1 py-2 font-bold text-slate-800 text-[0.85rem] outline-none bg-transparent resize-none leading-tight border-none focus:ring-0 placeholder:text-slate-300 min-h-[40px] no-print block"
                                                 value={item.text}
                                                 onInput={(e) => {
                                                     e.target.style.height = 'auto';
@@ -467,10 +467,10 @@ export default function ChecklistManager() {
                     ))}
                 </div>
 
-                <div className="mt-8 border-2 border-slate-300 rounded-xl p-8 bg-slate-50 relative overflow-hidden text-left">
+                <div className="mt-8 border-2 border-slate-300 rounded-xl p-8 bg-slate-50 relative text-left">
                     <div className="absolute -top-4 left-8 bg-slate-800 text-white px-5 py-0.5 font-black text-[0.65rem] uppercase italic tracking-[0.2em] shadow-sm z-10 rounded-b-md">OBSERVACIONES</div>
                     <textarea
-                        className="w-full bg-transparent outline-none text-[1rem] font-bold leading-relaxed resize-none min-h-[140px] placeholder:text-slate-300 relative z-20 text-left no-print block overflow-hidden"
+                        className="w-full bg-transparent outline-none text-[1rem] font-bold leading-relaxed resize-none min-h-[140px] placeholder:text-slate-300 relative z-20 text-left no-print block"
                         placeholder="Ingrese observaciones, hallazgos o medidas correctivas..."
                         value={observations}
                         onInput={(e) => {

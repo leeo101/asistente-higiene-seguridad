@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Save, FileText, AlertCircle, GraduationCap, ClipboardCheck, Package, Plus, Trash2, History, Share2, Printer } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
 
 export default function Reports() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { syncCollection } = useSync();
     const [template, setTemplate] = useState('general'); // general, accident, training, rgrl, epp
     const [projectData, setProjectData] = useState({
@@ -23,12 +24,30 @@ export default function Reports() {
     const [personnel, setPersonnel] = useState([{ id: Date.now(), name: '', dni: '' }]);
 
     useEffect(() => {
-        const savedProfile = localStorage.getItem('personalData');
-        if (savedProfile) {
-            const parsed = JSON.parse(savedProfile);
-            setProjectData(prev => ({ ...prev, responsable: parsed.name || '' }));
+        if (location.state?.editData) {
+            const data = location.state.editData;
+            setTemplate(data.template || 'general');
+            setProjectData({
+                id: data.id,
+                title: data.title || '',
+                company: data.company || '',
+                location: data.location || '',
+                date: data.date || new Date().toISOString().split('T')[0],
+                responsable: data.responsable || ''
+            });
+            setContent(data.content || '');
+            setExtraFields(data.extraFields || {});
+            if (data.personnel && data.personnel.length > 0) {
+                setPersonnel(data.personnel);
+            }
+        } else {
+            const savedProfile = localStorage.getItem('personalData');
+            if (savedProfile) {
+                const parsed = JSON.parse(savedProfile);
+                setProjectData(prev => ({ ...prev, responsable: parsed.name || '' }));
+            }
         }
-    }, []);
+    }, [location.state]);
 
     const handleAddPerson = () => {
         setPersonnel([...personnel, { id: Date.now(), name: '', dni: '' }]);
@@ -50,8 +69,9 @@ export default function Reports() {
             return;
         }
 
+        const entryId = projectData.id || Date.now();
         const newReport = {
-            id: Date.now(),
+            id: entryId,
             template,
             ...projectData,
             content,
@@ -61,7 +81,13 @@ export default function Reports() {
         };
 
         const history = JSON.parse(localStorage.getItem('reports_history') || '[]');
-        const updated = [newReport, ...history];
+        let updated;
+        if (projectData.id) {
+            updated = history.map(h => h.id === entryId ? newReport : h);
+        } else {
+            updated = [newReport, ...history];
+        }
+
         await syncCollection('reports_history', updated);
         localStorage.setItem('current_report', JSON.stringify(newReport));
         navigate('/reports-report');

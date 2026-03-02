@@ -194,25 +194,39 @@ export default function History() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     {matrixData.length > 0 ? matrixData.map(item => (
                         <div key={item.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                            <div
-                                style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1, cursor: 'pointer' }}
-                                onClick={() => { localStorage.setItem('current_risk_matrix', JSON.stringify(item)); navigate('/risk-matrix-report'); }}
-                            >
-                                <div style={{ background: 'rgba(139,92,246,0.1)', padding: '0.8rem', borderRadius: '12px', color: '#8b5cf6' }}>
-                                    <ShieldAlert />
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <h4 style={{ margin: '0 0 0.3rem 0', fontWeight: 700 }}>{item.name}</h4>
-                                    <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                                            <Calendar size={14} /> {new Date(item.createdAt).toLocaleDateString()}
-                                        </span>
-                                        <span>{item.location}</span>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', flex: 1 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                    <div style={{ background: 'rgba(139,92,246,0.1)', padding: '0.8rem', borderRadius: '12px', color: '#8b5cf6' }}>
+                                        <ShieldAlert />
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <h4 style={{ margin: '0 0 0.3rem 0', fontWeight: 700 }}>{item.name}</h4>
+                                        <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                                <Calendar size={14} /> {new Date(item.createdAt).toLocaleDateString()}
+                                            </span>
+                                            <span>{item.location}</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <ChevronRight size={18} color="var(--color-text-muted)" />
+                                <div style={{ display: 'flex', gap: '0.8rem', borderTop: '1px solid var(--color-border)', paddingTop: '0.8rem' }}>
+                                    <button
+                                        onClick={() => { localStorage.setItem('current_risk_matrix', JSON.stringify(item)); navigate('/risk-matrix-report'); }}
+                                        className="btn-primary"
+                                        style={{ flex: 2, padding: '0.5rem', fontSize: '0.85rem' }}
+                                    >
+                                        <FileText size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '0.3rem' }} /> Ver PDF
+                                    </button>
+                                    <button
+                                        onClick={() => navigate('/risk-matrix', { state: { editData: item } })}
+                                        className="btn-secondary"
+                                        style={{ flex: 1, padding: '0.5rem', fontSize: '0.85rem' }}
+                                    >
+                                        Editar
+                                    </button>
+                                    <DeleteBtn storageKey="risk_matrix_history" id={item.id} />
+                                </div>
                             </div>
-                            <DeleteBtn storageKey="risk_matrix_history" id={item.id} />
                         </div>
                     )) : (
                         <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
@@ -244,25 +258,39 @@ export default function History() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     {reportsData.length > 0 ? reportsData.map(item => (
                         <div key={item.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                            <div
-                                style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1, cursor: 'pointer' }}
-                                onClick={() => { localStorage.setItem('current_report', JSON.stringify(item)); navigate('/reports-report'); }}
-                            >
-                                <div style={{ background: 'rgba(236,72,153,0.1)', padding: '0.8rem', borderRadius: '12px', color: '#ec4899' }}>
-                                    <FileText size={24} />
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <h4 style={{ margin: '0 0 0.3rem 0', fontWeight: 700 }}>{item.title}</h4>
-                                    <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                                            <Calendar size={14} /> {new Date(item.createdAt).toLocaleDateString()}
-                                        </span>
-                                        <span>{item.company}</span>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', flex: 1 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                    <div style={{ background: 'rgba(236,72,153,0.1)', padding: '0.8rem', borderRadius: '12px', color: '#ec4899' }}>
+                                        <FileText size={24} />
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <h4 style={{ margin: '0 0 0.3rem 0', fontWeight: 700 }}>{item.title}</h4>
+                                        <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                                <Calendar size={14} /> {new Date(item.createdAt).toLocaleDateString()}
+                                            </span>
+                                            <span>{item.company}</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <ChevronRight size={18} color="var(--color-text-muted)" />
+                                <div style={{ display: 'flex', gap: '0.8rem', borderTop: '1px solid var(--color-border)', paddingTop: '0.8rem' }}>
+                                    <button
+                                        onClick={() => { localStorage.setItem('current_report', JSON.stringify(item)); navigate('/reports-report'); }}
+                                        className="btn-primary"
+                                        style={{ flex: 2, padding: '0.5rem', fontSize: '0.85rem' }}
+                                    >
+                                        <FileText size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '0.3rem' }} /> Ver PDF
+                                    </button>
+                                    <button
+                                        onClick={() => navigate('/reports', { state: { editData: item } })}
+                                        className="btn-secondary"
+                                        style={{ flex: 1, padding: '0.5rem', fontSize: '0.85rem' }}
+                                    >
+                                        Editar
+                                    </button>
+                                    <DeleteBtn storageKey="reports_history" id={item.id} />
+                                </div>
                             </div>
-                            <DeleteBtn storageKey="reports_history" id={item.id} />
                         </div>
                     )) : (
                         <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
@@ -295,28 +323,42 @@ export default function History() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {historicalData.length > 0 ? historicalData.map(item => (
                     <div key={item.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <div
-                            style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1, cursor: 'pointer' }}
-                            onClick={() => { localStorage.setItem('current_inspection', JSON.stringify(item)); navigate('/report'); }}
-                        >
-                            <div style={{ background: 'rgba(59,130,246,0.1)', padding: '0.8rem', borderRadius: '12px', color: 'var(--color-primary)', flexShrink: 0 }}>
-                                <FileText />
-                            </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                                <h4 style={{ margin: '0 0 0.3rem 0', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name || 'Sin nombre'}</h4>
-                                <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap' }}>
-                                        <Calendar size={14} /> {new Date(item.date).toLocaleDateString()}
-                                    </span>
-                                    <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.type}</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', flex: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <div style={{ background: 'rgba(59,130,246,0.1)', padding: '0.8rem', borderRadius: '12px', color: 'var(--color-primary)', flexShrink: 0 }}>
+                                    <FileText />
+                                </div>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <h4 style={{ margin: '0 0 0.3rem 0', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name || 'Sin nombre'}</h4>
+                                    <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap' }}>
+                                            <Calendar size={14} /> {new Date(item.date).toLocaleDateString()}
+                                        </span>
+                                        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.type}</span>
+                                    </div>
+                                </div>
+                                <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                                    <div style={{ fontWeight: 800, color: 'var(--color-secondary)' }}>{item.result || '--'}</div>
                                 </div>
                             </div>
-                            <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                                <div style={{ fontWeight: 800, color: 'var(--color-secondary)' }}>{item.result || '--'}</div>
-                                <ChevronRight size={18} color="var(--color-text-muted)" />
+                            <div style={{ display: 'flex', gap: '0.8rem', borderTop: '1px solid var(--color-border)', paddingTop: '0.8rem' }}>
+                                <button
+                                    onClick={() => { localStorage.setItem('current_inspection', JSON.stringify(item)); navigate('/report'); }}
+                                    className="btn-primary"
+                                    style={{ flex: 2, padding: '0.5rem', fontSize: '0.85rem' }}
+                                >
+                                    <FileText size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '0.3rem' }} /> Ver PDF
+                                </button>
+                                <button
+                                    onClick={() => { localStorage.setItem('current_inspection', JSON.stringify(item)); navigate('/checklist', { state: { editData: item } }); }}
+                                    className="btn-secondary"
+                                    style={{ flex: 1, padding: '0.5rem', fontSize: '0.85rem' }}
+                                >
+                                    Editar
+                                </button>
+                                <DeleteBtn storageKey="inspections_history" id={item.id} />
                             </div>
                         </div>
-                        <DeleteBtn storageKey="inspections_history" id={item.id} />
                     </div>
                 )) : (
                     <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>

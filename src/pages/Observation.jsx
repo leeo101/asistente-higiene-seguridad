@@ -44,7 +44,7 @@ export default function Observation() {
                     <label>Descripción de la Anomalía</label>
                     <textarea
                         rows={4}
-                        className="no-print block overflow-hidden w-full"
+                        className="no-print block w-full"
                         placeholder="Detalle el riesgo observado..."
                         value={observation.description}
                         onInput={e => {

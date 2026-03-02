@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Save, AlertTriangle, ShieldCheck, Flame, Zap, Leaf, Activity, Brain, Wrench, Share2, Printer } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
@@ -35,6 +35,7 @@ const emptyRow = () => ({
 
 export default function RiskMatrix() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { syncCollection } = useSync();
     const { requirePro } = usePaywall();
     const [projectData, setProjectData] = useState({
@@ -46,12 +47,26 @@ export default function RiskMatrix() {
     const [showShare, setShowShare] = useState(false);
 
     useEffect(() => {
-        const saved = localStorage.getItem('personalData');
-        if (saved) {
-            const p = JSON.parse(saved);
-            setProjectData(prev => ({ ...prev, responsable: p.name || '' }));
+        if (location.state?.editData) {
+            const data = location.state.editData;
+            setProjectData({
+                id: data.id,
+                name: data.name || '',
+                location: data.location || '',
+                date: data.date || new Date().toISOString().split('T')[0],
+                responsable: data.responsable || ''
+            });
+            if (data.rows && data.rows.length > 0) {
+                setRows(data.rows);
+            }
+        } else {
+            const saved = localStorage.getItem('personalData');
+            if (saved) {
+                const p = JSON.parse(saved);
+                setProjectData(prev => ({ ...prev, responsable: p.name || '' }));
+            }
         }
-    }, []);
+    }, [location.state]);
 
     const addRow = () => setRows([...rows, emptyRow()]);
     const removeRow = (id) => {
@@ -67,9 +82,18 @@ export default function RiskMatrix() {
                 toast.error('Agregue al menos una evaluación con contenido.');
                 return;
             }
-            const entry = { id: Date.now(), ...projectData, rows: activeRowsToSave, createdAt: new Date().toISOString() };
+            const entryId = projectData.id || Date.now();
+            const entry = { id: entryId, ...projectData, rows: activeRowsToSave, createdAt: new Date().toISOString() };
             const history = JSON.parse(localStorage.getItem('risk_matrix_history') || '[]');
-            const updated = [entry, ...history];
+
+            let updated;
+            if (projectData.id) {
+                // Update existing
+                updated = history.map(h => h.id === entryId ? entry : h);
+            } else {
+                // Add new
+                updated = [entry, ...history];
+            }
             await syncCollection('risk_matrix_history', updated);
             localStorage.setItem('current_risk_matrix', JSON.stringify(entry));
             navigate('/risk-matrix-report');
