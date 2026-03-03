@@ -121,6 +121,7 @@ function App() {
 
   return (
     <AuthProvider>
+      <div id="debug-app-mounted" style={{ position: 'fixed', top: 0, left: 0, zIndex: 9999, background: 'red', color: 'white', padding: '10px' }}>APP MOUNTED</div>
       <SyncProvider>
         <GlobalPrintGuard />
         <Toaster

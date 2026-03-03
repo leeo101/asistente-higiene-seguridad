@@ -5,7 +5,7 @@ import {
     Flame, BarChart3, ChevronRight, Plus, Gavel,
     Accessibility, AlertTriangle, Lock, UserPlus, LogIn, Sparkles,
     Camera, CalendarCheck, Shield, Cpu, Lightbulb,
-    ShieldCheck, TriangleAlert, KeySquare, ScrollText, Bot, ClipboardCheck, FileText
+    ShieldCheck, TriangleAlert, KeySquare, ScrollText, Bot, ClipboardCheck, FileText, HardHat, ShieldAlert
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';

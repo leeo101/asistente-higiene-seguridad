@@ -41,12 +41,35 @@ export const AuthProvider = ({ children }) => {
     };
 
     useEffect(() => {
+        let isMounted = true;
+
+        // Fallback de ultra-seguridad: si Firebase falla al conectar / leer IndexedDB y cuelga la app
+        const emergencyTimer = setTimeout(() => {
+            if (isMounted) {
+                console.warn('[AUTH] Firebase onAuthStateChanged timeout - Forzando carga');
+                setLoading(false);
+            }
+        }, 2500);
+
         const unsubscribe = onAuthStateChanged(auth, user => {
-            setCurrentUser(user);
-            setLoading(false);
+            clearTimeout(emergencyTimer);
+            if (isMounted) {
+                setCurrentUser(user);
+                setLoading(false);
+            }
+        }, (error) => {
+            clearTimeout(emergencyTimer);
+            console.error('[AUTH] Error en onAuthStateChanged:', error);
+            if (isMounted) {
+                setLoading(false);
+            }
         });
 
-        return unsubscribe;
+        return () => {
+            isMounted = false;
+            clearTimeout(emergencyTimer);
+            unsubscribe();
+        };
     }, []);
 
     const value = {
