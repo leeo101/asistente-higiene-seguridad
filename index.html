@@ -96,9 +96,14 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then(reg => console.log('[SW] Registrado:', reg.scope))
-          .catch(err => console.error('[SW] Error al registrar:', err));
+        navigator.serviceWorker.getRegistrations().then(function (registrations) {
+          for (let registration of registrations) {
+            registration.unregister().then(bool => {
+              console.log('Unregistered SW:', bool);
+              if (bool) window.location.reload(true);
+            });
+          }
+        });
       });
     }
   </script>
