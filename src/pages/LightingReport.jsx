@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
     ArrowLeft, Save, Plus, Trash2, Lightbulb, Calculator,
     FileText, Printer, Building2, Layout, Maximize2,
-    Info, AlertTriangle, ShieldCheck, History, Share2, Sun
+    Info, AlertTriangle, ShieldCheck, History, Share2, Sun, Sparkles, Loader2
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
@@ -11,6 +11,7 @@ import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import { API_BASE_URL } from '../config';
 
 // Tipos de tareas visuales basados en el Decreto 351/79 (Anexo IV) - Resumido
 const visualTasks = [
@@ -35,10 +36,43 @@ export default function LightingReport() {
         descripcionActividad: '',
         tipoTarea: '',
         luxRequerido: 500,
+        conclusion: '',
         mediciones: [
             { id: Date.now().toString(), ubicacion: 'Puesto 1', luxMedido: 0 }
         ]
     });
+
+    const [isGeneratingConclusion, setIsGeneratingConclusion] = useState(false);
+
+    const handleGenerateConclusion = async () => {
+        setIsGeneratingConclusion(true);
+        const loadingToast = toast.loading('Redactando conclusión técnica...');
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/ai-report-conclusion`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    reportType: 'Iluminación en Ambiente Laboral',
+                    reportData: {
+                        luxRequerido: formData.luxRequerido,
+                        promedioLux: results.promedioLux,
+                        cumplePromedio: results.cumplePromedio,
+                        puntosCumplen: results.puntosCumplen,
+                        puntosNoCumplen: results.puntosNoCumplen,
+                        descripcionActividad: formData.descripcionActividad
+                    }
+                })
+            });
+            if (!res.ok) throw new Error('Error al conectar con la IA');
+            const data = await res.json();
+            setFormData(prev => ({ ...prev, conclusion: data.conclusion }));
+            toast.success('Conclusión generada con éxito ✨', { id: loadingToast });
+        } catch (error) {
+            toast.error(`Error al generar: ${error.message}`, { id: loadingToast });
+        } finally {
+            setIsGeneratingConclusion(false);
+        }
+    };
 
     const [professional, setProfessional] = useState({
         name: 'Profesional',
@@ -428,6 +462,38 @@ export default function LightingReport() {
                 </div>
             </div>
 
+            {/* SECCIÓN DE CONCLUSIÓN */}
+            <div className="bg-white text-black p-8 shadow-sm border-2 border-slate-200 rounded-2xl print:mb-0 mb-8 mt-10 print-area" style={{ display: 'block', clear: 'both' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                    <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-primary)' }}>
+                        <FileText size={22} /> Conclusión Profesional
+                    </h3>
+                    <button
+                        className="no-print"
+                        onClick={handleGenerateConclusion}
+                        disabled={isGeneratingConclusion}
+                        style={{ padding: '0.6rem 1rem', background: 'linear-gradient(135deg, #a855f7, #ec4899)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', cursor: isGeneratingConclusion ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', outline: 'none' }}
+                    >
+                        {isGeneratingConclusion ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                        {isGeneratingConclusion ? 'REDACTANDO...' : 'REDACTAR CON IA'}
+                    </button>
+                </div>
+
+                <textarea
+                    value={formData.conclusion || ''}
+                    onChange={(e) => handleDataChange('conclusion', e.target.value)}
+                    className="form-input no-print"
+                    style={{ minHeight: '120px', resize: 'vertical' }}
+                    placeholder="Escriba la conclusión del estudio o use el botón de IA para generarla..."
+                />
+
+                {formData.conclusion && (
+                    <div className="print-only text-slate-800 text-[0.85rem] whitespace-pre-wrap leading-relaxed">
+                        {formData.conclusion}
+                    </div>
+                )}
+            </div>
+
             {/* SECCIÓN DE DATOS OBTENIDOS POR */}
             <div className="bg-white text-black p-8 shadow-sm border-2 border-slate-200 rounded-2xl print:mb-0 mb-8 mt-10 print-area" style={{ display: 'block', clear: 'both' }}>
                 <h3 style={{ marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
@@ -486,8 +552,8 @@ export default function LightingReport() {
                     )}
                 </div>
                 <PdfBrandingFooter />
-            </div>
+            </div >
 
-        </div>
+        </div >
     );
 }

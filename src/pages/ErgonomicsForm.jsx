@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, ChevronRight, ChevronLeft,
-    Save, Accessibility, AlertCircle, Info, User, Building2
+    Save, Accessibility, AlertCircle, Info, User, Building2, Sparkles, Loader2
 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
+import { API_BASE_URL } from '../config';
 
 export default function ErgonomicsForm() {
     const navigate = useNavigate();
@@ -66,6 +67,38 @@ export default function ErgonomicsForm() {
         localStorage.setItem('ergonomics_history', JSON.stringify(history));
         syncCollection('ergonomics_history', history);
         navigate(`/ergonomics-report?id=${id}`);
+    };
+
+    const [isGeneratingConclusion, setIsGeneratingConclusion] = useState(false);
+
+    const handleGenerateConclusion = async () => {
+        setIsGeneratingConclusion(true);
+        const loadingToast = toast.loading('Redactando recomendaciones técnicas...');
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/ai-report-conclusion`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    reportType: 'Estudio de Ergonomía Res 886/15',
+                    reportData: {
+                        empresa: formData.empresa,
+                        sector: formData.sector,
+                        puesto: formData.puesto,
+                        descripcionTarea: formData.descripcionTarea,
+                        factoresRiesgo: formData.planilla1,
+                        datosLevantamientoCarga: formData.calculoLevantamiento
+                    }
+                })
+            });
+            if (!res.ok) throw new Error('Error al conectar con la IA');
+            const data = await res.json();
+            setFormData(prev => ({ ...prev, recomendaciones: data.conclusion }));
+            toast.success('Recomendaciones generadas con éxito ✨', { id: loadingToast });
+        } catch (error) {
+            toast.error(`Error al generar: ${error.message}`, { id: loadingToast });
+        } finally {
+            setIsGeneratingConclusion(false);
+        }
     };
 
     return (
@@ -276,7 +309,18 @@ export default function ErgonomicsForm() {
                     )}
 
                     <div style={{ marginBottom: '2rem' }}>
-                        <label>Recomendaciones de Acción</label>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
+                            <label style={{ margin: 0 }}>Recomendaciones de Acción</label>
+                            <button
+                                className="no-print"
+                                onClick={handleGenerateConclusion}
+                                disabled={isGeneratingConclusion}
+                                style={{ padding: '0.5rem 0.8rem', background: 'linear-gradient(135deg, #a855f7, #ec4899)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 800, fontSize: '0.7rem', cursor: isGeneratingConclusion ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', outline: 'none' }}
+                            >
+                                {isGeneratingConclusion ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                                {isGeneratingConclusion ? 'REDACTANDO...' : 'REDACTAR CON IA'}
+                            </button>
+                        </div>
                         <textarea
                             rows={3}
                             className="no-print block w-full"

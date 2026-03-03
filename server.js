@@ -296,6 +296,196 @@ IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON, sin texto adicional. Asegúrate
     }
 });
 
+// ==========================================
+// AI ATS GENERATOR (Gemini)
+// ==========================================
+app.post('/api/ai-ats-generator', async (req, res) => {
+    try {
+        const { taskTitle } = req.body;
+        if (!taskTitle) return res.status(400).json({ error: 'Falta el título de la tarea' });
+
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini' });
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const models = [
+            "gemini-2.0-flash",
+            "gemini-1.5-flash-latest",
+            "gemini-1.5-pro-latest",
+            "gemini-1.5-flash"
+        ];
+
+        const prompt = `Actúa como un experto en Higiene y Seguridad Laboral. 
+Genera el Análisis de Trabajo Seguro (ATS) para la siguiente tarea: "${taskTitle}".
+Devuelve ÚNICAMENTE un array JSON estricto donde cada elemento represente un paso de la tarea, con este formato exacto:
+[
+  { "paso": "Nombre del paso 1", "riesgo": "Riesgo principal", "control": "Medida preventiva / EPP recomendado" },
+  { "paso": "Nombre del paso 2", "riesgo": "...", "control": "..." }
+]
+IMPORTANTE: Provee entre 4 y 8 pasos ordenados cronológicamente. Devuelve SOLO el JSON válido.`;
+
+        let result;
+        for (const modelName of models) {
+            try {
+                console.log(`[AI ATS] Intentando con ${modelName}...`);
+                const model = genAI.getGenerativeModel({ model: modelName });
+                result = await model.generateContent(prompt);
+                if (result) {
+                    console.log(`[AI ATS] Éxito con ${modelName}`);
+                    break;
+                }
+            } catch (err) {
+                console.warn(`[AI ATS] Model ${modelName} failed (${err.message}), trying next...`);
+                continue;
+            }
+        }
+
+        if (!result) throw new Error('Todos los modelos de IA fallaron');
+
+        const responseText = result.response.text();
+
+        // Sanitize JSON
+        let cleanedJson = responseText.trim();
+        if (cleanedJson.startsWith('\`\`\`json')) {
+            cleanedJson = cleanedJson.replace(/\`\`\`json/, '').replace(/\`\`\`$/, '').trim();
+        } else if (cleanedJson.startsWith('\`\`\`')) {
+            cleanedJson = cleanedJson.replace(/\`\`\`/, '').replace(/\`\`\`$/, '').trim();
+        }
+
+        const parsedData = JSON.parse(cleanedJson);
+        res.json(parsedData);
+
+    } catch (error) {
+        console.error("Error in AI ATS Generator:", error);
+        res.status(500).json({ error: 'Error generando el ATS', details: error.message });
+    }
+});
+
+// ==========================================
+// AI REPORT CONCLUSION GENERATOR (Gemini)
+// ==========================================
+app.post('/api/ai-report-conclusion', async (req, res) => {
+    try {
+        const { reportType, reportData } = req.body;
+        if (!reportType || !reportData) return res.status(400).json({ error: 'Faltan datos del reporte' });
+
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini' });
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const models = ["gemini-2.0-flash", "gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-1.5-flash"];
+
+        const prompt = `Actúa como un experto consultor en Higiene y Seguridad Laboral en Argentina.
+Analiza los siguientes datos extraídos de un reporte de "${reportType}":
+${JSON.stringify(reportData)}
+
+Redacta una concisa y profesional conclusión técnica (entre 2 y 4 párrafos cortos).
+La conclusión debe analizar los resultados técnicos, indicar si hay desvíos según normativa y proponer recomendaciones concretas. 
+Importante: tu respuesta debe contener ÚNICAMENTE el texto de la conclusión final, listo para insertar en un documento como respuesta cruda (sin comillas adicionales, sin bloque json, ni texto de saludo previo).`;
+
+        let result;
+        for (const modelName of models) {
+            try {
+                const model = genAI.getGenerativeModel({ model: modelName });
+                result = await model.generateContent(prompt);
+                if (result) break;
+            } catch (err) { continue; }
+        }
+        if (!result) throw new Error('Todos los modelos fallaron');
+        res.json({ conclusion: result.response.text().trim() });
+    } catch (error) {
+        console.error("Error in AI Conclusion:", error);
+        res.status(500).json({ error: 'Error generando la conclusión', details: error.message });
+    }
+});
+
+// ==========================================
+// AI LEGAL SUMMARY (Gemini)
+// ==========================================
+app.post('/api/ai-legal-summary', async (req, res) => {
+    try {
+        const { leyTitle, leyDescription } = req.body;
+        if (!leyTitle) return res.status(400).json({ error: 'Faltan datos de la normativa' });
+
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) return res.status(500).json({ error: 'Falta API Key' });
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const models = ["gemini-2.0-flash", "gemini-1.5-flash-latest"];
+
+        const prompt = `Como experto legislativo en Higiene y Seguridad en Argentina, realiza un resumen directo de esta norma operativa: "${leyTitle}".
+Descripción corta: "${leyDescription}".
+Provee un resumen de puntos principales (en viñetas) que todo prevencionista debe saber de forma rápida para el trabajo de campo. No inventar contenido, basarse en el objeto material de la ley. Devuelve directamente el texto, y usa formato markdown.`;
+
+        let result;
+        for (const modelName of models) {
+            try {
+                const model = genAI.getGenerativeModel({ model: modelName });
+                result = await model.generateContent(prompt);
+                if (result) break;
+            } catch (err) { continue; }
+        }
+        if (!result) throw new Error('Modelos fallaron');
+        res.json({ summary: result.response.text().trim() });
+    } catch (error) {
+        console.error("Error in AI Legal Summary:", error);
+        res.status(500).json({ error: 'Error generando resumen', details: error.message });
+    }
+});
+
+// ==========================================
+// AI GENERAL RISKS VISION (Gemini)
+// ==========================================
+app.post('/api/analyze-general-risks', async (req, res) => {
+    try {
+        const { image } = req.body;
+        if (!image) return res.status(400).json({ error: 'No se envió imagen' });
+
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) return res.status(500).json({ error: 'Falta API Key' });
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        const base64Data = image.split(',')[1];
+        const mimeType = image.split(';')[0].split(':')[1] || 'image/jpeg';
+
+        const prompt = `Analiza detalladamente esta imagen de un entorno laboral. 
+Tu tarea es la detección general de evidentes riesgos laborales y desvíos (ej: desorden, estiba peligrosa, máquinas sin protección, cables sueltos, obstrucciones, extintores vencidos, etc).
+Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguiente formato exacto:
+{
+    "personDetected": true/false, // Si hay personas expuestas
+    "generalAssessment": "Breve descripción general de la escena observada en la foto",
+    "foundRisks": ["Descripción del riesgo grave encontrado", "Riesgo menor (si aplica)"],
+    "recommendations": ["Recomendación 1 para solucionar el riesgo", "Recomendación preventiva inmediata"],
+    "detections": [
+        {"label": "Riesgo detectado (Corto)", "box_2d": [ymin, xmin, ymax, xmax]},
+        {"label": "Condición subestándar", "box_2d": [ymin, xmin, ymax, xmax]}
+    ]
+}
+Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de 0 a 1000. Trata de dibujar las bounding boxes en la zona de mayor peligro de fuego, de caída o de golpes o corte de ser posible.`;
+
+        const imagePart = { inlineData: { data: base64Data, mimeType } };
+
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout de 25s local expiro')), 25000));
+        let result = await Promise.race([model.generateContent([prompt, imagePart]), timeoutPromise]);
+
+        const responseText = result.response.text();
+        let cleanedJson = responseText.trim();
+        if (cleanedJson.startsWith('\`\`\`json')) {
+            cleanedJson = cleanedJson.replace(/\`\`\`json/, '').replace(/\`\`\`$/, '').trim();
+        } else if (cleanedJson.startsWith('\`\`\`')) {
+            cleanedJson = cleanedJson.replace(/\`\`\`/, '').replace(/\`\`\`$/, '').trim();
+        }
+
+        res.json(JSON.parse(cleanedJson));
+    } catch (error) {
+        console.error("Error analyzing general risks:", error);
+        res.status(500).json({ error: 'Error en análisis de riesgos', details: error.message });
+    }
+});
+
+
 
 // Diagnostic endpoint to scan available models
 app.get('/api/scan-models', async (req, res) => {

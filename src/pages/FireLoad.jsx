@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
     ArrowLeft, Save, Plus, Trash2, Flame, Calculator,
     FileText, Printer, Building2, Layout, Maximize2,
-    Info, AlertTriangle, ShieldCheck, History, Share2
+    Info, AlertTriangle, ShieldCheck, History, Share2, Sparkles, Loader2
 } from 'lucide-react';
 import { fireMaterials, riskActivityGroups } from '../data/fireMaterials';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -30,6 +30,7 @@ export default function FireLoad() {
         superficie: 0,
         actividadGrupo: 'industrial',
         riesgo: 'R4', // Predeterminado para industrial
+        conclusion: '',
         materiales: [
             { nombre: 'Madera (General)', peso: 0, poderCalorifico: 4400, totalKcal: 0 }
         ]
@@ -149,6 +150,40 @@ export default function FireLoad() {
             });
         } catch (error) {
             console.error('Error in calculation:', error);
+        }
+    };
+
+    const [isGeneratingConclusion, setIsGeneratingConclusion] = useState(false);
+
+    const handleGenerateConclusion = async () => {
+        setIsGeneratingConclusion(true);
+        const loadingToast = toast.loading('Redactando conclusión técnica de incendio...');
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/ai-report-conclusion`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    reportType: 'Cálculo de Carga de Fuego (Dec. 351/79)',
+                    reportData: {
+                        empresa: formData.empresa,
+                        sector: formData.sector,
+                        superficie: formData.superficie,
+                        riesgo: formData.riesgo,
+                        cargaDeFuego: results.cargaDeFuego,
+                        rfRequerida: results.rfRequerida,
+                        maderaEquivalente: results.maderaEquivalente,
+                        matafuegos: results.minMatafuegos
+                    }
+                })
+            });
+            if (!res.ok) throw new Error('Error al conectar con la IA');
+            const data = await res.json();
+            setFormData(prev => ({ ...prev, conclusion: data.conclusion }));
+            toast.success('Conclusión generada con éxito ✨', { id: loadingToast });
+        } catch (error) {
+            toast.error(`Error al generar: ${error.message}`, { id: loadingToast });
+        } finally {
+            setIsGeneratingConclusion(false);
         }
     };
 
@@ -549,6 +584,48 @@ export default function FireLoad() {
                         </div>
                     </div>
                 </div>
+            </div>
+
+            {/* SECCIÓN DE CONCLUSIÓN */}
+            <div className="bg-white text-black p-8 shadow-sm border-2 border-slate-200 rounded-2xl mb-8 mt-10 print-area" style={{ display: 'block', clear: 'both' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                    <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-primary)' }}>
+                        <FileText size={22} /> Conclusión Profesional
+                    </h3>
+                    <button
+                        className="no-print"
+                        onClick={handleGenerateConclusion}
+                        disabled={isGeneratingConclusion}
+                        style={{ padding: '0.6rem 1rem', background: 'linear-gradient(135deg, #a855f7, #ec4899)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', cursor: isGeneratingConclusion ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', outline: 'none' }}
+                    >
+                        {isGeneratingConclusion ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                        {isGeneratingConclusion ? 'REDACTANDO...' : 'REDACTAR CON IA'}
+                    </button>
+                </div>
+
+                <textarea
+                    value={formData.conclusion || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, conclusion: e.target.value }))}
+                    className="form-input no-print"
+                    style={{
+                        width: '100%',
+                        padding: '1rem',
+                        borderRadius: '12px',
+                        border: '1px solid var(--color-border)',
+                        background: 'var(--color-surface)',
+                        color: 'var(--color-text)',
+                        minHeight: '120px',
+                        resize: 'vertical',
+                        fontFamily: 'inherit'
+                    }}
+                    placeholder="Escriba la conclusión del estudio o use el botón de IA para generarla..."
+                />
+
+                {formData.conclusion && (
+                    <div className="print-only text-slate-800 text-[0.85rem] whitespace-pre-wrap leading-relaxed">
+                        {formData.conclusion}
+                    </div>
+                )}
             </div>
 
             {/* SECCIÓN DE FIRMAS */}

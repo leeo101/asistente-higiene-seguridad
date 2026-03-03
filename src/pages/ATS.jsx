@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
     ArrowLeft, Save, Plus, Trash2, Printer,
     ShieldCheck, Building2, User, Calendar,
-    CheckCircle2, AlertCircle, HelpCircle, Pencil, Info, Share2
+    CheckCircle2, AlertCircle, HelpCircle, Pencil, Info, Share2, Sparkles, Loader2
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -12,6 +12,7 @@ import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import { API_BASE_URL } from '../config';
 
 const defaultChecklist = [
     // General
@@ -74,6 +75,55 @@ export default function ATS() {
     });
 
     const [showShare, setShowShare] = useState(false);
+    const [isGeneratingATS, setIsGeneratingATS] = useState(false);
+
+    const handleGenerateAI = async () => {
+        const taskTitle = window.prompt("¿Para qué tarea querés generar el informe ATS?\nEj: 'Soldadura en altura' o 'Excavación manual'");
+        if (!taskTitle) return;
+
+        setIsGeneratingATS(true);
+        const loadingToast = toast.loading('Calculando pasos, riesgos y protocolos...');
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/ai-ats-generator`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ taskTitle })
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || 'Fallo en la conexión');
+            }
+
+            const data = await res.json();
+
+            if (!Array.isArray(data) || data.length === 0) {
+                throw new Error('La respuesta de la IA no tiene el formato correcto');
+            }
+
+            // Map AI result to internal task structure
+            const newTasks = data.map((item, index) => ({
+                id: Date.now() + index,
+                paso: item.paso || '',
+                riesgo: item.riesgo || '',
+                control: item.control || '',
+                realizado: false
+            }));
+
+            setFormData(prev => ({
+                ...prev,
+                tareas: newTasks
+            }));
+
+            toast.success('ATS Autocompletado con IA ✨', { id: loadingToast });
+        } catch (error) {
+            console.error('Error generating ATS:', error);
+            toast.error(`Error al generar: ${error.message}`, { id: loadingToast });
+        } finally {
+            setIsGeneratingATS(false);
+        }
+    };
 
     const [professional, setProfessional] = useState({
         name: 'Juan Pérez',
@@ -334,13 +384,24 @@ export default function ATS() {
                         <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
                             <Pencil size={24} /> Secuencia de Tareas (Análisis)
                         </h3>
-                        <button
-                            className="no-print"
-                            onClick={addTask}
-                            style={{ padding: '0.6rem 1.2rem', background: '#36B37E', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                        >
-                            <Plus size={16} /> AGREGAR PASO
-                        </button>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <button
+                                className="no-print"
+                                onClick={handleGenerateAI}
+                                disabled={isGeneratingATS}
+                                style={{ padding: '0.6rem 1rem', background: 'linear-gradient(135deg, #a855f7, #ec4899)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', cursor: isGeneratingATS ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', boxShadow: '0 4px 15px rgba(236,72,153,0.3)', opacity: isGeneratingATS ? 0.7 : 1 }}
+                            >
+                                {isGeneratingATS ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                                {isGeneratingATS ? 'PENSANDO...' : 'IA MÁGICA'}
+                            </button>
+                            <button
+                                className="no-print"
+                                onClick={addTask}
+                                style={{ padding: '0.6rem 1.2rem', background: '#36B37E', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                            >
+                                <Plus size={16} /> AGREGAR PASO
+                            </button>
+                        </div>
                     </div>
 
                     <div style={{ border: '2px solid var(--color-border)', borderRadius: '16px', overflow: 'hidden' }}>
@@ -581,7 +642,8 @@ export default function ATS() {
 
 // Internal Sub-components
 function StatusBtn({ active, type, onClick, label }) {
-    const classes = `status-btn ${active ? (type === 'OK' ? 'active-ok' : type === 'FAIL' ? 'active-fail' : 'active-na') : ''}`;
+    const classes = `status - btn ${active ? (type === 'OK' ? 'active-ok' : type === 'FAIL' ? 'active-fail' : 'active-na') : ''
+        } `;
     return (
         <button className={classes} onClick={onClick}>
             {active && <CheckCircle2 size={10} style={{ marginRight: '2px' }} />}
@@ -592,7 +654,7 @@ function StatusBtn({ active, type, onClick, label }) {
 
 function DocBox({ label, value, onChange, type = "text", large = false, borderLeft = false }) {
     return (
-        <div className={`p-4 flex flex-col gap-1 justify-center ${borderLeft ? 'sm:border-l sm:print:border-l border-t sm:border-t-0 sm:print:border-t-0 border-[var(--color-border)]' : ''}`}>
+        <div className={`p - 4 flex flex - col gap - 1 justify - center ${borderLeft ? 'sm:border-l sm:print:border-l border-t sm:border-t-0 sm:print:border-t-0 border-[var(--color-border)]' : ''} `}>
             <span style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{label}</span>
             <input
                 type={type}

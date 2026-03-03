@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, FileText, Download, Search,
-    ExternalLink, BookOpen, Shield, Gavel
+    ExternalLink, BookOpen, Shield, Gavel, Sparkles, Loader2, Info, AlertCircle
 } from 'lucide-react';
+import { API_BASE_URL } from '../config';
+import toast from 'react-hot-toast';
 
 export default function Legislation() {
     const navigate = useNavigate();
@@ -57,8 +59,128 @@ export default function Legislation() {
             description: 'Ley que establece el sistema de Comisiones Médicas y procedimientos administrativos.',
             category: 'Leyes',
             url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/270000-274999/271810/norma.htm'
+        },
+        {
+            id: 'dto-1338-96',
+            title: 'Decreto 1338/96',
+            subtitle: 'Servicios de Medicina y de H&S',
+            description: 'Establece obligaciones referentes a la conformación de los Servicios de Medicina y de Higiene y Seguridad y Asignación de Horas Profesionales.',
+            category: 'Decretos',
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/35000-39999/39908/texact.htm'
+        },
+        {
+            id: 'res-295-03',
+            title: 'Resolución 295/03',
+            subtitle: 'Especificaciones Técnicas: Ergonomía, Radiaciones y Estrés Térmico',
+            description: 'Aprueba especificaciones técnicas sobre ergonomía, levantamiento manual de cargas, radiaciones y carga térmica.',
+            category: 'Resoluciones',
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/90000-94999/90460/texact.htm'
+        },
+        {
+            id: 'res-886-15',
+            title: 'Resolución 886/15',
+            subtitle: 'Protocolo de Ergonomía',
+            description: 'Establece el Protocolo de Ergonomía y Planilla de Levantamiento de Riesgos Ergonómicos obligatorios SRT.',
+            category: 'Resoluciones',
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/245000-249999/246479/norma.htm'
+        },
+        {
+            id: 'res-299-11',
+            title: 'Resolución 299/11',
+            subtitle: 'Registro de Entrega de EPP',
+            description: 'Regula el formulario y la obligatoriedad del Registro de Entrega de Elementos de Protección Personal.',
+            category: 'Resoluciones',
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/180000-184999/180590/norma.htm'
+        },
+        {
+            id: 'res-905-15',
+            title: 'Resolución 905/15',
+            subtitle: 'Funciones de los Servicios de H&S',
+            description: 'Define claramente las funciones que deben cumplir los servicios de higiene y seguridad y de medicina del trabajo.',
+            category: 'Resoluciones',
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/245000-249999/246473/norma.htm'
+        },
+        {
+            id: 'res-84-12',
+            title: 'Resolución 84/12',
+            subtitle: 'Protocolo de Medición de Iluminación',
+            description: 'Formulario obligatorio y metodología técnica para realizar la medición de la iluminación en el ambiente laboral.',
+            category: 'Resoluciones',
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/190000-194999/193856/norma.htm'
+        },
+        {
+            id: 'res-85-12',
+            title: 'Resolución 85/12',
+            subtitle: 'Protocolo de Medición de Ruido',
+            description: 'Formulario obligatorio y metodología técnica para realizar la medición del ruido en el ambiente laboral.',
+            category: 'Resoluciones',
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/190000-194999/193855/norma.htm'
+        },
+        {
+            id: 'res-801-15',
+            title: 'Resolución 801/15',
+            subtitle: 'Sistema Globalmente Armonizado (SGA)',
+            description: 'Implementación del Sistema Globalmente Armonizado de Clasificación y Etiquetado de Productos Químicos.',
+            category: 'Resoluciones',
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/245000-249999/245887/texact.htm'
+        },
+        {
+            id: 'res-960-15',
+            title: 'Resolución 960/15',
+            subtitle: 'Condiciones de Seguridad para Autoelevadores',
+            description: 'Establece las condiciones y requisitos de seguridad obligatorios para la circulación y uso de autoelevadores.',
+            category: 'Resoluciones',
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/245000-249999/246996/norma.htm'
+        },
+        {
+            id: 'res-3345-15',
+            title: 'Resolución 3345/15',
+            subtitle: 'Límites Máximos de Carga',
+            description: 'Fija los límites máximos para la manipulación manual de cargas en los lugares de trabajo.',
+            category: 'Resoluciones',
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/250000-254999/252994/norma.htm'
+        },
+        {
+            id: 'res-900-15',
+            title: 'Resolución 900/15',
+            subtitle: 'Protocolo de Puesta a Tierra',
+            description: 'Protocolo para la Medición del Valor de Resistencia de Puesta a Tierra y Verificación de la Continuidad.',
+            category: 'Resoluciones',
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/245000-249999/246476/norma.htm'
         }
     ];
+
+    const [summaries, setSummaries] = useState({});
+    const [loadingDocs, setLoadingDocs] = useState(new Set());
+
+    const handleSimplify = async (id, title, subtitle) => {
+        if (loadingDocs.has(id)) return;
+
+        setLoadingDocs(prev => new Set(prev).add(id));
+        const loadingToast = toast.loading(`Analizando ${title}...`);
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/ai-legal-summary`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ley: `${title}: ${subtitle}` })
+            });
+
+            if (!res.ok) throw new Error('Error al conectar con la IA');
+            const data = await res.json();
+
+            setSummaries(prev => ({ ...prev, [id]: data.summary }));
+            toast.success('Resumen generado ✨', { id: loadingToast });
+        } catch (error) {
+            toast.error('No se pudo resumir la norma', { id: loadingToast });
+        } finally {
+            setLoadingDocs(prev => {
+                const next = new Set(prev);
+                next.delete(id);
+                return next;
+            });
+        }
+    };
 
     const filteredDocs = docs.filter(doc =>
         doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -119,13 +241,14 @@ export default function Legislation() {
                             {doc.description}
                         </p>
 
-                        <div style={{ display: 'flex', gap: '0.8rem' }}>
+                        <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap' }}>
                             <a
                                 href={doc.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 style={{
                                     flex: 1,
+                                    minWidth: '120px',
                                     textDecoration: 'none',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -142,25 +265,48 @@ export default function Legislation() {
                                 <ExternalLink size={16} /> Ver Online
                             </a>
                             <button
-                                onClick={() => window.open(doc.url, '_blank')}
+                                onClick={() => handleSimplify(doc.id, doc.title, doc.subtitle)}
+                                disabled={loadingDocs.has(doc.id)}
                                 style={{
                                     flex: 1,
+                                    minWidth: '120px',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     gap: '0.5rem',
-                                    padding: '0.7rem 1rem',
-                                    background: 'rgba(255, 255, 255, 0.05)',
-                                    border: '1px solid var(--color-border)',
+                                    padding: '0.7rem',
+                                    background: 'linear-gradient(135deg, #a855f7, #ec4899)',
+                                    color: 'white',
+                                    border: 'none',
                                     borderRadius: '8px',
                                     fontSize: '0.85rem',
                                     fontWeight: 700,
-                                    color: 'var(--color-text)'
+                                    cursor: loadingDocs.has(doc.id) ? 'wait' : 'pointer'
                                 }}
                             >
-                                <Download size={16} /> PDF
+                                {loadingDocs.has(doc.id) ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                                {loadingDocs.has(doc.id) ? 'RESUMIENDO...' : 'SIMPLIFICAR CON IA'}
                             </button>
                         </div>
+
+                        {summaries[doc.id] && (
+                            <div style={{
+                                marginTop: '1.2rem',
+                                padding: '1rem',
+                                background: 'rgba(168, 85, 247, 0.05)',
+                                border: '1px solid rgba(168, 85, 247, 0.2)',
+                                borderRadius: '12px',
+                                animation: 'fadeIn 0.3s ease-out'
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#a855f7' }}>
+                                    <Info size={16} />
+                                    <span style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase' }}>Resumen Simplificado</span>
+                                </div>
+                                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text)', lineHeight: '1.5' }}>
+                                    {summaries[doc.id]}
+                                </p>
+                            </div>
+                        )}
                     </div>
                 ))}
 
