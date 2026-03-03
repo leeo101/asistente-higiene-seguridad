@@ -201,41 +201,43 @@ export default function Home() {
                         )}
                     </div>
 
-                    {/* STATS ROW inside hero */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '0.8rem', marginTop: '1.8rem' }}>
-                        {stats.map((stat, i) => (
-                            <div key={i}
-                                onClick={() => {
-                                    if (stat.key === 'ats_history') navigate('/ats-history');
-                                    else if (stat.key === 'fireload_history') navigate('/fire-load-history');
-                                    else if (stat.key === 'reports_history') navigate('/history', { state: { view: 'reports' } });
-                                    else if (stat.key === 'risk_matrix_history') navigate('/history', { state: { view: 'matrices' } });
-                                    else if (stat.key === 'lighting_history') navigate('/lighting-history');
-                                    else if (stat.key === 'work_permits_history') navigate('/work-permit-history');
-                                    else if (stat.key === 'tool_checklists_history') navigate('/checklists-history');
-                                    else navigate('/history', { state: { view: 'inspections' } });
-                                }}
-                                style={{
-                                    background: 'rgba(255,255,255,0.12)',
-                                    backdropFilter: 'blur(10px)',
-                                    borderRadius: '14px',
-                                    padding: '0.9rem 0.6rem',
-                                    textAlign: 'center',
-                                    cursor: 'pointer',
-                                    border: '1px solid rgba(255,255,255,0.2)',
-                                    transition: 'transform 0.2s, background 0.2s',
-                                }}
-                                onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.22)'}
-                                onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
-                            >
-                                <div style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '0.3rem' }}>
-                                    {React.cloneElement(stat.icon, { size: 20 })}
+                    {/* STATS ROW inside hero - solo para usuarios logueados */}
+                    {currentUser && (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '0.8rem', marginTop: '1.8rem' }}>
+                            {stats.map((stat, i) => (
+                                <div key={i}
+                                    onClick={() => {
+                                        if (stat.key === 'ats_history') navigate('/ats-history');
+                                        else if (stat.key === 'fireload_history') navigate('/fire-load-history');
+                                        else if (stat.key === 'reports_history') navigate('/history', { state: { view: 'reports' } });
+                                        else if (stat.key === 'risk_matrix_history') navigate('/history', { state: { view: 'matrices' } });
+                                        else if (stat.key === 'lighting_history') navigate('/lighting-history');
+                                        else if (stat.key === 'work_permits_history') navigate('/work-permit-history');
+                                        else if (stat.key === 'tool_checklists_history') navigate('/checklists-history');
+                                        else navigate('/history', { state: { view: 'inspections' } });
+                                    }}
+                                    style={{
+                                        background: 'rgba(255,255,255,0.12)',
+                                        backdropFilter: 'blur(10px)',
+                                        borderRadius: '14px',
+                                        padding: '0.9rem 0.6rem',
+                                        textAlign: 'center',
+                                        cursor: 'pointer',
+                                        border: '1px solid rgba(255,255,255,0.2)',
+                                        transition: 'transform 0.2s, background 0.2s',
+                                    }}
+                                    onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.22)'}
+                                    onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
+                                >
+                                    <div style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '0.3rem' }}>
+                                        {React.cloneElement(stat.icon, { size: 20 })}
+                                    </div>
+                                    <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#fff', lineHeight: 1 }}>{stat.value}</div>
+                                    <div style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.7)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '0.2rem' }}>{stat.label}</div>
                                 </div>
-                                <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#fff', lineHeight: 1 }}>{stat.value}</div>
-                                <div style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.7)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '0.2rem' }}>{stat.label}</div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                     {/* Social Proof Counter Strip */}
                     {!currentUser && (
                         <div style={{ display: 'flex', justifyContent: 'center', gap: '2.5rem', padding: '1.5rem 1rem 0', flexWrap: 'wrap' }}>
@@ -445,131 +447,137 @@ export default function Home() {
 
                 <AdBanner />
 
-                {/* ── NEW INSPECTION (CTA) ── */}
-                <Link to="/create-inspection" style={{ textDecoration: 'none' }}>
-                    <div style={{
-                        display: 'flex', alignItems: 'center', gap: '1.2rem',
-                        background: 'linear-gradient(135deg,#1e3a8a,#2563eb)',
-                        borderRadius: '18px', padding: '1.3rem 1.5rem', marginTop: '1.5rem',
-                        cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s',
-                        boxShadow: '0 8px 24px rgba(37,99,235,0.35)',
-                        position: 'relative', overflow: 'hidden',
-                    }}
-                        onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(37,99,235,0.45)'; }}
-                        onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(37,99,235,0.35)'; }}
-                    >
-                        <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
-                        <div style={{ width: '50px', height: '50px', background: 'rgba(255,255,255,0.2)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            <PlusCircle size={28} color="white" />
+                {/* ── NEW INSPECTION (CTA) — solo usuarios logueados ── */}
+                {currentUser && (
+                    <Link to="/create-inspection" style={{ textDecoration: 'none' }}>
+                        <div style={{
+                            display: 'flex', alignItems: 'center', gap: '1.2rem',
+                            background: 'linear-gradient(135deg,#1e3a8a,#2563eb)',
+                            borderRadius: '18px', padding: '1.3rem 1.5rem', marginTop: '1.5rem',
+                            cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s',
+                            boxShadow: '0 8px 24px rgba(37,99,235,0.35)',
+                            position: 'relative', overflow: 'hidden',
+                        }}
+                            onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(37,99,235,0.45)'; }}
+                            onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(37,99,235,0.35)'; }}
+                        >
+                            <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
+                            <div style={{ width: '50px', height: '50px', background: 'rgba(255,255,255,0.2)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <PlusCircle size={28} color="white" />
+                            </div>
+                            <div style={{ flex: 1, zIndex: 1 }}>
+                                <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900, color: 'white' }}>Nueva Inspección</h4>
+                                <p style={{ margin: 0, fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)' }}>Crear y sincronizar en la nube</p>
+                            </div>
+                            <ChevronRight size={22} color="rgba(255,255,255,0.7)" />
                         </div>
-                        <div style={{ flex: 1, zIndex: 1 }}>
-                            <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900, color: 'white' }}>Nueva Inspección</h4>
-                            <p style={{ margin: 0, fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)' }}>Crear y sincronizar en la nube</p>
-                        </div>
-                        <ChevronRight size={22} color="rgba(255,255,255,0.7)" />
-                    </div>
-                </Link>
+                    </Link>
+                )}
 
-                {/* ── QUICK ACCESS GRID ── */}
-                <div style={{ marginTop: '2rem', marginBottom: '1rem' }}>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '1rem', letterSpacing: '-0.3px' }}>Accesos Rápidos</h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '0.9rem' }}>
-                        {quickLinks.map((item, i) => (
-                            <Link key={i} to={item.to} style={{ textDecoration: 'none' }}>
-                                <div style={{
-                                    background: 'var(--color-surface)',
-                                    borderRadius: '16px',
-                                    padding: '1.1rem 0.8rem',
-                                    display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
-                                    gap: '0.6rem',
-                                    border: '1px solid var(--color-border)',
-                                    cursor: 'pointer',
-                                    transition: 'transform 0.2s, box-shadow 0.2s, border-color 0.2s',
-                                    minHeight: '110px', justifyContent: 'center',
-                                }}
-                                    onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = `0 8px 20px ${item.color}30`; e.currentTarget.style.borderColor = item.color + '60'; }}
-                                    onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = 'var(--color-border)'; }}
-                                >
+                {/* ── QUICK ACCESS GRID — solo usuarios logueados ── */}
+                {currentUser && (
+                    <div style={{ marginTop: '2rem', marginBottom: '1rem' }}>
+                        <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '1rem', letterSpacing: '-0.3px' }}>Accesos Rápidos</h3>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '0.9rem' }}>
+                            {quickLinks.map((item, i) => (
+                                <Link key={i} to={item.to} style={{ textDecoration: 'none' }}>
                                     <div style={{
-                                        width: '48px', height: '48px', borderRadius: '14px',
-                                        background: item.bg,
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        color: item.color,
-                                        transition: 'transform 0.2s',
-                                    }}>
-                                        {item.icon}
-                                    </div>
-                                    <div>
-                                        <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-text)' }}>{item.label}</div>
-                                        <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', marginTop: '0.1rem' }}>{item.sub}</div>
-                                    </div>
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
-                </div>
-
-                {/* ── RECENT ACTIVITY ── */}
-                <div style={{ marginTop: '2rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                        <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: 0 }}>Actividad Reciente</h3>
-                        {recentWorks.length > 0 && (
-                            <Link to="/history" style={{ fontSize: '0.82rem', color: 'var(--color-primary)', textDecoration: 'none', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-                                Ver todo <ChevronRight size={14} />
-                            </Link>
-                        )}
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
-                        {recentWorks.length > 0 ? (
-                            recentWorks.map((work, i) => {
-                                const tc = typeColors[work.type] || typeColors['Inspección'];
-                                return (
-                                    <div key={i} style={{
-                                        display: 'flex', alignItems: 'center', gap: '1rem',
                                         background: 'var(--color-surface)',
+                                        borderRadius: '16px',
+                                        padding: '1.1rem 0.8rem',
+                                        display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
+                                        gap: '0.6rem',
                                         border: '1px solid var(--color-border)',
-                                        borderRadius: '14px', padding: '0.9rem 1rem',
-                                        transition: 'transform 0.2s',
-                                        cursor: 'pointer'
+                                        cursor: 'pointer',
+                                        transition: 'transform 0.2s, box-shadow 0.2s, border-color 0.2s',
+                                        minHeight: '110px', justifyContent: 'center',
                                     }}
-                                        onClick={() => {
-                                            if (work.type === 'ATS') navigate('/ats-history');
-                                            else if (work.type === 'Carga Fuego') navigate('/fire-load-history');
-                                            else if (work.type === 'Inspección') navigate('/history', { state: { view: 'inspections' } });
-                                            else if (work.type === 'Matriz') navigate('/history', { state: { view: 'matrices' } });
-                                            else if (work.type === 'Informe') navigate('/history', { state: { view: 'reports' } });
-                                            else if (work.type === 'Checklist') navigate('/checklists-history');
-                                            else if (work.type === 'Iluminación') navigate('/lighting-history');
-                                            else if (work.type === 'Permiso') navigate('/work-permit-history');
-                                        }}
-                                        onMouseOver={e => e.currentTarget.style.transform = 'translateX(4px)'}
-                                        onMouseOut={e => e.currentTarget.style.transform = 'translateX(0)'}
+                                        onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = `0 8px 20px ${item.color}30`; e.currentTarget.style.borderColor = item.color + '60'; }}
+                                        onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = 'var(--color-border)'; }}
                                     >
-                                        <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: tc.bg, color: tc.text, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                            {tc.icon}
+                                        <div style={{
+                                            width: '48px', height: '48px', borderRadius: '14px',
+                                            background: item.bg,
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            color: item.color,
+                                            transition: 'transform 0.2s',
+                                        }}>
+                                            {item.icon}
                                         </div>
-                                        <div style={{ flex: 1, minWidth: 0 }}>
-                                            <div style={{ fontWeight: 700, fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{work.title || '—'}</div>
-                                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'flex', gap: '0.5rem', marginTop: '0.1rem', alignItems: 'center' }}>
-                                                <span style={{ background: tc.bg, color: tc.text, padding: '0.1rem 0.5rem', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700 }}>{work.type}</span>
-                                                {work.subtitle && <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{work.subtitle}</span>}
+                                        <div>
+                                            <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-text)' }}>{item.label}</div>
+                                            <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', marginTop: '0.1rem' }}>{item.sub}</div>
+                                        </div>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* ── RECENT ACTIVITY — solo usuarios logueados ── */}
+                {currentUser && (
+                    <div style={{ marginTop: '2rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                            <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: 0 }}>Actividad Reciente</h3>
+                            {recentWorks.length > 0 && (
+                                <Link to="/history" style={{ fontSize: '0.82rem', color: 'var(--color-primary)', textDecoration: 'none', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                                    Ver todo <ChevronRight size={14} />
+                                </Link>
+                            )}
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
+                            {recentWorks.length > 0 ? (
+                                recentWorks.map((work, i) => {
+                                    const tc = typeColors[work.type] || typeColors['Inspección'];
+                                    return (
+                                        <div key={i} style={{
+                                            display: 'flex', alignItems: 'center', gap: '1rem',
+                                            background: 'var(--color-surface)',
+                                            border: '1px solid var(--color-border)',
+                                            borderRadius: '14px', padding: '0.9rem 1rem',
+                                            transition: 'transform 0.2s',
+                                            cursor: 'pointer'
+                                        }}
+                                            onClick={() => {
+                                                if (work.type === 'ATS') navigate('/ats-history');
+                                                else if (work.type === 'Carga Fuego') navigate('/fire-load-history');
+                                                else if (work.type === 'Inspección') navigate('/history', { state: { view: 'inspections' } });
+                                                else if (work.type === 'Matriz') navigate('/history', { state: { view: 'matrices' } });
+                                                else if (work.type === 'Informe') navigate('/history', { state: { view: 'reports' } });
+                                                else if (work.type === 'Checklist') navigate('/checklists-history');
+                                                else if (work.type === 'Iluminación') navigate('/lighting-history');
+                                                else if (work.type === 'Permiso') navigate('/work-permit-history');
+                                            }}
+                                            onMouseOver={e => e.currentTarget.style.transform = 'translateX(4px)'}
+                                            onMouseOut={e => e.currentTarget.style.transform = 'translateX(0)'}
+                                        >
+                                            <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: tc.bg, color: tc.text, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                                {tc.icon}
+                                            </div>
+                                            <div style={{ flex: 1, minWidth: 0 }}>
+                                                <div style={{ fontWeight: 700, fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{work.title || '—'}</div>
+                                                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'flex', gap: '0.5rem', marginTop: '0.1rem', alignItems: 'center' }}>
+                                                    <span style={{ background: tc.bg, color: tc.text, padding: '0.1rem 0.5rem', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700 }}>{work.type}</span>
+                                                    {work.subtitle && <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{work.subtitle}</span>}
+                                                </div>
+                                            </div>
+                                            <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                                                {new Date(work.date || work.createdAt).toLocaleDateString()}
                                             </div>
                                         </div>
-                                        <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                                            {new Date(work.date || work.createdAt).toLocaleDateString()}
-                                        </div>
-                                    </div>
-                                );
-                            })
-                        ) : (
-                            <div style={{ textAlign: 'center', padding: '2.5rem', border: '1.5px dashed var(--color-border)', borderRadius: '16px', opacity: 0.6 }}>
-                                <History size={36} style={{ marginBottom: '0.8rem', opacity: 0.4 }} />
-                                <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>No hay actividad reciente</p>
-                                <p style={{ margin: '0.3rem 0 0', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Comenzá creando una nueva inspección</p>
-                            </div>
-                        )}
+                                    );
+                                })
+                            ) : (
+                                <div style={{ textAlign: 'center', padding: '2.5rem', border: '1.5px dashed var(--color-border)', borderRadius: '16px', opacity: 0.6 }}>
+                                    <History size={36} style={{ marginBottom: '0.8rem', opacity: 0.4 }} />
+                                    <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>No hay actividad reciente</p>
+                                    <p style={{ margin: '0.3rem 0 0', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Comenzá creando una nueva inspección</p>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
         </div>
     );
