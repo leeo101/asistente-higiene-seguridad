@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
     ClipboardList, PlusCircle, History, User, Settings,
-    Flame, ShieldAlert, BarChart3, ChevronRight, Plus, FileText, Gavel,
+    Flame, BarChart3, ChevronRight, Plus, Gavel,
     Accessibility, AlertTriangle, Lock, UserPlus, LogIn, Sparkles,
-    Camera, CalendarCheck, Shield, Cpu, Lightbulb, HardHat
+    Camera, CalendarCheck, Shield, Cpu, Lightbulb,
+    ShieldCheck, TriangleAlert, KeySquare, ScrollText, Bot, ClipboardCheck, FileText
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
@@ -83,17 +84,17 @@ const typeColors = {
 };
 
 const quickLinks = [
-    { to: '/ats', icon: <BarChart3 size={26} />, label: 'ATS', sub: 'Análisis Trabajo Seguro', color: '#10b981', bg: 'rgba(16,185,129,0.1)' },
+    { to: '/ats', icon: <ShieldCheck size={26} />, label: 'ATS', sub: 'Análisis Trabajo Seguro', color: '#10b981', bg: 'rgba(16,185,129,0.1)' },
     { to: '/fire-load', icon: <Flame size={26} />, label: 'Carga Fuego', sub: 'Dec. 351/79', color: '#f97316', bg: 'rgba(249,115,22,0.1)' },
-    { to: '/risk-matrix', icon: <ShieldAlert size={26} />, label: 'Matrices', sub: 'Riesgo Laboral', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
+    { to: '/risk-matrix', icon: <TriangleAlert size={26} />, label: 'Matrices', sub: 'Riesgo Laboral', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
     { to: '/ergonomics', icon: <Accessibility size={26} />, label: 'Ergonomía', sub: 'Res. SRT 886/15', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
-    { to: '/reports', icon: <FileText size={26} />, label: 'Informes', sub: 'Técnicos', color: '#ec4899', bg: 'rgba(236,72,153,0.1)' },
+    { to: '/reports', icon: <ScrollText size={26} />, label: 'Informes', sub: 'Técnicos', color: '#ec4899', bg: 'rgba(236,72,153,0.1)' },
     { to: '/legislation', icon: <Gavel size={26} />, label: 'Legislación', sub: 'Biblioteca Legal', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
     { to: '/lighting', icon: <Lightbulb size={26} />, label: 'Iluminación', sub: 'Dec. 351/79', color: '#eab308', bg: 'rgba(234,179,8,0.1)' },
-    { to: '/ai-camera', icon: <Camera size={26} />, label: 'Cámara IA', sub: 'Detección EPP', color: '#06b6d4', bg: 'rgba(6,182,212,0.1)' },
-    { to: '/ai-advisor', icon: <Sparkles size={26} />, label: 'Asesor IA', sub: 'Consultas de Seguridad', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
+    { to: '/ai-camera', icon: <Camera size={26} />, label: 'Cámara IA', sub: 'Detección EPP', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)' },
+    { to: '/ai-advisor', icon: <Bot size={26} />, label: 'Asesor IA', sub: 'Consultas de Seguridad', color: '#a855f7', bg: 'rgba(168,85,247,0.1)' },
     { to: '/checklists', icon: <ClipboardList size={26} />, label: 'Checklists', sub: 'Herramientas y Equipos', color: '#14b8a6', bg: 'rgba(20,184,166,0.1)' },
-    { to: '/work-permit', icon: <HardHat size={26} />, label: 'Permisos', sub: 'Tareas Críticas', color: '#2563eb', bg: 'rgba(37,99,235,0.1)' },
+    { to: '/work-permit', icon: <KeySquare size={26} />, label: 'Permisos', sub: 'Tareas Críticas', color: '#2563eb', bg: 'rgba(37,99,235,0.1)' },
 ];
 
 export default function Home() {
@@ -105,14 +106,14 @@ export default function Home() {
     const [daysLeft, setDaysLeft] = useState(null);
     const [showOnboarding, setShowOnboarding] = useState(false);
     const [stats, setStats] = useState([
-        { label: 'Inspecciones', value: 0, icon: <ClipboardList />, color: '#3b82f6', grad: 'linear-gradient(135deg,#3b82f6,#2563eb)', key: 'inspections_history' },
-        { label: 'ATS', value: 0, icon: <BarChart3 />, color: '#10b981', grad: 'linear-gradient(135deg,#10b981,#059669)', key: 'ats_history' },
+        { label: 'Inspecciones', value: 0, icon: <ClipboardCheck />, color: '#3b82f6', grad: 'linear-gradient(135deg,#3b82f6,#2563eb)', key: 'inspections_history' },
+        { label: 'ATS', value: 0, icon: <ShieldCheck />, color: '#10b981', grad: 'linear-gradient(135deg,#10b981,#059669)', key: 'ats_history' },
         { label: 'Checklists', value: 0, icon: <ClipboardList />, color: '#14b8a6', grad: 'linear-gradient(135deg,#14b8a6,#0d9488)', key: 'tool_checklists_history' },
         { label: 'Carga Fuego', value: 0, icon: <Flame />, color: '#f97316', grad: 'linear-gradient(135deg,#f97316,#ea580c)', key: 'fireload_history' },
-        { label: 'Matrices', value: 0, icon: <ShieldAlert />, color: '#8b5cf6', grad: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', key: 'risk_matrix_history' },
+        { label: 'Matrices', value: 0, icon: <TriangleAlert />, color: '#8b5cf6', grad: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', key: 'risk_matrix_history' },
         { label: 'Iluminación', value: 0, icon: <Lightbulb />, color: '#eab308', grad: 'linear-gradient(135deg,#eab308,#ca8a04)', key: 'lighting_history' },
-        { label: 'Permisos', value: 0, icon: <HardHat />, color: '#2563eb', grad: 'linear-gradient(135deg,#2563eb,#1d4ed8)', key: 'work_permits_history' },
-        { label: 'Informes', value: 0, icon: <FileText />, color: '#ec4899', grad: 'linear-gradient(135deg,#ec4899,#db2777)', key: 'reports_history' },
+        { label: 'Permisos', value: 0, icon: <KeySquare />, color: '#2563eb', grad: 'linear-gradient(135deg,#2563eb,#1d4ed8)', key: 'work_permits_history' },
+        { label: 'Informes', value: 0, icon: <ScrollText />, color: '#ec4899', grad: 'linear-gradient(135deg,#ec4899,#db2777)', key: 'reports_history' },
     ]);
     const [recentWorks, setRecentWorks] = useState([]);
     const [userName, setUserName] = useState('Profesional');
