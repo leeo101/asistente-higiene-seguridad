@@ -12,6 +12,7 @@ import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import { permitTypes } from '../data/workPermits';
 import toast from 'react-hot-toast';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function WorkPermit() {
     const navigate = useNavigate();
@@ -19,6 +20,7 @@ export default function WorkPermit() {
     const { currentUser } = useAuth();
     const { syncCollection } = useSync();
     const { requirePro } = usePaywall();
+    useDocumentTitle('Permiso de Trabajo');
 
     // Default state
     const [formData, setFormData] = useState({

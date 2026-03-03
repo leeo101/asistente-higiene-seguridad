@@ -5,6 +5,7 @@ import {
     ClipboardList, Flame, BarChart3, ShieldAlert, Plus, Sparkles, Trash2, Camera, Lightbulb, HardHat, Share2
 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 // ─── Reusable delete confirmation dialog ───────────────────────────
 function DeleteConfirm({ onConfirm, onCancel }) {
@@ -47,6 +48,7 @@ export default function History() {
     const location = useLocation();
     const { syncCollection, syncPulse } = useSync();
     const [view, setView] = useState(location.state?.view || 'hub');
+    useDocumentTitle('Historial');
 
     useEffect(() => {
         if (location.state?.view) {

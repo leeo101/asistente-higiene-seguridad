@@ -5,6 +5,7 @@ import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 const HAZARD_TYPES = [
     { value: '', label: 'Seleccionar...', icon: null, color: '#94a3b8' },
@@ -38,6 +39,7 @@ export default function RiskMatrix() {
     const location = useLocation();
     const { syncCollection } = useSync();
     const { requirePro } = usePaywall();
+    useDocumentTitle('Matriz de Riesgos');
     const [projectData, setProjectData] = useState({
         name: '', location: '',
         date: new Date().toISOString().split('T')[0],

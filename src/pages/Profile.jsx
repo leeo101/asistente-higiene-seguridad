@@ -4,10 +4,12 @@ import { ArrowLeft, User, Settings, PenTool, Database, Shield, LogOut, ChevronRi
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function Profile() {
     const navigate = useNavigate();
     const { isPro } = usePaywall();
+    useDocumentTitle('Mi Perfil');
     const [linkCopied, setLinkCopied] = useState(false);
     const [userData, setUserData] = useState({
         name: 'Juan Pérez',
