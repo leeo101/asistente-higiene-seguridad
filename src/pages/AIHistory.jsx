@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Search, Calendar, ChevronRight,
     Trash2, Sparkles, Download, FileText, HardHat,
-    ShieldAlert, Lightbulb, Gavel
+    ShieldAlert, Lightbulb, Gavel, Share2
 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import { jsPDF } from 'jspdf';
@@ -230,6 +230,15 @@ export default function AIHistory() {
                                 >
                                     <Download size={20} />
                                 </button>
+                                <a
+                                    href={`https://wa.me/?text=${encodeURIComponent(`✨ Análisis de Seguridad (IA)\n📋 Tarea: ${item.task}\n🚨 Riesgos: ${(item.riesgos || []).slice(0, 2).join(', ')}...\n🛡️ EPP: ${(item.epp || []).slice(0, 2).join(', ')}...\n📚 Normativa: ${(item.normativa || []).join(', ')}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS con IA\n🔗 https://asistentehs-b594e.web.app`)}`}
+                                    target="_blank" rel="noreferrer"
+                                    onClick={e => e.stopPropagation()}
+                                    style={{ background: 'transparent', border: 'none', color: '#25D366', cursor: 'pointer', padding: '0.5rem', display: 'flex', alignItems: 'center', textDecoration: 'none' }}
+                                    title="Compartir por WhatsApp"
+                                >
+                                    <Share2 size={20} />
+                                </a>
                                 <button
                                     onClick={(e) => handleDelete(item.id, e)}
                                     style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.5rem' }}

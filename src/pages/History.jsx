@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
     ArrowLeft, Search, FileText, Calendar, ChevronRight,
-    ClipboardList, Flame, BarChart3, ShieldAlert, Plus, Sparkles, Trash2, Camera, Lightbulb, HardHat
+    ClipboardList, Flame, BarChart3, ShieldAlert, Plus, Sparkles, Trash2, Camera, Lightbulb, HardHat, Share2
 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 
@@ -228,6 +228,14 @@ export default function History() {
                                     >
                                         Editar
                                     </button>
+                                    <a
+                                        href={`https://wa.me/?text=${encodeURIComponent(`🚫 Matriz de Riesgo\n🏗️ ${item.name}\n📍 ${item.location}\n📅 ${new Date(item.createdAt).toLocaleDateString()}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS\n🔗 https://asistentehs-b594e.web.app`)}`}
+                                        target="_blank" rel="noreferrer"
+                                        style={{ padding: '0.5rem 0.7rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', display: 'flex', alignItems: 'center', textDecoration: 'none' }}
+                                        title="Compartir por WhatsApp"
+                                    >
+                                        <Share2 size={16} />
+                                    </a>
                                     <DeleteBtn storageKey="risk_matrix_history" id={item.id} />
                                 </div>
                             </div>
@@ -292,6 +300,14 @@ export default function History() {
                                     >
                                         Editar
                                     </button>
+                                    <a
+                                        href={`https://wa.me/?text=${encodeURIComponent(`📄 Informe Profesional\n🏗️ ${item.title}\n🏢 ${item.company}\n📅 ${new Date(item.createdAt).toLocaleDateString()}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS\n🔗 https://asistentehs-b594e.web.app`)}`}
+                                        target="_blank" rel="noreferrer"
+                                        style={{ padding: '0.5rem 0.7rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', display: 'flex', alignItems: 'center', textDecoration: 'none' }}
+                                        title="Compartir por WhatsApp"
+                                    >
+                                        <Share2 size={16} />
+                                    </a>
                                     <DeleteBtn storageKey="reports_history" id={item.id} />
                                 </div>
                             </div>

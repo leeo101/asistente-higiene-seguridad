@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, User, Settings, PenTool, Database, Shield, LogOut, ChevronRight, Trash2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, User, Settings, PenTool, Database, Shield, LogOut, ChevronRight, Trash2, AlertCircle, Share2, Copy, Check } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 export default function Profile() {
     const navigate = useNavigate();
     const { isPro } = usePaywall();
+    const [linkCopied, setLinkCopied] = useState(false);
     const [userData, setUserData] = useState({
         name: 'Juan Pérez',
         license: 'MP 5567'
@@ -165,6 +166,46 @@ export default function Profile() {
                         <ChevronRight size={18} color="var(--color-text-muted)" />
                     </div>
                 ))}
+            </div>
+
+            {/* ─── Invitar a un Colega ─────────────────────── */}
+            <div className="card" style={{
+                padding: '1.5rem',
+                background: 'linear-gradient(135deg, rgba(37,99,235,0.06), rgba(16,185,129,0.06))',
+                border: '1px solid rgba(37,99,235,0.15)'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.8rem' }}>
+                    <div style={{ width: '40px', height: '40px', background: 'rgba(37,99,235,0.1)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)', flexShrink: 0 }}>
+                        <Share2 size={20} />
+                    </div>
+                    <div>
+                        <h3 style={{ margin: 0, fontWeight: 800, fontSize: '1rem' }}>Invitar a un Colega</h3>
+                        <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--color-text-muted)' }}>Compartir esta herramienta gratuita</p>
+                    </div>
+                </div>
+                <p style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)', marginBottom: '1rem', lineHeight: 1.5 }}>
+                    ¿Tenés colegas de Higiene y Seguridad? Invitalos a usar la plataforma — es completamente <strong>gratuita</strong>.
+                </p>
+                <div style={{ display: 'flex', gap: '0.8rem' }}>
+                    <a
+                        href={`https://wa.me/?text=${encodeURIComponent(`🛡️ Hola! Te comparto esta plataforma gratuita para profesionales de Higiene y Seguridad.\n\n*Asistente HYS* te permite:\n🔥 Calcular Carga de Fuego (Dec 351/79)\n💡 Estudios de Iluminación\n📋 Hacer ATS y Matrices de Riesgo\n🤖 Consultar la IA legal\n\n¡Y todo gratis!\n🔗 https://asistentehs-b594e.web.app`)}`}
+                        target="_blank" rel="noreferrer"
+                        style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', padding: '0.8rem', background: '#25D366', color: 'white', borderRadius: '12px', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', boxShadow: '0 4px 12px rgba(37,211,102,0.3)' }}
+                    >
+                        <Share2 size={18} /> Invitar por WhatsApp
+                    </a>
+                    <button
+                        onClick={() => {
+                            navigator.clipboard.writeText('https://asistentehs-b594e.web.app').catch(() => { });
+                            setLinkCopied(true);
+                            setTimeout(() => setLinkCopied(false), 2500);
+                        }}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', padding: '0.8rem', background: linkCopied ? '#dcfce7' : 'var(--color-surface)', border: `1px solid ${linkCopied ? '#86efac' : 'var(--color-border)'}`, borderRadius: '12px', color: linkCopied ? '#16a34a' : 'var(--color-text-muted)', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap' }}
+                    >
+                        {linkCopied ? <Check size={16} /> : <Copy size={16} />}
+                        {linkCopied ? 'Copiado!' : 'Copiar link'}
+                    </button>
+                </div>
             </div>
 
             <button

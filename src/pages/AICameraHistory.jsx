@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Trash2, Camera, Calendar, Building2, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Search, Trash2, Camera, Calendar, Building2, ShieldCheck, AlertTriangle, Share2 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
 
@@ -136,6 +136,13 @@ export default function AICameraHistory() {
                                 >
                                     <Camera size={16} /> Re-inspección
                                 </button>
+                                <a
+                                    href={`https://wa.me/?text=${encodeURIComponent(`📸 Inspección Visual con IA\n🏗️ Empresa: ${item.company}\n📍 Ubicación: ${item.location}\n🛡️ Estado EPP: ${item.ppeComplete ? '✅ Completo' : '⚠️ Incompleto'}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS con IA\n🔗 https://asistentehs-b594e.web.app`)}`}
+                                    target="_blank" rel="noreferrer"
+                                    style={{ padding: '0.6rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
+                                >
+                                    <Share2 size={16} />
+                                </a>
                                 <button
                                     onClick={() => setDeleteTarget(item.id)}
                                     style={{ padding: '0.6rem', background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}
