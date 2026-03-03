@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-    ArrowLeft, Search, FileText, Calendar, ChevronRight,
-    ClipboardList, Flame, BarChart3, ShieldAlert, Plus, Sparkles, Trash2, Camera, Lightbulb, HardHat, Share2
+    ArrowLeft, Search, Calendar, ChevronRight,
+    ClipboardList, Flame, BarChart3, ShieldAlert, Plus, Sparkles, Trash2, Camera, Lightbulb, HardHat, Share2,
+    ClipboardCheck, ScrollText, ShieldCheck, KeySquare, Bot, TriangleAlert
 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -130,16 +131,16 @@ export default function History() {
     );
 
     const historyCategories = [
-        { title: 'Inspecciones', icon: <FileText />, color: '#3b82f6', path: '/history-list', countKey: 'inspections', view: 'inspections' },
-        { title: 'ATS (Análisis Seguro)', icon: <BarChart3 />, color: '#10b981', path: '/ats-history', countKey: 'ats' },
-        { title: 'Carga de Fuego', icon: <Flame />, color: '#f97316', path: '/fire-load-history', countKey: 'fireload' },
-        { title: 'Iluminación', icon: <Lightbulb />, color: '#eab308', path: '/lighting-history', countKey: 'lighting' },
-        { title: 'Permisos de Trabajo', icon: <HardHat />, color: '#2563eb', path: '/work-permit-history', countKey: 'workPermits' },
-        { title: 'Matrices de Riesgo', icon: <ShieldAlert />, color: '#8b5cf6', path: '/history-list-matrix', countKey: 'matrices', view: 'matrices' },
-        { title: 'Informes Profesionales', icon: <FileText />, color: '#ec4899', path: '/reports-history', countKey: 'reports', view: 'reports' },
-        { title: 'Checklist Herramientas', icon: <ClipboardList />, color: '#3b82f6', path: '/checklists-history', countKey: 'checklists' },
-        { title: 'Cámara IA — Inspección Visual', icon: <Camera />, color: '#06b6d4', path: '/ai-camera-history', countKey: 'aiCamera' },
-        { title: 'Consultas Asesor IA', icon: <Sparkles />, color: '#8b5cf6', path: '/ai-history', countKey: 'ai' },
+        { title: 'Inspecciones', icon: <ClipboardCheck size={24} />, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', path: '/history-list', countKey: 'inspections', view: 'inspections' },
+        { title: 'ATS — Análisis Trabajo Seguro', icon: <ShieldCheck size={24} />, color: '#10b981', bg: 'rgba(16,185,129,0.1)', path: '/ats-history', countKey: 'ats' },
+        { title: 'Carga de Fuego', icon: <Flame size={24} />, color: '#f97316', bg: 'rgba(249,115,22,0.1)', path: '/fire-load-history', countKey: 'fireload' },
+        { title: 'Iluminación', icon: <Lightbulb size={24} />, color: '#eab308', bg: 'rgba(234,179,8,0.1)', path: '/lighting-history', countKey: 'lighting' },
+        { title: 'Permisos de Trabajo', icon: <KeySquare size={24} />, color: '#2563eb', bg: 'rgba(37,99,235,0.1)', path: '/work-permit-history', countKey: 'workPermits' },
+        { title: 'Matrices de Riesgo', icon: <TriangleAlert size={24} />, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', path: '/history-list-matrix', countKey: 'matrices', view: 'matrices' },
+        { title: 'Informes Profesionales', icon: <ScrollText size={24} />, color: '#ec4899', bg: 'rgba(236,72,153,0.1)', path: '/reports-history', countKey: 'reports', view: 'reports' },
+        { title: 'Checklist Herramientas', icon: <ClipboardList size={24} />, color: '#06b6d4', bg: 'rgba(6,182,212,0.1)', path: '/checklists-history', countKey: 'checklists' },
+        { title: 'Cámara IA — Inspección Visual', icon: <Camera size={24} />, color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', path: '/ai-camera-history', countKey: 'aiCamera' },
+        { title: 'Consultas Asesor IA', icon: <Bot size={24} />, color: '#a855f7', bg: 'rgba(168,85,247,0.1)', path: '/ai-history', countKey: 'ai' },
     ];
 
     // ─── HUB ──────────────────────────────────────────────────────
@@ -154,27 +155,29 @@ export default function History() {
                     <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Historiales</h1>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: '0.9rem' }}>
                     {historyCategories.map((cat, i) => (
                         <div
                             key={i}
                             className="card"
-                            style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.2rem', cursor: 'pointer' }}
+                            style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.1rem 1.2rem', cursor: 'pointer', transition: 'border-color 0.2s, box-shadow 0.2s', border: '1.5px solid var(--color-border)' }}
                             onClick={() => {
                                 if (cat.view) setView(cat.view);
                                 else navigate(cat.path);
                             }}
+                            onMouseEnter={e => { e.currentTarget.style.borderColor = cat.color; e.currentTarget.style.boxShadow = `0 4px 16px ${cat.color}22`; }}
+                            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--color-border)'; e.currentTarget.style.boxShadow = ''; }}
                         >
-                            <div style={{ background: `${cat.color}15`, color: cat.color, padding: '1rem', borderRadius: '12px' }}>
-                                {React.cloneElement(cat.icon, { size: 24 })}
+                            <div style={{ background: cat.bg || `${cat.color}15`, color: cat.color, padding: '0.85rem', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                {cat.icon}
                             </div>
-                            <div style={{ flex: 1 }}>
-                                <h3 style={{ margin: 0, fontSize: '1.05rem' }}>{cat.title}</h3>
-                                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-                                    {counts[cat.countKey] ?? 0} registros guardados
-                                </p>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                                <h3 style={{ margin: '0 0 0.25rem', fontSize: '0.92rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cat.title}</h3>
+                                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: (counts[cat.countKey] ?? 0) > 0 ? cat.color : 'var(--color-text-muted)', background: (counts[cat.countKey] ?? 0) > 0 ? (cat.bg || `${cat.color}15`) : 'transparent', padding: (counts[cat.countKey] ?? 0) > 0 ? '2px 8px' : '0', borderRadius: '20px', display: 'inline-block' }}>
+                                    {counts[cat.countKey] ?? 0} registros
+                                </span>
                             </div>
-                            <ChevronRight size={18} color="var(--color-text-muted)" />
+                            <ChevronRight size={16} color={cat.color} style={{ opacity: 0.6, flexShrink: 0 }} />
                         </div>
                     ))}
                 </div>
