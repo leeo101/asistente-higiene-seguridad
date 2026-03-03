@@ -29,30 +29,39 @@
 
   <title>Asistente H&S - Gestión Inteligente de Higiene y Seguridad</title>
 
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=AW-822199045">
-</script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-822199045">
+  </script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
 
-  gtag('config', 'AW-822199045');
-</script>
+    gtag('config', 'AW-822199045');
+  </script>
 
-<!-- Event snippet for Vista de una página conversion page -->
-<script>
-  gtag('event', 'conversion', {
+  <!-- Event snippet for Vista de una página conversion page -->
+  <script>
+    gtag('event', 'conversion', {
       'send_to': 'AW-822199045/2ZlYCKTgkYEcEIWGh4gD',
       'value': 1.0,
       'currency': 'USD'
-  });
-</script>
+    });
+  </script>
 
 </head>
 
 <body>
   <div id="root"><!--app-html--></div>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('[SW] Registrado:', reg.scope))
+          .catch(err => console.error('[SW] Error al registrar:', err));
+      });
+    }
+  </script>
   <script type="module" src="/src/entry-client.jsx"></script>
 </body>
 

@@ -14,6 +14,10 @@ export default function ShareModal({ open, onClose, title = '', text = '' }) {
     const [copied, setCopied] = useState(false);
     if (!open) return null;
 
+    const appUrl = 'https://asistentehs-b594e.web.app';
+    const inviteMessage = encodeURIComponent(
+        `👷 ¡Mirá este reporte de ${title}!\n\n${text}\n\n---\n📱 Generado con *Asistente HYS* — La plataforma gratuita de Higiene y Seguridad con IA para Argentina.\n🔗 Probala vos también: ${appUrl}`
+    );
     const encoded = encodeURIComponent(text);
     const subject = encodeURIComponent(title);
     const url = encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '');
@@ -24,7 +28,7 @@ export default function ShareModal({ open, onClose, title = '', text = '' }) {
             icon: '📱',
             color: '#25D366',
             bg: '#dcfce7',
-            url: `https://wa.me/?text=${encoded}`,
+            url: `https://wa.me/?text=${inviteMessage}`,
         },
         {
             label: 'LinkedIn',
@@ -45,21 +49,21 @@ export default function ShareModal({ open, onClose, title = '', text = '' }) {
             icon: '✈️',
             color: '#229ED9',
             bg: '#e0f2fe',
-            url: `https://t.me/share/url?url=${url}&text=${encoded}`,
+            url: `https://t.me/share/url?url=${url}&text=${inviteMessage}`,
         },
         {
             label: 'Twitter / X',
             icon: '𝕏',
             color: '#000',
             bg: '#f1f5f9',
-            url: `https://twitter.com/intent/tweet?text=${encoded}`,
+            url: `https://twitter.com/intent/tweet?text=${inviteMessage}`,
         },
         {
             label: 'Email',
             icon: '📧',
             color: '#6366f1',
             bg: '#eef2ff',
-            url: `mailto:?subject=${subject}&body=${encoded}`,
+            url: `mailto:?subject=${subject}&body=${inviteMessage}`,
         },
     ];
 
