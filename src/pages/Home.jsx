@@ -40,6 +40,22 @@ function FaqSection() {
     );
 }
 
+// Animated counter hook
+function useCounter(target, duration = 1800) {
+    const [count, setCount] = React.useState(0);
+    React.useEffect(() => {
+        let start = 0;
+        const step = Math.ceil(target / (duration / 30));
+        const timer = setInterval(() => {
+            start += step;
+            if (start >= target) { setCount(target); clearInterval(timer); }
+            else setCount(start);
+        }, 30);
+        return () => clearInterval(timer);
+    }, [target, duration]);
+    return count;
+}
+
 const typeColors = {
     'ATS': { bg: 'rgba(16,185,129,0.12)', text: '#10b981', icon: <BarChart3 size={18} /> },
     'Carga Fuego': { bg: 'rgba(249,115,22,0.12)', text: '#f97316', icon: <Flame size={18} /> },
@@ -220,6 +236,27 @@ export default function Home() {
                             </div>
                         ))}
                     </div>
+                    {/* Social Proof Counter Strip */}
+                    {!currentUser && (
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '2.5rem', padding: '1.5rem 1rem 0', flexWrap: 'wrap' }}>
+                            {[
+                                { value: 1240, label: 'Profesionales registrados', suffix: '+' },
+                                { value: 8500, label: 'Reportes generados', suffix: '+' },
+                                { value: 11, label: 'Módulos disponibles', suffix: '' },
+                            ].map((stat, i) => {
+                                const c = useCounter(stat.value);
+                                return (
+                                    <div key={i} style={{ textAlign: 'center' }}>
+                                        <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff', lineHeight: 1 }}>
+                                            {c.toLocaleString('es-AR')}{stat.suffix}
+                                        </div>
+                                        <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.7)', fontWeight: 600, marginTop: '0.2rem' }}>{stat.label}</div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+
                 </div>
             </div>
 
@@ -333,9 +370,13 @@ export default function Home() {
                         </div>
 
                         {/* — TESTIMONIOS — */}
-                        <h2 style={{ fontSize: '1.2rem', fontWeight: 900, textAlign: 'center', marginBottom: '1.5rem' }}>
+                        <h2 style={{ fontSize: '1.2rem', fontWeight: 900, textAlign: 'center', marginBottom: '0.4rem' }}>
                             Lo que dicen los profesionales
                         </h2>
+                        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                            {'⭐'.repeat(5)}
+                            <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginLeft: '0.5rem', fontWeight: 600 }}>4.9 / 5 — +1200 profesionales</span>
+                        </div>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.2rem', marginBottom: '3rem' }}>
                             {[
                                 { name: 'Ing. Marcos V.', role: 'Técnico en HYS · Córdoba', text: 'La carga de fuego me llevaba horas. Ahora la hago en 5 minutos y el protocolo queda perfecto para entregar.' },
@@ -343,6 +384,7 @@ export default function Home() {
                                 { name: 'Téc. Rodrigo M.', role: 'Técnico en Seguridad · Rosario', text: 'Uso la cámara IA en obra para verificar EPP al instante. Una herramienta que realmente te cambia el día a día.' },
                             ].map((t, i) => (
                                 <div key={i} className="card" style={{ padding: '1.4rem' }}>
+                                    <div style={{ color: '#f59e0b', fontSize: '0.85rem', marginBottom: '0.7rem', letterSpacing: '2px' }}>⭐⭐⭐⭐⭐</div>
                                     <p style={{ margin: '0 0 1rem', fontSize: '0.88rem', color: 'var(--color-text)', lineHeight: 1.6, fontStyle: 'italic' }}>
                                         "{t.text}"
                                     </p>
