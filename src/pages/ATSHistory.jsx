@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Trash2, FileText, Printer, Building2, Calendar, ShieldCheck, X, Share2 } from 'lucide-react';
+import { ArrowLeft, Search, Trash2, FileText, Printer, Building2, Calendar, ShieldCheck, X, Share2, ClipboardList } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 
 function DeleteConfirm({ onConfirm, onCancel }) {

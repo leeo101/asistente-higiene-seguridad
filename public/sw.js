@@ -1,7 +1,7 @@
 // ─── Asistente HYS Service Worker ───────────────────────────────────────────
 // Cache-first para assets estáticos, network-first para APIs y datos dinámicos.
 
-const CACHE_NAME = 'hys-v1';
+const CACHE_NAME = 'hys-v2';
 
 // Assets que se precargan al instalar el SW
 const PRECACHE_URLS = [

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Search, Calendar, Building2,
     Trash2, Eye, FileText, Printer, Share2,
-    Plus, KeySquare
+    Plus, KeySquare, Construction
 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
