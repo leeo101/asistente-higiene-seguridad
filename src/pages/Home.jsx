@@ -10,6 +10,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { usePaywall } from '../hooks/usePaywall';
 import AdBanner from '../components/AdBanner';
+import OnboardingModal from '../components/OnboardingModal';
+import StickyCtaBanner from '../components/StickyCtaBanner';
 
 function FaqSection() {
     const [open, setOpen] = React.useState(null);
@@ -88,6 +90,7 @@ export default function Home() {
     const { isPro, daysRemaining } = usePaywall();
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [daysLeft, setDaysLeft] = useState(null);
+    const [showOnboarding, setShowOnboarding] = useState(false);
     const [stats, setStats] = useState([
         { label: 'Inspecciones', value: 0, icon: <ClipboardList />, color: '#3b82f6', grad: 'linear-gradient(135deg,#3b82f6,#2563eb)', key: 'inspections_history' },
         { label: 'ATS', value: 0, icon: <BarChart3 />, color: '#10b981', grad: 'linear-gradient(135deg,#10b981,#059669)', key: 'ats_history' },
@@ -119,6 +122,15 @@ export default function Home() {
             // Re-sync with paywall hook
             setIsSubscribed(isPro());
             setDaysLeft(daysRemaining());
+
+            // Onboarding: show once per user account
+            if (currentUser) {
+                const onboardingKey = `onboarding_done_${currentUser.uid}`;
+                if (!localStorage.getItem(onboardingKey)) {
+                    setTimeout(() => setShowOnboarding(true), 1000);
+                    localStorage.setItem(onboardingKey, '1');
+                }
+            }
         }
 
         const loadStats = () => {
@@ -158,6 +170,12 @@ export default function Home() {
 
     return (
         <div style={{ paddingBottom: '4rem' }}>
+            {/* Onboarding modal — solo una vez para usuarios nuevos */}
+            {showOnboarding && <OnboardingModal onClose={() => setShowOnboarding(false)} />}
+
+            {/* Sticky CTA — solo para visitantes sin cuenta */}
+            {!currentUser && <StickyCtaBanner />}
+
             {/* ── HERO BANNER ── */}
             <div style={{
                 background: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #0ea5e9 100%)',
