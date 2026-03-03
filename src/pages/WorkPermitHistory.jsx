@@ -94,6 +94,13 @@ export default function WorkPermitHistory() {
                                 <button onClick={() => navigate('/work-permit', { state: { editData: item } })} style={{ padding: '0.6rem', background: 'var(--color-background)', border: 'none', borderRadius: '10px', cursor: 'pointer', color: 'var(--color-text)' }}>
                                     <Eye size={18} />
                                 </button>
+                                <a
+                                    href={`https://wa.me/?text=${encodeURIComponent(`🔐 Permiso de Trabajo\n🏗️ Empresa: ${item.empresa}\n🚧 Obra: ${item.obra}\n📅 Fecha: ${item.fecha}\n📋 Tipo: ${permitTypes.find(t => t.id === item.tipoPermiso)?.label || 'Permiso'}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS con IA\n🔗 https://asistentehs-b594e.web.app`)}`}
+                                    target="_blank" rel="noreferrer"
+                                    style={{ padding: '0.6rem 0.8rem', background: '#dcfce7', border: 'none', borderRadius: '10px', cursor: 'pointer', color: '#16a34a', display: 'flex', alignItems: 'center', gap: '0.3rem', fontWeight: 700, fontSize: '0.75rem', textDecoration: 'none' }}
+                                >
+                                    <Share2 size={16} /> WA
+                                </a>
                                 <button onClick={() => handleDelete(item.id)} style={{ padding: '0.6rem', background: 'rgba(239, 68, 68, 0.1)', border: 'none', borderRadius: '10px', cursor: 'pointer', color: '#ef4444' }}>
                                     <Trash2 size={18} />
                                 </button>

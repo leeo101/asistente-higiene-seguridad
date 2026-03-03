@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Search, Trash2, FileText,
-    Calendar, Building2, Lightbulb, Plus
+    Calendar, Building2, Lightbulb, Plus, Share2
 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 
@@ -119,6 +119,13 @@ export default function LightingHistory() {
                                 >
                                     <FileText size={16} /> Ver / Editar
                                 </button>
+                                <a
+                                    href={`https://wa.me/?text=${encodeURIComponent(`💡 Estudio de Iluminación\n🏗️ Empresa: ${item.empresa}\n📍 Sector: ${item.sector || '-'}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS con IA\n🔗 https://asistentehs-b594e.web.app`)}`}
+                                    target="_blank" rel="noreferrer"
+                                    style={{ padding: '0.6rem 0.9rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, fontSize: '0.8rem', textDecoration: 'none' }}
+                                >
+                                    <Share2 size={15} /> WA
+                                </a>
                                 <button
                                     onClick={() => setDeleteTarget(item.id)}
                                     style={{
