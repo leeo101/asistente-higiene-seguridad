@@ -82,30 +82,25 @@ export default function AIReport() {
                 {/* Info Block */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-4 mb-10 bg-slate-50 p-5 rounded-lg border border-slate-200">
                     <div>
-                        <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748b' }}>Empresa</p>
+                        <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748b' }}>Tipo de Inspección</p>
+                        <p style={{ margin: 0, fontWeight: 800, fontSize: '0.9rem', color: 'var(--color-primary)' }}>
+                            {data.type === 'general_risks' ? 'DETECTAR RIESGOS GENERALES' : 'VERIFICAR EPP'}
+                        </p>
+                    </div>
+                    <div>
+                        <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748b' }}>Empresa / Planta</p>
                         <input
                             type="text"
                             value={company}
                             onChange={(e) => setCompany(e.target.value)}
                             className="no-print"
-                            style={{ margin: 0, padding: '0.2rem 0', fontWeight: 600, fontSize: '0.9rem', border: 'none', borderBottom: '1px solid #e2e8f0', background: 'transparent' }}
+                            style={{ margin: 0, padding: '0.2rem 0', fontWeight: 600, fontSize: '0.9rem', border: 'none', borderBottom: '1px solid #e2e8f0', background: 'transparent', width: '100%' }}
                         />
                         <p className="print-only" style={{ margin: 0, fontWeight: 600, fontSize: '0.9rem' }}>{company}</p>
                     </div>
                     <div>
                         <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748b' }}>Fecha del Escaneo</p>
                         <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9rem' }}>{new Date(data.date).toLocaleString()}</p>
-                    </div>
-                    <div>
-                        <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748b' }}>Ubicación</p>
-                        <input
-                            type="text"
-                            value={location}
-                            onChange={(e) => setLocation(e.target.value)}
-                            className="no-print"
-                            style={{ margin: 0, padding: '0.2rem 0', fontWeight: 600, fontSize: '0.9rem', border: 'none', borderBottom: '1px solid #e2e8f0', background: 'transparent' }}
-                        />
-                        <p className="print-only" style={{ margin: 0, fontWeight: 600, fontSize: '0.9rem' }}>{location}</p>
                     </div>
                 </div>
 
@@ -114,7 +109,9 @@ export default function AIReport() {
                     <div style={{ position: 'relative', display: 'inline-block', border: '4px solid #fff', boxShadow: '0 5px 15px rgba(0,0,0,0.1)', borderRadius: '12px', overflow: 'hidden' }}>
                         <img src={data.image} alt="Evidencia" style={{ maxWidth: '100%', maxHeight: '450px', display: 'block' }} />
                         {/* Simplified Overlay for Report */}
-                        {data.analysis.ppeComplete ? (
+                        {data.type === 'general_risks' ? (
+                            <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(59, 130, 246, 0.9)', color: '#fff', fontSize: '0.8rem', fontWeight: 800, padding: '4px 10px', borderRadius: '20px', border: '2px solid #fff' }}>ANÁLISIS ENTORNO</div>
+                        ) : data.analysis.ppeComplete ? (
                             <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(16, 185, 129, 0.9)', color: '#fff', fontSize: '0.8rem', fontWeight: 800, padding: '4px 10px', borderRadius: '20px', border: '2px solid #fff' }}>✓ EPP O.K.</div>
                         ) : (
                             <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(239, 68, 68, 0.9)', color: '#fff', fontSize: '0.8rem', fontWeight: 800, padding: '4px 10px', borderRadius: '20px', border: '2px solid #fff' }}>⚠️ FALTA EPP</div>
@@ -125,25 +122,40 @@ export default function AIReport() {
 
                 {/* Analysis Results */}
                 <div style={{ marginBottom: '2.5rem' }}>
-                    <h3 style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem', marginBottom: '1rem', color: '#1e293b' }}>Evaluación de EPP Detectada</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-4">
-                        {[
-                            { label: 'Casco de Seguridad', pass: data.analysis.helmetUsed },
-                            { label: 'Calzado de Seguridad', pass: data.analysis.shoesUsed },
-                            { label: 'Guantes de Trabajo', pass: data.analysis.glovesUsed },
-                            { label: 'Ropa / Chaleco Reflectivo', pass: data.analysis.clothingUsed },
-                        ].map((item, i) => (
-                            <div key={i} style={{ padding: '0.8rem', borderRadius: '8px', background: item.pass ? '#f0fdf4' : '#fef2f2', border: `1px solid ${item.pass ? '#bbf7d0' : '#fecaca'}`, display: 'flex', alignItems: 'center', gap: '0.8rem', color: item.pass ? '#15803d' : '#b91c1c' }}>
-                                {item.pass ? <ShieldCheck size={20} /> : <AlertTriangle size={20} />}
-                                <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{item.label}: {item.pass ? 'CUMPLE' : 'FALTA'}</span>
-                            </div>
-                        ))}
-                    </div>
+                    <h3 style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem', marginBottom: '1rem', color: '#1e293b' }}>
+                        {data.type === 'general_risks' ? 'Resumen de Riesgos Detectados' : 'Evaluación de EPP Detectada'}
+                    </h3>
 
-                    <div style={{ marginTop: '1rem', padding: '1rem', borderRadius: '8px', background: data.analysis.ppeComplete ? '#f0fdf4' : '#fff7ed', border: `1px solid ${data.analysis.ppeComplete ? '#bbf7d0' : '#ffedd5'}`, display: 'flex', alignItems: 'center', gap: '0.8rem', color: data.analysis.ppeComplete ? '#15803d' : '#c2410c' }}>
-                        {data.analysis.ppeComplete ? <ShieldCheck /> : <AlertTriangle />}
-                        <span style={{ fontWeight: 800 }}>ESTADO GENERAL: {data.analysis.ppeComplete ? 'ADECUADO' : 'REQUIERE ATENCIÓN INMEDIATA'}</span>
-                    </div>
+                    {data.type !== 'general_risks' ? (
+                        <>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-4">
+                                {[
+                                    { label: 'Casco de Seguridad', pass: data.analysis.helmetUsed },
+                                    { label: 'Calzado de Seguridad', pass: data.analysis.shoesUsed },
+                                    { label: 'Guantes de Trabajo', pass: data.analysis.glovesUsed },
+                                    { label: 'Ropa / Chaleco Reflectivo', pass: data.analysis.clothingUsed },
+                                ].map((item, i) => (
+                                    <div key={i} style={{ padding: '0.8rem', borderRadius: '8px', background: item.pass ? '#f0fdf4' : '#fef2f2', border: `1px solid ${item.pass ? '#bbf7d0' : '#fecaca'}`, display: 'flex', alignItems: 'center', gap: '0.8rem', color: item.pass ? '#15803d' : '#b91c1c' }}>
+                                        {item.pass ? <ShieldCheck size={20} /> : <AlertTriangle size={20} />}
+                                        <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{item.label}: {item.pass ? 'CUMPLE' : 'FALTA'}</span>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div style={{ marginTop: '1rem', padding: '1rem', borderRadius: '8px', background: data.analysis.ppeComplete ? '#f0fdf4' : '#fff7ed', border: `1px solid ${data.analysis.ppeComplete ? '#bbf7d0' : '#ffedd5'}`, display: 'flex', alignItems: 'center', gap: '0.8rem', color: data.analysis.ppeComplete ? '#15803d' : '#c2410c' }}>
+                                {data.analysis.ppeComplete ? <ShieldCheck /> : <AlertTriangle />}
+                                <span style={{ fontWeight: 800 }}>ESTADO GENERAL: {data.analysis.ppeComplete ? 'ADECUADO' : 'REQUIERE ATENCIÓN INMEDIATA'}</span>
+                            </div>
+                        </>
+                    ) : (
+                        <div style={{ padding: '1.2rem', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', color: '#334155' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.8rem', color: 'var(--color-primary)' }}>
+                                <Info size={20} />
+                                <span style={{ fontWeight: 800, fontSize: '1rem' }}>EVALUACIÓN GENERAL IA</span>
+                            </div>
+                            <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: '1.6' }}>{data.analysis.generalAssessment || 'Análisis ambiental completado.'}</p>
+                        </div>
+                    )}
                 </div>
 
                 {/* Findings Legend (Numbered) */}
@@ -172,12 +184,17 @@ export default function AIReport() {
                 )}
 
                 {/* Additional Findings */}
-                {data.analysis.foundRisks.length > 0 && (
+                {(data.analysis.foundRisks?.length > 0 || data.analysis.detections?.some(d => d.recommendation)) && (
                     <div style={{ marginBottom: '3rem' }}>
-                        <h4 style={{ color: '#b91c1c', marginBottom: '0.8rem' }}>Riesgos y Observaciones Adicionales:</h4>
+                        <h4 style={{ color: '#b91c1c', marginBottom: '0.8rem' }}>Riesgos y Observaciones Detalladas:</h4>
                         <ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#1e293b' }}>
-                            {data.analysis.foundRisks.map((risk, i) => (
+                            {data.analysis.foundRisks?.map((risk, i) => (
                                 <li key={i} style={{ marginBottom: '0.4rem' }}>{risk}</li>
+                            ))}
+                            {data.analysis.detections?.filter(d => d.recommendation).map((det, i) => (
+                                <li key={`rec-${i}`} style={{ marginBottom: '0.4rem' }}>
+                                    <strong>{det.label.replace('Riesgo: ', '')}:</strong> {det.recommendation}
+                                </li>
                             ))}
                         </ul>
                     </div>

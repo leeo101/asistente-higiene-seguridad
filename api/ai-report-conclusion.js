@@ -23,7 +23,13 @@ export default async function handler(req, res) {
         if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini' });
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const models = ["gemini-2.0-flash", "gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-1.5-flash"];
+        const models = [
+            "gemini-2.0-flash",
+            "gemini-1.5-flash-latest",
+            "gemini-1.5-pro-latest",
+            "gemini-1.5-flash",
+            "gemini-1.5-pro"
+        ];
 
         const prompt = `Actúa como un experto consultor en Higiene y Seguridad Laboral en Argentina.
 Analiza los siguientes datos extraídos de un reporte de "${reportType}":

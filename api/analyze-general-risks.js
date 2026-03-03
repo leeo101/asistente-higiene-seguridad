@@ -23,7 +23,12 @@ export default async function handler(req, res) {
         if (!apiKey) return res.status(500).json({ error: 'Falta API Key' });
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const models = ["gemini-1.5-flash", "gemini-2.0-flash"];
+        const models = [
+            "gemini-1.5-flash",
+            "gemini-2.0-flash",
+            "gemini-1.5-flash-latest",
+            "gemini-1.5-pro-latest"
+        ];
 
         const base64Data = image.split(',')[1];
         const mimeType = image.split(';')[0].split(':')[1] || 'image/jpeg';
@@ -41,7 +46,7 @@ Devuelve ÚNICAMENTE un objeto JSON estricto con este formato:
     ],
     "generalAssessment": "Evaluación general del entorno"
 }
-Las coordenadas deben estar normalizadas de 0 a 1000.`;
+Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de 0 a 1000.`;
 
         const imagePart = {
             inlineData: {
@@ -50,16 +55,27 @@ Las coordenadas deben estar normalizadas de 0 a 1000.`;
             },
         };
 
+        const safetySettings = [
+            { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+            { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+            { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+            { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" },
+        ];
+
         let result;
+        let lastError;
         for (const modelName of models) {
             try {
-                const model = genAI.getGenerativeModel({ model: modelName });
+                const model = genAI.getGenerativeModel({ model: modelName, safetySettings });
                 result = await model.generateContent([prompt, imagePart]);
                 if (result) break;
-            } catch (err) { continue; }
+            } catch (err) {
+                lastError = err;
+                continue;
+            }
         }
 
-        if (!result) throw new Error('Modelos fallaron');
+        if (!result) throw new Error(lastError?.message || 'Modelos de Visión IA fallaron');
 
         const responseText = result.response.text();
         let cleanedJson = responseText.trim();

@@ -23,7 +23,13 @@ export default async function handler(req, res) {
         if (!apiKey) return res.status(500).json({ error: 'Falta API Key' });
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const models = ["gemini-2.0-flash", "gemini-1.5-flash-latest"];
+        const models = [
+            "gemini-2.0-flash",
+            "gemini-1.5-flash-latest",
+            "gemini-1.5-pro-latest",
+            "gemini-1.5-flash",
+            "gemini-1.5-pro"
+        ];
 
         const prompt = `Como experto legislativo en Higiene y Seguridad en Argentina, realiza un resumen directo de esta norma: "${ley}".
 Provee un resumen de puntos principales (en viñetas) que todo prevencionista debe saber de forma rápida para el trabajo de campo. No inventar contenido, basarse en el objeto material de la ley. Devuelve directamente el texto, y usa formato markdown.`;
