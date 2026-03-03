@@ -11,9 +11,11 @@ import autoTable from 'jspdf-autotable';
 import { API_BASE_URL } from '../config';
 import AdBanner from '../components/AdBanner';
 import toast from 'react-hot-toast';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function AIChatAdvisor() {
     const navigate = useNavigate();
+    useDocumentTitle('Asesor de Seguridad IA');
     const [task, setTask] = useState('');
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);

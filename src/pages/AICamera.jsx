@@ -4,10 +4,12 @@ import { ArrowLeft, Camera, RefreshCw, CheckCircle, AlertTriangle, ShieldCheck, 
 import { API_BASE_URL } from '../config';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function AICamera() {
     const navigate = useNavigate();
     const { requirePro } = usePaywall();
+    useDocumentTitle('Cámara de Riesgos IA');
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
     const [stream, _setStream] = useState(null);

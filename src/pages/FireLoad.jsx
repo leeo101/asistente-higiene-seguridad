@@ -6,6 +6,7 @@ import {
     Info, AlertTriangle, ShieldCheck, History, Share2
 } from 'lucide-react';
 import { fireMaterials, riskActivityGroups } from '../data/fireMaterials';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
@@ -19,6 +20,7 @@ export default function FireLoad() {
     const { currentUser } = useAuth();
     const { syncCollection } = useSync();
     const { requirePro } = usePaywall();
+    useDocumentTitle('Cálculo Carga de Fuego');
 
     const [formData, setFormData] = useState({
         empresa: '',

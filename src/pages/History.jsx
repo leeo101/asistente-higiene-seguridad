@@ -377,6 +377,14 @@ export default function History() {
                                     Editar
                                 </button>
                                 <DeleteBtn storageKey="inspections_history" id={item.id} />
+                                <a
+                                    href={`https://wa.me/?text=${encodeURIComponent(`📋 Inspección de Seguridad\n🏗️ ${item.name || 'Sin nombre'}\n📅 ${new Date(item.date).toLocaleDateString()}\n🔎 Tipo: ${item.type || '—'}\n📊 Resultado: ${item.result || '—'}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS\n🔗 https://asistentehs-b594e.web.app`)}`}
+                                    target="_blank" rel="noreferrer"
+                                    style={{ padding: '0.5rem 0.7rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', display: 'flex', alignItems: 'center', textDecoration: 'none' }}
+                                    title="Compartir por WhatsApp"
+                                >
+                                    <Share2 size={16} />
+                                </a>
                             </div>
                         </div>
                     </div>

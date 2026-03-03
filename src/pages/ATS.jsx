@@ -6,6 +6,7 @@ import {
     CheckCircle2, AlertCircle, HelpCircle, Pencil, Info, Share2
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
@@ -48,6 +49,7 @@ export default function ATS() {
     const location = useLocation();
     const { currentUser } = useAuth();
     const { requirePro } = usePaywall();
+    useDocumentTitle('Análisis de Trabajo Seguro (ATS)');
     const capatazCanvasRef = useRef(null);
     const [isDrawingCapataz, setIsDrawingCapataz] = useState(false);
 
