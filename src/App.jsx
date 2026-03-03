@@ -41,6 +41,7 @@ import LightingHistory from './pages/LightingHistory.jsx';
 import WorkPermit from './pages/WorkPermit.jsx';
 import WorkPermitHistory from './pages/WorkPermitHistory.jsx';
 import InstallBanner from './components/InstallBanner.jsx';
+import NotFound from './pages/NotFound.jsx';
 
 import ChecklistsHistory from './pages/ChecklistsHistory.jsx';
 import ChecklistManager from './pages/ChecklistManager.jsx';
@@ -248,6 +249,7 @@ function App() {
             <Route path="/admin/requests" element={<ProtectedRoute><AdminRequests /></ProtectedRoute>} />
 
             <Route path="/matrices" element={<Navigate to="/risk-matrix" replace />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
           <Footer />
           <InstallBanner />

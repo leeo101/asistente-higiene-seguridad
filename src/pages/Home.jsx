@@ -58,6 +58,19 @@ function useCounter(target, duration = 1800) {
     return count;
 }
 
+// Sub-component so useCounter is called at component level (hooks rule)
+function CounterItem({ value, label, suffix }) {
+    const count = useCounter(value);
+    return (
+        <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff', lineHeight: 1 }}>
+                {count.toLocaleString('es-AR')}{suffix}
+            </div>
+            <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.7)', fontWeight: 600, marginTop: '0.2rem' }}>{label}</div>
+        </div>
+    );
+}
+
 const typeColors = {
     'ATS': { bg: 'rgba(16,185,129,0.12)', text: '#10b981', icon: <BarChart3 size={18} /> },
     'Carga Fuego': { bg: 'rgba(249,115,22,0.12)', text: '#f97316', icon: <Flame size={18} /> },
@@ -259,21 +272,9 @@ export default function Home() {
                     {/* Social Proof Counter Strip */}
                     {!currentUser && (
                         <div style={{ display: 'flex', justifyContent: 'center', gap: '2.5rem', padding: '1.5rem 1rem 0', flexWrap: 'wrap' }}>
-                            {[
-                                { value: 1240, label: 'Profesionales registrados', suffix: '+' },
-                                { value: 8500, label: 'Reportes generados', suffix: '+' },
-                                { value: 11, label: 'Módulos disponibles', suffix: '' },
-                            ].map((stat, i) => {
-                                const c = useCounter(stat.value);
-                                return (
-                                    <div key={i} style={{ textAlign: 'center' }}>
-                                        <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff', lineHeight: 1 }}>
-                                            {c.toLocaleString('es-AR')}{stat.suffix}
-                                        </div>
-                                        <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.7)', fontWeight: 600, marginTop: '0.2rem' }}>{stat.label}</div>
-                                    </div>
-                                );
-                            })}
+                            <CounterItem value={1240} label="Profesionales registrados" suffix="+" />
+                            <CounterItem value={8500} label="Reportes generados" suffix="+" />
+                            <CounterItem value={11} label="Módulos disponibles" suffix="" />
                         </div>
                     )}
 
