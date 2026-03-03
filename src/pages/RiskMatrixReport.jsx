@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import { toast } from 'react-hot-toast';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 // ─── Visual Risk Grid (Probability × Impact) ───────────────────────
 // Rows: Probability (top = high), Columns: Impact (left = low)
@@ -251,6 +252,7 @@ export default function RiskMatrixReport() {
                         </div>
                     )}
                 </div>
+                <PdfBrandingFooter />
             </div>
             {/* Floating Action Buttons */}
             <div className="no-print floating-action-bar">

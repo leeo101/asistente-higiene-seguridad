@@ -40,6 +40,7 @@ import LightingReport from './pages/LightingReport.jsx';
 import LightingHistory from './pages/LightingHistory.jsx';
 import WorkPermit from './pages/WorkPermit.jsx';
 import WorkPermitHistory from './pages/WorkPermitHistory.jsx';
+import InstallBanner from './components/InstallBanner.jsx';
 
 import ChecklistsHistory from './pages/ChecklistsHistory.jsx';
 import ChecklistManager from './pages/ChecklistManager.jsx';
@@ -249,6 +250,7 @@ function App() {
             <Route path="/matrices" element={<Navigate to="/risk-matrix" replace />} />
           </Routes>
           <Footer />
+          <InstallBanner />
         </div>
       </SyncProvider>
     </AuthProvider >

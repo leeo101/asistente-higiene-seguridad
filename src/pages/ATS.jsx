@@ -10,6 +10,7 @@ import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 const defaultChecklist = [
     // General
@@ -570,6 +571,7 @@ export default function ATS() {
                         )}
                     </div>
                 </div>
+                <PdfBrandingFooter />
             </div>
         </div>
     );

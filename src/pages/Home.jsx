@@ -11,6 +11,35 @@ import { useSync } from '../contexts/SyncContext';
 import { usePaywall } from '../hooks/usePaywall';
 import AdBanner from '../components/AdBanner';
 
+function FaqSection() {
+    const [open, setOpen] = React.useState(null);
+    const items = [
+        { q: '¿Es realmente gratis?', a: 'Sí. Podés usar todos los módulos de cálculo, ATS, matrices, asesor IA y cámara sin pagar nada. El plan PRO agrega la impresión/PDF y el historial en nube.' },
+        { q: '¿Cumple con la normativa argentina?', a: 'Los cálculos están basados en la Ley 19.587, el Dec. 351/79, resoluciones SRT y normativas vigentes al momento de desarrollo. Siempre recomendamos verificar cambios normativos recientes.' },
+        { q: '¿Mis datos están seguros?', a: 'Sí. Usamos Firebase (Google) para autenticación y almacenamiento cifrado. Nunca compartimos tus datos con terceros. Podés leer nuestra Política de Privacidad.' },
+        { q: '¿Funciona en el celular?', a: 'Perfecto. Está optimizada para mobile y podés instalarla directamente en tu pantalla de inicio como una app nativa, sin pasar por ninguna tienda.' },
+        { q: '¿Cómo cancelo la suscripción PRO?', a: 'En cualquier momento desde tu perfil, en la sección Suscripción. No hay permanencia ni cargos ocultos.' },
+    ];
+    return (
+        <div style={{ marginBottom: '2rem' }}>
+            {items.map((item, i) => (
+                <div key={i} className="card" style={{ marginBottom: '0.6rem', padding: '0', overflow: 'hidden' }}>
+                    <button onClick={() => setOpen(open === i ? null : i)}
+                        style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '1rem 1.2rem', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-text)' }}>
+                        {item.q}
+                        <span style={{ flexShrink: 0, transform: open === i ? 'rotate(45deg)' : 'rotate(0)', transition: 'transform 0.2s', fontSize: '1.3rem', color: 'var(--color-primary)', lineHeight: 1 }}>+</span>
+                    </button>
+                    {open === i && (
+                        <div style={{ padding: '0 1.2rem 1rem', fontSize: '0.85rem', color: 'var(--color-text-muted)', lineHeight: 1.6 }}>
+                            {item.a}
+                        </div>
+                    )}
+                </div>
+            ))}
+        </div>
+    );
+}
+
 const typeColors = {
     'ATS': { bg: 'rgba(16,185,129,0.12)', text: '#10b981', icon: <BarChart3 size={18} /> },
     'Carga Fuego': { bg: 'rgba(249,115,22,0.12)', text: '#f97316', icon: <Flame size={18} /> },
@@ -250,35 +279,127 @@ export default function Home() {
                     </Link>
                 )}
 
-                {/* ── FEATURES SHOWCASE (Only for new users) ── */}
+                {/* ── LANDING COMPLETA (solo visitantes) ── */}
                 {!currentUser && (
-                    <div style={{ marginTop: '3rem', padding: '0 1rem' }}>
-                        <h3 style={{ fontSize: '1.2rem', fontWeight: 900, textAlign: 'center', marginBottom: '2rem' }}>Todo lo que necesitás en una sola App</h3>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
-                            <div className="card" style={{ padding: '1.5rem', borderLeft: '4px solid #f59e0b' }}>
-                                <Sparkles size={24} color="#f59e0b" style={{ marginBottom: '1rem' }} />
-                                <h4 style={{ margin: '0 0 0.5rem 0', fontWeight: 800 }}>Asesoría Legal con IA</h4>
-                                <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
-                                    Consultá normativas argentinas (Ley 19587, Dec 351/79) y recibí recomendaciones preventivas al instante.
-                                </p>
-                            </div>
-                            <div className="card" style={{ padding: '1.5rem', borderLeft: '4px solid #06b6d4' }}>
-                                <Camera size={24} color="#06b6d4" style={{ marginBottom: '1rem' }} />
-                                <h4 style={{ margin: '0 0 0.5rem 0', fontWeight: 800 }}>Cámara de Riesgos</h4>
-                                <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
-                                    Detectá automáticamente la falta de casco, guantes o calzado de seguridad usando solo la cámara de tu celular.
-                                </p>
-                            </div>
-                            <div className="card" style={{ padding: '1.5rem', borderLeft: '4px solid #f97316' }}>
-                                <Flame size={24} color="#f97316" style={{ marginBottom: '1rem' }} />
-                                <h4 style={{ margin: '0 0 0.5rem 0', fontWeight: 800 }}>Cálculos Normativos</h4>
-                                <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
-                                    Carga de fuego, niveles de iluminación y matrices de riesgo personalizadas con protocolos listos para imprimir.
-                                </p>
+                    <div style={{ marginTop: '2.5rem' }}>
+
+                        {/* — FEATURES GRID — */}
+                        <h2 style={{ fontSize: '1.3rem', fontWeight: 900, textAlign: 'center', marginBottom: '0.4rem' }}>
+                            Todo lo que necesitás en una sola App
+                        </h2>
+                        <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '2rem' }}>
+                            11 módulos profesionales, gratis para usar
+                        </p>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.2rem', marginBottom: '3rem' }}>
+                            {[
+                                { icon: '✨', color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', title: 'Asesoría Legal con IA', desc: 'Consultá normativas argentinas (Ley 19587, Dec 351/79) y recibí recomendaciones preventivas al instante.' },
+                                { icon: '📷', color: '#06b6d4', bg: 'rgba(6,182,212,0.08)', title: 'Cámara de Riesgos', desc: 'Detectá automáticamente la falta de casco, guantes o calzado de seguridad con la cámara de tu celular.' },
+                                { icon: '🔥', color: '#f97316', bg: 'rgba(249,115,22,0.08)', title: 'Cálculo Carga de Fuego', desc: 'Calculá la carga de fuego según Dec 351/79. Genera el protocolo oficial listo para presentar.' },
+                                { icon: '💡', color: '#eab308', bg: 'rgba(234,179,8,0.08)', title: 'Iluminación', desc: 'Medición y cálculo de niveles de iluminación con factor de mantenimiento y comparación normativa.' },
+                                { icon: '⚠️', color: '#8b5cf6', bg: 'rgba(139,92,246,0.08)', title: 'Matriz de Riesgo', desc: 'Evaluá peligros con matrices 5x5 personalizadas. Genera reportes PDF automáticamente.' },
+                                { icon: '📋', color: '#10b981', bg: 'rgba(16,185,129,0.08)', title: 'ATS — Análisis de Trabajo Seguro', desc: 'Creá ATS por tarea con medidas de control. Listo para firma digital e impresión.' },
+                            ].map((f, i) => (
+                                <div key={i} className="card" style={{ padding: '1.4rem', borderLeft: `4px solid ${f.color}`, background: f.bg, transition: 'transform 0.2s' }}
+                                    onMouseOver={e => e.currentTarget.style.transform = 'translateY(-3px)'}
+                                    onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}>
+                                    <div style={{ fontSize: '1.8rem', marginBottom: '0.7rem' }}>{f.icon}</div>
+                                    <h4 style={{ margin: '0 0 0.5rem', fontWeight: 800, fontSize: '0.95rem' }}>{f.title}</h4>
+                                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>{f.desc}</p>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* — CÓMO FUNCIONA — */}
+                        <div style={{ background: 'linear-gradient(135deg,rgba(37,99,235,0.05),rgba(14,165,233,0.03))', borderRadius: '20px', padding: '2rem 1.5rem', marginBottom: '3rem', border: '1px solid rgba(37,99,235,0.1)' }}>
+                            <h2 style={{ fontSize: '1.2rem', fontWeight: 900, textAlign: 'center', marginBottom: '2rem' }}>
+                                ¿Cómo funciona?
+                            </h2>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1.5rem' }}>
+                                {[
+                                    { n: '1', icon: '🎯', title: 'Registrate Gratis', desc: 'Creá tu cuenta en 60 segundos con tu matrícula y datos profesionales.' },
+                                    { n: '2', icon: '🛠️', title: 'Usá las Herramientas', desc: 'Accedé a todos los módulos: cálculos, ATS, matrices, legislación y más.' },
+                                    { n: '3', icon: '📄', title: 'Descargá tus Reportes', desc: 'Generá PDFs profesionales listos para presentar con tu firma digital.' },
+                                ].map((s, i) => (
+                                    <div key={i} style={{ textAlign: 'center', padding: '1rem' }}>
+                                        <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'linear-gradient(135deg,#1e3a8a,#2563eb)', margin: '0 auto 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900, fontSize: '1.2rem', boxShadow: '0 4px 15px rgba(37,99,235,0.3)' }}>
+                                            {s.n}
+                                        </div>
+                                        <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{s.icon}</div>
+                                        <h4 style={{ margin: '0 0 0.4rem', fontWeight: 800, fontSize: '0.95rem' }}>{s.title}</h4>
+                                        <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>{s.desc}</p>
+                                    </div>
+                                ))}
                             </div>
                         </div>
+
+                        {/* — TESTIMONIOS — */}
+                        <h2 style={{ fontSize: '1.2rem', fontWeight: 900, textAlign: 'center', marginBottom: '1.5rem' }}>
+                            Lo que dicen los profesionales
+                        </h2>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.2rem', marginBottom: '3rem' }}>
+                            {[
+                                { name: 'Ing. Marcos V.', role: 'Técnico en HYS · Córdoba', text: 'La carga de fuego me llevaba horas. Ahora la hago en 5 minutos y el protocolo queda perfecto para entregar.' },
+                                { name: 'Lic. Fernanda G.', role: 'Profesional HYS · Buenos Aires', text: 'El asesor IA me resolvió dudas sobre el Dec 351/79 que tardaba días en aclarar con otros recursos.' },
+                                { name: 'Téc. Rodrigo M.', role: 'Técnico en Seguridad · Rosario', text: 'Uso la cámara IA en obra para verificar EPP al instante. Una herramienta que realmente te cambia el día a día.' },
+                            ].map((t, i) => (
+                                <div key={i} className="card" style={{ padding: '1.4rem' }}>
+                                    <p style={{ margin: '0 0 1rem', fontSize: '0.88rem', color: 'var(--color-text)', lineHeight: 1.6, fontStyle: 'italic' }}>
+                                        "{t.text}"
+                                    </p>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
+                                        <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'linear-gradient(135deg,#1e3a8a,#2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900, fontSize: '0.9rem', flexShrink: 0 }}>
+                                            {t.name[0]}
+                                        </div>
+                                        <div>
+                                            <div style={{ fontWeight: 800, fontSize: '0.85rem' }}>{t.name}</div>
+                                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{t.role}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* — PRECIOS — */}
+                        <h2 style={{ fontSize: '1.2rem', fontWeight: 900, textAlign: 'center', marginBottom: '1.5rem' }}>
+                            Planes
+                        </h2>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.2rem', marginBottom: '3rem' }}>
+                            <div className="card" style={{ padding: '1.5rem', textAlign: 'center', border: '2px solid var(--color-border)' }}>
+                                <div style={{ fontWeight: 900, fontSize: '1.1rem', marginBottom: '0.3rem' }}>Gratis</div>
+                                <div style={{ fontSize: '2rem', fontWeight: 900, color: '#10b981', marginBottom: '1rem' }}>$0</div>
+                                {['Todos los cálculos', 'ATS, Matrices, Checklists', 'Asesor IA', 'Cámara de Riesgos', 'Historial básico'].map((f, i) => (
+                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontSize: '0.85rem' }}>
+                                        <span style={{ color: '#10b981', fontWeight: 900 }}>✓</span> {f}
+                                    </div>
+                                ))}
+                                <button onClick={() => window.location.href = '/login?view=register'} style={{ marginTop: '1rem', width: '100%', padding: '0.8rem', borderRadius: '10px', border: '2px solid #10b981', background: 'transparent', color: '#10b981', fontWeight: 800, cursor: 'pointer', fontSize: '0.9rem' }}>
+                                    Comenzar Gratis
+                                </button>
+                            </div>
+                            <div className="card" style={{ padding: '1.5rem', textAlign: 'center', border: '2px solid #2563eb', position: 'relative', overflow: 'hidden' }}>
+                                <div style={{ position: 'absolute', top: '12px', right: '12px', background: '#2563eb', color: 'white', fontSize: '0.65rem', fontWeight: 900, padding: '0.2rem 0.6rem', borderRadius: '20px' }}>RECOMENDADO</div>
+                                <div style={{ fontWeight: 900, fontSize: '1.1rem', marginBottom: '0.3rem' }}>PRO</div>
+                                <div style={{ fontSize: '2rem', fontWeight: 900, color: '#2563eb', marginBottom: '1rem' }}>$5<span style={{ fontSize: '1rem', fontWeight: 600 }}>/mes</span></div>
+                                {['Todo lo del plan Gratis', 'Impresión y PDF ilimitados', 'Firma y sello digital', 'Historial completo en nube', 'Soporte prioritario'].map((f, i) => (
+                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontSize: '0.85rem' }}>
+                                        <span style={{ color: '#2563eb', fontWeight: 900 }}>✓</span> {f}
+                                    </div>
+                                ))}
+                                <button onClick={() => window.location.href = '/login?view=register'} style={{ marginTop: '1rem', width: '100%', padding: '0.8rem', borderRadius: '10px', border: 'none', background: 'linear-gradient(135deg,#1e3a8a,#2563eb)', color: 'white', fontWeight: 800, cursor: 'pointer', fontSize: '0.9rem', boxShadow: '0 4px 15px rgba(37,99,235,0.3)' }}>
+                                    Activar PRO
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* — FAQ — */}
+                        <h2 style={{ fontSize: '1.2rem', fontWeight: 900, textAlign: 'center', marginBottom: '1.5rem' }}>
+                            Preguntas Frecuentes
+                        </h2>
+                        <FaqSection />
+
                     </div>
                 )}
+
 
                 <AdBanner />
 

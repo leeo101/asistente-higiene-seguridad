@@ -10,6 +10,7 @@ import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 // Tipos de tareas visuales basados en el Decreto 351/79 (Anexo IV) - Resumido
 const visualTasks = [
@@ -484,6 +485,7 @@ export default function LightingReport() {
                         </div>
                     )}
                 </div>
+                <PdfBrandingFooter />
             </div>
 
         </div>

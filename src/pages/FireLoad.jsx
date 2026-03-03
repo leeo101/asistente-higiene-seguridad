@@ -11,6 +11,7 @@ import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 export default function FireLoad() {
     const navigate = useNavigate();
@@ -603,6 +604,7 @@ export default function FireLoad() {
                         </div>
                     )}
                 </div>
+                <PdfBrandingFooter />
             </div>
         </div>
     );

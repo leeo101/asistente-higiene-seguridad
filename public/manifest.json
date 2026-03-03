@@ -1,22 +1,70 @@
 {
     "short_name": "Asistente HYS",
     "name": "Asistente de Higiene y Seguridad",
+    "description": "Herramientas inteligentes para profesionales de Higiene y Seguridad en Argentina. Cálculos normativos, ATS, Carga de Fuego, Iluminación, Matrices de Riesgo y asesoría por IA.",
+    "categories": [
+        "productivity",
+        "education",
+        "utilities"
+    ],
     "icons": [
         {
             "src": "/logo.png",
             "type": "image/png",
-            "sizes": "192x192"
+            "sizes": "192x192",
+            "purpose": "any maskable"
         },
         {
             "src": "/logo.png",
             "type": "image/png",
-            "sizes": "512x512"
+            "sizes": "512x512",
+            "purpose": "any maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Nuevo ATS",
+            "short_name": "ATS",
+            "description": "Crear un Análisis de Trabajo Seguro",
+            "url": "/ats",
+            "icons": [
+                {
+                    "src": "/logo.png",
+                    "sizes": "96x96"
+                }
+            ]
+        },
+        {
+            "name": "Carga de Fuego",
+            "short_name": "Fuego",
+            "description": "Calcular carga de fuego según Dec. 351/79",
+            "url": "/fire-load",
+            "icons": [
+                {
+                    "src": "/logo.png",
+                    "sizes": "96x96"
+                }
+            ]
+        },
+        {
+            "name": "Asesor IA",
+            "short_name": "IA",
+            "description": "Consultar al Asesor de Seguridad con IA",
+            "url": "/ai-advisor",
+            "icons": [
+                {
+                    "src": "/logo.png",
+                    "sizes": "96x96"
+                }
+            ]
         }
     ],
     "start_url": "/",
     "background_color": "#0f172a",
+    "theme_color": "#2563eb",
     "display": "standalone",
     "scope": "/",
-    "theme_color": "#3b82f6",
-    "description": "Tu asistente inteligente en Higiene y Seguridad Laboral."
+    "lang": "es-AR",
+    "dir": "ltr",
+    "orientation": "portrait-primary"
 }

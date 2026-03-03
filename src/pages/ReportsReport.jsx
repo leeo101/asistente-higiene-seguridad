@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import { toast } from 'react-hot-toast';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 export default function ReportsReport() {
     const navigate = useNavigate();
@@ -198,6 +199,7 @@ export default function ReportsReport() {
                 <div style={{ width: '100%', textAlign: 'center', fontSize: '0.7rem', color: '#94a3b8', marginTop: '3rem', fontStyle: 'italic' }}>
                     Documento generado por Asistente de Higiene y Seguridad - Conforme a Ley 19.587 / Dec. 351/79
                 </div>
+                <PdfBrandingFooter />
             </div>
 
             {/* Floating Action Buttons */}

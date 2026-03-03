@@ -593,24 +593,24 @@ app.post('/api/welcome-email', async (req, res) => {
     };
 
     try {
-        await new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => reject(new Error('Timeout enviando email')), 15000);
-            transporter.sendMail(mailOptions, (err, info) => {
-                clearTimeout(timeout);
-                if (err) reject(err);
-                else resolve(info);
-            });
+        const { data: resendData, error: resendError } = await resend.emails.send({
+            from: 'Asistente HYS <soporte@asistentehs.com>',
+            to: email,
+            subject: '¡Bienvenido al Asistente HYS!',
+            html: mailOptions.html
         });
-        console.log(`[WELCOME EMAIL] Sent successfully to ${email}`);
+
+        if (resendError) {
+            console.error('[WELCOME EMAIL] Resend error:', resendError);
+            // Return 200 anyway so registration isn't blocked
+            return res.json({ success: false, error: resendError.message, message: 'No se pudo enviar el correo, pero el registro fue exitoso.' });
+        }
+
+        console.log(`[WELCOME EMAIL] Sent successfully to ${email}. ID: ${resendData.id}`);
         res.json({ success: true, message: 'Correo de bienvenida enviado' });
     } catch (err) {
         console.error('[WELCOME EMAIL] Error:', err.message);
-        // We still return 200 to not break registration, but with an error flag
-        res.json({
-            success: false,
-            error: err.message,
-            message: 'No se pudo enviar el correo, pero el registro fue exitoso.'
-        });
+        res.json({ success: false, error: err.message, message: 'No se pudo enviar el correo, pero el registro fue exitoso.' });
     }
 });
 

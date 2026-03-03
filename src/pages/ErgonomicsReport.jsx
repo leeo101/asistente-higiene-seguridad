@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import { toast } from 'react-hot-toast';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 export default function ErgonomicsReport() {
     const navigate = useNavigate();
@@ -206,6 +207,7 @@ export default function ErgonomicsReport() {
                         <img src={signature.stamp} alt="Sello" style={{ maxWidth: '90px' }} />
                     </div>
                 )}
+                <PdfBrandingFooter />
             </div>
             {/* Floating Action Buttons */}
             <div className="no-print floating-action-bar">
