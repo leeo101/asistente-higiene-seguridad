@@ -110,7 +110,7 @@ export default function ATSHistory() {
                                     <FileText size={16} /> Ver / Editar
                                 </button>
                                 <a
-                                    href={`https://wa.me/?text=${encodeURIComponent(`📋 Análisis de Trabajo Seguro (ATS)\n🏗️ Empresa: ${item.empresa}\n🚧 Obra: ${item.obra}\n📅 Fecha: ${item.fecha}\n👷 Responsable: ${item.capatazNombre || '-'}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS con IA\n🔗 https://asistentehs-b594e.web.app`)}`}
+                                    href={`https://wa.me/?text=${encodeURIComponent(`📋 Análisis de Trabajo Seguro (ATS)\n🏗️ Empresa: ${item.empresa}\n🚧 Obra: ${item.obra}\n📅 Fecha: ${item.fecha}\n👷 Responsable: ${item.capatazNombre || '-'}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS con IA\n🔗 https://asistentehs.com`)}`}
                                     target="_blank" rel="noreferrer"
                                     style={{ padding: '0.6rem 0.9rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, fontSize: '0.8rem', textDecoration: 'none' }}
                                 >

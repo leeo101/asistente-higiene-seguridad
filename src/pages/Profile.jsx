@@ -190,7 +190,7 @@ export default function Profile() {
                 </p>
                 <div style={{ display: 'flex', gap: '0.8rem' }}>
                     <a
-                        href={`https://wa.me/?text=${encodeURIComponent(`🛡️ Hola! Te comparto esta plataforma gratuita para profesionales de Higiene y Seguridad.\n\n*Asistente HYS* te permite:\n🔥 Calcular Carga de Fuego (Dec 351/79)\n💡 Estudios de Iluminación\n📋 Hacer ATS y Matrices de Riesgo\n🤖 Consultar la IA legal\n\n¡Y todo gratis!\n🔗 https://asistentehs-b594e.web.app`)}`}
+                        href={`https://wa.me/?text=${encodeURIComponent(`🛡️ Hola! Te comparto esta plataforma gratuita para profesionales de Higiene y Seguridad.\n\n*Asistente HYS* te permite:\n🔥 Calcular Carga de Fuego (Dec 351/79)\n💡 Estudios de Iluminación\n📋 Hacer ATS y Matrices de Riesgo\n🤖 Consultar la IA legal\n\n¡Y todo gratis!\n🔗 https://asistentehs.com`)}`}
                         target="_blank" rel="noreferrer"
                         style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', padding: '0.8rem', background: '#25D366', color: 'white', borderRadius: '12px', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', boxShadow: '0 4px 12px rgba(37,211,102,0.3)' }}
                     >
@@ -198,7 +198,7 @@ export default function Profile() {
                     </a>
                     <button
                         onClick={() => {
-                            navigator.clipboard.writeText('https://asistentehs-b594e.web.app').catch(() => { });
+                            navigator.clipboard.writeText('https://asistentehs.com').catch(() => { });
                             setLinkCopied(true);
                             setTimeout(() => setLinkCopied(false), 2500);
                         }}

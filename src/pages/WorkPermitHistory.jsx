@@ -95,7 +95,7 @@ export default function WorkPermitHistory() {
                                     <Eye size={18} />
                                 </button>
                                 <a
-                                    href={`https://wa.me/?text=${encodeURIComponent(`🔐 Permiso de Trabajo\n🏗️ Empresa: ${item.empresa}\n🚧 Obra: ${item.obra}\n📅 Fecha: ${item.fecha}\n📋 Tipo: ${permitTypes.find(t => t.id === item.tipoPermiso)?.label || 'Permiso'}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS con IA\n🔗 https://asistentehs-b594e.web.app`)}`}
+                                    href={`https://wa.me/?text=${encodeURIComponent(`🔐 Permiso de Trabajo\n🏗️ Empresa: ${item.empresa}\n🚧 Obra: ${item.obra}\n📅 Fecha: ${item.fecha}\n📋 Tipo: ${permitTypes.find(t => t.id === item.tipoPermiso)?.label || 'Permiso'}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS con IA\n🔗 https://asistentehs.com`)}`}
                                     target="_blank" rel="noreferrer"
                                     style={{ padding: '0.6rem 0.8rem', background: '#dcfce7', border: 'none', borderRadius: '10px', cursor: 'pointer', color: '#16a34a', display: 'flex', alignItems: 'center', gap: '0.3rem', fontWeight: 700, fontSize: '0.75rem', textDecoration: 'none' }}
                                 >

@@ -38,7 +38,7 @@ export default function PdfBrandingFooter() {
             `}</style>
             <div className="pdf-brand">
                 <img src="/logo.png" alt="Asistente HYS" />
-                <span>Generado con <a href="https://asistentehs-b594e.web.app">Asistente HYS</a> — La plataforma de Higiene y Seguridad con IA</span>
+                <span>Generado con <a href="https://asistentehs.com">Asistente HYS</a> — La plataforma de Higiene y Seguridad con IA</span>
             </div>
         </>
     );

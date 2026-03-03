@@ -137,7 +137,7 @@ export default function AICameraHistory() {
                                     <Camera size={16} /> Re-inspección
                                 </button>
                                 <a
-                                    href={`https://wa.me/?text=${encodeURIComponent(`📸 Inspección Visual con IA\n🏗️ Empresa: ${item.company}\n📍 Ubicación: ${item.location}\n🛡️ Estado EPP: ${item.ppeComplete ? '✅ Completo' : '⚠️ Incompleto'}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS con IA\n🔗 https://asistentehs-b594e.web.app`)}`}
+                                    href={`https://wa.me/?text=${encodeURIComponent(`📸 Inspección Visual con IA\n🏗️ Empresa: ${item.company}\n📍 Ubicación: ${item.location}\n🛡️ Estado EPP: ${item.ppeComplete ? '✅ Completo' : '⚠️ Incompleto'}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS con IA\n🔗 https://asistentehs.com`)}`}
                                     target="_blank" rel="noreferrer"
                                     style={{ padding: '0.6rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
                                 >

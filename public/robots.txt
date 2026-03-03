@@ -24,4 +24,4 @@ Disallow: /settings
 Disallow: /history
 Disallow: /admin
 
-Sitemap: https://asistentehs-b594e.web.app/sitemap.xml
+Sitemap: https://asistentehs.com/sitemap.xml

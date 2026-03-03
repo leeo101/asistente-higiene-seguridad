@@ -14,7 +14,7 @@ export default function ShareModal({ open, onClose, title = '', text = '' }) {
     const [copied, setCopied] = useState(false);
     if (!open) return null;
 
-    const appUrl = 'https://asistentehs-b594e.web.app';
+    const appUrl = 'https://asistentehs.com';
     const inviteMessage = encodeURIComponent(
         `👷 ¡Mirá este reporte de ${title}!\n\n${text}\n\n---\n📱 Generado con *Asistente HYS* — La plataforma gratuita de Higiene y Seguridad con IA para Argentina.\n🔗 Probala vos también: ${appUrl}`
     );
