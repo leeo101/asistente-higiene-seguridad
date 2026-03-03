@@ -9,6 +9,24 @@
     ],
     "icons": [
         {
+            "src": "/favicon-16.png",
+            "type": "image/png",
+            "sizes": "16x16",
+            "purpose": "any"
+        },
+        {
+            "src": "/favicon-32.png",
+            "type": "image/png",
+            "sizes": "32x32",
+            "purpose": "any"
+        },
+        {
+            "src": "/favicon-48.png",
+            "type": "image/png",
+            "sizes": "48x48",
+            "purpose": "any"
+        },
+        {
             "src": "/logo.png",
             "type": "image/png",
             "sizes": "192x192",
