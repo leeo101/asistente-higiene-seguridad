@@ -443,22 +443,36 @@ export default function ChecklistManager() {
                                                 {item.text}
                                             </div>
                                         </div>
-                                        <div className="flex items-center justify-between sm:justify-end print:justify-end gap-2 w-full sm:w-auto print:w-auto p-4 pt-2 sm:pt-4 print:pt-4">
-                                            <div className="no-print w-[135px] flex-shrink-0">
-                                                <div className="checklist-status-buttons">
-                                                    <StatusBtn active={item.status === 'OK'} type="OK" onClick={() => updateItem(section.id, idx, 'status', 'OK')} />
-                                                    <StatusBtn active={item.status === 'FAIL'} type="FAIL" onClick={() => updateItem(section.id, idx, 'status', 'FAIL')} />
-                                                    <StatusBtn active={item.status === 'NA'} type="NA" onClick={() => updateItem(section.id, idx, 'status', 'NA')} />
-                                                </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', padding: '0.5rem 1rem 0.75rem 1rem', flexWrap: 'nowrap' }}>
+                                            <div className="no-print checklist-status-buttons" style={{ flexShrink: 0 }}>
+                                                <StatusBtn active={item.status === 'OK'} type="OK" onClick={() => updateItem(section.id, idx, 'status', 'OK')} />
+                                                <StatusBtn active={item.status === 'FAIL'} type="FAIL" onClick={() => updateItem(section.id, idx, 'status', 'FAIL')} />
+                                                <StatusBtn active={item.status === 'NA'} type="NA" onClick={() => updateItem(section.id, idx, 'status', 'NA')} />
                                             </div>
-                                            <div className="hidden print:flex items-center justify-center font-black text-black w-[50px]">
+                                            <div className="hidden print:flex items-center justify-center font-black text-black">
                                                 {item.status === 'OK' ? <Check size={18} strokeWidth={4} /> :
                                                     item.status === 'FAIL' ? <X size={18} strokeWidth={4} /> :
                                                         item.status === 'NA' ? <span className="text-[0.6rem]">N/A</span> : ''}
                                             </div>
-                                            <div className="no-print w-[35px] text-right">
-                                                <button onClick={() => removeItem(section.id, idx)} className="text-red-300 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all p-1 active:scale-95 bg-transparent border-none cursor-pointer"><Trash2 size={16} /></button>
-                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    const toastId = toast(
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                                                            <span style={{ fontSize: '0.9rem' }}>¿Eliminar este punto?</span>
+                                                            <button
+                                                                onClick={() => { removeItem(section.id, idx); toast.dismiss(toastId); }}
+                                                                style={{ background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem' }}
+                                                            >Sí</button>
+                                                        </div>,
+                                                        { duration: 4000, icon: '🗑️' }
+                                                    );
+                                                }}
+                                                className="no-print"
+                                                style={{ flexShrink: 0, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', cursor: 'pointer', color: '#ef4444', padding: '0.3rem 0.45rem', display: 'flex', alignItems: 'center' }}
+                                                title="Eliminar"
+                                            >
+                                                <Trash2 size={15} />
+                                            </button>
                                         </div>
                                     </div>
                                 ))}
