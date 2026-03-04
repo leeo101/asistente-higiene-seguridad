@@ -24,13 +24,24 @@ export default function AIHistory() {
 
     const handleDelete = (id, e) => {
         e.stopPropagation();
-        if (window.confirm('¿Estás seguro de que quieres eliminar este registro?')) {
-            const updated = history.filter(item => item.id !== id);
-            setHistory(updated);
-            localStorage.setItem('ai_advisor_history', JSON.stringify(updated));
-            syncCollection('ai_advisor_history', updated);
-            if (selectedItem?.id === id) setSelectedItem(null);
-        }
+        const toastId = toast(
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                <span style={{ fontSize: '0.9rem' }}>¿Eliminar este registro?</span>
+                <button
+                    onClick={() => {
+                        const updated = history.filter(item => item.id !== id);
+                        setHistory(updated);
+                        localStorage.setItem('ai_advisor_history', JSON.stringify(updated));
+                        syncCollection('ai_advisor_history', updated);
+                        if (selectedItem?.id === id) setSelectedItem(null);
+                        toast.dismiss(toastId);
+                        toast.success('Registro eliminado');
+                    }}
+                    style={{ background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem' }}
+                >Eliminar</button>
+            </div>,
+            { duration: 5000, icon: '🗑️' }
+        );
     };
 
     const handleDownloadPDF = (result) => {

@@ -134,13 +134,24 @@ export default function Subscription() {
                 </button>
                 <button
                     onClick={() => {
-                        if (window.confirm('¿Estás seguro de que deseas cancelar tu suscripción? Perderás acceso a las funciones Premium.')) {
-                            localStorage.removeItem('subscriptionStatus');
-                            localStorage.removeItem('subscriptionExpiry');
-                            setIsSubscribed(false);
-                            setExpiryDate(null);
-                            toast.success('Suscripción cancelada con éxito.');
-                        }
+                        const toastId = toast(
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                <span style={{ fontSize: '0.9rem', fontWeight: 700 }}>⚠️ ¿Cancelar suscripción?</span>
+                                <span style={{ fontSize: '0.8rem', color: '#555' }}>Perderás acceso a las funciones Premium.</span>
+                                <button
+                                    onClick={() => {
+                                        toast.dismiss(toastId);
+                                        localStorage.removeItem('subscriptionStatus');
+                                        localStorage.removeItem('subscriptionExpiry');
+                                        setIsSubscribed(false);
+                                        setExpiryDate(null);
+                                        toast.success('Suscripción cancelada.');
+                                    }}
+                                    style={{ background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', padding: '0.4rem 1rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.85rem', marginTop: '0.3rem' }}
+                                >Sí, cancelar</button>
+                            </div>,
+                            { duration: 6000 }
+                        );
                     }}
                     style={{
                         width: '100%',

@@ -32,22 +32,28 @@ export default function AdminRequests() {
     }, []);
 
     const handleDelete = async (id) => {
-        if (!window.confirm('¿Estás seguro de eliminar esta solicitud?')) return;
-
-        try {
-            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.');
-            const fetchUrl = isLocal ? `http://${window.location.hostname}:3001/api/admin/requests/${id}` : `/api/admin/requests/${id}`;
-
-            const response = await fetch(fetchUrl, {
-                method: 'DELETE'
-            });
-
-            if (!response.ok) throw new Error('Error al eliminar');
-            setRequests(requests.filter(req => req.id !== id));
-            toast.success('Solicitud eliminada');
-        } catch (err) {
-            toast.error(err.message);
-        }
+        const toastId = toast(
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                <span style={{ fontSize: '0.9rem' }}>¿Eliminar esta solicitud?</span>
+                <button
+                    onClick={async () => {
+                        toast.dismiss(toastId);
+                        try {
+                            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.');
+                            const fetchUrl = isLocal ? `http://${window.location.hostname}:3001/api/admin/requests/${id}` : `/api/admin/requests/${id}`;
+                            const response = await fetch(fetchUrl, { method: 'DELETE' });
+                            if (!response.ok) throw new Error('Error al eliminar');
+                            setRequests(requests.filter(req => req.id !== id));
+                            toast.success('Solicitud eliminada');
+                        } catch (err) {
+                            toast.error(err.message);
+                        }
+                    }}
+                    style={{ background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem' }}
+                >Eliminar</button>
+            </div>,
+            { duration: 5000, icon: '🗑️' }
+        );
     };
 
     return (

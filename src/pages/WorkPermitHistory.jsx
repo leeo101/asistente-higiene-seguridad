@@ -23,13 +23,23 @@ export default function WorkPermitHistory() {
     }, []);
 
     const handleDelete = async (id) => {
-        if (window.confirm('¿Está seguro de que desea eliminar este permiso?')) {
-            const updated = history.filter(h => h.id !== id);
-            setHistory(updated);
-            localStorage.setItem('work_permits_history', JSON.stringify(updated));
-            await syncCollection('work_permits_history', updated);
-            toast.success('Permiso eliminado');
-        }
+        const toastId = toast(
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                <span style={{ fontSize: '0.9rem' }}>¿Eliminar este permiso?</span>
+                <button
+                    onClick={async () => {
+                        toast.dismiss(toastId);
+                        const updated = history.filter(h => h.id !== id);
+                        setHistory(updated);
+                        localStorage.setItem('work_permits_history', JSON.stringify(updated));
+                        await syncCollection('work_permits_history', updated);
+                        toast.success('Permiso eliminado');
+                    }}
+                    style={{ background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem' }}
+                >Eliminar</button>
+            </div>,
+            { duration: 5000, icon: '🗑️' }
+        );
     };
 
     const filteredHistory = history.filter(h =>
