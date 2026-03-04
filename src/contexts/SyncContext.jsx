@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
-import { pullAllFromCloud, pushAllToCloud, saveCollection, saveDocument, SYNC_COLLECTIONS, SYNC_DOCUMENTS, listenToCollection, listenToDocument } from '../services/cloudSync';
+import { pullAllFromCloud, mergeLocalToCloud, saveCollection, saveDocument, SYNC_COLLECTIONS, SYNC_DOCUMENTS, listenToCollection, listenToDocument } from '../services/cloudSync';
 
 const SyncContext = createContext();
 
@@ -28,10 +28,11 @@ export const SyncProvider = ({ children }) => {
         const syncOnLogin = async () => {
             setSyncing(true);
             try {
-                // 1. Upload local data (migración inicial offline → cloud)
-                await pushAllToCloud(currentUser.uid);
-                // 2. Download cloud data into localStorage (sobreescribe con datos del cloud)
+                // 1. PRIMERO: Descargar desde el cloud (fuente de verdad)
                 await pullAllFromCloud(currentUser.uid);
+                setSyncPulse(p => p + 1);
+                // 2. DESPUÉS: Subir solo items locales que el cloud NO tiene (merge sin sobreescribir)
+                await mergeLocalToCloud(currentUser.uid);
                 setLastSync(new Date());
                 setSyncPulse(p => p + 1);
             } catch (e) {

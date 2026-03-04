@@ -106,6 +106,12 @@ export const SYNC_COLLECTIONS = [
     'reports_history',
     'tool_checklists_history',
     'ai_advisor_history',
+    'lighting_history',
+    'work_permits_history',
+    'ai_camera_history',
+    'ergonomics_history',
+    'risk_assessments_history',
+    'checklists_history',
 ];
 
 export const SYNC_DOCUMENTS = [
@@ -144,5 +150,50 @@ export async function pushAllToCloud(uid) {
         if (raw) {
             try { await saveDocument(uid, key, JSON.parse(raw)); } catch { /* ignore */ }
         }
+    }
+}
+
+/**
+ * Merge inteligente: el cloud es fuente de verdad.
+ * Solo sube items locales que el cloud NO tiene (nuevos creados offline).
+ * No sobreescribe borrados ni cambios hechos en otro dispositivo.
+ */
+export async function mergeLocalToCloud(uid) {
+    if (!uid) return;
+    for (const key of SYNC_COLLECTIONS) {
+        const raw = localStorage.getItem(key);
+        if (!raw) continue;
+        try {
+            const localItems = JSON.parse(raw);
+            if (!Array.isArray(localItems) || localItems.length === 0) continue;
+
+            // Obtener items actuales del cloud
+            const cloudItems = await loadCollection(uid, key);
+            const cloudIds = new Set(cloudItems.map(i => String(i.id)));
+
+            // Solo agregar los que NO existen en el cloud (nuevos locales no subidos)
+            const onlyLocal = localItems.filter(i => !cloudIds.has(String(i.id)));
+
+            if (onlyLocal.length > 0) {
+                // Merge: cloud tiene prioridad, se agregan items nuevos locales
+                const merged = [...cloudItems, ...onlyLocal];
+                await saveCollection(uid, key, merged);
+                localStorage.setItem(key, JSON.stringify(merged));
+            } else if (cloudItems.length > 0) {
+                // Si hay datos en cloud pero no hay nuevos locales, usar cloud como verdad
+                localStorage.setItem(key, JSON.stringify(cloudItems));
+            }
+        } catch { /* ignore */ }
+    }
+    // Para documentos simples: solo subir si el cloud está vacío
+    for (const key of SYNC_DOCUMENTS) {
+        const raw = localStorage.getItem(key);
+        if (!raw) continue;
+        try {
+            const snap = await loadDocument(uid, key);
+            if (!snap) {
+                await saveDocument(uid, key, JSON.parse(raw));
+            }
+        } catch { /* ignore */ }
     }
 }
