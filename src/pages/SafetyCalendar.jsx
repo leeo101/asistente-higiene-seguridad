@@ -218,20 +218,22 @@ export default function SafetyCalendar() {
     };
 
     const renderDays = () => {
-        const days = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+        const days = ["D", "L", "M", "X", "J", "V", "S"];
+        const daysFull = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
         return (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', marginBottom: '0.5rem', minWidth: '700px' }}>
-                {days.map(day => (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', marginBottom: '0.25rem' }}>
+                {days.map((day, i) => (
                     <div key={day} style={{
                         textAlign: 'center',
-                        padding: '0.75rem 0.25rem',
-                        fontSize: '0.7rem',
+                        padding: '0.5rem 0.1rem',
+                        fontSize: '0.65rem',
                         fontWeight: 800,
                         color: 'var(--color-text-muted)',
                         textTransform: 'uppercase',
-                        letterSpacing: '0.1em'
+                        letterSpacing: '0.05em'
                     }}>
-                        {day}
+                        <span className="sm:hidden">{day}</span>
+                        <span className="hidden sm:inline">{daysFull[i]}</span>
                     </div>
                 ))}
             </div>
@@ -246,7 +248,7 @@ export default function SafetyCalendar() {
         const cells = [];
 
         for (let i = 0; i < startDay; i++) {
-            cells.push(<div key={`empty-${i}`} style={{ padding: '0.5rem', minHeight: '100px' }}></div>);
+            cells.push(<div key={`empty-${i}`} style={{ padding: '2px', minHeight: '50px' }}></div>);
         }
 
         for (let day = 1; day <= totalDays; day++) {
@@ -256,74 +258,51 @@ export default function SafetyCalendar() {
 
             cells.push(
                 <div key={day} style={{
-                    padding: '0.5rem',
-                    minHeight: '80px',
+                    padding: '3px',
+                    minHeight: '50px',
                     border: '1px solid var(--color-border)',
                     background: isToday ? 'rgba(59, 130, 246, 0.08)' : 'transparent',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '6px',
-                    transition: 'transform 0.2s, background 0.2s',
+                    gap: '2px',
                     position: 'relative',
-                    cursor: 'default'
-                }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
-                        e.currentTarget.style.zIndex = '5';
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.background = isToday ? 'rgba(59, 130, 246, 0.08)' : 'transparent';
-                        e.currentTarget.style.zIndex = '1';
-                    }}
-                >
+                    cursor: 'default',
+                    boxSizing: 'border-box'
+                }}>
                     <span style={{
-                        fontSize: '0.9rem',
+                        fontSize: '0.75rem',
                         fontWeight: isToday ? 800 : 600,
                         color: isToday ? 'var(--color-primary)' : 'inherit',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        width: '26px',
-                        height: '26px',
+                        width: '22px',
+                        height: '22px',
                         borderRadius: '6px',
                         background: isToday ? 'rgba(59, 130, 246, 0.15)' : 'transparent',
-                        marginBottom: '4px'
+                        flexShrink: 0
                     }}>{day}</span>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', overflowY: 'auto', maxHeight: '70px', paddingRight: '2px' }} className="custom-scrollbar">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', overflow: 'hidden' }}>
                         {dayEvents.map((e, idx) => (
                             <div key={idx} style={{
-                                fontSize: '0.65rem',
-                                padding: '4px 6px',
-                                background: `linear-gradient(90deg, ${eventTypes[e.type].color}, ${eventTypes[e.type].color}ee)`,
-                                color: 'white',
-                                borderRadius: '4px',
-                                overflow: 'hidden',
+                                background: eventTypes[e.type].color,
+                                borderRadius: '3px',
+                                padding: '2px 3px',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
-                                gap: '4px',
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                gap: '2px',
+                                minWidth: 0
                             }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', overflow: 'hidden' }}>
-                                    {eventTypes[e.type].icon}
-                                    <span style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.title}</span>
-                                </div>
+                                <span style={{ fontSize: '0.55rem', color: 'white', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0 }} className="hidden sm:block">
+                                    {e.title}
+                                </span>
+                                <span className="sm:hidden" style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'white', flexShrink: 0, display: 'block' }} />
                                 <button
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        deleteEvent(e);
-                                    }}
-                                    style={{
-                                        background: 'rgba(255,255,255,0.2)',
-                                        border: 'none',
-                                        borderRadius: '4px',
-                                        padding: '2px',
-                                        display: 'flex',
-                                        cursor: 'pointer',
-                                        color: 'white'
-                                    }}
+                                    onClick={(ev) => { ev.stopPropagation(); deleteEvent(e); }}
+                                    style={{ background: 'rgba(255,255,255,0.25)', border: 'none', borderRadius: '3px', padding: '1px 2px', display: 'flex', cursor: 'pointer', color: 'white', flexShrink: 0 }}
                                 >
-                                    <Trash2 size={10} />
+                                    <Trash2 size={8} />
                                 </button>
                             </div>
                         ))}
@@ -340,12 +319,12 @@ export default function SafetyCalendar() {
                 borderRadius: '12px',
                 overflow: 'hidden',
                 background: 'rgba(0,0,0,0.1)',
-                minWidth: '700px'
             }}>
                 {cells}
             </div>
         );
     };
+
 
     const handleAddEvent = () => {
         if (!newEvent.title || !newEvent.date) return;
