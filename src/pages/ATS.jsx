@@ -654,23 +654,44 @@ function StatusBtn({ active, type, onClick, label }) {
 
 function DocBox({ label, value, onChange, type = "text", large = false, borderLeft = false }) {
     return (
-        <div className={`p - 4 flex flex - col gap - 1 justify - center ${borderLeft ? 'sm:border-l sm:print:border-l border-t sm:border-t-0 sm:print:border-t-0 border-[var(--color-border)]' : ''} `}>
-            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{label}</span>
+        <div style={{
+            padding: '0.8rem 1rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.3rem',
+            justifyContent: 'center',
+            borderLeft: borderLeft ? '2px solid var(--color-border)' : 'none',
+            borderTop: '0',
+            background: 'transparent',
+            minHeight: '60px',
+        }}>
+            <span style={{
+                fontSize: '0.6rem',
+                fontWeight: 900,
+                color: 'var(--color-primary)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.12em',
+                opacity: 0.8,
+            }}>{label}</span>
             <input
                 type={type}
                 value={value}
                 onChange={e => onChange(e.target.value)}
                 style={{
                     margin: 0,
-                    padding: 0,
+                    padding: '0.15rem 0',
                     border: 'none',
+                    borderBottom: '1.5px solid var(--color-border)',
                     background: 'transparent',
-                    fontSize: large ? '1.1rem' : '0.9rem',
+                    fontSize: large ? '1.05rem' : '0.9rem',
                     fontWeight: 700,
                     color: 'var(--color-text)',
                     outline: 'none',
-                    width: '100%'
+                    width: '100%',
+                    transition: 'border-color 0.2s',
                 }}
+                onFocus={e => e.target.style.borderBottomColor = 'var(--color-primary)'}
+                onBlur={e => e.target.style.borderBottomColor = 'var(--color-border)'}
             />
         </div>
     );
