@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Trash2, Camera, Calendar, Building2, ShieldCheck, AlertTriangle, Share2 } from 'lucide-react';
+import { ArrowLeft, Search, Trash2, Camera, Calendar, Building2, ShieldCheck, AlertTriangle, Share2, Info, FileText } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
 
