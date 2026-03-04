@@ -111,7 +111,7 @@ export default function AIReport() {
                         {/* Simplified Overlay for Report */}
                         {data.type === 'general_risks' ? (
                             <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(59, 130, 246, 0.9)', color: '#fff', fontSize: '0.8rem', fontWeight: 800, padding: '4px 10px', borderRadius: '20px', border: '2px solid #fff' }}>ANÁLISIS ENTORNO</div>
-                        ) : data.analysis.ppeComplete ? (
+                        ) : data.analysis?.ppeComplete ? (
                             <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(16, 185, 129, 0.9)', color: '#fff', fontSize: '0.8rem', fontWeight: 800, padding: '4px 10px', borderRadius: '20px', border: '2px solid #fff' }}>✓ EPP O.K.</div>
                         ) : (
                             <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(239, 68, 68, 0.9)', color: '#fff', fontSize: '0.8rem', fontWeight: 800, padding: '4px 10px', borderRadius: '20px', border: '2px solid #fff' }}>⚠️ FALTA EPP</div>
@@ -130,10 +130,10 @@ export default function AIReport() {
                         <>
                             <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-4">
                                 {[
-                                    { label: 'Casco de Seguridad', pass: data.analysis.helmetUsed },
-                                    { label: 'Calzado de Seguridad', pass: data.analysis.shoesUsed },
-                                    { label: 'Guantes de Trabajo', pass: data.analysis.glovesUsed },
-                                    { label: 'Ropa / Chaleco Reflectivo', pass: data.analysis.clothingUsed },
+                                    { label: 'Casco de Seguridad', pass: data.analysis?.helmetUsed },
+                                    { label: 'Calzado de Seguridad', pass: data.analysis?.shoesUsed },
+                                    { label: 'Guantes de Trabajo', pass: data.analysis?.glovesUsed },
+                                    { label: 'Ropa / Chaleco Reflectivo', pass: data.analysis?.clothingUsed },
                                 ].map((item, i) => (
                                     <div key={i} style={{ padding: '0.8rem', borderRadius: '8px', background: item.pass ? '#f0fdf4' : '#fef2f2', border: `1px solid ${item.pass ? '#bbf7d0' : '#fecaca'}`, display: 'flex', alignItems: 'center', gap: '0.8rem', color: item.pass ? '#15803d' : '#b91c1c' }}>
                                         {item.pass ? <ShieldCheck size={20} /> : <AlertTriangle size={20} />}
@@ -142,9 +142,9 @@ export default function AIReport() {
                                 ))}
                             </div>
 
-                            <div style={{ marginTop: '1rem', padding: '1rem', borderRadius: '8px', background: data.analysis.ppeComplete ? '#f0fdf4' : '#fff7ed', border: `1px solid ${data.analysis.ppeComplete ? '#bbf7d0' : '#ffedd5'}`, display: 'flex', alignItems: 'center', gap: '0.8rem', color: data.analysis.ppeComplete ? '#15803d' : '#c2410c' }}>
-                                {data.analysis.ppeComplete ? <ShieldCheck /> : <AlertTriangle />}
-                                <span style={{ fontWeight: 800 }}>ESTADO GENERAL: {data.analysis.ppeComplete ? 'ADECUADO' : 'REQUIERE ATENCIÓN INMEDIATA'}</span>
+                            <div style={{ marginTop: '1rem', padding: '1rem', borderRadius: '8px', background: data.analysis?.ppeComplete ? '#f0fdf4' : '#fff7ed', border: `1px solid ${data.analysis?.ppeComplete ? '#bbf7d0' : '#ffedd5'}`, display: 'flex', alignItems: 'center', gap: '0.8rem', color: data.analysis?.ppeComplete ? '#15803d' : '#c2410c' }}>
+                                {data.analysis?.ppeComplete ? <ShieldCheck /> : <AlertTriangle />}
+                                <span style={{ fontWeight: 800 }}>ESTADO GENERAL: {data.analysis?.ppeComplete ? 'ADECUADO' : 'REQUIERE ATENCIÓN INMEDIATA'}</span>
                             </div>
                         </>
                     ) : (

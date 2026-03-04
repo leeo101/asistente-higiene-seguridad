@@ -204,19 +204,17 @@ export default function AIGeneralCamera() {
                 image: capturedImage,
                 analysis: analysisResult,
                 date: new Date().toISOString(),
-                type: 'general_risks'
+                type: 'general_risks',
+                company: 'Local',
+                location: 'Inspección IA',
+                findingsCount: analysisResult?.detections?.length || 0
             };
-            // For now, reuse AIReport for viewing
+            // Save as current inspection for immediate view
             localStorage.setItem('current_ai_inspection', JSON.stringify(report));
 
-            // Add to history
+            // Add FULL report to history so it can be restored later
             const history = JSON.parse(localStorage.getItem('ai_camera_history') || '[]');
-            history.unshift({
-                id: report.id,
-                date: report.date,
-                type: 'Riesgos Generales',
-                findingsCount: analysisResult?.detections?.length || 0
-            });
+            history.unshift(report);
             localStorage.setItem('ai_camera_history', JSON.stringify(history));
 
             navigate('/ai-report');
