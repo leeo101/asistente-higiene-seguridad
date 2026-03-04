@@ -380,29 +380,30 @@ export default function ATS() {
 
                 {/* Sección de Secuencia de Tareas */}
                 <div style={{ marginTop: '3rem', marginBottom: '3rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                        <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                            <Pencil size={24} /> Secuencia de Tareas (Análisis)
+                    <div className="no-print flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3" style={{ marginBottom: '1.5rem' }}>
+                        <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                            <Pencil size={22} /> Secuencia de Tareas
                         </h3>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                             <button
-                                className="no-print"
                                 onClick={handleGenerateAI}
                                 disabled={isGeneratingATS}
-                                style={{ padding: '0.6rem 1rem', background: 'linear-gradient(135deg, #a855f7, #ec4899)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', cursor: isGeneratingATS ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', boxShadow: '0 4px 15px rgba(236,72,153,0.3)', opacity: isGeneratingATS ? 0.7 : 1 }}
+                                style={{ flex: 1, minWidth: '120px', padding: '0.6rem 1rem', background: 'linear-gradient(135deg, #a855f7, #ec4899)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', cursor: isGeneratingATS ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: '0 4px 15px rgba(236,72,153,0.3)', opacity: isGeneratingATS ? 0.7 : 1 }}
                             >
                                 {isGeneratingATS ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
                                 {isGeneratingATS ? 'PENSANDO...' : 'IA MÁGICA'}
                             </button>
                             <button
-                                className="no-print"
                                 onClick={addTask}
-                                style={{ padding: '0.6rem 1.2rem', background: '#36B37E', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                                style={{ flex: 1, minWidth: '120px', padding: '0.6rem 1.2rem', background: '#36B37E', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
                             >
                                 <Plus size={16} /> AGREGAR PASO
                             </button>
                         </div>
                     </div>
+                    <h3 className="print-only" style={{ margin: '0 0 1.5rem 0', display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                        <Pencil size={22} /> Secuencia de Tareas (Análisis)
+                    </h3>
 
                     <div style={{ border: '2px solid var(--color-border)', borderRadius: '16px', overflow: 'hidden' }}>
                         {/* Table Header - Only Desktop/Print */}
