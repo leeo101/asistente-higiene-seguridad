@@ -469,8 +469,23 @@ export default function ATS() {
                                     </div>
 
                                     {/* Remove Button */}
-                                    <div className="no-print p-2 sm:p-0 flex items-center justify-center border-t sm:border-t-0 border-[var(--color-border)]" style={{ width: '50px' }}>
-                                        <button onClick={() => removeTask(t.id)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#ff4d4f', padding: '10px' }}>
+                                    <div className="no-print flex items-center justify-end border-t sm:border-t-0 sm:border-l border-[var(--color-border)] px-2 py-1 sm:py-0" style={{ width: 'auto', minWidth: '40px' }}>
+                                        <button
+                                            onClick={() => {
+                                                const toastId = toast(
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                                                        <span style={{ fontSize: '0.9rem' }}>¿Eliminar este paso?</span>
+                                                        <button
+                                                            onClick={() => { removeTask(t.id); toast.dismiss(toastId); }}
+                                                            style={{ background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem' }}
+                                                        >Eliminar</button>
+                                                    </div>,
+                                                    { duration: 4000, icon: '🗑️' }
+                                                );
+                                            }}
+                                            style={{ background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', cursor: 'pointer', color: '#ef4444', padding: '0.4rem 0.6rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                            title="Eliminar paso"
+                                        >
                                             <Trash2 size={16} />
                                         </button>
                                     </div>
@@ -547,13 +562,24 @@ export default function ATS() {
                                             <div className="hidden print:block text-center font-black w-[60px] text-[0.8rem]">
                                                 {item.estado === 'Cumple' ? '✓' : item.estado === 'No Cumple' ? '✗' : '-'}
                                             </div>
-                                            <div className="no-print w-[30px] sm:w-[40px] flex justify-end items-center">
+                                            <div className="no-print flex items-center justify-start sm:justify-end flex-shrink-0">
                                                 <button
-                                                    onClick={() => removeQuestion(item.id)}
-                                                    className="text-red-400 hover:text-red-600 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all p-1"
-                                                    style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                                    onClick={() => {
+                                                        const toastId = toast(
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                                                                <span style={{ fontSize: '0.9rem' }}>¿Eliminar este punto?</span>
+                                                                <button
+                                                                    onClick={() => { removeQuestion(item.id); toast.dismiss(toastId); }}
+                                                                    style={{ background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem' }}
+                                                                >Sí</button>
+                                                            </div>,
+                                                            { duration: 4000, icon: '🗑️' }
+                                                        );
+                                                    }}
+                                                    style={{ background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', cursor: 'pointer', color: '#ef4444', padding: '0.35rem 0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                                    title="Eliminar"
                                                 >
-                                                    <Trash2 size={18} />
+                                                    <Trash2 size={16} />
                                                 </button>
                                             </div>
                                         </div>
