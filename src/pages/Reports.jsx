@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Save, FileText, AlertCircle, GraduationCap, ClipboardCheck, Package, Plus, Trash2, History, Share2, Printer, Clock, Edit2 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
+import PhotoAttachments from '../components/PhotoAttachments';
 
 export default function Reports() {
     const navigate = useNavigate();
@@ -19,6 +20,7 @@ export default function Reports() {
 
     const [content, setContent] = useState('');
     const [recentReports, setRecentReports] = useState([]);
+    const [photos, setPhotos] = useState([]);
 
     // Template specific fields
     const [extraFields, setExtraFields] = useState({});
@@ -38,6 +40,7 @@ export default function Reports() {
             });
             setContent(data.content || '');
             setExtraFields(data.extraFields || {});
+            setPhotos(data.photos || []);
             if (data.personnel && data.personnel.length > 0) {
                 setPersonnel(data.personnel);
             }
@@ -80,6 +83,7 @@ export default function Reports() {
             ...projectData,
             content,
             extraFields,
+            photos,
             personnel: (template === 'training' || template === 'epp') ? personnel : [],
             createdAt: new Date().toISOString()
         };
@@ -300,6 +304,13 @@ export default function Reports() {
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     placeholder="Describa los hallazgos, recomendaciones o el cuerpo del informe..."
+                />
+
+                <PhotoAttachments
+                    photos={photos}
+                    onChange={setPhotos}
+                    maxPhotos={8}
+                    label="Fotos de Evidencia"
                 />
             </div>
 

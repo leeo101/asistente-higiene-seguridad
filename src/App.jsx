@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, useLocation, Navigate, Link } from 'react-router-dom';
-import { Menu } from 'lucide-react';
+import { Menu, Search } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
 import Home from './pages/Home.jsx';
@@ -43,6 +43,7 @@ import WorkPermit from './pages/WorkPermit.jsx';
 import WorkPermitHistory from './pages/WorkPermitHistory.jsx';
 import InstallBanner from './components/InstallBanner.jsx';
 import NotFound from './pages/NotFound.jsx';
+import GlobalSearch from './components/GlobalSearch.jsx';
 
 import ChecklistsHistory from './pages/ChecklistsHistory.jsx';
 import ChecklistManager from './pages/ChecklistManager.jsx';
@@ -109,6 +110,7 @@ function ProtectedRoute({ children }) {
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const location = useLocation();
   const showMenuButton = location.pathname !== '/login' && location.pathname !== '/subscribe' && location.pathname !== '/ai-camera';
 
@@ -118,6 +120,18 @@ function App() {
       const savedTheme = localStorage.getItem('theme');
       document.documentElement.classList.toggle('dark', savedTheme === 'dark');
     }
+  }, []);
+
+  // Ctrl+K shortcut for global search
+  useEffect(() => {
+    const handler = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(s => !s);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
   }, []);
 
   return (
@@ -194,8 +208,30 @@ function App() {
                 <img src="/logo.png" alt="Logo" style={{ width: '34px', height: '34px', objectFit: 'contain', filter: 'brightness(0) invert(1) drop-shadow(0 0 8px rgba(99,179,237,0.6))' }} />
                 <h1 className="header-title" style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: 'white', letterSpacing: '-0.3px' }}>Asistente HYS</h1>
               </Link>
+              {/* Global Search button */}
+              <button
+                onClick={() => setIsSearchOpen(true)}
+                title="Buscar (Ctrl+K)"
+                style={{
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  borderRadius: '10px',
+                  padding: '0.5rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  flexShrink: 0
+                }}
+              >
+                <Search size={20} />
+              </button>
             </div>
           )}
+
+          {/* Global Search Modal */}
+          {isSearchOpen && <GlobalSearch onClose={() => setIsSearchOpen(false)} />}
 
           <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
