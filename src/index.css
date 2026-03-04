@@ -989,3 +989,50 @@ label {
     text-shadow: none !important;
   }
 }
+
+/* ── GlobalSearch ESC button: desktop only ── */
+@media (min-width: 640px) {
+  .search-esc-btn {
+    display: flex !important;
+  }
+}
+
+/* ── PhotoAttachments: touch devices show overlay always ── */
+@media (hover: none) {
+  .photo-overlay {
+    opacity: 1 !important;
+    background: rgba(0, 0, 0, 0.25) !important;
+  }
+}
+
+/* ── Minimum touch target size (WCAG 2.5.5) ── */
+@media (max-width: 768px) {
+
+  button,
+  a,
+  [role="button"] {
+    min-height: 44px;
+  }
+
+  /* Exception for icon-only small indicators */
+  .badge-only {
+    min-height: auto;
+  }
+
+  /* Header search button spacing fix */
+  .app-header-search {
+    margin-right: 0.25rem;
+  }
+}
+
+/* ── Safe area inset for notched phones (iOS) ── */
+@supports (padding: max(0px)) {
+  .container {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
+  .floating-action-bar {
+    bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}

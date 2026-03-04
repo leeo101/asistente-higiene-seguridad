@@ -108,8 +108,9 @@ export default function GlobalSearch({ onClose }) {
             position: 'fixed', inset: 0, zIndex: 9999,
             background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)',
             display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
-            padding: '5rem 1rem 2rem',
-            animation: 'fadeIn 0.18s ease'
+            padding: 'max(4rem, 10vh) 0.75rem 1rem',
+            animation: 'fadeIn 0.18s ease',
+            overflowY: 'auto'
         }} onClick={onClose}>
             <div
                 onClick={e => e.stopPropagation()}
@@ -133,22 +134,23 @@ export default function GlobalSearch({ onClose }) {
                         onKeyDown={e => e.key === 'Escape' && onClose()}
                         style={{
                             flex: 1, border: 'none', outline: 'none',
-                            background: 'transparent', fontSize: '1.05rem',
-                            color: 'var(--color-text)', fontWeight: 500
+                            background: 'transparent', fontSize: '1rem',
+                            color: 'var(--color-text)', fontWeight: 500,
+                            minWidth: 0
                         }}
                     />
                     {query && (
-                        <button onClick={() => setQuery('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)', padding: '0.2rem', display: 'flex' }}>
+                        <button onClick={() => setQuery('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)', padding: '0.3rem', display: 'flex', flexShrink: 0 }}>
                             <X size={18} />
                         </button>
                     )}
-                    <button onClick={onClose} style={{ background: 'rgba(0,0,0,0.06)', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)', padding: '0.3rem 0.6rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700 }}>
+                    <button onClick={onClose} style={{ background: 'rgba(0,0,0,0.06)', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)', padding: '0.3rem 0.6rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, flexShrink: 0, display: 'none' }} className="search-esc-btn">
                         ESC
                     </button>
                 </div>
 
                 {/* Results */}
-                <div style={{ maxHeight: '420px', overflowY: 'auto' }}>
+                <div style={{ maxHeight: 'min(420px, 55vh)', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
                     {query.length < 2 ? (
                         <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.88rem' }}>
                             Escribí al menos 2 caracteres para buscar...

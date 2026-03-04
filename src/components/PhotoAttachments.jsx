@@ -101,22 +101,22 @@ export default function PhotoAttachments({ photos = [], onChange, maxPhotos = 5,
                     {photos.map((src, idx) => (
                         <div
                             key={idx}
-                            style={{ position: 'relative', borderRadius: '10px', overflow: 'hidden', aspectRatio: '1', cursor: 'pointer' }}
+                            style={{ position: 'relative', borderRadius: '10px', overflow: 'hidden', aspectRatio: '1' }}
                         >
                             <img
                                 src={src}
                                 alt={`Foto ${idx + 1}`}
-                                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', cursor: 'pointer' }}
                                 onClick={() => setPreview(src)}
                             />
-                            {/* Overlay on hover */}
+                            {/* Action overlay — shown on hover (desktop) or always (touch via CSS) */}
                             <div
                                 className="photo-overlay"
                                 style={{
                                     position: 'absolute', inset: 0,
                                     background: 'rgba(0,0,0,0.4)',
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    gap: '0.4rem', opacity: 0, transition: 'opacity 0.2s'
+                                    gap: '0.5rem', opacity: 0, transition: 'opacity 0.2s'
                                 }}
                                 onMouseOver={e => e.currentTarget.style.opacity = '1'}
                                 onMouseOut={e => e.currentTarget.style.opacity = '0'}
@@ -124,16 +124,16 @@ export default function PhotoAttachments({ photos = [], onChange, maxPhotos = 5,
                                 <button
                                     type="button"
                                     onClick={() => setPreview(src)}
-                                    style={{ background: 'rgba(255,255,255,0.9)', border: 'none', borderRadius: '50%', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                                    style={{ background: 'rgba(255,255,255,0.9)', border: 'none', borderRadius: '50%', width: '36px', height: '36px', minHeight: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                                 >
-                                    <ZoomIn size={14} />
+                                    <ZoomIn size={15} />
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => removePhoto(idx)}
-                                    style={{ background: 'rgba(239,68,68,0.9)', border: 'none', borderRadius: '50%', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white' }}
+                                    style={{ background: 'rgba(239,68,68,0.9)', border: 'none', borderRadius: '50%', width: '36px', height: '36px', minHeight: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white' }}
                                 >
-                                    <Trash2 size={13} />
+                                    <Trash2 size={14} />
                                 </button>
                             </div>
                         </div>
