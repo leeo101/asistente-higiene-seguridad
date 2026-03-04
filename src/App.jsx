@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, useLocation, Navigate, Link } from 'react-router-dom';
-import { Menu, Search } from 'lucide-react';
+import { Menu, Search, Cloud, CloudOff } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
 import Home from './pages/Home.jsx';
@@ -51,7 +51,7 @@ import Subscription from './pages/Subscription.jsx';
 import AIHistory from './pages/AIHistory.jsx';
 import AICameraHistory from './pages/AICameraHistory.jsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
-import { SyncProvider } from './contexts/SyncContext.jsx';
+import { SyncProvider, useSync } from './contexts/SyncContext.jsx';
 import { Toaster, toast } from 'react-hot-toast';
 import { usePaywall } from './hooks/usePaywall.js';
 
@@ -106,6 +106,32 @@ function ProtectedRoute({ children }) {
     return <Navigate to="/login" replace />;
   }
   return children;
+}
+
+function CloudStatusIndicator() {
+  const { currentUser } = useAuth();
+  const { syncing, lastSync } = useSync();
+
+  if (!currentUser) return null;
+
+  return (
+    <div
+      title={syncing ? 'Sincronizando...' : lastSync ? `Sincronizado ${lastSync.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}` : 'Conectado a la nube'}
+      style={{
+        display: 'flex', alignItems: 'center', gap: '0.25rem',
+        fontSize: '0.65rem', fontWeight: 700,
+        color: syncing ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.9)',
+        flexShrink: 0, whiteSpace: 'nowrap'
+      }}
+    >
+      {syncing ? (
+        <Cloud size={16} style={{ animation: 'pulse 1.5s infinite', color: '#93c5fd' }} />
+      ) : (
+        <Cloud size={16} style={{ color: '#86efac' }} />
+      )}
+      <span style={{ display: 'none' }} className="header-title">{syncing ? 'Sync...' : '✓'}</span>
+    </div>
+  );
 }
 
 function App() {
@@ -227,6 +253,8 @@ function App() {
               >
                 <Search size={20} />
               </button>
+              {/* Cloud sync status */}
+              <CloudStatusIndicator />
             </div>
           )}
 
