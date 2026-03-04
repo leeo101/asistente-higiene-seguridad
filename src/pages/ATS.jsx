@@ -526,39 +526,16 @@ export default function ATS() {
 
                             <div className="w-full flex-col">
                                 {formData.checklist.filter(i => i.categoria === cat).map((item, idx) => (
-                                    <div key={item.id} className="group hover:bg-slate-50/20 transition-colors border-b border-slate-200" style={{ position: 'relative', padding: '0.75rem 1rem' }}>
-                                        {/* Delete button - top right always */}
-                                        <div className="no-print" style={{ position: 'absolute', top: '0.5rem', right: '0.5rem' }}>
-                                            <button
-                                                onClick={() => {
-                                                    const toastId = toast(
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                                                            <span style={{ fontSize: '0.9rem' }}>¿Eliminar este punto?</span>
-                                                            <button
-                                                                onClick={() => { removeQuestion(item.id); toast.dismiss(toastId); }}
-                                                                style={{ background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem' }}
-                                                            >Sí</button>
-                                                        </div>,
-                                                        { duration: 4000, icon: '🗑️' }
-                                                    );
-                                                }}
-                                                style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', cursor: 'pointer', color: '#ef4444', padding: '0.25rem 0.4rem', display: 'flex', alignItems: 'center' }}
-                                                title="Eliminar"
-                                            >
-                                                <Trash2 size={14} />
-                                            </button>
-                                        </div>
-
+                                    <div key={item.id} className="group border-b border-slate-200" style={{ padding: '0.75rem 1rem' }}>
                                         {/* Question text */}
-                                        <div style={{ paddingRight: '2.5rem', marginBottom: '0.5rem' }}>
-                                            <div
-                                                contentEditable
-                                                suppressContentEditableWarning
-                                                onBlur={(e) => updateChecklist(item.id, 'pregunta', e.target.innerText)}
-                                                className="font-bold text-slate-800 text-[0.9rem] outline-none border-b border-dashed border-transparent focus:border-[var(--color-primary)] leading-tight"
-                                            >
-                                                {item.pregunta}
-                                            </div>
+                                        <div
+                                            contentEditable
+                                            suppressContentEditableWarning
+                                            onBlur={(e) => updateChecklist(item.id, 'pregunta', e.target.innerText)}
+                                            className="font-bold text-slate-800 text-[0.9rem] outline-none border-b border-dashed border-transparent focus:border-[var(--color-primary)] leading-tight"
+                                            style={{ marginBottom: '0.5rem' }}
+                                        >
+                                            {item.pregunta}
                                         </div>
 
                                         {/* Observaciones */}
@@ -572,22 +549,40 @@ export default function ATS() {
                                                 e.target.style.height = e.target.scrollHeight + 'px';
                                             }}
                                             onChange={(e) => updateChecklist(item.id, 'observaciones', e.target.value)}
-                                            style={{ margin: '0 0 0.6rem 0', padding: '0.4rem', fontSize: '0.7rem', background: 'transparent', border: '1px solid #efefef', borderRadius: '4px', width: '100%', color: 'var(--color-text-muted)', resize: 'none', minHeight: '30px' }}
+                                            style={{ margin: '0 0 0.6rem 0', padding: '0.4rem', fontSize: '0.7rem', background: 'transparent', border: '1px solid #efefef', borderRadius: '4px', width: '100%', boxSizing: 'border-box', color: 'var(--color-text-muted)', resize: 'none', minHeight: '30px' }}
                                         />
                                         <div className="print-only text-[0.7rem] text-slate-500 whitespace-pre-wrap break-words mb-1">
                                             {item.observaciones || ''}
                                         </div>
 
-                                        {/* Status buttons row */}
-                                        <div className="no-print">
-                                            <div className="checklist-status-buttons" style={{ justifyContent: 'flex-start' }}>
+                                        {/* Bottom row: status buttons + delete */}
+                                        <div className="no-print" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'nowrap' }}>
+                                            <div className="checklist-status-buttons" style={{ justifyContent: 'flex-start', flexShrink: 0 }}>
                                                 <StatusBtn active={item.estado === 'Cumple'} type="OK" onClick={() => updateChecklist(item.id, 'estado', 'Cumple')} label="SI" />
                                                 <StatusBtn active={item.estado === 'No Cumple'} type="FAIL" onClick={() => updateChecklist(item.id, 'estado', 'No Cumple')} label="NO" />
                                                 <StatusBtn active={item.estado === 'N/A'} type="NA" onClick={() => updateChecklist(item.id, 'estado', 'N/A')} label="NA" />
                                             </div>
+                                            <button
+                                                onClick={() => {
+                                                    const toastId = toast(
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                                                            <span style={{ fontSize: '0.9rem' }}>¿Eliminar este punto?</span>
+                                                            <button
+                                                                onClick={() => { removeQuestion(item.id); toast.dismiss(toastId); }}
+                                                                style={{ background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem' }}
+                                                            >Sí</button>
+                                                        </div>,
+                                                        { duration: 4000, icon: '🗑️' }
+                                                    );
+                                                }}
+                                                style={{ flexShrink: 0, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', cursor: 'pointer', color: '#ef4444', padding: '0.3rem 0.5rem', display: 'flex', alignItems: 'center' }}
+                                                title="Eliminar"
+                                            >
+                                                <Trash2 size={15} />
+                                            </button>
                                         </div>
-                                        <div className="hidden print:block text-center font-black text-[0.8rem]">
-                                            {item.estado === 'Cumple' ? '✓' : item.estado === 'No Cumple' ? '✗' : '-'}
+                                        <div className="hidden print:block text-[0.8rem] font-black">
+                                            {item.estado === 'Cumple' ? '✓ SI' : item.estado === 'No Cumple' ? '✗ NO' : '— N/A'}
                                         </div>
                                     </div>
                                 ))}
