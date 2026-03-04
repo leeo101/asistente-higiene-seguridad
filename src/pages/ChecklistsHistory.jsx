@@ -87,56 +87,87 @@ export default function ChecklistsHistory() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {filteredHistory.length > 0 ? (
-                    filteredHistory.map((item) => (
-                        <div key={item.id} className="card" style={{ padding: '1.2rem', transition: 'transform 0.2s' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', flex: 1, minWidth: 0 }}>
-                                    <div style={{ width: '45px', height: '45px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6' }}>
-                                        <ClipboardCheck size={22} />
-                                    </div>
-                                    <div>
-                                        <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.equipo || 'Equipo sin nombre'}</h3>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
-                                            <Calendar size={14} /> {new Date(item.fecha).toLocaleDateString()} - <Building2 size={14} /> {item.empresa}
+                    filteredHistory.map((item) => {
+                        // Compute status badge from stored checklist items
+                        const stored = localStorage.getItem(`checklist_${item.id}`);
+                        let badgeLabel = 'Sin datos';
+                        let badgeColor = '#64748b';
+                        let badgeBg = 'rgba(100,116,139,0.1)';
+                        if (stored) {
+                            try {
+                                const parsed = JSON.parse(stored);
+                                const items = parsed.items || parsed.checks || parsed || [];
+                                const arr = Array.isArray(items) ? items : Object.values(items);
+                                const total = arr.length;
+                                const nok = arr.filter(c => c.value === 'NO' || c.estado === 'NO' || c.checked === false || c.result === 'no').length;
+                                const obs = arr.filter(c => c.observation || c.observacion).length;
+                                if (total === 0) { badgeLabel = 'Vacío'; }
+                                else if (nok > 0) { badgeLabel = 'Rechazado'; badgeColor = '#ef4444'; badgeBg = 'rgba(239,68,68,0.1)'; }
+                                else if (obs > 0) { badgeLabel = 'Con Obs.'; badgeColor = '#f59e0b'; badgeBg = 'rgba(245,158,11,0.1)'; }
+                                else { badgeLabel = 'Aprobado'; badgeColor = '#10b981'; badgeBg = 'rgba(16,185,129,0.1)'; }
+                            } catch { badgeLabel = 'Aprobado'; badgeColor = '#10b981'; badgeBg = 'rgba(16,185,129,0.1)'; }
+                        } else {
+                            badgeLabel = 'Aprobado'; badgeColor = '#10b981'; badgeBg = 'rgba(16,185,129,0.1)';
+                        }
+                        return (
+                            <div key={item.id} className="card" style={{ padding: '1.2rem', transition: 'transform 0.2s' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', flex: 1, minWidth: 0 }}>
+                                        <div style={{ width: '45px', height: '45px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6' }}>
+                                            <ClipboardCheck size={22} />
+                                        </div>
+                                        <div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                                                <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.equipo || 'Equipo sin nombre'}</h3>
+                                                <span style={{
+                                                    background: badgeBg, color: badgeColor,
+                                                    border: `1px solid ${badgeColor}44`,
+                                                    borderRadius: '20px', padding: '0.15rem 0.55rem',
+                                                    fontSize: '0.65rem', fontWeight: 800, whiteSpace: 'nowrap'
+                                                }}>{badgeLabel}</span>
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
+                                                <Calendar size={14} /> {new Date(item.fecha).toLocaleDateString()} - <Building2 size={14} /> {item.empresa}
+                                            </div>
                                         </div>
                                     </div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600, flexShrink: 0 }}>
+                                        #{item.serial}
+                                    </div>
                                 </div>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600, flexShrink: 0 }}>
-                                    #{item.serial}
-                                </div>
-                            </div>
 
-                            <div style={{ display: 'flex', gap: '0.8rem', marginTop: '1rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
-                                <button
-                                    onClick={() => navigate(`/checklists?id=${item.id}`)}
-                                    className="btn-secondary"
-                                    style={{ flex: 1, padding: '0.6rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'center' }}
-                                >
-                                    <FileText size={16} /> Ver / Editar
-                                </button>
-                                <a
-                                    href={`https://wa.me/?text=${encodeURIComponent(`📋 Checklist de Seguridad\n🔧 Equipo: ${item.equipo}\n🏗️ Empresa: ${item.empresa}\n📅 Fecha: ${new Date(item.fecha).toLocaleDateString()}\n#${item.serial}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS con IA\n🔗 https://asistentehs.com`)}`}
-                                    target="_blank" rel="noreferrer"
-                                    style={{ padding: '0.6rem 0.9rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, fontSize: '0.8rem', textDecoration: 'none' }}
-                                >
-                                    <Share2 size={15} /> WA
-                                </a>
-                                <button
-                                    onClick={() => setDeleteTarget(item.id)}
-                                    style={{
-                                        padding: '0.6rem',
-                                        background: 'rgba(239, 68, 68, 0.05)',
-                                        border: '1px solid rgba(239, 68, 68, 0.2)',
-                                        borderRadius: '8px',
-                                        color: '#ef4444',
-                                        cursor: 'pointer'
-                                    }}
-                                >
-                                    <Trash2 size={18} />
-                                </button>
+                                <div style={{ display: 'flex', gap: '0.8rem', marginTop: '1rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
+                                    <button
+                                        onClick={() => navigate(`/checklists?id=${item.id}`)}
+                                        className="btn-secondary"
+                                        style={{ flex: 1, padding: '0.6rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'center' }}
+                                    >
+                                        <FileText size={16} /> Ver / Editar
+                                    </button>
+                                    <a
+                                        href={`https://wa.me/?text=${encodeURIComponent(`📋 Checklist de Seguridad\n🔧 Equipo: ${item.equipo}\n🏗️ Empresa: ${item.empresa}\n📅 Fecha: ${new Date(item.fecha).toLocaleDateString()}\n#${item.serial}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS con IA\n🔗 https://asistentehs.com`)}`}
+                                        target="_blank" rel="noreferrer"
+                                        style={{ padding: '0.6rem 0.9rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, fontSize: '0.8rem', textDecoration: 'none' }}
+                                    >
+                                        <Share2 size={15} /> WA
+                                    </a>
+                                    <button
+                                        onClick={() => setDeleteTarget(item.id)}
+                                        style={{
+                                            padding: '0.6rem',
+                                            background: 'rgba(239, 68, 68, 0.05)',
+                                            border: '1px solid rgba(239, 68, 68, 0.2)',
+                                            borderRadius: '8px',
+                                            color: '#ef4444',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    ))
+                        );
+                    })
                 ) : (
                     <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
                         <ClipboardCheck size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />

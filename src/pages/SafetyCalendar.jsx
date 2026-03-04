@@ -395,33 +395,52 @@ export default function SafetyCalendar() {
                             <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>Recordatorios</h3>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            {upcomingEvents.length > 0 ? upcomingEvents.map((e, i) => (
-                                <div key={i} style={{
-                                    borderLeft: `4px solid ${eventTypes[e.type].color}`,
-                                    padding: '0.8rem 1rem',
-                                    background: 'rgba(255,255,255,0.03)',
-                                    borderRadius: '0 8px 8px 0',
-                                    transition: 'all 0.2s',
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center'
-                                }}>
-                                    <div>
-                                        <div style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '2px' }}>{e.title}</div>
-                                        <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                            <Clock size={12} />
-                                            {new Date(e.date + 'T12:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
-                                            {e.time && ` • ${e.time} hs`} • {eventTypes[e.type].label}
+                            {upcomingEvents.length > 0 ? upcomingEvents.map((e, i) => {
+                                const eventDate = new Date(e.date + 'T12:00:00');
+                                const todayMidnight = new Date(); todayMidnight.setHours(0, 0, 0, 0);
+                                const diffDays = Math.round((eventDate - todayMidnight) / (1000 * 60 * 60 * 24));
+                                const badgeColor = diffDays <= 0 ? '#ef4444' : diffDays <= 7 ? '#f59e0b' : '#10b981';
+                                const badgeBg = diffDays <= 0 ? 'rgba(239,68,68,0.1)' : diffDays <= 7 ? 'rgba(245,158,11,0.1)' : 'rgba(16,185,129,0.1)';
+                                const badgeLabel = diffDays <= 0 ? (diffDays === 0 ? 'HOY' : 'VENCIDO') : diffDays === 1 ? '1 día' : `${diffDays} días`;
+                                return (
+                                    <div key={i} style={{
+                                        borderLeft: `4px solid ${eventTypes[e.type].color}`,
+                                        padding: '0.8rem 1rem',
+                                        background: 'rgba(255,255,255,0.03)',
+                                        borderRadius: '0 8px 8px 0',
+                                        transition: 'all 0.2s',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        gap: '0.5rem'
+                                    }}>
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                            <div style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '2px' }}>{e.title}</div>
+                                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                                                <Clock size={12} />
+                                                {new Date(e.date + 'T12:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+                                                {e.time && ` • ${e.time} hs`} • {eventTypes[e.type].label}
+                                            </div>
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                                            <span style={{
+                                                background: badgeBg, color: badgeColor,
+                                                border: `1px solid ${badgeColor}44`,
+                                                borderRadius: '20px', padding: '0.2rem 0.6rem',
+                                                fontSize: '0.68rem', fontWeight: 800, whiteSpace: 'nowrap'
+                                            }}>
+                                                {badgeLabel}
+                                            </span>
+                                            <button
+                                                onClick={() => deleteEvent(e)}
+                                                style={{ background: 'transparent', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', padding: '4px' }}
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
                                         </div>
                                     </div>
-                                    <button
-                                        onClick={() => deleteEvent(e)}
-                                        style={{ background: 'transparent', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', padding: '4px' }}
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
-                                </div>
-                            )) : (
+                                );
+                            }) : (
                                 <div style={{ textAlign: 'center', padding: '2rem 0', opacity: 0.5 }}>
                                     <CheckCircle2 size={40} style={{ margin: '0 auto 1rem', display: 'block' }} />
                                     <p style={{ fontSize: '0.85rem', fontWeight: 600 }}>Todo al día.</p>

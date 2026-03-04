@@ -4,7 +4,8 @@ import {
     ArrowLeft, Send, ShieldAlert, HardHat,
     Lightbulb, Gavel, ClipboardList, Copy,
     Check, Download, Sparkles, Loader2,
-    Mic, MicOff
+    Mic, MicOff, History, ChevronDown, ChevronUp,
+    RotateCcw, Clock
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -12,6 +13,79 @@ import { API_BASE_URL } from '../config';
 import AdBanner from '../components/AdBanner';
 import toast from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+
+// ── Subcomponent for history panel ─────────────────────────────────────────
+function HistoryPanel({ onLoad }) {
+    const [open, setOpen] = useState(false);
+    const history = JSON.parse(localStorage.getItem('ai_advisor_history') || '[]').slice(0, 5);
+
+    if (history.length === 0) return null;
+
+    return (
+        <div style={{ marginBottom: '1.5rem' }}>
+            <button
+                onClick={() => setOpen(o => !o)}
+                style={{
+                    width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    background: 'var(--color-surface)', border: '1px solid var(--color-border)',
+                    borderRadius: open ? '14px 14px 0 0' : '14px',
+                    padding: '0.85rem 1.2rem', cursor: 'pointer', transition: 'all 0.2s'
+                }}
+            >
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 700, fontSize: '0.9rem' }}>
+                    <History size={16} color="var(--color-primary)" />
+                    Consultas anteriores ({history.length})
+                </span>
+                {open ? <ChevronUp size={16} color="var(--color-text-muted)" /> : <ChevronDown size={16} color="var(--color-text-muted)" />}
+            </button>
+            {open && (
+                <div style={{
+                    border: '1px solid var(--color-border)', borderTop: 'none',
+                    borderRadius: '0 0 14px 14px', overflow: 'hidden'
+                }}>
+                    {history.map((item, i) => (
+                        <div
+                            key={item.id}
+                            style={{
+                                padding: '0.9rem 1.2rem',
+                                borderBottom: i < history.length - 1 ? '1px solid var(--color-border)' : 'none',
+                                display: 'flex', alignItems: 'center', gap: '1rem',
+                                background: 'var(--color-surface)',
+                                transition: 'background 0.15s'
+                            }}
+                            onMouseOver={e => e.currentTarget.style.background = 'var(--color-surface-hover)'}
+                            onMouseOut={e => e.currentTarget.style.background = 'var(--color-surface)'}
+                        >
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ fontWeight: 600, fontSize: '0.88rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    {item.task}
+                                </div>
+                                <div style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.2rem' }}>
+                                    <Clock size={11} />
+                                    {new Date(item.date).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => onLoad(item)}
+                                title="Cargar esta consulta"
+                                style={{
+                                    background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)',
+                                    borderRadius: '8px', padding: '0.4rem 0.7rem',
+                                    color: 'var(--color-primary)', cursor: 'pointer',
+                                    fontSize: '0.75rem', fontWeight: 700,
+                                    display: 'flex', alignItems: 'center', gap: '0.3rem',
+                                    whiteSpace: 'nowrap', flexShrink: 0
+                                }}
+                            >
+                                <RotateCcw size={12} /> Cargar
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
 
 export default function AIChatAdvisor() {
     const navigate = useNavigate();
@@ -50,6 +124,18 @@ export default function AIChatAdvisor() {
         };
 
         recognition.start();
+    };
+
+    const handleNewQuery = () => {
+        setResult(null);
+        setTask('');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleLoadHistory = (item) => {
+        setTask(item.task);
+        setResult(item);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleDownloadPDF = () => {
@@ -198,7 +284,7 @@ export default function AIChatAdvisor() {
                 date: new Date().toISOString(),
                 ...data
             };
-            localStorage.setItem('ai_advisor_history', JSON.stringify([newRecord, ...history]));
+            localStorage.setItem('ai_advisor_history', JSON.stringify([newRecord, ...history].slice(0, 20)));
         } catch (error) {
             console.error('Error:', error);
             toast.error(`Error: ${error.message}. Por favor, verifica tu conexión o intenta más tarde.`);
@@ -230,6 +316,9 @@ export default function AIChatAdvisor() {
                     <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Asesor de Seguridad IA</h1>
                 </div>
             </div>
+
+            {/* History Panel */}
+            <HistoryPanel onLoad={handleLoadHistory} />
 
             {/* Input Section */}
             <div className="card" style={{ padding: '1.5rem', marginBottom: '2rem', background: 'var(--color-surface)' }}>
@@ -400,6 +489,27 @@ export default function AIChatAdvisor() {
                             </ul>
                         </div>
                     </div>
+
+                    {/* Nueva Consulta Button */}
+                    <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+                        <button
+                            onClick={handleNewQuery}
+                            style={{
+                                display: 'inline-flex', alignItems: 'center', gap: '0.6rem',
+                                padding: '0.85rem 2rem',
+                                background: 'linear-gradient(135deg, #1e3a8a, #2563eb)',
+                                color: 'white', border: 'none', borderRadius: '14px',
+                                fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
+                                boxShadow: '0 6px 20px rgba(37,99,235,0.35)',
+                                transition: 'transform 0.2s, box-shadow 0.2s'
+                            }}
+                            onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 10px 28px rgba(37,99,235,0.45)'; }}
+                            onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(37,99,235,0.35)'; }}
+                        >
+                            <RotateCcw size={18} /> Nueva Consulta
+                        </button>
+                    </div>
+
                     <AdBanner />
                 </div>
             )}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, FileText, AlertCircle, GraduationCap, ClipboardCheck, Package, Plus, Trash2, History, Share2, Printer } from 'lucide-react';
+import { ArrowLeft, Save, FileText, AlertCircle, GraduationCap, ClipboardCheck, Package, Plus, Trash2, History, Share2, Printer, Clock, Edit2 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
 
@@ -18,6 +18,7 @@ export default function Reports() {
     });
 
     const [content, setContent] = useState('');
+    const [recentReports, setRecentReports] = useState([]);
 
     // Template specific fields
     const [extraFields, setExtraFields] = useState({});
@@ -47,6 +48,9 @@ export default function Reports() {
                 setProjectData(prev => ({ ...prev, responsable: parsed.name || '' }));
             }
         }
+        // Load recent reports
+        const hist = JSON.parse(localStorage.getItem('reports_history') || '[]');
+        setRecentReports(hist.slice(0, 3));
     }, [location.state]);
 
     const handleAddPerson = () => {
@@ -298,6 +302,47 @@ export default function Reports() {
                     placeholder="Describa los hallazgos, recomendaciones o el cuerpo del informe..."
                 />
             </div>
+
+            {/* Recent Reports Mini-Panel */}
+            {recentReports.length > 0 && (
+                <div style={{ marginBottom: '2rem' }}>
+                    <h3 style={{ fontSize: '0.95rem', fontWeight: 800, marginBottom: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Clock size={16} color="var(--color-primary)" /> Informes Recientes
+                    </h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                        {recentReports.map((r) => (
+                            <div key={r.id} style={{
+                                display: 'flex', alignItems: 'center', gap: '1rem',
+                                background: 'var(--color-surface)', border: '1px solid var(--color-border)',
+                                borderRadius: '12px', padding: '0.8rem 1rem', transition: 'border-color 0.2s'
+                            }}
+                                onMouseOver={e => e.currentTarget.style.borderColor = 'var(--color-primary)'}
+                                onMouseOut={e => e.currentTarget.style.borderColor = 'var(--color-border)'}
+                            >
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{ fontWeight: 700, fontSize: '0.88rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.title || 'Sin título'}</div>
+                                    <div style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', display: 'flex', gap: '0.6rem', marginTop: '0.15rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                                        <span style={{ background: 'rgba(59,130,246,0.08)', color: 'var(--color-primary)', padding: '0.1rem 0.5rem', borderRadius: '20px', fontWeight: 700, fontSize: '0.65rem' }}>{r.template?.toUpperCase() || 'GENERAL'}</span>
+                                        {r.company} · {new Date(r.createdAt).toLocaleDateString('es-AR')}
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => navigate('/reports', { state: { editData: r } })}
+                                    style={{
+                                        display: 'flex', alignItems: 'center', gap: '0.4rem',
+                                        background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)',
+                                        borderRadius: '8px', padding: '0.4rem 0.8rem',
+                                        color: 'var(--color-primary)', cursor: 'pointer',
+                                        fontSize: '0.78rem', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0
+                                    }}
+                                >
+                                    <Edit2 size={13} /> Editar
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Floating Action Buttons */}
             <div className="no-print floating-action-bar">
