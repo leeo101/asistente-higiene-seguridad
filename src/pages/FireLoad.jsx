@@ -13,6 +13,7 @@ import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import { API_BASE_URL } from '../config';
 
 export default function FireLoad() {
     const navigate = useNavigate();
