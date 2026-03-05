@@ -37,7 +37,25 @@ export default function AICameraHistory() {
 
     useEffect(() => {
         const raw = localStorage.getItem('ai_camera_history');
-        if (raw) setHistory(JSON.parse(raw));
+        if (!raw) return;
+        try {
+            const parsed = JSON.parse(raw);
+            // Filter out invalid/empty records (no date, no company AND no location)
+            const valid = parsed.filter(item => {
+                if (!item || !item.id) return false;
+                if (!item.date) return false;
+                // Must have at least one meaningful field
+                const hasData = item.company || item.location || item.analysis || item.type;
+                return !!hasData;
+            });
+            // Auto-cleanup: remove invalid records from localStorage silently
+            if (valid.length !== parsed.length) {
+                localStorage.setItem('ai_camera_history', JSON.stringify(valid));
+            }
+            setHistory(valid);
+        } catch {
+            setHistory([]);
+        }
     }, [syncPulse]);
 
     const confirmDelete = () => {

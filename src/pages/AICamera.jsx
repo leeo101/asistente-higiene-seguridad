@@ -204,21 +204,37 @@ export default function AICamera() {
 
     const handleSaveReport = () => {
         requirePro(() => {
+            const currentReport = JSON.parse(localStorage.getItem('current_report') || '{}');
+            const company = currentReport.company || currentReport.empresa || 'Empresa Local';
+            const location = currentReport.location || currentReport.ubicacion || 'Planta Principal';
+
             const report = {
                 id: Date.now(),
                 image: capturedImage,
                 analysis: analysisResult,
                 date: new Date().toISOString(),
-                company: JSON.parse(localStorage.getItem('current_report') || '{}').company || 'Empresa Local',
-                location: JSON.parse(localStorage.getItem('current_report') || '{}').location || 'Planta Principal'
+                company,
+                location,
+                type: 'ppe_check', // Always set type so history shows correct badge
             };
             localStorage.setItem('current_ai_inspection', JSON.stringify(report));
             const history = JSON.parse(localStorage.getItem('ai_camera_history') || '[]');
-            history.unshift({ id: report.id, date: report.date, company: report.company, location: report.location, ppeComplete: report.analysis?.ppeComplete });
-            localStorage.setItem('ai_camera_history', JSON.stringify(history));
+            // Only add if not a duplicate (same id)
+            if (!history.find(h => h.id === report.id)) {
+                history.unshift({
+                    id: report.id,
+                    date: report.date,
+                    company: report.company,
+                    location: report.location,
+                    type: report.type,
+                    ppeComplete: report.analysis?.ppeComplete
+                });
+                localStorage.setItem('ai_camera_history', JSON.stringify(history));
+            }
             navigate('/ai-report');
         });
     };
+
 
     const handleRetry = () => {
         setCapturedImage(null);
