@@ -112,6 +112,7 @@ export const SYNC_COLLECTIONS = [
     'ergonomics_history',
     'risk_assessments_history',
     'checklists_history',
+    'ppe_items',
 ];
 
 export const SYNC_DOCUMENTS = [

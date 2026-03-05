@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, HardHat, AlertTriangle, CheckCircle, Clock, Shield } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useSync } from '../contexts/SyncContext';
 import { downloadCSV } from '../services/exportCsv';
 
 const EPP_TYPES = [
@@ -41,6 +42,7 @@ const EMPTY_FORM = { type: '', custom: '', responsible: '', purchaseDate: '', li
 
 export default function PPETracker() {
     const navigate = useNavigate();
+    const { syncCollection } = useSync();
     const [items, setItems] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [form, setForm] = useState(EMPTY_FORM);
@@ -50,9 +52,10 @@ export default function PPETracker() {
         if (saved) setItems(JSON.parse(saved));
     }, []);
 
-    const save = (updated) => {
+    const save = async (updated) => {
         setItems(updated);
         localStorage.setItem('ppe_items', JSON.stringify(updated));
+        await syncCollection('ppe_items', updated);
     };
 
     const handleAdd = () => {
@@ -88,7 +91,7 @@ export default function PPETracker() {
     const expiring = items.filter(i => { const d = getDaysUntilExpiry(i.purchaseDate, i.lifeMonths); return d !== null && d >= 0 && d <= 30; }).length;
 
     return (
-        <div className="container" style={{ maxWidth: '700px', paddingBottom: '4rem', paddingTop: '3rem' }}>
+        <div className="container" style={{ maxWidth: '700px', paddingBottom: '4rem', paddingTop: '5rem' }}>
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
                 <button onClick={() => navigate(-1)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)', padding: '0.5rem' }}>
