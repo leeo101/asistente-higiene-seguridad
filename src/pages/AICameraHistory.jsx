@@ -43,19 +43,23 @@ export default function AICameraHistory() {
         if (!raw) return;
         try {
             const parsed = JSON.parse(raw);
-            // Filter out invalid/empty records (no date, no company AND no location)
+            // Filtrar registros inválidos/corruptos
             const valid = parsed.filter(item => {
                 if (!item || !item.id) return false;
                 if (!item.date) return false;
-                // Must have a non-trivially-empty company or location or type
-                const company = (item.company || '').trim();
-                const location = (item.location || '').trim();
-                const hasType = !!item.type;
-                const hasCompany = company.length > 0;
-                const hasLocation = location.length > 0;
-                return hasType || hasCompany || hasLocation;
+
+                const company = String(item.company || '').trim();
+                const location = String(item.location || '').trim();
+
+                // Si ambos están vacíos o contienen 'undefined' literal, son corruptos
+                const isBadCompany = !company || company === 'undefined' || company === 'null';
+                const isBadLocation = !location || location === 'undefined' || location === 'null';
+
+                if (isBadCompany && isBadLocation) return false;
+
+                return true;
             });
-            // Auto-cleanup: remove invalid records from localStorage AND Firebase
+            // Auto-cleanup: quita registros inválidos del localStorage y Firebase
             if (valid.length !== parsed.length) {
                 localStorage.setItem('ai_camera_history', JSON.stringify(valid));
                 // Push cleaned array to cloud so it doesn't come back
