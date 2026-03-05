@@ -44,6 +44,7 @@ import WorkPermitHistory from './pages/WorkPermitHistory.jsx';
 import InstallBanner from './components/InstallBanner.jsx';
 import NotFound from './pages/NotFound.jsx';
 import GlobalSearch from './components/GlobalSearch.jsx';
+import PPETracker from './pages/PPETracker.jsx';
 
 import ChecklistsHistory from './pages/ChecklistsHistory.jsx';
 import ChecklistManager from './pages/ChecklistManager.jsx';
@@ -313,6 +314,7 @@ function App() {
             <Route path="/work-permit" element={<ProtectedRoute><WorkPermit /></ProtectedRoute>} />
             <Route path="/work-permit-history" element={<ProtectedRoute><WorkPermitHistory /></ProtectedRoute>} />
             <Route path="/admin/requests" element={<ProtectedRoute><AdminRequests /></ProtectedRoute>} />
+            <Route path="/ppe-tracker" element={<ProtectedRoute><PPETracker /></ProtectedRoute>} />
 
             <Route path="/matrices" element={<Navigate to="/risk-matrix" replace />} />
             <Route path="*" element={<NotFound />} />

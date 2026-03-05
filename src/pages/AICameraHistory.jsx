@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Trash2, Camera, Calendar, Building2, ShieldCheck, AlertTriangle, Share2, Info, FileText } from 'lucide-react';
+import { ArrowLeft, Search, Trash2, Camera, Calendar, Building2, ShieldCheck, AlertTriangle, Share2, Info, FileText, QrCode, Download, BarChart2 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
+import QRModal from '../components/QRModal';
+import { downloadCSV } from '../services/exportCsv';
 
 function DeleteConfirm({ onConfirm, onCancel }) {
     return (
@@ -34,6 +36,7 @@ export default function AICameraHistory() {
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteTarget, setDeleteTarget] = useState(null);
+    const [qrTarget, setQrTarget] = useState(null);
 
     useEffect(() => {
         const raw = localStorage.getItem('ai_camera_history');
@@ -71,9 +74,25 @@ export default function AICameraHistory() {
         item.location?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const total = history.length;
+    const eppOk = history.filter(i => i.ppeComplete).length;
+    const eppFail = history.filter(i => i.ppeComplete === false).length;
+    const compliance = total > 0 ? Math.round((eppOk / Math.max(eppOk + eppFail, 1)) * 100) : 0;
+
+    const handleExportCSV = () => {
+        downloadCSV(filtered.map(i => ({
+            empresa: i.company, ubicacion: i.location,
+            fecha: i.date ? new Date(i.date).toLocaleDateString('es-AR') : '',
+            resultado: i.ppeComplete ? 'EPP OK' : (i.type === 'general_risks' ? 'Entorno' : 'Falta EPP')
+        })), 'camara_ia_historial', {
+            empresa: 'Empresa', ubicacion: 'Ubicación', fecha: 'Fecha', resultado: 'Resultado'
+        });
+    };
+
     return (
         <div className="container" style={{ maxWidth: '800px', paddingBottom: '5rem' }}>
             {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
+            {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
                 <button onClick={() => navigate('/history')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
@@ -83,6 +102,11 @@ export default function AICameraHistory() {
                     <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Cámara IA — Historial</h1>
                     <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Inspecciones visuales con inteligencia artificial</p>
                 </div>
+                {history.length > 0 && (
+                    <button onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'transparent', border: '1px solid var(--color-border)', borderRadius: '10px', padding: '0.5rem 0.8rem', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', color: 'var(--color-text-muted)', flexShrink: 0 }}>
+                        <Download size={14} /> CSV
+                    </button>
+                )}
                 <button
                     onClick={() => navigate('/ai-camera')}
                     className="btn-primary"
@@ -91,6 +115,24 @@ export default function AICameraHistory() {
                     <Camera size={18} /> Nueva Inspección
                 </button>
             </div>
+
+            {/* Stats panel */}
+            {total > 0 && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.7rem', marginBottom: '1.5rem' }}>
+                    <div style={{ background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.2)', borderRadius: '12px', padding: '0.75rem 1rem', textAlign: 'center' }}>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#06b6d4' }}>{total}</div>
+                        <div style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>INSPECCIONES</div>
+                    </div>
+                    <div style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '12px', padding: '0.75rem 1rem', textAlign: 'center' }}>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#10b981' }}>{compliance}%</div>
+                        <div style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>COMPLIANCE EPP</div>
+                    </div>
+                    <div style={{ background: eppFail > 0 ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)', border: `1px solid ${eppFail > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)'}`, borderRadius: '12px', padding: '0.75rem 1rem', textAlign: 'center' }}>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 900, color: eppFail > 0 ? '#ef4444' : '#10b981' }}>{eppFail}</div>
+                        <div style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>SIN EPP</div>
+                    </div>
+                </div>
+            )}
 
             <div style={{ position: 'relative', marginBottom: '1.5rem' }}>
                 <Search style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} size={18} />
@@ -167,6 +209,16 @@ export default function AICameraHistory() {
                                     style={{ flex: 1, padding: '0.6rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'center' }}
                                 >
                                     <Camera size={16} /> Re-inspección
+                                </button>
+                                <button
+                                    onClick={() => setQrTarget({
+                                        text: `Inspección IA\nEmpresa: ${item.company || 'Local'}\nUbicación: ${item.location || '-'}\nFecha: ${item.date ? new Date(item.date).toLocaleDateString('es-AR') : '-'}\nResultado: ${item.type === 'general_risks' ? 'Análisis de entorno' : (item.ppeComplete ? 'EPP OK' : 'Falta EPP')}\n\nAsistente HYS — asistentehs.com`,
+                                        title: `Inspección — ${item.company || 'IA'}`
+                                    })}
+                                    style={{ padding: '0.6rem', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                    title="Generar QR"
+                                >
+                                    <QrCode size={16} />
                                 </button>
                                 <a
                                     href={`https://wa.me/?text=${encodeURIComponent(`📸 Inspección Visual con IA\n🏗️ Empresa: ${item.company || 'Local'}\n📍 Tipo: ${item.type === 'general_risks' ? 'Riesgos Generales' : 'Verificación EPP'}\n🛡️ Resultado: ${item.type === 'general_risks' ? 'Análisis de entorno' : (item.ppeComplete ? '✅ EPP OK' : '⚠️ Falta EPP')}\n\n📱 Generado con *Asistente HYS* — https://asistentehs.com`)}`}

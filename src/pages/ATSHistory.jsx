@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Trash2, FileText, Printer, Building2, Calendar, ShieldCheck, X, Share2, ClipboardList } from 'lucide-react';
+import { ArrowLeft, Search, Trash2, FileText, Printer, Building2, Calendar, ShieldCheck, X, Share2, ClipboardList, QrCode, Download } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
+import QRModal from '../components/QRModal';
+import { downloadCSV } from '../services/exportCsv';
 
 function DeleteConfirm({ onConfirm, onCancel }) {
     return (
@@ -33,6 +35,7 @@ export default function ATSHistory() {
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteTarget, setDeleteTarget] = useState(null);
+    const [qrTarget, setQrTarget] = useState(null);
 
     useEffect(() => {
         const historyRaw = localStorage.getItem('ats_history');
@@ -52,17 +55,35 @@ export default function ATSHistory() {
         item.obra?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+
+    const handleExportCSV = () => {
+        downloadCSV(filteredHistory.map(i => ({
+            empresa: i.empresa, obra: i.obra, fecha: i.fecha,
+            responsable: i.capatazNombre || '', tarea: i.tarea || ''
+        })), 'ats_historial', {
+            empresa: 'Empresa', obra: 'Obra/Proyecto', fecha: 'Fecha',
+            responsable: 'Responsable', tarea: 'Tarea'
+        });
+    };
+
     return (
         <div className="container" style={{ maxWidth: '800px', paddingBottom: '5rem' }}>
             {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
+            {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
+
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
                 <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
                     <ArrowLeft />
                 </button>
-                <div>
+                <div style={{ flex: 1 }}>
                     <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Historial de ATS</h1>
                     <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Análisis de Trabajo Seguro guardados</p>
                 </div>
+                {filteredHistory.length > 0 && (
+                    <button onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'transparent', border: '1px solid var(--color-border)', borderRadius: '10px', padding: '0.5rem 0.8rem', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', color: 'var(--color-text-muted)', flexShrink: 0 }}>
+                        <Download size={14} /> CSV
+                    </button>
+                )}
             </div>
 
             <div style={{ position: 'relative', marginBottom: '1.5rem' }}>
@@ -109,6 +130,13 @@ export default function ATSHistory() {
                                 >
                                     <FileText size={16} /> Ver / Editar
                                 </button>
+                                <button
+                                    onClick={() => setQrTarget({ text: `ATS - ${item.empresa}\nObra: ${item.obra}\nFecha: ${item.fecha}\nResponsable: ${item.capatazNombre || '-'}\n\nGenerado con Asistente HYS`, title: `ATS — ${item.empresa}` })}
+                                    style={{ padding: '0.6rem', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                    title="Generar QR"
+                                >
+                                    <QrCode size={16} />
+                                </button>
                                 <a
                                     href={`https://wa.me/?text=${encodeURIComponent(`📋 Análisis de Trabajo Seguro (ATS)\n🏗️ Empresa: ${item.empresa}\n🚧 Obra: ${item.obra}\n📅 Fecha: ${item.fecha}\n👷 Responsable: ${item.capatazNombre || '-'}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS con IA\n🔗 https://asistentehs.com`)}`}
                                     target="_blank" rel="noreferrer"
@@ -139,6 +167,6 @@ export default function ATSHistory() {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }
