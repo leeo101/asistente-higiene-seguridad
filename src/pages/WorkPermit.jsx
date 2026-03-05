@@ -389,7 +389,7 @@ export default function WorkPermit() {
 
                 {/* Signatures */}
                 <div style={{ marginTop: '3rem' }}>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-10">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-10 print:gap-6">
                         <div style={{ textAlign: 'center' }}>
                             <div style={{ height: '60px' }}></div>
                             <div style={{ borderTop: '2px solid #333', paddingTop: '10px' }}>
@@ -406,7 +406,7 @@ export default function WorkPermit() {
                                 <p style={{ margin: 0, fontSize: '0.6rem', color: '#666' }}>Mat.: {professional.license}</p>
                             </div>
                         </div>
-                        <div style={{ textAlign: 'center' }} className="sm:block hidden">
+                        <div style={{ textAlign: 'center' }} className="hidden sm:block print:block">
                             <div style={{ height: '60px' }}></div>
                             <div style={{ borderTop: '2px solid #333', paddingTop: '10px' }}>
                                 <p style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem' }}>FECHA DE CIERRE</p>
