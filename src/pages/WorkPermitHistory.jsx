@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Search, Calendar, Building2,
     Trash2, Eye, FileText, Printer, Share2,
-    Plus, KeySquare, Construction
+    Plus, KeySquare, Construction, Download
 } from 'lucide-react';
+import { downloadCSV } from '../services/exportCsv';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
 import { permitTypes } from '../data/workPermits';
@@ -48,6 +49,28 @@ export default function WorkPermitHistory() {
         (permitTypes.find(t => t.id === h.tipoPermiso)?.label || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const handleExportCSV = () => {
+        downloadCSV(filteredHistory.map(i => ({
+            id: i.id,
+            fecha: i.fecha,
+            empresa: i.empresa,
+            obra: i.obra,
+            tipo: permitTypes.find(t => t.id === i.tipoPermiso)?.label || 'Permiso',
+            desde: i.validezDesde,
+            hasta: i.validezHasta,
+            creado: new Date(i.createdAt).toLocaleString('es-AR')
+        })), 'permisos_de_trabajo', {
+            id: 'ID Permiso',
+            fecha: 'Fecha de Alta',
+            empresa: 'Empresa',
+            obra: 'Obra',
+            tipo: 'Tipo de Tarea',
+            desde: 'Hora de Inicio',
+            hasta: 'Hora de Fin',
+            creado: 'Fecha Sistema'
+        }, 'Reporte de Permisos de Trabajo');
+    };
+
     return (
         <div className="container" style={{ maxWidth: '900px', paddingBottom: '8rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
@@ -58,6 +81,11 @@ export default function WorkPermitHistory() {
                     <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Historial de Permisos</h1>
                     <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Registro de tareas críticas</p>
                 </div>
+                {filteredHistory.length > 0 && (
+                    <button onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer', color: 'white', flexShrink: 0, boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
+                        <Download size={14} /> Descargar Excel
+                    </button>
+                )}
                 <button
                     onClick={() => navigate('/work-permit')}
                     style={{ background: 'var(--color-primary)', color: 'white', border: 'none', padding: '0.7rem 1.2rem', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}

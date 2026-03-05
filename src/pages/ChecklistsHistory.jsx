@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Trash2, FileText, Calendar, Building2, ClipboardCheck, Share2 } from 'lucide-react';
+import { ArrowLeft, Search, Trash2, FileText, Calendar, Building2, ClipboardCheck, Share2, Download } from 'lucide-react';
+import { downloadCSV } from '../services/exportCsv';
 import { useSync } from '../contexts/SyncContext';
 
 function DeleteConfirm({ onConfirm, onCancel }) {
@@ -54,6 +55,44 @@ export default function ChecklistsHistory() {
         item.serial?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const handleExportCSV = () => {
+        downloadCSV(filteredHistory.map(i => {
+            const stored = localStorage.getItem(`checklist_${i.id}`);
+            let status = 'Aprobado';
+            if (stored) {
+                try {
+                    const parsed = JSON.parse(stored);
+                    const items = parsed.items || parsed.checks || parsed || [];
+                    const arr = Array.isArray(items) ? items : Object.values(items);
+                    const nok = arr.filter(c => c.value === 'NO' || c.estado === 'NO' || c.checked === false || c.result === 'no').length;
+                    const obs = arr.filter(c => c.observation || c.observacion).length;
+                    if (arr.length === 0) status = 'Vacío';
+                    else if (nok > 0) status = 'Rechazado';
+                    else if (obs > 0) status = 'Condicionado';
+                } catch { /* defaults to Aprobado */ }
+            }
+            return {
+                id: i.id,
+                fecha: new Date(i.fecha).toLocaleDateString('es-AR'),
+                equipo: i.equipo,
+                marca: i.marca,
+                modelo: i.modelo,
+                serial: i.serial,
+                empresa: i.empresa,
+                estado: status
+            };
+        }), 'checklists_herramientas', {
+            id: 'ID Lista',
+            fecha: 'Fecha Inspección',
+            equipo: 'Equipo / Herramienta',
+            marca: 'Marca',
+            modelo: 'Modelo',
+            serial: 'Número de Serie',
+            empresa: 'Empresa',
+            estado: 'Estado General'
+        }, 'Reporte de Checklists y Herramientas');
+    };
+
     return (
         <div className="container" style={{ maxWidth: '800px', paddingBottom: '5rem' }}>
             {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
@@ -61,10 +100,15 @@ export default function ChecklistsHistory() {
                 <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
                     <ArrowLeft />
                 </button>
-                <div>
+                <div style={{ flex: 1 }}>
                     <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Historial de Checklists</h1>
                     <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Controles de herramientas y maquinaria</p>
                 </div>
+                {filteredHistory.length > 0 && (
+                    <button onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer', color: 'white', flexShrink: 0, boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
+                        <Download size={14} /> Descargar Excel
+                    </button>
+                )}
             </div>
 
             <div style={{ position: 'relative', marginBottom: '1.5rem' }}>
