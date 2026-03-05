@@ -113,8 +113,8 @@ export default function AICameraHistory() {
                     <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Inspecciones visuales con inteligencia artificial</p>
                 </div>
                 {history.length > 0 && (
-                    <button onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'transparent', border: '1px solid var(--color-border)', borderRadius: '10px', padding: '0.5rem 0.8rem', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', color: 'var(--color-text-muted)', flexShrink: 0 }}>
-                        <Download size={14} /> CSV
+                    <button onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer', color: 'white', flexShrink: 0, boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
+                        <Download size={14} /> Descargar Excel
                     </button>
                 )}
                 <button

@@ -102,8 +102,8 @@ export default function PPETracker() {
                     <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-text-muted)' }}>Vencimientos de elementos de protección personal</p>
                 </div>
                 {items.length > 0 && (
-                    <button onClick={handleExport} style={{ background: 'transparent', border: '1px solid var(--color-border)', borderRadius: '10px', padding: '0.5rem 0.8rem', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', color: 'var(--color-text-muted)' }}>
-                        CSV
+                    <button onClick={handleExport} style={{ background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer', color: 'white', boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
+                        Descargar Excel
                     </button>
                 )}
             </div>
