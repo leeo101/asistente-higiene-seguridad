@@ -308,11 +308,11 @@ export default function AICamera() {
                                         </div>
                                     )}
                                 </div>
-                                <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-                                    <button onClick={handleRetry} className="btn-outline" style={{ flex: '1 1 auto', maxWidth: '45%', borderColor: '#fff', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', height: '48px', margin: 0 }}>
+                                <div style={{ display: 'flex', gap: '0.8rem', width: '100%', justifyContent: 'center' }}>
+                                    <button onClick={handleRetry} className="btn-outline" style={{ flex: 1, borderColor: '#fff', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', height: '48px', margin: 0 }}>
                                         <RefreshCw size={18} /> Reintentar
                                     </button>
-                                    <button onClick={handleSaveReport} className="btn-primary" style={{ flex: '1 1 auto', maxWidth: '50%', height: '48px', margin: 0 }}>Generar Informe</button>
+                                    <button onClick={handleSaveReport} className="btn-primary" style={{ flex: 1, height: '48px', margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Generar Informe</button>
                                 </div>
                             </div>
                         )}
