@@ -91,7 +91,7 @@ export default function PPETracker() {
     const expiring = items.filter(i => { const d = getDaysUntilExpiry(i.purchaseDate, i.lifeMonths); return d !== null && d >= 0 && d <= 30; }).length;
 
     return (
-        <div className="container" style={{ maxWidth: '700px', paddingBottom: '4rem', paddingTop: '5rem' }}>
+        <div className="container" style={{ maxWidth: '700px', paddingBottom: '4rem', paddingTop: '6rem' }}>
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
                 <button onClick={() => navigate(-1)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)', padding: '0.5rem' }}>
