@@ -26,7 +26,7 @@ export async function downloadCSV(rows, filename, columnMap = null, title = "Rep
 
         // Añadir logo (ajustar coordenadas según cantidad de columnas para ponerlo arriba a la derecha)
         const logoId = workbook.addImage({
-            base64: `data:image/png;base64,${ASISTENTE_HYS_LOGO_BASE64}`,
+            base64: ASISTENTE_HYS_LOGO_BASE64,
             extension: 'png',
         });
 
