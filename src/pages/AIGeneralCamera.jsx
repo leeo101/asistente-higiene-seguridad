@@ -199,27 +199,42 @@ export default function AIGeneralCamera() {
 
     const handleSaveReport = () => {
         requirePro(() => {
+            const currentReport = JSON.parse(localStorage.getItem('current_report') || '{}');
+            const company = currentReport.company || currentReport.empresa || 'Empresa Local';
+            const location = currentReport.location || currentReport.ubicacion || 'Inspección in situ';
+
             const report = {
                 id: Date.now(),
                 image: capturedImage,
                 analysis: analysisResult,
                 date: new Date().toISOString(),
                 type: 'general_risks',
-                company: 'Local',
-                location: 'Inspección IA',
+                company,
+                location,
                 findingsCount: analysisResult?.detections?.length || 0
             };
-            // Save as current inspection for immediate view
+
+            // Save FULL report for detail view
             localStorage.setItem('current_ai_inspection', JSON.stringify(report));
 
-            // Add FULL report to history so it can be restored later
+            // Save ONLY lightweight summary to history (no image, no full analysis)
             const history = JSON.parse(localStorage.getItem('ai_camera_history') || '[]');
-            history.unshift(report);
-            localStorage.setItem('ai_camera_history', JSON.stringify(history));
+            if (!history.find(h => h.id === report.id)) {
+                history.unshift({
+                    id: report.id,
+                    date: report.date,
+                    type: report.type,
+                    company: report.company,
+                    location: report.location,
+                    findingsCount: report.findingsCount
+                });
+                localStorage.setItem('ai_camera_history', JSON.stringify(history));
+            }
 
             navigate('/ai-report');
         });
     };
+
 
     return (
         <div className="container" style={{ paddingBottom: '3rem', position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>

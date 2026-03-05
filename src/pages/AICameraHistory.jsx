@@ -47,13 +47,19 @@ export default function AICameraHistory() {
             const valid = parsed.filter(item => {
                 if (!item || !item.id) return false;
                 if (!item.date) return false;
-                // Must have at least one meaningful field
-                const hasData = item.company || item.location || item.analysis || item.type;
-                return !!hasData;
+                // Must have a non-trivially-empty company or location or type
+                const company = (item.company || '').trim();
+                const location = (item.location || '').trim();
+                const hasType = !!item.type;
+                const hasCompany = company.length > 0;
+                const hasLocation = location.length > 0;
+                return hasType || hasCompany || hasLocation;
             });
-            // Auto-cleanup: remove invalid records from localStorage silently
+            // Auto-cleanup: remove invalid records from localStorage AND Firebase
             if (valid.length !== parsed.length) {
                 localStorage.setItem('ai_camera_history', JSON.stringify(valid));
+                // Push cleaned array to cloud so it doesn't come back
+                syncCollection('ai_camera_history', valid);
             }
             setHistory(valid);
         } catch {
