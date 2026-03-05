@@ -258,7 +258,12 @@ export default function LightingReport() {
             </div>
 
             {showShare && (
-                <ShareModal url={window.location.href} onClose={() => setShowShare(false)} />
+                <ShareModal
+                    open={showShare}
+                    onClose={() => setShowShare(false)}
+                    title={`Estudio de Iluminación - ${formData.empresa}`}
+                    text={`🔦 Estudio de Iluminación\n🏢 Empresa: ${formData.empresa}\n📍 Sector: ${formData.sector}\n💡 Requerido: ${formData.luxRequerido} Lux | Promedio Medido: ${results.promedioLux} Lux\n\nGenerado con Asistente HYS`}
+                />
             )}
 
             {/* ENCABEZADO PARA IMPRESIÓN */}
