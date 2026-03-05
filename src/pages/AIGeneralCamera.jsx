@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Camera, RefreshCw, CheckCircle, AlertTriangle, ShieldCheck, Zap, ZapOff, FlipHorizontal, Search } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { usePaywall } from '../hooks/usePaywall';
+import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function AIGeneralCamera() {
     const navigate = useNavigate();
     const { requirePro } = usePaywall();
+    const { syncCollection } = useSync();
     useDocumentTitle('Detección de Riesgos IA');
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
@@ -229,6 +231,7 @@ export default function AIGeneralCamera() {
                     findingsCount: report.findingsCount
                 });
                 localStorage.setItem('ai_camera_history', JSON.stringify(history));
+                syncCollection('ai_camera_history', history);
             }
 
             navigate('/ai-report');
