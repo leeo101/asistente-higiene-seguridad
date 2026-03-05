@@ -207,7 +207,7 @@ export default function GlobalSearch({ onClose }) {
                 </div>
 
                 {/* Footer hint */}
-                <div style={{ padding: '0.6rem 1.2rem', borderTop: '1px solid var(--color-border)', display: 'flex', gap: '1rem', fontSize: '0.72rem', color: 'var(--color-text-muted)' }}>
+                <div className="hidden sm:flex" style={{ padding: '0.6rem 1.2rem', borderTop: '1px solid var(--color-border)', gap: '1rem', fontSize: '0.72rem', color: 'var(--color-text-muted)' }}>
                     <span>↵ para ir al módulo</span>
                     <span>ESC para cerrar</span>
                 </div>
