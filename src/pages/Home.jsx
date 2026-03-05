@@ -13,6 +13,7 @@ import { usePaywall } from '../hooks/usePaywall';
 import AdBanner from '../components/AdBanner';
 import OnboardingModal from '../components/OnboardingModal';
 import StickyCtaBanner from '../components/StickyCtaBanner';
+import StatsBar from '../components/StatsBar';
 
 function FaqSection() {
     const [open, setOpen] = React.useState(null);
@@ -96,6 +97,7 @@ const quickLinks = [
     { to: '/checklists', icon: <ClipboardList size={26} />, label: 'Checklists', sub: 'Herramientas y Equipos', color: '#14b8a6', bg: 'rgba(20,184,166,0.1)' },
     { to: '/work-permit', icon: <KeySquare size={26} />, label: 'Permisos', sub: 'Tareas Críticas', color: '#2563eb', bg: 'rgba(37,99,235,0.1)' },
     { to: '/ai-general-camera', icon: <ShieldAlert size={26} />, label: 'Riesgos IA', sub: 'Análisis de Entorno', color: '#f43f5e', bg: 'rgba(244, 63, 94, 0.1)' },
+    { to: '/ppe-tracker', icon: <HardHat size={26} />, label: 'Control EPP', sub: 'Vencimientos', color: '#10b981', bg: 'rgba(16,185,129,0.08)' },
 ];
 
 export default function Home() {
@@ -283,8 +285,16 @@ export default function Home() {
                 </div>
             </div>
 
+            {/* ── STATS BAR — solo usuarios logueados ── */}
+            {currentUser && (
+                <div style={{ maxWidth: '700px', margin: '0 auto', padding: '1.5rem 1rem 0' }}>
+                    <StatsBar />
+                </div>
+            )}
+
             {/* ── Pro/Free Banner ── */}
             <div style={{ maxWidth: '700px', margin: '0 auto', padding: '0 1rem' }}>
+
                 {isSubscribed ? (
                     daysLeft !== null && daysLeft <= 7 ? (
                         <Link to="/subscribe" style={{ textDecoration: 'none' }}>
