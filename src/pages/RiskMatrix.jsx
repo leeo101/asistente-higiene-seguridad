@@ -112,7 +112,7 @@ export default function RiskMatrix() {
     };
 
     return (
-        <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '2rem 1rem', paddingBottom: '8rem' }}>
+        <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '3rem 1rem 8rem 1rem' }}>
             <ShareModal
                 open={showShare}
                 onClose={() => setShowShare(false)}
