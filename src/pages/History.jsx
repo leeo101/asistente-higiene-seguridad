@@ -75,6 +75,7 @@ export default function History() {
             aiCamera: JSON.parse(localStorage.getItem('ai_camera_history') || '[]').length,
             lighting: JSON.parse(localStorage.getItem('lighting_history') || '[]').length,
             workPermits: JSON.parse(localStorage.getItem('work_permits_history') || '[]').length,
+            ppeTracker: JSON.parse(localStorage.getItem('ppe_items') || '[]').length,
         });
     };
 
@@ -141,6 +142,7 @@ export default function History() {
         { title: 'Checklist Herramientas', icon: <ClipboardList size={24} />, color: '#06b6d4', bg: 'rgba(6,182,212,0.1)', path: '/checklists-history', countKey: 'checklists' },
         { title: 'Cámara IA — Inspección Visual', icon: <Camera size={24} />, color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', path: '/ai-camera-history', countKey: 'aiCamera' },
         { title: 'Consultas Asesor IA', icon: <Bot size={24} />, color: '#a855f7', bg: 'rgba(168,85,247,0.1)', path: '/ai-history', countKey: 'ai' },
+        { title: 'Control de EPP', icon: <HardHat size={24} />, color: '#10b981', bg: 'rgba(16,185,129,0.1)', path: '/ppe-tracker', countKey: 'ppeTracker' },
     ];
 
     // ─── HUB ──────────────────────────────────────────────────────

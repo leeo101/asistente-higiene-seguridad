@@ -12,7 +12,6 @@ const navItems = [
     { to: '/', icon: <Home size={18} />, label: 'Inicio', always: true },
     { to: '/profile', icon: <User size={18} />, label: 'Mi Perfil', auth: true },
     { to: '/history', icon: <History size={18} />, label: 'Historiales', auth: true },
-    { to: '/ppe-tracker', icon: <HardHat size={18} />, label: 'Control de EPP', auth: true },
     { to: '/calendar', icon: <Calendar size={18} />, label: 'Calendario', always: true },
     { to: '/settings', icon: <Settings size={18} />, label: 'Configuración', auth: true },
     { to: '/privacy', icon: <ShieldCheck size={18} />, label: 'Privacidad', always: true },
