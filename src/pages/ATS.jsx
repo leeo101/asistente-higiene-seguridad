@@ -331,12 +331,12 @@ export default function ATS() {
                     padding: '2.5rem',
                     background: 'var(--color-surface)',
                     borderRadius: '24px',
-                    border: '1px solid #EBECF0',
+                    border: '1px solid var(--color-border)',
                     display: 'flex',
                     justifyContent: 'space-between',
                     gap: '2rem',
                     alignItems: 'center',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
                         <button onClick={() => navigate(-1)} style={{ padding: '0.6rem', background: 'var(--color-background)', borderRadius: '12px', border: 'none', cursor: 'pointer', color: 'var(--color-text)', display: 'flex' }}>
@@ -352,7 +352,7 @@ export default function ATS() {
                     </div>
                 </div>
 
-                <div className="bg-white text-black p-4 sm:p-12 shadow-2xl mx-auto print-area border border-slate-200 rounded-2xl print:mb-0 print:shadow-none print:border-none" style={{ width: '100%', maxWidth: '950px', boxSizing: 'border-box' }}>
+                <div className="card print-area" style={{ width: '100%', maxWidth: '950px', boxSizing: 'border-box', padding: '1rem', smPadding: '3rem', margin: '0 auto' }}>
 
                     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottom: '4px solid var(--color-border)', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
                         {/* Top Left Text */}
@@ -605,7 +605,7 @@ export default function ATS() {
                             <Pencil size={24} /> Firmas y Autorizaciones
                         </h3>
 
-                        <div className="no-print mb-8 p-6 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-sm font-bold text-slate-700">
+                        <div className="no-print mb-8 p-6 bg-slate-50/5 border border-[var(--color-border)] rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-sm font-bold text-slate-700">
                             <div className="text-center">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
                             <div className="flex gap-4 flex-wrap justify-center">
                                 <label className="flex items-center gap-2 cursor-pointer">

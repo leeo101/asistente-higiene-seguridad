@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Search, Calendar, Building2,
     Trash2, Eye, FileText, Printer, Share2,
-    Plus, KeySquare, Construction, Download
+    Plus, KeySquare, Construction, Download, QrCode
 } from 'lucide-react';
+import QRModal from '../components/QRModal';
 import { downloadCSV } from '../services/exportCsv';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
@@ -15,6 +16,7 @@ export default function WorkPermitHistory() {
     const { syncCollection } = useSync();
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [qrTarget, setQrTarget] = useState(null);
 
     useEffect(() => {
         const saved = localStorage.getItem('work_permits_history');
@@ -73,25 +75,30 @@ export default function WorkPermitHistory() {
 
     return (
         <div className="container" style={{ maxWidth: '900px', paddingBottom: '8rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
-                    <ArrowLeft />
-                </button>
-                <div style={{ flex: 1 }}>
-                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Historial de Permisos</h1>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Registro de tareas críticas</p>
-                </div>
-                {filteredHistory.length > 0 && (
-                    <button onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', flexShrink: 0, boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
-                        <Download size={14} /> Descargar Excel
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1, minWidth: '240px' }}>
+                    <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <ArrowLeft />
                     </button>
-                )}
-                <button
-                    onClick={() => navigate('/work-permit')}
-                    style={{ background: 'var(--color-primary)', color: '#ffffff', border: 'none', padding: '0.7rem 1.2rem', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                >
-                    <Plus size={18} /> NUEVO
-                </button>
+                    <div>
+                        <h1 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, lineHeight: 1.2 }}>Historial de Permisos</h1>
+                        <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Registro de tareas críticas</p>
+                    </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    {filteredHistory.length > 0 && (
+                        <button onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', flexShrink: 0, boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
+                            <Download size={14} /> EXCEL
+                        </button>
+                    )}
+                    <button
+                        onClick={() => navigate('/work-permit')}
+                        className="btn-primary"
+                        style={{ padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', width: 'auto', margin: 0 }}
+                    >
+                        <Plus size={18} /> NUEVO
+                    </button>
+                </div>
             </div>
 
             <div style={{ position: 'relative', marginBottom: '2rem' }}>
@@ -109,7 +116,8 @@ export default function WorkPermitHistory() {
                 {filteredHistory.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '4rem 2rem', background: 'var(--color-surface)', borderRadius: '20px', border: '1px dashed var(--color-border)' }}>
                         <Construction size={48} style={{ margin: '0 auto 1rem', opacity: 0.3 }} />
-                        <p style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>No se encontraron permisos registrados.</p>
+                        <p style={{ color: 'var(--color-text-muted)', fontWeight: 600, marginBottom: '1.5rem' }}>No se encontraron permisos registrados.</p>
+                        <button onClick={() => navigate('/work-permit')} className="btn-primary" style={{ margin: '0 auto' }}>Crear nuevo Permiso</button>
                     </div>
                 ) : (
                     filteredHistory.map(item => (
@@ -132,6 +140,13 @@ export default function WorkPermitHistory() {
                                 <button onClick={() => navigate('/work-permit', { state: { editData: item } })} style={{ padding: '0.6rem', background: 'var(--color-background)', border: 'none', borderRadius: '10px', cursor: 'pointer', color: 'var(--color-text)' }}>
                                     <Eye size={18} />
                                 </button>
+                                <button
+                                    onClick={() => setQrTarget({ text: `Permiso de Trabajo - ${item.empresa}\nObra: ${item.obra}\nFecha: ${item.fecha}\nTipo: ${permitTypes.find(t => t.id === item.tipoPermiso)?.label || 'Permiso'}\n\nGenerado con Asistente HYS`, title: `Permiso — ${item.empresa}` })}
+                                    style={{ padding: '0.6rem', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: '10px', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                    title="Generar QR"
+                                >
+                                    <QrCode size={18} />
+                                </button>
                                 <a
                                     href={`https://wa.me/?text=${encodeURIComponent(`🔐 Permiso de Trabajo\n🏗️ Empresa: ${item.empresa}\n🚧 Obra: ${item.obra}\n📅 Fecha: ${item.fecha}\n📋 Tipo: ${permitTypes.find(t => t.id === item.tipoPermiso)?.label || 'Permiso'}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS con IA\n🔗 https://asistentehs.com`)}`}
                                     target="_blank" rel="noreferrer"
@@ -147,6 +162,14 @@ export default function WorkPermitHistory() {
                     ))
                 )}
             </div>
+
+            {qrTarget && (
+                <QRModal
+                    text={qrTarget.text}
+                    title={qrTarget.title}
+                    onClose={() => setQrTarget(null)}
+                />
+            )}
         </div>
     );
 }

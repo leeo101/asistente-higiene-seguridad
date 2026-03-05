@@ -3,8 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import {
     ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon,
     AlertTriangle, Bell, Trash2, Clock, CheckCircle2,
-    CalendarDays, Award, Construction, Scale, X, BellDot
+    CalendarDays, Award, Construction, Scale, X, BellDot, ShieldAlert
 } from 'lucide-react';
+import {
+    requestNotificationPermission,
+    initializeSchedules,
+    scheduleReminder,
+    cancelReminder,
+    isNotificationDenied
+} from '../services/notifications';
 
 export default function SafetyCalendar() {
     const navigate = useNavigate();
@@ -13,7 +20,7 @@ export default function SafetyCalendar() {
     const [currentYear, setCurrentYear] = useState(today.getFullYear());
     const [events, setEvents] = useState([]);
     const [isAddingEvent, setIsAddingEvent] = useState(false);
-    const [lastNotified, setLastNotified] = useState({}); // To avoid duplicate notifications in the same minute
+    const [permissionStatus, setPermissionStatus] = useState(Notification.permission);
     const [newEvent, setNewEvent] = useState({
         title: '',
         date: new Date().toISOString().split('T')[0],
@@ -37,60 +44,29 @@ export default function SafetyCalendar() {
         { title: 'Presentación de Relevamiento de Agentes de Riesgo', date: '2026-04-15', time: '10:00', type: 'Legal', description: 'Res. 81/19' }
     ];
 
-    // Notification permission request
+    // Load events and setup schedules
     useEffect(() => {
-        if ("Notification" in window) {
-            if (Notification.permission !== "granted" && Notification.permission !== "denied") {
-                Notification.requestPermission();
-            }
-        }
-    }, []);
-
-    // Load events and setup interval for notifications
-    useEffect(() => {
+        let currentEvents = [];
         const savedEvents = localStorage.getItem('safety_calendar_events');
         if (savedEvents) {
-            setEvents(JSON.parse(savedEvents));
+            currentEvents = JSON.parse(savedEvents);
         } else {
-            setEvents(initialDates);
+            currentEvents = initialDates;
             localStorage.setItem('safety_calendar_events', JSON.stringify(initialDates));
         }
-
-        const interval = setInterval(() => {
-            checkNotifications();
-        }, 30000); // Check every 30 seconds
-
-        return () => clearInterval(interval);
+        setEvents(currentEvents);
+        initializeSchedules(currentEvents);
     }, []);
 
-    const checkNotifications = () => {
-        const now = new Date();
-        const dateStr = now.toISOString().split('T')[0];
-        const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-
-        const currentEvents = events.filter(e => e.date === dateStr && e.time === timeStr);
-
-        currentEvents.forEach(e => {
-            const eventId = `${e.date}-${e.time}-${e.title}`;
-            if (!lastNotified[eventId]) {
-                showNotification(e);
-                setLastNotified(prev => ({ ...prev, [eventId]: true }));
-            }
-        });
-    };
-
-    const showNotification = (event) => {
-        if ("Notification" in window && Notification.permission === "granted") {
-            new Notification("Aviso de Seguridad", {
-                body: `${event.title} (${event.time} hs)`,
-                icon: "/logo192.png" // Fallback icon
-            });
-        }
-        // Also show alert in console for debugging
-        console.log("NOTIFICATION TRIGGERED:", event);
+    const handleRequestPermission = async () => {
+        const granted = await requestNotificationPermission();
+        setPermissionStatus(Notification.permission);
     };
 
     const deleteEvent = (eventToDelete) => {
+        const eventId = eventToDelete.id || `${eventToDelete.date}-${eventToDelete.time}-${eventToDelete.title}`;
+        cancelReminder(eventId);
+
         const updatedEvents = events.filter(e => e !== eventToDelete);
         setEvents(updatedEvents);
         localStorage.setItem('safety_calendar_events', JSON.stringify(updatedEvents));
@@ -327,10 +303,13 @@ export default function SafetyCalendar() {
 
 
     const handleAddEvent = () => {
-        if (!newEvent.title || !newEvent.date) return;
-        const updatedEvents = [...events, newEvent];
+        const eventId = `event-${Date.now()}`;
+        const itemToSave = { ...newEvent, id: eventId };
+        const updatedEvents = [...events, itemToSave];
+
         setEvents(updatedEvents);
         localStorage.setItem('safety_calendar_events', JSON.stringify(updatedEvents));
+        scheduleReminder(eventId, itemToSave.date, itemToSave.time, itemToSave.title);
         setIsAddingEvent(false);
         setNewEvent({
             title: '',
@@ -348,6 +327,23 @@ export default function SafetyCalendar() {
 
     return (
         <div className="container" style={{ paddingBottom: '5rem', maxWidth: '1200px' }}>
+            {permissionStatus === 'default' && (
+                <div style={{ background: 'var(--color-primary)', color: 'white', padding: '1rem', borderRadius: '12px', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                        <Bell size={20} />
+                        <span style={{ fontSize: '0.9rem', fontWeight: 700 }}>Activa las notificaciones para no olvidar tus tareas.</span>
+                    </div>
+                    <button onClick={handleRequestPermission} style={{ background: 'white', color: 'var(--color-primary)', border: 'none', padding: '0.5rem 1rem', borderRadius: '8px', fontWeight: 800, cursor: 'pointer', fontSize: '0.8rem' }}>ACTIVAR</button>
+                </div>
+            )}
+
+            {isNotificationDenied() && (
+                <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444', padding: '1rem', borderRadius: '12px', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                    <ShieldAlert size={20} />
+                    <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Las notificaciones están bloqueadas en tu navegador. Habilitalas en la configuración si quieres recibir alertas.</span>
+                </div>
+            )}
+
             {renderHeader()}
 
             <div className="calendar-layout-container">
@@ -481,7 +477,7 @@ export default function SafetyCalendar() {
                     background: 'rgba(0,0,0,0.7)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem',
                     backdropFilter: 'blur(5px)'
                 }}>
-                    <div className="card" style={{ width: '100%', maxWidth: '480px', padding: '2.5rem', borderRadius: '24px', position: 'relative' }}>
+                    <div className="card" style={{ width: '100%', maxWidth: '480px', padding: '2.5rem', borderRadius: '24px', position: 'relative', background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}>
                         <button onClick={() => setIsAddingEvent(false)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'transparent', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer' }}>
                             <X size={24} />
                         </button>
@@ -499,7 +495,7 @@ export default function SafetyCalendar() {
                                     value={newEvent.title}
                                     onChange={e => setNewEvent({ ...newEvent, title: e.target.value })}
                                     placeholder="Ej: Recarga de Extintores..."
-                                    style={{ borderRadius: '12px', padding: '1rem', width: '100%' }}
+                                    style={{ borderRadius: '12px', padding: '1rem', width: '100%', background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}
                                 />
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -509,7 +505,7 @@ export default function SafetyCalendar() {
                                         type="date"
                                         value={newEvent.date}
                                         onChange={e => setNewEvent({ ...newEvent, date: e.target.value })}
-                                        style={{ borderRadius: '12px', padding: '1rem', width: '100%' }}
+                                        style={{ borderRadius: '12px', padding: '1rem', width: '100%', background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}
                                     />
                                 </div>
                                 <div>
@@ -518,7 +514,7 @@ export default function SafetyCalendar() {
                                         type="time"
                                         value={newEvent.time}
                                         onChange={e => setNewEvent({ ...newEvent, time: e.target.value })}
-                                        style={{ borderRadius: '12px', padding: '1rem', width: '100%' }}
+                                        style={{ borderRadius: '12px', padding: '1rem', width: '100%', background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}
                                     />
                                 </div>
                             </div>
@@ -527,7 +523,7 @@ export default function SafetyCalendar() {
                                 <select
                                     value={newEvent.type}
                                     onChange={e => setNewEvent({ ...newEvent, type: e.target.value })}
-                                    style={{ borderRadius: '12px', padding: '1rem', width: '100%', appearance: 'none', background: 'var(--color-surface)' }}
+                                    style={{ borderRadius: '12px', padding: '1rem', width: '100%', appearance: 'none', background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}
                                 >
                                     {Object.entries(eventTypes).map(([key, info]) => (
                                         <option key={key} value={key}>{info.label}</option>
@@ -545,7 +541,7 @@ export default function SafetyCalendar() {
                                     }}
                                     onChange={e => setNewEvent({ ...newEvent, description: e.target.value })}
                                     placeholder="Detalles adicionales sobre esta agenda..."
-                                    style={{ minHeight: '80px', borderRadius: '12px', padding: '1rem', width: '100%', resize: 'none' }}
+                                    style={{ minHeight: '80px', borderRadius: '12px', padding: '1rem', width: '100%', resize: 'none', background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}
                                 />
                             </div>
                             <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>

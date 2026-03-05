@@ -71,17 +71,19 @@ export default function ATSHistory() {
             {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
             {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
-                    <ArrowLeft />
-                </button>
-                <div style={{ flex: 1 }}>
-                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Historial de ATS</h1>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Análisis de Trabajo Seguro guardados</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1, minWidth: '240px' }}>
+                    <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <ArrowLeft />
+                    </button>
+                    <div>
+                        <h1 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, lineHeight: 1.2 }}>Historial de ATS</h1>
+                        <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Análisis de Trabajo Seguro guardados</p>
+                    </div>
                 </div>
                 {filteredHistory.length > 0 && (
-                    <button onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', flexShrink: 0, boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
-                        <Download size={14} /> Descargar Excel
+                    <button onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', flexShrink: 0, boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
+                        <Download size={14} /> EXCEL
                     </button>
                 )}
             </div>
@@ -163,10 +165,19 @@ export default function ATSHistory() {
                 ) : (
                     <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
                         <ClipboardList size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
-                        <p>No se encontraron registros de ATS.</p>
+                        <p style={{ marginBottom: '1.5rem' }}>No se encontraron registros de ATS.</p>
+                        <button onClick={() => navigate('/ats')} className="btn-primary" style={{ margin: '0 auto' }}>Crear mi primer ATS</button>
                     </div>
                 )}
             </div>
+
+            {qrTarget && (
+                <QRModal
+                    text={qrTarget.text}
+                    title={qrTarget.title}
+                    onClose={() => setQrTarget(null)}
+                />
+            )}
         </div >
     );
 }

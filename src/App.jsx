@@ -246,7 +246,7 @@ function App() {
                 <Menu size={22} />
               </button>
               <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', textDecoration: 'none', color: 'white', flex: 1 }}>
-                <img src="/logo.png" alt="Logo" style={{ width: '34px', height: '34px', objectFit: 'contain', filter: 'brightness(0) invert(1) drop-shadow(0 0 8px rgba(99,179,237,0.6))' }} />
+                <img src="/logo.png" alt="Logo" style={{ width: '38px', height: '38px', objectFit: 'contain' }} />
                 <h1 className="header-title" style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: 'white', letterSpacing: '-0.3px' }}>Asistente HYS</h1>
               </Link>
               {/* Global Search button */}
@@ -330,6 +330,8 @@ function App() {
             <Route path="/admin/requests" element={<ProtectedRoute><AdminRequests /></ProtectedRoute>} />
             <Route path="/ppe-tracker" element={<ProtectedRoute><PPETracker /></ProtectedRoute>} />
 
+            <Route path="/risk-matrix-history" element={<ProtectedRoute><History view="matrices" /></ProtectedRoute>} />
+            <Route path="/reports-history" element={<ProtectedRoute><History view="reports" /></ProtectedRoute>} />
             <Route path="/matrices" element={<Navigate to="/risk-matrix" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

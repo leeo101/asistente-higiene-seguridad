@@ -99,13 +99,15 @@ export default function PPETracker() {
                 </button>
                 <div style={{ flex: 1 }}>
                     <h1 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800 }}>🦺 Control de EPP</h1>
-                    <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-text-muted)' }}>Vencimientos de elementos de protección personal</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.2rem', flexWrap: 'wrap' }}>
+                        <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-text-muted)' }}>Vencimientos de elementos de protección personal</p>
+                        {items.length > 0 && (
+                            <button onClick={handleExport} style={{ background: 'transparent', border: '1px solid #36B37E', borderRadius: '6px', padding: '0.2rem 0.6rem', fontSize: '0.7rem', fontWeight: 800, cursor: 'pointer', color: '#36B37E', transition: 'all 0.2s' }}>
+                                Descargar Excel
+                            </button>
+                        )}
+                    </div>
                 </div>
-                {items.length > 0 && (
-                    <button onClick={handleExport} style={{ background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
-                        Descargar Excel
-                    </button>
-                )}
             </div>
 
             {/* Alert summary */}

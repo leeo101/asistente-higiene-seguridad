@@ -192,14 +192,26 @@ export default function AIHistory() {
 
     return (
         <div className="container" style={{ paddingBottom: '3rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                <button onClick={() => navigate('/history')} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--color-text)', cursor: 'pointer' }}>
-                    <ArrowLeft size={24} />
-                </button>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Sparkles size={24} color="var(--color-primary)" />
-                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Historial Consultas IA</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1, minWidth: '240px' }}>
+                    <button onClick={() => navigate('/history')} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--color-text)', cursor: 'pointer' }}>
+                        <ArrowLeft size={24} />
+                    </button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                        <Sparkles size={24} color="var(--color-primary)" />
+                        <div>
+                            <h1 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, lineHeight: 1.2 }}>Historial Consultas IA</h1>
+                            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Asesoría técnica inteligente</p>
+                        </div>
+                    </div>
                 </div>
+                <button
+                    onClick={() => navigate('/ai-advisor')}
+                    className="btn-primary"
+                    style={{ padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', width: 'auto', margin: 0 }}
+                >
+                    <Sparkles size={18} /> NUEVO
+                </button>
             </div>
 
             <div style={{ position: 'relative', marginBottom: '1.5rem' }}>
@@ -264,7 +276,8 @@ export default function AIHistory() {
                 ) : (
                     <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
                         <Sparkles size={48} style={{ opacity: 0.1, marginBottom: '1rem' }} />
-                        <p>{searchTerm ? 'No se encontraron resultados' : 'Aún no tienes consultas guardadas'}</p>
+                        <p style={{ marginBottom: '1.5rem' }}>{searchTerm ? 'No se encontraron resultados' : 'Aún no tienes consultas guardadas'}</p>
+                        <button onClick={() => navigate('/ai-advisor')} className="btn-primary" style={{ margin: '0 auto' }}>Hacer una consulta ahora</button>
                     </div>
                 )}
             </div>

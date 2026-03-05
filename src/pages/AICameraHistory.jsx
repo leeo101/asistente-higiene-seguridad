@@ -89,6 +89,34 @@ export default function AICameraHistory() {
     const eppFail = history.filter(i => i.ppeComplete === false).length;
     const compliance = total > 0 ? Math.round((eppOk / Math.max(eppOk + eppFail, 1)) * 100) : 0;
 
+    // Weekly stats for the chart
+    const getWeeklyStats = () => {
+        const stats = [];
+        const now = new Date();
+        for (let i = 5; i >= 0; i--) {
+            const start = new Date(now);
+            start.setDate(now.getDate() - (i * 7 + 6));
+            start.setHours(0, 0, 0, 0);
+            const end = new Date(now);
+            end.setDate(now.getDate() - (i * 7));
+            end.setHours(23, 59, 59, 999);
+
+            const weekItems = history.filter(item => {
+                const d = new Date(item.date);
+                return d >= start && d <= end;
+            });
+
+            const wTotal = weekItems.length;
+            const wOk = weekItems.filter(item => item.ppeComplete).length;
+            const wFail = weekItems.filter(item => item.ppeComplete === false).length;
+            const wComp = wTotal > 0 ? Math.round((wOk / Math.max(wOk + wFail, 1)) * 100) : 0;
+
+            stats.push({ label: i === 0 ? 'Hoy' : `hace ${i}s`, value: wComp, count: wTotal });
+        }
+        return stats;
+    };
+    const weeklyStats = getWeeklyStats();
+
     const handleExportCSV = () => {
         downloadCSV(filtered.map(i => ({
             empresa: i.company, ubicacion: i.location,
@@ -104,42 +132,76 @@ export default function AICameraHistory() {
             {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
             {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                <button onClick={() => navigate('/history')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
-                    <ArrowLeft />
-                </button>
-                <div style={{ flex: 1 }}>
-                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Cámara IA — Historial</h1>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Inspecciones visuales con inteligencia artificial</p>
-                </div>
-                {history.length > 0 && (
-                    <button onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', flexShrink: 0, boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
-                        <Download size={14} /> Descargar Excel
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1, minWidth: '240px' }}>
+                    <button onClick={() => navigate('/history')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <ArrowLeft />
                     </button>
-                )}
-                <button
-                    onClick={() => navigate('/ai-camera')}
-                    className="btn-primary"
-                    style={{ padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}
-                >
-                    <Camera size={18} /> Nueva Inspección
-                </button>
+                    <div>
+                        <h1 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, lineHeight: 1.2 }}>Cámara IA — Historial</h1>
+                        <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Inspecciones visuales con IA</p>
+                    </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    {history.length > 0 && (
+                        <button onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', flexShrink: 0, boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
+                            <Download size={14} /> EXCEL
+                        </button>
+                    )}
+                    <button
+                        onClick={() => navigate('/ai-camera')}
+                        className="btn-primary"
+                        style={{ padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', width: 'auto', margin: 0 }}
+                    >
+                        <Camera size={18} /> NUEVO
+                    </button>
+                </div>
             </div>
 
             {/* Stats panel */}
             {total > 0 && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.7rem', marginBottom: '1.5rem' }}>
-                    <div style={{ background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.2)', borderRadius: '12px', padding: '0.75rem 1rem', textAlign: 'center' }}>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#06b6d4' }}>{total}</div>
-                        <div style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>INSPECCIONES</div>
+                <div style={{ marginBottom: '2rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.7rem', marginBottom: '1rem' }}>
+                        <div style={{ background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.2)', borderRadius: '12px', padding: '0.75rem 1rem', textAlign: 'center' }}>
+                            <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#06b6d4' }}>{total}</div>
+                            <div style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>INSPECCIONES</div>
+                        </div>
+                        <div style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '12px', padding: '0.75rem 1rem', textAlign: 'center' }}>
+                            <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#10b981' }}>{compliance}%</div>
+                            <div style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>COMPLIANCE EPP</div>
+                        </div>
+                        <div style={{ background: eppFail > 0 ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)', border: `1px solid ${eppFail > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)'}`, borderRadius: '12px', padding: '0.75rem 1rem', textAlign: 'center' }}>
+                            <div style={{ fontSize: '1.5rem', fontWeight: 900, color: eppFail > 0 ? '#ef4444' : '#10b981' }}>{eppFail}</div>
+                            <div style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>SIN EPP</div>
+                        </div>
                     </div>
-                    <div style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '12px', padding: '0.75rem 1rem', textAlign: 'center' }}>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#10b981' }}>{compliance}%</div>
-                        <div style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>COMPLIANCE EPP</div>
-                    </div>
-                    <div style={{ background: eppFail > 0 ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)', border: `1px solid ${eppFail > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)'}`, borderRadius: '12px', padding: '0.75rem 1rem', textAlign: 'center' }}>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 900, color: eppFail > 0 ? '#ef4444' : '#10b981' }}>{eppFail}</div>
-                        <div style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>SIN EPP</div>
+
+                    {/* Weekly Chart */}
+                    <div className="card" style={{ padding: '1.2rem', background: 'var(--color-surface)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
+                            <h3 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-text)' }}>Tendencia de Compliance (últimas 6 semanas)</h3>
+                            <BarChart2 size={16} color="var(--color-text-muted)" />
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: '100px', gap: '8px', padding: '0 5px' }}>
+                            {weeklyStats.map((s, i) => (
+                                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                                    <div style={{ position: 'relative', width: '100%', height: '80px', display: 'flex', alignItems: 'flex-end' }}>
+                                        {/* Background track */}
+                                        <div style={{ position: 'absolute', width: '100%', height: '100%', background: 'var(--color-background)', borderRadius: '4px', opacity: 0.5 }} />
+                                        {/* Value bar */}
+                                        <div style={{
+                                            width: '100%',
+                                            height: `${s.value}%`,
+                                            background: s.value > 80 ? '#10b981' : (s.value > 50 ? '#f59e0b' : '#ef4444'),
+                                            borderRadius: '4px',
+                                            zIndex: 1,
+                                            transition: 'height 1s ease-out'
+                                        }} title={`${s.value}% compliance (${s.count} insp)`} />
+                                    </div>
+                                    <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>{s.label}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             )}
@@ -256,6 +318,13 @@ export default function AICameraHistory() {
                     </div>
                 )}
             </div>
+            {qrTarget && (
+                <QRModal
+                    text={qrTarget.text}
+                    title={qrTarget.title}
+                    onClose={() => setQrTarget(null)}
+                />
+            )}
         </div>
     );
 }

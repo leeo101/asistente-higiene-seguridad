@@ -182,7 +182,7 @@ export default function RiskMatrix() {
                 ].map(f => (
                     <div key={f.key} style={{
                         background: 'var(--color-surface)', borderRadius: '14px', padding: '1.2rem',
-                        border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+                        border: '1px solid var(--color-border)', boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
                     }}>
                         <label style={{ fontSize: '0.65rem', fontWeight: 900, color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: '0.5rem' }}>
                             {f.label}
@@ -368,7 +368,7 @@ export default function RiskMatrix() {
             </button>
 
             {/* ─── LEGEND ─── */}
-            <div style={{ background: 'var(--color-background)', borderRadius: '14px', padding: '1.2rem', border: '1px solid #e2e8f0' }}>
+            <div style={{ background: 'var(--color-background)', borderRadius: '14px', padding: '1.2rem', border: '1px solid var(--color-border)' }}>
                 <p style={{ margin: '0 0 0.8rem 0', fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     Guía de Valoración (P × S)
                 </p>
@@ -398,12 +398,12 @@ const labelStyle = {
 };
 const textareaStyle = {
     width: '100%', minHeight: '72px', padding: '0.6rem 0.8rem', margin: 0,
-    background: 'var(--color-background)', border: '1.5px solid #e2e8f0', borderRadius: '10px',
+    background: 'var(--color-background)', border: '1.5px solid var(--color-border)', borderRadius: '10px',
     fontSize: '0.82rem', resize: 'none', overflow: 'hidden', color: 'var(--color-text)', fontFamily: 'inherit',
     outline: 'none', boxSizing: 'border-box'
 };
 const selectStyle = {
     width: '100%', padding: '0.6rem 0.8rem', margin: 0,
-    background: 'var(--color-background)', border: '1.5px solid #e2e8f0', borderRadius: '10px',
+    background: 'var(--color-background)', border: '1.5px solid var(--color-border)', borderRadius: '10px',
     fontSize: '0.82rem', color: 'var(--color-text)', outline: 'none', boxSizing: 'border-box'
 };

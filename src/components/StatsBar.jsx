@@ -51,7 +51,18 @@ export default function StatsBar() {
             }
         });
 
-        setStats(computed);
+        // Calculate AI Camera Compliance
+        let currentCompliance = null;
+        try {
+            const aiHistory = JSON.parse(localStorage.getItem('ai_camera_history') || '[]');
+            if (aiHistory.length > 0) {
+                const eppOk = aiHistory.filter(i => i.ppeComplete).length;
+                const eppFail = aiHistory.filter(i => i.ppeComplete === false).length;
+                currentCompliance = Math.round((eppOk / Math.max(eppOk + eppFail, 1)) * 100);
+            }
+        } catch { /* ignore */ }
+
+        setStats(computed.map(s => s.key === 'ai_camera_history' ? { ...s, compliance: currentCompliance } : s));
         setTotalThisMonth(monthTotal);
 
         // Check EPP alerts
@@ -99,6 +110,17 @@ export default function StatsBar() {
                         <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', marginTop: '0.3rem' }}>
                             {stat.thisMonth > 0 ? `+${stat.thisMonth} este mes` : 'total guardados'}
                         </div>
+                        {stat.key === 'ai_camera_history' && stat.compliance !== null && stat.compliance !== undefined && (
+                            <div style={{ marginTop: '0.6rem', borderTop: `1px solid ${stat.color}33`, paddingTop: '0.6rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.6rem', fontWeight: 800, marginBottom: '0.2rem', color: stat.color }}>
+                                    <span>Compliance EPP</span>
+                                    <span>{stat.compliance}%</span>
+                                </div>
+                                <div style={{ width: '100%', height: '4px', background: `${stat.color}22`, borderRadius: '2px', overflow: 'hidden' }}>
+                                    <div style={{ width: `${stat.compliance}%`, height: '100%', background: stat.color, transition: 'width 1s ease-out' }} />
+                                </div>
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>

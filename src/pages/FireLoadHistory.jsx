@@ -58,18 +58,20 @@ export default function FireLoadHistory() {
     return (
         <div className="container" style={{ maxWidth: '800px', paddingBottom: '5rem' }}>
             {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
-                    <ArrowLeft />
-                </button>
-                <div style={{ flex: 1 }}>
-                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Historial de Carga de Fuego</h1>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Estudios técnicos guardados</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1, minWidth: '240px' }}>
+                    <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <ArrowLeft />
+                    </button>
+                    <div>
+                        <h1 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, lineHeight: 1.2 }}>Historial de Carga de Fuego</h1>
+                        <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Estudios técnicos guardados</p>
+                    </div>
                 </div>
                 <button
                     onClick={() => navigate('/fire-load')}
                     className="btn-primary"
-                    style={{ padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}
+                    style={{ padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', width: 'auto', margin: 0 }}
                 >
                     <Plus size={18} /> Nuevo Estudio
                 </button>
@@ -149,7 +151,8 @@ export default function FireLoadHistory() {
                 ) : (
                     <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
                         <Flame size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
-                        <p>No se encontraron estudios de carga de fuego.</p>
+                        <p style={{ marginBottom: '1.5rem' }}>No se encontraron estudios de carga de fuego.</p>
+                        <button onClick={() => navigate('/fire-load')} className="btn-primary" style={{ margin: '0 auto' }}>Generar mi primer Cálculo</button>
                     </div>
                 )}
             </div>

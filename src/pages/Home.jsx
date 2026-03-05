@@ -211,9 +211,12 @@ export default function Home() {
                             <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.85rem', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 0.3rem' }}>
                                 {currentUser ? 'Bienvenido de vuelta' : 'Potenciá tu trabajo con IA'}
                             </p>
-                            <h1 style={{ fontSize: 'clamp(1.8rem, 5vw, 2.8rem)', fontWeight: 900, color: 'var(--color-surface)', margin: 0, lineHeight: 1.1, letterSpacing: '-1px', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                                {currentUser ? <>{userName} {isSubscribed && <Sparkles size={24} color="#f59e0b" fill="#f59e0b" title="Plan PRO Activo" />}</> : 'Asistente de Higiene y Seguridad'}
-                            </h1>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.5rem' }}>
+                                <img src="/logo.png" alt="Logo" style={{ width: '42px', height: '42px', objectFit: 'contain', filter: 'brightness(0) invert(1) drop-shadow(0 0 10px rgba(255,255,255,0.2))' }} />
+                                <h1 style={{ fontSize: 'clamp(1.8rem, 5vw, 2.8rem)', fontWeight: 900, color: 'var(--color-surface)', margin: 0, lineHeight: 1.1, letterSpacing: '-1px' }}>
+                                    {currentUser ? <>{userName} {isSubscribed && <Sparkles size={24} color="#f59e0b" fill="#f59e0b" title="Plan PRO Activo" />}</> : 'Asistente HYS'}
+                                </h1>
+                            </div>
                             <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1.1rem', marginTop: '1rem', fontWeight: 400, maxWidth: '500px' }}>
                                 {currentUser
                                     ? 'Dashboard de Gestión de Riesgos'
@@ -508,23 +511,31 @@ export default function Home() {
                 {/* ── QUICK ACCESS GRID — solo usuarios logueados ── */}
                 {currentUser && (
                     <div style={{ marginTop: '2rem', marginBottom: '1rem' }}>
-                        <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '1rem', letterSpacing: '-0.3px' }}>Accesos Rápidos</h3>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '0.9rem' }}>
+                        <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '0.8rem', letterSpacing: '-0.3px', paddingLeft: '0.2rem' }}>Accesos Rápidos</h3>
+                        <div className="hide-scrollbar" style={{
+                            display: 'flex',
+                            overflowX: 'auto',
+                            gap: '0.9rem',
+                            padding: '0.2rem 0.2rem 1.2rem 0.2rem',
+                            scrollSnapType: 'x mandatory',
+                            WebkitOverflowScrolling: 'touch'
+                        }}>
                             {quickLinks.map((item, i) => (
-                                <Link key={i} to={item.to} style={{ textDecoration: 'none' }}>
+                                <Link key={i} to={item.to} style={{ textDecoration: 'none', flex: '0 0 130px', scrollSnapAlign: 'start' }}>
                                     <div style={{
                                         background: 'var(--color-surface)',
                                         borderRadius: '16px',
-                                        padding: '1.1rem 0.8rem',
+                                        padding: '1.2rem 0.8rem',
                                         display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
                                         gap: '0.6rem',
                                         border: '1px solid var(--color-border)',
                                         cursor: 'pointer',
                                         transition: 'transform 0.2s, box-shadow 0.2s, border-color 0.2s',
-                                        minHeight: '110px', justifyContent: 'center',
+                                        minHeight: '120px', justifyContent: 'center',
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
                                     }}
                                         onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = `0 8px 20px ${item.color}30`; e.currentTarget.style.borderColor = item.color + '60'; }}
-                                        onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = 'var(--color-border)'; }}
+                                        onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)'; e.currentTarget.style.borderColor = 'var(--color-border)'; }}
                                     >
                                         <div style={{
                                             width: '48px', height: '48px', borderRadius: '14px',
@@ -536,8 +547,8 @@ export default function Home() {
                                             {item.icon}
                                         </div>
                                         <div>
-                                            <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-text)' }}>{item.label}</div>
-                                            <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', marginTop: '0.1rem' }}>{item.sub}</div>
+                                            <div style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--color-text)', lineHeight: '1.2' }}>{item.label}</div>
+                                            <div style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)', marginTop: '0.1rem' }}>{item.sub}</div>
                                         </div>
                                     </div>
                                 </Link>

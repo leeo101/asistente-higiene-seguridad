@@ -1,80 +1,98 @@
 /**
- * notifications.js — Utilidad para notificaciones push del navegador
+ * notifications.js — Utilidad para notificaciones push del navegador y scheduling local
  */
+
+const activeTimers = new Map();
 
 /**
  * Solicita permiso de notificaciones al usuario.
- * Retorna: 'granted' | 'denied' | 'default'
+ * Retorna true si es otorgado.
  */
 export async function requestNotificationPermission() {
-    if (!('Notification' in window)) return 'unsupported';
-    if (Notification.permission === 'granted') return 'granted';
-    return await Notification.requestPermission();
+    if (!('Notification' in window)) return false;
+    if (Notification.permission === 'granted') return true;
+    if (Notification.permission !== 'denied') {
+        const permission = await Notification.requestPermission();
+        return permission === 'granted';
+    }
+    return false;
+}
+
+export function hasNotificationPermission() {
+    return 'Notification' in window && Notification.permission === 'granted';
+}
+
+export function isNotificationDenied() {
+    return 'Notification' in window && Notification.permission === 'denied';
 }
 
 /**
- * Muestra una notificación inmediata (para pruebas / confirmación).
+ * Muestra una notificación inmediata.
  */
-export function showNotification(title, body, icon = '/logo.png') {
-    if (Notification.permission !== 'granted') return;
-    new Notification(title, { body, icon, badge: '/logo.png' });
+export function showNotification(title, body) {
+    if (hasNotificationPermission()) {
+        new Notification(title, { body, icon: '/logo192.png', badge: '/logo192.png' });
+    }
 }
 
 /**
- * Programa una notificación para X milisegundos en el futuro.
- * Retorna el timeoutId para poder cancelarla.
+ * Programa un recordatorio para una fecha y hora específicas.
+ * @param {string} id - ID único del evento.
+ * @param {string} date - Formato YYYY-MM-DD
+ * @param {string} time - Formato HH:MM
+ * @param {string} title - Título del evento
  */
-export function scheduleNotification(title, body, msFromNow, icon = '/logo.png') {
-    if (Notification.permission !== 'granted') return null;
-    if (msFromNow <= 0) return null;
-    // Cap at ~24 days (max reliable setTimeout)
-    if (msFromNow > 2073600000) return null;
+export function scheduleReminder(id, date, time, title) {
+    if (!hasNotificationPermission()) return;
 
-    const id = setTimeout(() => {
-        showNotification(title, body, icon);
-    }, msFromNow);
-    return id;
+    // Clear existing for this event if any
+    cancelReminder(id);
+
+    if (!date || !time) return;
+
+    const [year, month, day] = date.split('-').map(Number);
+    const [hour, minute] = time.split(':').map(Number);
+
+    // Create Date object considering local timezone
+    const targetDate = new Date(year, month - 1, day, hour, minute);
+    const delay = targetDate.getTime() - Date.now();
+
+    // Limit to generic Max Timeout (~24.8 days)
+    const MAX_TIMEOUT = 2147483647;
+
+    if (delay > 0 && delay < MAX_TIMEOUT) {
+        const timerId = setTimeout(() => {
+            showNotification('Recordatorio de Seguridad', `${time} hs - ${title}`);
+            activeTimers.delete(id);
+        }, delay);
+        activeTimers.set(id, timerId);
+    }
 }
 
 /**
- * Cancela una notificación programada.
+ * Cancela una notificación programada por ID.
  */
-export function cancelNotification(id) {
-    if (id !== null && id !== undefined) clearTimeout(id);
+export function cancelReminder(id) {
+    if (activeTimers.has(id)) {
+        clearTimeout(activeTimers.get(id));
+        activeTimers.delete(id);
+    }
 }
 
 /**
- * Programa recordatorios para todos los eventos de SafetyCalendar en localStorage.
- * Llama esto al cargar la app o al actualizar eventos.
+ * Carga todos los eventos desde localStorage y los programa
  */
-export function scheduleSafetyCalendarReminders() {
-    if (Notification.permission !== 'granted') return;
-    try {
-        const events = JSON.parse(localStorage.getItem('safety_events') || '[]');
-        const now = Date.now();
-        events.forEach(event => {
-            if (!event.date) return;
-            const eventMs = new Date(event.date).getTime();
-            // Recordatorio 24h antes
-            const reminderMs = eventMs - 24 * 60 * 60 * 1000;
-            if (reminderMs > now) {
-                scheduleNotification(
-                    `📅 Mañana: ${event.title || 'Evento programado'}`,
-                    event.description || 'Tenés un evento de seguridad mañana.',
-                    reminderMs - now
-                );
-            }
-            // Recordatorio el mismo día a las 8am
-            const eventDate = new Date(event.date);
-            eventDate.setHours(8, 0, 0, 0);
-            const sameDayMs = eventDate.getTime() - now;
-            if (sameDayMs > 0) {
-                scheduleNotification(
-                    `🔔 Hoy: ${event.title || 'Evento de seguridad'}`,
-                    event.description || 'Tenés un evento de seguridad hoy.',
-                    sameDayMs
-                );
-            }
-        });
-    } catch { /* ignore */ }
+export function initializeSchedules(events) {
+    // Clear everything
+    for (const timerId of activeTimers.values()) {
+        clearTimeout(timerId);
+    }
+    activeTimers.clear();
+
+    if (!Array.isArray(events)) return;
+
+    events.forEach(event => {
+        const eventId = event.id || `${event.date}-${event.time}-${event.title}`;
+        scheduleReminder(eventId, event.date, event.time, event.title);
+    });
 }

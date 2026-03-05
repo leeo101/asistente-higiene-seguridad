@@ -132,12 +132,12 @@ export default function History() {
     );
 
     const historyCategories = [
-        { title: 'Inspecciones', icon: <ClipboardCheck size={24} />, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', path: '/history-list', countKey: 'inspections', view: 'inspections' },
+        { title: 'Inspecciones', icon: <ClipboardCheck size={24} />, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', path: '/history', countKey: 'inspections', view: 'inspections' },
         { title: 'ATS — Análisis Trabajo Seguro', icon: <ShieldCheck size={24} />, color: '#10b981', bg: 'rgba(16,185,129,0.1)', path: '/ats-history', countKey: 'ats' },
         { title: 'Carga de Fuego', icon: <Flame size={24} />, color: '#f97316', bg: 'rgba(249,115,22,0.1)', path: '/fire-load-history', countKey: 'fireload' },
         { title: 'Iluminación', icon: <Lightbulb size={24} />, color: '#eab308', bg: 'rgba(234,179,8,0.1)', path: '/lighting-history', countKey: 'lighting' },
         { title: 'Permisos de Trabajo', icon: <KeySquare size={24} />, color: '#2563eb', bg: 'rgba(37,99,235,0.1)', path: '/work-permit-history', countKey: 'workPermits' },
-        { title: 'Matrices de Riesgo', icon: <TriangleAlert size={24} />, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', path: '/history-list-matrix', countKey: 'matrices', view: 'matrices' },
+        { title: 'Matrices de Riesgo', icon: <TriangleAlert size={24} />, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', path: '/risk-matrix-history', countKey: 'matrices', view: 'matrices' },
         { title: 'Informes Profesionales', icon: <ScrollText size={24} />, color: '#ec4899', bg: 'rgba(236,72,153,0.1)', path: '/reports-history', countKey: 'reports', view: 'reports' },
         { title: 'Checklist Herramientas', icon: <ClipboardList size={24} />, color: '#06b6d4', bg: 'rgba(6,182,212,0.1)', path: '/checklists-history', countKey: 'checklists' },
         { title: 'Cámara IA — Inspección Visual', icon: <Camera size={24} />, color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', path: '/ai-camera-history', countKey: 'aiCamera' },
@@ -192,12 +192,12 @@ export default function History() {
         return (
             <div className="container">
                 {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                    <button onClick={() => setView('hub')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                    <button onClick={() => setView('hub')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
                         <ArrowLeft />
                     </button>
-                    <h1 style={{ margin: 0, fontSize: '1.5rem', flex: 1 }}>Historial de Matrices</h1>
-                    <button onClick={() => navigate('/risk-matrix')} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1rem' }}>
+                    <h1 style={{ margin: 0, fontSize: '1.5rem', flex: '1 1 auto', minWidth: '200px' }}>Historial de Matrices</h1>
+                    <button onClick={() => navigate('/risk-matrix')} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.2rem', width: 'auto', marginTop: 0, flexShrink: 0 }}>
                         <Plus size={18} /> Nuevo
                     </button>
                 </div>
@@ -264,12 +264,12 @@ export default function History() {
         return (
             <div className="container">
                 {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                    <button onClick={() => setView('hub')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                    <button onClick={() => setView('hub')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
                         <ArrowLeft />
                     </button>
-                    <h1 style={{ margin: 0, fontSize: '1.5rem', flex: 1 }}>Historial de Informes</h1>
-                    <button onClick={() => navigate('/reports')} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1rem' }}>
+                    <h1 style={{ margin: 0, fontSize: '1.5rem', flex: '1 1 auto', minWidth: '200px' }}>Historial de Informes</h1>
+                    <button onClick={() => navigate('/reports')} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.2rem', width: 'auto', marginTop: 0, flexShrink: 0 }}>
                         <Plus size={18} /> Nuevo
                     </button>
                 </div>
@@ -335,11 +335,11 @@ export default function History() {
     return (
         <div className="container">
             {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                <button onClick={() => setView('hub')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                <button onClick={() => setView('hub')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
                     <ArrowLeft />
                 </button>
-                <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Historial de Inspecciones</h1>
+                <h1 style={{ margin: 0, fontSize: '1.5rem', flex: '1 1 auto', minWidth: '200px' }}>Historial de Inspecciones</h1>
             </div>
 
             <div style={{ position: 'relative', marginBottom: '2rem' }}>
@@ -398,7 +398,8 @@ export default function History() {
                 )) : (
                     <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
                         <FileText size={48} style={{ opacity: 0.1, marginBottom: '1rem' }} />
-                        <p>No hay inspecciones registradas</p>
+                        <p style={{ marginBottom: '1.5rem' }}>No hay inspecciones registradas</p>
+                        <button onClick={() => navigate('/create-inspection')} className="btn-primary" style={{ margin: '0 auto' }}>Crear mi primera Inspección</button>
                     </div>
                 )}
             </div>
