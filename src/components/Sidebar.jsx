@@ -128,9 +128,9 @@ export default function Sidebar({ isOpen, onClose }) {
                             <div style={{ width: '36px', height: '36px', background: 'rgba(255,255,255,0.15)', borderRadius: '10px', padding: '5px', flexShrink: 0, backdropFilter: 'blur(8px)' }}>
                                 <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
                             </div>
-                            <span style={{ fontSize: '1.1rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.5px' }}>Asistente HYS</span>
+                            <span style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--color-surface)', letterSpacing: '-0.5px' }}>Asistente HYS</span>
                         </div>
-                        <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white', backdropFilter: 'blur(8px)' }}>
+                        <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#ffffff', backdropFilter: 'blur(8px)' }}>
                             <X size={18} />
                         </button>
                     </div>
@@ -152,7 +152,7 @@ export default function Sidebar({ isOpen, onClose }) {
                         </div>
                         <div style={{ flex: 1 }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-surface)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                     {currentUser ? userInfo.name : 'Invitado'}
                                     {isPro() && <Sparkles size={14} color="#f59e0b" fill="#f59e0b" title="Plan PRO Activo" />}
                                 </div>
@@ -168,7 +168,7 @@ export default function Sidebar({ isOpen, onClose }) {
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         cursor: 'pointer',
-                                        color: '#fff',
+                                        color: 'var(--color-surface)',
                                         flexShrink: 0,
                                         transition: 'all 0.2s ease',
                                         boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
@@ -215,7 +215,7 @@ export default function Sidebar({ isOpen, onClose }) {
                                 <div style={{
                                     display: 'flex', alignItems: 'center', gap: '0.9rem',
                                     padding: '0.7rem 1rem', borderRadius: '12px',
-                                    color: active ? '#fff' : 'var(--color-text)',
+                                    color: active ? 'var(--color-surface)' : 'var(--color-text)',
                                     background: active ? 'linear-gradient(135deg,#2563eb,#3b82f6)' : 'transparent',
                                     fontWeight: active ? 700 : 500,
                                     fontSize: '0.9rem',

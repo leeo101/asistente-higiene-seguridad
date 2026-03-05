@@ -179,7 +179,7 @@ export default function AIGeneralCamera() {
                         ctx.arc(centerX + radius, centerY - radius, 15, 0, 2 * Math.PI);
                         ctx.fill();
 
-                        ctx.fillStyle = '#ffffff';
+                        ctx.fillStyle = 'var(--color-surface)';
                         ctx.font = 'bold 20px Inter, sans-serif';
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
@@ -248,7 +248,7 @@ export default function AIGeneralCamera() {
                 <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Detector de Riesgos IA</h1>
             </div>
 
-            <div style={{ flex: 1, position: 'relative', borderRadius: '24px', overflow: 'hidden', background: '#000', border: '4px solid var(--color-border)', boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
+            <div style={{ flex: 1, position: 'relative', borderRadius: '24px', overflow: 'hidden', background: 'var(--color-text)', border: '4px solid var(--color-border)', boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
                 {!capturedImage ? (
                     <>
                         <video
@@ -259,10 +259,10 @@ export default function AIGeneralCamera() {
                         />
 
                         <div style={{ position: 'absolute', top: '1rem', right: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <button onClick={toggleTorch} style={{ width: '44px', height: '44px', borderRadius: '50%', background: torchOn ? 'var(--color-primary)' : 'rgba(0,0,0,0.5)', border: 'none', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                            <button onClick={toggleTorch} style={{ width: '44px', height: '44px', borderRadius: '50%', background: torchOn ? 'var(--color-primary)' : 'rgba(0,0,0,0.5)', border: 'none', color: 'var(--color-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                                 {torchOn ? <Zap size={20} /> : <ZapOff size={20} />}
                             </button>
-                            <button onClick={switchCamera} style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'rgba(0,0,0,0.5)', border: 'none', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                            <button onClick={switchCamera} style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'rgba(0,0,0,0.5)', border: 'none', color: 'var(--color-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                                 <FlipHorizontal size={20} />
                             </button>
                         </div>
@@ -270,7 +270,7 @@ export default function AIGeneralCamera() {
                         <div style={{ position: 'absolute', bottom: '2rem', left: '0', width: '100%', display: 'flex', justifyContent: 'center' }}>
                             <button
                                 onClick={handleCapture}
-                                style={{ width: '80px', height: '80px', borderRadius: '50%', border: '6px solid #fff', background: 'rgba(236, 72, 153, 0.8)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: '0 0 20px rgba(236, 72, 153, 0.5)' }}
+                                style={{ width: '80px', height: '80px', borderRadius: '50%', border: '6px solid #fff', background: 'rgba(236, 72, 153, 0.8)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-surface)', boxShadow: '0 0 20px rgba(236, 72, 153, 0.5)' }}
                             >
                                 <Search size={32} />
                             </button>
@@ -281,14 +281,14 @@ export default function AIGeneralCamera() {
                         <img src={capturedImage} alt="Captured" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
 
                         {isAnalyzing && (
-                            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.7)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+                            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.7)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--color-surface)' }}>
                                 <RefreshCw size={48} className="animate-spin" style={{ marginBottom: '1rem', color: 'var(--color-primary)' }} />
                                 <p style={{ fontWeight: 700, fontSize: '1.2rem' }}>Analizando Entorno...</p>
                             </div>
                         )}
 
                         {analysisResult && (
-                            <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', padding: '1.5rem', background: 'linear-gradient(transparent, rgba(0,0,0,0.95))', color: '#fff' }}>
+                            <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', padding: '1.5rem', background: 'linear-gradient(transparent, rgba(0,0,0,0.95))', color: 'var(--color-surface)' }}>
                                 <div style={{ marginBottom: '1rem' }}>
                                     <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>Hallazgos de IA:</h3>
                                     <p style={{ margin: '0.2rem 0 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)' }}>
@@ -298,7 +298,7 @@ export default function AIGeneralCamera() {
                                     </p>
                                 </div>
                                 <div style={{ display: 'flex', gap: '0.8rem', width: '100%', justifyContent: 'center' }}>
-                                    <button onClick={handleRetry} className="btn-outline" style={{ flex: 1, borderColor: '#fff', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', height: '48px', margin: 0 }}>
+                                    <button onClick={handleRetry} className="btn-outline" style={{ flex: 1, borderColor: 'var(--color-surface)', color: 'var(--color-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', height: '48px', margin: 0 }}>
                                         <RefreshCw size={18} /> Reintentar
                                     </button>
                                     <button onClick={handleSaveReport} className="btn-primary" style={{ flex: 1, height: '48px', margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Ver Detalles</button>

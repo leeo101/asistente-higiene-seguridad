@@ -131,7 +131,7 @@ export default function PhotoAttachments({ photos = [], onChange, maxPhotos = 5,
                                 <button
                                     type="button"
                                     onClick={() => removePhoto(idx)}
-                                    style={{ background: 'rgba(239,68,68,0.9)', border: 'none', borderRadius: '50%', width: '36px', height: '36px', minHeight: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white' }}
+                                    style={{ background: 'rgba(239,68,68,0.9)', border: 'none', borderRadius: '50%', width: '36px', height: '36px', minHeight: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#ffffff' }}
                                 >
                                     <Trash2 size={14} />
                                 </button>
@@ -171,7 +171,7 @@ export default function PhotoAttachments({ photos = [], onChange, maxPhotos = 5,
                 >
                     <button
                         onClick={() => setPreview(null)}
-                        style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white' }}
+                        style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#ffffff' }}
                     >
                         <X size={20} />
                     </button>

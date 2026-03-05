@@ -102,7 +102,7 @@ export default function PPETracker() {
                     <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-text-muted)' }}>Vencimientos de elementos de protección personal</p>
                 </div>
                 {items.length > 0 && (
-                    <button onClick={handleExport} style={{ background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer', color: 'white', boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
+                    <button onClick={handleExport} style={{ background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
                         Descargar Excel
                     </button>
                 )}
@@ -167,7 +167,7 @@ export default function PPETracker() {
             {!showForm && (
                 <button
                     onClick={() => setShowForm(true)}
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', width: '100%', padding: '0.85rem', borderRadius: '14px', background: 'linear-gradient(135deg,#1e3a8a,#2563eb)', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: '0.92rem', marginBottom: '1.5rem', boxShadow: '0 4px 14px rgba(37,99,235,0.28)' }}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', width: '100%', padding: '0.85rem', borderRadius: '14px', background: 'linear-gradient(135deg,#1e3a8a,#2563eb)', color: '#ffffff', border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: '0.92rem', marginBottom: '1.5rem', boxShadow: '0 4px 14px rgba(37,99,235,0.28)' }}
                 >
                     <Plus size={18} /> Registrar EPP
                 </button>

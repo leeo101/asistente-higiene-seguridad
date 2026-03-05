@@ -74,14 +74,14 @@ export default function OnboardingModal({ onClose }) {
                         background: 'rgba(255,255,255,0.15)', border: 'none',
                         borderRadius: '50%', width: '32px', height: '32px',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        cursor: 'pointer', color: 'white',
+                        cursor: 'pointer', color: '#ffffff',
                     }}>
                         <X size={16} />
                     </button>
                     <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem', fontWeight: 600, margin: '0 0 0.4rem', letterSpacing: '1px', textTransform: 'uppercase' }}>
                         ¡Bienvenido!
                     </p>
-                    <h2 style={{ color: '#fff', margin: 0, fontSize: '1.4rem', fontWeight: 900, lineHeight: 1.2 }}>
+                    <h2 style={{ color: 'var(--color-surface)', margin: 0, fontSize: '1.4rem', fontWeight: 900, lineHeight: 1.2 }}>
                         Empezá con Asistente HYS
                     </h2>
                     <p style={{ color: 'rgba(255,255,255,0.75)', margin: '0.6rem 0 0', fontSize: '0.88rem' }}>
@@ -95,7 +95,7 @@ export default function OnboardingModal({ onClose }) {
                         <div key={i} onClick={() => setStep(i)} style={{
                             width: i === step ? '24px' : '8px', height: '8px',
                             borderRadius: '4px',
-                            background: i === step ? '#fff' : 'rgba(255,255,255,0.4)',
+                            background: i === step ? 'var(--color-surface)' : 'rgba(255,255,255,0.4)',
                             transition: 'all 0.3s',
                             cursor: 'pointer',
                             boxShadow: '0 2px 6px rgba(0,0,0,0.2)',

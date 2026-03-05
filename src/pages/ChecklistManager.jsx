@@ -266,21 +266,21 @@ export default function ChecklistManager() {
                 <button
                     onClick={handleSave}
                     className="btn-floating-action"
-                    style={{ background: '#36B37E', color: 'white' }}
+                    style={{ background: '#36B37E', color: '#ffffff' }}
                 >
                     <Save size={18} /> GUARDAR
                 </button>
                 <button
                     onClick={() => requirePro(() => setShowShare(true))}
                     className="btn-floating-action"
-                    style={{ background: '#0052CC', color: 'white' }}
+                    style={{ background: '#0052CC', color: '#ffffff' }}
                 >
                     <Share2 size={18} /> COMPARTIR
                 </button>
                 <button
                     onClick={() => requirePro(() => window.print())}
                     className="btn-floating-action"
-                    style={{ background: '#FF8B00', color: 'white' }}
+                    style={{ background: '#FF8B00', color: '#ffffff' }}
                 >
                     <Printer size={18} /> IMPRIMIR PDF
                 </button>
@@ -288,7 +288,7 @@ export default function ChecklistManager() {
             <div className="no-print" style={{
                 marginBottom: '2rem',
                 padding: '2.5rem',
-                background: '#fff',
+                background: 'var(--color-surface)',
                 borderRadius: '24px',
                 border: '1px solid #EBECF0',
                 display: 'flex',
@@ -298,15 +298,15 @@ export default function ChecklistManager() {
                 boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                    <button onClick={() => navigate(-1)} style={{ padding: '0.6rem', background: '#F4F5F7', borderRadius: '12px', border: 'none', cursor: 'pointer', color: '#42526E', display: 'flex' }}>
+                    <button onClick={() => navigate(-1)} style={{ padding: '0.6rem', background: 'var(--color-background)', borderRadius: '12px', border: 'none', cursor: 'pointer', color: 'var(--color-text)', display: 'flex' }}>
                         <ArrowLeft size={22} />
                     </button>
                     <div>
-                        <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, color: '#172B4D', letterSpacing: '-1px', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                        <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, color: 'var(--color-text)', letterSpacing: '-1px', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                             <ClipboardCheck className="text-blue-600" size={32} />
                             Generador de Checklist
                         </h1>
-                        <p style={{ margin: 0, color: '#6B778C', fontWeight: 600, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Control H&S</p>
+                        <p style={{ margin: 0, color: 'var(--color-text-muted)', fontWeight: 600, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Control H&S</p>
                     </div>
                 </div>
 
@@ -395,7 +395,7 @@ export default function ChecklistManager() {
                 <div className="space-y-12">
                     {activeSections.map(section => (
                         <div key={section.id} className="card w-full mb-6" style={{ padding: 0 }}>
-                            <div style={{ background: '#f8fafc', padding: '1rem', borderBottom: '2px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', minHeight: '4rem' }}>
+                            <div style={{ background: 'var(--color-background)', padding: '1rem', borderBottom: '2px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', minHeight: '4rem' }}>
                                 <input
                                     className="font-black text-xl uppercase tracking-tighter bg-transparent outline-none w-full border-none focus:ring-0 text-black text-center placeholder:text-slate-400 print-text-center block"
                                     style={{ textAlign: 'center', margin: 0 }}
@@ -405,19 +405,19 @@ export default function ChecklistManager() {
                                 <div className="flex gap-2 no-print shrink-0 ml-4">
                                     <button
                                         onClick={() => removeSection(section.id)}
-                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-danger)', color: 'white', fontSize: '0.65rem', fontWeight: 900, border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-danger)', color: '#ffffff', fontSize: '0.65rem', fontWeight: 900, border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
                                     >
                                         <X size={12} strokeWidth={4} /> QUITAR
                                     </button>
                                     <button
                                         onClick={() => checkAllOk(section.id)}
-                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-text)', color: 'white', fontSize: '0.65rem', fontWeight: 900, border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-text)', color: '#ffffff', fontSize: '0.65rem', fontWeight: 900, border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                                     >
                                         TODO OK
                                     </button>
                                     <button
                                         onClick={() => addItem(section.id)}
-                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-primary)', color: 'white', fontSize: '0.65rem', fontWeight: 900, border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-primary)', color: '#ffffff', fontSize: '0.65rem', fontWeight: 900, border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                                     >
                                         + ITEM
                                     </button>
@@ -461,7 +461,7 @@ export default function ChecklistManager() {
                                                             <span style={{ fontSize: '0.9rem' }}>¿Eliminar este punto?</span>
                                                             <button
                                                                 onClick={() => { removeItem(section.id, idx); toast.dismiss(toastId); }}
-                                                                style={{ background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem' }}
+                                                                style={{ background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem' }}
                                                             >Sí</button>
                                                         </div>,
                                                         { duration: 4000, icon: '🗑️' }

@@ -256,7 +256,7 @@ export default function Legislation() {
                                     gap: '0.5rem',
                                     padding: '0.7rem',
                                     background: 'var(--color-primary)',
-                                    color: 'white',
+                                    color: '#ffffff',
                                     borderRadius: '8px',
                                     fontSize: '0.85rem',
                                     fontWeight: 700
@@ -276,7 +276,7 @@ export default function Legislation() {
                                     gap: '0.5rem',
                                     padding: '0.7rem',
                                     background: 'linear-gradient(135deg, #a855f7, #ec4899)',
-                                    color: 'white',
+                                    color: '#ffffff',
                                     border: 'none',
                                     borderRadius: '8px',
                                     fontSize: '0.85rem',

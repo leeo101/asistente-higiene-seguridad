@@ -54,8 +54,8 @@ export default function ShareModal({ open, onClose, title = '', text = '' }) {
         {
             label: 'Twitter / X',
             icon: '𝕏',
-            color: '#000',
-            bg: '#f1f5f9',
+            color: 'var(--color-text)',
+            bg: 'var(--color-background)',
             url: `https://twitter.com/intent/tweet?text=${inviteMessage}`,
         },
         {
@@ -86,7 +86,7 @@ export default function ShareModal({ open, onClose, title = '', text = '' }) {
         >
             <div
                 style={{
-                    background: '#fff', borderRadius: '24px', padding: '2rem',
+                    background: 'var(--color-surface)', borderRadius: '24px', padding: '2rem',
                     maxWidth: '420px', width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
                     position: 'relative'
                 }}
@@ -97,7 +97,7 @@ export default function ShareModal({ open, onClose, title = '', text = '' }) {
                     onClick={onClose}
                     style={{
                         position: 'absolute', top: '1rem', right: '1rem',
-                        background: '#f1f5f9', border: 'none', borderRadius: '50%',
+                        background: 'var(--color-background)', border: 'none', borderRadius: '50%',
                         width: '32px', height: '32px', cursor: 'pointer',
                         display: 'flex', alignItems: 'center', justifyContent: 'center'
                     }}
@@ -108,7 +108,7 @@ export default function ShareModal({ open, onClose, title = '', text = '' }) {
                 <h2 style={{ margin: '0 0 0.3rem', fontSize: '1.2rem', fontWeight: 900 }}>
                     Compartir
                 </h2>
-                <p style={{ margin: '0 0 1.5rem', fontSize: '0.8rem', color: '#94a3b8', wordBreak: 'break-word' }}>
+                <p style={{ margin: '0 0 1.5rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', wordBreak: 'break-word' }}>
                     {title}
                 </p>
 
@@ -142,12 +142,12 @@ export default function ShareModal({ open, onClose, title = '', text = '' }) {
                     onClick={handleCopy}
                     style={{
                         width: '100%', padding: '0.9rem',
-                        background: copied ? '#dcfce7' : '#f8fafc',
+                        background: copied ? '#dcfce7' : 'var(--color-background)',
                         border: `1.5px solid ${copied ? '#86efac' : '#e2e8f0'}`,
                         borderRadius: '14px', cursor: 'pointer',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         gap: '0.6rem', fontWeight: 800, fontSize: '0.85rem',
-                        color: copied ? '#16a34a' : '#475569', transition: 'all 0.2s'
+                        color: copied ? '#16a34a' : 'var(--color-text-muted)', transition: 'all 0.2s'
                     }}
                 >
                     {copied

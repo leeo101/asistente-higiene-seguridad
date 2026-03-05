@@ -349,7 +349,7 @@ export default function AIChatAdvisor() {
                                 position: 'absolute',
                                 right: '1rem',
                                 top: '1rem',
-                                background: isListening ? '#ef4444' : '#f8fafc',
+                                background: isListening ? '#ef4444' : 'var(--color-background)',
                                 border: '1px solid var(--color-border)',
                                 borderRadius: '50%',
                                 width: '46px',
@@ -415,7 +415,7 @@ export default function AIChatAdvisor() {
                                     marginTop: 0,
                                     width: 'auto',
                                     background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
-                                    color: 'white',
+                                    color: '#ffffff',
                                     border: 'none',
                                     fontSize: '0.85rem'
                                 }}
@@ -498,7 +498,7 @@ export default function AIChatAdvisor() {
                                 display: 'inline-flex', alignItems: 'center', gap: '0.6rem',
                                 padding: '0.85rem 2rem',
                                 background: 'linear-gradient(135deg, #1e3a8a, #2563eb)',
-                                color: 'white', border: 'none', borderRadius: '14px',
+                                color: '#ffffff', border: 'none', borderRadius: '14px',
                                 fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
                                 boxShadow: '0 6px 20px rgba(37,99,235,0.35)',
                                 transition: 'transform 0.2s, box-shadow 0.2s'

@@ -315,7 +315,7 @@ export default function ErgonomicsForm() {
                                 className="no-print"
                                 onClick={handleGenerateConclusion}
                                 disabled={isGeneratingConclusion}
-                                style={{ padding: '0.5rem 0.8rem', background: 'linear-gradient(135deg, #a855f7, #ec4899)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 800, fontSize: '0.7rem', cursor: isGeneratingConclusion ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', outline: 'none' }}
+                                style={{ padding: '0.5rem 0.8rem', background: 'linear-gradient(135deg, #a855f7, #ec4899)', color: '#ffffff', border: 'none', borderRadius: '8px', fontWeight: 800, fontSize: '0.7rem', cursor: isGeneratingConclusion ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', outline: 'none' }}
                             >
                                 {isGeneratingConclusion ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
                                 {isGeneratingConclusion ? 'REDACTANDO...' : 'REDACTAR CON IA'}
@@ -348,14 +348,14 @@ export default function ErgonomicsForm() {
                         <button
                             className="btn-floating-action"
                             onClick={handleBack}
-                            style={{ background: 'white', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}
+                            style={{ background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}
                         >
                             <ChevronLeft size={18} /> ATRÁS
                         </button>
                         <button
                             onClick={handleSave}
                             className="btn-floating-action"
-                            style={{ background: '#36B37E', color: 'white' }}
+                            style={{ background: '#36B37E', color: '#ffffff' }}
                         >
                             <Save size={18} /> GUARDAR ESTUDIO
                         </button>

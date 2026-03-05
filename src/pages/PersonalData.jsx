@@ -101,7 +101,7 @@ export default function PersonalData() {
                             bottom: '0',
                             right: '0',
                             background: 'var(--color-primary)',
-                            color: 'white',
+                            color: '#ffffff',
                             width: '36px',
                             height: '36px',
                             borderRadius: '50%',
@@ -124,7 +124,7 @@ export default function PersonalData() {
                                 top: '0',
                                 right: '0',
                                 background: '#ef4444',
-                                color: 'white',
+                                color: '#ffffff',
                                 padding: '4px',
                                 borderRadius: '50%',
                                 border: 'none',
@@ -162,7 +162,7 @@ export default function PersonalData() {
                     <select
                         value={formData.profession}
                         onChange={(e) => setFormData({ ...formData, profession: e.target.value })}
-                        style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'white' }}
+                        style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-surface)' }}
                     >
                         <option value="">Seleccione su título</option>
                         <option value="Técnico">Técnico</option>

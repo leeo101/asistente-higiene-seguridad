@@ -89,7 +89,7 @@ export default function Profile() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontSize: '2.5rem',
-                    color: 'white',
+                    color: '#ffffff',
                     fontWeight: 900,
                     boxShadow: '0 10px 20px rgba(59, 130, 246, 0.2)',
                     overflow: 'hidden',
@@ -130,7 +130,7 @@ export default function Profile() {
                                 width: '100%',
                                 padding: '0.8rem',
                                 background: 'linear-gradient(90deg, #3b82f6, #8b5cf6)',
-                                color: 'white',
+                                color: '#ffffff',
                                 border: 'none',
                                 borderRadius: '12px',
                                 fontSize: '0.95rem',
@@ -192,7 +192,7 @@ export default function Profile() {
                     <a
                         href={`https://wa.me/?text=${encodeURIComponent(`🛡️ Hola! Te comparto esta plataforma gratuita para profesionales de Higiene y Seguridad.\n\n*Asistente HYS* te permite:\n🔥 Calcular Carga de Fuego (Dec 351/79)\n💡 Estudios de Iluminación\n📋 Hacer ATS y Matrices de Riesgo\n🤖 Consultar la IA legal\n\n¡Y todo gratis!\n🔗 https://asistentehs.com`)}`}
                         target="_blank" rel="noreferrer"
-                        style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', padding: '0.8rem', background: '#25D366', color: 'white', borderRadius: '12px', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', boxShadow: '0 4px 12px rgba(37,211,102,0.3)' }}
+                        style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', padding: '0.8rem', background: '#25D366', color: '#ffffff', borderRadius: '12px', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', boxShadow: '0 4px 12px rgba(37,211,102,0.3)' }}
                     >
                         <Share2 size={18} /> Invitar por WhatsApp
                     </a>

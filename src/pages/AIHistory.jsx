@@ -37,7 +37,7 @@ export default function AIHistory() {
                         toast.dismiss(toastId);
                         toast.success('Registro eliminado');
                     }}
-                    style={{ background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem' }}
+                    style={{ background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem' }}
                 >Eliminar</button>
             </div>,
             { duration: 5000, icon: '🗑️' }

@@ -117,7 +117,7 @@ export default function Security() {
                                 <div style={{
                                     width: '40px',
                                     height: '40px',
-                                    background: 'white',
+                                    background: 'var(--color-surface)',
                                     borderRadius: '10px',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -162,7 +162,7 @@ export default function Security() {
                                 <div style={{
                                     width: '18px',
                                     height: '18px',
-                                    background: 'white',
+                                    background: 'var(--color-surface)',
                                     borderRadius: '50%',
                                     position: 'absolute',
                                     top: '3px',
@@ -193,7 +193,7 @@ export default function Security() {
                                 <div style={{
                                     width: '18px',
                                     height: '18px',
-                                    background: 'white',
+                                    background: 'var(--color-surface)',
                                     borderRadius: '50%',
                                     position: 'absolute',
                                     top: '3px',

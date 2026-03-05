@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 const HAZARD_TYPES = [
-    { value: '', label: 'Seleccionar...', icon: null, color: '#94a3b8' },
+    { value: '', label: 'Seleccionar...', icon: null, color: 'var(--color-text-muted)' },
     { value: 'Físico', label: 'Físico', icon: <Zap size={12} />, color: '#3b82f6' },
     { value: 'Químico', label: 'Químico', icon: <Flame size={12} />, color: '#f59e0b' },
     { value: 'Biológico', label: 'Biológico', icon: <Leaf size={12} />, color: '#10b981' },
@@ -125,21 +125,21 @@ export default function RiskMatrix() {
                 <button
                     onClick={handleSave}
                     className="btn-floating-action"
-                    style={{ background: '#36B37E', color: 'white' }}
+                    style={{ background: '#36B37E', color: '#ffffff' }}
                 >
                     <Save size={18} /> GUARDAR
                 </button>
                 <button
                     onClick={() => requirePro(() => setShowShare(true))}
                     className="btn-floating-action"
-                    style={{ background: '#0052CC', color: 'white' }}
+                    style={{ background: '#0052CC', color: '#ffffff' }}
                 >
                     <Share2 size={18} /> COMPARTIR
                 </button>
                 <button
                     onClick={() => requirePro(() => window.print())}
                     className="btn-floating-action"
-                    style={{ background: '#FF8B00', color: 'white' }}
+                    style={{ background: '#FF8B00', color: '#ffffff' }}
                 >
                     <Printer size={18} /> IMPRIMIR PDF
                 </button>
@@ -148,22 +148,22 @@ export default function RiskMatrix() {
             {/* ─── HEADER ─── */}
             <div style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                marginBottom: '2rem', background: '#fff', borderRadius: '20px',
+                marginBottom: '2rem', background: 'var(--color-surface)', borderRadius: '20px',
                 padding: '1.5rem 2rem', border: '1px solid #e2e8f0',
                 boxShadow: '0 4px 24px rgba(0,0,0,0.04)'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
                     <button onClick={() => navigate('/')} style={{
-                        padding: '0.6rem', background: '#f1f5f9', borderRadius: '12px',
-                        border: 'none', cursor: 'pointer', display: 'flex', color: '#475569'
+                        padding: '0.6rem', background: 'var(--color-background)', borderRadius: '12px',
+                        border: 'none', cursor: 'pointer', display: 'flex', color: 'var(--color-text-muted)'
                     }}>
                         <ArrowLeft size={20} />
                     </button>
                     <div>
-                        <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, color: '#0f172a', letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
+                        <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, color: 'var(--color-text)', letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
                             <AlertTriangle size={28} color="#f59e0b" /> Matriz de Riesgos
                         </h1>
-                        <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                        <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>
                             Ley 19.587 / Dec. 351/79 - HYS
                         </p>
                     </div>
@@ -181,7 +181,7 @@ export default function RiskMatrix() {
                     { label: 'RESPONSABLE HYS', key: 'responsable', placeholder: 'Profesional actuante' },
                 ].map(f => (
                     <div key={f.key} style={{
-                        background: '#fff', borderRadius: '14px', padding: '1.2rem',
+                        background: 'var(--color-surface)', borderRadius: '14px', padding: '1.2rem',
                         border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
                     }}>
                         <label style={{ fontSize: '0.65rem', fontWeight: 900, color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: '0.5rem' }}>
@@ -191,18 +191,18 @@ export default function RiskMatrix() {
                             type="text" value={projectData[f.key]}
                             onChange={e => setProjectData({ ...projectData, [f.key]: e.target.value })}
                             placeholder={f.placeholder}
-                            style={{ margin: 0, border: 'none', background: 'transparent', fontWeight: 700, fontSize: '0.95rem', color: '#0f172a', outline: 'none', width: '100%' }}
+                            style={{ margin: 0, border: 'none', background: 'transparent', fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-text)', outline: 'none', width: '100%' }}
                         />
                     </div>
                 ))}
                 <div style={{
-                    background: '#fff', borderRadius: '14px', padding: '1.2rem',
+                    background: 'var(--color-surface)', borderRadius: '14px', padding: '1.2rem',
                     border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
                 }}>
                     <label style={{ fontSize: '0.65rem', fontWeight: 900, color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: '0.5rem' }}>FECHA</label>
                     <input type="date" value={projectData.date}
                         onChange={e => setProjectData({ ...projectData, date: e.target.value })}
-                        style={{ margin: 0, border: 'none', background: 'transparent', fontWeight: 700, fontSize: '0.95rem', color: '#0f172a', outline: 'none', width: '100%' }} />
+                        style={{ margin: 0, border: 'none', background: 'transparent', fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-text)', outline: 'none', width: '100%' }} />
                 </div>
             </div>
 
@@ -231,7 +231,7 @@ export default function RiskMatrix() {
                     const hazardInfo = HAZARD_TYPES.find(h => h.value === row.hazardType) || HAZARD_TYPES[0];
                     return (
                         <div key={row.id} style={{
-                            background: '#fff', borderRadius: '18px',
+                            background: 'var(--color-surface)', borderRadius: '18px',
                             border: `2px solid ${level.border}`,
                             padding: '1.5rem', boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
                             position: 'relative'
@@ -240,7 +240,7 @@ export default function RiskMatrix() {
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                                     <span style={{
-                                        background: '#f1f5f9', color: '#64748b', borderRadius: '8px',
+                                        background: 'var(--color-background)', color: 'var(--color-text-muted)', borderRadius: '8px',
                                         padding: '0.3rem 0.7rem', fontWeight: 900, fontSize: '0.75rem'
                                     }}>#{idx + 1}</span>
                                     <span style={{
@@ -312,8 +312,8 @@ export default function RiskMatrix() {
                                             <button key={v} onClick={() => updateRow(row.id, 'probability', v)} style={{
                                                 flex: 1, padding: '0.5rem 0.2rem', borderRadius: '8px', border: '2px solid',
                                                 borderColor: row.probability === v ? '#6366f1' : '#e2e8f0',
-                                                background: row.probability === v ? '#6366f1' : '#f8fafc',
-                                                color: row.probability === v ? 'white' : '#64748b',
+                                                background: row.probability === v ? '#6366f1' : 'var(--color-background)',
+                                                color: row.probability === v ? 'white' : 'var(--color-text-muted)',
                                                 fontWeight: 800, fontSize: '0.7rem', cursor: 'pointer',
                                                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1px'
                                             }}>
@@ -330,8 +330,8 @@ export default function RiskMatrix() {
                                             <button key={v} onClick={() => updateRow(row.id, 'severity', v)} style={{
                                                 flex: 1, padding: '0.5rem 0.2rem', borderRadius: '8px', border: '2px solid',
                                                 borderColor: row.severity === v ? '#f59e0b' : '#e2e8f0',
-                                                background: row.severity === v ? '#f59e0b' : '#f8fafc',
-                                                color: row.severity === v ? 'white' : '#64748b',
+                                                background: row.severity === v ? '#f59e0b' : 'var(--color-background)',
+                                                color: row.severity === v ? 'white' : 'var(--color-text-muted)',
                                                 fontWeight: 800, fontSize: '0.7rem', cursor: 'pointer',
                                                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1px'
                                             }}>
@@ -357,19 +357,19 @@ export default function RiskMatrix() {
             <button onClick={addRow} style={{
                 width: '100%', padding: '1rem', display: 'flex', alignItems: 'center',
                 justifyContent: 'center', gap: '0.6rem', borderRadius: '14px',
-                border: '2px dashed #cbd5e1', background: '#f8fafc',
-                color: '#64748b', fontWeight: 800, fontSize: '0.85rem',
+                border: '2px dashed #cbd5e1', background: 'var(--color-background)',
+                color: 'var(--color-text-muted)', fontWeight: 800, fontSize: '0.85rem',
                 cursor: 'pointer', marginBottom: '2rem', transition: 'all 0.2s'
             }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = '#6366f1'; e.currentTarget.style.color = '#6366f1'; e.currentTarget.style.background = '#eef2ff'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.color = '#64748b'; e.currentTarget.style.background = '#f8fafc'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.color = 'var(--color-text-muted)'; e.currentTarget.style.background = 'var(--color-background)'; }}
             >
                 <Plus size={18} /> AGREGAR NUEVA EVALUACIÓN DE RIESGO
             </button>
 
             {/* ─── LEGEND ─── */}
-            <div style={{ background: '#f8fafc', borderRadius: '14px', padding: '1.2rem', border: '1px solid #e2e8f0' }}>
-                <p style={{ margin: '0 0 0.8rem 0', fontSize: '0.75rem', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div style={{ background: 'var(--color-background)', borderRadius: '14px', padding: '1.2rem', border: '1px solid #e2e8f0' }}>
+                <p style={{ margin: '0 0 0.8rem 0', fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     Guía de Valoración (P × S)
                 </p>
                 <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
@@ -382,7 +382,7 @@ export default function RiskMatrix() {
                             <div style={{ width: '32px', height: '20px', background: l.bg, border: `1.5px solid ${l.color}40`, borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <span style={{ fontSize: '0.6rem', fontWeight: 900, color: l.color }}>{l.label[0]}</span>
                             </div>
-                            <span style={{ fontSize: '0.75rem', color: '#64748b' }}><strong style={{ color: l.color }}>{l.label}</strong> ({l.range}): {l.desc}</span>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}><strong style={{ color: l.color }}>{l.label}</strong> ({l.range}): {l.desc}</span>
                         </div>
                     ))}
                 </div>
@@ -394,16 +394,16 @@ export default function RiskMatrix() {
 // ─── Shared micro-styles ───
 const labelStyle = {
     display: 'block', fontSize: '0.65rem', fontWeight: 900,
-    color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem'
+    color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem'
 };
 const textareaStyle = {
     width: '100%', minHeight: '72px', padding: '0.6rem 0.8rem', margin: 0,
-    background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '10px',
-    fontSize: '0.82rem', resize: 'none', overflow: 'hidden', color: '#0f172a', fontFamily: 'inherit',
+    background: 'var(--color-background)', border: '1.5px solid #e2e8f0', borderRadius: '10px',
+    fontSize: '0.82rem', resize: 'none', overflow: 'hidden', color: 'var(--color-text)', fontFamily: 'inherit',
     outline: 'none', boxSizing: 'border-box'
 };
 const selectStyle = {
     width: '100%', padding: '0.6rem 0.8rem', margin: 0,
-    background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '10px',
-    fontSize: '0.82rem', color: '#0f172a', outline: 'none', boxSizing: 'border-box'
+    background: 'var(--color-background)', border: '1.5px solid #e2e8f0', borderRadius: '10px',
+    fontSize: '0.82rem', color: 'var(--color-text)', outline: 'none', boxSizing: 'border-box'
 };

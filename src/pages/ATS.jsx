@@ -192,7 +192,7 @@ export default function ATS() {
 
         ctx.lineWidth = 2;
         ctx.lineCap = 'round';
-        ctx.strokeStyle = '#000';
+        ctx.strokeStyle = 'var(--color-text)';
 
         ctx.lineTo(x, y);
         ctx.stroke();
@@ -305,21 +305,21 @@ export default function ATS() {
                     <button
                         onClick={handleSave}
                         className="btn-floating-action"
-                        style={{ background: '#36B37E', color: 'white' }}
+                        style={{ background: '#36B37E', color: '#ffffff' }}
                     >
                         <Save size={18} /> GUARDAR
                     </button>
                     <button
                         onClick={handleShare}
                         className="btn-floating-action"
-                        style={{ background: '#0052CC', color: 'white' }}
+                        style={{ background: '#0052CC', color: '#ffffff' }}
                     >
                         <Share2 size={18} /> COMPARTIR
                     </button>
                     <button
                         onClick={handlePrint}
                         className="btn-floating-action"
-                        style={{ background: '#FF8B00', color: 'white' }}
+                        style={{ background: '#FF8B00', color: '#ffffff' }}
                     >
                         <Printer size={18} /> IMPRIMIR PDF
                     </button>
@@ -329,7 +329,7 @@ export default function ATS() {
                 <div className="no-print" style={{
                     marginBottom: '2rem',
                     padding: '2.5rem',
-                    background: '#fff',
+                    background: 'var(--color-surface)',
                     borderRadius: '24px',
                     border: '1px solid #EBECF0',
                     display: 'flex',
@@ -339,15 +339,15 @@ export default function ATS() {
                     boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                        <button onClick={() => navigate(-1)} style={{ padding: '0.6rem', background: '#F4F5F7', borderRadius: '12px', border: 'none', cursor: 'pointer', color: '#42526E', display: 'flex' }}>
+                        <button onClick={() => navigate(-1)} style={{ padding: '0.6rem', background: 'var(--color-background)', borderRadius: '12px', border: 'none', cursor: 'pointer', color: 'var(--color-text)', display: 'flex' }}>
                             <ArrowLeft size={22} />
                         </button>
                         <div>
-                            <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, color: '#172B4D', letterSpacing: '-1px', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                            <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, color: 'var(--color-text)', letterSpacing: '-1px', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                                 <ShieldCheck className="text-blue-600" size={32} />
                                 Análisis de Trabajo Seguro
                             </h1>
-                            <p style={{ margin: 0, color: '#6B778C', fontWeight: 600, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Control HYS</p>
+                            <p style={{ margin: 0, color: 'var(--color-text-muted)', fontWeight: 600, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Control HYS</p>
                         </div>
                     </div>
                 </div>
@@ -397,14 +397,14 @@ export default function ATS() {
                                 <button
                                     onClick={handleGenerateAI}
                                     disabled={isGeneratingATS}
-                                    style={{ flex: 1, minWidth: '120px', padding: '0.6rem 1rem', background: 'linear-gradient(135deg, #a855f7, #ec4899)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', cursor: isGeneratingATS ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: '0 4px 15px rgba(236,72,153,0.3)', opacity: isGeneratingATS ? 0.7 : 1 }}
+                                    style={{ flex: 1, minWidth: '120px', padding: '0.6rem 1rem', background: 'linear-gradient(135deg, #a855f7, #ec4899)', color: '#ffffff', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', cursor: isGeneratingATS ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: '0 4px 15px rgba(236,72,153,0.3)', opacity: isGeneratingATS ? 0.7 : 1 }}
                                 >
                                     {isGeneratingATS ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
                                     {isGeneratingATS ? 'PENSANDO...' : 'IA MÁGICA'}
                                 </button>
                                 <button
                                     onClick={addTask}
-                                    style={{ flex: 1, minWidth: '120px', padding: '0.6rem 1.2rem', background: '#36B37E', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                                    style={{ flex: 1, minWidth: '120px', padding: '0.6rem 1.2rem', background: '#36B37E', color: '#ffffff', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
                                 >
                                     <Plus size={16} /> AGREGAR PASO
                                 </button>
@@ -416,7 +416,7 @@ export default function ATS() {
 
                         <div style={{ border: '2px solid var(--color-border)', borderRadius: '16px', overflow: 'hidden' }}>
                             {/* Table Header - Only Desktop/Print */}
-                            <div className="hidden sm:flex print:flex" style={{ background: '#f8fafc', borderBottom: '2px solid var(--color-border)', fontWeight: 900, textTransform: 'uppercase', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                            <div className="hidden sm:flex print:flex" style={{ background: 'var(--color-background)', borderBottom: '2px solid var(--color-border)', fontWeight: 900, textTransform: 'uppercase', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
                                 <div style={{ padding: '1rem', flex: 3, borderRight: '1px solid var(--color-border)' }}>Paso de la Tarea</div>
                                 <div style={{ padding: '1rem', flex: 3, borderRight: '1px solid var(--color-border)' }}>Riesgos Existentes</div>
                                 <div style={{ padding: '1rem', flex: 4 }}>Medidas de Control</div>
@@ -487,7 +487,7 @@ export default function ATS() {
                                                             <span style={{ fontSize: '0.9rem' }}>¿Eliminar este paso?</span>
                                                             <button
                                                                 onClick={() => { removeTask(t.id); toast.dismiss(toastId); }}
-                                                                style={{ background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem' }}
+                                                                style={{ background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem' }}
                                                             >Eliminar</button>
                                                         </div>,
                                                         { duration: 4000, icon: '🗑️' }
@@ -512,7 +512,7 @@ export default function ATS() {
 
                         {categories.map(cat => (
                             <div key={cat} className="card mt-10 mb-10" style={{ padding: 0, border: '2px solid var(--color-border)' }}>
-                                <div style={{ background: '#f8fafc', padding: '1.2rem', borderBottom: '2px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ background: 'var(--color-background)', padding: '1.2rem', borderBottom: '2px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <h4 style={{ margin: 0, color: 'var(--color-text)', fontWeight: 900, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                         <Info size={18} className="text-blue-600" />
                                         <span
@@ -527,7 +527,7 @@ export default function ATS() {
                                     <button
                                         className="no-print"
                                         onClick={() => addQuestion(cat)}
-                                        style={{ padding: '0.5rem 1rem', background: 'var(--color-primary)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 800, fontSize: '0.7rem', cursor: 'pointer' }}
+                                        style={{ padding: '0.5rem 1rem', background: 'var(--color-primary)', color: '#ffffff', border: 'none', borderRadius: '8px', fontWeight: 800, fontSize: '0.7rem', cursor: 'pointer' }}
                                     >
                                         + AGREGAR PUNTO
                                     </button>
@@ -578,7 +578,7 @@ export default function ATS() {
                                                                 <span style={{ fontSize: '0.9rem' }}>¿Eliminar este punto?</span>
                                                                 <button
                                                                     onClick={() => { removeQuestion(item.id); toast.dismiss(toastId); }}
-                                                                    style={{ background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem' }}
+                                                                    style={{ background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem' }}
                                                                 >Sí</button>
                                                             </div>,
                                                             { duration: 4000, icon: '🗑️' }
@@ -720,7 +720,7 @@ export default function ATS() {
                                 <button
                                     onClick={runAIGeneration}
                                     disabled={!aiTaskInput.trim()}
-                                    style={{ flex: 2, padding: '0.8rem', borderRadius: '12px', border: 'none', background: aiTaskInput.trim() ? 'linear-gradient(135deg,#a855f7,#ec4899)' : 'var(--color-border)', color: 'white', fontWeight: 800, cursor: aiTaskInput.trim() ? 'pointer' : 'not-allowed', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxShadow: aiTaskInput.trim() ? '0 4px 15px rgba(168,85,247,0.4)' : 'none', transition: 'all 0.2s' }}
+                                    style={{ flex: 2, padding: '0.8rem', borderRadius: '12px', border: 'none', background: aiTaskInput.trim() ? 'linear-gradient(135deg,#a855f7,#ec4899)' : 'var(--color-border)', color: '#ffffff', fontWeight: 800, cursor: aiTaskInput.trim() ? 'pointer' : 'not-allowed', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxShadow: aiTaskInput.trim() ? '0 4px 15px rgba(168,85,247,0.4)' : 'none', transition: 'all 0.2s' }}
                                 >
                                     <Sparkles size={16} /> GENERAR ATS
                                 </button>

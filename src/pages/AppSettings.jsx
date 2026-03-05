@@ -103,7 +103,7 @@ export default function AppSettings() {
             <div className="card" style={{ marginBottom: '1.5rem', border: currentUser ? '1px solid rgba(16,185,129,0.3)' : '1px solid var(--color-border)', background: currentUser ? 'rgba(16,185,129,0.04)' : 'var(--color-surface)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
                     <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: currentUser ? 'rgba(16,185,129,0.12)' : 'rgba(100,116,139,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <Cloud size={24} color={currentUser ? '#10b981' : '#64748b'} />
+                        <Cloud size={24} color={currentUser ? '#10b981' : 'var(--color-text-muted)'} />
                     </div>
                     <div style={{ flex: 1 }}>
                         <div style={{ fontWeight: 800, fontSize: '1rem' }}>
@@ -155,7 +155,7 @@ export default function AppSettings() {
                             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem',
                             padding: '0.8rem', borderRadius: '12px', width: '100%',
                             background: 'linear-gradient(135deg,#1e3a8a,#2563eb)',
-                            color: 'white', border: 'none', cursor: 'pointer',
+                            color: '#ffffff', border: 'none', cursor: 'pointer',
                             fontWeight: 800, fontSize: '0.9rem',
                             boxShadow: '0 4px 14px rgba(37,99,235,0.3)'
                         }}

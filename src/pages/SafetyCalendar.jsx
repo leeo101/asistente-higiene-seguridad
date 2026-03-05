@@ -27,7 +27,7 @@ export default function SafetyCalendar() {
         'Training': { color: '#10b981', label: 'Capacitación', icon: <Award size={14} /> },
         'Legal': { color: '#ef4444', label: 'Vencimiento Legal', icon: <Scale size={14} /> },
         'Commemorative': { color: '#8b5cf6', label: 'Efeméride HYS', icon: <CalendarDays size={14} /> },
-        'Other': { color: '#64748b', label: 'Otro', icon: <CalendarIcon size={14} /> }
+        'Other': { color: 'var(--color-text-muted)', label: 'Otro', icon: <CalendarIcon size={14} /> }
     };
 
     const initialDates = [
@@ -294,13 +294,13 @@ export default function SafetyCalendar() {
                                 gap: '2px',
                                 minWidth: 0
                             }}>
-                                <span style={{ fontSize: '0.55rem', color: 'white', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0 }} className="hidden sm:block">
+                                <span style={{ fontSize: '0.55rem', color: '#ffffff', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0 }} className="hidden sm:block">
                                     {e.title}
                                 </span>
-                                <span className="sm:hidden" style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'white', flexShrink: 0, display: 'block' }} />
+                                <span className="sm:hidden" style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--color-surface)', flexShrink: 0, display: 'block' }} />
                                 <button
                                     onClick={(ev) => { ev.stopPropagation(); deleteEvent(e); }}
-                                    style={{ background: 'rgba(255,255,255,0.25)', border: 'none', borderRadius: '3px', padding: '1px 2px', display: 'flex', cursor: 'pointer', color: 'white', flexShrink: 0 }}
+                                    style={{ background: 'rgba(255,255,255,0.25)', border: 'none', borderRadius: '3px', padding: '1px 2px', display: 'flex', cursor: 'pointer', color: '#ffffff', flexShrink: 0 }}
                                 >
                                     <Trash2 size={8} />
                                 </button>
@@ -462,7 +462,7 @@ export default function SafetyCalendar() {
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        color: 'white',
+                                        color: '#ffffff',
                                         boxShadow: `0 2px 8px ${info.color}44`
                                     }}>
                                         {info.icon}

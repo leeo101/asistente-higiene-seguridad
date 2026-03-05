@@ -189,13 +189,13 @@ export default function WorkPermit() {
 
             {/* Action Bar */}
             <div className="no-print floating-action-bar">
-                <button onClick={handleSave} className="btn-floating-action" style={{ background: '#36B37E', color: 'white' }}>
+                <button onClick={handleSave} className="btn-floating-action" style={{ background: '#36B37E', color: '#ffffff' }}>
                     <Save size={18} /> GUARDAR
                 </button>
-                <button onClick={handleShare} className="btn-floating-action" style={{ background: '#0052CC', color: 'white' }}>
+                <button onClick={handleShare} className="btn-floating-action" style={{ background: '#0052CC', color: '#ffffff' }}>
                     <Share2 size={18} /> COMPARTIR
                 </button>
-                <button onClick={handlePrint} className="btn-floating-action" style={{ background: '#FF8B00', color: 'white' }}>
+                <button onClick={handlePrint} className="btn-floating-action" style={{ background: '#FF8B00', color: '#ffffff' }}>
                     <Printer size={18} /> IMPRIMIR PDF
                 </button>
             </div>
@@ -203,7 +203,7 @@ export default function WorkPermit() {
             <div className="no-print" style={{
                 marginBottom: '2rem',
                 padding: '2rem',
-                background: '#fff',
+                background: 'var(--color-surface)',
                 borderRadius: '20px',
                 border: '1px solid #EBECF0',
                 display: 'flex',
@@ -212,12 +212,12 @@ export default function WorkPermit() {
                 alignItems: 'center'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: '#F4F5F7', borderRadius: '10px', border: 'none', cursor: 'pointer', color: '#42526E' }}>
+                    <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'var(--color-background)', borderRadius: '10px', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
                         <ArrowLeft size={20} />
                     </button>
                     <div>
-                        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900, color: '#172B4D' }}>Permisos de Trabajo</h1>
-                        <p style={{ margin: 0, color: '#6B778C', fontWeight: 600, fontSize: '0.8rem', textTransform: 'uppercase' }}>Gestión de Riesgos Especiales</p>
+                        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-text)' }}>Permisos de Trabajo</h1>
+                        <p style={{ margin: 0, color: 'var(--color-text-muted)', fontWeight: 600, fontSize: '0.8rem', textTransform: 'uppercase' }}>Gestión de Riesgos Especiales</p>
                     </div>
                 </div>
             </div>
@@ -228,7 +228,7 @@ export default function WorkPermit() {
                 {/* Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '3px solid #333', paddingBottom: '1rem', marginBottom: '2rem' }}>
                     <div>
-                        <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, color: '#333' }}>PERMISO DE TRABAJO</h1>
+                        <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, color: 'var(--color-text)' }}>PERMISO DE TRABAJO</h1>
                         <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#666' }}>{selectedTypeLabel.toUpperCase()}</p>
                     </div>
                     <div style={{ textAlign: 'right' }}>
@@ -248,7 +248,7 @@ export default function WorkPermit() {
                                     textAlign: 'right',
                                     width: '80px',
                                     outline: 'none',
-                                    color: '#333'
+                                    color: 'var(--color-text)'
                                 }}
                             />
                         </div>
@@ -282,22 +282,22 @@ export default function WorkPermit() {
                 {/* Checklist Section */}
                 <div style={{ marginBottom: '2.5rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                        <h3 style={{ fontSize: '1rem', fontWeight: 900, margin: 0, color: '#172B4D', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <h3 style={{ fontSize: '1rem', fontWeight: 900, margin: 0, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <ShieldCheck size={20} /> VERIFICACIÓN PREVENTIVA (CHECKLIST)
                         </h3>
-                        <button className="no-print" onClick={addChecklistItem} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 800, cursor: 'pointer' }}>
+                        <button className="no-print" onClick={addChecklistItem} style={{ background: '#3b82f6', color: '#ffffff', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 800, cursor: 'pointer' }}>
                             + AGREGAR PREGUNTA
                         </button>
                     </div>
                     <div style={{ border: '1px solid #eee', borderRadius: '12px', overflow: 'hidden' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 100px 1.5fr 40px', background: '#f8fafc', padding: '0.6rem 1rem', borderBottom: '2px solid #ddd', fontWeight: 800, fontSize: '0.7rem', color: '#666' }} className="hidden sm:grid">
+                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 100px 1.5fr 40px', background: 'var(--color-background)', padding: '0.6rem 1rem', borderBottom: '2px solid #ddd', fontWeight: 800, fontSize: '0.7rem', color: '#666' }} className="hidden sm:grid">
                             <div>PREGUNTA / ITEM</div>
                             <div style={{ textAlign: 'center' }}>ESTADO</div>
                             <div>OBSERVACIONES</div>
                             <div className="no-print"></div>
                         </div>
                         {formData.checklist.map((item, idx) => (
-                            <div key={item.id} style={{ padding: '1rem', borderBottom: '1px solid #f0f0f0', background: idx % 2 === 0 ? '#fafafa' : '#fff' }} className="grid grid-cols-1 sm:grid-cols-[2fr_100px_1.5fr_40px] gap-4 sm:gap-4 items-center">
+                            <div key={item.id} style={{ padding: '1rem', borderBottom: '1px solid #f0f0f0', background: idx % 2 === 0 ? '#fafafa' : 'var(--color-surface)' }} className="grid grid-cols-1 sm:grid-cols-[2fr_100px_1.5fr_40px] gap-4 sm:gap-4 items-center">
                                 <div className="flex flex-col sm:block">
                                     <span className="sm:hidden text-[0.6rem] font-bold text-blue-500 uppercase mb-1">Item/Pregunta:</span>
                                     <input
@@ -339,15 +339,15 @@ export default function WorkPermit() {
                 {/* Personnel Section */}
                 <div style={{ marginBottom: '2.5rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                        <h3 style={{ fontSize: '1rem', fontWeight: 900, margin: 0, color: '#172B4D', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <h3 style={{ fontSize: '1rem', fontWeight: 900, margin: 0, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <Users size={20} /> PERSONAL AUTORIZADO
                         </h3>
-                        <button className="no-print" onClick={addPersonnel} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 800, cursor: 'pointer' }}>
+                        <button className="no-print" onClick={addPersonnel} style={{ background: '#3b82f6', color: '#ffffff', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 800, cursor: 'pointer' }}>
                             + AGREGAR PERSONAL
                         </button>
                     </div>
                     <div style={{ border: '1px solid #ddd', borderRadius: '12px', overflow: 'hidden' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 40px', background: '#f8fafc', padding: '0.6rem 1rem', borderBottom: '2px solid #ddd', fontWeight: 800, fontSize: '0.7rem', color: '#666' }} className="hidden sm:grid">
+                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 40px', background: 'var(--color-background)', padding: '0.6rem 1rem', borderBottom: '2px solid #ddd', fontWeight: 800, fontSize: '0.7rem', color: '#666' }} className="hidden sm:grid">
                             <div>NOMBRE Y APELLIDO</div>
                             <div>DNI</div>
                             <div>FIRMA</div>
@@ -434,7 +434,7 @@ function StatusBtn({ active, onClick, label, color = '#36B37E' }) {
                 padding: '4px 12px',
                 borderRadius: '6px',
                 border: '1px solid #ddd',
-                background: active ? color : '#fff',
+                background: active ? color : 'var(--color-surface)',
                 color: active ? 'white' : '#666',
                 fontSize: '0.7rem',
                 fontWeight: 800,

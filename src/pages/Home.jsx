@@ -65,7 +65,7 @@ function CounterItem({ value, label, suffix }) {
     const count = useCounter(value);
     return (
         <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff', lineHeight: 1 }}>
+            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--color-surface)', lineHeight: 1 }}>
                 {count.toLocaleString('es-AR')}{suffix}
             </div>
             <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.7)', fontWeight: 600, marginTop: '0.2rem' }}>{label}</div>
@@ -211,7 +211,7 @@ export default function Home() {
                             <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.85rem', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 0.3rem' }}>
                                 {currentUser ? 'Bienvenido de vuelta' : 'Potenciá tu trabajo con IA'}
                             </p>
-                            <h1 style={{ fontSize: 'clamp(1.8rem, 5vw, 2.8rem)', fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.1, letterSpacing: '-1px', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                            <h1 style={{ fontSize: 'clamp(1.8rem, 5vw, 2.8rem)', fontWeight: 900, color: 'var(--color-surface)', margin: 0, lineHeight: 1.1, letterSpacing: '-1px', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                                 {currentUser ? <>{userName} {isSubscribed && <Sparkles size={24} color="#f59e0b" fill="#f59e0b" title="Plan PRO Activo" />}</> : 'Asistente de Higiene y Seguridad'}
                             </h1>
                             <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1.1rem', marginTop: '1rem', fontWeight: 400, maxWidth: '500px' }}>
@@ -223,13 +223,13 @@ export default function Home() {
                         {!currentUser && (
                             <div className="hero-buttons" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', marginTop: '2rem', width: '100%', maxWidth: '450px' }}>
                                 <button onClick={() => navigate('/login', { state: { view: 'register' } })}
-                                    style={{ flex: 2, padding: '1rem 1.5rem', borderRadius: '12px', border: 'none', background: '#fff', color: '#2563eb', fontWeight: 800, cursor: 'pointer', fontSize: '1rem', boxShadow: '0 10px 25px rgba(0,0,0,0.2)', transition: 'transform 0.2s' }}
+                                    style={{ flex: 2, padding: '1rem 1.5rem', borderRadius: '12px', border: 'none', background: 'var(--color-surface)', color: '#2563eb', fontWeight: 800, cursor: 'pointer', fontSize: '1rem', boxShadow: '0 10px 25px rgba(0,0,0,0.2)', transition: 'transform 0.2s' }}
                                     onMouseOver={e => e.currentTarget.style.transform = 'scale(1.03)'}
                                     onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}>
                                     Comenzar Gratis
                                 </button>
                                 <button onClick={() => navigate('/login', { state: { view: 'login' } })}
-                                    style={{ flex: 1, padding: '1rem 1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.15)', color: 'white', fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(8px)', fontSize: '1rem' }}>
+                                    style={{ flex: 1, padding: '1rem 1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.15)', color: '#ffffff', fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(8px)', fontSize: '1rem' }}>
                                     Ingresar
                                 </button>
                             </div>
@@ -267,7 +267,7 @@ export default function Home() {
                                     <div style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '0.3rem' }}>
                                         {React.cloneElement(stat.icon, { size: 20 })}
                                     </div>
-                                    <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#fff', lineHeight: 1 }}>{stat.value}</div>
+                                    <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-surface)', lineHeight: 1 }}>{stat.value}</div>
                                     <div style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.7)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '0.2rem' }}>{stat.label}</div>
                                 </div>
                             ))}
@@ -342,7 +342,7 @@ export default function Home() {
                                 </h4>
                                 <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Habilitá impresiones, PDF e historial completo.</p>
                             </div>
-                            <span style={{ background: 'var(--color-primary)', color: 'white', fontSize: '0.7rem', fontWeight: 900, padding: '0.3rem 0.7rem', borderRadius: '20px', whiteSpace: 'nowrap' }}>
+                            <span style={{ background: 'var(--color-primary)', color: '#ffffff', fontSize: '0.7rem', fontWeight: 900, padding: '0.3rem 0.7rem', borderRadius: '20px', whiteSpace: 'nowrap' }}>
                                 $5/mes
                             </span>
                         </div>
@@ -391,7 +391,7 @@ export default function Home() {
                                     { n: '3', icon: '📄', title: 'Descargá tus Reportes', desc: 'Generá PDFs profesionales listos para presentar con tu firma digital.' },
                                 ].map((s, i) => (
                                     <div key={i} style={{ textAlign: 'center', padding: '1rem' }}>
-                                        <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'linear-gradient(135deg,#1e3a8a,#2563eb)', margin: '0 auto 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900, fontSize: '1.2rem', boxShadow: '0 4px 15px rgba(37,99,235,0.3)' }}>
+                                        <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'linear-gradient(135deg,#1e3a8a,#2563eb)', margin: '0 auto 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontWeight: 900, fontSize: '1.2rem', boxShadow: '0 4px 15px rgba(37,99,235,0.3)' }}>
                                             {s.n}
                                         </div>
                                         <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{s.icon}</div>
@@ -422,7 +422,7 @@ export default function Home() {
                                         "{t.text}"
                                     </p>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
-                                        <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'linear-gradient(135deg,#1e3a8a,#2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900, fontSize: '0.9rem', flexShrink: 0 }}>
+                                        <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'linear-gradient(135deg,#1e3a8a,#2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontWeight: 900, fontSize: '0.9rem', flexShrink: 0 }}>
                                             {t.name[0]}
                                         </div>
                                         <div>
@@ -452,7 +452,7 @@ export default function Home() {
                                 </button>
                             </div>
                             <div className="card" style={{ padding: '1.5rem', textAlign: 'center', border: '2px solid #2563eb', position: 'relative', overflow: 'hidden' }}>
-                                <div style={{ position: 'absolute', top: '12px', right: '12px', background: '#2563eb', color: 'white', fontSize: '0.65rem', fontWeight: 900, padding: '0.2rem 0.6rem', borderRadius: '20px' }}>RECOMENDADO</div>
+                                <div style={{ position: 'absolute', top: '12px', right: '12px', background: '#2563eb', color: '#ffffff', fontSize: '0.65rem', fontWeight: 900, padding: '0.2rem 0.6rem', borderRadius: '20px' }}>RECOMENDADO</div>
                                 <div style={{ fontWeight: 900, fontSize: '1.1rem', marginBottom: '0.3rem' }}>PRO</div>
                                 <div style={{ fontSize: '2rem', fontWeight: 900, color: '#2563eb', marginBottom: '1rem' }}>$5<span style={{ fontSize: '1rem', fontWeight: 600 }}>/mes</span></div>
                                 {['Todo lo del plan Gratis', 'Impresión y PDF ilimitados', 'Firma y sello digital', 'Historial completo en nube', 'Soporte prioritario'].map((f, i) => (
@@ -460,7 +460,7 @@ export default function Home() {
                                         <span style={{ color: '#2563eb', fontWeight: 900 }}>✓</span> {f}
                                     </div>
                                 ))}
-                                <button onClick={() => window.location.href = '/login?view=register'} style={{ marginTop: '1rem', width: '100%', padding: '0.8rem', borderRadius: '10px', border: 'none', background: 'linear-gradient(135deg,#1e3a8a,#2563eb)', color: 'white', fontWeight: 800, cursor: 'pointer', fontSize: '0.9rem', boxShadow: '0 4px 15px rgba(37,99,235,0.3)' }}>
+                                <button onClick={() => window.location.href = '/login?view=register'} style={{ marginTop: '1rem', width: '100%', padding: '0.8rem', borderRadius: '10px', border: 'none', background: 'linear-gradient(135deg,#1e3a8a,#2563eb)', color: '#ffffff', fontWeight: 800, cursor: 'pointer', fontSize: '0.9rem', boxShadow: '0 4px 15px rgba(37,99,235,0.3)' }}>
                                     Activar PRO
                                 </button>
                             </div>
@@ -497,7 +497,7 @@ export default function Home() {
                                 <PlusCircle size={28} color="white" />
                             </div>
                             <div style={{ flex: 1, zIndex: 1 }}>
-                                <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900, color: 'white' }}>Nueva Inspección</h4>
+                                <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900, color: '#ffffff' }}>Nueva Inspección</h4>
                                 <p style={{ margin: 0, fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)' }}>Crear y sincronizar en la nube</p>
                             </div>
                             <ChevronRight size={22} color="rgba(255,255,255,0.7)" />

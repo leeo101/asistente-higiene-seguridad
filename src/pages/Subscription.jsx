@@ -118,7 +118,7 @@ export default function Subscription() {
                         width: '100%',
                         padding: '1rem',
                         background: 'var(--color-primary)',
-                        color: 'white',
+                        color: '#ffffff',
                         border: 'none',
                         borderRadius: '12px',
                         fontWeight: '600',
@@ -147,7 +147,7 @@ export default function Subscription() {
                                         setExpiryDate(null);
                                         toast.success('Suscripción cancelada.');
                                     }}
-                                    style={{ background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', padding: '0.4rem 1rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.85rem', marginTop: '0.3rem' }}
+                                    style={{ background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '0.4rem 1rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.85rem', marginTop: '0.3rem' }}
                                 >Sí, cancelar</button>
                             </div>,
                             { duration: 6000 }
@@ -251,7 +251,7 @@ export default function Subscription() {
                     left: '50%',
                     transform: 'translateX(-50%)',
                     background: 'linear-gradient(90deg, #3b82f6, #8b5cf6)',
-                    color: 'white',
+                    color: '#ffffff',
                     padding: '0.5rem 2rem',
                     borderRadius: '50px',
                     fontSize: '0.9rem',
@@ -280,7 +280,7 @@ export default function Subscription() {
                             width: '100%',
                             padding: '1rem',
                             background: '#009ee3', // Mercado Pago color
-                            color: 'white',
+                            color: '#ffffff',
                             border: 'none',
                             borderRadius: '12px',
                             fontSize: '1.1rem',

@@ -286,21 +286,21 @@ export default function FireLoad() {
                 <button
                     onClick={handleSave}
                     className="btn-floating-action"
-                    style={{ background: '#36B37E', color: 'white' }}
+                    style={{ background: '#36B37E', color: '#ffffff' }}
                 >
                     <Save size={18} /> GUARDAR
                 </button>
                 <button
                     onClick={() => requirePro(() => setShowShare(true))}
                     className="btn-floating-action"
-                    style={{ background: '#0052CC', color: 'white' }}
+                    style={{ background: '#0052CC', color: '#ffffff' }}
                 >
                     <Share2 size={18} /> COMPARTIR
                 </button>
                 <button
                     onClick={handlePrint}
                     className="btn-floating-action"
-                    style={{ background: '#FF8B00', color: 'white' }}
+                    style={{ background: '#FF8B00', color: '#ffffff' }}
                 >
                     <Printer size={18} /> IMPRIMIR PDF
                 </button>
@@ -490,7 +490,7 @@ export default function FireLoad() {
                 </div>
 
                 <div style={{ position: 'sticky', top: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }} className="results-grid">
-                    <div className="card" style={{ background: 'var(--color-primary)', color: 'white', textAlign: 'center' }}>
+                    <div className="card" style={{ background: 'var(--color-primary)', color: '#ffffff', textAlign: 'center' }}>
                         <div style={{ fontSize: '0.85rem', opacity: 0.9, marginBottom: '0.5rem' }}>Carga de Fuego Qf</div>
                         <div style={{ fontSize: '2.5rem', fontWeight: 900 }}>{(results.cargaDeFuego || 0).toFixed(2)}</div>
                         <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>Kg de Madera / m²</div>
@@ -597,7 +597,7 @@ export default function FireLoad() {
                         className="no-print"
                         onClick={handleGenerateConclusion}
                         disabled={isGeneratingConclusion}
-                        style={{ padding: '0.6rem 1rem', background: 'linear-gradient(135deg, #a855f7, #ec4899)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', cursor: isGeneratingConclusion ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', outline: 'none' }}
+                        style={{ padding: '0.6rem 1rem', background: 'linear-gradient(135deg, #a855f7, #ec4899)', color: '#ffffff', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', cursor: isGeneratingConclusion ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', outline: 'none' }}
                     >
                         {isGeneratingConclusion ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
                         {isGeneratingConclusion ? 'REDACTANDO...' : 'REDACTAR CON IA'}

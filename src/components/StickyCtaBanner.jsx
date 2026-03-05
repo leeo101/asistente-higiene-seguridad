@@ -40,7 +40,7 @@ export default function StickyCtaBanner() {
             // Only show on mobile (max-width: 640px) via inline trick with className
         }}>
             <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ color: 'white', fontWeight: 800, fontSize: '0.95rem', lineHeight: 1.2 }}>
+                <div style={{ color: '#ffffff', fontWeight: 800, fontSize: '0.95rem', lineHeight: 1.2 }}>
                     ¡Es 100% gratuito!
                 </div>
                 <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.78rem', marginTop: '0.1rem' }}>
@@ -50,7 +50,7 @@ export default function StickyCtaBanner() {
             <button
                 onClick={() => navigate('/login', { state: { view: 'register' } })}
                 style={{
-                    background: '#fff', color: '#2563eb',
+                    background: 'var(--color-surface)', color: '#2563eb',
                     border: 'none', borderRadius: '12px',
                     padding: '0.65rem 1.1rem',
                     fontWeight: 800, fontSize: '0.85rem',
@@ -68,7 +68,7 @@ export default function StickyCtaBanner() {
                     background: 'rgba(255,255,255,0.15)', border: 'none',
                     borderRadius: '50%', width: '32px', height: '32px',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'pointer', color: 'white', flexShrink: 0,
+                    cursor: 'pointer', color: '#ffffff', flexShrink: 0,
                 }}
             >
                 <X size={16} />

@@ -73,7 +73,7 @@ export default function Photos() {
                                     right: '5px',
                                     padding: '0.4rem',
                                     background: 'rgba(239, 68, 68, 0.9)',
-                                    color: 'white',
+                                    color: '#ffffff',
                                     borderRadius: '50%',
                                     border: 'none',
                                     cursor: 'pointer',

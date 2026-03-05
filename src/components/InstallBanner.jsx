@@ -73,7 +73,7 @@ export default function InstallBanner() {
                 <Smartphone size={22} color="white" />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 800, fontSize: '0.9rem', color: 'white', marginBottom: '0.15rem' }}>
+                <div style={{ fontWeight: 800, fontSize: '0.9rem', color: '#ffffff', marginBottom: '0.15rem' }}>
                     Instalá Asistente HYS
                 </div>
                 <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.3 }}>
@@ -83,7 +83,7 @@ export default function InstallBanner() {
             <button
                 onClick={handleInstall}
                 style={{
-                    background: 'white', color: '#2563eb', border: 'none',
+                    background: 'var(--color-surface)', color: '#2563eb', border: 'none',
                     borderRadius: '10px', padding: '0.5rem 1rem',
                     fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer',
                     flexShrink: 0, whiteSpace: 'nowrap'

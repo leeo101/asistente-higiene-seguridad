@@ -74,7 +74,7 @@ export default function NotFound() {
                         borderRadius: '12px',
                         fontWeight: 700, fontSize: '0.9rem',
                         cursor: 'pointer',
-                        color: 'white',
+                        color: '#ffffff',
                         boxShadow: '0 4px 15px rgba(37,99,235,0.3)',
                     }}
                 >
