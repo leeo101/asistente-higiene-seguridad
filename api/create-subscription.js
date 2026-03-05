@@ -38,7 +38,7 @@ export default async function handler(req, res) {
                         title: 'Asistente HYS – Versión PRO',
                         description: 'Acceso completo: informes, PDF, compartir, Cámara IA y más. Suscripción mensual.',
                         quantity: 1,
-                        unit_price: 5.00,
+                        unit_price: 2.00,
                         currency_id: 'USD',
                     }
                 ],

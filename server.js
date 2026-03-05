@@ -79,7 +79,7 @@ app.post('/api/create-subscription', async (req, res) => {
                         id: 'premium-sub',
                         title: 'Suscripción Mensual Asistente HS Premium',
                         quantity: 1,
-                        unit_price: 5,
+                        unit_price: 2,
                         currency_id: 'USD'
                     }
                 ],

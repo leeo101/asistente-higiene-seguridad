@@ -343,7 +343,7 @@ export default function Home() {
                                 <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Habilitá impresiones, PDF e historial completo.</p>
                             </div>
                             <span style={{ background: 'var(--color-primary)', color: '#ffffff', fontSize: '0.7rem', fontWeight: 900, padding: '0.3rem 0.7rem', borderRadius: '20px', whiteSpace: 'nowrap' }}>
-                                $5/mes
+                                $2/mes
                             </span>
                         </div>
                     </Link>
@@ -454,7 +454,7 @@ export default function Home() {
                             <div className="card" style={{ padding: '1.5rem', textAlign: 'center', border: '2px solid #2563eb', position: 'relative', overflow: 'hidden' }}>
                                 <div style={{ position: 'absolute', top: '12px', right: '12px', background: '#2563eb', color: '#ffffff', fontSize: '0.65rem', fontWeight: 900, padding: '0.2rem 0.6rem', borderRadius: '20px' }}>RECOMENDADO</div>
                                 <div style={{ fontWeight: 900, fontSize: '1.1rem', marginBottom: '0.3rem' }}>PRO</div>
-                                <div style={{ fontSize: '2rem', fontWeight: 900, color: '#2563eb', marginBottom: '1rem' }}>$5<span style={{ fontSize: '1rem', fontWeight: 600 }}>/mes</span></div>
+                                <div style={{ fontSize: '2rem', fontWeight: 900, color: '#2563eb', marginBottom: '1rem' }}>$2<span style={{ fontSize: '1rem', fontWeight: 600 }}>/mes</span></div>
                                 {['Todo lo del plan Gratis', 'Impresión y PDF ilimitados', 'Firma y sello digital', 'Historial completo en nube', 'Soporte prioritario'].map((f, i) => (
                                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontSize: '0.85rem' }}>
                                         <span style={{ color: '#2563eb', fontWeight: 900 }}>✓</span> {f}
