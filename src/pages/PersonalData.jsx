@@ -33,17 +33,37 @@ export default function PersonalData() {
 
     const handlePhotoChange = (e) => {
         const file = e.target.files[0];
-        if (file) {
-            if (file.size > 1024 * 1024) { // 1MB limit for localStorage
-                toast.error('La foto es demasiado grande. Por favor elige una de menos de 1MB.');
-                return;
-            }
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setFormData(prev => ({ ...prev, photo: reader.result }));
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                const maxSize = 800; // Max width/height to ensure it stays well under 1MB
+
+                if (width > height && width > maxSize) {
+                    height = Math.round((height * maxSize) / width);
+                    width = maxSize;
+                } else if (height > maxSize) {
+                    width = Math.round((width * maxSize) / height);
+                    height = maxSize;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Compress as JPEG
+                const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                setFormData(prev => ({ ...prev, photo: compressedDataUrl }));
             };
-            reader.readAsDataURL(file);
-        }
+            img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
     };
 
     const removePhoto = () => {
