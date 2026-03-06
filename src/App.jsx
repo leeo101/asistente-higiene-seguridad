@@ -1,57 +1,60 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import { Routes, Route, useLocation, Navigate, Link } from 'react-router-dom';
 import { Menu, Search, Cloud, CloudOff } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
+import LoadingScreen from './components/LoadingScreen.jsx';
 import Home from './pages/Home.jsx';
-import CreateInspection from './pages/CreateInspection.jsx';
-import Checklist from './pages/Checklist.jsx';
-import Observation from './pages/Observation.jsx';
-import Photos from './pages/Photos.jsx';
-import RiskAssessment from './pages/RiskAssessment.jsx';
-import History from './pages/History.jsx';
-import Report from './pages/Report.jsx';
-import Profile from './pages/Profile.jsx';
 import Login from './pages/Login.jsx';
-import PersonalData from './pages/PersonalData.jsx';
-import SignatureStamp from './pages/SignatureStamp.jsx';
-import Security from './pages/Security.jsx';
-import AppSettings from './pages/AppSettings.jsx';
-import ATS from './pages/ATS.jsx';
-import ATSHistory from './pages/ATSHistory.jsx';
-import FireLoad from './pages/FireLoad.jsx';
-import FireLoadHistory from './pages/FireLoadHistory.jsx';
-import RiskMatrix from './pages/RiskMatrix.jsx';
-import RiskMatrixReport from './pages/RiskMatrixReport.jsx';
-import Reports from './pages/Reports.jsx';
-import ReportsReport from './pages/ReportsReport.jsx';
-import AICamera from './pages/AICamera.jsx';
-import AIGeneralCamera from './pages/AIGeneralCamera.jsx';
-import AIChatAdvisor from './pages/AIChatAdvisor.jsx';
-import AIReport from './pages/AIReport.jsx';
-import Legislation from './pages/Legislation.jsx';
-import Ergonomics from './pages/Ergonomics.jsx';
-import ErgonomicsForm from './pages/ErgonomicsForm.jsx';
-import ErgonomicsReport from './pages/ErgonomicsReport.jsx';
-import SafetyCalendar from './pages/SafetyCalendar.jsx';
-import ResetPassword from './pages/ResetPassword.jsx';
-import AdminRequests from './pages/AdminRequests.jsx';
-import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
-import LightingReport from './pages/LightingReport.jsx';
-import LightingHistory from './pages/LightingHistory.jsx';
-import WorkPermit from './pages/WorkPermit.jsx';
-import WorkPermitHistory from './pages/WorkPermitHistory.jsx';
-import InstallBanner from './components/InstallBanner.jsx';
-import NotFound from './pages/NotFound.jsx';
-import GlobalSearch from './components/GlobalSearch.jsx';
-import PPETracker from './pages/PPETracker.jsx';
-import Analytics from './pages/Analytics.jsx';
 
-import ChecklistsHistory from './pages/ChecklistsHistory.jsx';
-import ChecklistManager from './pages/ChecklistManager.jsx';
-import Subscription from './pages/Subscription.jsx';
-import AIHistory from './pages/AIHistory.jsx';
-import AICameraHistory from './pages/AICameraHistory.jsx';
+// LAZY LOADED PAGES
+const CreateInspection = lazy(() => import('./pages/CreateInspection.jsx'));
+const Checklist = lazy(() => import('./pages/Checklist.jsx'));
+const Observation = lazy(() => import('./pages/Observation.jsx'));
+const Photos = lazy(() => import('./pages/Photos.jsx'));
+const RiskAssessment = lazy(() => import('./pages/RiskAssessment.jsx'));
+const History = lazy(() => import('./pages/History.jsx'));
+const Report = lazy(() => import('./pages/Report.jsx'));
+const Profile = lazy(() => import('./pages/Profile.jsx'));
+const PersonalData = lazy(() => import('./pages/PersonalData.jsx'));
+const SignatureStamp = lazy(() => import('./pages/SignatureStamp.jsx'));
+const Security = lazy(() => import('./pages/Security.jsx'));
+const AppSettings = lazy(() => import('./pages/AppSettings.jsx'));
+const ATS = lazy(() => import('./pages/ATS.jsx'));
+const ATSHistory = lazy(() => import('./pages/ATSHistory.jsx'));
+const FireLoad = lazy(() => import('./pages/FireLoad.jsx'));
+const FireLoadHistory = lazy(() => import('./pages/FireLoadHistory.jsx'));
+const RiskMatrix = lazy(() => import('./pages/RiskMatrix.jsx'));
+const RiskMatrixReport = lazy(() => import('./pages/RiskMatrixReport.jsx'));
+const Reports = lazy(() => import('./pages/Reports.jsx'));
+const ReportsReport = lazy(() => import('./pages/ReportsReport.jsx'));
+const AICamera = lazy(() => import('./pages/AICamera.jsx'));
+const AIGeneralCamera = lazy(() => import('./pages/AIGeneralCamera.jsx'));
+const AIChatAdvisor = lazy(() => import('./pages/AIChatAdvisor.jsx'));
+const AIReport = lazy(() => import('./pages/AIReport.jsx'));
+const Legislation = lazy(() => import('./pages/Legislation.jsx'));
+const Ergonomics = lazy(() => import('./pages/Ergonomics.jsx'));
+const ErgonomicsForm = lazy(() => import('./pages/ErgonomicsForm.jsx'));
+const ErgonomicsReport = lazy(() => import('./pages/ErgonomicsReport.jsx'));
+const SafetyCalendar = lazy(() => import('./pages/SafetyCalendar.jsx'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword.jsx'));
+const AdminRequests = lazy(() => import('./pages/AdminRequests.jsx'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy.jsx'));
+const LightingReport = lazy(() => import('./pages/LightingReport.jsx'));
+const LightingHistory = lazy(() => import('./pages/LightingHistory.jsx'));
+const WorkPermit = lazy(() => import('./pages/WorkPermit.jsx'));
+const WorkPermitHistory = lazy(() => import('./pages/WorkPermitHistory.jsx'));
+const NotFound = lazy(() => import('./pages/NotFound.jsx'));
+const PPETracker = lazy(() => import('./pages/PPETracker.jsx'));
+const Analytics = lazy(() => import('./pages/Analytics.jsx'));
+const ChecklistsHistory = lazy(() => import('./pages/ChecklistsHistory.jsx'));
+const ChecklistManager = lazy(() => import('./pages/ChecklistManager.jsx'));
+const Subscription = lazy(() => import('./pages/Subscription.jsx'));
+const AIHistory = lazy(() => import('./pages/AIHistory.jsx'));
+const AICameraHistory = lazy(() => import('./pages/AICameraHistory.jsx'));
+
+import InstallBanner from './components/InstallBanner.jsx';
+import GlobalSearch from './components/GlobalSearch.jsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
 import { SyncProvider, useSync } from './contexts/SyncContext.jsx';
 import { Toaster, toast } from 'react-hot-toast';
@@ -308,64 +311,66 @@ function App() {
 
           <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/subscribe" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Suspense fallback={<LoadingScreen />}>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/subscribe" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
 
-            {/* Public Routes */}
-            <Route path="/" element={<Home />} />
-            <Route path="/ats" element={<ATS />} />
-            <Route path="/fire-load" element={<FireLoad />} />
-            <Route path="/legislation" element={<Legislation />} />
-            <Route path="/checklists" element={<ChecklistManager />} />
-            <Route path="/create-inspection" element={<CreateInspection />} />
-            <Route path="/checklist" element={<Checklist />} />
-            <Route path="/observation" element={<Observation />} />
-            <Route path="/photos" element={<Photos />} />
-            <Route path="/ai-camera" element={<AICamera />} />
-            <Route path="/ai-general-camera" element={<AIGeneralCamera />} />
-            <Route path="/ai-advisor" element={<AIChatAdvisor />} />
-            <Route path="/ai-history" element={<AIHistory />} />
-            <Route path="/ai-report" element={<AIReport />} />
-            <Route path="/calendar" element={<SafetyCalendar />} />
-            <Route path="/ai-camera-history" element={<AICameraHistory />} />
-            <Route path="/lighting" element={<LightingReport />} />
+              {/* Public Routes */}
+              <Route path="/" element={<Home />} />
+              <Route path="/ats" element={<ATS />} />
+              <Route path="/fire-load" element={<FireLoad />} />
+              <Route path="/legislation" element={<Legislation />} />
+              <Route path="/checklists" element={<ChecklistManager />} />
+              <Route path="/create-inspection" element={<CreateInspection />} />
+              <Route path="/checklist" element={<Checklist />} />
+              <Route path="/observation" element={<Observation />} />
+              <Route path="/photos" element={<Photos />} />
+              <Route path="/ai-camera" element={<AICamera />} />
+              <Route path="/ai-general-camera" element={<AIGeneralCamera />} />
+              <Route path="/ai-advisor" element={<AIChatAdvisor />} />
+              <Route path="/ai-history" element={<AIHistory />} />
+              <Route path="/ai-report" element={<AIReport />} />
+              <Route path="/calendar" element={<SafetyCalendar />} />
+              <Route path="/ai-camera-history" element={<AICameraHistory />} />
+              <Route path="/lighting" element={<LightingReport />} />
 
-            {/* Tools that are now accessible but will have paywall on print */}
-            <Route path="/risk" element={<RiskAssessment />} />
-            <Route path="/report" element={<Report />} />
-            <Route path="/risk-matrix" element={<RiskMatrix />} />
-            <Route path="/risk-matrix-report" element={<RiskMatrixReport />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/reports-report" element={<ReportsReport />} />
-            <Route path="/ergonomics" element={<Ergonomics />} />
-            <Route path="/ergonomics-form" element={<ErgonomicsForm />} />
-            <Route path="/ergonomics-report" element={<ErgonomicsReport />} />
+              {/* Tools that are now accessible but will have paywall on print */}
+              <Route path="/risk" element={<RiskAssessment />} />
+              <Route path="/report" element={<Report />} />
+              <Route path="/risk-matrix" element={<RiskMatrix />} />
+              <Route path="/risk-matrix-report" element={<RiskMatrixReport />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/reports-report" element={<ReportsReport />} />
+              <Route path="/ergonomics" element={<Ergonomics />} />
+              <Route path="/ergonomics-form" element={<ErgonomicsForm />} />
+              <Route path="/ergonomics-report" element={<ErgonomicsReport />} />
 
-            {/* Protected Private Routes */}
-            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-            <Route path="/personal-data" element={<ProtectedRoute><PersonalData /></ProtectedRoute>} />
-            <Route path="/signature-stamp" element={<ProtectedRoute><SignatureStamp /></ProtectedRoute>} />
-            <Route path="/security" element={<ProtectedRoute><Security /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><AppSettings /></ProtectedRoute>} />
-            <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
-            <Route path="/ats-history" element={<ProtectedRoute><ATSHistory /></ProtectedRoute>} />
-            <Route path="/fire-load-history" element={<ProtectedRoute><FireLoadHistory /></ProtectedRoute>} />
-            <Route path="/checklists-history" element={<ProtectedRoute><ChecklistsHistory /></ProtectedRoute>} />
-            <Route path="/lighting-history" element={<ProtectedRoute><LightingHistory /></ProtectedRoute>} />
-            <Route path="/work-permit" element={<ProtectedRoute><WorkPermit /></ProtectedRoute>} />
-            <Route path="/work-permit-history" element={<ProtectedRoute><WorkPermitHistory /></ProtectedRoute>} />
-            <Route path="/admin/requests" element={<ProtectedRoute><AdminRequests /></ProtectedRoute>} />
-            <Route path="/ppe-tracker" element={<ProtectedRoute><PPETracker /></ProtectedRoute>} />
-            <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+              {/* Protected Private Routes */}
+              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/personal-data" element={<ProtectedRoute><PersonalData /></ProtectedRoute>} />
+              <Route path="/signature-stamp" element={<ProtectedRoute><SignatureStamp /></ProtectedRoute>} />
+              <Route path="/security" element={<ProtectedRoute><Security /></ProtectedRoute>} />
+              <Route path="/settings" element={<ProtectedRoute><AppSettings /></ProtectedRoute>} />
+              <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
+              <Route path="/ats-history" element={<ProtectedRoute><ATSHistory /></ProtectedRoute>} />
+              <Route path="/fire-load-history" element={<ProtectedRoute><FireLoadHistory /></ProtectedRoute>} />
+              <Route path="/checklists-history" element={<ProtectedRoute><ChecklistsHistory /></ProtectedRoute>} />
+              <Route path="/lighting-history" element={<ProtectedRoute><LightingHistory /></ProtectedRoute>} />
+              <Route path="/work-permit" element={<ProtectedRoute><WorkPermit /></ProtectedRoute>} />
+              <Route path="/work-permit-history" element={<ProtectedRoute><WorkPermitHistory /></ProtectedRoute>} />
+              <Route path="/admin/requests" element={<ProtectedRoute><AdminRequests /></ProtectedRoute>} />
+              <Route path="/ppe-tracker" element={<ProtectedRoute><PPETracker /></ProtectedRoute>} />
+              <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
 
-            <Route path="/risk-matrix-history" element={<ProtectedRoute><History view="matrices" /></ProtectedRoute>} />
-            <Route path="/reports-history" element={<ProtectedRoute><History view="reports" /></ProtectedRoute>} />
-            <Route path="/matrices" element={<Navigate to="/risk-matrix" replace />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+              <Route path="/risk-matrix-history" element={<ProtectedRoute><History view="matrices" /></ProtectedRoute>} />
+              <Route path="/reports-history" element={<ProtectedRoute><History view="reports" /></ProtectedRoute>} />
+              <Route path="/matrices" element={<Navigate to="/risk-matrix" replace />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
           <Footer />
           <InstallBanner />
         </div>
