@@ -1038,4 +1038,86 @@ label {
   .floating-action-bar {
     bottom: max(1rem, env(safe-area-inset-bottom));
   }
+
+  /* ---- CUSTOM CSS CHARTS (ANALYTICS) ---- */
+  .chart-container {
+    display: flex;
+    align-items: flex-end;
+    height: 200px;
+    gap: 12px;
+    padding: 20px 0 0;
+    border-bottom: 2px solid var(--color-border);
+    margin-top: 1rem;
+  }
+
+  .chart-bar-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    height: 100%;
+    position: relative;
+  }
+
+  .chart-bar {
+    width: 100%;
+    max-width: 40px;
+    background: linear-gradient(180deg, var(--color-primary) 0%, rgba(37, 99, 235, 0.4) 100%);
+    border-radius: 6px 6px 0 0;
+    transition: height 1s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s;
+    min-height: 4px;
+  }
+
+  .chart-bar:hover {
+    background: linear-gradient(180deg, #3b82f6 0%, rgba(59, 130, 246, 0.5) 100%);
+  }
+
+  .chart-label {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .chart-tooltip {
+    position: absolute;
+    top: -35px;
+    background: var(--color-text);
+    color: var(--color-surface);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.2s ease;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .chart-bar-wrap:hover .chart-tooltip {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .distribution-bar {
+    display: flex;
+    height: 24px;
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  .dist-segment {
+    height: 100%;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dist-segment:hover {
+    filter: brightness(1.1);
+  }
 }

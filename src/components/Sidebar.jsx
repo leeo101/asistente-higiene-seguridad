@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
     X, User, History, LogOut, Home, Settings,
-    Calendar, MessageSquare, Sun, Moon, Sparkles, Star, ShieldCheck, HardHat
+    Calendar, MessageSquare, Sun, Moon, Sparkles, Star, ShieldCheck, HardHat, BarChart3
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
@@ -10,6 +10,7 @@ import AdBanner from './AdBanner';
 
 const navItems = [
     { to: '/', icon: <Home size={18} />, label: 'Inicio', always: true },
+    { to: '/analytics', icon: <BarChart3 size={18} color="#3b82f6" />, label: 'Estadísticas', auth: true },
     { to: '/profile', icon: <User size={18} />, label: 'Mi Perfil', auth: true },
     { to: '/history', icon: <History size={18} />, label: 'Historiales', auth: true },
     { to: '/calendar', icon: <Calendar size={18} />, label: 'Calendario', always: true },
