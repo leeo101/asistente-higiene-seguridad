@@ -7,51 +7,73 @@ import LoadingScreen from './components/LoadingScreen.jsx';
 import Home from './pages/Home.jsx';
 import Login from './pages/Login.jsx';
 
+// Custom lazy loader that catches chunk errors and reloads
+const lazyWithRetry = (componentImport) =>
+  lazy(async () => {
+    const pageHasAlreadyBeenForceRefreshed = JSON.parse(
+      window.sessionStorage.getItem('page-has-been-force-refreshed') || 'false'
+    );
+
+    try {
+      const component = await componentImport();
+      window.sessionStorage.setItem('page-has-been-force-refreshed', 'false');
+      return component;
+    } catch (error) {
+      if (!pageHasAlreadyBeenForceRefreshed) {
+        // Assume that the error is a chunk load error due to a new deployment
+        window.sessionStorage.setItem('page-has-been-force-refreshed', 'true');
+        return window.location.reload();
+      }
+      // If we already refreshed and it still failed, throw to an error boundary
+      throw error;
+    }
+  });
+
 // LAZY LOADED PAGES
-const CreateInspection = lazy(() => import('./pages/CreateInspection.jsx'));
-const Checklist = lazy(() => import('./pages/Checklist.jsx'));
-const Observation = lazy(() => import('./pages/Observation.jsx'));
-const Photos = lazy(() => import('./pages/Photos.jsx'));
-const RiskAssessment = lazy(() => import('./pages/RiskAssessment.jsx'));
-const History = lazy(() => import('./pages/History.jsx'));
-const Report = lazy(() => import('./pages/Report.jsx'));
-const Profile = lazy(() => import('./pages/Profile.jsx'));
-const PersonalData = lazy(() => import('./pages/PersonalData.jsx'));
-const SignatureStamp = lazy(() => import('./pages/SignatureStamp.jsx'));
-const Security = lazy(() => import('./pages/Security.jsx'));
-const AppSettings = lazy(() => import('./pages/AppSettings.jsx'));
-const ATS = lazy(() => import('./pages/ATS.jsx'));
-const ATSHistory = lazy(() => import('./pages/ATSHistory.jsx'));
-const FireLoad = lazy(() => import('./pages/FireLoad.jsx'));
-const FireLoadHistory = lazy(() => import('./pages/FireLoadHistory.jsx'));
-const RiskMatrix = lazy(() => import('./pages/RiskMatrix.jsx'));
-const RiskMatrixReport = lazy(() => import('./pages/RiskMatrixReport.jsx'));
-const Reports = lazy(() => import('./pages/Reports.jsx'));
-const ReportsReport = lazy(() => import('./pages/ReportsReport.jsx'));
-const AICamera = lazy(() => import('./pages/AICamera.jsx'));
-const AIGeneralCamera = lazy(() => import('./pages/AIGeneralCamera.jsx'));
-const AIChatAdvisor = lazy(() => import('./pages/AIChatAdvisor.jsx'));
-const AIReport = lazy(() => import('./pages/AIReport.jsx'));
-const Legislation = lazy(() => import('./pages/Legislation.jsx'));
-const Ergonomics = lazy(() => import('./pages/Ergonomics.jsx'));
-const ErgonomicsForm = lazy(() => import('./pages/ErgonomicsForm.jsx'));
-const ErgonomicsReport = lazy(() => import('./pages/ErgonomicsReport.jsx'));
-const SafetyCalendar = lazy(() => import('./pages/SafetyCalendar.jsx'));
-const ResetPassword = lazy(() => import('./pages/ResetPassword.jsx'));
-const AdminRequests = lazy(() => import('./pages/AdminRequests.jsx'));
-const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy.jsx'));
-const LightingReport = lazy(() => import('./pages/LightingReport.jsx'));
-const LightingHistory = lazy(() => import('./pages/LightingHistory.jsx'));
-const WorkPermit = lazy(() => import('./pages/WorkPermit.jsx'));
-const WorkPermitHistory = lazy(() => import('./pages/WorkPermitHistory.jsx'));
-const NotFound = lazy(() => import('./pages/NotFound.jsx'));
-const PPETracker = lazy(() => import('./pages/PPETracker.jsx'));
-const Analytics = lazy(() => import('./pages/Analytics.jsx'));
-const ChecklistsHistory = lazy(() => import('./pages/ChecklistsHistory.jsx'));
-const ChecklistManager = lazy(() => import('./pages/ChecklistManager.jsx'));
-const Subscription = lazy(() => import('./pages/Subscription.jsx'));
-const AIHistory = lazy(() => import('./pages/AIHistory.jsx'));
-const AICameraHistory = lazy(() => import('./pages/AICameraHistory.jsx'));
+const CreateInspection = lazyWithRetry(() => import('./pages/CreateInspection.jsx'));
+const Checklist = lazyWithRetry(() => import('./pages/Checklist.jsx'));
+const Observation = lazyWithRetry(() => import('./pages/Observation.jsx'));
+const Photos = lazyWithRetry(() => import('./pages/Photos.jsx'));
+const RiskAssessment = lazyWithRetry(() => import('./pages/RiskAssessment.jsx'));
+const History = lazyWithRetry(() => import('./pages/History.jsx'));
+const Report = lazyWithRetry(() => import('./pages/Report.jsx'));
+const Profile = lazyWithRetry(() => import('./pages/Profile.jsx'));
+const PersonalData = lazyWithRetry(() => import('./pages/PersonalData.jsx'));
+const SignatureStamp = lazyWithRetry(() => import('./pages/SignatureStamp.jsx'));
+const Security = lazyWithRetry(() => import('./pages/Security.jsx'));
+const AppSettings = lazyWithRetry(() => import('./pages/AppSettings.jsx'));
+const ATS = lazyWithRetry(() => import('./pages/ATS.jsx'));
+const ATSHistory = lazyWithRetry(() => import('./pages/ATSHistory.jsx'));
+const FireLoad = lazyWithRetry(() => import('./pages/FireLoad.jsx'));
+const FireLoadHistory = lazyWithRetry(() => import('./pages/FireLoadHistory.jsx'));
+const RiskMatrix = lazyWithRetry(() => import('./pages/RiskMatrix.jsx'));
+const RiskMatrixReport = lazyWithRetry(() => import('./pages/RiskMatrixReport.jsx'));
+const Reports = lazyWithRetry(() => import('./pages/Reports.jsx'));
+const ReportsReport = lazyWithRetry(() => import('./pages/ReportsReport.jsx'));
+const AICamera = lazyWithRetry(() => import('./pages/AICamera.jsx'));
+const AIGeneralCamera = lazyWithRetry(() => import('./pages/AIGeneralCamera.jsx'));
+const AIChatAdvisor = lazyWithRetry(() => import('./pages/AIChatAdvisor.jsx'));
+const AIReport = lazyWithRetry(() => import('./pages/AIReport.jsx'));
+const Legislation = lazyWithRetry(() => import('./pages/Legislation.jsx'));
+const Ergonomics = lazyWithRetry(() => import('./pages/Ergonomics.jsx'));
+const ErgonomicsForm = lazyWithRetry(() => import('./pages/ErgonomicsForm.jsx'));
+const ErgonomicsReport = lazyWithRetry(() => import('./pages/ErgonomicsReport.jsx'));
+const SafetyCalendar = lazyWithRetry(() => import('./pages/SafetyCalendar.jsx'));
+const ResetPassword = lazyWithRetry(() => import('./pages/ResetPassword.jsx'));
+const AdminRequests = lazyWithRetry(() => import('./pages/AdminRequests.jsx'));
+const PrivacyPolicy = lazyWithRetry(() => import('./pages/PrivacyPolicy.jsx'));
+const LightingReport = lazyWithRetry(() => import('./pages/LightingReport.jsx'));
+const LightingHistory = lazyWithRetry(() => import('./pages/LightingHistory.jsx'));
+const WorkPermit = lazyWithRetry(() => import('./pages/WorkPermit.jsx'));
+const WorkPermitHistory = lazyWithRetry(() => import('./pages/WorkPermitHistory.jsx'));
+const NotFound = lazyWithRetry(() => import('./pages/NotFound.jsx'));
+const PPETracker = lazyWithRetry(() => import('./pages/PPETracker.jsx'));
+const Analytics = lazyWithRetry(() => import('./pages/Analytics.jsx'));
+const ChecklistsHistory = lazyWithRetry(() => import('./pages/ChecklistsHistory.jsx'));
+const ChecklistManager = lazyWithRetry(() => import('./pages/ChecklistManager.jsx'));
+const Subscription = lazyWithRetry(() => import('./pages/Subscription.jsx'));
+const AIHistory = lazyWithRetry(() => import('./pages/AIHistory.jsx'));
+const AICameraHistory = lazyWithRetry(() => import('./pages/AICameraHistory.jsx'));
 
 import InstallBanner from './components/InstallBanner.jsx';
 import GlobalSearch from './components/GlobalSearch.jsx';

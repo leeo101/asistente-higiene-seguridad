@@ -8,6 +8,12 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      workbox: {
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
+        maximumFileSizeToCacheInBytes: 5000000
+      },
       includeAssets: ['favicon.ico', 'favicon-16.png', 'favicon-32.png', 'logo.png'],
       manifest: {
         name: 'Asistente H&S',
