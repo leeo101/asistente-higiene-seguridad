@@ -127,7 +127,7 @@ export default function Observation() {
                     </button>
                     <button
                         className="btn-secondary"
-                        onClick={() => navigate('/risk-assessment')}
+                        onClick={() => navigate('/risk')}
                         style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
                     >
                         <Shield size={20} /> Evaluar Riesgo
