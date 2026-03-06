@@ -112,8 +112,37 @@ function ProtectedRoute({ children }) {
 function CloudStatusIndicator() {
   const { currentUser } = useAuth();
   const { syncing, lastSync } = useSync();
+  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   if (!currentUser) return null;
+
+  if (!isOnline) {
+    return (
+      <div
+        title="Sin conexión (los cambios se guardan localmente)"
+        style={{
+          display: 'flex', alignItems: 'center', gap: '0.25rem',
+          fontSize: '0.65rem', fontWeight: 700,
+          color: '#fbbf24', // Amber/yellow for warning
+          flexShrink: 0, whiteSpace: 'nowrap'
+        }}
+      >
+        <CloudOff size={16} />
+        <span style={{ display: 'none' }} className="header-title">Offline</span>
+      </div>
+    );
+  }
 
   return (
     <div

@@ -11,7 +11,6 @@
   <link rel="icon" type="image/png" href="/logo.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/logo.png" />
   <meta name="theme-color" content="#1e3a8a" />
-  <link rel="manifest" href="/manifest.json" />
   <meta name="description"
     content="Asistente HYS: La plataforma líder para profesionales de Higiene y Seguridad en Argentina. Calcula Carga de Fuego, Iluminación, ATS y más con Inteligencia Artificial." />
   <meta name="keywords"
@@ -93,20 +92,6 @@
 
 <body>
   <div id="root"><!--app-html--></div>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.getRegistrations().then(function (registrations) {
-          for (let registration of registrations) {
-            registration.unregister().then(bool => {
-              console.log('Unregistered SW:', bool);
-              if (bool) window.location.reload(true);
-            });
-          }
-        });
-      });
-    }
-  </script>
   <script type="module" src="/src/entry-client.jsx"></script>
 </body>
 
