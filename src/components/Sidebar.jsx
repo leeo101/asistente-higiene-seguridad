@@ -10,10 +10,10 @@ import AdBanner from './AdBanner';
 
 const navItems = [
     { to: '/', icon: <Home size={18} />, label: 'Inicio', always: true },
-    { to: '/analytics', icon: <BarChart3 size={18} color="#3b82f6" />, label: 'Estadísticas', auth: true },
     { to: '/profile', icon: <User size={18} />, label: 'Mi Perfil', auth: true },
     { to: '/history', icon: <History size={18} />, label: 'Historiales', auth: true },
     { to: '/calendar', icon: <Calendar size={18} />, label: 'Calendario', always: true },
+    { to: '/analytics', icon: <BarChart3 size={18} color="#3b82f6" />, label: 'Estadísticas', auth: true },
     { to: '/settings', icon: <Settings size={18} />, label: 'Configuración', auth: true },
     { to: '/privacy', icon: <ShieldCheck size={18} />, label: 'Privacidad', always: true },
 ];
