@@ -5,7 +5,7 @@ import {
     Flame, BarChart3, ChevronRight, Plus, Gavel,
     Accessibility, AlertTriangle, Lock, UserPlus, LogIn, Sparkles,
     Camera, CalendarCheck, Shield, Cpu, Lightbulb,
-    ShieldCheck, TriangleAlert, KeySquare, ScrollText, Bot, ClipboardCheck, FileText, HardHat, ShieldAlert
+    ShieldCheck, TriangleAlert, KeySquare, ScrollText, Bot, ClipboardCheck, FileText, HardHat, ShieldAlert, PenTool
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
@@ -96,6 +96,9 @@ const quickLinks = [
     { to: '/ai-advisor', icon: <Bot size={26} />, label: 'Asesor IA', sub: 'Consultas de Seguridad', color: '#a855f7', bg: 'rgba(168,85,247,0.1)' },
     { to: '/checklists', icon: <ClipboardList size={26} />, label: 'Checklists', sub: 'Herramientas y Equipos', color: '#14b8a6', bg: 'rgba(20,184,166,0.1)' },
     { to: '/work-permit', icon: <KeySquare size={26} />, label: 'Permisos', sub: 'Tareas Críticas', color: '#2563eb', bg: 'rgba(37,99,235,0.1)' },
+    { to: '/calendar', icon: <CalendarCheck size={26} />, label: 'Calendario', sub: 'Planificación', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
+    { to: '/signature-stamp', icon: <PenTool size={26} />, label: 'Firma y Sello', sub: 'Digitalización', color: '#10b981', bg: 'rgba(16,185,129,0.1)' },
+    { to: '/risk', icon: <Shield size={26} />, label: 'Eval. Riesgo', sub: 'IPER', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
     { to: '/ai-general-camera', icon: <ShieldAlert size={26} />, label: 'Riesgos IA', sub: 'Análisis de Entorno', color: '#f43f5e', bg: 'rgba(244, 63, 94, 0.1)' },
     { to: '/ppe-tracker', icon: <HardHat size={26} />, label: 'Control EPP', sub: 'Vencimientos', color: '#10b981', bg: 'rgba(16,185,129,0.08)' },
 ];
@@ -512,13 +515,11 @@ export default function Home() {
                 {currentUser && (
                     <div style={{ marginTop: '2rem', marginBottom: '1rem' }}>
                         <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '0.8rem', letterSpacing: '-0.3px', paddingLeft: '0.2rem' }}>Accesos Rápidos</h3>
-                        <div className="hide-scrollbar" style={{
-                            display: 'flex',
-                            overflowX: 'auto',
-                            gap: '0.9rem',
-                            padding: '0.2rem 0.2rem 1.2rem 0.2rem',
-                            scrollSnapType: 'x mandatory',
-                            WebkitOverflowScrolling: 'touch'
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))',
+                            gap: '0.8rem',
+                            padding: '0.2rem 0.2rem 1.2rem 0.2rem'
                         }}>
                             {quickLinks.map((item, i) => (
                                 <Link key={i} to={item.to} style={{ textDecoration: 'none', flex: '0 0 130px', scrollSnapAlign: 'start' }}>
