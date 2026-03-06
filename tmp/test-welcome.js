@@ -4,8 +4,8 @@ async function testWelcome() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                email: 'test@example.com',
-                name: 'Usuario de Prueba'
+                email: 'enzorodriguez31@gmail.com',
+                name: 'Enzo Rodriguez'
             })
         });
         const data = await response.json();
