@@ -746,37 +746,41 @@ app.post('/api/welcome-email', async (req, res) => {
     console.log(`[WELCOME EMAIL] Preparing email for ${email}...`);
 
     const mailOptions = {
-        from: { name: 'Asistente HYS', address: process.env.EMAIL_USER || 'asistente.hs.soporte@gmail.com' },
+        from: { name: 'Asistente HYS', address: 'soporte@asistentehs.com' },
         to: email,
         subject: '¡Bienvenido al Asistente HYS!',
         html: `
-            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; border: 1px solid #e1e1e1; border-radius: 16px; overflow: hidden; background-color: #ffffff;">
-                <div style="background-color: #2563eb; padding: 30px 20px; text-align: center; color: white;">
-                    <img src="https://asistentehs-b594e.web.app/logo.png" alt="Logo" style="height: 70px; width: auto; margin-bottom: 15px; filter: brightness(0) invert(1);">
-                    <h1 style="margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">Asistente H&S</h1>
-                    <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 16px;">Tu aliado digital en Prevención</p>
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; border-radius: 16px; overflow: hidden; background-color: #f8fafc; border: 1px solid #e2e8f0;">
+                <div style="background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); padding: 40px 20px; text-align: center;">
+                    <img src="https://asistentehs.com/logo.png" alt="Asistente HYS" style="width: 80px; height: auto; margin-bottom: 20px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">Asistente H&S</h1>
                 </div>
                 
-                <div style="padding: 40px 30px; color: #1f2937; line-height: 1.6;">
-                    <h2 style="color: #111827; font-size: 22px; margin-top: 0;">¡Hola, ${name}!</h2>
-                    <p style="font-size: 16px;">Es un gusto saludarte. Gracias por unirte a nuestra comunidad de profesionales de Higiene y Seguridad.</p>
+                <div style="padding: 40px 30px; background-color: #ffffff;">
+                    <h2 style="color: #0f172a; margin-top: 0; font-size: 20px; font-weight: 700;">¡Hola, ${name}!</h2>
+                    <p style="color: #475569; line-height: 1.6; font-size: 16px;">
+                        Es un gusto saludarte. Gracias por unirte a nuestra comunidad de profesionales de Higiene y Seguridad Laboral.
+                    </p>
+                    <p style="color: #475569; line-height: 1.6; font-size: 16px;">
+                        Ya puedes empezar a potenciar tu trabajo con nuestras herramientas inteligentes de campo:
+                    </p>
                     
-                    <p style="font-size: 16px;">Ya puedes empezar a potenciar tu trabajo con nuestras herramientas inteligentes:</p>
-                    
-                    <ul style="padding-left: 20px; color: #4b5563;">
-                        <li style="margin-bottom: 12px;"><strong>Cámara de Riesgos IA:</strong> Detecta riesgos y EPP faltantes en segundos con fotos reales.</li>
-                        <li style="margin-bottom: 12px;"><strong>Asesor de Seguridad:</strong> Consulta normativas y medidas preventivas por chat.</li>
-                        <li style="margin-bottom: 12px;"><strong>Gestión de Reportes:</strong> Crea ATS, Informes y Matrices con firma profesional.</li>
-                    </ul>
-                    
-                    <div style="text-align: center; margin-top: 40px; margin-bottom: 20px;">
-                        <a href="https://asistentehs-b594e.web.app" style="display: inline-block; padding: 14px 28px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);">Entrar al Panel de Control</a>
+                    <div style="margin: 30px 0; padding: 20px; background-color: #f1f5f9; border-radius: 12px;">
+                        <ul style="margin: 0; padding-left: 20px; color: #334155; font-size: 15px;">
+                            <li style="margin-bottom: 10px;"><strong>Cámara de Riesgos IA:</strong> Detección automática de EPP y peligros.</li>
+                            <li style="margin-bottom: 10px;"><strong>Asesor de Seguridad:</strong> Consultas técnicas con IA basadas en normativa argentina.</li>
+                            <li style="margin-bottom: 10px;"><strong>Gestión de Reportes:</strong> Generación de ATS, informes y cálculo de carga de fuego.</li>
+                        </ul>
                     </div>
-                </div>
-                
-                <div style="background-color: #f9fafb; padding: 25px; text-align: center; border-top: 1px solid #e1e1e1;">
-                    <p style="margin: 0; font-size: 13px; color: #6b7280;">Este es un correo automático, no es necesario responder.</p>
-                    <p style="margin: 5px 0 0 0; font-size: 13px; color: #6b7280;">&copy; 2026 Asistente HYS</p>
+
+                    <div style="text-align: center; margin: 40px 0;">
+                        <a href="https://asistentehs.com" style="display: inline-block; padding: 16px 32px; background-color: #2563eb; color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);">Entrar al Panel</a>
+                    </div>
+
+                    <p style="color: #94a3b8; font-size: 14px; line-height: 1.5; border-top: 1px solid #f1f5f9; padding-top: 25px; margin-top: 35px; text-align: center;">
+                        Este es un correo automático, por favor no respondas a esta dirección.<br>
+                        &copy; 2026 Asistente de Higiene y Seguridad.
+                    </p>
                 </div>
             </div>
         `
