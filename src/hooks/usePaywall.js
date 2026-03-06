@@ -39,9 +39,7 @@ export function usePaywall() {
         if (typeof action === 'function') action();
     };
 
-    const isPro = () => {
-        return subscriptionStatus === 'active';
-    };
+    const isPro = () => !!currentUser && isActive();
 
     /** Days remaining in current subscription period (0 if expired/none) */
     const daysRemaining = () => {
