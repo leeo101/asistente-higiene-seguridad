@@ -52,7 +52,7 @@ export default async function handler(req, res) {
                         </div>
 
                         <p style="color: #94a3b8; font-size: 14px; line-height: 1.5; border-top: 1px solid #f1f5f9; padding-top: 25px; margin-top: 35px; text-align: center;">
-                            Este es un correo automático, por favor no respondas a esta dirección.<br>
+                            Este es un correo automático (v2.5 - Dominio Oficial), por favor no respondas a esta dirección.<br>
                             &copy; 2026 Asistente de Higiene y Seguridad.
                         </p>
                     </div>
