@@ -137,7 +137,7 @@ export default function Analytics() {
             <div style={{ paddingBottom: '4rem' }}>
                 <div style={{
                     background: 'linear-gradient(135deg, #1e3a8a, #0f172a)',
-                    padding: '3rem 1.5rem',
+                    padding: '5.5rem 1.5rem 3rem',
                     color: 'white',
                     textAlign: 'center',
                     borderBottomLeftRadius: '30px',
@@ -187,7 +187,7 @@ export default function Analytics() {
             {/* Header */}
             <div style={{
                 background: 'var(--color-surface)',
-                padding: '2rem 1.5rem',
+                padding: '5.5rem 1.5rem 2rem',
                 borderBottom: '1px solid var(--color-border)'
             }}>
                 <div style={{ maxWidth: '1000px', margin: '0 auto', display: 'flex', gap: '1rem', alignItems: 'center' }}>
