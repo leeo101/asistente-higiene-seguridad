@@ -76,6 +76,7 @@ export default function History() {
             lighting: JSON.parse(localStorage.getItem('lighting_history') || '[]').length,
             workPermits: JSON.parse(localStorage.getItem('work_permits_history') || '[]').length,
             ppeTracker: JSON.parse(localStorage.getItem('ppe_items') || '[]').length,
+            riskAssessments: JSON.parse(localStorage.getItem('risk_assessment_history') || '[]').length,
         });
     };
 
@@ -143,6 +144,7 @@ export default function History() {
         { title: 'Cámara IA — Inspección Visual', icon: <Camera size={24} />, color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', path: '/ai-camera-history', countKey: 'aiCamera' },
         { title: 'Consultas Asesor IA', icon: <Bot size={24} />, color: '#a855f7', bg: 'rgba(168,85,247,0.1)', path: '/ai-history', countKey: 'ai' },
         { title: 'Control de EPP', icon: <HardHat size={24} />, color: '#10b981', bg: 'rgba(16,185,129,0.1)', path: '/ppe-tracker', countKey: 'ppeTracker' },
+        { title: 'Evaluaciones de Riesgo', icon: <Shield size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/risk-assessment-history', countKey: 'riskAssessments' },
     ];
 
     // ─── HUB ──────────────────────────────────────────────────────

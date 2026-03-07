@@ -82,6 +82,7 @@ const typeColors = {
     'Checklist': { bg: 'rgba(20,184,166,0.12)', text: '#14b8a6', icon: <ClipboardList size={18} /> },
     'Iluminación': { bg: 'rgba(234,179,8,0.12)', text: '#eab308', icon: <Lightbulb size={18} /> },
     'Permiso': { bg: 'rgba(37,99,235,0.12)', text: '#2563eb', icon: <HardHat size={18} /> },
+    'Eval. Riesgo': { bg: 'rgba(239, 68, 68, 0.12)', text: '#ef4444', icon: <Shield size={18} /> },
 };
 
 const quickLinks = [
@@ -118,6 +119,7 @@ export default function Home() {
         { label: 'Iluminación', value: 0, icon: <Lightbulb />, color: '#eab308', grad: 'linear-gradient(135deg,#eab308,#ca8a04)', key: 'lighting_history' },
         { label: 'Permisos', value: 0, icon: <KeySquare />, color: '#2563eb', grad: 'linear-gradient(135deg,#2563eb,#1d4ed8)', key: 'work_permits_history' },
         { label: 'Informes', value: 0, icon: <ScrollText />, color: '#ec4899', grad: 'linear-gradient(135deg,#ec4899,#db2777)', key: 'reports_history' },
+        { label: 'Eval. Riesgo', value: 0, icon: <Shield />, color: '#ef4444', grad: 'linear-gradient(135deg,#ef4444,#dc2626)', key: 'risk_assessment_history' },
     ]);
     const [recentWorks, setRecentWorks] = useState([]);
     const [userName, setUserName] = useState('Profesional');
@@ -178,6 +180,7 @@ export default function Home() {
                 ...tools.map(t => ({ id: t.id, title: t.equipo, subtitle: t.empresa, date: t.fecha, type: 'Checklist' })),
                 ...lighting.map(l => ({ id: l.id, title: l.empresa, subtitle: l.sector, date: l.date, type: 'Iluminación' })),
                 ...JSON.parse(localStorage.getItem('work_permits_history') || '[]').map(p => ({ id: p.id, title: p.empresa, subtitle: p.obra, date: p.createdAt, type: 'Permiso' })),
+                ...JSON.parse(localStorage.getItem('risk_assessment_history') || '[]').map(r => ({ id: r.id, title: r.name, subtitle: r.location, date: r.date || r.createdAt, type: 'Eval. Riesgo' })),
             ].sort((a, b) => new Date(b.date || b.fecha || b.createdAt) - new Date(a.date || a.fecha || a.createdAt)).slice(0, 4);
             setRecentWorks(combined);
         };
@@ -253,6 +256,7 @@ export default function Home() {
                                         else if (stat.key === 'lighting_history') navigate('/lighting-history');
                                         else if (stat.key === 'work_permits_history') navigate('/work-permit-history');
                                         else if (stat.key === 'tool_checklists_history') navigate('/checklists-history');
+                                        else if (stat.key === 'risk_assessment_history') navigate('/risk-assessment-history');
                                         else navigate('/history', { state: { view: 'inspections' } });
                                     }}
                                     style={{
@@ -589,6 +593,7 @@ export default function Home() {
                                                 else if (work.type === 'Checklist') navigate('/checklists-history');
                                                 else if (work.type === 'Iluminación') navigate('/lighting-history');
                                                 else if (work.type === 'Permiso') navigate('/work-permit-history');
+                                                else if (work.type === 'Eval. Riesgo') navigate('/risk-assessment-history');
                                             }}
                                             onMouseOver={e => e.currentTarget.style.transform = 'translateX(4px)'}
                                             onMouseOut={e => e.currentTarget.style.transform = 'translateX(0)'}

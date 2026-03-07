@@ -1,12 +1,42 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Save, Activity, ShieldAlert, AlertCircle } from 'lucide-react';
+import { useSync } from '../contexts/SyncContext';
+import { usePaywall } from '../hooks/usePaywall';
+import toast from 'react-hot-toast';
 
 export default function RiskAssessment() {
     const navigate = useNavigate();
+    const location = useLocation();
+    const { syncCollection } = useSync();
+    const { requirePro } = usePaywall();
+
+    // Project Data State
+    const [projectData, setProjectData] = useState({
+        id: '',
+        name: '',
+        location: '',
+        date: new Date().toISOString().split('T')[0],
+    });
+
     const [probability, setProbability] = useState(1);
     const [severity, setSeverity] = useState(1);
     const [riskLevel, setRiskLevel] = useState({ label: 'Bajo', color: '#10b981', action: 'Riesgo aceptable. No requiere medidas adicionales.', bg: '#d1fae5' });
+
+    useEffect(() => {
+        // Init from editData
+        if (location.state?.editData) {
+            const data = location.state.editData;
+            setProjectData({
+                id: data.id,
+                name: data.name || '',
+                location: data.location || '',
+                date: data.date || data.createdAt?.split('T')[0] || new Date().toISOString().split('T')[0],
+            });
+            setProbability(data.probability || 1);
+            setSeverity(data.severity || 1);
+        }
+    }, [location.state]);
 
     useEffect(() => {
         const score = probability * severity;
@@ -20,6 +50,46 @@ export default function RiskAssessment() {
             setRiskLevel({ label: 'Crítico', color: '#ef4444', action: 'PELIGRO INMINENTE. Detener la tarea hasta mitigar el riesgo.', bg: 'rgba(239, 68, 68, 0.1)' });
         }
     }, [probability, severity]);
+
+    const handleSave = async () => {
+        requirePro(async () => {
+            if (!projectData.name) {
+                toast.error('Ingresá el nombre o descripción de la tarea.');
+                return;
+            }
+
+            const entryId = projectData.id || Date.now().toString();
+            const entry = {
+                id: entryId,
+                name: projectData.name,
+                location: projectData.location,
+                date: projectData.date,
+                probability,
+                severity,
+                score: probability * severity,
+                riskLabel: riskLevel.label,
+                createdAt: new Date().toISOString()
+            };
+
+            const history = JSON.parse(localStorage.getItem('risk_assessment_history') || '[]');
+
+            let updated;
+            if (projectData.id) {
+                // Update existing
+                updated = history.map(h => h.id === entryId ? { ...h, ...entry } : h);
+            } else {
+                // Add new
+                updated = [entry, ...history];
+            }
+
+            await syncCollection('risk_assessment_history', updated);
+            localStorage.setItem('risk_assessment_history', JSON.stringify(updated));
+            toast.success('Evaluación de riesgo guardada con éxito');
+
+            // Navigate to history instead of /observation
+            navigate('/risk-assessment-history');
+        });
+    };
 
     const probabilityOptions = [
         { value: 1, label: 'Remota', desc: 'Poco probable' },
@@ -100,7 +170,7 @@ export default function RiskAssessment() {
     return (
         <div className="container" style={{ maxWidth: '850px' }}>
             {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
                 <button onClick={() => navigate(-1)} style={{ padding: '0.6rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '12px', cursor: 'pointer', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
                     <ArrowLeft size={20} />
                 </button>
@@ -108,6 +178,32 @@ export default function RiskAssessment() {
                     <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 800 }}>Evaluación de Riesgo</h1>
                     <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--color-text-muted)', fontWeight: 500 }}>Matriz IPER: Probabilidad × Severidad</p>
                 </div>
+            </div>
+
+            {/* ─── PROJECT DATA ─── */}
+            <div style={{
+                display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                gap: '1rem', marginBottom: '2rem'
+            }}>
+                {[
+                    { label: 'TAREA / ACTIVIDAD', key: 'name', placeholder: 'Ej: Trabajo en altura' },
+                    { label: 'UBICACIÓN / ÁREA', key: 'location', placeholder: 'Ej: Sector principal' },
+                ].map(f => (
+                    <div key={f.key} style={{
+                        background: 'var(--color-surface)', borderRadius: '14px', padding: '1.2rem',
+                        border: '1px solid var(--color-border)', boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+                    }}>
+                        <label style={{ fontSize: '0.65rem', fontWeight: 900, color: '#ef4444', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: '0.5rem' }}>
+                            {f.label}
+                        </label>
+                        <input
+                            type="text" value={projectData[f.key]}
+                            onChange={e => setProjectData({ ...projectData, [f.key]: e.target.value })}
+                            placeholder={f.placeholder}
+                            style={{ margin: 0, border: 'none', background: 'transparent', fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-text)', outline: 'none', width: '100%' }}
+                        />
+                    </div>
+                ))}
             </div>
 
             {/* Main Score Card */}
@@ -271,7 +367,7 @@ export default function RiskAssessment() {
 
             {/* Footer Button */}
             <button
-                onClick={() => navigate('/observation')}
+                onClick={handleSave}
                 className="btn-primary"
                 style={{
                     display: 'flex',
@@ -281,12 +377,14 @@ export default function RiskAssessment() {
                     padding: '1.2rem',
                     fontSize: '1.1rem',
                     borderRadius: '16px',
-                    boxShadow: '0 8px 25px rgba(37, 99, 235, 0.3)',
+                    boxShadow: '0 8px 25px rgba(239, 68, 68, 0.3)',
+                    background: 'linear-gradient(135deg, #ef4444, #dc2626)',
                     border: 'none',
-                    fontWeight: 700
+                    fontWeight: 700,
+                    width: '100%'
                 }}
             >
-                <Save size={22} /> Guardar Evaluación y Continuar
+                <Save size={22} /> Guardar Evaluación
             </button>
         </div>
     );

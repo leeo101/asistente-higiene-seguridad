@@ -66,6 +66,7 @@ const LightingReport = lazyWithRetry(() => import('./pages/LightingReport.jsx'))
 const LightingHistory = lazyWithRetry(() => import('./pages/LightingHistory.jsx'));
 const WorkPermit = lazyWithRetry(() => import('./pages/WorkPermit.jsx'));
 const WorkPermitHistory = lazyWithRetry(() => import('./pages/WorkPermitHistory.jsx'));
+const RiskAssessmentHistory = lazyWithRetry(() => import('./pages/RiskAssessmentHistory.jsx'));
 const NotFound = lazyWithRetry(() => import('./pages/NotFound.jsx'));
 const PPETracker = lazyWithRetry(() => import('./pages/PPETracker.jsx'));
 const Analytics = lazyWithRetry(() => import('./pages/Analytics.jsx'));
@@ -383,6 +384,7 @@ function App() {
               <Route path="/lighting-history" element={<ProtectedRoute><LightingHistory /></ProtectedRoute>} />
               <Route path="/work-permit" element={<ProtectedRoute><WorkPermit /></ProtectedRoute>} />
               <Route path="/work-permit-history" element={<ProtectedRoute><WorkPermitHistory /></ProtectedRoute>} />
+              <Route path="/risk-assessment-history" element={<ProtectedRoute><RiskAssessmentHistory /></ProtectedRoute>} />
               <Route path="/admin/requests" element={<ProtectedRoute><AdminRequests /></ProtectedRoute>} />
               <Route path="/ppe-tracker" element={<ProtectedRoute><PPETracker /></ProtectedRoute>} />
               <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
