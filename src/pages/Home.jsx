@@ -5,7 +5,8 @@ import {
     Flame, BarChart3, ChevronRight, Plus, Gavel,
     Accessibility, AlertTriangle, Lock, UserPlus, LogIn, Sparkles,
     Camera, CalendarCheck, Shield, Cpu, Lightbulb,
-    ShieldCheck, TriangleAlert, KeySquare, ScrollText, Bot, ClipboardCheck, FileText, HardHat, ShieldAlert, PenTool
+    ShieldCheck, TriangleAlert, KeySquare, ScrollText, Bot, ClipboardCheck, FileText, HardHat, ShieldAlert, PenTool,
+    ArrowRight, Activity, BookOpen, Calendar as CalendarIcon, Search
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
@@ -14,6 +15,7 @@ import AdBanner from '../components/AdBanner';
 import OnboardingModal from '../components/OnboardingModal';
 import StickyCtaBanner from '../components/StickyCtaBanner';
 import StatsBar from '../components/StatsBar';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 function FaqSection() {
     const [open, setOpen] = React.useState(null);
@@ -122,6 +124,7 @@ export default function Home() {
         { label: 'Eval. Riesgo', value: 0, icon: <Shield />, color: '#ef4444', grad: 'linear-gradient(135deg,#ef4444,#dc2626)', key: 'risk_assessment_history' },
     ]);
     const [recentWorks, setRecentWorks] = useState([]);
+    const [chartData, setChartData] = useState([]);
     const [userName, setUserName] = useState('Profesional');
 
     useEffect(() => {
@@ -132,9 +135,9 @@ export default function Home() {
                 let name = parsed.name || 'Profesional';
                 if (parsed.profession) {
                     const prof = parsed.profession.toLowerCase();
-                    if (prof.includes('lic')) name = `Lic. ${name}`;
-                    else if (prof.includes('téc')) name = `Téc. ${name}`;
-                    else if (prof.includes('ing')) name = `Ing. ${name}`;
+                    if (prof.includes('lic')) name = `Lic.${name} `;
+                    else if (prof.includes('téc')) name = `Téc.${name} `;
+                    else if (prof.includes('ing')) name = `Ing.${name} `;
                 }
                 setUserName(name);
             }
@@ -145,7 +148,7 @@ export default function Home() {
 
             // Onboarding: show once per user account
             if (currentUser) {
-                const onboardingKey = `onboarding_done_${currentUser.uid}`;
+                const onboardingKey = `onboarding_done_${currentUser.uid} `;
                 if (!localStorage.getItem(onboardingKey)) {
                     setTimeout(() => setShowOnboarding(true), 1000);
                     localStorage.setItem(onboardingKey, '1');
@@ -183,6 +186,36 @@ export default function Home() {
                 ...JSON.parse(localStorage.getItem('risk_assessment_history') || '[]').map(r => ({ id: r.id, title: r.name, subtitle: r.location, date: r.date || r.createdAt, type: 'Eval. Riesgo' })),
             ].sort((a, b) => new Date(b.date || b.fecha || b.createdAt) - new Date(a.date || a.fecha || a.createdAt)).slice(0, 4);
             setRecentWorks(combined);
+
+            // Build chart data for last 7 days
+            const last7Days = Array.from({ length: 7 }, (_, i) => {
+                const d = new Date();
+                d.setDate(d.getDate() - (6 - i));
+                return {
+                    dateStr: d.toISOString().split('T')[0],
+                    display: d.toLocaleDateString('es-ES', { weekday: 'short' }),
+                    registros: 0
+                };
+            });
+
+            const allDates = [
+                ...insp.map(i => i.date),
+                ...ats.map(a => a.fecha), // Use 'fecha' for ATS
+                ...matrix.map(m => m.createdAt?.split('T')[0]), // Use 'createdAt' for matrix
+                ...reports.map(r => r.createdAt?.split('T')[0]), // Use 'createdAt' for reports
+                ...tools.map(t => t.fecha),
+                ...lighting.map(l => l.date),
+                ...JSON.parse(localStorage.getItem('work_permits_history') || '[]').map(p => p.createdAt?.split('T')[0]),
+                ...JSON.parse(localStorage.getItem('risk_assessment_history') || '[]').map(r => r.date || r.createdAt?.split('T')[0]),
+                ...fire.map(f => f.createdAt?.split('T')[0]) // Add fireload
+            ].filter(Boolean);
+
+            allDates.forEach(date => {
+                const dayEntry = last7Days.find(d => d.dateStr === date.split('T')[0]);
+                if (dayEntry) dayEntry.registros += 1;
+            });
+
+            setChartData(last7Days);
         };
 
         loadStats();
@@ -293,9 +326,46 @@ export default function Home() {
                 </div>
             </div>
 
+            {/* CHART SECTION */}
+            {currentUser && (
+                <div style={{ maxWidth: '700px', margin: '0 auto', padding: '0 1rem' }}>
+                    <div className="card" style={{ marginBottom: '2.5rem', padding: '1.5rem', border: '1px solid var(--color-border)', borderRadius: '24px', marginTop: '1.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1.5rem' }}>
+                            <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '0.6rem', borderRadius: '10px', color: '#3b82f6' }}>
+                                <Activity size={20} />
+                            </div>
+                            <div>
+                                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>Actividad Reciente</h3>
+                                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Registros de los últimos 7 días</p>
+                            </div>
+                        </div>
+                        <div style={{ height: '220px', width: '100%', marginLeft: '-15px' }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                    <defs>
+                                        <linearGradient id="colorRegistros" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
+                                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" opacity={0.5} />
+                                    <XAxis dataKey="display" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-muted)', fontSize: 12, fontWeight: 600 }} dy={10} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-muted)', fontSize: 12, fontWeight: 600 }} allowDecimals={false} />
+                                    <Tooltip
+                                        contentStyle={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', fontWeight: 700 }}
+                                        itemStyle={{ color: 'var(--color-primary)' }}
+                                    />
+                                    <Area type="monotone" dataKey="registros" name="Registros" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorRegistros)" activeDot={{ r: 6, strokeWidth: 0, fill: '#3b82f6' }} />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* ── STATS BAR — solo usuarios logueados ── */}
             {currentUser && (
-                <div style={{ maxWidth: '700px', margin: '0 auto', padding: '1.5rem 1rem 0' }}>
+                <div style={{ maxWidth: '700px', margin: '0 auto', padding: '0 1rem' }}>
                     <StatsBar />
                 </div>
             )}
@@ -377,7 +447,7 @@ export default function Home() {
                                 { icon: '⚠️', color: '#8b5cf6', bg: 'rgba(139,92,246,0.08)', title: 'Matriz de Riesgo', desc: 'Evaluá peligros con matrices 5x5 personalizadas. Genera reportes PDF automáticamente.' },
                                 { icon: '📋', color: '#10b981', bg: 'rgba(16,185,129,0.08)', title: 'ATS — Análisis de Trabajo Seguro', desc: 'Creá ATS por tarea con medidas de control. Listo para firma digital e impresión.' },
                             ].map((f, i) => (
-                                <div key={i} className="card" style={{ padding: '1.4rem', borderLeft: `4px solid ${f.color}`, background: f.bg, transition: 'transform 0.2s' }}
+                                <div key={i} className="card" style={{ padding: '1.4rem', borderLeft: `4px solid ${f.color} `, background: f.bg, transition: 'transform 0.2s' }}
                                     onMouseOver={e => e.currentTarget.style.transform = 'translateY(-3px)'}
                                     onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}>
                                     <div style={{ fontSize: '1.8rem', marginBottom: '0.7rem' }}>{f.icon}</div>
@@ -537,7 +607,7 @@ export default function Home() {
                                         minHeight: '120px', justifyContent: 'center',
                                         boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
                                     }}
-                                        onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = `0 8px 20px ${item.color}30`; e.currentTarget.style.borderColor = item.color + '60'; }}
+                                        onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = `0 8px 20px ${item.color} 30`; e.currentTarget.style.borderColor = item.color + '60'; }}
                                         onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)'; e.currentTarget.style.borderColor = 'var(--color-border)'; }}
                                     >
                                         <div style={{
