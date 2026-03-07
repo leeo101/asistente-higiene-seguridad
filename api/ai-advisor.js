@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { taskDescription } = req.body;
+        const { taskDescription, contextData } = req.body;
         if (!taskDescription) return res.status(400).json({ error: 'Falta la descripción de la tarea' });
 
         const apiKey = process.env.GEMINI_API_KEY;
@@ -34,11 +34,16 @@ export default async function handler(req, res) {
             "gemini-1.5-pro"
         ];
 
-        const prompt = `Actúa como un experto en Higiene y Seguridad Laboral en Argentina. 
-Analiza la siguiente tarea o situación laboral: "${taskDescription}".
-Proporciona un análisis detallado en formato JSON con los siguientes campos EXACTOS:
+        let prompt = `Actúa como un experto en Higiene y Seguridad Laboral en Argentina. 
+Analiza la siguiente tarea o situación laboral: "${taskDescription}".`;
+
+        if (contextData) {
+            prompt += `\n\nCONTEXTO HISTÓRICO DEL USUARIO (puedes usar esta información de referencia si la tarea lo requiere o si el usuario pide analizar su historial):\n${contextData}\n`;
+        }
+
+        prompt += `\nProporciona un análisis detallado en formato JSON con los siguientes campos EXACTOS:
 {
-    "task": "Nombre de la tarea",
+    "task": "Nombre de la tarea descrita o resumen de la respuesta",
     "riesgos": ["Detalle del riesgo 1", "Riesgo 2"],
     "epp": ["EPP recomendado 1", "EPP 2"],
     "recomendaciones": ["Medida preventiva 1", "2"],

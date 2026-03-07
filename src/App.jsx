@@ -4,6 +4,7 @@ import { Menu, Search, Cloud, CloudOff } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
 import LoadingScreen from './components/LoadingScreen.jsx';
+import NetworkBadge from './components/NetworkBadge.jsx';
 import Home from './pages/Home.jsx';
 import Login from './pages/Login.jsx';
 
@@ -75,6 +76,7 @@ const ChecklistManager = lazyWithRetry(() => import('./pages/ChecklistManager.js
 const Subscription = lazyWithRetry(() => import('./pages/Subscription.jsx'));
 const AIHistory = lazyWithRetry(() => import('./pages/AIHistory.jsx'));
 const AICameraHistory = lazyWithRetry(() => import('./pages/AICameraHistory.jsx'));
+const ManagementReport = lazyWithRetry(() => import('./pages/ManagementReport.jsx'));
 
 import InstallBanner from './components/InstallBanner.jsx';
 import GlobalSearch from './components/GlobalSearch.jsx';
@@ -235,6 +237,7 @@ function App() {
     <AuthProvider>
       <SyncProvider>
         <GlobalPrintGuard />
+        <NetworkBadge />
         <Toaster
           position="top-center"
           reverseOrder={false}
@@ -388,6 +391,7 @@ function App() {
               <Route path="/admin/requests" element={<ProtectedRoute><AdminRequests /></ProtectedRoute>} />
               <Route path="/ppe-tracker" element={<ProtectedRoute><PPETracker /></ProtectedRoute>} />
               <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+              <Route path="/management-report" element={<ProtectedRoute><ManagementReport /></ProtectedRoute>} />
 
               <Route path="/risk-matrix-history" element={<ProtectedRoute><History view="matrices" /></ProtectedRoute>} />
               <Route path="/reports-history" element={<ProtectedRoute><History view="reports" /></ProtectedRoute>} />

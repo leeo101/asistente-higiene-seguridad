@@ -5,7 +5,7 @@ import {
     Lightbulb, Gavel, ClipboardList, Copy,
     Check, Download, Sparkles, Loader2,
     Mic, MicOff, History, ChevronDown, ChevronUp,
-    RotateCcw, Clock
+    RotateCcw, Clock, Database
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -124,6 +124,33 @@ export default function AIChatAdvisor() {
         };
 
         recognition.start();
+    };
+
+    const getRecentContext = () => {
+        try {
+            const ats = JSON.parse(localStorage.getItem('atsHistory') || '[]')
+                .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+                .slice(0, 3)
+                .map(a => `- Fecha: ${a.fecha}, Tarea: ${a.tarea}, Ubicación: ${a.ubicacion}`);
+
+            const insp = JSON.parse(localStorage.getItem('inspections_history') || '[]')
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .slice(0, 3)
+                .map(i => `- Fecha: ${i.date}, Sector: ${i.sector}, Resultado: ${i.score}%`);
+
+            const risk = JSON.parse(localStorage.getItem('risk_assessment_history') || '[]')
+                .sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt))
+                .slice(0, 3)
+                .map(r => `- Fecha: ${r.date || (r.createdAt && r.createdAt.split('T')[0])}, Tarea: ${r.name}, Nivel de Riesgo: ${r.riskLevel}`);
+
+            let ctx = [];
+            if (ats.length) ctx.push("ÚLTIMOS ATS CREADOS:\n" + ats.join("\n"));
+            if (insp.length) ctx.push("ÚLTIMAS INSPECCIONES REALIZADAS:\n" + insp.join("\n"));
+            if (risk.length) ctx.push("ÚLTIMAS EVALUACIONES DE RIESGO:\n" + risk.join("\n"));
+            return ctx.join("\n\n");
+        } catch (e) {
+            return "";
+        }
     };
 
     const handleNewQuery = () => {
@@ -263,10 +290,11 @@ export default function AIChatAdvisor() {
         setResult(null);
 
         try {
+            const contextData = getRecentContext();
             const response = await fetch(`${API_BASE_URL}/api/ai-advisor`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ taskDescription: task })
+                body: JSON.stringify({ taskDescription: task, contextData })
             });
 
             if (!response.ok) {
@@ -370,6 +398,11 @@ export default function AIChatAdvisor() {
                             {isListening ? <MicOff size={24} /> : <Mic size={24} />}
                         </button>
                     </div>
+
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-primary)', fontSize: '0.75rem', fontWeight: 600, marginTop: '-0.2rem', background: 'rgba(59, 130, 246, 0.1)', padding: '0.4rem 0.8rem', borderRadius: '8px', alignSelf: 'flex-start' }}>
+                        <Database size={14} /> La IA tiene contexto de tus últimos registros guardados en este dispositivo.
+                    </div>
+
                     <button
                         type="submit"
                         disabled={loading || !task.trim()}

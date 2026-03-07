@@ -6,7 +6,7 @@ import {
     Accessibility, AlertTriangle, Lock, UserPlus, LogIn, Sparkles,
     Camera, CalendarCheck, Shield, Cpu, Lightbulb,
     ShieldCheck, TriangleAlert, KeySquare, ScrollText, Bot, ClipboardCheck, FileText, HardHat, ShieldAlert, PenTool,
-    ArrowRight, Activity, BookOpen, Calendar as CalendarIcon, Search
+    ArrowRight, Activity, BookOpen, Calendar as CalendarIcon, Search, TrendingUp
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
