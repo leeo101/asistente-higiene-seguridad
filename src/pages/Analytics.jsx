@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BarChart3, PieChart, TrendingUp, Users, ShieldAlert, Award, Lock, ChevronLeft, ArrowRight } from 'lucide-react';
+import { BarChart3, PieChart, TrendingUp, Users, ShieldAlert, Award, Lock, ChevronLeft, ArrowRight, Activity } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
 import AdBanner from '../components/AdBanner';
@@ -91,6 +92,27 @@ export default function Analytics() {
                 height: (m.count / maxActivity) * 100 // Percentage for CSS height
             }));
 
+            // Build chart data for last 7 days (Daily Activity)
+            const last7Days = Array.from({ length: 7 }, (_, i) => {
+                const d = new Date(now);
+                d.setDate(d.getDate() - (6 - i));
+                return {
+                    dateStr: d.toISOString().split('T')[0],
+                    display: d.toLocaleDateString('es-ES', { weekday: 'short' }),
+                    registros: 0
+                };
+            });
+
+            allItems.forEach(item => {
+                const d = new Date(item.date);
+                if (isNaN(d.getTime())) return;
+                const dateStr = d.toISOString().split('T')[0];
+                const dayEntry = last7Days.find(day => day.dateStr === dateStr);
+                if (dayEntry) {
+                    dayEntry.registros += 1;
+                }
+            });
+
             const distributionArr = Object.entries(distMap)
                 .map(([type, count]) => ({ type, count, color: moduleColors[type] || '#64748b' }))
                 .sort((a, b) => b.count - a.count)
@@ -105,6 +127,7 @@ export default function Analytics() {
                 total,
                 thisMonth,
                 monthlyActivity,
+                dailyActivity: last7Days,
                 distribution: distributionArr,
                 topClients: topClientsArr,
                 maxActivity // to scale the Y axis
@@ -232,7 +255,7 @@ export default function Analytics() {
 
                     {/* Activity Chart CSS */}
                     <div className="card" style={{ padding: '1.5rem', gridColumn: '1 / -1' }}>
-                        <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.1rem', fontWeight: 800 }}>Actividad (Últimos 6 Meses)</h3>
+                        <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.1rem', fontWeight: 800 }}>Actividad Mensual (Últimos 6 Meses)</h3>
                         <div className="chart-container">
                             {!loading && stats.monthlyActivity.map((month, idx) => (
                                 <div key={idx} className="chart-bar-wrap">
@@ -241,6 +264,39 @@ export default function Analytics() {
                                     <div className="chart-label" style={{ textTransform: 'capitalize' }}>{month.label}</div>
                                 </div>
                             ))}
+                        </div>
+                    </div>
+
+                    {/* Daily Activity Area Chart */}
+                    <div className="card" style={{ padding: '1.5rem', gridColumn: '1 / -1' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1.5rem' }}>
+                            <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '0.6rem', borderRadius: '10px', color: '#3b82f6' }}>
+                                <Activity size={20} />
+                            </div>
+                            <div>
+                                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>Actividad Diaria</h3>
+                                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Registros de los últimos 7 días</p>
+                            </div>
+                        </div>
+                        <div style={{ height: '220px', width: '100%', marginLeft: '-15px' }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={stats.dailyActivity || []} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                    <defs>
+                                        <linearGradient id="colorRegistros" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
+                                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" opacity={0.5} />
+                                    <XAxis dataKey="display" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-muted)', fontSize: 12, fontWeight: 600 }} dy={10} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-muted)', fontSize: 12, fontWeight: 600 }} allowDecimals={false} />
+                                    <Tooltip
+                                        contentStyle={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', fontWeight: 700 }}
+                                        itemStyle={{ color: 'var(--color-primary)' }}
+                                    />
+                                    <Area type="monotone" dataKey="registros" name="Registros" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorRegistros)" activeDot={{ r: 6, strokeWidth: 0, fill: '#3b82f6' }} />
+                                </AreaChart>
+                            </ResponsiveContainer>
                         </div>
                     </div>
 
