@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Search, Trash2, FileText,
-    Calendar, Building2, Lightbulb, Plus, Share2
+    Calendar, Building2, Lightbulb, Plus, Share2, Download
 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Trash2, HardHat, AlertTriangle, CheckCircle, Clock, Shield } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, HardHat, AlertTriangle, CheckCircle, Clock, Shield, Download } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useSync } from '../contexts/SyncContext';
 import { downloadCSV } from '../services/exportCsv';
