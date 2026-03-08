@@ -209,6 +209,16 @@ export default function Home() {
                 width: '100%',
                 boxSizing: 'border-box'
             }}>
+                {/* Background enhancement for hero */}
+                <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'radial-gradient(circle at top right, rgba(255,255,255,0.1) 0%, transparent 60%)',
+                    pointerEvents: 'none'
+                }} />
                 {/* decorative circles */}
                 <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '180px', height: '180px', borderRadius: '50%', background: 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
                 <div style={{ position: 'absolute', bottom: '-60px', left: '60px', width: '220px', height: '220px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
@@ -381,9 +391,9 @@ export default function Home() {
                                 { icon: '⚠️', color: '#8b5cf6', bg: 'rgba(139,92,246,0.08)', title: 'Matriz de Riesgo', desc: 'Evaluá peligros con matrices 5x5 personalizadas. Genera reportes PDF automáticamente.' },
                                 { icon: '📋', color: '#10b981', bg: 'rgba(16,185,129,0.08)', title: 'ATS — Análisis de Trabajo Seguro', desc: 'Creá ATS por tarea con medidas de control. Listo para firma digital e impresión.' },
                             ].map((f, i) => (
-                                <div key={i} className="card" style={{ padding: '1.4rem', borderLeft: `4px solid ${f.color} `, background: f.bg, transition: 'transform 0.2s' }}
-                                    onMouseOver={e => e.currentTarget.style.transform = 'translateY(-3px)'}
-                                    onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}>
+                                <div key={i} className="card" style={{ padding: '1.4rem', borderLeft: `4px solid ${f.color} `, background: 'var(--color-surface)', transition: 'all 0.3s ease' }}
+                                    onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.background = f.bg; }}
+                                    onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = 'var(--color-surface)'; }}>
                                     <div style={{ fontSize: '1.8rem', marginBottom: '0.7rem' }}>{f.icon}</div>
                                     <h4 style={{ margin: '0 0 0.5rem', fontWeight: 800, fontSize: '0.95rem' }}>{f.title}</h4>
                                     <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>{f.desc}</p>
@@ -428,7 +438,7 @@ export default function Home() {
                                 { name: 'Lic. Fernanda G.', role: 'Profesional HYS · Buenos Aires', text: 'El asesor IA me resolvió dudas sobre el Dec 351/79 que tardaba días en aclarar con otros recursos.' },
                                 { name: 'Téc. Rodrigo M.', role: 'Técnico en Seguridad · Rosario', text: 'Uso la cámara IA en obra para verificar EPP al instante. Una herramienta que realmente te cambia el día a día.' },
                             ].map((t, i) => (
-                                <div key={i} className="card" style={{ padding: '1.4rem' }}>
+                                <div key={i} className="card" style={{ padding: '1.4rem', background: 'var(--color-surface)' }}>
                                     <div style={{ color: '#f59e0b', fontSize: '0.85rem', marginBottom: '0.7rem', letterSpacing: '2px' }}>⭐⭐⭐⭐⭐</div>
                                     <p style={{ margin: '0 0 1rem', fontSize: '0.88rem', color: 'var(--color-text)', lineHeight: 1.6, fontStyle: 'italic' }}>
                                         "{t.text}"
@@ -451,7 +461,7 @@ export default function Home() {
                             Planes
                         </h2>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.2rem', marginBottom: '3rem' }}>
-                            <div className="card" style={{ padding: '1.5rem', textAlign: 'center', border: '2px solid var(--color-border)' }}>
+                            <div className="card" style={{ padding: '1.5rem', textAlign: 'center', border: '2px solid var(--color-border)', background: 'var(--color-surface)' }}>
                                 <div style={{ fontWeight: 900, fontSize: '1.1rem', marginBottom: '0.3rem' }}>Gratis</div>
                                 <div style={{ fontSize: '2rem', fontWeight: 900, color: '#10b981', marginBottom: '1rem' }}>$0</div>
                                 {['Todos los cálculos', 'ATS, Matrices, Checklists', 'Asesor IA', 'Cámara de Riesgos', 'Historial básico'].map((f, i) => (
@@ -463,7 +473,7 @@ export default function Home() {
                                     Comenzar Gratis
                                 </button>
                             </div>
-                            <div className="card" style={{ padding: '1.5rem', textAlign: 'center', border: '2px solid #2563eb', position: 'relative', overflow: 'hidden' }}>
+                            <div className="card" style={{ padding: '1.5rem', textAlign: 'center', border: '2px solid #2563eb', position: 'relative', overflow: 'hidden', background: 'var(--color-surface)' }}>
                                 <div style={{ position: 'absolute', top: '12px', right: '12px', background: '#2563eb', color: '#ffffff', fontSize: '0.65rem', fontWeight: 900, padding: '0.2rem 0.6rem', borderRadius: '20px' }}>RECOMENDADO</div>
                                 <div style={{ fontWeight: 900, fontSize: '1.1rem', marginBottom: '0.3rem' }}>PRO</div>
                                 <div style={{ fontSize: '2rem', fontWeight: 900, color: '#2563eb', marginBottom: '1rem' }}>$2<span style={{ fontSize: '1rem', fontWeight: 600 }}>/mes</span></div>

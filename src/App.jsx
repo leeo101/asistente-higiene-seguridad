@@ -281,12 +281,12 @@ function App() {
                 gap: '1rem',
                 zIndex: 10,
                 padding: '0.8rem 1rem',
-                background: 'rgba(15, 23, 42, 0.65)',
+                background: 'var(--color-header-bg)',
                 backdropFilter: 'blur(12px)',
                 WebkitBackdropFilter: 'blur(12px)',
                 borderRadius: '14px',
-                border: '1px solid rgba(255,255,255,0.1)',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
+                border: '1px solid var(--glass-border)',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
               }}>
               <button
                 onClick={() => setIsSidebarOpen(true)}
@@ -299,14 +299,14 @@ function App() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: 'white'
+                  color: 'var(--color-text)'
                 }}
               >
                 <Menu size={22} />
               </button>
-              <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', textDecoration: 'none', color: 'white', flex: 1 }}>
+              <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', textDecoration: 'none', color: 'var(--color-text)', flex: 1 }}>
                 <img src="/logo.png" alt="Logo" style={{ width: '38px', height: '38px', objectFit: 'contain' }} />
-                <h1 className="header-title" style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: 'white', letterSpacing: '-0.3px' }}>Asistente HYS</h1>
+                <h1 className="header-title" style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-text)', letterSpacing: '-0.3px' }}>Asistente HYS</h1>
               </Link>
               {/* Global Search button */}
               <button
@@ -321,7 +321,7 @@ function App() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: 'white',
+                  color: 'var(--color-text)',
                   flexShrink: 0
                 }}
               >

@@ -149,14 +149,27 @@ export default function Login() {
     return (
         <div className="login-page-wrapper" style={{
             minHeight: '100vh',
-            background: 'radial-gradient(circle at top right, #1e3a8a 0%, #0f172a 100%)',
+            background: 'var(--color-background)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             padding: '1.5rem',
             width: '100%',
-            boxSizing: 'border-box'
+            boxSizing: 'border-box',
+            position: 'relative',
+            overflow: 'hidden'
         }}>
+            {/* Background enhancement for login */}
+            <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'radial-gradient(circle at top right, var(--color-primary) 0%, transparent 40%), radial-gradient(circle at bottom left, var(--color-accent) 0%, transparent 40%)',
+                opacity: 0.1,
+                pointerEvents: 'none'
+            }} />
             <div className="glass-card" style={{
                 width: '100%',
                 maxWidth: '480px',
@@ -175,7 +188,7 @@ export default function Login() {
                         height: '70px',
                         margin: '0 auto 2rem auto',
                         display: 'block',
-                        filter: 'drop-shadow(0 0 15px rgba(255,255,255,0.2))'
+                        filter: 'drop-shadow(0 0 15px var(--color-primary))'
                     }}
                 />
                 <style>
@@ -188,16 +201,30 @@ export default function Login() {
                             animation: floatingLogo 3s infinite ease-in-out;
                         }
                         .login-page-wrapper input, .login-page-wrapper select {
+                            background: var(--color-surface);
+                            border: 1px solid var(--color-border);
+                            color: var(--color-text);
+                        }
+                        .login-page-wrapper label {
+                            color: var(--color-text-muted);
+                        }
+                        .login-page-wrapper h1, .login-page-wrapper h2 {
+                            color: var(--color-text);
+                            font-family: var(--font-heading);
+                        }
+                        .dark .login-page-wrapper input, .dark .login-page-wrapper select {
                             background: rgba(255,255,255,0.05);
                             border-color: rgba(255,255,255,0.1);
                             color: white;
                         }
-                        .login-page-wrapper label {
+                        .dark .login-page-wrapper label {
                             color: rgba(255,255,255,0.7);
                         }
-                        .login-page-wrapper h1, .login-page-wrapper h2 {
+                        .dark .login-page-wrapper h1, .dark .login-page-wrapper h2 {
                             color: white;
-                            font-family: var(--font-heading);
+                        }
+                        .dark .login-page-wrapper {
+                            background: radial-gradient(circle at top right, #1e3a8a 0%, #0f172a 100%) !important;
                         }
                     `}
                 </style>
