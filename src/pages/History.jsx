@@ -63,20 +63,31 @@ export default function History() {
     const [deleteTarget, setDeleteTarget] = useState(null); // { storageKey, id, view }
     const [counts, setCounts] = useState({});
 
+    const safeGetList = (key) => {
+        try {
+            const raw = localStorage.getItem(key);
+            if (!raw || raw === 'null' || raw === 'undefined') return [];
+            const parsed = JSON.parse(raw);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch {
+            return [];
+        }
+    };
+
     const refreshCounts = () => {
         setCounts({
-            inspections: JSON.parse(localStorage.getItem('inspections_history') || '[]').length,
-            ats: JSON.parse(localStorage.getItem('ats_history') || '[]').length,
-            fireload: JSON.parse(localStorage.getItem('fireload_history') || '[]').length,
-            matrices: JSON.parse(localStorage.getItem('risk_matrix_history') || '[]').length,
-            reports: JSON.parse(localStorage.getItem('reports_history') || '[]').length,
-            checklists: JSON.parse(localStorage.getItem('tool_checklists_history') || '[]').length,
-            ai: JSON.parse(localStorage.getItem('ai_advisor_history') || '[]').length,
-            aiCamera: JSON.parse(localStorage.getItem('ai_camera_history') || '[]').length,
-            lighting: JSON.parse(localStorage.getItem('lighting_history') || '[]').length,
-            workPermits: JSON.parse(localStorage.getItem('work_permits_history') || '[]').length,
-            ppeTracker: JSON.parse(localStorage.getItem('ppe_items') || '[]').length,
-            riskAssessments: JSON.parse(localStorage.getItem('risk_assessment_history') || '[]').length,
+            inspections: safeGetList('inspections_history').length,
+            ats: safeGetList('ats_history').length,
+            fireload: safeGetList('fireload_history').length,
+            matrices: safeGetList('risk_matrix_history').length,
+            reports: safeGetList('reports_history').length,
+            checklists: safeGetList('tool_checklists_history').length,
+            ai: safeGetList('ai_advisor_history').length,
+            aiCamera: safeGetList('ai_camera_history').length,
+            lighting: safeGetList('lighting_history').length,
+            workPermits: safeGetList('work_permits_history').length,
+            ppeTracker: safeGetList('ppe_items').length,
+            riskAssessments: safeGetList('risk_assessment_history').length,
         });
     };
 
@@ -84,14 +95,11 @@ export default function History() {
 
     useEffect(() => {
         if (view === 'inspections') {
-            const raw = localStorage.getItem('inspections_history');
-            setHistoricalData(raw ? JSON.parse(raw) : []);
+            setHistoricalData(safeGetList('inspections_history'));
         } else if (view === 'matrices') {
-            const raw = localStorage.getItem('risk_matrix_history');
-            setMatrixData(raw ? JSON.parse(raw) : []);
+            setMatrixData(safeGetList('risk_matrix_history'));
         } else if (view === 'reports') {
-            const raw = localStorage.getItem('reports_history');
-            setReportsData(raw ? JSON.parse(raw) : []);
+            setReportsData(safeGetList('reports_history'));
         }
     }, [view, syncPulse]);
 
