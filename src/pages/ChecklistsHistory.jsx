@@ -182,7 +182,7 @@ export default function ChecklistsHistory() {
                                     </div>
                                 </div>
 
-                                <div style={{ display: 'flex', gap: '0.8rem', marginTop: '1rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
+                                <div style={{ display: 'flex', gap: '0.8rem', marginTop: '1rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem', flexWrap: 'wrap' }}>
                                     <button
                                         onClick={() => navigate(`/checklists?id=${item.id}`)}
                                         className="btn-secondary"

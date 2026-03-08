@@ -245,7 +245,7 @@ export default function AIHistory() {
                                     </span>
                                 </div>
                             </div>
-                            <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
+                            <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                                 <button
                                     onClick={(e) => { e.stopPropagation(); handleDownloadPDF(item); }}
                                     style={{ background: 'transparent', border: 'none', color: 'var(--color-primary)', cursor: 'pointer', padding: '0.5rem' }}

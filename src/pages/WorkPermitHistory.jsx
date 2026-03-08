@@ -136,7 +136,7 @@ export default function WorkPermitHistory() {
                                     <Building2 size={14} /> {item.obra}
                                 </p>
                             </div>
-                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                                 <button onClick={() => navigate('/work-permit', { state: { editData: item } })} style={{ padding: '0.6rem', background: 'var(--color-background)', border: 'none', borderRadius: '10px', cursor: 'pointer', color: 'var(--color-text)' }}>
                                     <Eye size={18} />
                                 </button>

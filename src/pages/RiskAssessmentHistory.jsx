@@ -145,7 +145,7 @@ export default function RiskAssessmentHistory() {
                                     </div>
                                 </div>
                             </div>
-                            <div style={{ display: 'flex', gap: '0.8rem', borderTop: '1px solid var(--color-border)', paddingTop: '0.8rem' }}>
+                            <div style={{ display: 'flex', gap: '0.8rem', borderTop: '1px solid var(--color-border)', paddingTop: '0.8rem', flexWrap: 'wrap' }}>
                                 <button
                                     onClick={() => navigate('/risk', { state: { editData: item } })}
                                     className="btn-secondary"
