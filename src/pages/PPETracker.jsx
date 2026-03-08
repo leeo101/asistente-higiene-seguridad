@@ -93,21 +93,21 @@ export default function PPETracker() {
     return (
         <div className="container" style={{ maxWidth: '700px', paddingBottom: '4rem', paddingTop: '6rem' }}>
             {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-                <button onClick={() => navigate(-1)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)', padding: '0.5rem' }}>
-                    <ArrowLeft />
-                </button>
-                <div style={{ flex: 1 }}>
-                    <h1 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800 }}>🦺 Control de EPP</h1>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.2rem', flexWrap: 'wrap' }}>
-                        <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-text-muted)' }}>Vencimientos de elementos de protección personal</p>
-                        {items.length > 0 && (
-                            <button onClick={handleExport} style={{ background: 'transparent', border: '1px solid #36B37E', borderRadius: '6px', padding: '0.2rem 0.6rem', fontSize: '0.7rem', fontWeight: 800, cursor: 'pointer', color: '#36B37E', transition: 'all 0.2s' }}>
-                                Descargar Excel
-                            </button>
-                        )}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', minWidth: '180px' }}>
+                    <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <ArrowLeft />
+                    </button>
+                    <div>
+                        <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800, lineHeight: 1.2 }}>Control de EPP</h1>
+                        <p style={{ margin: 0, fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Vida útil y vencimientos</p>
                     </div>
                 </div>
+                {items.length > 0 && (
+                    <button onClick={handleExport} style={{ background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
+                        <Download size={14} /> <span className="hidden sm:inline">EXCEL</span>
+                    </button>
+                )}
             </div>
 
             {/* Alert summary */}
@@ -171,7 +171,7 @@ export default function PPETracker() {
                     onClick={() => setShowForm(true)}
                     style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', width: '100%', padding: '0.85rem', borderRadius: '14px', background: 'linear-gradient(135deg,#1e3a8a,#2563eb)', color: '#ffffff', border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: '0.92rem', marginBottom: '1.5rem', boxShadow: '0 4px 14px rgba(37,99,235,0.28)' }}
                 >
-                    <Plus size={18} /> Registrar EPP
+                    <Plus size={18} /> <span className="hidden sm:inline">Registrar EPP</span><span className="inline sm:hidden">REGISTRAR</span>
                 </button>
             )}
 

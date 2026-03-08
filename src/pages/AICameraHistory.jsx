@@ -132,20 +132,20 @@ export default function AICameraHistory() {
             {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
             {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1, minWidth: '240px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', minWidth: '200px' }}>
                     <button onClick={() => navigate('/history')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <ArrowLeft />
                     </button>
                     <div>
-                        <h1 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, lineHeight: 1.2 }}>Cámara IA — Historial</h1>
-                        <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Inspecciones visuales con IA</p>
+                        <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800, lineHeight: 1.2 }}>Cámara IA</h1>
+                        <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Inspecciones visuales</p>
                     </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     {history.length > 0 && (
-                        <button onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', flexShrink: 0, boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
-                            <Download size={14} /> EXCEL
+                        <button onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
+                            <Download size={14} /> <span className="hidden sm:inline">EXCEL</span>
                         </button>
                     )}
                     <button
@@ -153,7 +153,7 @@ export default function AICameraHistory() {
                         className="btn-primary"
                         style={{ padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', width: 'auto', margin: 0 }}
                     >
-                        <Camera size={18} /> NUEVO
+                        <Camera size={18} /> <span className="hidden sm:inline">NUEVO</span>
                     </button>
                 </div>
             </div>
@@ -295,9 +295,10 @@ export default function AICameraHistory() {
                                 <a
                                     href={`https://wa.me/?text=${encodeURIComponent(`📸 Inspección Visual con IA\n🏗️ Empresa: ${item.company || 'Local'}\n📍 Tipo: ${item.type === 'general_risks' ? 'Riesgos Generales' : 'Verificación EPP'}\n🛡️ Resultado: ${item.type === 'general_risks' ? 'Análisis de entorno' : (item.ppeComplete ? '✅ EPP OK' : '⚠️ Falta EPP')}\n\n📱 Generado con *Asistente HYS* — https://asistentehs.com`)}`}
                                     target="_blank" rel="noreferrer"
-                                    style={{ padding: '0.6rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
+                                    style={{ padding: '0.6rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', minWidth: '40px' }}
+                                    title="Compartir por WhatsApp"
                                 >
-                                    <Share2 size={16} />
+                                    <Share2 size={16} /> <span className="hidden sm:inline" style={{ marginLeft: '0.3rem', fontWeight: 700, fontSize: '0.75rem' }}>WA</span>
                                 </a>
                                 <button
                                     onClick={() => setDeleteTarget(item.id)}

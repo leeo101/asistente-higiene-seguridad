@@ -411,6 +411,22 @@ label {
   gap: 1rem;
 }
 
+@media (max-width: 640px) {
+  .hidden-mobile {
+    display: none !important;
+  }
+}
+
+.hidden {
+  display: none;
+}
+
+@media (min-width: 641px) {
+  .sm\:inline {
+    display: inline !important;
+  }
+}
+
 /* Mobile Breakpoint (768px) */
 @media (max-width: 768px) {
   .container {

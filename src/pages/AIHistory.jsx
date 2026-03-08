@@ -192,16 +192,16 @@ export default function AIHistory() {
 
     return (
         <div className="container" style={{ paddingBottom: '3rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1, minWidth: '240px' }}>
-                    <button onClick={() => navigate('/history')} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--color-text)', cursor: 'pointer' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', minWidth: '200px' }}>
+                    <button onClick={() => navigate('/history')} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--color-text)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <ArrowLeft size={24} />
                     </button>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                         <Sparkles size={24} color="var(--color-primary)" />
                         <div>
-                            <h1 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, lineHeight: 1.2 }}>Historial Consultas IA</h1>
-                            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Asesoría técnica inteligente</p>
+                            <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800, lineHeight: 1.2 }}>Consultas IA</h1>
+                            <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Asesoría técnica</p>
                         </div>
                     </div>
                 </div>
@@ -210,7 +210,7 @@ export default function AIHistory() {
                     className="btn-primary"
                     style={{ padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', width: 'auto', margin: 0 }}
                 >
-                    <Sparkles size={18} /> NUEVO
+                    <Sparkles size={18} /> <span className="hidden sm:inline">NUEVA CONSULTA</span>
                 </button>
             </div>
 
@@ -257,10 +257,10 @@ export default function AIHistory() {
                                     href={`https://wa.me/?text=${encodeURIComponent(`✨ Análisis de Seguridad (IA)\n📋 Tarea: ${item.task}\n🚨 Riesgos: ${(item.riesgos || []).slice(0, 2).join(', ')}...\n🛡️ EPP: ${(item.epp || []).slice(0, 2).join(', ')}...\n📚 Normativa: ${(item.normativa || []).join(', ')}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS con IA\n🔗 https://asistentehs.com`)}`}
                                     target="_blank" rel="noreferrer"
                                     onClick={e => e.stopPropagation()}
-                                    style={{ background: 'transparent', border: 'none', color: '#25D366', cursor: 'pointer', padding: '0.5rem', display: 'flex', alignItems: 'center', textDecoration: 'none' }}
+                                    style={{ background: '#dcfce7', border: '1px solid #86efac', borderRadius: '10px', color: '#16a34a', cursor: 'pointer', padding: '0.5rem 0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', minWidth: '40px' }}
                                     title="Compartir por WhatsApp"
                                 >
-                                    <Share2 size={20} />
+                                    <Share2 size={18} /> <span className="hidden sm:inline" style={{ marginLeft: '0.3rem', fontWeight: 700, fontSize: '0.75rem' }}>WA</span>
                                 </a>
                                 <button
                                     onClick={(e) => handleDelete(item.id, e)}
