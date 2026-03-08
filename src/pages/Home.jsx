@@ -199,13 +199,15 @@ export default function Home() {
             {!currentUser && <StickyCtaBanner />}
 
             {/* ── HERO BANNER ── */}
-            <div style={{
+            <div className="home-hero-banner" style={{
                 background: 'var(--gradient-premium)',
-                padding: '6rem 1.5rem 3.5rem',
+                padding: 'clamp(4rem, 10vw, 6rem) 1.2rem 3rem',
                 position: 'relative',
                 overflow: 'hidden',
                 marginBottom: '0',
-                borderBottom: '1px solid rgba(255,255,255,0.1)'
+                borderBottom: '1px solid rgba(255,255,255,0.1)',
+                width: '100%',
+                boxSizing: 'border-box'
             }}>
                 {/* decorative circles */}
                 <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '180px', height: '180px', borderRadius: '50%', background: 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />

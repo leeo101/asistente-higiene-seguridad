@@ -292,7 +292,7 @@ export default function ATS() {
 
     return (
         <>
-            <div className="container" style={{ maxWidth: '1200px', paddingBottom: '8rem' }}>
+            <div className="container" style={{ maxWidth: '1200px', paddingBottom: '12rem' }}>
                 <ShareModal
                     open={showShare}
                     onClose={() => setShowShare(false)}
@@ -417,9 +417,9 @@ export default function ATS() {
                         <div style={{ border: '2px solid var(--color-border)', borderRadius: '16px', overflow: 'hidden' }}>
                             {/* Table Header - Only Desktop/Print */}
                             <div className="hidden sm:flex print:flex" style={{ background: 'var(--color-background)', borderBottom: '2px solid var(--color-border)', fontWeight: 900, textTransform: 'uppercase', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-                                <div style={{ padding: '1rem', flex: 3, borderRight: '1px solid var(--color-border)' }}>Paso de la Tarea</div>
-                                <div style={{ padding: '1rem', flex: 3, borderRight: '1px solid var(--color-border)' }}>Riesgos Existentes</div>
-                                <div style={{ padding: '1rem', flex: 4 }}>Medidas de Control</div>
+                                <div style={{ padding: '1rem', flex: 3, borderRight: '1px solid var(--color-border)' }}>Paso</div>
+                                <div style={{ padding: '1rem', flex: 3, borderRight: '1px solid var(--color-border)' }}>Riesgos</div>
+                                <div style={{ padding: '1rem', flex: 4 }}>Controles</div>
                                 <div className="no-print" style={{ width: '50px' }}></div>
                             </div>
 
@@ -429,7 +429,7 @@ export default function ATS() {
                                     <div key={t.id} className="flex flex-col sm:flex-row print:flex-row border-b border-[var(--color-border)] last:border-0">
                                         {/* Paso */}
                                         <div className="flex-1 sm:flex-[3] print:flex-[3] px-2 py-4 sm:p-4 sm:border-r print:border-r border-[var(--color-border)]">
-                                            <span className="sm:hidden print:hidden block text-[0.6rem] font-black text-blue-600 uppercase mb-1">Paso de la Tarea:</span>
+                                            <span className="sm:hidden print:hidden block text-[0.6rem] font-black text-blue-600 uppercase mb-1">Paso:</span>
                                             <textarea
                                                 rows={1}
                                                 value={t.paso}
@@ -446,7 +446,7 @@ export default function ATS() {
 
                                         {/* Riesgo */}
                                         <div className="flex-1 sm:flex-[3] print:flex-[3] px-2 py-4 sm:p-4 sm:border-r print:border-r border-[var(--color-border)] bg-slate-50/30 sm:bg-transparent">
-                                            <span className="sm:hidden print:hidden block text-[0.6rem] font-black text-blue-600 uppercase mb-1">Riesgos Existentes:</span>
+                                            <span className="sm:hidden print:hidden block text-[0.6rem] font-black text-blue-600 uppercase mb-1">Riesgos:</span>
                                             <textarea
                                                 rows={1}
                                                 value={t.riesgo}
@@ -463,7 +463,7 @@ export default function ATS() {
 
                                         {/* Control */}
                                         <div className="flex-1 sm:flex-[4] print:flex-[4] px-2 py-4 sm:p-4">
-                                            <span className="sm:hidden print:hidden block text-[0.6rem] font-black text-blue-600 uppercase mb-1">Medidas de Control:</span>
+                                            <span className="sm:hidden print:hidden block text-[0.6rem] font-black text-blue-600 uppercase mb-1">Controles:</span>
                                             <textarea
                                                 rows={1}
                                                 value={t.control}

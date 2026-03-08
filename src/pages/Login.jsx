@@ -153,15 +153,18 @@ export default function Login() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '1.5rem'
+            padding: '1.5rem',
+            width: '100%',
+            boxSizing: 'border-box'
         }}>
             <div className="glass-card" style={{
                 width: '100%',
                 maxWidth: '480px',
-                padding: '2.5rem',
+                padding: '2rem',
                 borderRadius: '24px',
                 textAlign: 'center',
-                animation: 'fadeIn 0.6s ease-out'
+                animation: 'fadeIn 0.6s ease-out',
+                margin: '0 auto'
             }}>
                 <img
                     src="/logo.png"
@@ -340,7 +343,7 @@ export default function Login() {
                                 </div>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
                                 <div>
                                     <label htmlFor="dni">DNI</label>
                                     <div style={{ position: 'relative' }}>
@@ -528,11 +531,10 @@ export default function Login() {
                         </form>
                     </>
                 )}
+                <p style={{ textAlign: 'center', marginTop: '2.5rem', fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>
+                    Asistente de Higiene y Seguridad v1.1
+                </p>
             </div>
-
-            <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-                Asistente de Higiene y Seguridad v1.1
-            </p>
-        </div >
+        </div>
     );
 }
