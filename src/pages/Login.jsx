@@ -147,18 +147,57 @@ export default function Login() {
     };
 
     return (
-        <div className="container" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: '100vh' }}>
-            <div className="card" style={{ textAlign: 'center' }}>
+        <div className="login-page-wrapper" style={{
+            minHeight: '100vh',
+            background: 'radial-gradient(circle at top right, #1e3a8a 0%, #0f172a 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1.5rem'
+        }}>
+            <div className="glass-card" style={{
+                width: '100%',
+                maxWidth: '480px',
+                padding: '2.5rem',
+                borderRadius: '24px',
+                textAlign: 'center',
+                animation: 'fadeIn 0.6s ease-out'
+            }}>
                 <img
                     src="/logo.png"
                     alt="Logo"
+                    className="floating-logo"
                     style={{
                         width: 'auto',
-                        height: '60px',
-                        margin: '0 auto 1.5rem auto',
-                        display: 'block'
+                        height: '70px',
+                        margin: '0 auto 2rem auto',
+                        display: 'block',
+                        filter: 'drop-shadow(0 0 15px rgba(255,255,255,0.2))'
                     }}
                 />
+                <style>
+                    {`
+                        @keyframes floatingLogo {
+                            0%, 100% { transform: translateY(0); }
+                            50% { transform: translateY(-10px); }
+                        }
+                        .floating-logo {
+                            animation: floatingLogo 3s infinite ease-in-out;
+                        }
+                        .login-page-wrapper input, .login-page-wrapper select {
+                            background: rgba(255,255,255,0.05);
+                            border-color: rgba(255,255,255,0.1);
+                            color: white;
+                        }
+                        .login-page-wrapper label {
+                            color: rgba(255,255,255,0.7);
+                        }
+                        .login-page-wrapper h1, .login-page-wrapper h2 {
+                            color: white;
+                            font-family: var(--font-heading);
+                        }
+                    `}
+                </style>
 
                 {view === 'login' ? (
                     <>

@@ -200,11 +200,12 @@ export default function Home() {
 
             {/* ── HERO BANNER ── */}
             <div style={{
-                background: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #0ea5e9 100%)',
-                padding: '5.5rem 1.5rem 2.5rem',
+                background: 'var(--gradient-premium)',
+                padding: '6rem 1.5rem 3.5rem',
                 position: 'relative',
                 overflow: 'hidden',
-                marginBottom: '0'
+                marginBottom: '0',
+                borderBottom: '1px solid rgba(255,255,255,0.1)'
             }}>
                 {/* decorative circles */}
                 <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '180px', height: '180px', borderRadius: '50%', background: 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
@@ -217,8 +218,8 @@ export default function Home() {
                                 {currentUser ? 'Bienvenido de vuelta' : 'Potenciá tu trabajo con IA'}
                             </p>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.5rem' }}>
-                                <img src="/logo.png" alt="Logo" style={{ width: '42px', height: '42px', objectFit: 'contain', filter: 'brightness(0) invert(1) drop-shadow(0 0 10px rgba(255,255,255,0.2))' }} />
-                                <h1 style={{ fontSize: 'clamp(1.8rem, 5vw, 2.8rem)', fontWeight: 900, color: 'var(--color-surface)', margin: 0, lineHeight: 1.1, letterSpacing: '-1px' }}>
+                                <img src="/logo.png" alt="Logo" style={{ width: '48px', height: '48px', objectFit: 'contain', filter: 'drop-shadow(0 0 12px rgba(255,255,255,0.3))' }} />
+                                <h1 style={{ fontSize: 'clamp(2rem, 6vw, 3.2rem)', fontWeight: 900, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-1.5px', fontFamily: 'var(--font-heading)' }}>
                                     {currentUser ? <>{userName} {isSubscribed && <Sparkles size={24} color="#f59e0b" fill="#f59e0b" title="Plan PRO Activo" />}</> : 'Asistente HYS'}
                                 </h1>
                             </div>
@@ -231,13 +232,15 @@ export default function Home() {
                         {!currentUser && (
                             <div className="hero-buttons" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', marginTop: '2rem', width: '100%', maxWidth: '450px' }}>
                                 <button onClick={() => navigate('/login', { state: { view: 'register' } })}
-                                    style={{ flex: 2, padding: '1rem 1.5rem', borderRadius: '12px', border: 'none', background: 'var(--color-surface)', color: '#2563eb', fontWeight: 800, cursor: 'pointer', fontSize: '1rem', boxShadow: '0 10px 25px rgba(0,0,0,0.2)', transition: 'transform 0.2s' }}
-                                    onMouseOver={e => e.currentTarget.style.transform = 'scale(1.03)'}
-                                    onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}>
+                                    style={{ flex: 2, padding: '1.2rem 1.5rem', borderRadius: '16px', border: 'none', background: 'white', color: '#2563eb', fontWeight: 800, cursor: 'pointer', fontSize: '1.1rem', boxShadow: '0 20px 40px rgba(0,0,0,0.2)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
+                                    onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 25px 50px rgba(0,0,0,0.25)'; }}
+                                    onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.2)'; }}>
                                     Comenzar Gratis
                                 </button>
                                 <button onClick={() => navigate('/login', { state: { view: 'login' } })}
-                                    style={{ flex: 1, padding: '1rem 1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.15)', color: '#ffffff', fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(8px)', fontSize: '1rem' }}>
+                                    style={{ flex: 1, padding: '1.2rem 1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: '#ffffff', fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', fontSize: '1rem', transition: 'all 0.3s ease' }}
+                                    onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
+                                    onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}>
                                     Ingresar
                                 </button>
                             </div>
@@ -260,24 +263,22 @@ export default function Home() {
                                         else if (stat.key === 'risk_assessment_history') navigate('/risk-assessment-history');
                                         else navigate('/history', { state: { view: 'inspections' } });
                                     }}
+                                    className="glass-card"
                                     style={{
-                                        background: 'rgba(255,255,255,0.12)',
-                                        backdropFilter: 'blur(10px)',
-                                        borderRadius: '14px',
-                                        padding: '0.9rem 0.6rem',
+                                        borderRadius: '16px',
+                                        padding: '1rem 0.6rem',
                                         textAlign: 'center',
                                         cursor: 'pointer',
-                                        border: '1px solid rgba(255,255,255,0.2)',
-                                        transition: 'transform 0.2s, background 0.2s',
+                                        transition: 'all 0.3s ease',
                                     }}
-                                    onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.22)'}
-                                    onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
+                                    onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; }}
+                                    onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = 'var(--gradient-surface)'; }}
                                 >
-                                    <div style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '0.3rem' }}>
-                                        {React.cloneElement(stat.icon, { size: 20 })}
+                                    <div style={{ color: 'white', marginBottom: '0.4rem', opacity: 0.9 }}>
+                                        {React.cloneElement(stat.icon, { size: 22 })}
                                     </div>
-                                    <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-surface)', lineHeight: 1 }}>{stat.value}</div>
-                                    <div style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.7)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '0.2rem' }}>{stat.label}</div>
+                                    <div style={{ fontSize: '1.6rem', fontWeight: 900, color: 'white', lineHeight: 1 }}>{stat.value}</div>
+                                    <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.8)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '0.3rem' }}>{stat.label}</div>
                                 </div>
                             ))}
                         </div>

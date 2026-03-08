@@ -23,7 +23,7 @@ export default function WorkPermit() {
     useDocumentTitle('Permiso de Trabajo');
 
     // Default state
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState(() => ({
         id: null,
         numeroPermiso: '',
         empresa: '',
@@ -38,7 +38,7 @@ export default function WorkPermit() {
         ],
         eppRequeridos: ['Casco', 'Calzado de Seguridad', 'Guantes', 'Anteojos'],
         observacionesGenerales: ''
-    });
+    }));
 
     const [professional, setProfessional] = useState({
         name: 'Profesional',

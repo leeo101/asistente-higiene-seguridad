@@ -5,6 +5,70 @@ import { useSync } from '../contexts/SyncContext';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
 
+// SVG Animated Gauge
+const Gauge = ({ score, color }) => {
+    const maxScore = 9;
+    const percentage = Math.min(100, Math.max(0, (score / maxScore) * 100));
+
+    // SVG parameters
+    const cx = 120;
+    const cy = 120;
+    const radius = 100;
+    const strokeWidth = 18;
+
+    // Circumference of half circle = pi * r
+    const dashArray = Math.PI * radius;
+    // Dash offset = dashArray - (dashArray * percentage / 100)
+    const dashOffset = dashArray - (dashArray * percentage / 100);
+
+    return (
+        <div style={{ position: 'relative', width: '240px', height: '150px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <svg width="240" height="130" viewBox="0 0 240 130" style={{ overflow: 'visible' }}>
+                {/* Background Arc */}
+                <path
+                    d={`M ${cx - radius} ${cy} A ${radius} ${radius} 0 0 1 ${cx + radius} ${cy}`}
+                    fill="none"
+                    stroke="var(--color-border)"
+                    strokeWidth={strokeWidth}
+                    strokeLinecap="round"
+                />
+                {/* Active Arc */}
+                <path
+                    d={`M ${cx - radius} ${cy} A ${radius} ${radius} 0 0 1 ${cx + radius} ${cy}`}
+                    fill="none"
+                    stroke={color}
+                    strokeWidth={strokeWidth}
+                    strokeLinecap="round"
+                    strokeDasharray={dashArray}
+                    strokeDashoffset={dashOffset}
+                    style={{
+                        transition: 'stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.5s ease'
+                    }}
+                />
+            </svg>
+            <div style={{
+                position: 'absolute',
+                bottom: '0',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                textAlign: 'center',
+                width: '100%'
+            }}>
+                <div style={{
+                    fontSize: '3.5rem',
+                    lineHeight: '1',
+                    fontWeight: 900,
+                    color: color,
+                    transition: 'color 0.5s ease',
+                    textShadow: '0 2px 10px rgba(0,0,0,0.05)'
+                }}>
+                    {score}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 export default function RiskAssessment() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -103,69 +167,7 @@ export default function RiskAssessment() {
         { value: 3, label: 'Fatal', desc: 'Daño extremo' }
     ];
 
-    // SVG Animated Gauge
-    const Gauge = ({ score }) => {
-        const maxScore = 9;
-        const percentage = Math.min(100, Math.max(0, (score / maxScore) * 100));
 
-        // SVG parameters
-        const cx = 120;
-        const cy = 120;
-        const radius = 100;
-        const strokeWidth = 18;
-
-        // Circumference of half circle = pi * r
-        const dashArray = Math.PI * radius;
-        // Dash offset = dashArray - (dashArray * percentage / 100)
-        const dashOffset = dashArray - (dashArray * percentage / 100);
-
-        return (
-            <div style={{ position: 'relative', width: '240px', height: '150px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <svg width="240" height="130" viewBox="0 0 240 130" style={{ overflow: 'visible' }}>
-                    {/* Background Arc */}
-                    <path
-                        d={`M ${cx - radius} ${cy} A ${radius} ${radius} 0 0 1 ${cx + radius} ${cy}`}
-                        fill="none"
-                        stroke="var(--color-border)"
-                        strokeWidth={strokeWidth}
-                        strokeLinecap="round"
-                    />
-                    {/* Active Arc */}
-                    <path
-                        d={`M ${cx - radius} ${cy} A ${radius} ${radius} 0 0 1 ${cx + radius} ${cy}`}
-                        fill="none"
-                        stroke={riskLevel.color}
-                        strokeWidth={strokeWidth}
-                        strokeLinecap="round"
-                        strokeDasharray={dashArray}
-                        strokeDashoffset={dashOffset}
-                        style={{
-                            transition: 'stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.5s ease'
-                        }}
-                    />
-                </svg>
-                <div style={{
-                    position: 'absolute',
-                    bottom: '0',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    textAlign: 'center',
-                    width: '100%'
-                }}>
-                    <div style={{
-                        fontSize: '3.5rem',
-                        lineHeight: '1',
-                        fontWeight: 900,
-                        color: riskLevel.color,
-                        transition: 'color 0.5s ease',
-                        textShadow: '0 2px 10px rgba(0,0,0,0.05)'
-                    }}>
-                        {score}
-                    </div>
-                </div>
-            </div>
-        );
-    };
 
     return (
         <div className="container" style={{ maxWidth: '850px' }}>
@@ -216,7 +218,7 @@ export default function RiskAssessment() {
                 borderRadius: '20px',
                 padding: '2.5rem 1.5rem 2rem 1.5rem'
             }}>
-                <Gauge score={probability * severity} />
+                <Gauge score={probability * severity} color={riskLevel.color} />
                 <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
                     <div style={{
                         display: 'inline-block',

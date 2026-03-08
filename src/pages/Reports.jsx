@@ -24,7 +24,7 @@ export default function Reports() {
 
     // Template specific fields
     const [extraFields, setExtraFields] = useState({});
-    const [personnel, setPersonnel] = useState([{ id: Date.now(), name: '', dni: '' }]);
+    const [personnel, setPersonnel] = useState(() => [{ id: Date.now(), name: '', dni: '' }]);
 
     useEffect(() => {
         if (location.state?.editData) {

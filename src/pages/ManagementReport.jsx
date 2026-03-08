@@ -35,10 +35,6 @@ export default function ManagementReport() {
         };
     };
 
-    useEffect(() => {
-        loadMetrics();
-    }, [monthOffset]);
-
     const loadMetrics = () => {
         setLoading(true);
         const { firstDay, lastDay } = getTargetDates();
@@ -85,6 +81,10 @@ export default function ManagementReport() {
 
         setTimeout(() => setLoading(false), 400); // Simulate processing time for UX
     };
+
+    useEffect(() => {
+        loadMetrics();
+    }, [monthOffset]);
 
     const handleExportPDF = () => {
         try {

@@ -104,7 +104,7 @@ export default function SignatureStamp() {
         navigate('/profile');
     };
 
-    const CanvasArea = ({ type, canvasRef, image, hasContent, strokeWidth, onStrokeChange }) => (
+    const renderCanvasArea = ({ type, canvasRef, image, hasContent, strokeWidth, onStrokeChange }) => (
         <div>
             <div style={{
                 position: 'relative', border: '2px dashed var(--color-border)',
@@ -182,26 +182,26 @@ export default function SignatureStamp() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 <div className="card">
                     <h3 style={{ marginTop: 0, marginBottom: '1rem' }}>Firma Digital</h3>
-                    <CanvasArea
-                        type="signature"
-                        canvasRef={signatureCanvasRef}
-                        image={signatureImage}
-                        hasContent={signatureHasContent}
-                        strokeWidth={signatureStrokeWidth}
-                        onStrokeChange={setSignatureStrokeWidth}
-                    />
+                    {renderCanvasArea({
+                        type: "signature",
+                        canvasRef: signatureCanvasRef,
+                        image: signatureImage,
+                        hasContent: signatureHasContent,
+                        strokeWidth: signatureStrokeWidth,
+                        onStrokeChange: setSignatureStrokeWidth
+                    })}
                 </div>
 
                 <div className="card">
                     <h3 style={{ marginTop: 0, marginBottom: '1rem' }}>Sello Profesional</h3>
-                    <CanvasArea
-                        type="stamp"
-                        canvasRef={stampCanvasRef}
-                        image={stampImage}
-                        hasContent={stampHasContent}
-                        strokeWidth={stampStrokeWidth}
-                        onStrokeChange={setStampStrokeWidth}
-                    />
+                    {renderCanvasArea({
+                        type: "stamp",
+                        canvasRef: stampCanvasRef,
+                        image: stampImage,
+                        hasContent: stampHasContent,
+                        strokeWidth: stampStrokeWidth,
+                        onStrokeChange: setStampStrokeWidth
+                    })}
                 </div>
 
                 <button onClick={handleSave} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl border-0 shadow-sm transition-all font-bold" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', padding: '1rem', width: '100%' }}>

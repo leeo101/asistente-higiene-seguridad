@@ -1,0 +1,714 @@
+﻿
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\AdBanner.jsx
+  36:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  34 |         // Pick a random ad
+  35 |         const randomAd = MOCK_ADS[Math.floor(Math.random() * MOCK_ADS.length)];
+> 36 |         setCurrentAd(randomAd);
+     |         ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  37 |     }, []);
+  38 |
+  39 |     if (isPro() || !currentAd) return null;  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\GlobalSearch.jsx
+  70:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  68 |     useEffect(() => {
+  69 |         if (!query.trim() || query.length < 2) {
+> 70 |             setResults([]);
+     |             ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  71 |             return;
+  72 |         }
+  73 |         const q = query.toLowerCase();  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\NetworkBadge.jsx
+  12:13  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  10 |     useEffect(() => {
+  11 |         if (!isOnline) {
+> 12 |             setShowBadge(true);
+     |             ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  13 |             setStatusText('Sin conexi├│n - Guardado local activo');
+  14 |         } else {
+  15 |             if (showBadge) {  react-hooks/set-state-in-effect
+  22:8   warning  React Hook useEffect has a missing dependency: 'showBadge'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     react-hooks/exhaustive-deps
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\OnboardingModal.jsx
+  1:27  error  'useEffect' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\ShareModal.jsx
+  21:11  error  'encoded' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\StatsBar.jsx
+  31:12  error  'totalThisMonth' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 no-unused-vars
+  65:9   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  63 |         } catch { /* ignore */ }
+  64 |
+> 65 |         setStats(computed.map(s => s.key === 'ai_camera_history' ? { ...s, compliance: currentCompliance } : s));
+     |         ^^^^^^^^ Avoid calling setState() directly within an effect
+  66 |         setTotalThisMonth(monthTotal);
+  67 |
+  68 |         // Check EPP alerts  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\contexts\AuthContext.jsx
+  13:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\contexts\SyncContext.jsx
+   7:14  error    Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  47:8   warning  React Hook useEffect has a missing dependency: 'currentUser'. Either include it or remove the dependency array                  react-hooks/exhaustive-deps
+  82:8   warning  React Hook useEffect has a missing dependency: 'currentUser'. Either include it or remove the dependency array                  react-hooks/exhaustive-deps
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\AICamera.jsx
+  17:12  error    'stream' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                          no-unused-vars
+  35:8   warning  React Hook useEffect has a missing dependency: 'startCamera'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\AICameraHistory.jsx
+   5:8   error    'toast' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    no-unused-vars
+  68:13  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  66 |                 syncCollection('ai_camera_history', valid);
+  67 |             }
+> 68 |             setHistory(valid);
+     |             ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  69 |         } catch {
+  70 |             setHistory([]);
+  71 |         }  react-hooks/set-state-in-effect
+  72:8   warning  React Hook useEffect has a missing dependency: 'syncCollection'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               react-hooks/exhaustive-deps
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\AIChatAdvisor.jsx
+  151:18  error  'e' is defined but never used  no-unused-vars
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\AIGeneralCamera.jsx
+  17:12  error    'stream' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                          no-unused-vars
+  35:8   warning  React Hook useEffect has a missing dependency: 'startCamera'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\AIHistory.jsx
+  22:18  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  20 |     useEffect(() => {
+  21 |         const raw = localStorage.getItem('ai_advisor_history');
+> 22 |         if (raw) setHistory(JSON.parse(raw));
+     |                  ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  23 |     }, [syncPulse]);
+  24 |
+  25 |     const handleDelete = (id, e) => {  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\AIReport.jsx
+  11:13  error  'currentUser' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          no-unused-vars
+  32:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  30 |         if (current) {
+  31 |             const parsedData = JSON.parse(current);
+> 32 |             setData(parsedData);
+     |             ^^^^^^^ Avoid calling setState() directly within an effect
+  33 |             setCompany(parsedData.company || 'Empresa Local');
+  34 |             setLocation(parsedData.location || 'Planta Principal');
+  35 |         }  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ATS.jsx
+   10:10   error  'useSync' is defined but never used. Allowed unused vars must match /^[A-Z_]/u               no-unused-vars
+   51:13   error  'currentUser' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  281:19   error  'syncCollection' is not defined                                                              no-undef
+  537:101  error  'idx' is defined but never used                                                              no-unused-vars
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ATSHistory.jsx
+  42:25  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  40 |     useEffect(() => {
+  41 |         const historyRaw = localStorage.getItem('ats_history');
+> 42 |         if (historyRaw) setHistory(JSON.parse(historyRaw));
+     |                         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  43 |     }, [syncPulse]);
+  44 |
+  45 |     const confirmDelete = () => {  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\Analytics.jsx
+  145:8  warning  React Hook useEffect has a missing dependency: 'moduleColors'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ChecklistManager.jsx
+   97:13  error  'currentUser' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          no-unused-vars
+  128:17  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  126 |             if (savedData) {
+  127 |                 const parsed = JSON.parse(savedData);
+> 128 |                 setCompanyInfo(parsed.companyInfo);
+      |                 ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  129 |                 setInspectionInfo(parsed.inspectionInfo);
+  130 |                 setActiveSections(parsed.activeSections);
+  131 |                 setObservations(parsed.observations || '');  react-hooks/set-state-in-effect
+  177:11  error  'handleShare' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          no-unused-vars
+  186:9   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  184 |             items: s.items.map(text => ({ text, status: null }))
+  185 |         }));
+> 186 |         setActiveSections(initial);
+      |         ^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  187 |     }, []);
+  188 |
+  189 |     const toggleTemplate = (templateKey) => {                                                                                                                                                  react-hooks/set-state-in-effect
+  555:92  error  'flex' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            no-unused-vars
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ChecklistsHistory.jsx
+  40:25  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  38 |     useEffect(() => {
+  39 |         const historyRaw = localStorage.getItem('tool_checklists_history');
+> 40 |         if (historyRaw) setHistory(JSON.parse(historyRaw));
+     |                         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  41 |     }, [syncPulse]);
+  42 |
+  43 |     const confirmDelete = () => {  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\Ergonomics.jsx
+  42:20  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  40 |     useEffect(() => {
+  41 |         const saved = localStorage.getItem('ergonomics_history');
+> 42 |         if (saved) setHistory(JSON.parse(saved));
+     |                    ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  43 |     }, [syncPulse]);
+  44 |
+  45 |     const confirmDelete = () => {  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ErgonomicsReport.jsx
+  12:13  error  'currentUser' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  no-unused-vars
+  29:20  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  27 |         const history = JSON.parse(localStorage.getItem('ergonomics_history') || '[]');
+  28 |         const found = history.find(item => item.id === id);
+> 29 |         if (found) setData(found);
+     |                    ^^^^^^^ Avoid calling setState() directly within an effect
+  30 |
+  31 |         const savedProfile = localStorage.getItem('personalData');
+  32 |         if (savedProfile) setProfile(JSON.parse(savedProfile));  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\FireLoad.jsx
+  116:8  warning  React Hook useEffect has a missing dependency: 'calculateFireLoad'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\FireLoadHistory.jsx
+  42:25  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  40 |     useEffect(() => {
+  41 |         const historyRaw = localStorage.getItem('fireload_history');
+> 42 |         if (historyRaw) setHistory(JSON.parse(historyRaw));
+     |                         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  43 |     }, [syncPulse]);
+  44 |
+  45 |     const confirmDelete = () => {  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\History.jsx
+  56:13  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  54 |     useEffect(() => {
+  55 |         if (location.state?.view) {
+> 56 |             setView(location.state.view);
+     |             ^^^^^^^ Avoid calling setState() directly within an effect
+  57 |         }
+  58 |     }, [location.state?.view]);
+  59 |                                                                                                                                                      react-hooks/set-state-in-effect
+  94:23  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  92 |     };
+  93 |
+> 94 |     useEffect(() => { refreshCounts(); }, [syncPulse]);
+     |                       ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  95 |
+  96 |     useEffect(() => {
+  97 |         if (view === 'inspections') {                                                                                                                                                         react-hooks/set-state-in-effect
+  94:43  warning  React Hook useEffect has a missing dependency: 'refreshCounts'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              react-hooks/exhaustive-deps
+  98:13  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+   96 |     useEffect(() => {
+   97 |         if (view === 'inspections') {
+>  98 |             setHistoricalData(safeGetList('inspections_history'));
+      |             ^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+   99 |         } else if (view === 'matrices') {
+  100 |             setMatrixData(safeGetList('risk_matrix_history'));
+  101 |         } else if (view === 'reports') {  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\Home.jsx
+  140:17  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  138 |                     else if (prof.includes('ing')) name = `Ing.${name} `;
+  139 |                 }
+> 140 |                 setUserName(name);
+      |                 ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  141 |             }
+  142 |
+  143 |             // Re-sync with paywall hook  react-hooks/set-state-in-effect
+  191:8   warning  React Hook useEffect has missing dependencies: 'currentUser', 'daysRemaining', 'isPro', and 'stats'. Either include them or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          react-hooks/exhaustive-deps
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\Legislation.jsx
+  199:18  error  'error' is defined but never used  no-unused-vars
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\LightingHistory.jsx
+  42:25  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  40 |     useEffect(() => {
+  41 |         const historyRaw = localStorage.getItem('lighting_history');
+> 42 |         if (historyRaw) setHistory(JSON.parse(historyRaw));
+     |                         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  43 |     }, [syncPulse]);
+  44 |
+  45 |     const confirmDelete = () => {  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\Login.jsx
+   6:8   error  'toast' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  38:18  error  'error' is defined but never used                                             no-unused-vars
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ManagementReport.jsx
+  86:9  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  84 |
+  85 |     useEffect(() => {
+> 86 |         loadMetrics();
+     |         ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  87 |     }, [monthOffset]);
+  88 |
+  89 |     const handleExportPDF = () => {  react-hooks/set-state-in-effect
+  87:8  warning  React Hook useEffect has a missing dependency: 'loadMetrics'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      react-hooks/exhaustive-deps
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\PPETracker.jsx
+  52:20  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  50 |     useEffect(() => {
+  51 |         const saved = localStorage.getItem('ppe_items');
+> 52 |         if (saved) setItems(JSON.parse(saved));
+     |                    ^^^^^^^^ Avoid calling setState() directly within an effect
+  53 |     }, []);
+  54 |
+  55 |     const save = async (updated) => {  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\PersonalData.jsx
+  24:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  22 |         const savedData = localStorage.getItem('personalData');
+  23 |         if (savedData) {
+> 24 |             setFormData(JSON.parse(savedData));
+     |             ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  25 |         }
+  26 |     }, []);
+  27 |  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\Profile.jsx
+  25:17  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  23 |             const savedData = localStorage.getItem('personalData');
+  24 |             if (savedData) {
+> 25 |                 setUserData(JSON.parse(savedData));
+     |                 ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  26 |             }
+  27 |             setIsSubscribed(isPro());
+  28 |         }  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\Report.jsx
+  11:8   error  'toast' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  no-unused-vars
+  15:13  error  'currentUser' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   no-unused-vars
+  31:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  29 |         if (current) {
+  30 |             const inspection = JSON.parse(current);
+> 31 |             setInspectionData(inspection);
+     |             ^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  32 |
+  33 |             const historyRaw = localStorage.getItem('inspections_history');
+  34 |             const history = historyRaw ? JSON.parse(historyRaw) : [];  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\Reports.jsx
+   32:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  30 |         if (location.state?.editData) {
+  31 |             const data = location.state.editData;
+> 32 |             setTemplate(data.template || 'general');
+     |             ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  33 |             setProjectData({
+  34 |                 id: data.id,
+  35 |                 title: data.title || '',  react-hooks/set-state-in-effect
+  268:48  error  'index' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 no-unused-vars
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ReportsReport.jsx
+  12:13  error  'currentUser' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             no-unused-vars
+  29:22  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  27 |         const sig = localStorage.getItem('signatureStampData');
+  28 |
+> 29 |         if (current) setReport(JSON.parse(current));
+     |                      ^^^^^^^^^ Avoid calling setState() directly within an effect
+  30 |         if (prof) setProfile(JSON.parse(prof));
+  31 |         if (sig) setSignature(JSON.parse(sig));
+  32 |     }, []);  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ResetPassword.jsx
+  23:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  21 |     useEffect(() => {
+  22 |         if (!oobCode) {
+> 23 |             setStatus({ type: 'error', message: 'Enlace de restablecimiento no v├ílido o ausente.' });
+     |             ^^^^^^^^^ Avoid calling setState() directly within an effect
+  24 |         }
+  25 |     }, [oobCode]);
+  26 |  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\RiskAssessment.jsx
+   94:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  92 |         if (location.state?.editData) {
+  93 |             const data = location.state.editData;
+> 94 |             setProjectData({
+     |             ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  95 |                 id: data.id,
+  96 |                 name: data.name || '',
+  97 |                 location: data.location || '',                                                                                                                                                                                                                                                      react-hooks/set-state-in-effect
+  108:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  106 |         const score = probability * severity;
+  107 |         if (score <= 2) {
+> 108 |             setRiskLevel({ label: 'Bajo', color: '#10b981', action: 'Riesgo aceptable. No requiere medidas adicionales.', bg: 'rgba(16, 185, 129, 0.1)' });
+      |             ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  109 |         } else if (score <= 4) {
+  110 |             setRiskLevel({ label: 'Moderado', color: '#f59e0b', action: 'Requiere seguimiento. Implementar medidas de control administrativas.', bg: 'rgba(245, 158, 11, 0.1)' });
+  111 |         } else if (score <= 6) {  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\RiskAssessmentHistory.jsx
+  54:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  52 |         const raw = localStorage.getItem('risk_assessment_history');
+  53 |         if (raw) {
+> 54 |             setData(JSON.parse(raw));
+     |             ^^^^^^^ Avoid calling setState() directly within an effect
+  55 |         }
+  56 |     }, [syncPulse]);
+  57 |  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\RiskMatrix.jsx
+  54:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  52 |         if (location.state?.editData) {
+  53 |             const data = location.state.editData;
+> 54 |             setProjectData({
+     |             ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  55 |                 id: data.id,
+  56 |                 name: data.name || '',
+  57 |                 location: data.location || '',  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\RiskMatrixReport.jsx
+  102:13  error  'currentUser' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               no-unused-vars
+  114:22  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  112 |         const prof = localStorage.getItem('personalData');
+  113 |         const sig = localStorage.getItem('signatureStampData');
+> 114 |         if (current) setMatrix(JSON.parse(current));
+      |                      ^^^^^^^^^ Avoid calling setState() directly within an effect
+  115 |         if (prof) setProfile(JSON.parse(prof));
+  116 |         if (sig) setSignature(JSON.parse(sig));
+  117 |     }, []);  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\SafetyCalendar.jsx
+   1:38  error    'useRef' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           no-unused-vars
+  17:11  error    'navigate' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                no-unused-vars
+  57:9   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  55 |             localStorage.setItem('safety_calendar_events', JSON.stringify(initialDates));
+  56 |         }
+> 57 |         setEvents(currentEvents);
+     |         ^^^^^^^^^ Avoid calling setState() directly within an effect
+  58 |         initializeSchedules(currentEvents);
+  59 |     }, []);
+  60 |  react-hooks/set-state-in-effect
+  59:8   warning  React Hook useEffect has a missing dependency: 'initialDates'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         react-hooks/exhaustive-deps
+  62:15  error    'granted' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 no-unused-vars
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\SignatureStamp.jsx
+  25:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  23 |         if (savedData) {
+  24 |             const parsed = JSON.parse(savedData);
+> 25 |             setSignatureImage(parsed.signature);
+     |             ^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  26 |             setStampImage(parsed.stamp);
+  27 |         }
+  28 |     }, []);  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\Subscription.jsx
+  24:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  22 |         // Check if user is active
+  23 |         if (isPro()) {
+> 24 |             setIsSubscribed(true);
+     |             ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  25 |             const expiry = parseInt(localStorage.getItem('subscriptionExpiry') || '0', 10);
+  26 |             if (expiry) setExpiryDate(new Date(expiry));
+  27 |  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\WorkPermit.jsx
+    1:38  error  'useRef' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       no-unused-vars
+   20:13  error  'currentUser' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         no-unused-vars
+   49:12  error  'showSignatures' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      no-unused-vars
+   49:28  error  'setShowSignatures' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   no-unused-vars
+   59:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  57 |     useEffect(() => {
+  58 |         if (location.state?.editData) {
+> 59 |             setFormData(location.state.editData);
+     |             ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  60 |         }
+  61 |     }, [location.state]);
+  62 |                                                                                                  react-hooks/set-state-in-effect
+   73:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  71 |                 signature = JSON.parse(savedSigData).signature;
+  72 |             }
+> 73 |             setProfessional({
+     |             ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  74 |                 name: data.name || 'Profesional',
+  75 |                 license: data.license || '',
+  76 |                 signature: signature  react-hooks/set-state-in-effect
+  356:52  error  'idx' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     no-unused-vars
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\WorkPermitHistory.jsx
+  24:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  22 |         const saved = localStorage.getItem('work_permits_history');
+  23 |         if (saved) {
+> 24 |             setHistory(JSON.parse(saved));
+     |             ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  25 |         }
+  26 |     }, []);
+  27 |  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\services\cloudSync.js
+   8:26  error  'updateDoc' is defined but never used. Allowed unused vars must match /^[A-Z_]/u           no-unused-vars
+  36:21  error  'updatedAt' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  91:21  error  'updatedAt' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+Ô£û 87 problems (75 errors, 12 warnings)
+

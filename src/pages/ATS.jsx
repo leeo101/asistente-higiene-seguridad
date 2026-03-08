@@ -48,8 +48,8 @@ const defaultChecklist = [
 export default function ATS() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { currentUser } = useAuth();
     const { requirePro } = usePaywall();
+    const { syncCollection } = useSync();
     useDocumentTitle('Análisis de Trabajo Seguro (ATS)');
     const capatazCanvasRef = useRef(null);
     const [isDrawingCapataz, setIsDrawingCapataz] = useState(false);
@@ -534,7 +534,7 @@ export default function ATS() {
                                 </div>
 
                                 <div className="w-full flex-col">
-                                    {formData.checklist.filter(i => i.categoria === cat).map((item, idx) => (
+                                    {formData.checklist.filter(i => i.categoria === cat).map((item) => (
                                         <div key={item.id} className="group border-b border-slate-200" style={{ padding: '0.75rem 1rem' }}>
                                             {/* Question text */}
                                             <div
