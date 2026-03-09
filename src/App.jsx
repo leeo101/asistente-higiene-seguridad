@@ -340,66 +340,68 @@ function App() {
           <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
           <Suspense fallback={<LoadingScreen />}>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/subscribe" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
-              <Route path="/privacy" element={<PrivacyPolicy />} />
+            <div key={location.pathname} className="page-transition" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <Routes location={location}>
+                <Route path="/login" element={<Login />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/subscribe" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
 
-              {/* Public Routes */}
-              <Route path="/" element={<Home />} />
-              <Route path="/ats" element={<ATS />} />
-              <Route path="/fire-load" element={<FireLoad />} />
-              <Route path="/legislation" element={<Legislation />} />
-              <Route path="/checklists" element={<ChecklistManager />} />
-              <Route path="/create-inspection" element={<CreateInspection />} />
-              <Route path="/checklist" element={<Checklist />} />
-              <Route path="/observation" element={<Observation />} />
-              <Route path="/photos" element={<Photos />} />
-              <Route path="/ai-camera" element={<AICamera />} />
-              <Route path="/ai-general-camera" element={<AIGeneralCamera />} />
-              <Route path="/ai-advisor" element={<AIChatAdvisor />} />
-              <Route path="/ai-history" element={<AIHistory />} />
-              <Route path="/ai-report" element={<AIReport />} />
-              <Route path="/calendar" element={<SafetyCalendar />} />
-              <Route path="/ai-camera-history" element={<AICameraHistory />} />
-              <Route path="/lighting" element={<LightingReport />} />
+                {/* Public Routes */}
+                <Route path="/" element={<Home />} />
+                <Route path="/ats" element={<ATS />} />
+                <Route path="/fire-load" element={<FireLoad />} />
+                <Route path="/legislation" element={<Legislation />} />
+                <Route path="/checklists" element={<ChecklistManager />} />
+                <Route path="/create-inspection" element={<CreateInspection />} />
+                <Route path="/checklist" element={<Checklist />} />
+                <Route path="/observation" element={<Observation />} />
+                <Route path="/photos" element={<Photos />} />
+                <Route path="/ai-camera" element={<AICamera />} />
+                <Route path="/ai-general-camera" element={<AIGeneralCamera />} />
+                <Route path="/ai-advisor" element={<AIChatAdvisor />} />
+                <Route path="/ai-history" element={<AIHistory />} />
+                <Route path="/ai-report" element={<AIReport />} />
+                <Route path="/calendar" element={<SafetyCalendar />} />
+                <Route path="/ai-camera-history" element={<AICameraHistory />} />
+                <Route path="/lighting" element={<LightingReport />} />
 
-              {/* Tools that are now accessible but will have paywall on print */}
-              <Route path="/risk" element={<RiskAssessment />} />
-              <Route path="/report" element={<Report />} />
-              <Route path="/risk-matrix" element={<RiskMatrix />} />
-              <Route path="/risk-matrix-report" element={<RiskMatrixReport />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/reports-report" element={<ReportsReport />} />
-              <Route path="/ergonomics" element={<Ergonomics />} />
-              <Route path="/ergonomics-form" element={<ErgonomicsForm />} />
-              <Route path="/ergonomics-report" element={<ErgonomicsReport />} />
+                {/* Tools that are now accessible but will have paywall on print */}
+                <Route path="/risk" element={<RiskAssessment />} />
+                <Route path="/report" element={<Report />} />
+                <Route path="/risk-matrix" element={<RiskMatrix />} />
+                <Route path="/risk-matrix-report" element={<RiskMatrixReport />} />
+                <Route path="/reports" element={<Reports />} />
+                <Route path="/reports-report" element={<ReportsReport />} />
+                <Route path="/ergonomics" element={<Ergonomics />} />
+                <Route path="/ergonomics-form" element={<ErgonomicsForm />} />
+                <Route path="/ergonomics-report" element={<ErgonomicsReport />} />
 
-              {/* Protected Private Routes */}
-              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-              <Route path="/personal-data" element={<ProtectedRoute><PersonalData /></ProtectedRoute>} />
-              <Route path="/signature-stamp" element={<ProtectedRoute><SignatureStamp /></ProtectedRoute>} />
-              <Route path="/security" element={<ProtectedRoute><Security /></ProtectedRoute>} />
-              <Route path="/settings" element={<ProtectedRoute><AppSettings /></ProtectedRoute>} />
-              <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
-              <Route path="/ats-history" element={<ProtectedRoute><ATSHistory /></ProtectedRoute>} />
-              <Route path="/fire-load-history" element={<ProtectedRoute><FireLoadHistory /></ProtectedRoute>} />
-              <Route path="/checklists-history" element={<ProtectedRoute><ChecklistsHistory /></ProtectedRoute>} />
-              <Route path="/lighting-history" element={<ProtectedRoute><LightingHistory /></ProtectedRoute>} />
-              <Route path="/work-permit" element={<ProtectedRoute><WorkPermit /></ProtectedRoute>} />
-              <Route path="/work-permit-history" element={<ProtectedRoute><WorkPermitHistory /></ProtectedRoute>} />
-              <Route path="/risk-assessment-history" element={<ProtectedRoute><RiskAssessmentHistory /></ProtectedRoute>} />
-              <Route path="/admin/requests" element={<ProtectedRoute><AdminRequests /></ProtectedRoute>} />
-              <Route path="/ppe-tracker" element={<ProtectedRoute><PPETracker /></ProtectedRoute>} />
-              <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
-              <Route path="/management-report" element={<ProtectedRoute><ManagementReport /></ProtectedRoute>} />
+                {/* Protected Private Routes */}
+                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                <Route path="/personal-data" element={<ProtectedRoute><PersonalData /></ProtectedRoute>} />
+                <Route path="/signature-stamp" element={<ProtectedRoute><SignatureStamp /></ProtectedRoute>} />
+                <Route path="/security" element={<ProtectedRoute><Security /></ProtectedRoute>} />
+                <Route path="/settings" element={<ProtectedRoute><AppSettings /></ProtectedRoute>} />
+                <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
+                <Route path="/ats-history" element={<ProtectedRoute><ATSHistory /></ProtectedRoute>} />
+                <Route path="/fire-load-history" element={<ProtectedRoute><FireLoadHistory /></ProtectedRoute>} />
+                <Route path="/checklists-history" element={<ProtectedRoute><ChecklistsHistory /></ProtectedRoute>} />
+                <Route path="/lighting-history" element={<ProtectedRoute><LightingHistory /></ProtectedRoute>} />
+                <Route path="/work-permit" element={<ProtectedRoute><WorkPermit /></ProtectedRoute>} />
+                <Route path="/work-permit-history" element={<ProtectedRoute><WorkPermitHistory /></ProtectedRoute>} />
+                <Route path="/risk-assessment-history" element={<ProtectedRoute><RiskAssessmentHistory /></ProtectedRoute>} />
+                <Route path="/admin/requests" element={<ProtectedRoute><AdminRequests /></ProtectedRoute>} />
+                <Route path="/ppe-tracker" element={<ProtectedRoute><PPETracker /></ProtectedRoute>} />
+                <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+                <Route path="/management-report" element={<ProtectedRoute><ManagementReport /></ProtectedRoute>} />
 
-              <Route path="/risk-matrix-history" element={<ProtectedRoute><History view="matrices" /></ProtectedRoute>} />
-              <Route path="/reports-history" element={<ProtectedRoute><History view="reports" /></ProtectedRoute>} />
-              <Route path="/matrices" element={<Navigate to="/risk-matrix" replace />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+                <Route path="/risk-matrix-history" element={<ProtectedRoute><History view="matrices" /></ProtectedRoute>} />
+                <Route path="/reports-history" element={<ProtectedRoute><History view="reports" /></ProtectedRoute>} />
+                <Route path="/matrices" element={<Navigate to="/risk-matrix" replace />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </div>
           </Suspense>
           <Footer />
           <InstallBanner />

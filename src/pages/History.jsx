@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { HistoryCardSkeleton } from '../components/SkeletonLoader';
+import { syncCollection } from '../utils/storageSync';
 
 // ─── Reusable delete confirmation dialog ───────────────────────────
 function DeleteConfirm({ onConfirm, onCancel }) {
@@ -62,6 +64,13 @@ export default function History() {
     const [reportsData, setReportsData] = useState([]);
     const [deleteTarget, setDeleteTarget] = useState(null); // { storageKey, id, view }
     const [counts, setCounts] = useState({});
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        setLoading(true);
+        const timer = setTimeout(() => setLoading(false), 600);
+        return () => clearTimeout(timer);
+    }, [view]);
 
     const safeGetList = (key) => {
         try {
@@ -158,7 +167,7 @@ export default function History() {
     // ─── HUB ──────────────────────────────────────────────────────
     if (view === 'hub') {
         return (
-            <div className="container" style={{ paddingBottom: '3rem' }}>
+            <div className="container page-transition" style={{ paddingBottom: '3rem' }}>
                 {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
                     <button onClick={() => navigate('/')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer' }}>
@@ -200,7 +209,7 @@ export default function History() {
     // ─── MATRICES ─────────────────────────────────────────────────
     if (view === 'matrices') {
         return (
-            <div className="container">
+            <div className="container page-transition">
                 {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', minWidth: '200px' }}>
@@ -215,7 +224,7 @@ export default function History() {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {matrixData.length > 0 ? matrixData.map(item => (
+                    {loading ? [1, 2, 3].map(i => <HistoryCardSkeleton key={i} />) : matrixData.length > 0 ? matrixData.map(item => (
                         <div key={item.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', flex: 1 }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -347,7 +356,7 @@ export default function History() {
 
     // ─── INSPECTIONS ───────────────────────────────────────────────
     return (
-        <div className="container">
+        <div className="container page-transition">
             {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                 <button onClick={() => setView('hub')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
@@ -362,7 +371,7 @@ export default function History() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {historicalData.length > 0 ? historicalData.map(item => (
+                {loading ? [1, 2, 3, 4].map(i => <HistoryCardSkeleton key={i} />) : historicalData.length > 0 ? historicalData.map(item => (
                     <div key={item.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', flex: 1 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>

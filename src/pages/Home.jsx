@@ -191,7 +191,7 @@ export default function Home() {
     }, [syncPulse]);
 
     return (
-        <div style={{ paddingBottom: '4rem' }}>
+        <div className="page-transition" style={{ paddingBottom: '4rem' }}>
             {/* Onboarding modal — solo una vez para usuarios nuevos */}
             {showOnboarding && <OnboardingModal onClose={() => setShowOnboarding(false)} />}
 
@@ -529,43 +529,38 @@ export default function Home() {
 
                 {/* ── QUICK ACCESS GRID — solo usuarios logueados ── */}
                 {currentUser && (
-                    <div style={{ marginTop: '2rem', marginBottom: '1rem' }}>
-                        <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '0.8rem', letterSpacing: '-0.3px', paddingLeft: '0.2rem' }}>Accesos Rápidos</h3>
+                    <div style={{ marginTop: '2.5rem', marginBottom: '2rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', padding: '0 0.5rem' }}>
+                            <h3 style={{ fontSize: '1.1rem', fontWeight: 900, margin: 0, letterSpacing: '-0.5px', fontFamily: 'var(--font-heading)' }}>Herramientas Profesionales</h3>
+                        </div>
                         <div style={{
                             display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))',
-                            gap: '0.8rem',
-                            padding: '0.2rem 0.2rem 1.2rem 0.2rem'
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
+                            gap: '1rem',
+                            padding: '0.5rem'
                         }}>
                             {quickLinks.map((item, i) => (
-                                <Link key={i} to={item.to} style={{ textDecoration: 'none', flex: '0 0 130px', scrollSnapAlign: 'start' }}>
-                                    <div style={{
-                                        background: 'var(--color-surface)',
-                                        borderRadius: '16px',
-                                        padding: '1.2rem 0.8rem',
+                                <Link key={i} to={item.to} style={{ textDecoration: 'none' }}>
+                                    <div className="glass-card" style={{
+                                        borderRadius: '20px',
+                                        padding: '1.5rem 1rem',
                                         display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
-                                        gap: '0.6rem',
-                                        border: '1px solid var(--color-border)',
-                                        cursor: 'pointer',
-                                        transition: 'transform 0.2s, box-shadow 0.2s, border-color 0.2s',
-                                        minHeight: '120px', justifyContent: 'center',
-                                        boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
-                                    }}
-                                        onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = `0 8px 20px ${item.color} 30`; e.currentTarget.style.borderColor = item.color + '60'; }}
-                                        onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)'; e.currentTarget.style.borderColor = 'var(--color-border)'; }}
-                                    >
+                                        gap: '0.8rem',
+                                        minHeight: '140px', justifyContent: 'center'
+                                    }}>
                                         <div style={{
-                                            width: '48px', height: '48px', borderRadius: '14px',
+                                            width: '52px', height: '52px', borderRadius: '16px',
                                             background: item.bg,
                                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                                             color: item.color,
-                                            transition: 'transform 0.2s',
+                                            marginBottom: '0.2rem',
+                                            boxShadow: `0 8px 16px ${item.color}15`
                                         }}>
                                             {item.icon}
                                         </div>
                                         <div>
-                                            <div style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--color-text)', lineHeight: '1.2' }}>{item.label}</div>
-                                            <div style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)', marginTop: '0.1rem' }}>{item.sub}</div>
+                                            <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-text)', lineHeight: '1.2', marginBottom: '0.2rem' }}>{item.label}</div>
+                                            <div style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.3px', opacity: 0.8 }}>{item.sub}</div>
                                         </div>
                                     </div>
                                 </Link>
