@@ -100,6 +100,7 @@ export default function History() {
             trainings: safeGetList('training_history').length,
             thermal: safeGetList('thermal_history').length,
             drills: safeGetList('drills_history').length,
+            riskmaps: safeGetList('risk_map_history').length,
         });
     };
 
@@ -161,6 +162,7 @@ export default function History() {
         { title: 'Carga de Fuego', icon: <Flame size={24} />, color: '#f97316', bg: 'rgba(249,115,22,0.1)', path: '/fire-load-history', countKey: 'fireload' },
         { title: 'Estrés Térmico', icon: <ThermometerSun size={24} />, color: '#f97316', bg: 'rgba(249,115,22,0.1)', path: '/thermal-stress-history', countKey: 'thermal', view: 'thermal' },
         { title: 'Simulacros', icon: <Siren size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/drills-history', countKey: 'drills' },
+        { title: 'Mapas de Riesgo', icon: <Map size={24} />, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', path: '/risk-maps-history', countKey: 'riskmaps' },
         { title: 'Iluminación', icon: <Lightbulb size={24} />, color: '#eab308', bg: 'rgba(234,179,8,0.1)', path: '/lighting-history', countKey: 'lighting' },
         { title: 'Permisos de Trabajo', icon: <KeySquare size={24} />, color: '#2563eb', bg: 'rgba(37,99,235,0.1)', path: '/work-permit-history', countKey: 'workPermits' },
         { title: 'Matrices de Riesgo', icon: <TriangleAlert size={24} />, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', path: '/risk-matrix-history', countKey: 'matrices', view: 'matrices' },
