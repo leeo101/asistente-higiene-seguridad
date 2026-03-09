@@ -94,6 +94,7 @@ const quickLinks = [
     { to: '/ats', icon: <ShieldCheck size={26} />, label: 'ATS', sub: 'Análisis Trabajo Seguro', color: '#10b981', bg: 'rgba(16,185,129,0.1)' },
     { to: '/fire-load', icon: <Flame size={26} />, label: 'Carga Fuego', sub: 'Dec. 351/79', color: '#f97316', bg: 'rgba(249,115,22,0.1)' },
     { to: '/extinguishers', icon: <Flame size={26} />, label: 'Matafuegos', sub: 'Control y Vencimientos', color: '#dc2626', bg: 'rgba(220,38,38,0.1)' },
+    { to: '/thermal-stress', icon: <ThermometerSun size={26} />, label: 'Estrés Térmico', sub: 'TGBH Res. 295/03', color: '#f97316', bg: 'rgba(249,115,22,0.1)' },
     { to: '/working-permits', icon: <KeySquare size={26} />, label: 'Permisos', sub: 'Trabajo Seguro', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
     { to: '/ergonomics', icon: <Accessibility size={26} />, label: 'Ergonomía', sub: 'Res. SRT 886/15', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
     { to: '/reports', icon: <ScrollText size={26} />, label: 'Informes', sub: 'Técnicos', color: '#ec4899', bg: 'rgba(236,72,153,0.1)' },

@@ -98,6 +98,7 @@ export default function History() {
             riskAssessments: safeGetList('risk_assessment_history').length,
             accidents: safeGetList('accident_history').length,
             trainings: safeGetList('training_history').length,
+            thermal: safeGetList('thermal_history').length,
         });
     };
 
@@ -110,6 +111,8 @@ export default function History() {
             setMatrixData(safeGetList('risk_matrix_history'));
         } else if (view === 'reports') {
             setReportsData(safeGetList('reports_history'));
+        } else if (view === 'thermal') {
+            setThermalData(safeGetList('thermal_history'));
         }
     }, [view, syncPulse]);
 
@@ -130,6 +133,7 @@ export default function History() {
         if (storageKey === 'inspections_history') setHistoricalData(updated);
         if (storageKey === 'risk_matrix_history') setMatrixData(updated);
         if (storageKey === 'reports_history') setReportsData(updated);
+        if (storageKey === 'thermal_history') setThermalData(updated);
         refreshCounts();
     };
 
@@ -154,6 +158,7 @@ export default function History() {
         { title: 'Inspecciones', icon: <ClipboardCheck size={24} />, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', path: '/history', countKey: 'inspections', view: 'inspections' },
         { title: 'ATS — Análisis Trabajo Seguro', icon: <ShieldCheck size={24} />, color: '#10b981', bg: 'rgba(16,185,129,0.1)', path: '/ats-history', countKey: 'ats' },
         { title: 'Carga de Fuego', icon: <Flame size={24} />, color: '#f97316', bg: 'rgba(249,115,22,0.1)', path: '/fire-load-history', countKey: 'fireload' },
+        { title: 'Estrés Térmico', icon: <ThermometerSun size={24} />, color: '#f97316', bg: 'rgba(249,115,22,0.1)', path: '/thermal-stress-history', countKey: 'thermal', view: 'thermal' },
         { title: 'Iluminación', icon: <Lightbulb size={24} />, color: '#eab308', bg: 'rgba(234,179,8,0.1)', path: '/lighting-history', countKey: 'lighting' },
         { title: 'Permisos de Trabajo', icon: <KeySquare size={24} />, color: '#2563eb', bg: 'rgba(37,99,235,0.1)', path: '/work-permit-history', countKey: 'workPermits' },
         { title: 'Matrices de Riesgo', icon: <TriangleAlert size={24} />, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', path: '/risk-matrix-history', countKey: 'matrices', view: 'matrices' },
