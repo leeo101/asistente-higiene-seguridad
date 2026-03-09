@@ -133,7 +133,10 @@ export default function Sidebar({ isOpen, onClose }) {
                             </div>
                             <span style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--color-hero-text)', letterSpacing: '-0.5px' }}>Asistente HYS</span>
                         </div>
-                        <button onClick={onClose} style={{ background: 'var(--color-background)', border: '1px solid var(--color-border)', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--color-text)', backdropFilter: 'blur(8px)' }}>
+                        <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#ffffff', backdropFilter: 'blur(8px)', transition: 'all 0.2s ease' }}
+                            onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
+                            onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                        >
                             <X size={18} />
                         </button>
                     </div>
@@ -162,8 +165,8 @@ export default function Sidebar({ isOpen, onClose }) {
                                 <button
                                     onClick={(e) => { e.stopPropagation(); toggleTheme(); }}
                                     style={{
-                                        background: 'var(--color-background)',
-                                        border: '1px solid var(--color-border)',
+                                        background: 'rgba(255,255,255,0.1)',
+                                        border: '1px solid rgba(255,255,255,0.2)',
                                         width: '36px',
                                         height: '36px',
                                         borderRadius: '10px',
@@ -171,19 +174,20 @@ export default function Sidebar({ isOpen, onClose }) {
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         cursor: 'pointer',
-                                        color: 'var(--color-text)',
+                                        color: '#ffffff',
                                         flexShrink: 0,
                                         transition: 'all 0.2s ease',
-                                        boxShadow: '0 4px 10px rgba(0,0,0,0.05)'
+                                        boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
+                                        backdropFilter: 'blur(8px)'
                                     }}
                                     title={isDarkMode ? 'Activar Modo Claro' : 'Activar Modo Oscuro'}
-                                    onMouseOver={e => e.currentTarget.style.background = 'var(--color-surface-hover)'}
-                                    onMouseOut={e => e.currentTarget.style.background = 'var(--color-background)'}
+                                    onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'; }}
+                                    onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
                                 >
                                     {isDarkMode ? (
-                                        <Sun size={20} color="var(--color-text)" strokeWidth={2.5} />
+                                        <Sun size={20} color="#ffffff" strokeWidth={2.5} />
                                     ) : (
-                                        <Moon size={20} color="var(--color-text)" strokeWidth={2.5} />
+                                        <Moon size={20} color="#ffffff" strokeWidth={2.5} />
                                     )}
                                 </button>
                             </div>
