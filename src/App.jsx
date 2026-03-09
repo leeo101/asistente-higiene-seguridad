@@ -291,15 +291,16 @@ function App() {
               <button
                 onClick={() => setIsSidebarOpen(true)}
                 style={{
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '1px solid rgba(255,255,255,0.15)',
+                  background: 'var(--color-background)',
+                  border: '1px solid var(--color-border)',
                   borderRadius: '10px',
                   padding: '0.5rem',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: 'var(--color-text)'
+                  color: 'var(--color-primary)',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
                 }}
               >
                 <Menu size={22} />
@@ -313,16 +314,17 @@ function App() {
                 onClick={() => setIsSearchOpen(true)}
                 title="Buscar (Ctrl+K)"
                 style={{
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '1px solid rgba(255,255,255,0.15)',
+                  background: 'var(--color-background)',
+                  border: '1px solid var(--color-border)',
                   borderRadius: '10px',
                   padding: '0.5rem',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: 'var(--color-text)',
-                  flexShrink: 0
+                  color: 'var(--color-text-muted)',
+                  flexShrink: 0,
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
                 }}
               >
                 <Search size={20} />

@@ -66,10 +66,10 @@ function CounterItem({ value, label, suffix }) {
     const count = useCounter(value);
     return (
         <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--color-surface)', lineHeight: 1 }}>
+            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--color-hero-text)', lineHeight: 1 }}>
                 {count.toLocaleString('es-AR')}{suffix}
             </div>
-            <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.7)', fontWeight: 600, marginTop: '0.2rem' }}>{label}</div>
+            <div style={{ fontSize: '0.72rem', color: 'var(--color-hero-subtext)', fontWeight: 600, marginTop: '0.2rem' }}>{label}</div>
         </div>
     );
 }
@@ -200,12 +200,12 @@ export default function Home() {
 
             {/* ── HERO BANNER ── */}
             <div className="home-hero-banner" style={{
-                background: 'var(--gradient-premium)',
+                background: 'var(--color-hero-bg)',
                 padding: 'clamp(4rem, 10vw, 6rem) 1.2rem 3rem',
                 position: 'relative',
                 overflow: 'hidden',
                 marginBottom: '0',
-                borderBottom: '1px solid rgba(255,255,255,0.1)',
+                borderBottom: '1px solid var(--color-border)',
                 width: '100%',
                 boxSizing: 'border-box'
             }}>
@@ -220,22 +220,22 @@ export default function Home() {
                     pointerEvents: 'none'
                 }} />
                 {/* decorative circles */}
-                <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '180px', height: '180px', borderRadius: '50%', background: 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
-                <div style={{ position: 'absolute', bottom: '-60px', left: '60px', width: '220px', height: '220px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
+                <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '180px', height: '180px', borderRadius: '50%', background: 'rgba(var(--color-primary-rgb), 0.05)', pointerEvents: 'none' }} />
+                <div style={{ position: 'absolute', bottom: '-60px', left: '60px', width: '220px', height: '220px', borderRadius: '50%', background: 'rgba(var(--color-primary-rgb), 0.03)', pointerEvents: 'none' }} />
 
                 <div style={{ position: 'relative', zIndex: 1, maxWidth: '700px', margin: '0 auto' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
                         <div>
-                            <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.85rem', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 0.3rem' }}>
+                            <p style={{ color: 'var(--color-hero-subtext)', fontSize: '0.85rem', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 0.3rem' }}>
                                 {currentUser ? 'Bienvenido de vuelta' : 'Potenciá tu trabajo con IA'}
                             </p>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.5rem' }}>
-                                <img src="/logo.png" alt="Logo" style={{ width: '48px', height: '48px', objectFit: 'contain', filter: 'drop-shadow(0 0 12px rgba(255,255,255,0.3))' }} />
-                                <h1 style={{ fontSize: 'clamp(2rem, 6vw, 3.2rem)', fontWeight: 900, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-1.5px', fontFamily: 'var(--font-heading)' }}>
+                                <img src="/logo.png" alt="Logo" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
+                                <h1 style={{ fontSize: 'clamp(2rem, 6vw, 3.2rem)', fontWeight: 900, color: 'var(--color-hero-text)', margin: 0, lineHeight: 1, letterSpacing: '-1.5px', fontFamily: 'var(--font-heading)' }}>
                                     {currentUser ? <>{userName} {isSubscribed && <Sparkles size={24} color="#f59e0b" fill="#f59e0b" title="Plan PRO Activo" />}</> : 'Asistente HYS'}
                                 </h1>
                             </div>
-                            <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1.1rem', marginTop: '1rem', fontWeight: 400, maxWidth: '500px' }}>
+                            <p style={{ color: 'var(--color-hero-subtext)', fontSize: '1.1rem', marginTop: '1rem', fontWeight: 400, maxWidth: '500px' }}>
                                 {currentUser
                                     ? 'Dashboard de Gestión de Riesgos'
                                     : 'Cálculos normativos, reportes inteligentes y asesoría legal con Inteligencia Artificial. Todo en un solo lugar.'}
@@ -244,15 +244,15 @@ export default function Home() {
                         {!currentUser && (
                             <div className="hero-buttons" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', marginTop: '2rem', width: '100%', maxWidth: '450px' }}>
                                 <button onClick={() => navigate('/login', { state: { view: 'register' } })}
-                                    style={{ flex: 2, padding: '1.2rem 1.5rem', borderRadius: '16px', border: 'none', background: 'white', color: '#2563eb', fontWeight: 800, cursor: 'pointer', fontSize: '1.1rem', boxShadow: '0 20px 40px rgba(0,0,0,0.2)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
-                                    onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 25px 50px rgba(0,0,0,0.25)'; }}
-                                    onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.2)'; }}>
+                                    style={{ flex: 2, padding: '1.2rem 1.5rem', borderRadius: '16px', border: 'none', background: 'var(--color-primary)', color: 'white', fontWeight: 800, cursor: 'pointer', fontSize: '1.1rem', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
+                                    onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 25px 50px rgba(0,0,0,0.15)'; }}
+                                    onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.1)'; }}>
                                     Comenzar Gratis
                                 </button>
                                 <button onClick={() => navigate('/login', { state: { view: 'login' } })}
-                                    style={{ flex: 1, padding: '1.2rem 1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: '#ffffff', fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', fontSize: '1rem', transition: 'all 0.3s ease' }}
-                                    onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
-                                    onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}>
+                                    style={{ flex: 1, padding: '1.2rem 1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', fontSize: '1rem', transition: 'all 0.3s ease' }}
+                                    onMouseOver={e => e.currentTarget.style.background = 'var(--color-surface-hover)'}
+                                    onMouseOut={e => e.currentTarget.style.background = 'var(--color-surface)'}>
                                     Ingresar
                                 </button>
                             </div>
@@ -283,14 +283,14 @@ export default function Home() {
                                         cursor: 'pointer',
                                         transition: 'all 0.3s ease',
                                     }}
-                                    onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; }}
-                                    onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = 'var(--gradient-surface)'; }}
+                                    onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.background = 'var(--color-surface-hover)'; }}
+                                    onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = 'var(--color-surface)'; }}
                                 >
-                                    <div style={{ color: 'white', marginBottom: '0.4rem', opacity: 0.9 }}>
+                                    <div style={{ color: 'var(--color-hero-accent)', marginBottom: '0.4rem', opacity: 0.9 }}>
                                         {React.cloneElement(stat.icon, { size: 22 })}
                                     </div>
-                                    <div style={{ fontSize: '1.6rem', fontWeight: 900, color: 'white', lineHeight: 1 }}>{stat.value}</div>
-                                    <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.8)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '0.3rem' }}>{stat.label}</div>
+                                    <div style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--color-hero-text)', lineHeight: 1 }}>{stat.value}</div>
+                                    <div style={{ fontSize: '0.65rem', color: 'var(--color-hero-subtext)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '0.3rem' }}>{stat.label}</div>
                                 </div>
                             ))}
                         </div>

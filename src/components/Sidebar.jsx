@@ -117,22 +117,23 @@ export default function Sidebar({ isOpen, onClose }) {
             >
                 {/* ── HEADER ── */}
                 <div style={{
-                    background: 'linear-gradient(135deg, #1e3a8a, #2563eb)',
+                    background: 'var(--color-hero-bg)',
                     padding: '1.5rem 1.2rem 1.8rem',
                     position: 'relative', overflow: 'hidden',
                     flexShrink: 0,
+                    borderBottom: '1px solid var(--color-border)'
                 }}>
                     <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '120px', height: '120px', borderRadius: '50%', background: 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
 
                     {/* Top row: Logo + close */}
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.2rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
-                            <div style={{ width: '36px', height: '36px', background: 'rgba(255,255,255,0.15)', borderRadius: '10px', padding: '5px', flexShrink: 0, backdropFilter: 'blur(8px)' }}>
-                                <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+                            <div style={{ width: '36px', height: '36px', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '10px', padding: '5px', flexShrink: 0, backdropFilter: 'blur(8px)' }}>
+                                <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                             </div>
-                            <span style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--color-surface)', letterSpacing: '-0.5px' }}>Asistente HYS</span>
+                            <span style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--color-hero-text)', letterSpacing: '-0.5px' }}>Asistente HYS</span>
                         </div>
-                        <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#ffffff', backdropFilter: 'blur(8px)' }}>
+                        <button onClick={onClose} style={{ background: 'var(--color-background)', border: '1px solid var(--color-border)', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--color-text)', backdropFilter: 'blur(8px)' }}>
                             <X size={18} />
                         </button>
                     </div>
@@ -141,8 +142,8 @@ export default function Sidebar({ isOpen, onClose }) {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.9rem' }}>
                         <div style={{
                             width: '46px', height: '46px', borderRadius: '50%',
-                            background: 'rgba(255,255,255,0.2)',
-                            border: '2px solid rgba(255,255,255,0.4)',
+                            background: 'var(--color-surface)',
+                            border: '1px solid var(--color-border)',
                             overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center',
                             flexShrink: 0,
                         }}>
@@ -154,15 +155,15 @@ export default function Sidebar({ isOpen, onClose }) {
                         </div>
                         <div style={{ flex: 1 }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-surface)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--color-hero-text)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                     {currentUser ? userInfo.name : 'Invitado'}
                                     {isPro() && <Sparkles size={14} color="#f59e0b" fill="#f59e0b" title="Plan PRO Activo" />}
                                 </div>
                                 <button
                                     onClick={(e) => { e.stopPropagation(); toggleTheme(); }}
                                     style={{
-                                        background: 'rgba(255,255,255,0.25)',
-                                        border: '1px solid rgba(255,255,255,0.35)',
+                                        background: 'var(--color-background)',
+                                        border: '1px solid var(--color-border)',
                                         width: '36px',
                                         height: '36px',
                                         borderRadius: '10px',
@@ -170,32 +171,28 @@ export default function Sidebar({ isOpen, onClose }) {
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         cursor: 'pointer',
-                                        color: 'var(--color-surface)',
+                                        color: 'var(--color-text)',
                                         flexShrink: 0,
                                         transition: 'all 0.2s ease',
-                                        boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+                                        boxShadow: '0 4px 10px rgba(0,0,0,0.05)'
                                     }}
                                     title={isDarkMode ? 'Activar Modo Claro' : 'Activar Modo Oscuro'}
-                                    onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.35)'}
-                                    onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
+                                    onMouseOver={e => e.currentTarget.style.background = 'var(--color-surface-hover)'}
+                                    onMouseOut={e => e.currentTarget.style.background = 'var(--color-background)'}
                                 >
                                     {isDarkMode ? (
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            <Sun size={20} stroke="white" strokeWidth={2.5} />
-                                        </div>
+                                        <Sun size={20} color="var(--color-text)" strokeWidth={2.5} />
                                     ) : (
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            <Moon size={20} stroke="white" strokeWidth={2.5} />
-                                        </div>
+                                        <Moon size={20} color="var(--color-text)" strokeWidth={2.5} />
                                     )}
                                 </button>
                             </div>
                             {currentUser ? (
-                                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.75)', marginTop: '0.1rem' }}>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.1rem' }}>
                                     {userInfo.profession || 'Profesional H&S'}
                                 </div>
                             ) : (
-                                <Link to="/login" onClick={onClose} style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.9)', textDecoration: 'none', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                                <Link to="/login" onClick={onClose} style={{ fontSize: '0.78rem', color: 'var(--color-primary)', textDecoration: 'none', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
                                     Iniciar sesión →
                                 </Link>
                             )}
