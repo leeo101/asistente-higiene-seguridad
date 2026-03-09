@@ -216,11 +216,13 @@ export default function Home() {
                     right: 0,
                     bottom: 0,
                     background: 'radial-gradient(circle at top right, rgba(255,255,255,0.1) 0%, transparent 60%)',
-                    pointerEvents: 'none'
+                    pointerEvents: 'none',
+                    zIndex: 0
                 }} />
+                <div className="hero-orb-right" />
                 {/* decorative circles */}
-                <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '180px', height: '180px', borderRadius: '50%', background: 'rgba(var(--color-primary-rgb), 0.05)', pointerEvents: 'none' }} />
-                <div style={{ position: 'absolute', bottom: '-60px', left: '60px', width: '220px', height: '220px', borderRadius: '50%', background: 'rgba(var(--color-primary-rgb), 0.03)', pointerEvents: 'none' }} />
+                <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '180px', height: '180px', borderRadius: '50%', background: 'rgba(var(--color-primary-rgb), 0.05)', pointerEvents: 'none', zIndex: 0 }} />
+                <div style={{ position: 'absolute', bottom: '-60px', left: '60px', width: '220px', height: '220px', borderRadius: '50%', background: 'rgba(var(--color-primary-rgb), 0.03)', pointerEvents: 'none', zIndex: 0 }} />
 
                 <div style={{ position: 'relative', zIndex: 1, maxWidth: '700px', margin: '0 auto' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
@@ -506,24 +508,34 @@ export default function Home() {
                     <Link to="/create-inspection" style={{ textDecoration: 'none' }}>
                         <div style={{
                             display: 'flex', alignItems: 'center', gap: '1.2rem',
-                            background: 'linear-gradient(135deg,#1e3a8a,#2563eb)',
-                            borderRadius: '18px', padding: '1.3rem 1.5rem', marginTop: '1.5rem',
-                            cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s',
-                            boxShadow: '0 8px 24px rgba(37,99,235,0.35)',
+                            background: 'linear-gradient(135deg, rgba(37,99,235,0.95) 0%, rgba(30,58,138,0.95) 100%)',
+                            backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            borderRadius: '20px', padding: '1.5rem', marginTop: '1.5rem',
+                            cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            boxShadow: '0 12px 32px rgba(37,99,235,0.3)',
                             position: 'relative', overflow: 'hidden',
                         }}
-                            onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(37,99,235,0.45)'; }}
-                            onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(37,99,235,0.35)'; }}
+                            onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(37,99,235,0.4)'; e.currentTarget.style.background = 'linear-gradient(135deg, rgba(37,99,235,1) 0%, rgba(30,58,138,1) 100%)'; }}
+                            onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(37,99,235,0.3)'; e.currentTarget.style.background = 'linear-gradient(135deg, rgba(37,99,235,0.95) 0%, rgba(30,58,138,0.95) 100%)'; }}
                         >
-                            <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
-                            <div style={{ width: '50px', height: '50px', background: 'rgba(255,255,255,0.2)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                <PlusCircle size={28} color="white" />
+                            {/* Decorative background glow */}
+                            <div style={{ position: 'absolute', top: '-30px', right: '-20px', width: '120px', height: '120px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+                            <div style={{ position: 'absolute', bottom: '-40px', left: '20%', width: '140px', height: '140px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(14,165,233,0.1) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+
+                            <div style={{ width: '54px', height: '54px', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 1, boxShadow: 'inset 0 2px 10px rgba(255,255,255,0.1)' }}>
+                                <PlusCircle size={28} color="#ffffff" strokeWidth={2.5} style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.2))' }} />
                             </div>
                             <div style={{ flex: 1, zIndex: 1 }}>
-                                <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900, color: '#ffffff' }}>Nueva Inspección</h4>
-                                <p style={{ margin: 0, fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)' }}>Crear y sincronizar en la nube</p>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.2rem' }}>
+                                    <h4 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.5px' }}>Nueva Inspección</h4>
+                                    <Sparkles size={16} color="#fcd34d" fill="#fcd34d" style={{ animation: 'pulse 2s infinite' }} />
+                                </div>
+                                <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(255,255,255,0.85)', fontWeight: 500 }}>Comenzá un relevamiento inteligente ahora</p>
                             </div>
-                            <ChevronRight size={22} color="rgba(255,255,255,0.7)" />
+                            <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>
+                                <ChevronRight size={20} color="#ffffff" strokeWidth={3} />
+                            </div>
                         </div>
                     </Link>
                 )}
@@ -626,7 +638,7 @@ export default function Home() {
                                 })
                             ) : (
                                 <div style={{ textAlign: 'center', padding: '2.5rem', border: '1.5px dashed var(--color-border)', borderRadius: '16px', opacity: 0.6 }}>
-                                    <History size={36} style={{ marginBottom: '0.8rem', opacity: 0.4 }} />
+                                    <History size={36} color="var(--color-text-muted)" style={{ marginBottom: '0.8rem', opacity: 0.4 }} />
                                     <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>No hay actividad reciente</p>
                                     <p style={{ margin: '0.3rem 0 0', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Comenzá creando una nueva inspección</p>
                                 </div>
