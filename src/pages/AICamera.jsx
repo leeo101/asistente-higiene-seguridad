@@ -296,8 +296,8 @@ export default function AICamera() {
                         )}
 
                         {analysisResult && (
-                            <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', padding: '1.5rem', background: 'linear-gradient(transparent, rgba(0,0,0,0.95))', color: 'var(--color-surface)' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                            <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', padding: '1.5rem', boxSizing: 'border-box', background: 'linear-gradient(transparent, rgba(0,0,0,0.95))', color: 'var(--color-surface)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
                                     {analysisResult.helmetUsed ? (
                                         <div style={{ background: '#10b981', padding: '0.6rem 1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                             <ShieldCheck size={18} /> <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>Casco Detectado</span>
@@ -308,11 +308,11 @@ export default function AICamera() {
                                         </div>
                                     )}
                                 </div>
-                                <div style={{ display: 'flex', gap: '0.8rem', width: '100%', justifyContent: 'center' }}>
-                                    <button onClick={handleRetry} className="btn-outline" style={{ flex: 1, borderColor: 'var(--color-surface)', color: 'var(--color-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', height: '48px', margin: 0 }}>
-                                        <RefreshCw size={18} /> Reintentar
+                                <div style={{ display: 'flex', gap: '0.6rem', width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
+                                    <button onClick={handleRetry} className="btn-outline" style={{ flex: 1, minWidth: '130px', borderColor: 'var(--color-surface)', color: 'var(--color-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', height: '46px', margin: 0, padding: '0 0.5rem', fontSize: '0.85rem' }}>
+                                        <RefreshCw size={16} /> Reintentar
                                     </button>
-                                    <button onClick={handleSaveReport} className="btn-primary" style={{ flex: 1, height: '48px', margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Generar Informe</button>
+                                    <button onClick={handleSaveReport} className="btn-primary" style={{ flex: 1, minWidth: '130px', height: '46px', margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0.5rem', fontSize: '0.85rem' }}>Generar Informe</button>
                                 </div>
                             </div>
                         )}
