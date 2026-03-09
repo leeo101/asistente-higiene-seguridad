@@ -172,7 +172,7 @@ a:hover {
 }
 
 .container {
-  padding: 5.5rem 1rem 2rem 1rem;
+  padding: 7rem 1rem 2rem 1rem;
   /* Ensures clearance below the floating App header */
   width: 100%;
   max-width: 1200px;
@@ -184,7 +184,7 @@ a:hover {
 
 @media (max-width: 768px) {
   .container {
-    padding-top: 4.5rem;
+    padding-top: 6rem;
   }
 }
 

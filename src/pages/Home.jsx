@@ -201,7 +201,7 @@ export default function Home() {
             {/* ── HERO BANNER ── */}
             <div className="home-hero-banner" style={{
                 background: 'var(--color-hero-bg)',
-                padding: 'clamp(4rem, 10vw, 6rem) 1.2rem 3rem',
+                padding: 'clamp(5.5rem, 10vw, 7.5rem) 1.2rem 3rem',
                 position: 'relative',
                 overflow: 'hidden',
                 marginBottom: '0',
