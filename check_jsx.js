@@ -1,0 +1,1 @@
+const fs = require('fs'); const parser = require('@babel/parser'); try { parser.parse(fs.readFileSync('src/pages/History.jsx', 'utf8'), { sourceType: 'module', plugins: ['jsx'] }); console.log('OK'); } catch (e) { console.error('Error:', e.message, 'Line:', e.loc.line, 'Col:', e.loc.column); }
