@@ -12,6 +12,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { usePaywall } from '../hooks/usePaywall';
 import { collection, query, where, getDocs, doc, getDoc, updateDoc } from 'firebase/firestore';
+import AdBanner from '../components/AdBanner';
 import StarryBackground from '../components/StarryBackground';
 import OnboardingModal from '../components/OnboardingModal';
 import StickyCtaBanner from '../components/StickyCtaBanner';
