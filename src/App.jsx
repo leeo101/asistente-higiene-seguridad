@@ -77,6 +77,8 @@ const Subscription = lazyWithRetry(() => import('./pages/Subscription.jsx'));
 const AIHistory = lazyWithRetry(() => import('./pages/AIHistory.jsx'));
 const AICameraHistory = lazyWithRetry(() => import('./pages/AICameraHistory.jsx'));
 const ManagementReport = lazyWithRetry(() => import('./pages/ManagementReport.jsx'));
+const AccidentInvestigation = lazyWithRetry(() => import('./pages/AccidentInvestigation.jsx'));
+const AccidentHistory = lazyWithRetry(() => import('./pages/AccidentHistory.jsx'));
 
 import InstallBanner from './components/InstallBanner.jsx';
 import GlobalSearch from './components/GlobalSearch.jsx';
@@ -392,9 +394,11 @@ function App() {
                 <Route path="/work-permit-history" element={<ProtectedRoute><WorkPermitHistory /></ProtectedRoute>} />
                 <Route path="/risk-assessment-history" element={<ProtectedRoute><RiskAssessmentHistory /></ProtectedRoute>} />
                 <Route path="/admin/requests" element={<ProtectedRoute><AdminRequests /></ProtectedRoute>} />
-                <Route path="/ppe-tracker" element={<ProtectedRoute><PPETracker /></ProtectedRoute>} />
+                <Route path="/PPE-tracker" element={<ProtectedRoute><PPETracker /></ProtectedRoute>} />
                 <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
                 <Route path="/management-report" element={<ProtectedRoute><ManagementReport /></ProtectedRoute>} />
+                <Route path="/accident-investigation" element={<ProtectedRoute><AccidentInvestigation /></ProtectedRoute>} />
+                <Route path="/accident-history" element={<ProtectedRoute><AccidentHistory /></ProtectedRoute>} />
 
                 <Route path="/risk-matrix-history" element={<ProtectedRoute><History view="matrices" /></ProtectedRoute>} />
                 <Route path="/reports-history" element={<ProtectedRoute><History view="reports" /></ProtectedRoute>} />

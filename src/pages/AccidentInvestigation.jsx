@@ -1,0 +1,334 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+    ArrowLeft, Save, FileText, UserPlus, FileSpreadsheet,
+    MapPin, Clock, Search, ListPlus, Trash2, CheckCircle2, ChevronRight, ChevronLeft
+} from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { useSync } from '../contexts/SyncContext';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import toast from 'react-hot-toast';
+
+const SECTIONS = ['Datos Generales', 'Accidentado', 'Descripción y Testigos', 'Análisis Causal', 'Medidas Preventivas'];
+
+export default function AccidentInvestigation() {
+    useDocumentTitle('Investigación de Accidentes');
+    const navigate = useNavigate();
+    const { currentUser } = useAuth();
+    const { syncCollection } = useSync();
+
+    const [currentStep, setCurrentStep] = useState(0);
+    const [formData, setFormData] = useState({
+        // Datos Generales
+        fecha: new Date().toISOString().split('T')[0],
+        hora: '',
+        empresa: '',
+        ubicacion: '',
+        gravedad: 'Leve',
+        // Accidentado
+        victimaNombre: '',
+        victimaDni: '',
+        victimaPuesto: '',
+        victimaAntiguedad: '',
+        lesion: '',
+        parteCuerpo: '',
+        // Descripción y Testigos
+        descripcionHecho: '',
+        testigos: [{ nombre: '', declaracion: '' }],
+        // Análisis Causal (5 Porqués)
+        problemaCentral: '',
+        porques: [''],
+        // Medidas Preventivas
+        medidas: [{ accion: '', responsable: '', fechaLimite: '' }]
+    });
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [currentStep]);
+
+    const handleInputChange = (field, value) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleArrayChange = (arrayName, index, field, value) => {
+        setFormData(prev => {
+            const newArray = [...prev[arrayName]];
+            // If it's an array of strings (like porques)
+            if (typeof newArray[index] === 'string') {
+                newArray[index] = value;
+            } else {
+                newArray[index] = { ...newArray[index], [field]: value };
+            }
+            return { ...prev, [arrayName]: newArray };
+        });
+    };
+
+    const addArrayItem = (arrayName, defaultItem) => {
+        setFormData(prev => ({ ...prev, [arrayName]: [...prev[arrayName], defaultItem] }));
+    };
+
+    const removeArrayItem = (arrayName, index) => {
+        setFormData(prev => ({
+            ...prev,
+            [arrayName]: prev[arrayName].filter((_, i) => i !== index)
+        }));
+    };
+
+    const handleNext = () => {
+        if (currentStep < SECTIONS.length - 1) setCurrentStep(s => s + 1);
+    };
+
+    const handlePrev = () => {
+        if (currentStep > 0) setCurrentStep(s => s - 1);
+    };
+
+    const handleSave = () => {
+        if (!formData.empresa || !formData.victimaNombre) {
+            toast.error('La empresa y el nombre del accidentado son obligatorios.');
+            return;
+        }
+
+        const report = {
+            id: Date.now(),
+            date: new Date().toISOString(),
+            ...formData
+        };
+
+        const history = JSON.parse(localStorage.getItem('accident_history') || '[]');
+        history.unshift(report);
+        localStorage.setItem('accident_history', JSON.stringify(history));
+        syncCollection('accident_history', history);
+
+        toast.success('Investigación guardada correctamente.');
+        navigate('/accident-history'); // Ir al historial (por crear)
+    };
+
+    return (
+        <div className="container" style={{ paddingBottom: '3rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <button onClick={() => navigate('/')} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)' }}>
+                        <ArrowLeft size={20} />
+                    </button>
+                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Investigación de Accidente</h1>
+                </div>
+            </div>
+
+            {/* Stepper */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem', position: 'relative' }}>
+                <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: '2px', background: 'var(--color-border)', zIndex: 0, transform: 'translateY(-50%)' }} />
+                {SECTIONS.map((section, index) => (
+                    <div key={index} style={{
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1, gap: '0.5rem',
+                        cursor: 'pointer'
+                    }} onClick={() => setCurrentStep(index)}>
+                        <div style={{
+                            width: '32px', height: '32px', borderRadius: '50%',
+                            background: currentStep >= index ? 'var(--color-primary)' : 'var(--color-surface)',
+                            border: `2px solid ${currentStep >= index ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                            color: currentStep >= index ? '#fff' : 'var(--color-text-muted)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontWeight: 700, fontSize: '0.9rem', transition: 'all 0.3s'
+                        }}>
+                            {currentStep > index ? <CheckCircle2 size={16} /> : index + 1}
+                        </div>
+                        <span style={{ fontSize: '0.75rem', fontWeight: currentStep === index ? 700 : 500, color: currentStep === index ? 'var(--color-text)' : 'var(--color-text-muted)', textAlign: 'center', maxWidth: '80px', display: 'none' }} className="sm:inline">{section}</span>
+                    </div>
+                ))}
+            </div>
+
+            <div className="card" style={{ flex: 1, padding: '2rem' }}>
+                <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.5rem', color: 'var(--color-primary)' }}>
+                    {SECTIONS[currentStep]}
+                </h2>
+
+                {currentStep === 0 && (
+                    <div className="grid-2-cols">
+                        <div>
+                            <label>Fecha del Suceso</label>
+                            <input type="date" value={formData.fecha} onChange={e => handleInputChange('fecha', e.target.value)} />
+                        </div>
+                        <div>
+                            <label>Hora Aprox.</label>
+                            <input type="time" value={formData.hora} onChange={e => handleInputChange('hora', e.target.value)} />
+                        </div>
+                        <div style={{ gridColumn: '1 / -1' }}>
+                            <label>Razón Social / Empresa</label>
+                            <input type="text" placeholder="Ej. Constructora SRL" value={formData.empresa} onChange={e => handleInputChange('empresa', e.target.value)} />
+                        </div>
+                        <div style={{ gridColumn: '1 / -1' }}>
+                            <label>Ubicación / Sector</label>
+                            <input type="text" placeholder="Ej. Obra Centro, Sector Hormigonado" value={formData.ubicacion} onChange={e => handleInputChange('ubicacion', e.target.value)} />
+                        </div>
+                        <div style={{ gridColumn: '1 / -1' }}>
+                            <label>Gravedad Estimada</label>
+                            <select value={formData.gravedad} onChange={e => handleInputChange('gravedad', e.target.value)}>
+                                <option value="Leve">Leve (Sin baja)</option>
+                                <option value="Moderado">Moderado (Con baja médica corta)</option>
+                                <option value="Grave">Grave (Internación, amputaciones)</option>
+                                <option value="Mortal">Mortal</option>
+                            </select>
+                        </div>
+                    </div>
+                )}
+
+                {currentStep === 1 && (
+                    <div className="grid-2-cols">
+                        <div style={{ gridColumn: '1 / -1' }}>
+                            <label>Nombre del Accidentado</label>
+                            <input type="text" placeholder="Nombre completo" value={formData.victimaNombre} onChange={e => handleInputChange('victimaNombre', e.target.value)} />
+                        </div>
+                        <div>
+                            <label>DNI / CUIL</label>
+                            <input type="text" placeholder="Sin guiones" value={formData.victimaDni} onChange={e => handleInputChange('victimaDni', e.target.value)} />
+                        </div>
+                        <div>
+                            <label>Puesto / Tarea</label>
+                            <input type="text" placeholder="Ej. Oficial Albañil" value={formData.victimaPuesto} onChange={e => handleInputChange('victimaPuesto', e.target.value)} />
+                        </div>
+                        <div>
+                            <label>Antigüedad en el puesto</label>
+                            <input type="text" placeholder="Ej. 2 años" value={formData.victimaAntiguedad} onChange={e => handleInputChange('victimaAntiguedad', e.target.value)} />
+                        </div>
+                        <div style={{ gridColumn: '1 / -1' }}>
+                            <label>Tipo de Lesión</label>
+                            <input type="text" placeholder="Ej. Corte profundo, contusión, fractura..." value={formData.lesion} onChange={e => handleInputChange('lesion', e.target.value)} />
+                        </div>
+                        <div style={{ gridColumn: '1 / -1' }}>
+                            <label>Parte del Cuerpo Afectada</label>
+                            <input type="text" placeholder="Ej. Mano derecha indíce" value={formData.parteCuerpo} onChange={e => handleInputChange('parteCuerpo', e.target.value)} />
+                        </div>
+                    </div>
+                )}
+
+                {currentStep === 2 && (
+                    <div>
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <label>Descripción detallada del Hecho (¿Qué pasó?)</label>
+                            <textarea
+                                rows={5}
+                                placeholder="Relato detallado de cómo ocurrió el accidente, basado en los testimonios y evidencias iniciales..."
+                                value={formData.descripcionHecho}
+                                onChange={e => handleInputChange('descripcionHecho', e.target.value)}
+                            />
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                            <h3 style={{ fontSize: '1rem', margin: 0 }}>Testigos del Hecho</h3>
+                            <button className="btn-outline" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }} onClick={() => addArrayItem('testigos', { nombre: '', declaracion: '' })}>
+                                <UserPlus size={16} /> Añadir Testigo
+                            </button>
+                        </div>
+
+                        {formData.testigos.map((t, i) => (
+                            <div key={i} style={{ background: 'var(--color-surface)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--color-border)', marginBottom: '1rem', position: 'relative' }}>
+                                {formData.testigos.length > 1 && (
+                                    <button onClick={() => removeArrayItem('testigos', i)} style={{ position: 'absolute', top: '10px', right: '10px', background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer' }}>
+                                        <Trash2 size={18} />
+                                    </button>
+                                )}
+                                <label>Nombre del Testigo {i + 1}</label>
+                                <input type="text" placeholder="Nombre completo o cargo" value={t.nombre} onChange={e => handleArrayChange('testigos', i, 'nombre', e.target.value)} />
+                                <label>Declaración Breve</label>
+                                <textarea rows={2} placeholder="Lo que presenció..." value={t.declaracion} onChange={e => handleArrayChange('testigos', i, 'declaracion', e.target.value)} />
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {currentStep === 3 && (
+                    <div>
+                        <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(59, 130, 246, 0.2)', marginBottom: '1.5rem', fontSize: '0.9rem', color: 'var(--color-text)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-primary)' }}>
+                                <Search size={18} /> Metodología de los "5 Porqués"
+                            </div>
+                            Técnica sistemática para iterar preguntando "¿Por qué ocurrió?" hasta llegar a la causa raíz sistémica o de gestión, evitando culpar únicamente al error humano.
+                        </div>
+
+                        <label>El Problema (Efecto Final)</label>
+                        <input type="text" placeholder="Ej. El trabajador se cortó la mano con la amoladora" value={formData.problemaCentral} onChange={e => handleInputChange('problemaCentral', e.target.value)} style={{ fontWeight: 'bold' }} />
+
+                        <div style={{ marginTop: '1.5rem', borderLeft: '3px solid var(--color-primary)', paddingLeft: '1rem' }}>
+                            {formData.porques.map((pq, i) => (
+                                <div key={i} style={{ marginBottom: '1rem', position: 'relative' }}>
+                                    <label style={{ color: 'var(--color-text)' }}>¿Por qué? (Nivel {i + 1})</label>
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <input type="text" placeholder="Respuesta al porqué anterior..." value={pq} onChange={e => handleArrayChange('porques', i, null, e.target.value)} style={{ marginBottom: 0 }} />
+                                        {formData.porques.length > 1 && (
+                                            <button onClick={() => removeArrayItem('porques', i)} style={{ padding: '0 0.8rem', background: 'transparent', border: '1px solid var(--color-border)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}>
+                                                <Trash2 size={18} />
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                            {formData.porques.length < 5 && (
+                                <button className="btn-outline" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', marginTop: '0.5rem' }} onClick={() => addArrayItem('porques', '')}>
+                                    <ListPlus size={16} /> Preguntar otro "¿Por qué?"
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {currentStep === 4 && (
+                    <div>
+                        <p style={{ margin: '0 0 1.5rem 0', color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
+                            En base a la causa raíz detectada, defina el Plan de Acción Correctivo/Preventivo para asegurar que no vuelva a ocurrir.
+                        </p>
+
+                        {formData.medidas.map((m, i) => (
+                            <div key={i} style={{ background: 'var(--color-surface)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--color-border)', marginBottom: '1rem', position: 'relative' }}>
+                                {formData.medidas.length > 1 && (
+                                    <button onClick={() => removeArrayItem('medidas', i)} style={{ position: 'absolute', top: '10px', right: '10px', background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer' }}>
+                                        <Trash2 size={18} />
+                                    </button>
+                                )}
+                                <label>Acción Correctiva / Preventiva</label>
+                                <input type="text" placeholder="Ej. Instalar guardas fijas, dar capacitación" value={m.accion} onChange={e => handleArrayChange('medidas', i, 'accion', e.target.value)} />
+
+                                <div className="grid-2-cols">
+                                    <div>
+                                        <label>Responsable</label>
+                                        <input type="text" placeholder="Ej. Jefe de Mantenimiento" value={m.responsable} onChange={e => handleArrayChange('medidas', i, 'responsable', e.target.value)} />
+                                    </div>
+                                    <div>
+                                        <label>Fecha Límite</label>
+                                        <input type="date" value={m.fechaLimite} onChange={e => handleArrayChange('medidas', i, 'fechaLimite', e.target.value)} />
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+
+                        <button className="btn-outline" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', width: '100%', justifyContent: 'center', marginBottom: '1rem' }} onClick={() => addArrayItem('medidas', { accion: '', responsable: '', fechaLimite: '' })}>
+                            <Plus size={16} /> Añadir otra Medida
+                        </button>
+                    </div>
+                )}
+            </div>
+
+            {/* Navegación Inferior */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem' }}>
+                <button
+                    className="btn-outline"
+                    onClick={handlePrev}
+                    disabled={currentStep === 0}
+                    style={{ opacity: currentStep === 0 ? 0.4 : 1, width: '130px', background: 'var(--color-surface)' }}
+                >
+                    <ChevronLeft size={20} /> Atrás
+                </button>
+
+                {currentStep < SECTIONS.length - 1 ? (
+                    <button className="btn-primary" onClick={handleNext} style={{ margin: 0, width: '130px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                        Siguiente <ChevronRight size={20} />
+                    </button>
+                ) : (
+                    <button className="btn-primary" onClick={handleSave} style={{ margin: 0, width: '160px', background: 'linear-gradient(135deg, #10b981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                        <Save size={20} /> Finalizar
+                    </button>
+                )}
+            </div>
+
+        </div>
+    );
+}

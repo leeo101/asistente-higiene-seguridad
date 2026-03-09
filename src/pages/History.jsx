@@ -96,6 +96,7 @@ export default function History() {
             workPermits: safeGetList('work_permits_history').length,
             ppeTracker: safeGetList('ppe_items').length,
             riskAssessments: safeGetList('risk_assessment_history').length,
+            accidents: safeGetList('accident_history').length,
         });
     };
 
@@ -161,6 +162,7 @@ export default function History() {
         { title: 'Consultas Asesor IA', icon: <Bot size={24} />, color: '#a855f7', bg: 'rgba(168,85,247,0.1)', path: '/ai-history', countKey: 'ai' },
         { title: 'Control de EPP', icon: <HardHat size={24} />, color: '#10b981', bg: 'rgba(16,185,129,0.1)', path: '/ppe-tracker', countKey: 'ppeTracker' },
         { title: 'Evaluaciones de Riesgo', icon: <Shield size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/risk-assessment-history', countKey: 'riskAssessments' },
+        { title: 'Investigación de Accidentes', icon: <AlertTriangle size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/accident-history', countKey: 'accidents' },
     ];
 
     // ─── HUB ──────────────────────────────────────────────────────

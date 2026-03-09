@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
     ClipboardList, PlusCircle, History, User, Settings,
-    Flame, BarChart3, ChevronRight, Plus, Gavel,
+    Flame, BarChart3, ChevronRight, Plus, Gavel, Siren,
     Accessibility, AlertTriangle, Lock, UserPlus, LogIn, Sparkles,
     Camera, CalendarCheck, Shield, Cpu, Lightbulb,
     ShieldCheck, TriangleAlert, KeySquare, ScrollText, Bot, ClipboardCheck, FileText, HardHat, ShieldAlert, PenTool,
@@ -89,6 +89,7 @@ const typeColors = {
 };
 
 const quickLinks = [
+    { to: '/accident-investigation', icon: <Siren size={26} />, label: 'Investigación', sub: 'Accidentes / Árbol', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
     { to: '/ats', icon: <ShieldCheck size={26} />, label: 'ATS', sub: 'Análisis Trabajo Seguro', color: '#10b981', bg: 'rgba(16,185,129,0.1)' },
     { to: '/fire-load', icon: <Flame size={26} />, label: 'Carga Fuego', sub: 'Dec. 351/79', color: '#f97316', bg: 'rgba(249,115,22,0.1)' },
     { to: '/risk-matrix', icon: <TriangleAlert size={26} />, label: 'Matrices', sub: 'Riesgo Laboral', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
