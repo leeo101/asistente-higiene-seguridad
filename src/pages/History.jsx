@@ -97,6 +97,7 @@ export default function History() {
             ppeTracker: safeGetList('ppe_items').length,
             riskAssessments: safeGetList('risk_assessment_history').length,
             accidents: safeGetList('accident_history').length,
+            trainings: safeGetList('training_history').length,
         });
     };
 
@@ -163,6 +164,7 @@ export default function History() {
         { title: 'Control de EPP', icon: <HardHat size={24} />, color: '#10b981', bg: 'rgba(16,185,129,0.1)', path: '/ppe-tracker', countKey: 'ppeTracker' },
         { title: 'Evaluaciones de Riesgo', icon: <Shield size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/risk-assessment-history', countKey: 'riskAssessments' },
         { title: 'Investigación de Accidentes', icon: <AlertTriangle size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/accident-history', countKey: 'accidents' },
+        { title: 'Capacitaciones Dictadas', icon: <BookOpen size={24} />, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', path: '/training-history', countKey: 'trainings' },
     ];
 
     // ─── HUB ──────────────────────────────────────────────────────
