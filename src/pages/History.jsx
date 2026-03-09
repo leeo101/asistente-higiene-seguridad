@@ -8,7 +8,6 @@ import {
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { HistoryCardSkeleton } from '../components/SkeletonLoader';
-import { syncCollection } from '../utils/storageSync';
 
 // ─── Reusable delete confirmation dialog ───────────────────────────
 function DeleteConfirm({ onConfirm, onCancel }) {
