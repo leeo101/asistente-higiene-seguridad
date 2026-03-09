@@ -81,6 +81,8 @@ const AccidentInvestigation = lazyWithRetry(() => import('./pages/AccidentInvest
 const AccidentHistory = lazyWithRetry(() => import('./pages/AccidentHistory.jsx'));
 const TrainingManagement = lazyWithRetry(() => import('./pages/TrainingManagement.jsx'));
 const TrainingHistory = lazyWithRetry(() => import('./pages/TrainingHistory.jsx'));
+const Extinguishers = lazyWithRetry(() => import('./pages/Extinguishers.jsx'));
+const ExtinguisherPdfGenerator = lazyWithRetry(() => import('./components/ExtinguisherPdfGenerator.jsx'));
 
 import InstallBanner from './components/InstallBanner.jsx';
 import GlobalSearch from './components/GlobalSearch.jsx';
@@ -403,6 +405,8 @@ function App() {
                 <Route path="/accident-history" element={<ProtectedRoute><AccidentHistory /></ProtectedRoute>} />
                 <Route path="/training-management" element={<ProtectedRoute><TrainingManagement /></ProtectedRoute>} />
                 <Route path="/training-history" element={<ProtectedRoute><TrainingHistory /></ProtectedRoute>} />
+                <Route path="/extinguishers" element={<ProtectedRoute><Extinguishers /></ProtectedRoute>} />
+                <Route path="/extinguishers-report" element={<ProtectedRoute><ExtinguisherPdfGenerator /></ProtectedRoute>} />
 
                 <Route path="/risk-matrix-history" element={<ProtectedRoute><History view="matrices" /></ProtectedRoute>} />
                 <Route path="/reports-history" element={<ProtectedRoute><History view="reports" /></ProtectedRoute>} />
