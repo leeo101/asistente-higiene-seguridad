@@ -133,7 +133,7 @@ export default function Sidebar({ isOpen, onClose }) {
                             </div>
                             <span style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--color-hero-text)', letterSpacing: '-0.5px' }}>Asistente HYS</span>
                         </div>
-                        <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#ffffff', backdropFilter: 'blur(8px)', transition: 'all 0.2s ease' }}
+                        <button onClick={onClose} style={{ padding: 0, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#ffffff', backdropFilter: 'blur(8px)', transition: 'all 0.2s ease' }}
                             onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
                             onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
                         >
@@ -165,6 +165,7 @@ export default function Sidebar({ isOpen, onClose }) {
                                 <button
                                     onClick={(e) => { e.stopPropagation(); toggleTheme(); }}
                                     style={{
+                                        padding: 0,
                                         background: 'rgba(255,255,255,0.1)',
                                         border: '1px solid rgba(255,255,255,0.2)',
                                         width: '36px',

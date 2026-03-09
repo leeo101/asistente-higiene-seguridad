@@ -66,7 +66,7 @@ export default function StickyCtaBanner() {
                 onClick={handleDismiss}
                 style={{
                     background: 'rgba(255,255,255,0.15)', border: 'none',
-                    borderRadius: '50%', width: '32px', height: '32px',
+                    borderRadius: '50%', width: '32px', height: '32px', padding: 0,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     cursor: 'pointer', color: '#ffffff', flexShrink: 0,
                 }}

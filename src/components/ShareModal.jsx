@@ -98,7 +98,7 @@ export default function ShareModal({ open, onClose, title = '', text = '' }) {
                     style={{
                         position: 'absolute', top: '1rem', right: '1rem',
                         background: 'var(--color-background)', border: 'none', borderRadius: '50%',
-                        width: '32px', height: '32px', cursor: 'pointer',
+                        width: '32px', height: '32px', cursor: 'pointer', padding: 0,
                         display: 'flex', alignItems: 'center', justifyContent: 'center'
                     }}
                 >

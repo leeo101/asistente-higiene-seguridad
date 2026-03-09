@@ -72,7 +72,7 @@ export default function OnboardingModal({ onClose }) {
                     <button onClick={onClose} style={{
                         position: 'absolute', top: '1rem', right: '1rem',
                         background: 'rgba(255,255,255,0.15)', border: 'none',
-                        borderRadius: '50%', width: '32px', height: '32px',
+                        borderRadius: '50%', width: '32px', height: '32px', padding: 0,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         cursor: 'pointer', color: '#ffffff',
                     }}>
