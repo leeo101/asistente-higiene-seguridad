@@ -4,7 +4,7 @@ import {
     ClipboardList, PlusCircle, History, User, Settings,
     Flame, BarChart3, ChevronRight, Plus, Gavel, Siren,
     Accessibility, AlertTriangle, Lock, UserPlus, LogIn, Sparkles,
-    Camera, CalendarCheck, Shield, Cpu, Lightbulb,
+    Camera, CalendarCheck, Shield, Cpu, Lightbulb, ThermometerSun, Map,
     ShieldCheck, TriangleAlert, KeySquare, ScrollText, Bot, ClipboardCheck, FileText, HardHat, ShieldAlert, PenTool,
     ArrowRight, Activity, BookOpen, Calendar as CalendarIcon, Search, TrendingUp
 } from 'lucide-react';
