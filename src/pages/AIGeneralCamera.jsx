@@ -288,7 +288,7 @@ export default function AIGeneralCamera() {
                         )}
 
                         {analysisResult && (
-                            <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', padding: '1.5rem', background: 'linear-gradient(transparent, rgba(0,0,0,0.95))', color: 'var(--color-surface)' }}>
+                            <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', padding: '1.5rem', boxSizing: 'border-box', background: 'linear-gradient(transparent, rgba(0,0,0,0.95))', color: 'var(--color-surface)' }}>
                                 <div style={{ marginBottom: '1rem' }}>
                                     <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>Hallazgos de IA:</h3>
                                     <p style={{ margin: '0.2rem 0 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)' }}>
@@ -297,11 +297,11 @@ export default function AIGeneralCamera() {
                                             : "No se identificaron riesgos críticos."}
                                     </p>
                                 </div>
-                                <div style={{ display: 'flex', gap: '0.8rem', width: '100%', justifyContent: 'center' }}>
-                                    <button onClick={handleRetry} className="btn-outline" style={{ flex: 1, borderColor: 'var(--color-surface)', color: 'var(--color-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', height: '48px', margin: 0 }}>
-                                        <RefreshCw size={18} /> Reintentar
+                                <div style={{ display: 'flex', gap: '0.6rem', width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
+                                    <button onClick={handleRetry} className="btn-outline" style={{ flex: 1, minWidth: '130px', borderColor: 'var(--color-surface)', color: 'var(--color-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', height: '46px', margin: 0, padding: '0 0.5rem', fontSize: '0.85rem' }}>
+                                        <RefreshCw size={16} /> Reintentar
                                     </button>
-                                    <button onClick={handleSaveReport} className="btn-primary" style={{ flex: 1, height: '48px', margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Ver Detalles</button>
+                                    <button onClick={handleSaveReport} className="btn-primary" style={{ flex: 1, minWidth: '130px', height: '46px', margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0.5rem', fontSize: '0.85rem' }}>Ver Detalles</button>
                                 </div>
                             </div>
                         )}
