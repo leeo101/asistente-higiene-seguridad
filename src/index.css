@@ -1345,3 +1345,90 @@ label {
   pointer-events: none;
   z-index: 0;
 }
+
+/* PREMIUM 3D STARRY NIGHT EFFECT */
+@keyframes animStar {
+  from { transform: translateY(0px); }
+  to { transform: translateY(-2000px); }
+}
+
+@keyframes animStarSide {
+  from { transform: translate(0px, 0px); }
+  to { transform: translate(-1000px, -2000px); }
+}
+
+.stars-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #1e40af 100%);
+}
+
+.stars, .stars2, .stars3 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 2px;
+  background: transparent;
+  border-radius: 50%;
+}
+
+.stars {
+  animation: animStar 50s linear infinite;
+}
+
+.stars2 {
+  width: 3px;
+  height: 3px;
+  animation: animStar 100s linear infinite;
+}
+
+.stars3 {
+  width: 4px;
+  height: 4px;
+  animation: animStarSide 150s linear infinite;
+}
+
+.stars::after, .stars2::after, .stars3::after {
+  content: " ";
+  position: absolute;
+  top: 2000px;
+  background: transparent;
+}
+
+/* Shooting Star */
+@keyframes shootingStar {
+  0% {
+    transform: translateX(0) translateY(0) rotate(45deg) scale(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+    transform: translateX(-100px) translateY(100px) rotate(45deg) scale(1);
+  }
+  20% {
+    transform: translateX(-500px) translateY(500px) rotate(45deg) scale(0);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.shooting-star {
+  position: absolute;
+  top: 10%;
+  right: 20%;
+  width: 100px;
+  height: 2px;
+  background: linear-gradient(-45deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+  filter: drop-shadow(0 0 6px rgba(105, 155, 255, 1));
+  animation: shootingStar 8s ease-in-out infinite;
+  pointer-events: none;
+}

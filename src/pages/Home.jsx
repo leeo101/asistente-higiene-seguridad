@@ -11,7 +11,8 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { usePaywall } from '../hooks/usePaywall';
-import AdBanner from '../components/AdBanner';
+import { collection, query, where, getDocs, doc, getDoc, updateDoc } from 'firebase/firestore';
+import StarryBackground from '../components/StarryBackground';
 import OnboardingModal from '../components/OnboardingModal';
 import StickyCtaBanner from '../components/StickyCtaBanner';
 import StatsBar from '../components/StatsBar';
@@ -199,30 +200,17 @@ export default function Home() {
             {!currentUser && <StickyCtaBanner />}
 
             {/* ── HERO BANNER ── */}
-            <div className="home-hero-banner hero-animated-bg" style={{
+            <div className="home-hero-banner" style={{
                 padding: 'clamp(5.5rem, 10vw, 7.5rem) 1.2rem 3rem',
                 position: 'relative',
                 overflow: 'hidden',
                 marginBottom: '0',
                 borderBottom: '1px solid rgba(255,255,255,0.1)',
                 width: '100%',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                background: '#0f172a' // fallback background
             }}>
-                {/* Background enhancement for hero */}
-                <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'radial-gradient(circle at top right, rgba(255,255,255,0.1) 0%, transparent 60%)',
-                    pointerEvents: 'none',
-                    zIndex: 0
-                }} />
-                <div className="hero-orb-right" />
-                {/* decorative circles */}
-                <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '180px', height: '180px', borderRadius: '50%', background: 'rgba(var(--color-primary-rgb), 0.05)', pointerEvents: 'none', zIndex: 0 }} />
-                <div style={{ position: 'absolute', bottom: '-60px', left: '60px', width: '220px', height: '220px', borderRadius: '50%', background: 'rgba(var(--color-primary-rgb), 0.03)', pointerEvents: 'none', zIndex: 0 }} />
+                <StarryBackground />
 
                 <div style={{ position: 'relative', zIndex: 1, maxWidth: '700px', margin: '0 auto' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
