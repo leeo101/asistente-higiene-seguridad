@@ -188,7 +188,7 @@ export default function Sidebar({ isOpen, onClose }) {
                                 </button>
                             </div>
                             {currentUser ? (
-                                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.1rem' }}>
+                                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)', marginTop: '0.1rem' }}>
                                     {userInfo.profession || 'Profesional H&S'}
                                 </div>
                             ) : (

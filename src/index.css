@@ -7,32 +7,31 @@
   --line-height: 1.5;
   --font-weight: 400;
 
-  /* Premium Blue Palette */
+  /* Premium Blue Palette (Matched to Nueva Inspección) */
   --color-primary: #2563EB;
   --color-primary-rgb: 37, 99, 235;
-  --color-primary-dark: #1D4ED8;
+  --color-primary-dark: #1e3a8a;
   --color-secondary: #00875A;
 
   --color-accent: #00B8D9;
   --color-warning: #FF991F;
   --color-danger: #DE350B;
 
-  /* Premium Blue Theme */
-  --color-background: #f0f7ff;
-  /* Soft Blue Tint */
+  /* Minimalist Light Mode */
+  --color-background: #F4F5F7;
+  /* Cloud Gray - Flat canvas */
   --color-surface: #FFFFFF;
   --color-surface-solid: #FFFFFF;
-  --color-text: #0f172a;
-  --color-text-muted: #475569;
-  --color-border: #e2e8f0;
-  --color-surface-hover: #f8fafc;
-  /* Very subtle borders */
+  --color-text: #172B4D;
+  --color-text-muted: #6B778C;
+  --color-border: #DFE1E6;
+  --color-surface-hover: #F8FAFC;
 
   /* Premium Gradients & Glass */
-  --gradient-premium: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-  --gradient-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 247, 255, 0.8) 100%);
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(37, 99, 235, 0.1);
+  --gradient-premium: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+  --gradient-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.08);
   --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
   --glass-thick: rgba(255, 255, 255, 0.85);
   --glass-glow: 0 0 15px rgba(37, 99, 235, 0.1);
@@ -41,10 +40,10 @@
   --color-header-bg: rgba(255, 255, 255, 0.85);
   --color-input-bg: rgba(255, 255, 255, 0.05);
 
-  /* Hero Section - Blue Mode */
-  --color-hero-bg: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+  /* Hero Section - Premium Animated Blue */
+  --color-hero-bg: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #0ea5e9 100%);
   --color-hero-text: #ffffff;
-  --color-hero-subtext: rgba(255, 255, 255, 0.85);
+  --color-hero-subtext: rgba(255, 255, 255, 0.9);
   --color-hero-accent: #60a5fa;
 
   color-scheme: light;
@@ -1212,6 +1211,26 @@ label {
   100% {
     background-position: 200% 0;
   }
+}
+
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.hero-animated-bg {
+  background: var(--color-hero-bg);
+  background-size: 200% 200%;
+  animation: gradientMove 15s ease infinite;
 }
 
 .skeleton {

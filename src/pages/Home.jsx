@@ -199,13 +199,12 @@ export default function Home() {
             {!currentUser && <StickyCtaBanner />}
 
             {/* ── HERO BANNER ── */}
-            <div className="home-hero-banner" style={{
-                background: 'var(--color-hero-bg)',
+            <div className="home-hero-banner hero-animated-bg" style={{
                 padding: 'clamp(5.5rem, 10vw, 7.5rem) 1.2rem 3rem',
                 position: 'relative',
                 overflow: 'hidden',
                 marginBottom: '0',
-                borderBottom: '1px solid var(--color-border)',
+                borderBottom: '1px solid rgba(255,255,255,0.1)',
                 width: '100%',
                 boxSizing: 'border-box'
             }}>
@@ -282,15 +281,17 @@ export default function Home() {
                                         textAlign: 'center',
                                         cursor: 'pointer',
                                         transition: 'all 0.3s ease',
+                                        background: 'rgba(255,255,255,0.1)',
+                                        border: '1px solid rgba(255,255,255,0.2)'
                                     }}
-                                    onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.background = 'var(--color-surface-hover)'; }}
-                                    onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = 'var(--color-surface)'; }}
+                                    onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'; }}
+                                    onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
                                 >
-                                    <div style={{ color: 'var(--color-hero-accent)', marginBottom: '0.4rem', opacity: 0.9 }}>
+                                    <div style={{ color: '#ffffff', marginBottom: '0.4rem', opacity: 0.9 }}>
                                         {React.cloneElement(stat.icon, { size: 22 })}
                                     </div>
-                                    <div style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--color-hero-text)', lineHeight: 1 }}>{stat.value}</div>
-                                    <div style={{ fontSize: '0.65rem', color: 'var(--color-hero-subtext)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '0.3rem' }}>{stat.label}</div>
+                                    <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#ffffff', lineHeight: 1 }}>{stat.value}</div>
+                                    <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.85)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '0.3rem' }}>{stat.label}</div>
                                 </div>
                             ))}
                         </div>
