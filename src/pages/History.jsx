@@ -6,6 +6,7 @@ import {
     ClipboardCheck, ScrollText, ShieldCheck, KeySquare, Bot, TriangleAlert, FileText, Shield, ThermometerSun, Siren, Map, BookOpen
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useSync } from '../contexts/SyncContext';
 import { HistoryCardSkeleton } from '../components/SkeletonLoader';
 import ShareModal from '../components/ShareModal';
 import RiskMatrixPdfGenerator from '../components/RiskMatrixPdfGenerator';
@@ -61,10 +62,12 @@ export default function History() {
         }
     }, [location.state?.view]);
 
-    const [historicalData, setHistoricalData] = useState([]);
-    const [matrixData, setMatrixData] = useState([]);
-    const [reportsData, setReportsData] = useState([]);
-    const [thermalData, setThermalData] = useState([]);
+    const [lists, setLists] = useState({
+        historicalData: [],
+        matrixData: [],
+        reportsData: [],
+        thermalData: []
+    });
     const [deleteTarget, setDeleteTarget] = useState(null); // { storageKey, id, view }
     const [shareItem, setShareItem] = useState(null); // { type, data }
     const [counts, setCounts] = useState({});
@@ -81,8 +84,11 @@ export default function History() {
             const raw = localStorage.getItem(key);
             if (!raw || raw === 'null' || raw === 'undefined') return [];
             const parsed = JSON.parse(raw);
-            return Array.isArray(parsed) ? parsed : [];
-        } catch {
+            if (!Array.isArray(parsed)) return [];
+            // Basic sanitization: remove items that are null/invalid
+            return parsed.filter(item => item && typeof item === 'object');
+        } catch (err) {
+            console.error(`Error in safeGetList for key ${key}:`, err);
             return [];
         }
     };
@@ -111,19 +117,29 @@ export default function History() {
         });
     };
 
-    useEffect(() => { refreshCounts(); }, [syncPulse]);
-
     useEffect(() => {
-        if (view === 'inspections') {
-            setHistoricalData(safeGetList('inspections_history'));
-        } else if (view === 'matrices') {
-            setMatrixData(safeGetList('risk_matrix_history'));
-        } else if (view === 'reports') {
-            setReportsData(safeGetList('reports_history'));
-        } else if (view === 'thermal') {
-            setThermalData(safeGetList('thermal_history'));
+        try {
+            const hData = safeGetList('inspections_history');
+            const mData = safeGetList('risk_matrix_history');
+            const rData = safeGetList('reports_history');
+            const tData = safeGetList('thermal_history');
+            
+            setLists({
+                historicalData: hData,
+                matrixData: mData,
+                reportsData: rData,
+                thermalData: tData
+            });
+            refreshCounts();
+        } catch (err) {
+            console.error("History.jsx: Error in sync Effect:", err);
         }
-    }, [view, syncPulse]);
+    }, [syncPulse]);
+
+    const historicalData = lists.historicalData || [];
+    const matrixData = lists.matrixData || [];
+    const reportsData = lists.reportsData || [];
+    const thermalData = lists.thermalData || [];
 
     // ─── Delete helpers ───────────────────────────────────────────
     const askDelete = (e, storageKey, id) => {
@@ -138,11 +154,16 @@ export default function History() {
         localStorage.setItem(storageKey, JSON.stringify(updated));
         syncCollection(storageKey, updated);
         setDeleteTarget(null);
-        // refresh the right list
-        if (storageKey === 'inspections_history') setHistoricalData(updated);
-        if (storageKey === 'risk_matrix_history') setMatrixData(updated);
-        if (storageKey === 'reports_history') setReportsData(updated);
-        if (storageKey === 'thermal_history') setThermalData(updated);
+        
+        // Update the unified lists state
+        setLists(prev => {
+            const next = { ...prev };
+            if (storageKey === 'inspections_history') next.historicalData = updated;
+            if (storageKey === 'risk_matrix_history') next.matrixData = updated;
+            if (storageKey === 'reports_history') next.reportsData = updated;
+            if (storageKey === 'thermal_history') next.thermalData = updated;
+            return next;
+        });
         refreshCounts();
     };
 
@@ -254,7 +275,7 @@ export default function History() {
                 />
 
                 <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
-                    {shareItem?.type === 'matrix' && <RiskMatrixPdfGenerator initialData={shareItem.data} isHeadless={true} />}
+                    {shareItem?.type === 'matrix' && <RiskMatrixPdfGenerator data={shareItem.data} isHeadless={true} />}
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>

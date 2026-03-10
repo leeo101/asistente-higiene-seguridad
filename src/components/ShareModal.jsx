@@ -56,23 +56,11 @@ export default function ShareModal({ open, onClose, title = '', text = '', eleme
         const toastId = toast.loading('Generando documento PDF...', { id: 'pdf-gen' });
 
         try {
-            // Generate the PDF
             const pdfBlob = await generatePdfBlob(elementIdToPrint);
             const fileName = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'reporte'}.pdf`;
 
-            // Test if native sharing with files is supported
-            if (navigator.canShare && navigator.canShare({ files: [new File([pdfBlob], fileName, { type: 'application/pdf' })] })) {
-                const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
-
-                toast.success('Abriendo opciones de compartir...', { id: toastId });
-                await navigator.share({
-                    title: title,
-                    text: rawMessage,
-                    files: [file]
-                });
-            } else {
-                // Fallback: Download the file automatically if sharing is not supported (usually Desktop)
-                toast.success('Descargando archivo PDF...', { id: toastId });
+            // Function to trigger download as a fallback
+            const triggerDownload = () => {
                 const url = window.URL.createObjectURL(pdfBlob);
                 const a = document.createElement('a');
                 a.href = url;
@@ -82,10 +70,34 @@ export default function ShareModal({ open, onClose, title = '', text = '', eleme
                 a.remove();
                 window.URL.revokeObjectURL(url);
                 toast.success('¡PDF descargado! Puedes adjuntarlo manualmente.', { id: 'pdf-gen-done' });
+            };
+
+            if (navigator.canShare && navigator.canShare({ files: [new File([pdfBlob], fileName, { type: 'application/pdf' })] })) {
+                const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+                toast.success('Abriendo opciones de compartir...', { id: toastId });
+                
+                try {
+                    await navigator.share({
+                        title: title,
+                        text: rawMessage,
+                        files: [file]
+                    });
+                } catch (shareErr) {
+                    // If user cancels or browser fails to share, fallback to download
+                    if (shareErr.name === 'AbortError') {
+                        console.log("ShareModal: Share aborted by user or browser, falling back to download.");
+                        triggerDownload();
+                    } else {
+                        throw shareErr;
+                    }
+                }
+            } else {
+                toast.success('Descargando archivo PDF...', { id: toastId });
+                triggerDownload();
             }
         } catch (error) {
-            console.error("Error generating PDF:", error);
-            toast.error('Hubo un error al generar el PDF.', { id: toastId });
+            console.error("Error generating/sharing PDF:", error);
+            toast.error('Hubo un error al procesar el PDF.', { id: toastId });
         } finally {
             setIsGenerating(false);
         }

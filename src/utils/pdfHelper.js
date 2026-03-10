@@ -52,7 +52,6 @@ export async function generatePdfBlob(elementId, filename = 'reporte.pdf', isLan
         const pdfHeight = isLandscape ? A4_WIDTH_MM : A4_HEIGHT_MM;
 
         // Calculate the image width in mm, keeping it within the PDF width
-        // We use a small margin (e.g. 10mm on each side)
         const marginX = 10;
         const marginY = 10;
         const contentWidthMM = pdfWidth - (marginX * 2);

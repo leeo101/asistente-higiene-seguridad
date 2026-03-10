@@ -8,10 +8,12 @@ const getRiskLevel = (p, s) => {
     return { label: 'CRÍTICO', bg: '#fee2e2', color: '#dc2626' };
 };
 
-export default function RiskMatrixPdfGenerator({ data }) {
-    if (!data) return null;
+export default function RiskMatrixPdfGenerator({ data, initialData }) {
+    const finalData = data || initialData;
+    if (!finalData) return null;
 
-    const rows = data.rows || [];
+    const rows = finalData.rows || [];
+    const { name, location, date, responsable, id, createdAt } = finalData;
 
     return (
         <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
@@ -49,8 +51,7 @@ export default function RiskMatrixPdfGenerator({ data }) {
                         <h1 style={{ margin: 0, fontWeight: 900, fontSize: '2rem', color: '#1e293b', letterSpacing: '-0.02em', textTransform: 'uppercase' }}>MATRIZ DE RIESGOS</h1>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.2rem' }}>CÓDIGO DOC:</div>
-                        <div style={{ fontWeight: 900, fontSize: '1.2rem', color: '#1e293b' }}>MR-{data.id?.toString().slice(-6) || 'HYS'}</div>
+                        <div style={{ fontWeight: 900, fontSize: '1.2rem', color: '#1e293b' }}>MR-{id?.toString().slice(-6) || 'HYS'}</div>
                     </div>
                 </div>
 
@@ -61,13 +62,13 @@ export default function RiskMatrixPdfGenerator({ data }) {
                             <span style={{ fontSize: '0.6rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                                 <ShieldCheck size={14} color="#3b82f6" /> PROYECTO / ACTIVIDAD
                             </span>
-                            <span style={{ fontWeight: 800, fontSize: '1rem', color: '#0f172a' }}>{data.name || '-'}</span>
+                            <span style={{ fontWeight: 800, fontSize: '1rem', color: '#0f172a' }}>{name || '-'}</span>
                         </div>
                         <div style={{ padding: '0.8rem 1rem', borderLeft: '2px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
                             <span style={{ fontSize: '0.6rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                                 <MapPin size={14} color="#f59e0b" /> UBICACIÓN / ÁREA
                             </span>
-                            <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#1e293b' }}>{data.location || '-'}</span>
+                            <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#1e293b' }}>{location || '-'}</span>
                         </div>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', width: '100%' }}>
@@ -75,13 +76,13 @@ export default function RiskMatrixPdfGenerator({ data }) {
                             <span style={{ fontSize: '0.6rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                                 <Calendar size={14} color="#10b981" /> FECHA DE EVALUACIÓN
                             </span>
-                            <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#1e293b' }}>{data.date ? new Date(data.date).toLocaleDateString() : '-'}</span>
+                            <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#1e293b' }}>{date || createdAt ? new Date(date || createdAt).toLocaleDateString() : '-'}</span>
                         </div>
                         <div style={{ padding: '0.8rem 1rem', borderLeft: '2px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
                             <span style={{ fontSize: '0.6rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                                 <UserCheck size={14} color="#8b5cf6" /> PROFESIONAL / RESPONSABLE
                             </span>
-                            <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#1e293b' }}>{data.responsable || '-'}</span>
+                            <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#1e293b' }}>{responsable || '-'}</span>
                         </div>
                     </div>
                 </div>

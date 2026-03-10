@@ -24,9 +24,10 @@ export default function Profile() {
             if (savedData) {
                 setUserData(JSON.parse(savedData));
             }
-            setIsSubscribed(isPro());
+            const proStatus = isPro();
+            setIsSubscribed(proStatus);
         }
-    }, [isPro]);
+    }, []);
 
     const menuItems = [
         { id: 'data', label: 'Datos Personales', icon: <User />, path: '/personal-data' },
