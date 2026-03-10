@@ -30,12 +30,12 @@ export default function ShareModal({ open, onClose, title = '', text = '', eleme
     const url = encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '');
 
     const options = [
-        { label: 'WhatsApp', icon: '📱', color: '#25D366', bg: '#dcfce7', url: `https://wa.me/?text=${inviteMessage}` },
-        { label: 'LinkedIn', icon: '🔗', color: '#0077b5', bg: '#e0f2fe', url: `https://www.linkedin.com/sharing/share-offsite/?url=${url}` },
-        { label: 'Facebook', icon: '👥', color: '#1877f2', bg: '#e7f3ff', url: `https://www.facebook.com/sharer/sharer.php?u=${url}` },
-        { label: 'Telegram', icon: '✈️', color: '#229ED9', bg: '#e0f2fe', url: `https://t.me/share/url?url=${url}&text=${inviteMessage}` },
-        { label: 'Twitter / X', icon: '𝕏', color: 'var(--color-text)', bg: 'var(--color-background)', url: `https://twitter.com/intent/tweet?text=${inviteMessage}` },
-        { label: 'Email', icon: '📧', color: '#6366f1', bg: '#eef2ff', url: `mailto:?subject=${subject}&body=${inviteMessage}` },
+        { label: 'WhatsApp', icon: '📱', color: '#25D366', bg: '#dcfce7', url: `https://wa.me/?text=${inviteMessage}`, hijack: true },
+        { label: 'LinkedIn', icon: '🔗', color: '#0077b5', bg: '#e0f2fe', url: `https://www.linkedin.com/sharing/share-offsite/?url=${url}`, hijack: false },
+        { label: 'Facebook', icon: '👥', color: '#1877f2', bg: '#e7f3ff', url: `https://www.facebook.com/sharer/sharer.php?u=${url}`, hijack: false },
+        { label: 'Telegram', icon: '✈️', color: '#229ED9', bg: '#e0f2fe', url: `https://t.me/share/url?url=${url}&text=${inviteMessage}`, hijack: true },
+        { label: 'Twitter / X', icon: '𝕏', color: 'var(--color-text)', bg: 'var(--color-background)', url: `https://twitter.com/intent/tweet?text=${inviteMessage}`, hijack: false },
+        { label: 'Email', icon: '📧', color: '#6366f1', bg: '#eef2ff', url: `mailto:?subject=${subject}&body=${inviteMessage}`, hijack: true },
     ];
 
     const handleCopy = async () => {
@@ -161,16 +161,23 @@ export default function ShareModal({ open, onClose, title = '', text = '', eleme
                     <span style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', background: 'var(--color-surface)', padding: '0 10px', fontSize: '0.7rem', fontWeight: 800, color: 'var(--color-text-muted)' }}>O OTRAS OPCIONES</span>
                 </div>
 
-                <p style={{ margin: '0 0 0.8rem', fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text)' }}>Solo Link / Redes Sociales:</p>
+                <p style={{ margin: '0 0 0.8rem', fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text)' }}>{elementIdToPrint ? 'Opciones Rápidas (Elige la app en el menú que aparecerá):' : 'Solo Link / Redes Sociales:'}</p>
 
                 {/* Social buttons grid */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginBottom: '1.2rem' }}>
                     {options.map(opt => (
                         <a
                             key={opt.label}
-                            href={opt.url}
-                            target="_blank"
+                            href={opt.hijack && elementIdToPrint ? '#' : opt.url}
+                            target={opt.hijack && elementIdToPrint ? '_self' : '_blank'}
                             rel="noreferrer"
+                            onClick={async (e) => {
+                                if (opt.hijack && elementIdToPrint) {
+                                    e.preventDefault();
+                                    toast(`Elige tu app de ${opt.label} para poder adjuntar el PDF automáticamente.`, { icon: opt.icon, duration: 4500 });
+                                    await handleNativeShare();
+                                }
+                            }}
                             style={{
                                 display: 'flex', alignItems: 'center', gap: '0.7rem',
                                 padding: '0.7rem 1rem', background: opt.bg,
