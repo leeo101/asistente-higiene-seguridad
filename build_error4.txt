@@ -5,13 +5,13 @@
 [36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
 transforming...
 [32m✓[39m 1794 modules transformed.
-[31m✗[39m Build failed in 1.93s
+[31m✗[39m Build failed in 2.12s
 [31merror during build:
-[31m[vite-plugin-pwa:build] [plugin vite-plugin-pwa:build] src/pages/LightingHistory.jsx: There was an error during the build:
-  Could not resolve "../components/LightingPdfGenerator" from "src/pages/LightingHistory.jsx"
+[31m[vite-plugin-pwa:build] [plugin vite-plugin-pwa:build] src/pages/History.jsx: There was an error during the build:
+  Could not resolve "../components/ProfessionalReportPdfGenerator" from "src/pages/History.jsx"
 Additionally, handling the error in the 'buildEnd' hook caused the following error:
-  Could not resolve "../components/LightingPdfGenerator" from "src/pages/LightingHistory.jsx"[31m
-file: [36mC:/Users/Leo Rodriguez/asistente de higiene y seguridad/src/pages/LightingHistory.jsx[31m
+  Could not resolve "../components/ProfessionalReportPdfGenerator" from "src/pages/History.jsx"[31m
+file: [36mC:/Users/Leo Rodriguez/asistente de higiene y seguridad/src/pages/History.jsx[31m
     at getRollupError (file:///C:/Users/Leo%20Rodriguez/asistente%20de%20higiene%20y%20seguridad/node_modules/rollup/dist/es/shared/parseAst.js:402:41)
     at file:///C:/Users/Leo%20Rodriguez/asistente%20de%20higiene%20y%20seguridad/node_modules/rollup/dist/es/shared/node-entry.js:23444:39
     at async catchUnfinishedHookActions (file:///C:/Users/Leo%20Rodriguez/asistente%20de%20higiene%20y%20seguridad/node_modules/rollup/dist/es/shared/node-entry.js:22902:16)
