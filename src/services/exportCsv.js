@@ -124,3 +124,146 @@ export async function downloadCSV(rows, filename, columnMap = null, title = "Rep
         console.error("Error generating Excel report:", error);
     }
 }
+
+/**
+ * Exporta todas las colecciones principales de la App a un archivo Excel con múltiples hojas.
+ */
+export async function exportAllDataToExcel() {
+    const workbook = new ExcelJS.Workbook();
+    let hasData = false;
+
+    // Añadir logo
+    const logoId = workbook.addImage({
+        base64: ASISTENTE_HYS_LOGO_BASE64,
+        extension: 'png',
+    });
+
+    const collections = [
+        { key: 'inspections_history', name: 'Inspecciones' },
+        { key: 'ats_history', name: 'ATS' },
+        { key: 'fireload_history', name: 'Carga de Fuego' },
+        { key: 'reports_history', name: 'Informes' },
+        { key: 'risk_matrix_history', name: 'Matrices' },
+        { key: 'thermal_history', name: 'Estrés Térmico' },
+        { key: 'drills_history', name: 'Simulacros' },
+        { key: 'risk_maps_history', name: 'Mapas de Riesgo' },
+        { key: 'lighting_history', name: 'Iluminación' },
+        { key: 'work_permits_history', name: 'Permisos de Trabajo' },
+        { key: 'tool_checklists_history', name: 'Checklists' },
+        { key: 'ai_camera_history', name: 'Cámara IA' },
+        { key: 'ai_advisor_history', name: 'Asesor IA' },
+        { key: 'ppe_items', name: 'Control EPP' },
+        { key: 'risk_assessment_history', name: 'Eval. Riesgos' },
+        { key: 'accident_history', name: 'Accidentes' },
+        { key: 'training_history', name: 'Capacitaciones' },
+        { key: 'extinguishers_inventory', name: 'Extintores' },
+        { key: 'stop_cards_history', name: 'Tarjetas STOP' }
+    ];
+
+    for (const coll of collections) {
+        try {
+            const raw = localStorage.getItem(coll.key);
+            if (!raw || raw === 'null') continue;
+            const data = JSON.parse(raw);
+            if (!Array.isArray(data) || data.length === 0) continue;
+
+            hasData = true;
+            const sheet = workbook.addWorksheet(coll.name.substring(0, 31)); // Límite de 31 caracteres para nombre de hoja
+
+            sheet.addImage(logoId, {
+                tl: { col: 2, row: 0.2 },
+                ext: { width: 50, height: 50 },
+                editAs: 'absolute'
+            });
+
+            // Filtrar columnas (ignorar objetos complejos para el CSV básico)
+            const firstRow = data[0] || {};
+            const keys = Object.keys(firstRow).filter(k => typeof firstRow[k] !== 'object' && !Array.isArray(firstRow[k]));
+
+            // 1. Título principal
+            sheet.mergeCells(1, 1, 1, Math.max(3, keys.length));
+            const titleCell = sheet.getCell('A1');
+            titleCell.value = `Historial: ${coll.name}`;
+            titleCell.font = { name: "Arial", size: 16, bold: true, color: { argb: "FFFFFFFF" } };
+            titleCell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF172B4D" } };
+            titleCell.alignment = { vertical: "middle", horizontal: "left", indent: 1 };
+
+            // 2. Subtítulo (Fecha)
+            sheet.mergeCells(2, 1, 2, Math.max(3, keys.length));
+            const subtitleCell = sheet.getCell('A2');
+            subtitleCell.value = `Generado el ${new Date().toLocaleDateString('es-AR')} - Asistente HYS`;
+            subtitleCell.font = { name: "Arial", size: 10, italic: true, color: { argb: "FFFFFFFF" } };
+            subtitleCell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF172B4D" } };
+            subtitleCell.alignment = { vertical: "middle", horizontal: "left", indent: 1 };
+
+            // Alturas
+            sheet.getRow(1).height = 30;
+            sheet.getRow(2).height = 20;
+            sheet.getRow(3).height = 10;
+
+            // 3. Cabeceras
+            if (keys.length > 0) {
+                const headerRow = sheet.getRow(4);
+                keys.forEach((k, i) => {
+                    const cell = headerRow.getCell(i + 1);
+                    cell.value = k.toUpperCase();
+                    cell.font = { name: "Arial", size: 11, bold: true, color: { argb: "FFFFFFFF" } };
+                    cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF36B37E" } };
+                    cell.alignment = { vertical: "middle", horizontal: "center" };
+                    cell.border = { top: { style: "thin" }, left: { style: "thin" }, bottom: { style: "thin" }, right: { style: "thin" } };
+                });
+                headerRow.height = 25;
+
+                // 4. Filas
+                data.forEach((row, rowIndex) => {
+                    const dataRow = sheet.getRow(5 + rowIndex);
+                    keys.forEach((k, colIndex) => {
+                        const cell = dataRow.getCell(colIndex + 1);
+                        let val = row[k];
+                        cell.value = val === null || val === undefined ? '' : String(val);
+                        cell.font = { name: "Arial", size: 10 };
+                        cell.alignment = { vertical: "middle", horizontal: colIndex === 0 ? "left" : "center", wrapText: true };
+                        cell.border = { top: { style: "thin", color: { argb: "FFEEEEEE" } }, left: { style: "thin", color: { argb: "FFEEEEEE" } }, bottom: { style: "thin", color: { argb: "FFEEEEEE" } }, right: { style: "thin", color: { argb: "FFEEEEEE" } } };
+                    });
+                    dataRow.height = 20;
+                });
+
+                // Ancho de columnas
+                sheet.columns.forEach((column, index) => {
+                    let max = String(keys[index]).length;
+                    data.forEach(row => {
+                        const val = row[keys[index]];
+                        if (val) {
+                            const len = String(val).length;
+                            if (len > max) max = len;
+                        }
+                    });
+                    column.width = Math.min(max + 4, 60);
+                });
+            }
+        } catch (e) {
+            console.error(`Error procesando colección Excel ${coll.key}`, e);
+        }
+    }
+
+    if (!hasData) {
+        alert("No hay datos guardados para exportar.");
+        return;
+    }
+
+    try {
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `Asistente_HYS_Gestion_Global_${new Date().toISOString().split('T')[0]}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    } catch (e) {
+        console.error("Error descargando Excel global", e);
+    }
+}

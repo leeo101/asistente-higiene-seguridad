@@ -17,6 +17,7 @@ import StarryBackground from '../components/StarryBackground';
 import OnboardingModal from '../components/OnboardingModal';
 import StickyCtaBanner from '../components/StickyCtaBanner';
 import StatsBar from '../components/StatsBar';
+import NewsWidget from '../components/NewsWidget';
 
 function FaqSection() {
     const [open, setOpen] = React.useState(null);
@@ -108,6 +109,7 @@ const quickLinks = [
     { to: '/work-permit', icon: <KeySquare size={26} />, label: 'Permisos', sub: 'Tareas Críticas', color: '#2563eb', bg: 'rgba(37,99,235,0.1)' },
     { to: '/ai-general-camera', icon: <ShieldAlert size={26} />, label: 'Riesgos IA', sub: 'Análisis de Entorno', color: '#f43f5e', bg: 'rgba(244, 63, 94, 0.1)' },
     { to: '/drills', icon: <Siren size={26} />, label: 'Simulacros', sub: 'Actas de Evacuación', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
+    { to: '/stop-cards', icon: <TriangleAlert size={26} />, label: 'Tarjetas STOP', sub: 'Observaciones', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
 ];
 
 export default function Home() {
@@ -224,8 +226,13 @@ export default function Home() {
                 <div style={{ position: 'relative', zIndex: 1, maxWidth: '700px', margin: '0 auto' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
                         <div>
-                            <p style={{ color: 'var(--color-hero-subtext)', fontSize: '0.85rem', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 0.3rem' }}>
+                            <p style={{ color: 'var(--color-hero-subtext)', fontSize: '0.85rem', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 0.3rem', display: 'flex', alignItems: 'center', gap: '0.8rem', flexWrap: 'wrap' }}>
                                 {currentUser ? 'Bienvenido de vuelta' : 'Potenciá tu trabajo con IA'}
+                                {currentUser && isSubscribed && (
+                                    <span style={{ fontSize: '0.65rem', background: 'rgba(245,158,11,0.15)', color: '#f59e0b', padding: '2px 8px', borderRadius: '8px', border: '1px solid rgba(245,158,11,0.2)' }}>
+                                        Días PRO: {daysLeft}
+                                    </span>
+                                )}
                             </p>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.5rem' }}>
                                 <img src="/logo.png" alt="Logo" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
@@ -644,6 +651,9 @@ export default function Home() {
                         </div>
                     </div>
                 )}
+
+                {/* ── SRT NEWS WIDGET ── */}
+                <NewsWidget />
             </div>
         </div>
     );

@@ -102,6 +102,7 @@ export default function History() {
             thermal: safeGetList('thermal_history').length,
             drills: safeGetList('drills_history').length,
             riskmaps: safeGetList('risk_map_history').length,
+            stopCards: safeGetList('stop_cards_history').length,
             extinguishers: safeGetList('extinguishers_inventory').length,
         });
     };
@@ -177,6 +178,7 @@ export default function History() {
         { title: 'Matrices de Riesgo', icon: <TriangleAlert size={24} />, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', path: '/risk-matrix-history', countKey: 'matrices', view: 'matrices' },
         { title: 'Permisos de Trabajo', icon: <KeySquare size={24} />, color: '#2563eb', bg: 'rgba(37,99,235,0.1)', path: '/work-permit-history', countKey: 'workPermits' },
         { title: 'Simulacros', icon: <Siren size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/drills-history', countKey: 'drills' },
+        { title: 'Tarjetas STOP', icon: <TriangleAlert size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/stop-cards-history', countKey: 'stopCards' },
     ];
 
     // ─── HUB ──────────────────────────────────────────────────────
@@ -184,11 +186,23 @@ export default function History() {
         return (
             <div className="container page-transition" style={{ paddingBottom: '3rem' }}>
                 {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                    <button onClick={() => navigate('/')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer' }}>
-                        <ArrowLeft />
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <button onClick={() => navigate('/')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                            <ArrowLeft />
+                        </button>
+                        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Historiales</h1>
+                    </div>
+                    <button
+                        onClick={async () => {
+                            const { exportAllDataToExcel } = await import('../services/exportCsv');
+                            exportAllDataToExcel();
+                        }}
+                        className="btn-primary"
+                        style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.6rem 1.2rem', width: 'auto', margin: 0 }}
+                    >
+                        <FileText size={18} /> Exportar Toda mi Gestión
                     </button>
-                    <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Historiales</h1>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: '0.9rem' }}>

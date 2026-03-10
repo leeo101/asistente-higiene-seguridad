@@ -23,7 +23,7 @@ export default function Sidebar({ isOpen, onClose }) {
     const navigate = useNavigate();
     const location = useLocation();
     const { currentUser, logout } = useAuth();
-    const { isPro } = usePaywall();
+    const { isPro, daysRemaining } = usePaywall();
     const [userInfo, setUserInfo] = React.useState({
         name: currentUser?.displayName || currentUser?.email || 'Usuario',
         photo: null,
@@ -195,6 +195,11 @@ export default function Sidebar({ isOpen, onClose }) {
                             {currentUser ? (
                                 <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)', marginTop: '0.1rem' }}>
                                     {userInfo.profession || 'Profesional H&S'}
+                                    {isPro() && (
+                                        <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.7)', marginTop: '0.4rem', background: 'rgba(255,255,255,0.1)', padding: '2px 8px', borderRadius: '10px', width: 'fit-content', fontWeight: 700 }}>
+                                            Días PRO restantes: {daysRemaining()}
+                                        </div>
+                                    )}
                                 </div>
                             ) : (
                                 <Link to="/login" onClick={onClose} style={{ fontSize: '0.78rem', color: 'var(--color-primary)', textDecoration: 'none', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
