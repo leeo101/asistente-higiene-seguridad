@@ -42,6 +42,7 @@ export default function AccidentPdfGenerator({ report, onBack }) {
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
                 {/* A4 Paper simulation container */}
                 <div
+                    id="pdf-content"
                     className="pdf-container card print-area"
                     ref={componentRef}
                     style={{

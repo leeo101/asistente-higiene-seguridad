@@ -48,6 +48,7 @@ export default function AIReport() {
                 onClose={() => setShowShare(false)}
                 title={`Informe IA – ${company}`}
                 text={`🤖 INFORME DE INSPECCIÓN IA\n\n🏗️ Empresa: ${company}\n📍 Ubicación: ${location}\n📅 Fecha: ${data ? new Date(data.date).toLocaleString() : ''}\n⚠️ Estado: ${data?.analysis?.ppeComplete ? '✅ EPP Completo' : '⚠️ Falta EPP / Peligro'}\n\nGenerado con Asistente HYS`}
+                elementIdToPrint="pdf-content"
             />
             <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                 <button onClick={() => navigate('/ai-camera')} style={{ background: 'transparent', border: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--color-text)' }}>
@@ -55,7 +56,7 @@ export default function AIReport() {
                 </button>
             </div>
 
-            <div className="card report-print print:p-0 print:m-0 print:border-none print:shadow-none print:min-h-0" style={{
+            <div id="pdf-content" className="card report-print print:p-0 print:m-0 print:border-none print:shadow-none print:min-h-0" style={{
                 padding: '3rem',
                 minHeight: '29.7cm',
                 height: 'auto',

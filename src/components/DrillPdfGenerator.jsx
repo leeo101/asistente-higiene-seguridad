@@ -31,6 +31,7 @@ export default function DrillPdfGenerator({ report, onBack }) {
             {/* Printable Document Area */}
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
                 <div
+                    id="pdf-content"
                     className="pdf-container card print-area"
                     ref={componentRef}
                     style={{

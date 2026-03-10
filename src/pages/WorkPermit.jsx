@@ -185,6 +185,7 @@ export default function WorkPermit() {
                 onClose={() => setShowShare(false)}
                 title={`Permiso de Trabajo – ${formData.empresa}`}
                 text={`📄 Permiso de Trabajo: ${selectedTypeLabel}\n🏗️ Empresa: ${formData.empresa}\n📅 Fecha: ${formData.fecha}\n⏰ Validez: ${formData.validezDesde} a ${formData.validezHasta}\n\nGenerado con Asistente HYS`}
+                elementIdToPrint="pdf-content"
             />
 
             {/* Action Bar */}
@@ -223,7 +224,7 @@ export default function WorkPermit() {
             </div>
 
             {/* Print Area */}
-            <div className="bg-white text-black p-6 sm:p-10 shadow-xl mx-auto print-area border border-slate-200 rounded-2xl print:shadow-none print:border-none" style={{ width: '100%', boxSizing: 'border-box' }}>
+            <div id="pdf-content" className="bg-white text-black p-6 sm:p-10 shadow-xl mx-auto print-area border border-slate-200 rounded-2xl print:shadow-none print:border-none" style={{ width: '100%', boxSizing: 'border-box' }}>
 
                 {/* Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '3px solid #333', paddingBottom: '1rem', marginBottom: '2rem' }}>

@@ -298,6 +298,7 @@ export default function ATS() {
                     onClose={() => setShowShare(false)}
                     title={`ATS – ${formData.empresa}`}
                     text={`📋 Análisis de Trabajo Seguro\n🏗️ Empresa: ${formData.empresa}\n🚧 Obra: ${formData.obra}\n📅 Fecha: ${formData.fecha}\n👷 Responsable: ${formData.capatazNombre}\n\nGenerado con Asistente HYS`}
+                    elementIdToPrint="pdf-content"
                 />
 
                 {/* Floating Action Buttons */}
@@ -352,7 +353,7 @@ export default function ATS() {
                     </div>
                 </div>
 
-                <div className="card print-area" style={{ width: '100%', maxWidth: '950px', boxSizing: 'border-box', padding: '1rem', smPadding: '3rem', margin: '0 auto' }}>
+                <div id="pdf-content" className="card print-area" style={{ width: '100%', maxWidth: '950px', boxSizing: 'border-box', padding: '1rem', smPadding: '3rem', margin: '0 auto' }}>
 
                     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottom: '4px solid var(--color-border)', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
                         {/* Top Left Text */}

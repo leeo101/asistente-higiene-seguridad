@@ -120,6 +120,7 @@ export default function TrainingManagement() {
                     onClose={() => setShowShareModal(false)}
                     title="Compartir Capacitación"
                     text={`📊 Registro de Capacitación: ${formData.tema}\n📅 Fecha: ${formData.fecha}\n👥 Asistentes: ${formData.asistentes.length}\n\nEnviado desde Asistente HYS`}
+                    elementIdToPrint="pdf-content"
                 />
 
                 {/* Floating Action Bar Premium */}

@@ -46,6 +46,7 @@ export default function ErgonomicsReport() {
                 onClose={() => setShowShare(false)}
                 title={`Protocolo Ergonómico – ${data.empresa}`}
                 text={`📋 Protocolo de Ergonomía\n🏗️ Empresa: ${data.empresa}\n🪑 Puesto: ${data.puesto}\n📍 Sector: ${data.sector}\n⚠️ Nivel de Riesgo: ${data.riesgo || 'N/A'}\n\nGenerado con Asistente H&S`}
+                elementIdToPrint="pdf-content"
             />
             <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', marginTop: '1rem' }}>
                 <button
@@ -56,7 +57,7 @@ export default function ErgonomicsReport() {
                 </button>
             </div>
 
-            <div className="report-print print:p-0 print:m-0 print:border-none print:shadow-none print:min-h-0" style={{
+            <div id="pdf-content" className="report-print print:p-0 print:m-0 print:border-none print:shadow-none print:min-h-0" style={{
                 background: 'white',
                 color: '#1a1a1a',
                 padding: '40px',

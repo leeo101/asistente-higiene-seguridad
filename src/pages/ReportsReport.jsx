@@ -42,6 +42,7 @@ export default function ReportsReport() {
                 onClose={() => setShowShare(false)}
                 title={`Checklist – ${report.company || ''}`}
                 text={`📋 Checklist de Inspección\n🏗️ Empresa: ${report.company}\n📍 Ubicación: ${report.location || '-'}\n📅 Fecha: ${new Date(report.date).toLocaleDateString()}\n\nGenerado con Asistente H&S`}
+                elementIdToPrint="pdf-content"
             />
             {/* Control Panel - Absolute Print Hide */}
             <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
@@ -50,7 +51,7 @@ export default function ReportsReport() {
                 </button>
             </div>
 
-            <div className="card report-print" style={{
+            <div id="pdf-content" className="card report-print" style={{
                 padding: '3rem',
                 minHeight: '29.7cm',
                 height: 'auto',

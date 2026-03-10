@@ -134,6 +134,7 @@ export default function ThermalStress() {
                 onClose={() => setShowShareModal(false)}
                 title="Compartir Informe de Estrés Térmico"
                 text={`🌡️ Evaluación de Estrés Térmico (TGBH)\n📍 Puesto: ${formData.puesto}\n📊 Índice: ${resultados.tgbh}°C (Límite: ${resultados.limite}°C)\n✅ Dictamen: ${resultados.admisible ? 'ADMISIBLE' : 'RIESGO'}\n\nEnviado desde Asistente HYS`}
+                elementIdToPrint="pdf-content"
             />
 
             {/* Floating Action Bar Premium */}

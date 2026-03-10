@@ -147,6 +147,7 @@ export default function Drills() {
                     onClose={() => setShowShareModal(false)}
                     title="Compartir Acta de Simulacro"
                     text={`🔔 Acta de Simulacro de Evacuación\n🏢 Empresa: ${formData.empresa}\n📅 Fecha: ${formData.fecha}\n⏱️ Tiempo: ${formData.manualMinutes}:${formData.manualSeconds}\n\nEnviado desde Asistente HYS`}
+                    elementIdToPrint="pdf-content"
                 />
 
                 {/* Floating Action Bar Premium */}

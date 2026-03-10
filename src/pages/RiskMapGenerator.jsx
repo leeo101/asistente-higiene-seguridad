@@ -429,7 +429,8 @@ export default function RiskMapGenerator() {
         <div className="container" style={{ paddingBottom: '5rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <ShareModal open={showShareModal} onClose={() => setShowShareModal(false)}
                 title="Compartir Mapa de Riesgos"
-                text={`🗺️ Mapa: ${meta.empresa}\n📍 Sector: ${meta.sector}\n⚠️ Elementos: ${elements.length}\n\nAsistente HYS`} />
+                text={`🗺️ Mapa: ${meta.empresa}\n📍 Sector: ${meta.sector}\n⚠️ Elementos: ${elements.length}\n\nAsistente HYS`}
+                elementIdToPrint="pdf-content" />
 
             {/* Clear Canvas Confirm Modal */}
             {showClearConfirm && (
@@ -845,11 +846,10 @@ export default function RiskMapGenerator() {
                 </div>
             </div>
 
-            {/* PRO upgrade banner for free users */}
             <AdBanner />
 
             <div className="print-only">
-                <RiskMapPdfGenerator mapData={{ ...meta, elements, backgroundImage }} onBack={() => { }} />
+                <RiskMapPdfGenerator mapData={{ ...meta, elements, backgroundImage }} onBack={() => { }} onShare={() => setShowShare(true)} />
             </div>
         </div>
     );

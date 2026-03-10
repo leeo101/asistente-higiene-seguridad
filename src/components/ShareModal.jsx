@@ -1,70 +1,37 @@
 import React, { useState } from 'react';
-import { X, Copy, Check } from 'lucide-react';
+import { X, Copy, Check, FileDown, Share2, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { generatePdfBlob } from '../utils/pdfHelper';
 
 /**
- * ShareModal – redes sociales y portapapeles.
+ * ShareModal – redes sociales, portapapeles y [NUEVO] Compartir PDF Nativo.
  *
  * Props:
- *   open    {boolean}  – mostrar/ocultar
- *   onClose {function} – callback para cerrar
- *   title   {string}   – título del documento (Ej: "Checklist – Edificio Central")
- *   text    {string}   – texto a compartir (resumen del reporte)
+ *   open             {boolean}  – mostrar/ocultar
+ *   onClose          {function} – callback para cerrar
+ *   title            {string}   – título del documento
+ *   text             {string}   – texto a compartir (resumen del reporte)
+ *   elementIdToPrint {string}   - ID del div que contiene el reporte a convertir en PDF
  */
-export default function ShareModal({ open, onClose, title = '', text = '' }) {
+export default function ShareModal({ open, onClose, title = '', text = '', elementIdToPrint = null }) {
     const [copied, setCopied] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
     if (!open) return null;
 
     const appUrl = 'https://asistentehs.com';
-    const inviteMessage = encodeURIComponent(
-        `👷 ¡Mirá este reporte de ${title}!\n\n${text}\n\n---\n📱 Generado con *Asistente HYS* — La plataforma gratuita de Higiene y Seguridad con IA para Argentina.\n🔗 Probala vos también: ${appUrl}`
-    );
+    const rawMessage = `👷 ¡Mirá este reporte de ${title}!\n\n${text}\n\n---\n📱 Generado con *Asistente HYS* — La plataforma gratuita de Higiene y Seguridad con IA para Argentina.\n🔗 Probala vos también: ${appUrl}`;
+    const inviteMessage = encodeURIComponent(rawMessage);
     const encoded = encodeURIComponent(text);
     const subject = encodeURIComponent(title);
     const url = encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '');
 
     const options = [
-        {
-            label: 'WhatsApp',
-            icon: '📱',
-            color: '#25D366',
-            bg: '#dcfce7',
-            url: `https://wa.me/?text=${inviteMessage}`,
-        },
-        {
-            label: 'LinkedIn',
-            icon: '🔗',
-            color: '#0077b5',
-            bg: '#e0f2fe',
-            url: `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
-        },
-        {
-            label: 'Facebook',
-            icon: '👥',
-            color: '#1877f2',
-            bg: '#e7f3ff',
-            url: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
-        },
-        {
-            label: 'Telegram',
-            icon: '✈️',
-            color: '#229ED9',
-            bg: '#e0f2fe',
-            url: `https://t.me/share/url?url=${url}&text=${inviteMessage}`,
-        },
-        {
-            label: 'Twitter / X',
-            icon: '𝕏',
-            color: 'var(--color-text)',
-            bg: 'var(--color-background)',
-            url: `https://twitter.com/intent/tweet?text=${inviteMessage}`,
-        },
-        {
-            label: 'Email',
-            icon: '📧',
-            color: '#6366f1',
-            bg: '#eef2ff',
-            url: `mailto:?subject=${subject}&body=${inviteMessage}`,
-        },
+        { label: 'WhatsApp', icon: '📱', color: '#25D366', bg: '#dcfce7', url: `https://wa.me/?text=${inviteMessage}` },
+        { label: 'LinkedIn', icon: '🔗', color: '#0077b5', bg: '#e0f2fe', url: `https://www.linkedin.com/sharing/share-offsite/?url=${url}` },
+        { label: 'Facebook', icon: '👥', color: '#1877f2', bg: '#e7f3ff', url: `https://www.facebook.com/sharer/sharer.php?u=${url}` },
+        { label: 'Telegram', icon: '✈️', color: '#229ED9', bg: '#e0f2fe', url: `https://t.me/share/url?url=${url}&text=${inviteMessage}` },
+        { label: 'Twitter / X', icon: '𝕏', color: 'var(--color-text)', bg: 'var(--color-background)', url: `https://twitter.com/intent/tweet?text=${inviteMessage}` },
+        { label: 'Email', icon: '📧', color: '#6366f1', bg: '#eef2ff', url: `mailto:?subject=${subject}&body=${inviteMessage}` },
     ];
 
     const handleCopy = async () => {
@@ -75,11 +42,56 @@ export default function ShareModal({ open, onClose, title = '', text = '' }) {
         } catch { /* fallback silencioso */ }
     };
 
+    const handleNativeShare = async () => {
+        if (!elementIdToPrint) {
+            toast.error("No se ha especificado el contenido a imprimir.");
+            return;
+        }
+
+        setIsGenerating(true);
+        const toastId = toast.loading('Generando documento PDF...', { id: 'pdf-gen' });
+
+        try {
+            // Generate the PDF
+            const pdfBlob = await generatePdfBlob(elementIdToPrint);
+            const fileName = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'reporte'}.pdf`;
+
+            // Test if native sharing with files is supported
+            if (navigator.canShare && navigator.canShare({ files: [new File([pdfBlob], fileName, { type: 'application/pdf' })] })) {
+                const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
+                toast.success('Abriendo opciones de compartir...', { id: toastId });
+                await navigator.share({
+                    title: title,
+                    text: rawMessage,
+                    files: [file]
+                });
+            } else {
+                // Fallback: Download the file automatically if sharing is not supported (usually Desktop)
+                toast.success('Descargando archivo PDF...', { id: toastId });
+                const url = window.URL.createObjectURL(pdfBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+                toast.success('¡PDF descargado! Puedes adjuntarlo manualmente.', { id: 'pdf-gen-done' });
+            }
+        } catch (error) {
+            console.error("Error generating PDF:", error);
+            toast.error('Hubo un error al generar el PDF.', { id: toastId });
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
     return (
         <div
             style={{
                 position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
-                zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center',
                 backdropFilter: 'blur(4px)'
             }}
             onClick={onClose}
@@ -88,9 +100,10 @@ export default function ShareModal({ open, onClose, title = '', text = '' }) {
                 style={{
                     background: 'var(--color-surface)', borderRadius: '24px', padding: '2rem',
                     maxWidth: '420px', width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
-                    position: 'relative'
+                    position: 'relative', maxHeight: '90vh', overflowY: 'auto'
                 }}
                 onClick={e => e.stopPropagation()}
+                className="hide-scrollbar"
             >
                 {/* Close button */}
                 <button
@@ -106,11 +119,45 @@ export default function ShareModal({ open, onClose, title = '', text = '' }) {
                 </button>
 
                 <h2 style={{ margin: '0 0 0.3rem', fontSize: '1.2rem', fontWeight: 900 }}>
-                    Compartir
+                    Compartir Reporte
                 </h2>
-                <p style={{ margin: '0 0 1.5rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', wordBreak: 'break-word' }}>
+                <p style={{ margin: '0 0 1.5rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', wordBreak: 'break-word', paddingRight: '1rem' }}>
                     {title}
                 </p>
+
+                {/* NATIVE PDF SHARING BUTTON */}
+                {elementIdToPrint && (
+                    <div style={{ marginBottom: '1.5rem' }}>
+                        <button
+                            onClick={handleNativeShare}
+                            disabled={isGenerating}
+                            style={{
+                                width: '100%', padding: '1rem',
+                                background: 'linear-gradient(135deg, #2563eb, #4f46e5)',
+                                color: 'white', borderRadius: '16px', border: 'none',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.8rem',
+                                fontWeight: 800, fontSize: '1rem', cursor: isGenerating ? 'wait' : 'pointer',
+                                boxShadow: '0 4px 15px rgba(37, 99, 235, 0.3)',
+                                opacity: isGenerating ? 0.8 : 1, transition: 'transform 0.15s'
+                            }}
+                            onMouseEnter={e => { if (!isGenerating) e.currentTarget.style.transform = 'scale(1.02)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+                        >
+                            {isGenerating ? <Loader2 size={22} className="animate-spin" /> : <FileDown size={22} />}
+                            {isGenerating ? 'GENERANDO PDF...' : 'ENVIAR PDF DIRECTAMENTE'}
+                        </button>
+                        <p style={{ margin: '0.5rem 0 0', fontSize: '0.7rem', color: 'var(--color-text-muted)', textAlign: 'center' }}>
+                            Genera un archivo PDF real y lo adjunta a WhatsApp o Correo. (Requiere celular).
+                        </p>
+                    </div>
+                )}
+
+
+                <div style={{ borderTop: '1px solid var(--color-border)', margin: '1.5rem 0', position: 'relative' }}>
+                    <span style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', background: 'var(--color-surface)', padding: '0 10px', fontSize: '0.7rem', fontWeight: 800, color: 'var(--color-text-muted)' }}>O OTRAS OPCIONES</span>
+                </div>
+
+                <p style={{ margin: '0 0 0.8rem', fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text)' }}>Solo Link / Redes Sociales:</p>
 
                 {/* Social buttons grid */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginBottom: '1.2rem' }}>
@@ -122,16 +169,16 @@ export default function ShareModal({ open, onClose, title = '', text = '' }) {
                             rel="noreferrer"
                             style={{
                                 display: 'flex', alignItems: 'center', gap: '0.7rem',
-                                padding: '0.9rem 1rem', background: opt.bg,
-                                borderRadius: '14px', border: `1.5px solid ${opt.color}30`,
+                                padding: '0.7rem 1rem', background: opt.bg,
+                                borderRadius: '12px', border: `1px solid ${opt.color}30`,
                                 textDecoration: 'none', color: opt.color,
-                                fontWeight: 800, fontSize: '0.85rem',
+                                fontWeight: 800, fontSize: '0.8rem',
                                 transition: 'transform 0.15s'
                             }}
                             onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.03)'; }}
                             onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
                         >
-                            <span style={{ fontSize: '1.2rem' }}>{opt.icon}</span>
+                            <span style={{ fontSize: '1.1rem' }}>{opt.icon}</span>
                             {opt.label}
                         </a>
                     ))}
@@ -141,21 +188,22 @@ export default function ShareModal({ open, onClose, title = '', text = '' }) {
                 <button
                     onClick={handleCopy}
                     style={{
-                        width: '100%', padding: '0.9rem',
+                        width: '100%', padding: '0.8rem',
                         background: copied ? '#dcfce7' : 'var(--color-background)',
-                        border: `1.5px solid ${copied ? '#86efac' : '#e2e8f0'}`,
-                        borderRadius: '14px', cursor: 'pointer',
+                        border: `1.5px solid ${copied ? '#86efac' : 'var(--color-border)'}`,
+                        borderRadius: '12px', cursor: 'pointer',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        gap: '0.6rem', fontWeight: 800, fontSize: '0.85rem',
+                        gap: '0.6rem', fontWeight: 800, fontSize: '0.8rem',
                         color: copied ? '#16a34a' : 'var(--color-text-muted)', transition: 'all 0.2s'
                     }}
                 >
                     {copied
                         ? <><Check size={16} /> ¡Copiado al portapapeles!</>
-                        : <><Copy size={16} /> Copiar texto del reporte</>
+                        : <><Copy size={16} /> Copiar texto de resumen</>
                     }
                 </button>
             </div>
         </div>
     );
 }
+

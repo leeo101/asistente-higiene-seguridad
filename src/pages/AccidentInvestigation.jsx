@@ -151,6 +151,7 @@ export default function AccidentInvestigation() {
                     onClose={() => setShowShare(false)}
                     title={`Investigación de Accidente - ${formData.victimaNombre}`}
                     text={`⚠️ Informe de Investigación de Accidente\n👤 Accidentado: ${formData.victimaNombre}\n🏢 Empresa: ${formData.empresa}\n📅 Fecha: ${formData.fecha}\n⚠️ Gravedad: ${formData.gravedad}\n\nGenerado con Asistente HYS`}
+                    elementIdToPrint="pdf-content"
                 />
 
                 {/* Floating Action Buttons */}

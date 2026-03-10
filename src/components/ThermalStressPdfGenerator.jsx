@@ -32,6 +32,7 @@ export default function ThermalStressPdfGenerator({ report, onBack }) {
     return (
         <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
             <div
+                id="pdf-content"
                 className="pdf-container card print-area"
                 ref={componentRef}
                 style={{

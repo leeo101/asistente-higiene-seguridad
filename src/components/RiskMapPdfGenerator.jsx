@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { ArrowLeft, Printer, Map as MapIcon } from 'lucide-react';
 import { SAFETY_ICONS } from '../data/mapIcons';
 
-export default function RiskMapPdfGenerator({ mapData, onBack }) {
+export default function RiskMapPdfGenerator({ mapData, onBack, onShare }) {
     const componentRef = useRef();
 
     const safeEmpresa = (mapData?.empresa || 'Empresa').replace(/\s+/g, '_');
@@ -60,14 +60,20 @@ export default function RiskMapPdfGenerator({ mapData, onBack }) {
                     </button>
                     <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Previsualización del Mapa de Riesgos</h1>
                 </div>
-                <button onClick={handlePrint} className="btn-primary" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Printer size={18} /> Imprimir / Exportar A4
-                </button>
+                <div style={{ display: 'flex', gap: '0.8rem' }}>
+                    <button onClick={onShare} className="btn-secondary" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        Compartir PDF
+                    </button>
+                    <button onClick={handlePrint} className="btn-primary" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Printer size={18} /> Imprimir / Exportar A4
+                    </button>
+                </div>
             </div>
 
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
                 {/* A4 Landscape Print Area */}
                 <div
+                    id="pdf-content"
                     className="pdf-container card print-area"
                     ref={componentRef}
                     style={{

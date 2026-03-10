@@ -263,302 +263,304 @@ export default function LightingReport() {
                     onClose={() => setShowShare(false)}
                     title={`Estudio de Iluminación - ${formData.empresa}`}
                     text={`🔦 Estudio de Iluminación\n🏢 Empresa: ${formData.empresa}\n📍 Sector: ${formData.sector}\n💡 Requerido: ${formData.luxRequerido} Lux | Promedio Medido: ${results.promedioLux} Lux\n\nGenerado con Asistente HYS`}
+                    elementIdToPrint="pdf-content"
                 />
             )}
 
             {/* ENCABEZADO PARA IMPRESIÓN */}
-            <div className="report-header">
-                <div>
-                    <h1>INFORME DE ILUMINACIÓN</h1>
-                    <p>PROTOCOLO DE MEDICIÓN PUESTO POR PUESTO</p>
-                    <p style={{ marginTop: '5px', fontWeight: 'bold' }}>Referencia: Dec. 351/79 (Ley 19.587)</p>
+            <div id="pdf-content" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div className="report-header">
+                    <div>
+                        <h1>INFORME DE ILUMINACIÓN</h1>
+                        <p>PROTOCOLO DE MEDICIÓN PUESTO POR PUESTO</p>
+                        <p style={{ marginTop: '5px', fontWeight: 'bold' }}>Referencia: Dec. 351/79 (Ley 19.587)</p>
+                    </div>
+                    {professional?.name !== 'Profesional' ? (
+                        <div style={{ textAlign: 'right' }}>
+                            <h2 style={{ fontSize: '1.2rem', margin: '0 0 5px 0' }}>{professional.name}</h2>
+                            {professional.license && <p style={{ margin: 0 }}>MP/Reg: {professional.license}</p>}
+                            <p style={{ margin: 0 }}>Gestión de Riesgos Laborales</p>
+                        </div>
+                    ) : (
+                        <div style={{ opacity: 0.5, fontSize: '0.9rem', textAlign: 'right' }}>
+                            <p>Perfil Profesional Incompleto</p>
+                            <p style={{ fontSize: '0.8rem' }}>Actualice sus datos en Configuración</p>
+                        </div>
+                    )}
                 </div>
-                {professional?.name !== 'Profesional' ? (
-                    <div style={{ textAlign: 'right' }}>
-                        <h2 style={{ fontSize: '1.2rem', margin: '0 0 5px 0' }}>{professional.name}</h2>
-                        {professional.license && <p style={{ margin: 0 }}>MP/Reg: {professional.license}</p>}
-                        <p style={{ margin: 0 }}>Gestión de Riesgos Laborales</p>
-                    </div>
-                ) : (
-                    <div style={{ opacity: 0.5, fontSize: '0.9rem', textAlign: 'right' }}>
-                        <p>Perfil Profesional Incompleto</p>
-                        <p style={{ fontSize: '0.8rem' }}>Actualice sus datos en Configuración</p>
-                    </div>
-                )}
-            </div>
 
-            <div className="grid md:grid-cols-2 gap-8 print-block">
-                {/* COLUMNA 1: DATOS GENERALES */}
-                <div>
-                    <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', color: 'var(--color-primary)', borderBottom: '2px solid var(--color-border)', paddingBottom: '0.5rem' }}>
-                        <Building2 size={20} /> Datos del Establecimiento
-                    </h3>
+                <div className="grid md:grid-cols-2 gap-8 print-block">
+                    {/* COLUMNA 1: DATOS GENERALES */}
+                    <div>
+                        <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', color: 'var(--color-primary)', borderBottom: '2px solid var(--color-border)', paddingBottom: '0.5rem' }}>
+                            <Building2 size={20} /> Datos del Establecimiento
+                        </h3>
 
-                    <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
-                        <div style={{ marginBottom: '1rem' }}>
-                            <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600 }}>Razón Social / Obra</label>
-                            <input
-                                type="text"
-                                value={formData.empresa}
-                                onChange={(e) => handleDataChange('empresa', e.target.value)}
-                                className="form-input no-print"
-                                placeholder="Nombre de la empresa..."
-                            />
-                            <div className="print-only" style={{ padding: '0.6rem', borderBottom: '1px solid #eee', fontSize: '1rem', color: '#000' }}>{formData.empresa || '-'}</div>
-                        </div>
-                        <div style={{ marginBottom: '1rem' }}>
-                            <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600 }}>Sector / Área de Estudio</label>
-                            <input
-                                type="text"
-                                value={formData.sector}
-                                onChange={(e) => handleDataChange('sector', e.target.value)}
-                                className="form-input no-print"
-                                placeholder="Ej: Nave Industrial, Administración..."
-                            />
-                            <div className="print-only" style={{ padding: '0.6rem', borderBottom: '1px solid #eee', fontSize: '1rem', color: '#000' }}>{formData.sector || '-'}</div>
-                        </div>
-                        <div>
-                            <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600 }}>Descripción de las Tareas</label>
-                            <input
-                                type="text"
-                                value={formData.descripcionActividad}
-                                onChange={(e) => handleDataChange('descripcionActividad', e.target.value)}
-                                className="form-input no-print"
-                                placeholder="Ej: Trabajo en escritorio, torno mecánico..."
-                            />
-                            <div className="print-only" style={{ padding: '0.6rem', borderBottom: '1px solid #eee', fontSize: '1rem', color: '#000' }}>{formData.descripcionActividad || '-'}</div>
-                        </div>
-                    </div>
-
-                    <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', color: 'var(--color-primary)', borderBottom: '2px solid var(--color-border)', paddingBottom: '0.5rem', marginTop: '2rem' }}>
-                        <Layout size={20} /> Requerimiento Legal
-                    </h3>
-
-                    <div className="card" style={{ padding: '1.5rem' }}>
-                        <div style={{ marginBottom: '1.5rem' }}>
-                            <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600 }}>Tipo de Tarea Visual (Dec 351/79 o Especial)</label>
-                            <input
-                                list="visualTasksList"
-                                value={formData.tipoTarea}
-                                onChange={(e) => handleDataChange('tipoTarea', e.target.value)}
-                                className="form-input no-print"
-                                style={{ width: '100%' }}
-                                placeholder="Seleccione o escriba el tipo de tarea..."
-                            />
-                            <div className="print-only" style={{ padding: '0.6rem', borderBottom: '1px solid #eee', fontSize: '1rem', color: '#000', fontWeight: 'bold' }}>{formData.tipoTarea || '-'}</div>
-                            <datalist id="visualTasksList">
-                                {visualTasks.map((t) => (
-                                    <option key={t.id} value={t.label} />
-                                ))}
-                            </datalist>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-                            <Sun size={32} color="var(--color-primary)" />
-                            <div>
-                                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase', marginBottom: '0.3rem' }}>Iluminación Mínima Exigida (Lux)</p>
+                        <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
+                            <div style={{ marginBottom: '1rem' }}>
+                                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600 }}>Razón Social / Obra</label>
                                 <input
-                                    type="number"
-                                    value={formData.luxRequerido}
-                                    onChange={(e) => handleDataChange('luxRequerido', e.target.value === '' ? '' : Number(e.target.value))}
-                                    className="form-input"
-                                    style={{ width: '120px', fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-primary)', padding: '0.2rem 0.5rem', background: 'transparent' }}
-                                    min="0"
+                                    type="text"
+                                    value={formData.empresa}
+                                    onChange={(e) => handleDataChange('empresa', e.target.value)}
+                                    className="form-input no-print"
+                                    placeholder="Nombre de la empresa..."
                                 />
+                                <div className="print-only" style={{ padding: '0.6rem', borderBottom: '1px solid #eee', fontSize: '1rem', color: '#000' }}>{formData.empresa || '-'}</div>
+                            </div>
+                            <div style={{ marginBottom: '1rem' }}>
+                                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600 }}>Sector / Área de Estudio</label>
+                                <input
+                                    type="text"
+                                    value={formData.sector}
+                                    onChange={(e) => handleDataChange('sector', e.target.value)}
+                                    className="form-input no-print"
+                                    placeholder="Ej: Nave Industrial, Administración..."
+                                />
+                                <div className="print-only" style={{ padding: '0.6rem', borderBottom: '1px solid #eee', fontSize: '1rem', color: '#000' }}>{formData.sector || '-'}</div>
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600 }}>Descripción de las Tareas</label>
+                                <input
+                                    type="text"
+                                    value={formData.descripcionActividad}
+                                    onChange={(e) => handleDataChange('descripcionActividad', e.target.value)}
+                                    className="form-input no-print"
+                                    placeholder="Ej: Trabajo en escritorio, torno mecánico..."
+                                />
+                                <div className="print-only" style={{ padding: '0.6rem', borderBottom: '1px solid #eee', fontSize: '1rem', color: '#000' }}>{formData.descripcionActividad || '-'}</div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                {/* COLUMNA 2: MEDICIONES Y RESULTADOS */}
-                <div>
-                    <h3 style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', color: 'var(--color-primary)', borderBottom: '2px solid var(--color-border)', paddingBottom: '0.5rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <Lightbulb size={20} /> Puntos de Medición
-                        </div>
-                        <button onClick={addMedicion} className="btn-secondary no-print" style={{ margin: 0, padding: '0.4rem 0.8rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                            <Plus size={14} /> Añadir Punto
-                        </button>
-                    </h3>
+                        <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', color: 'var(--color-primary)', borderBottom: '2px solid var(--color-border)', paddingBottom: '0.5rem', marginTop: '2rem' }}>
+                            <Layout size={20} /> Requerimiento Legal
+                        </h3>
 
-                    <div className="card" style={{ padding: '1rem', marginBottom: '1.5rem' }}>
-                        <div style={{ overflowX: 'auto' }}>
-                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', minWidth: '350px' }}>
-                                <thead>
-                                    <tr style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)' }}>
-                                        <th style={{ padding: '0.8rem', textAlign: 'left', borderBottom: '2px solid var(--color-border)' }}>Punto Exacto / Puesto</th>
-                                        <th style={{ padding: '0.8rem', textAlign: 'center', borderBottom: '2px solid var(--color-border)' }}>Lux Medido</th>
-                                        <th style={{ padding: '0.8rem', textAlign: 'center', borderBottom: '2px solid var(--color-border)' }} className="no-print">Acción</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {formData.mediciones.map((med, index) => (
-                                        <tr key={med.id}>
-                                            <td style={{ padding: '0.5rem', borderBottom: '1px solid var(--color-border)' }}>
-                                                <input
-                                                    type="text"
-                                                    value={med.ubicacion}
-                                                    onChange={(e) => updateMedicion(index, 'ubicacion', e.target.value)}
-                                                    style={{ width: '100%', padding: '0.5rem', border: 'none', background: 'transparent' }}
-                                                    placeholder="Puesto X"
-                                                    className="form-input-transparent no-print"
-                                                />
-                                                <div className="print-only" style={{ padding: '0.5rem', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{med.ubicacion}</div>
-                                            </td>
-                                            <td style={{ padding: '0.5rem', borderBottom: '1px solid var(--color-border)', width: '100px' }}>
-                                                <input
-                                                    type="number"
-                                                    value={med.luxMedido}
-                                                    onChange={(e) => updateMedicion(index, 'luxMedido', e.target.value)}
-                                                    style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--color-border)', borderRadius: '4px', textAlign: 'center' }}
-                                                    placeholder="0"
-                                                    min="0"
-                                                    className="no-print"
-                                                />
-                                                <div className="print-only" style={{ textAlign: 'center', fontWeight: 'bold' }}>{med.luxMedido}</div>
-                                            </td>
-                                            <td style={{ padding: '0.5rem', borderBottom: '1px solid var(--color-border)', textAlign: 'center', width: '50px' }} className="no-print">
-                                                <button
-                                                    onClick={() => removeMedicion(index)}
-                                                    style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.4rem', borderRadius: '8px' }}
-                                                    onMouseOver={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
-                                                    onMouseOut={e => e.currentTarget.style.background = 'none'}
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </td>
-                                        </tr>
+                        <div className="card" style={{ padding: '1.5rem' }}>
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600 }}>Tipo de Tarea Visual (Dec 351/79 o Especial)</label>
+                                <input
+                                    list="visualTasksList"
+                                    value={formData.tipoTarea}
+                                    onChange={(e) => handleDataChange('tipoTarea', e.target.value)}
+                                    className="form-input no-print"
+                                    style={{ width: '100%' }}
+                                    placeholder="Seleccione o escriba el tipo de tarea..."
+                                />
+                                <div className="print-only" style={{ padding: '0.6rem', borderBottom: '1px solid #eee', fontSize: '1rem', color: '#000', fontWeight: 'bold' }}>{formData.tipoTarea || '-'}</div>
+                                <datalist id="visualTasksList">
+                                    {visualTasks.map((t) => (
+                                        <option key={t.id} value={t.label} />
                                     ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', color: 'var(--color-primary)', borderBottom: '2px solid var(--color-border)', paddingBottom: '0.5rem' }}>
-                        <Calculator size={20} /> Evaluación Normativa
-                    </h3>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: '1rem' }}>
-                        <div className="card" style={{ padding: '1.5rem', border: results.cumplePromedio ? '2px solid #10b981' : '2px solid #ef4444', background: results.cumplePromedio ? 'rgba(16, 185, 129, 0.05)' : 'rgba(239, 68, 68, 0.05)' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                </datalist>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                                <Sun size={32} color="var(--color-primary)" />
                                 <div>
-                                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Nivel Promedio Registrado</p>
-                                    <p style={{ margin: 0, fontSize: '2rem', fontWeight: 800, color: results.cumplePromedio ? '#10b981' : '#ef4444' }}>{results.promedioLux} Lux</p>
-                                </div>
-                                <div className="result-badge-print" style={{ background: results.cumplePromedio ? '#10b981' : '#ef4444', color: 'white', padding: '0.5rem 1rem', borderRadius: '20px', fontWeight: 800, fontSize: '0.85rem' }}>
-                                    {results.cumplePromedio ? 'CUMPLE' : 'NO CUMPLE'}
+                                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase', marginBottom: '0.3rem' }}>Iluminación Mínima Exigida (Lux)</p>
+                                    <input
+                                        type="number"
+                                        value={formData.luxRequerido}
+                                        onChange={(e) => handleDataChange('luxRequerido', e.target.value === '' ? '' : Number(e.target.value))}
+                                        className="form-input"
+                                        style={{ width: '120px', fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-primary)', padding: '0.2rem 0.5rem', background: 'transparent' }}
+                                        min="0"
+                                    />
                                 </div>
                             </div>
-                            <div style={{ fontSize: '0.85rem' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                                    <span>Requerido s/ Dec 351/79:</span>
-                                    <span style={{ fontWeight: 700 }}>{formData.luxRequerido} Lux</span>
+                        </div>
+                    </div>
+
+                    {/* COLUMNA 2: MEDICIONES Y RESULTADOS */}
+                    <div>
+                        <h3 style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', color: 'var(--color-primary)', borderBottom: '2px solid var(--color-border)', paddingBottom: '0.5rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <Lightbulb size={20} /> Puntos de Medición
+                            </div>
+                            <button onClick={addMedicion} className="btn-secondary no-print" style={{ margin: 0, padding: '0.4rem 0.8rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                <Plus size={14} /> Añadir Punto
+                            </button>
+                        </h3>
+
+                        <div className="card" style={{ padding: '1rem', marginBottom: '1.5rem' }}>
+                            <div style={{ overflowX: 'auto' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', minWidth: '350px' }}>
+                                    <thead>
+                                        <tr style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)' }}>
+                                            <th style={{ padding: '0.8rem', textAlign: 'left', borderBottom: '2px solid var(--color-border)' }}>Punto Exacto / Puesto</th>
+                                            <th style={{ padding: '0.8rem', textAlign: 'center', borderBottom: '2px solid var(--color-border)' }}>Lux Medido</th>
+                                            <th style={{ padding: '0.8rem', textAlign: 'center', borderBottom: '2px solid var(--color-border)' }} className="no-print">Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {formData.mediciones.map((med, index) => (
+                                            <tr key={med.id}>
+                                                <td style={{ padding: '0.5rem', borderBottom: '1px solid var(--color-border)' }}>
+                                                    <input
+                                                        type="text"
+                                                        value={med.ubicacion}
+                                                        onChange={(e) => updateMedicion(index, 'ubicacion', e.target.value)}
+                                                        style={{ width: '100%', padding: '0.5rem', border: 'none', background: 'transparent' }}
+                                                        placeholder="Puesto X"
+                                                        className="form-input-transparent no-print"
+                                                    />
+                                                    <div className="print-only" style={{ padding: '0.5rem', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{med.ubicacion}</div>
+                                                </td>
+                                                <td style={{ padding: '0.5rem', borderBottom: '1px solid var(--color-border)', width: '100px' }}>
+                                                    <input
+                                                        type="number"
+                                                        value={med.luxMedido}
+                                                        onChange={(e) => updateMedicion(index, 'luxMedido', e.target.value)}
+                                                        style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--color-border)', borderRadius: '4px', textAlign: 'center' }}
+                                                        placeholder="0"
+                                                        min="0"
+                                                        className="no-print"
+                                                    />
+                                                    <div className="print-only" style={{ textAlign: 'center', fontWeight: 'bold' }}>{med.luxMedido}</div>
+                                                </td>
+                                                <td style={{ padding: '0.5rem', borderBottom: '1px solid var(--color-border)', textAlign: 'center', width: '50px' }} className="no-print">
+                                                    <button
+                                                        onClick={() => removeMedicion(index)}
+                                                        style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.4rem', borderRadius: '8px' }}
+                                                        onMouseOver={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
+                                                        onMouseOut={e => e.currentTarget.style.background = 'none'}
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', color: 'var(--color-primary)', borderBottom: '2px solid var(--color-border)', paddingBottom: '0.5rem' }}>
+                            <Calculator size={20} /> Evaluación Normativa
+                        </h3>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: '1rem' }}>
+                            <div className="card" style={{ padding: '1.5rem', border: results.cumplePromedio ? '2px solid #10b981' : '2px solid #ef4444', background: results.cumplePromedio ? 'rgba(16, 185, 129, 0.05)' : 'rgba(239, 68, 68, 0.05)' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                    <div>
+                                        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Nivel Promedio Registrado</p>
+                                        <p style={{ margin: 0, fontSize: '2rem', fontWeight: 800, color: results.cumplePromedio ? '#10b981' : '#ef4444' }}>{results.promedioLux} Lux</p>
+                                    </div>
+                                    <div className="result-badge-print" style={{ background: results.cumplePromedio ? '#10b981' : '#ef4444', color: 'white', padding: '0.5rem 1rem', borderRadius: '20px', fontWeight: 800, fontSize: '0.85rem' }}>
+                                        {results.cumplePromedio ? 'CUMPLE' : 'NO CUMPLE'}
+                                    </div>
                                 </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                                    <span>Puntos que Cumplen:</span>
-                                    <span style={{ fontWeight: 700, color: '#10b981' }}>{results.puntosCumplen}</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <span>Puntos Deficientes:</span>
-                                    <span style={{ fontWeight: 700, color: results.puntosNoCumplen > 0 ? '#ef4444' : 'var(--color-text)' }}>{results.puntosNoCumplen}</span>
+                                <div style={{ fontSize: '0.85rem' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                                        <span>Requerido s/ Dec 351/79:</span>
+                                        <span style={{ fontWeight: 700 }}>{formData.luxRequerido} Lux</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                                        <span>Puntos que Cumplen:</span>
+                                        <span style={{ fontWeight: 700, color: '#10b981' }}>{results.puntosCumplen}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <span>Puntos Deficientes:</span>
+                                        <span style={{ fontWeight: 700, color: results.puntosNoCumplen > 0 ? '#ef4444' : 'var(--color-text)' }}>{results.puntosNoCumplen}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {/* SECCIÓN DE CONCLUSIÓN */}
-            <div className="bg-white text-black p-8 shadow-sm border-2 border-slate-200 rounded-2xl print:mb-0 mb-8 mt-10 print-area" style={{ display: 'block', clear: 'both' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                    <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-primary)' }}>
-                        <FileText size={22} /> Conclusión Profesional
+                {/* SECCIÓN DE CONCLUSIÓN */}
+                <div className="bg-white text-black p-8 shadow-sm border-2 border-slate-200 rounded-2xl print:mb-0 mb-8 mt-10 print-area" style={{ display: 'block', clear: 'both' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                        <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-primary)' }}>
+                            <FileText size={22} /> Conclusión Profesional
+                        </h3>
+                        <button
+                            className="no-print"
+                            onClick={handleGenerateConclusion}
+                            disabled={isGeneratingConclusion}
+                            style={{ padding: '0.6rem 1rem', background: 'linear-gradient(135deg, #a855f7, #ec4899)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', cursor: isGeneratingConclusion ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', outline: 'none' }}
+                        >
+                            {isGeneratingConclusion ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                            {isGeneratingConclusion ? 'REDACTANDO...' : 'REDACTAR CON IA'}
+                        </button>
+                    </div>
+
+                    <textarea
+                        value={formData.conclusion || ''}
+                        onChange={(e) => handleDataChange('conclusion', e.target.value)}
+                        className="form-input no-print"
+                        style={{ minHeight: '120px', resize: 'vertical' }}
+                        placeholder="Escriba la conclusión del estudio o use el botón de IA para generarla..."
+                    />
+
+                    {formData.conclusion && (
+                        <div className="print-only text-slate-800 text-[0.85rem] whitespace-pre-wrap leading-relaxed">
+                            {formData.conclusion}
+                        </div>
+                    )}
+                </div>
+
+                {/* SECCIÓN DE DATOS OBTENIDOS POR */}
+                <div className="bg-white text-black p-8 shadow-sm border-2 border-slate-200 rounded-2xl print:mb-0 mb-8 mt-10 print-area" style={{ display: 'block', clear: 'both' }}>
+                    <h3 style={{ marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
+                        <ShieldCheck size={22} color="var(--color-primary)" /> Firmas y Validación
                     </h3>
-                    <button
-                        className="no-print"
-                        onClick={handleGenerateConclusion}
-                        disabled={isGeneratingConclusion}
-                        style={{ padding: '0.6rem 1rem', background: 'linear-gradient(135deg, #a855f7, #ec4899)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', cursor: isGeneratingConclusion ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', outline: 'none' }}
-                    >
-                        {isGeneratingConclusion ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                        {isGeneratingConclusion ? 'REDACTANDO...' : 'REDACTAR CON IA'}
-                    </button>
-                </div>
 
-                <textarea
-                    value={formData.conclusion || ''}
-                    onChange={(e) => handleDataChange('conclusion', e.target.value)}
-                    className="form-input no-print"
-                    style={{ minHeight: '120px', resize: 'vertical' }}
-                    placeholder="Escriba la conclusión del estudio o use el botón de IA para generarla..."
-                />
-
-                {formData.conclusion && (
-                    <div className="print-only text-slate-800 text-[0.85rem] whitespace-pre-wrap leading-relaxed">
-                        {formData.conclusion}
-                    </div>
-                )}
-            </div>
-
-            {/* SECCIÓN DE DATOS OBTENIDOS POR */}
-            <div className="bg-white text-black p-8 shadow-sm border-2 border-slate-200 rounded-2xl print:mb-0 mb-8 mt-10 print-area" style={{ display: 'block', clear: 'both' }}>
-                <h3 style={{ marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
-                    <ShieldCheck size={22} color="var(--color-primary)" /> Firmas y Validación
-                </h3>
-
-                <div className="no-print mb-8 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 justify-between items-center text-xs font-bold text-slate-700">
-                    <div>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                    <div className="flex gap-4">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-4 h-4 accent-orange-600" /> Operador
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-4 h-4 accent-orange-600" /> Supervisor
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-4 h-4 accent-orange-600" /> Profesional
-                        </label>
-                    </div>
-                </div>
-
-                <div className="signature-container-row mt-10">
-                    {showSignatures.operator && (
-                        <div className="signature-item-box">
-                            <div className="signature-line"></div>
-                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
-                            <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words min-h-[0.8rem]">Aclaración y Firma</p>
+                    <div className="no-print mb-8 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 justify-between items-center text-xs font-bold text-slate-700">
+                        <div>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                        <div className="flex gap-4">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-4 h-4 accent-orange-600" /> Operador
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-4 h-4 accent-orange-600" /> Supervisor
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-4 h-4 accent-orange-600" /> Profesional
+                            </label>
                         </div>
-                    )}
+                    </div>
 
-                    {showSignatures.supervisor && (
-                        <div className="signature-item-box">
-                            <div className="signature-line"></div>
-                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR</p>
-                            <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words min-h-[0.8rem]">DNI / ACLARACIÓN</p>
-                        </div>
-                    )}
-
-                    {showSignatures.professional && (
-                        <div className="signature-item-box">
-                            {professional?.signature || professional?.stamp ? (
-                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', height: '60px' }}>
-                                    {professional?.signature && (
-                                        <img src={professional.signature} alt="Firma Profesional" style={{ maxHeight: '100%', maxWidth: '120px', objectFit: 'contain' }} />
-                                    )}
-                                </div>
-                            ) : (
+                    <div className="signature-container-row mt-10">
+                        {showSignatures.operator && (
+                            <div className="signature-item-box">
                                 <div className="signature-line"></div>
-                            )}
-                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL RESPONSABLE</p>
-                            <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words">{professional?.name || 'Firma y Sello'}</p>
-                            {professional?.license && (
-                                <p className="text-[0.65rem] font-bold text-slate-500 mt-1 uppercase">MP: {professional.license}</p>
-                            )}
-                        </div>
-                    )}
-                </div>
-                <PdfBrandingFooter />
-            </div >
+                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
+                                <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words min-h-[0.8rem]">Aclaración y Firma</p>
+                            </div>
+                        )}
 
+                        {showSignatures.supervisor && (
+                            <div className="signature-item-box">
+                                <div className="signature-line"></div>
+                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR</p>
+                                <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words min-h-[0.8rem]">DNI / ACLARACIÓN</p>
+                            </div>
+                        )}
+
+                        {showSignatures.professional && (
+                            <div className="signature-item-box">
+                                {professional?.signature || professional?.stamp ? (
+                                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', height: '60px' }}>
+                                        {professional?.signature && (
+                                            <img src={professional.signature} alt="Firma Profesional" style={{ maxHeight: '100%', maxWidth: '120px', objectFit: 'contain' }} />
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="signature-line"></div>
+                                )}
+                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL RESPONSABLE</p>
+                                <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words">{professional?.name || 'Firma y Sello'}</p>
+                                {professional?.license && (
+                                    <p className="text-[0.65rem] font-bold text-slate-500 mt-1 uppercase">MP: {professional.license}</p>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                    <PdfBrandingFooter />
+                </div >
+            </div>
         </div >
     );
 }

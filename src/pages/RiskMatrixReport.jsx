@@ -134,6 +134,7 @@ export default function RiskMatrixReport() {
                 onClose={() => setShowShare(false)}
                 title={`Matriz de Riesgos – ${matrix.name}`}
                 text={`📋 Matriz de Riesgos\n🏗️ Proyecto: ${matrix.name}\n📍 Ubicación: ${matrix.location || '-'}\n📅 Fecha: ${matrix.date}\n👷 Responsable: ${profile?.name || matrix.responsable}\n\n✅ Riesgos evaluados: ${matrix.rows?.length || 0}\n\nGenerado con Asistente H&S`}
+                elementIdToPrint="pdf-content"
             />
 
             {/* ─── Action Bar (no-print) ─── */}
@@ -150,7 +151,7 @@ export default function RiskMatrixReport() {
             </div>
 
             {/* ─── Printable Report ─── */}
-            <div className="print-area print:mb-0 print:border-none print:shadow-none" style={{ background: '#fff', borderRadius: '20px', padding: '2.5rem', border: '1px solid #e2e8f0', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
+            <div id="pdf-content" className="print-area print:mb-0 print:border-none print:shadow-none" style={{ background: '#fff', borderRadius: '20px', padding: '2.5rem', border: '1px solid #e2e8f0', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
 
                 {/* Report Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '3px solid #6366f1', paddingBottom: '1.5rem', marginBottom: '2rem', gap: '1rem' }}>

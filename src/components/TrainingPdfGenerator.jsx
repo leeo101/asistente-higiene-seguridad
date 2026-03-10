@@ -33,6 +33,7 @@ export default function TrainingPdfGenerator({ training, onBack }) {
             {/* Printable Document Area */}
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center', overflowX: 'auto' }}>
                 <div
+                    id="pdf-content"
                     className="pdf-container card print-area"
                     ref={componentRef}
                     style={{
