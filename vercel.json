@@ -1,6 +1,14 @@
 {
     "rewrites": [
         {
+            "source": "/api/create-subscription",
+            "destination": "/api/subscription-handler.js"
+        },
+        {
+            "source": "/api/mercadopago-webhook",
+            "destination": "/api/subscription-handler.js"
+        },
+        {
             "source": "/((?!api/).*)",
             "destination": "/index.html"
         }
