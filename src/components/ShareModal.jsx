@@ -19,10 +19,14 @@ export default function ShareModal({ open, onClose, title = '', text = '', eleme
     if (!open) return null;
 
     const appUrl = 'https://asistentehs.com';
-    const rawMessage = `👷 ¡Mirá este reporte de ${title}!\n\n${text}\n\n---\n📱 Generado con *Asistente HYS* — La plataforma gratuita de Higiene y Seguridad con IA para Argentina.\n🔗 Probala vos también: ${appUrl}`;
+    // Remove duplicate "Generado con Asistente H&S" from the incoming text, if present.
+    const cleanText = text.replace(/\n*Generado con Asistente H(&|Y)S/gi, '').trim();
+
+    const rawMessage = `📄 *${title}*\n\n${cleanText}\n\n━━━━━━━━━━━━━━━━━━━━━━\n📱 *Generado con Asistente H&S*\nLa plataforma gratuita de Higiene y Seguridad con IA.\n🔗 Conocé más en: ${appUrl}`;
+
     const inviteMessage = encodeURIComponent(rawMessage);
-    const encoded = encodeURIComponent(text);
-    const subject = encodeURIComponent(title);
+    const encoded = encodeURIComponent(cleanText);
+    const subject = encodeURIComponent(`Documento: ${title}`);
     const url = encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '');
 
     const options = [
@@ -36,7 +40,7 @@ export default function ShareModal({ open, onClose, title = '', text = '', eleme
 
     const handleCopy = async () => {
         try {
-            await navigator.clipboard.writeText(text);
+            await navigator.clipboard.writeText(rawMessage);
             setCopied(true);
             setTimeout(() => setCopied(false), 2500);
         } catch { /* fallback silencioso */ }
