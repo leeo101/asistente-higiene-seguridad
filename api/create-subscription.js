@@ -47,6 +47,8 @@ export default async function handler(req, res) {
                     failure: `${baseUrl}/subscribe?status=failed`,
                     pending: `${baseUrl}/subscribe?status=pending`
                 },
+                external_reference: userId,
+                notification_url: 'https://asistente-de-higiene-y-seguridad.vercel.app/api/mercadopago-webhook',
                 auto_return: 'approved',
                 statement_descriptor: 'ASISTENTE HY&S PRO',
                 external_reference: userId || 'guest',

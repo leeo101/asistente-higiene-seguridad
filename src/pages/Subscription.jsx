@@ -4,6 +4,7 @@ import { ShieldCheck, CreditCard, Sparkles, CheckCircle2, Lock, ArrowRight, Arro
 import { API_BASE_URL } from '../config';
 import { usePaywall } from '../hooks/usePaywall';
 import { useAuth } from '../contexts/AuthContext';
+import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
 
 export default function Subscription() {
@@ -187,6 +188,20 @@ export default function Subscription() {
                         </button>
                     )}
 
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="btn-secondary"
+                        style={{
+                            width: '100%',
+                            padding: '1rem',
+                            borderRadius: '12px',
+                            fontWeight: '800',
+                            marginBottom: '0.8rem',
+                            fontSize: '0.95rem'
+                        }}
+                    >
+                        Verificar mi pago
+                    </button>
                     <button
                         onClick={() => {
                             const toastId = toast(
