@@ -1274,6 +1274,15 @@ label {
   }
 }
 
+/* GLOBAL OVERLAY FIXES */
+.share-modal-overlay {
+    z-index: 9999999 !important;
+}
+
+.share-modal-content {
+    box-shadow: 0 0 100px rgba(0,0,0,0.5) !important;
+}
+
 .page-transition {
   animation: pageSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }

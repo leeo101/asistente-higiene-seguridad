@@ -1,65 +1,52 @@
-import React, { useState } from 'react';
-import { X, Copy, Check, FileDown, Share2, Loader2 } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { useState, useEffect } from 'react';
+import { X, MessageCircle, Mail, Copy, Check, Share2, Loader2 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
+import { createPortal } from 'react-dom';
 import { generatePdfBlob } from '../utils/pdfHelper';
 
-/**
- * ShareModal – redes sociales, portapapeles y [NUEVO] Compartir PDF Nativo.
- *
- * Props:
- *   open             {boolean}  – mostrar/ocultar
- *   onClose          {function} – callback para cerrar
- *   title            {string}   – título del documento
- *   text             {string}   – texto a compartir (resumen del reporte)
- *   elementIdToPrint {string}   - ID del div que contiene el reporte a convertir en PDF
- */
-export default function ShareModal({ open, onClose, title = '', text = '', elementIdToPrint = null }) {
+const ShareModal = ({ isOpen, onClose, title, rawMessage, elementIdToPrint }) => {
     const [copied, setCopied] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
-    if (!open) return null;
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 450);
 
-    const appUrl = 'https://asistentehs.com';
-    // Remove duplicate "Generado con Asistente H&S" from the incoming text, if present.
-    const cleanText = text.replace(/\n*Generado con Asistente H(&|Y)S/gi, '').trim();
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 450);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
-    const rawMessage = `📄 *${title}*\n\n${cleanText}\n\n━━━━━━━━━━━━━━━━━━━━━━\n📱 *Generado con Asistente H&S*\nLa plataforma gratuita de Higiene y Seguridad con IA.\n🔗 Conocé más en: ${appUrl}`;
+    // Also close on Escape key
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleEsc = (e) => {
+            if (e.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', handleEsc);
+        return () => window.removeEventListener('keydown', handleEsc);
+    }, [isOpen, onClose]);
 
-    const inviteMessage = encodeURIComponent(rawMessage);
-    const encoded = encodeURIComponent(cleanText);
-    const subject = encodeURIComponent(`Documento: ${title}`);
-    const url = encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '');
+    if (!isOpen) return null;
 
-    const options = [
-        { label: 'WhatsApp', icon: '📱', color: '#25D366', bg: '#dcfce7', url: `https://wa.me/?text=${inviteMessage}`, hijack: true },
-        { label: 'LinkedIn', icon: '🔗', color: '#0077b5', bg: '#e0f2fe', url: `https://www.linkedin.com/sharing/share-offsite/?url=${url}`, hijack: false },
-        { label: 'Facebook', icon: '👥', color: '#1877f2', bg: '#e7f3ff', url: `https://www.facebook.com/sharer/sharer.php?u=${url}`, hijack: false },
-        { label: 'Telegram', icon: '✈️', color: '#229ED9', bg: '#e0f2fe', url: `https://t.me/share/url?url=${url}&text=${inviteMessage}`, hijack: true },
-        { label: 'Twitter / X', icon: '𝕏', color: 'var(--color-text)', bg: 'var(--color-background)', url: `https://twitter.com/intent/tweet?text=${inviteMessage}`, hijack: false },
-        { label: 'Email', icon: '📧', color: '#6366f1', bg: '#eef2ff', url: `mailto:?subject=${subject}&body=${inviteMessage}`, hijack: true },
-    ];
-
-    const handleCopy = async () => {
-        try {
-            await navigator.clipboard.writeText(rawMessage);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2500);
-        } catch { /* fallback silencioso */ }
+    const handleCopy = () => {
+        navigator.clipboard.writeText(rawMessage);
+        setCopied(true);
+        toast.success('Resumen copiado');
+        setTimeout(() => setCopied(false), 2000);
     };
 
-    const handleNativeShare = async () => {
+    const handleNativeShare = async (optLabel) => {
         if (!elementIdToPrint) {
             toast.error("No se ha especificado el contenido a imprimir.");
             return;
         }
 
         setIsGenerating(true);
-        const toastId = toast.loading('Generando documento PDF...', { id: 'pdf-gen' });
+        const toastId = toast.loading(`Preparando PDF para ${optLabel}...`, { id: 'pdf-gen' });
 
         try {
             const pdfBlob = await generatePdfBlob(elementIdToPrint);
             const fileName = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'reporte'}.pdf`;
 
-            // Function to trigger download as a fallback
             const triggerDownload = () => {
                 const url = window.URL.createObjectURL(pdfBlob);
                 const a = document.createElement('a');
@@ -69,12 +56,11 @@ export default function ShareModal({ open, onClose, title = '', text = '', eleme
                 a.click();
                 a.remove();
                 window.URL.revokeObjectURL(url);
-                toast.success('¡PDF descargado! Puedes adjuntarlo manualmente.', { id: 'pdf-gen-done' });
+                toast.success('¡PDF generado! Descargando...', { id: 'pdf-gen' });
             };
 
             if (navigator.canShare && navigator.canShare({ files: [new File([pdfBlob], fileName, { type: 'application/pdf' })] })) {
                 const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
-                toast.success('Abriendo opciones de compartir...', { id: toastId });
                 
                 try {
                     await navigator.share({
@@ -82,128 +68,250 @@ export default function ShareModal({ open, onClose, title = '', text = '', eleme
                         text: rawMessage,
                         files: [file]
                     });
+                    toast.success('¡Compartido con éxito!', { id: 'pdf-gen' });
                 } catch (shareErr) {
-                    // If user cancels or browser fails to share, fallback to download
                     if (shareErr.name === 'AbortError') {
-                        console.log("ShareModal: Share aborted by user or browser, falling back to download.");
                         triggerDownload();
                     } else {
                         throw shareErr;
                     }
                 }
             } else {
-                toast.success('Descargando archivo PDF...', { id: toastId });
                 triggerDownload();
             }
         } catch (error) {
             console.error("Error generating/sharing PDF:", error);
-            toast.error('Hubo un error al procesar el PDF.', { id: toastId });
+            toast.error('Hubo un error al procesar el PDF.', { id: 'pdf-gen' });
         } finally {
             setIsGenerating(false);
         }
     };
 
-    return (
-        <div
-            style={{
-                position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
-                zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                backdropFilter: 'blur(4px)'
-            }}
-            onClick={onClose}
-        >
-            <div
-                style={{
-                    background: 'var(--color-surface)', borderRadius: '24px', padding: '2rem',
-                    maxWidth: '420px', width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
-                    position: 'relative', maxHeight: '90vh', overflowY: 'auto'
-                }}
-                onClick={e => e.stopPropagation()}
-                className="hide-scrollbar"
-            >
-                {/* Close button */}
+    const options = [
+        {
+            label: 'WhatsApp',
+            icon: <MessageCircle size={22} />,
+            url: `https://wa.me/?text=${encodeURIComponent(rawMessage)}`,
+            bg: '#25D366',
+            color: '#ffffff',
+            hijack: true
+        },
+        {
+            label: 'Correo',
+            icon: <Mail size={22} />,
+            url: `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(rawMessage)}`,
+            bg: '#3b82f6',
+            color: '#ffffff',
+            hijack: true
+        }
+    ];
+
+    const modalContent = (
+        <div className="share-modal-overlay" style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.85)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 999999, // Absolute top
+            padding: '1.5rem'
+        }} onClick={onClose}>
+            <div className="share-modal-content" style={{
+                background: 'var(--color-surface)',
+                borderRadius: '28px',
+                width: '100%',
+                maxWidth: '440px',
+                maxHeight: '90vh',
+                overflowY: 'auto',
+                padding: isMobile ? '1.5rem' : '2.5rem',
+                position: 'relative',
+                boxShadow: '0 25px 70px -10px rgba(0, 0, 0, 0.5)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                marginTop: isMobile ? '3rem' : '0' // Extra margin to avoid top bar
+            }} onClick={e => e.stopPropagation()}>
+                
                 <button
                     onClick={onClose}
                     style={{
-                        position: 'absolute', top: '1rem', right: '1rem',
-                        background: 'var(--color-background)', border: 'none', borderRadius: '50%',
-                        width: '32px', height: '32px', cursor: 'pointer', padding: 0,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        position: 'absolute',
+                        top: '1.25rem',
+                        right: '1.25rem',
+                        background: 'rgba(0,0,0,0.05)',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: '40px',
+                        height: '40px',
+                        cursor: 'pointer',
+                        color: 'var(--color-text-muted)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.2s',
+                        zIndex: 100
                     }}
+                    title="Cerrar"
                 >
-                    <X size={16} />
+                    <X size={24} />
                 </button>
 
-                <h2 style={{ margin: '0 0 0.3rem', fontSize: '1.2rem', fontWeight: 900 }}>
-                    Compartir Reporte
-                </h2>
-                <p style={{ margin: '0 0 1.5rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', wordBreak: 'break-word', paddingRight: '1rem' }}>
-                    {title}
-                </p>
-
-                <p style={{ margin: '0 0 0.8rem', fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text)' }}>{elementIdToPrint ? 'Selecciona una app para enviar el informe (PDF adjunto):' : 'Compartir enlace:'}</p>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginBottom: '1.2rem' }}>
-                    {options.map(opt => {
-                        const isHijacked = opt.hijack && elementIdToPrint;
-                        
-                        return (
-                            <a
-                                key={opt.label}
-                                href={isHijacked ? '#' : opt.url}
-                                target={isHijacked ? '_self' : '_blank'}
-                                rel="noreferrer"
-                                onClick={async (e) => {
-                                    if (isHijacked) {
-                                        e.preventDefault();
-                                        if (isGenerating) return;
-                                        
-                                        toast(`Preparando archivo PDF para ${opt.label}...`, { icon: opt.icon, duration: 4000 });
-                                        await handleNativeShare();
-                                    }
-                                }}
-                                style={{
-                                    display: 'flex', alignItems: 'center', gap: '0.7rem',
-                                    padding: '0.7rem 1rem', background: opt.bg,
-                                    borderRadius: '12px', border: `1px solid ${opt.color}30`,
-                                    textDecoration: 'none', color: opt.color,
-                                    fontWeight: 800, fontSize: '0.8rem',
-                                    transition: 'transform 0.15s, opacity 0.2s',
-                                    opacity: (isGenerating && isHijacked) ? 0.6 : 1,
-                                    pointerEvents: (isGenerating && isHijacked) ? 'none' : 'auto'
-                                }}
-                                onMouseEnter={e => { if (!isGenerating) e.currentTarget.style.transform = 'scale(1.03)'; }}
-                                onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
-                            >
-                                <span style={{ fontSize: '1.1rem' }}>
-                                    {(isGenerating && isHijacked) ? <Loader2 size={16} className="animate-spin" /> : opt.icon}
-                                </span>
-                                {(isGenerating && isHijacked) ? 'Generando...' : opt.label}
-                            </a>
-                        );
-                    })}
+                <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                    <div style={{
+                        width: '64px',
+                        height: '64px',
+                        background: 'linear-gradient(135deg, var(--color-primary-light), var(--color-primary))',
+                        borderRadius: '20px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '0 auto 1.25rem',
+                        boxShadow: '0 10px 20px -5px rgba(37, 99, 235, 0.3)',
+                        color: 'white'
+                    }}>
+                        <Share2 size={32} />
+                    </div>
+                    <h2 style={{
+                        fontSize: '1.5rem',
+                        fontWeight: 900,
+                        color: 'var(--color-text)',
+                        marginBottom: '0.5rem',
+                        letterSpacing: '-0.5px'
+                    }}>
+                        Compartir Reporte
+                    </h2>
+                    <p style={{
+                        color: 'var(--color-text-muted)',
+                        fontSize: '0.85rem',
+                        fontWeight: '500',
+                        margin: 0,
+                        padding: '0 1rem'
+                    }}>
+                        {title}
+                    </p>
                 </div>
 
-                {/* Clipboard button */}
-                <button
-                    onClick={handleCopy}
-                    style={{
-                        width: '100%', padding: '0.8rem',
-                        background: copied ? '#dcfce7' : 'var(--color-background)',
-                        border: `1.5px solid ${copied ? '#86efac' : 'var(--color-border)'}`,
-                        borderRadius: '12px', cursor: 'pointer',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        gap: '0.6rem', fontWeight: 800, fontSize: '0.8rem',
-                        color: copied ? '#16a34a' : 'var(--color-text-muted)', transition: 'all 0.2s'
-                    }}
-                >
-                    {copied
-                        ? <><Check size={16} /> ¡Copiado al portapapeles!</>
-                        : <><Copy size={16} /> Copiar texto de resumen</>
-                    }
-                </button>
+                <div style={{ margin: '1rem 0', textAlign: 'center' }}>
+                    <p style={{ margin: '0 0 0.8rem', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text)' }}>
+                        {elementIdToPrint ? 'Selecciona una app para enviar (PDF):' : 'Compartir enlace:'}
+                    </p>
+
+                    <div className="share-grid" style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
+                        gap: '1rem' 
+                    }}>
+                        {options.map(opt => {
+                            const isHijacked = opt.hijack && elementIdToPrint;
+                            
+                            return (
+                                <a
+                                    key={opt.label}
+                                    href={isHijacked ? '#' : opt.url}
+                                    target={isHijacked ? '_self' : '_blank'}
+                                    rel="noreferrer"
+                                    onClick={async (e) => {
+                                        if (isHijacked) {
+                                            e.preventDefault();
+                                            if (isGenerating) return;
+                                            await handleNativeShare(opt.label);
+                                        }
+                                    }}
+                                    className="share-item-button"
+                                    style={{
+                                        display: 'flex', alignItems: 'center', gap: '0.8rem',
+                                        padding: '1rem', background: opt.bg,
+                                        borderRadius: '16px', border: `1px solid ${opt.color}20`,
+                                        textDecoration: 'none', color: opt.color,
+                                        fontWeight: 800, fontSize: '0.9rem',
+                                        transition: 'all 0.2s',
+                                        justifyContent: 'center',
+                                        opacity: (isGenerating && isHijacked) ? 0.7 : 1,
+                                        pointerEvents: (isGenerating && isHijacked) ? 'none' : 'auto'
+                                    }}
+                                >
+                                    <span style={{ display: 'flex' }}>
+                                        {(isGenerating && isHijacked) ? <div className="spinner-mini" /> : opt.icon}
+                                    </span>
+                                    {(isGenerating && isHijacked) ? 'Generando...' : opt.label}
+                                </a>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                <div style={{
+                    padding: '1.25rem',
+                    background: 'var(--color-background)',
+                    borderRadius: '20px',
+                    border: '1.5px dashed var(--color-border)',
+                    position: 'relative',
+                    marginTop: '1rem'
+                }}>
+                    <button
+                        onClick={handleCopy}
+                        style={{
+                            position: 'absolute',
+                            right: '0.75rem',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            background: copied ? '#22c55e' : 'var(--color-surface)',
+                            border: '1px solid var(--color-border)',
+                            borderRadius: '12px',
+                            padding: '0.6rem',
+                            cursor: 'pointer',
+                            color: copied ? 'white' : 'var(--color-primary)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        {copied ? <Check size={18} /> : <Copy size={18} />}
+                    </button>
+                    <p style={{
+                        fontSize: '0.8rem',
+                        color: 'var(--color-text-muted)',
+                        margin: 0,
+                        paddingRight: '3.5rem',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        fontWeight: 600
+                    }}>
+                        {rawMessage}
+                    </p>
+                </div>
             </div>
+
+            <style>{`
+                .share-item-button:hover {
+                    filter: brightness(0.95);
+                    transform: translateY(-3px);
+                    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+                }
+                .spinner-mini {
+                    width: 20px;
+                    height: 20px;
+                    border: 2px solid currentColor;
+                    border-radius: 50%;
+                    border-top-color: transparent;
+                    animation: spin 0.8s linear infinite;
+                }
+                @keyframes spin {
+                    to { transform: rotate(360deg); }
+                }
+            `}</style>
         </div>
     );
-}
 
+    // Render into body to bypass any stacking context issues (navbar overlap)
+    return createPortal(modalContent, document.body);
+};
+
+export default ShareModal;
