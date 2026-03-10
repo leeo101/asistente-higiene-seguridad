@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import html2canvas from 'html2canvas';
 import {
     ArrowLeft, Save, MousePointer2, Type, Move, Trash2, Printer,
     Image as ImageIcon, ZoomIn, ZoomOut, Download, TriangleAlert, ThermometerSun,
@@ -43,6 +44,10 @@ export default function RiskMapGenerator() {
     const [isDragging, setIsDragging] = useState(false);
     const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
+    const [isOrthoMode, setIsOrthoMode] = useState(false); // AutoCAD style precision
+    const [isSnapToGrid, setIsSnapToGrid] = useState(true); // Magnetic grid
+    const [isPanning, setIsPanning] = useState(false);
+    const [lastTouch, setLastTouch] = useState(null);
 
     // Temporary text editing
     const [editingTextId, setEditingTextId] = useState(null);
@@ -54,6 +59,15 @@ export default function RiskMapGenerator() {
     const [viewMode, setViewMode] = useState('edit'); // 'edit' or 'report'
     const [showShareModal, setShowShareModal] = useState(false);
 
+    // History for Undo/Redo
+    const [history, setHistory] = useState([editData?.elements || []]);
+    const [historyIndex, setHistoryIndex] = useState(0);
+
+    // Pro Features
+    const [lineStyle, setLineStyle] = useState('solid'); // 'solid', 'dashed'
+    const [isBlueprintMode, setIsBlueprintMode] = useState(false);
+    const [showDimensions, setShowDimensions] = useState(true);
+
     // Categories for the sidebar
     const categories = {
         'Trazado Estructural': [SAFETY_ICONS.LINE, SAFETY_ICONS.RECTANGLE],
@@ -64,6 +78,25 @@ export default function RiskMapGenerator() {
     };
 
     // --- CANVAS INTERACTIONS ---
+
+    const getCoordinates = (e) => {
+        if (!containerRef.current) return { x: 0, y: 0 };
+        const rect = containerRef.current.getBoundingClientRect();
+        let clientX, clientY;
+
+        if (e.touches && e.touches.length > 0) {
+            clientX = e.touches[0].clientX;
+            clientY = e.touches[0].clientY;
+        } else {
+            clientX = e.clientX;
+            clientY = e.clientY;
+        }
+
+        return {
+            x: (clientX - rect.left) / zoom,
+            y: (clientY - rect.top) / zoom
+        };
+    };
 
     const handleCanvasClick = (e) => {
         if (!containerRef.current) return;
@@ -117,7 +150,7 @@ export default function RiskMapGenerator() {
             } else {
                 const iconDef = SAFETY_ICONS[selectedTool];
                 if (iconDef) {
-                    setElements([...elements, {
+                    addToHistory([...elements, {
                         id: Date.now(), type: 'icon', iconId: iconDef.id,
                         x, y, color: iconDef.color, rotation: 0
                     }]);
@@ -127,14 +160,36 @@ export default function RiskMapGenerator() {
         }
     };
 
+    const addToHistory = (newElements) => {
+        const newHistory = history.slice(0, historyIndex + 1);
+        newHistory.push(newElements);
+        if (newHistory.length > 30) newHistory.shift(); // Limit history
+        setHistory(newHistory);
+        setHistoryIndex(newHistory.length - 1);
+        setElements(newElements);
+    };
+
+    const undo = () => {
+        if (historyIndex > 0) {
+            const prevIndex = historyIndex - 1;
+            setHistoryIndex(prevIndex);
+            setElements(history[prevIndex]);
+        }
+    };
+
+    const redo = () => {
+        if (historyIndex < history.length - 1) {
+            const nextIndex = historyIndex + 1;
+            setHistoryIndex(nextIndex);
+            setElements(history[nextIndex]);
+        }
+    };
+
     const handleCanvasMouseDown = (e) => {
-        if (!containerRef.current) return;
-        const rect = containerRef.current.getBoundingClientRect();
-        const mouseX = (e.clientX - rect.left) / zoom;
-        const mouseY = (e.clientY - rect.top) / zoom;
+        const { x, y } = getCoordinates(e);
 
         if (['ARROW_LINE', 'LINE', 'RECTANGLE'].includes(selectedTool)) {
-            setDrawingShape({ type: selectedTool, startX: mouseX, startY: mouseY, endX: mouseX, endY: mouseY });
+            setDrawingShape({ type: selectedTool, startX: x, startY: y, endX: x, endY: y });
         }
     };
 
@@ -146,31 +201,42 @@ export default function RiskMapGenerator() {
         setSelectedElementId(id);
         setIsDragging(true);
 
-        const rect = containerRef.current.getBoundingClientRect();
-        const mouseX = (e.clientX - rect.left) / zoom;
-        const mouseY = (e.clientY - rect.top) / zoom;
-
-        setDragOffset({ x: mouseX - elX, y: mouseY - elY });
+        const { x, y } = getCoordinates(e);
+        setDragOffset({ x: x - elX, y: y - elY });
     };
 
     const handleCanvasMouseMove = (e) => {
-        if (!containerRef.current) return;
-        const rect = containerRef.current.getBoundingClientRect();
-        const mouseX = (e.clientX - rect.left) / zoom;
-        const mouseY = (e.clientY - rect.top) / zoom;
+        let { x, y } = getCoordinates(e);
+
+        // Snap to Grid (AutoCAD style)
+        if (isSnapToGrid) {
+            x = Math.round(x / 20) * 20;
+            y = Math.round(y / 20) * 20;
+        }
 
         if (drawingShape) {
-            setDrawingShape(prev => ({ ...prev, endX: mouseX, endY: mouseY }));
+            let finalX = x;
+            let finalY = y;
+
+            // Ortho Mode Logic (AutoCAD style)
+            if (isOrthoMode || e.shiftKey) {
+                const dx = Math.abs(x - drawingShape.startX);
+                const dy = Math.abs(y - drawingShape.startY);
+                if (dx > dy) {
+                    finalY = drawingShape.startY;
+                } else {
+                    finalX = drawingShape.startX;
+                }
+            }
+
+            setDrawingShape(prev => ({ ...prev, endX: finalX, endY: finalY }));
             return;
         }
 
         if (!isDragging || !selectedElementId) return;
 
-        const newX = mouseX - dragOffset.x;
-        const newY = mouseY - dragOffset.y;
-
         setElements(elements.map(el =>
-            el.id === selectedElementId && !['arrow', 'line', 'rect'].includes(el.type) ? { ...el, x: newX, y: newY } : el
+            el.id === selectedElementId && !['arrow', 'line', 'rect'].includes(el.type) ? { ...el, x: x - dragOffset.x, y: y - dragOffset.y } : el
         ));
     };
 
@@ -187,14 +253,15 @@ export default function RiskMapGenerator() {
                 if (drawingShape.type === 'LINE') elementType = 'line';
                 if (drawingShape.type === 'RECTANGLE') elementType = 'rect';
 
-                setElements([...elements, {
+                addToHistory([...elements, {
                     id: Date.now(),
                     type: elementType,
                     startX: drawingShape.startX,
                     startY: drawingShape.startY,
                     endX: drawingShape.endX,
                     endY: drawingShape.endY,
-                    color: elementColor
+                    color: elementColor,
+                    lineStyle: lineStyle
                 }]);
             }
             setDrawingShape(null);
@@ -205,22 +272,43 @@ export default function RiskMapGenerator() {
     // Keyboard controls for selected element
     useEffect(() => {
         const handleKeyDown = (e) => {
+            if (e.shiftKey) setIsOrthoMode(true);
+
+            // Undo/Redo Shortcuts
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 'z') {
+                    e.preventDefault();
+                    undo();
+                } else if (e.key === 'y') {
+                    e.preventDefault();
+                    redo();
+                }
+                return;
+            }
+
             if (editingTextId) return; // Don't intercept if typing in input
 
             if (selectedElementId) {
                 if (e.key === 'Backspace' || e.key === 'Delete') {
-                    setElements(elements.filter(el => el.id !== selectedElementId));
+                    addToHistory(elements.filter(el => el.id !== selectedElementId));
                     setSelectedElementId(null);
-                } else if (e.key === 'r') {
+                } else if (e.key === 'r' || e.key === 'R') {
                     // Rotate 45 degrees
-                    setElements(elements.map(el =>
-                        el.id === selectedElementId ? { ...el, rotation: (el.rotation + 45) % 360 } : el
+                    addToHistory(elements.map(el =>
+                        el.id === selectedElementId ? { ...el, rotation: ((el.rotation || 0) + 45) % 360 } : el
                     ));
                 }
             }
         };
+        const handleKeyUp = (e) => {
+            if (!e.shiftKey) setIsOrthoMode(false);
+        };
         window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keyup', handleKeyUp);
+        };
     }, [selectedElementId, elements, editingTextId]);
 
     // Handle Background Image Upload
@@ -294,6 +382,41 @@ export default function RiskMapGenerator() {
         window.print();
     };
 
+    const handleExportPNG = async () => {
+        if (!containerRef.current) return;
+
+        toast.loading('Generando imagen de alta resolución...', { id: 'exporting' });
+
+        try {
+            // Find the scalable area (the one with 4000px)
+            const scalableArea = containerRef.current.querySelector('div[style*="width: 4000px"]');
+            if (!scalableArea) throw new Error('No se pudo encontrar el área de dibujo');
+
+            // Temporarily reset zoom to 1 for high res capture or keep current?
+            // High res usually means capturing the whole 4000x4000 or at least the used area.
+            // For now, let's capture what's visible at a good scale.
+
+            const canvas = await html2canvas(scalableArea, {
+                useCORS: true,
+                scale: 2, // Higher resolution
+                backgroundColor: isBlueprintMode ? '#0f172a' : '#ffffff',
+                logging: false,
+                width: 2000, // Limit to a reasonable large size
+                height: 1500
+            });
+
+            const link = document.createElement('a');
+            link.download = `Mapa_Riesgos_${meta.empresa || 'HYS'}_${new Date().toISOString().split('T')[0]}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+
+            toast.success('Imagen exportada correctamente', { id: 'exporting' });
+        } catch (err) {
+            console.error(err);
+            toast.error('Error al exportar PNG', { id: 'exporting' });
+        }
+    };
+
 
     return (
         <div className="container" style={{ paddingBottom: '6rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -326,6 +449,13 @@ export default function RiskMapGenerator() {
                     style={{ background: '#FF8B00', color: '#ffffff' }}
                 >
                     <Printer size={18} /> IMPRIMIR PDF
+                </button>
+                <button
+                    onClick={handleExportPNG}
+                    className="btn-floating-action"
+                    style={{ background: '#9C27B0', color: '#ffffff' }}
+                >
+                    <Download size={18} /> EXPORTAR PNG
                 </button>
             </div>
 
@@ -363,38 +493,46 @@ export default function RiskMapGenerator() {
                 </div>
 
                 {/* Main Design Area */}
-                <div style={{ display: 'flex', gap: '1rem', flex: 1, minHeight: '600px', height: '100%' }}>
+                <div style={{ display: 'flex', gap: '1rem', flex: 1, minHeight: '600px', height: '100%', flexWrap: 'wrap' }}>
 
                     {/* Left Sidebar: Tools & Library */}
-                    <div className="card" style={{ width: '280px', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', overflowY: 'auto' }}>
+                    <div className="card" style={{ width: '100%', maxWidth: '280px', flex: '1 0 280px', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', overflowY: 'auto', maxHeight: '100%' }}>
 
-                        {/* Primary Tools */}
-                        <div style={{ display: 'block' }}>
-                            <h3 style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: '0.8rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.4rem' }}>
-                                Herramientas de Selección
+                        {/* Pro Settings */}
+                        <div style={{ display: 'block', background: 'var(--color-background)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--color-border)', marginBottom: '0.5rem' }}>
+                            <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--color-primary)', marginBottom: '0.75rem', fontWeight: 800 }}>
+                                AJUSTES PRO
                             </h3>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
-                                <button
-                                    onClick={() => setSelectedTool('select')}
-                                    style={{ padding: '0.6rem', borderRadius: '8px', border: selectedTool === 'select' ? '2px solid var(--color-primary)' : '1px solid var(--color-border)', background: selectedTool === 'select' ? 'rgba(59,130,246,0.1)' : 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}>
-                                    <MousePointer2 size={24} color={selectedTool === 'select' ? 'var(--color-primary)' : 'var(--color-text)'} />
-                                    <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Seleccionar</span>
-                                </button>
-                                <button
-                                    onClick={() => setSelectedTool('TEXT_LABEL')}
-                                    style={{ padding: '0.6rem', borderRadius: '8px', border: selectedTool === 'TEXT_LABEL' ? '2px solid var(--color-primary)' : '1px solid var(--color-border)', background: selectedTool === 'TEXT_LABEL' ? 'rgba(59,130,246,0.1)' : 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}>
-                                    <Type size={24} color={selectedTool === 'TEXT_LABEL' ? 'var(--color-primary)' : 'var(--color-text)'} />
-                                    <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Texto Libre</span>
-                                </button>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ fontSize: '0.7rem', display: 'block', marginBottom: '0.4rem', fontWeight: 700 }}>Estilo de Línea</label>
+                                    <div style={{ display: 'flex', gap: '2px' }}>
+                                        <button
+                                            onClick={() => setLineStyle('solid')}
+                                            style={{ flex: 1, padding: '6px', fontSize: '0.7rem', fontWeight: 700, borderRadius: '6px 0 0 6px', background: lineStyle === 'solid' ? 'var(--color-primary)' : 'var(--color-surface)', color: lineStyle === 'solid' ? '#fff' : 'var(--color-text)', border: '1px solid var(--color-border)', cursor: 'pointer' }}
+                                        >SÓLIDA</button>
+                                        <button
+                                            onClick={() => setLineStyle('dashed')}
+                                            style={{ flex: 1, padding: '6px', fontSize: '0.7rem', fontWeight: 700, borderRadius: '0 6px 6px 0', background: lineStyle === 'dashed' ? 'var(--color-primary)' : 'var(--color-surface)', color: lineStyle === 'dashed' ? '#fff' : 'var(--color-text)', border: '1px solid var(--color-border)', cursor: 'pointer' }}
+                                        >PUNTEADA</button>
+                                    </div>
+                                </div>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600 }}>
+                                    <input type="checkbox" checked={isBlueprintMode} onChange={e => setIsBlueprintMode(e.target.checked)} style={{ width: '16px', height: '16px' }} />
+                                    Modo Blueprint (Dark)
+                                </label>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600 }}>
+                                    <input type="checkbox" checked={showDimensions} onChange={e => setShowDimensions(e.target.checked)} style={{ width: '16px', height: '16px' }} />
+                                    Dimensiones en Vivo
+                                </label>
                             </div>
                         </div>
 
-                        {/* Icon Library (ISO) */}
+                        {/* Icon Library */}
                         <div>
                             <h3 style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: '0.8rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.4rem' }}>
-                                Galería de Pictogramas (ISO)
+                                Pictogramas ISO
                             </h3>
-
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                                 {Object.entries(categories).map(([categoryName, icons]) => (
                                     <div key={categoryName}>
@@ -408,11 +546,10 @@ export default function RiskMapGenerator() {
                                                         padding: '0.5rem', borderRadius: '8px', aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center',
                                                         border: selectedTool === icon.id ? `2px solid ${icon.color}` : '1px solid var(--color-border)',
                                                         background: selectedTool === icon.id ? `${icon.color}15` : 'transparent',
-                                                        cursor: 'pointer', transition: 'all 0.2s ease', position: 'relative'
+                                                        cursor: 'pointer', transition: 'all 0.2s ease'
                                                     }}
                                                     title={icon.label}
                                                 >
-                                                    {/* Render raw SVG from config */}
                                                     <div style={{ width: '24px', height: '24px', color: icon.color }} dangerouslySetInnerHTML={{ __html: icon.svg }} />
                                                 </button>
                                             ))}
@@ -424,25 +561,30 @@ export default function RiskMapGenerator() {
 
                         <div style={{ marginTop: 'auto', background: 'var(--color-background)', padding: '1rem', borderRadius: '12px', fontSize: '0.75rem', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}>
                             <strong>Controles:</strong><br />
-                            • Clic para añadir (Herramienta activa)<br />
-                            • Seleccionar + Arrastrar para mover<br />
-                            • <strong>Supr / Backspace</strong> para borrar<br />
-                            • <strong>R</strong> para rotar ícono<br />
-                            • Doble clic en texto para editar
+                            • Ctrl+Z / Ctrl+Y: Historial<br />
+                            • Shift: Modo Recto<br />
+                            • R: Rotar selección
                         </div>
-
                     </div>
 
                     {/* Right Area: Workspace Canvas */}
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem', minWidth: 0 }}>
+                    <div style={{ flex: '1 1 500px', display: 'flex', flexDirection: 'column', gap: '0.5rem', minWidth: '300px' }}>
 
-                        {/* Zoom Controls */}
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-                            <button onClick={() => setZoom(Math.max(zoom - 0.2, 0.4))} className="btn-outline" style={{ padding: '0.4rem', margin: 0 }} title="Alejar"><ZoomOut size={16} /></button>
-                            <span style={{ fontSize: '0.85rem', fontWeight: 800, padding: '0.4rem 0.8rem', background: 'var(--color-surface)', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
-                                {Math.round(zoom * 100)}%
-                            </span>
-                            <button onClick={() => setZoom(Math.min(zoom + 0.2, 3))} className="btn-outline" style={{ padding: '0.4rem', margin: 0 }} title="Acercar"><ZoomIn size={16} /></button>
+                        {/* Controls Toolbar */}
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', gap: '2px', marginRight: '0.5rem' }}>
+                                <button onClick={undo} disabled={historyIndex <= 0} className="btn-outline" style={{ padding: '0.4rem', borderTopRightRadius: 0, borderBottomRightRadius: 0, opacity: historyIndex <= 0 ? 0.4 : 1 }} title="Deshacer (Ctrl+Z)"><ArrowLeft size={16} /></button>
+                                <button onClick={redo} disabled={historyIndex >= history.length - 1} className="btn-outline" style={{ padding: '0.4rem', borderTopLeftRadius: 0, borderBottomLeftRadius: 0, opacity: historyIndex >= history.length - 1 ? 0.4 : 1 }} title="Rehacer (Ctrl+Y)"><Share2 size={16} style={{ transform: 'scaleX(-1)' }} /></button>
+                            </div>
+
+                            <button onClick={() => setIsSnapToGrid(!isSnapToGrid)} className={`btn-outline ${isSnapToGrid ? 'active' : ''}`} style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, background: isSnapToGrid ? '#0284c7' : 'var(--color-surface)', color: isSnapToGrid ? '#fff' : 'var(--color-text)', borderRadius: '6px' }}>IMÁN</button>
+                            <button onClick={() => setIsOrthoMode(!isOrthoMode)} className={`btn-outline ${isOrthoMode ? 'active' : ''}`} style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, background: isOrthoMode ? 'var(--color-primary)' : 'var(--color-surface)', color: isOrthoMode ? '#fff' : 'var(--color-text)', borderRadius: '6px' }}>ORTO</button>
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', marginLeft: '0.5rem' }}>
+                                <button onClick={() => setZoom(Math.max(zoom - 0.2, 0.4))} className="btn-outline" style={{ padding: '0.4rem' }}><ZoomOut size={16} /></button>
+                                <span style={{ fontSize: '0.8rem', fontWeight: 800, minWidth: '45px', textAlign: 'center' }}>{Math.round(zoom * 100)}%</span>
+                                <button onClick={() => setZoom(Math.min(zoom + 0.2, 3))} className="btn-outline" style={{ padding: '0.4rem' }}><ZoomIn size={16} /></button>
+                            </div>
                         </div>
 
                         {/* Interactive Canvas Plane */}
@@ -450,170 +592,117 @@ export default function RiskMapGenerator() {
                             className="card"
                             ref={containerRef}
                             style={{
-                                flex: 1, overflow: 'hidden', background: '#e2e8f0', // Technical gray background
+                                flex: 1, overflow: 'hidden', background: isBlueprintMode ? '#0f172a' : '#e2e8f0',
                                 position: 'relative', cursor: selectedTool === 'select' ? 'default' : 'crosshair',
-                                boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.05)',
-                                padding: 0 // Override .card padding to fix mouse offset
+                                padding: 0
                             }}
                             onMouseMove={handleCanvasMouseMove}
                             onMouseUp={handleCanvasMouseUp}
                             onMouseLeave={handleCanvasMouseUp}
                             onMouseDown={handleCanvasMouseDown}
+                            onTouchStart={handleCanvasMouseDown}
+                            onTouchMove={handleCanvasMouseMove}
+                            onTouchEnd={handleCanvasMouseUp}
                             onClick={handleCanvasClick}
                         >
-                            {/* The Scalable Area */}
                             <div style={{
                                 width: '4000px', height: '4000px', position: 'absolute', transformOrigin: '0 0',
                                 transform: `scale(${zoom})`,
-                                backgroundSize: '20px 20px', backgroundImage: 'linear-gradient(to right, #cbd5e1 1px, transparent 1px), linear-gradient(to bottom, #cbd5e1 1px, transparent 1px)' // Grid pattern
+                                backgroundColor: isBlueprintMode ? '#0f172a' : '#e2e8f0',
+                                backgroundSize: '20px 20px',
+                                backgroundImage: `linear-gradient(to right, ${isBlueprintMode ? '#1e293b' : '#cbd5e1'} 1px, transparent 1px), linear-gradient(to bottom, ${isBlueprintMode ? '#1e293b' : '#cbd5e1'} 1px, transparent 1px)`
                             }}>
-                                {/* Uploaded Background Image */}
                                 {backgroundImage && (
-                                    <img src={backgroundImage} alt="Plano Guía" style={{ position: 'absolute', top: '100px', left: '100px', opacity: 0.8, maxWidth: '2000px', pointerEvents: 'none' }} />
+                                    <img src={backgroundImage} alt="Fondo" style={{ position: 'absolute', top: '100px', left: '100px', opacity: isBlueprintMode ? 0.3 : 0.6, maxWidth: '2000px', filter: isBlueprintMode ? 'invert(1) grayscale(1)' : 'none', pointerEvents: 'none' }} />
                                 )}
 
-                                {/* Rendered Elements overlay */}
+                                {/* Live Dimensions Overlay */}
+                                {drawingShape && showDimensions && (
+                                    <div style={{
+                                        position: 'absolute', left: drawingShape.endX + 10, top: drawingShape.endY - 25,
+                                        background: 'rgba(0,0,0,0.7)', color: '#fff', padding: '2px 8px', borderRadius: '4px',
+                                        fontSize: '11px', fontWeight: 'bold', zIndex: 1000, pointerEvents: 'none'
+                                    }}>
+                                        {(() => {
+                                            const dx = drawingShape.endX - drawingShape.startX;
+                                            const dy = drawingShape.endY - drawingShape.startY;
+                                            const dist = Math.sqrt(dx * dx + dy * dy);
+                                            return `${(dist / 40).toFixed(2)} m`;
+                                        })()}
+                                    </div>
+                                )}
+
+                                {/* Elements Layer */}
                                 {elements.map((el) => {
                                     const isSelected = el.id === selectedElementId;
-
                                     if (el.type === 'icon') {
                                         const iconDef = SAFETY_ICONS[el.iconId];
-                                        if (!iconDef) return null;
-
-                                        return (
-                                            <div
-                                                key={el.id}
-                                                onMouseDown={(e) => handleElementMouseDown(e, el.id, el.x, el.y)}
+                                        return iconDef ? (
+                                            <div key={el.id} onMouseDown={(e) => handleElementMouseDown(e, el.id, el.x, el.y)}
                                                 style={{
                                                     position: 'absolute', left: el.x, top: el.y, transform: `translate(-50%, -50%) rotate(${el.rotation}deg)`,
-                                                    width: '40px', height: '40px', background: '#ffffff', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                    border: isSelected ? '2px dashed #3b82f6' : `2px solid ${iconDef.color}`,
-                                                    color: iconDef.color, cursor: selectedTool === 'select' ? 'move' : 'default',
-                                                    boxShadow: isSelected ? '0 0 0 4px rgba(59,130,246,0.3)' : '0 2px 4px rgba(0,0,0,0.1)',
-                                                    zIndex: isSelected ? 100 : 10
-                                                }}
-                                                dangerouslySetInnerHTML={{ __html: iconDef.svg }}
-                                            />
-                                        );
+                                                    width: '40px', height: '40px', background: isBlueprintMode ? '#1e293b' : '#fff', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                    border: isSelected ? '2px dashed #3b82f6' : `2px solid ${iconDef.color}`, color: iconDef.color, cursor: 'move', zIndex: isSelected ? 100 : 10
+                                                }} dangerouslySetInnerHTML={{ __html: iconDef.svg }} />
+                                        ) : null;
                                     }
-
                                     if (el.type === 'text') {
                                         const isEditing = editingTextId === el.id;
-
                                         return (
-                                            <div
-                                                key={el.id}
-                                                onMouseDown={(e) => { if (!isEditing) handleElementMouseDown(e, el.id, el.x, el.y); }}
-                                                onDoubleClick={() => handleTextDoubleClick(el.id, el.text)}
+                                            <div key={el.id} onMouseDown={(e) => !isEditing && handleElementMouseDown(e, el.id, el.x, el.y)} onDoubleClick={() => handleTextDoubleClick(el.id, el.text)}
                                                 style={{
                                                     position: 'absolute', left: el.x, top: el.y, transform: `translate(-50%, -50%) rotate(${el.rotation}deg)`,
                                                     padding: '4px 8px', fontSize: '16px', fontWeight: 800, color: el.color, whiteSpace: 'nowrap',
-                                                    border: isSelected ? '1px dashed #3b82f6' : '1px solid transparent',
-                                                    cursor: selectedTool === 'select' ? 'move' : 'default',
-                                                    zIndex: isSelected ? 100 : 10, background: isSelected ? 'rgba(255,255,255,0.8)' : 'transparent',
-                                                    userSelect: 'none'
-                                                }}
-                                            >
-                                                {isEditing ? (
-                                                    <input
-                                                        autoFocus
-                                                        value={textInputValue}
-                                                        onChange={e => setTextInputValue(e.target.value)}
-                                                        onBlur={handleTextSave}
-                                                        onKeyDown={e => { if (e.key === 'Enter') handleTextSave(); }}
-                                                        style={{ background: 'white', border: '1px solid #3b82f6', color: 'black', outline: 'none', fontWeight: 800, padding: '2px 4px' }}
-                                                    />
-                                                ) : (
-                                                    el.text
-                                                )}
+                                                    border: isSelected ? '1px dashed #3b82f6' : '1px solid transparent', cursor: 'move', zIndex: isSelected ? 100 : 10
+                                                }}>
+                                                {isEditing ? <input autoFocus value={textInputValue} onChange={e => setTextInputValue(e.target.value)} onBlur={handleTextSave} onKeyDown={e => e.key === 'Enter' && handleTextSave()} style={{ background: 'white', border: '1px solid #3b82f6', color: 'black', fontWeight: 800 }} /> : el.text}
                                             </div>
                                         );
                                     }
-
                                     return null;
                                 })}
 
                                 {/* SVG Layer for Vectors */}
                                 <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 50 }}>
                                     <defs>
-                                        <marker id="arrowhead" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
-                                            <polygon points="0 0, 6 2, 0 4" fill="#2563eb" />
-                                        </marker>
-                                        <marker id="arrowhead-selected" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
-                                            <polygon points="0 0, 6 2, 0 4" fill="#60a5fa" />
+                                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                            <polygon points="0 0, 10 3.5, 0 7" fill="context-stroke" />
                                         </marker>
                                     </defs>
-
-                                    {/* Render committed vectors */}
-                                    {elements.filter(el => ['arrow', 'line', 'rect'].includes(el.type)).map(el => {
+                                    {elements.filter(el => ['line', 'rect', 'arrow'].includes(el.type)).map(el => {
                                         const isSelected = el.id === selectedElementId;
+                                        const dash = el.lineStyle === 'dashed' ? "10,5" : "none";
+                                        const color = isSelected ? '#3b82f6' : el.color;
+                                        const strokeW = isSelected ? 5 : 3;
 
-                                        const commonProps = {
-                                            key: el.id,
-                                            stroke: isSelected ? '#60a5fa' : el.color,
-                                            strokeWidth: isSelected ? "4" : "2",
-                                            strokeDasharray: isSelected ? "8,4" : "none",
-                                            style: { pointerEvents: 'stroke', cursor: selectedTool === 'select' ? 'pointer' : 'default' },
-                                            onMouseDown: (e) => {
-                                                if (selectedTool === 'select') {
-                                                    e.stopPropagation();
-                                                    setSelectedElementId(el.id);
-                                                }
-                                            }
-                                        };
-
-                                        if (el.type === 'arrow') {
-                                            return <line {...commonProps} x1={el.startX} y1={el.startY} x2={el.endX} y2={el.endY}
-                                                strokeWidth={isSelected ? "5" : "3"}
-                                                markerEnd={`url(#${isSelected ? 'arrowhead-selected' : 'arrowhead'})`} />;
-                                        }
-                                        if (el.type === 'line') {
-                                            return <line {...commonProps} strokeWidth={isSelected ? "4" : "3"} strokeLinecap="round" x1={el.startX} y1={el.startY} x2={el.endX} y2={el.endY} />;
-                                        }
                                         if (el.type === 'rect') {
                                             const rx = Math.min(el.startX, el.endX);
                                             const ry = Math.min(el.startY, el.endY);
-                                            const rw = Math.abs(el.endX - el.startX);
-                                            const rh = Math.abs(el.endY - el.startY);
-                                            return <rect {...commonProps} strokeWidth={isSelected ? "3" : "2"} x={rx} y={ry} width={rw} height={rh} fill="transparent" />;
+                                            return <rect key={el.id} x={rx} y={ry} width={Math.abs(el.endX - el.startX)} height={Math.abs(el.endY - el.startY)} stroke={color} strokeWidth={strokeW} fill="transparent" strokeDasharray={dash} style={{ pointerEvents: 'stroke', cursor: 'pointer' }} onMouseDown={(e) => { e.stopPropagation(); setSelectedElementId(el.id); }} />;
                                         }
-                                        return null;
+                                        return <line key={el.id} x1={el.startX} y1={el.startY} x2={el.endX} y2={el.endY} stroke={color} strokeWidth={strokeW} strokeDasharray={dash} markerEnd={el.type === 'arrow' ? "url(#arrowhead)" : ""} style={{ pointerEvents: 'stroke', cursor: 'pointer' }} onMouseDown={(e) => { e.stopPropagation(); setSelectedElementId(el.id); }} />;
                                     })}
 
-                                    {/* Render currently drawing vector */}
+                                    {/* Drawing Preview */}
                                     {drawingShape && (() => {
-                                        if (drawingShape.type === 'ARROW_LINE') {
-                                            return <line x1={drawingShape.startX} y1={drawingShape.startY} x2={drawingShape.endX} y2={drawingShape.endY} stroke="#2563eb" strokeWidth="3" strokeDasharray="8,4" markerEnd="url(#arrowhead)" />;
-                                        }
-                                        if (drawingShape.type === 'LINE') {
-                                            return <line x1={drawingShape.startX} y1={drawingShape.startY} x2={drawingShape.endX} y2={drawingShape.endY} stroke="#0f172a" strokeWidth="3" strokeDasharray="8,4" strokeLinecap="round" />;
-                                        }
+                                        const dash = "8,4";
+                                        const color = "var(--color-primary)";
                                         if (drawingShape.type === 'RECTANGLE') {
                                             const rx = Math.min(drawingShape.startX, drawingShape.endX);
                                             const ry = Math.min(drawingShape.startY, drawingShape.endY);
-                                            const rw = Math.abs(drawingShape.endX - drawingShape.startX);
-                                            const rh = Math.abs(drawingShape.endY - drawingShape.startY);
-                                            return <rect x={rx} y={ry} width={rw} height={rh} stroke="#0f172a" strokeWidth="2" strokeDasharray="8,4" fill="transparent" />;
+                                            return <rect x={rx} y={ry} width={Math.abs(drawingShape.endX - drawingShape.startX)} height={Math.abs(drawingShape.endY - drawingShape.startY)} stroke={color} strokeWidth="2" fill="transparent" strokeDasharray={dash} />;
                                         }
+                                        return <line x1={drawingShape.startX} y1={drawingShape.startY} x2={drawingShape.endX} y2={drawingShape.endY} stroke={color} strokeWidth="3" strokeDasharray={dash} markerEnd={drawingShape.type === 'ARROW_LINE' ? "url(#arrowhead)" : ""} />;
                                     })()}
                                 </svg>
-
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Hidden report for direct printing */}
-            <div className="print-only">
-                <RiskMapPdfGenerator
-                    mapData={{
-                        ...meta,
-                        elements,
-                        backgroundImage
-                    }}
-                    onBack={() => { }}
-                />
+                <div className="print-only">
+                    <RiskMapPdfGenerator mapData={{ ...meta, elements, backgroundImage }} onBack={() => { }} />
+                </div>
             </div>
         </div>
     );

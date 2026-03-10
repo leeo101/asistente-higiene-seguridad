@@ -28,6 +28,29 @@ export default function RiskMapPdfGenerator({ mapData, onBack }) {
     }
     const legendIcons = Object.values(usedIconsMap);
 
+    const { autoScale } = React.useMemo(() => {
+        let maxX = 800; // default assumptions
+        let maxY = 600;
+
+        if (mapData?.backgroundImage) {
+            maxX = Math.max(maxX, 1200);
+            maxY = Math.max(maxY, 800);
+        }
+
+        mapData?.elements?.forEach(el => {
+            if (el.x) { maxX = Math.max(maxX, el.x + 100); }
+            if (el.y) { maxY = Math.max(maxY, el.y + 100); }
+            if (el.startX) { maxX = Math.max(maxX, Math.max(el.startX, el.endX) + 100); }
+            if (el.startY) { maxY = Math.max(maxY, Math.max(el.startY, el.endY) + 100); }
+        });
+
+        // A4 Printable approximate pixel width (Landscape) is 1050x650
+        const scaleX = 1050 / (maxX + 50);
+        const scaleY = 650 / (maxY + 50);
+        const scale = Math.min(scaleX, scaleY, 1);
+
+        return { autoScale: scale };
+    }, [mapData]);
     return (
         <div className="container" style={{ paddingBottom: '3rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <div className="no-print" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10, flexWrap: 'wrap', gap: '1rem' }}>
@@ -68,20 +91,82 @@ export default function RiskMapPdfGenerator({ mapData, onBack }) {
                                 max-width: none !important; 
                                 border: 2px solid #1e293b !important;
                                 border-radius: 0 !important; 
-                                height: 100% !important;
+                                min-height: 190mm !important;
+                                display: block !important;
                             }
                         `}
                     </style>
 
                     {/* Canvas Area (Image snapshot) */}
-                    <div style={{ flex: 1, border: '2px solid #1e293b', position: 'relative', overflow: 'hidden', background: '#f8fafc', backgroundImage: 'linear-gradient(to right, #e2e8f0 1px, transparent 1px), linear-gradient(to bottom, #e2e8f0 1px, transparent 1px)', backgroundSize: '10px 10px' }}>
+                    <div style={{ height: '140mm', width: '100%', border: '2px solid #1e293b', position: 'relative', overflow: 'hidden', background: '#f8fafc', backgroundImage: 'linear-gradient(to right, #e2e8f0 1px, transparent 1px), linear-gradient(to bottom, #e2e8f0 1px, transparent 1px)', backgroundSize: '10px 10px', flexShrink: 0 }}>
 
-                        {/* Static render of the elements based on saved coordinates */}
-                        {/* Using explicit 4000px boundaries makes sure print layout engines don't collapse absolutely positioned wrappers */}
-                        <div style={{ position: 'absolute', top: 0, left: 0, width: '4000px', height: '4000px', pointerEvents: 'none' }}>
+                        {/* Scalable Container ensuring 1:1 render fidelity then shrunk to fit A4 */}
+                        <div style={{
+                            position: 'absolute', top: 0, left: 0,
+                            width: '4000px', height: '4000px',
+                            pointerEvents: 'none',
+                            transformOrigin: 'top left',
+                            transform: `scale(${autoScale})`
+                        }}>
                             {mapData?.backgroundImage && (
-                                <img src={mapData.backgroundImage} alt="Plano" style={{ position: 'absolute', top: '100px', left: '100px', opacity: 0.8, maxWidth: '2000px', maxHeight: 'none' }} />
+                                <img src={mapData.backgroundImage} alt="Plano Guía" style={{ position: 'absolute', top: '100px', left: '100px', opacity: 0.8, maxWidth: '2000px', maxHeight: 'none' }} />
                             )}
+
+                            {/* Emulate SVG Layers as HTML Divs to PREVENT Chrome SVG Print Culling bugs */}
+                            <div style={{ position: 'absolute', top: 0, left: 0, width: '4000px', height: '4000px', pointerEvents: 'none', zIndex: 2 }}>
+                                {mapData?.elements?.filter(el => ['arrow', 'line', 'rect'].includes(el.type)).map(el => {
+                                    const commonStyle = {
+                                        position: 'absolute',
+                                        zIndex: 2,
+                                        WebkitPrintColorAdjust: 'exact',
+                                        printColorAdjust: 'exact',
+                                        pointerEvents: 'none'
+                                    };
+
+                                    const isDashed = el.lineStyle === 'dashed';
+
+                                    if (el.type === 'line' || el.type === 'arrow') {
+                                        const length = Math.sqrt(Math.pow(el.endX - el.startX, 2) + Math.pow(el.endY - el.startY, 2));
+                                        const angle = Math.atan2(el.endY - el.startY, el.endX - el.startX) * 180 / Math.PI;
+
+                                        return (
+                                            <div key={el.id} style={{
+                                                ...commonStyle, left: el.startX, top: el.startY, width: `${length}px`, height: '4px',
+                                                backgroundColor: isDashed ? 'transparent' : (el.color || '#0f172a'),
+                                                backgroundImage: isDashed ? `linear-gradient(to right, ${el.color || '#0f172a'} 50%, transparent 50%)` : 'none',
+                                                backgroundSize: isDashed ? '12px 100%' : 'auto',
+                                                transformOrigin: '0% 50%',
+                                                transform: `translateY(-50%) rotate(${angle}deg)`, borderRadius: '2px'
+                                            }}>
+                                                {el.type === 'arrow' && (
+                                                    <div style={{
+                                                        position: 'absolute', right: '-2px', top: '50%', transform: 'translateY(-50%)',
+                                                        width: 0, height: 0, borderTop: '6px solid transparent',
+                                                        borderBottom: '6px solid transparent', borderLeft: `10px solid ${el.color || '#0f172a'}`
+                                                    }} />
+                                                )}
+                                            </div>
+                                        );
+                                    }
+
+                                    if (el.type === 'rect') {
+                                        const rx = Math.min(el.startX, el.endX);
+                                        const ry = Math.min(el.startY, el.endY);
+                                        const rw = Math.abs(el.endX - el.startX);
+                                        const rh = Math.abs(el.endY - el.startY);
+
+                                        return (
+                                            <div key={el.id} style={{
+                                                ...commonStyle, left: rx, top: ry, width: rw, height: rh,
+                                                border: `4px ${isDashed ? 'dashed' : 'solid'} ${el.color || '#0f172a'}`, backgroundColor: 'transparent', boxSizing: 'border-box'
+                                            }} />
+                                        );
+                                    }
+                                    return null;
+                                })}
+                            </div>
+
+                            {/* Render Icons and Text */}
                             {mapData?.elements?.map((el) => {
                                 if (el.type === 'icon' && SAFETY_ICONS[el.iconId]) {
                                     const iconDef = SAFETY_ICONS[el.iconId];
@@ -91,8 +176,9 @@ export default function RiskMapPdfGenerator({ mapData, onBack }) {
                                             style={{
                                                 position: 'absolute', left: el.x, top: el.y, transform: `translate(-50%, -50%) rotate(${el.rotation || 0}deg)`,
                                                 width: '40px', height: '40px', background: '#ffffff', borderRadius: '4px',
-                                                border: `2px solid ${iconDef.color}`, color: iconDef.color,
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                                border: `3px solid ${iconDef.color}`, color: iconDef.color,
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                zIndex: 5
                                             }}
                                             dangerouslySetInnerHTML={{ __html: iconDef.svg }}
                                         />
@@ -104,7 +190,9 @@ export default function RiskMapPdfGenerator({ mapData, onBack }) {
                                             key={el.id}
                                             style={{
                                                 position: 'absolute', left: el.x, top: el.y, transform: `translate(-50%, -50%) rotate(${el.rotation || 0}deg)`,
-                                                fontSize: '16px', fontWeight: 800, color: el.color, whiteSpace: 'nowrap'
+                                                fontSize: '18px', fontWeight: 800, color: el.color, whiteSpace: 'nowrap',
+                                                background: 'rgba(255,255,255,0.7)', padding: '2px 6px', borderRadius: '4px',
+                                                zIndex: 10
                                             }}
                                         >
                                             {el.text}
@@ -113,36 +201,6 @@ export default function RiskMapPdfGenerator({ mapData, onBack }) {
                                 }
                                 return null;
                             })}
-
-                            {/* SVG Layer for Vectors */}
-                            <svg width="4000" height="4000" xmlns="http://www.w3.org/2000/svg" style={{ position: 'absolute', top: 0, left: 0, width: '4000px', height: '4000px', pointerEvents: 'none', overflow: 'visible' }}>
-                                <defs>
-                                    <marker id="pdf-arrowhead" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
-                                        <polygon points="0 0, 6 2, 0 4" fill="#2563eb" />
-                                    </marker>
-                                </defs>
-                                {mapData?.elements?.filter(el => ['arrow', 'line', 'rect'].includes(el.type)).map(el => {
-                                    const commonProps = {
-                                        key: el.id,
-                                        stroke: el.color || '#0f172a'
-                                    };
-
-                                    if (el.type === 'arrow') {
-                                        return <line {...commonProps} x1={el.startX} y1={el.startY} x2={el.endX} y2={el.endY} strokeWidth="3" markerEnd="url(#pdf-arrowhead)" />;
-                                    }
-                                    if (el.type === 'line') {
-                                        return <line {...commonProps} x1={el.startX} y1={el.startY} x2={el.endX} y2={el.endY} strokeWidth="3" strokeLinecap="round" />;
-                                    }
-                                    if (el.type === 'rect') {
-                                        const rx = Math.min(el.startX, el.endX);
-                                        const ry = Math.min(el.startY, el.endY);
-                                        const rw = Math.abs(el.endX - el.startX);
-                                        const rh = Math.abs(el.endY - el.startY);
-                                        return <rect {...commonProps} x={rx} y={ry} width={rw} height={rh} strokeWidth="2" fill="transparent" />;
-                                    }
-                                    return null;
-                                })}
-                            </svg>
                         </div>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 250px', gap: '10px', marginTop: '10px', height: '100px' }}>

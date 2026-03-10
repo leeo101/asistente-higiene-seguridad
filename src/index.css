@@ -530,7 +530,14 @@ label {
 .print-only,
 .print-text-box,
 .print-header {
-  display: none;
+  position: fixed !important;
+  top: -10000px !important;
+  left: -10000px !important;
+  width: 297mm;
+  height: 210mm;
+  pointer-events: none;
+  opacity: 1;
+  /* Forzamos renderizado en background para evitar cull SVG */
 }
 
 /* Utility Classes (Tailwind-like) */
@@ -999,7 +1006,14 @@ label {
   .print-only,
   .print-text-box,
   .print-header {
-    display: block !important;
+    position: static !important;
+    overflow: visible !important;
+    clip: auto !important;
+    height: auto !important;
+    width: auto !important;
+    margin: 0 !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
   }
 
   /* Prevent elements from being sliced perfectly in half across pages */
