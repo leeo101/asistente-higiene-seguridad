@@ -10,6 +10,7 @@ export default function Subscription() {
     const navigate = useNavigate();
     const { isPro, daysRemaining } = usePaywall();
     const { currentUser } = useAuth();
+    const { syncDocument } = useSync();
     const [loading, setLoading] = useState(false);
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [expiryDate, setExpiryDate] = useState(null);
@@ -18,32 +19,35 @@ export default function Subscription() {
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const paymentStatus = urlParams.get('status');
+        const subData = JSON.parse(localStorage.getItem('subscriptionData') || '{}');
 
         // Check if user is active
         if (isPro()) {
             setIsSubscribed(true);
-            const expiry = parseInt(localStorage.getItem('subscriptionExpiry') || '0', 10);
+            const expiry = parseInt(subData.expiry || '0', 10);
             if (expiry) setExpiryDate(new Date(expiry));
-
-            // If they just paid and were already pro, we might need to handle the approval here
-            // but the logic below covers both new and renewals if we remove the return above.
         }
 
         if (paymentStatus === 'approved') {
-            const currentExpiry = parseInt(localStorage.getItem('subscriptionExpiry') || '0', 10);
+            const currentExpiry = parseInt(subData.expiry || '0', 10);
             const baseDate = (currentExpiry && currentExpiry > Date.now()) ? new Date(currentExpiry) : new Date();
 
             baseDate.setMonth(baseDate.getMonth() + 1);
             const newExpiry = baseDate.getTime();
 
-            localStorage.setItem('subscriptionStatus', 'active');
-            localStorage.setItem('subscriptionExpiry', String(newExpiry));
+            const newSubData = {
+                status: 'active',
+                expiry: String(newExpiry),
+                updatedAt: Date.now()
+            };
+
+            syncDocument('subscriptionData', newSubData);
             setExpiryDate(new Date(newExpiry));
             setIsSubscribed(true);
             toast.success(currentExpiry > Date.now() ? '¡Suscripción renovada con éxito!' : '¡Suscripción activada con éxito!');
             window.history.replaceState({}, document.title, window.location.pathname);
         }
-    }, [isPro]);
+    }, [isPro, syncDocument]);
 
     const handleMercadoPago = async () => {
         if (!currentUser) {
@@ -191,10 +195,9 @@ export default function Subscription() {
                                     <span style={{ fontSize: '0.8rem', color: '#555' }}>Perderás acceso a las funciones Premium.</span>
                                     <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.3rem' }}>
                                         <button
-                                            onClick={() => {
+                                            onClick={async () => {
                                                 toast.dismiss(toastId);
-                                                localStorage.removeItem('subscriptionStatus');
-                                                localStorage.removeItem('subscriptionExpiry');
+                                                await syncDocument('subscriptionData', { status: 'inactive', expiry: '0' });
                                                 setIsSubscribed(false);
                                                 setExpiryDate(null);
                                                 toast.success('Suscripción cancelada.');

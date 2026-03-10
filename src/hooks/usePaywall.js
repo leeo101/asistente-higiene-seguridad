@@ -16,12 +16,13 @@ export function usePaywall() {
             return true;
         }
 
-        if (localStorage.getItem('subscriptionStatus') !== 'active') return false;
-        const expiry = parseInt(localStorage.getItem('subscriptionExpiry') || '0', 10);
+        const subData = JSON.parse(localStorage.getItem('subscriptionData') || '{}');
+        if (subData.status !== 'active') return false;
+
+        const expiry = parseInt(subData.expiry || '0', 10);
         if (!expiry) return true;
         if (Date.now() > expiry) {
-            localStorage.removeItem('subscriptionStatus');
-            localStorage.removeItem('subscriptionExpiry');
+            // Local cleanup (will sync to cloud via Subscription component or next session)
             return false;
         }
         return true;

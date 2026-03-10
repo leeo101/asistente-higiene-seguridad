@@ -43,9 +43,9 @@ export default async function handler(req, res) {
                     }
                 ],
                 back_urls: {
-                    success: `${baseUrl}/subscription?status=approved`,
-                    failure: `${baseUrl}/subscription?status=failed`,
-                    pending: `${baseUrl}/subscription?status=pending`
+                    success: `${baseUrl}/subscribe?status=approved`,
+                    failure: `${baseUrl}/subscribe?status=failed`,
+                    pending: `${baseUrl}/subscribe?status=pending`
                 },
                 auto_return: 'approved',
                 statement_descriptor: 'ASISTENTE HY&S PRO',
@@ -88,7 +88,7 @@ export default async function handler(req, res) {
                                 </p>
                                 
                                 <div style="text-align: center; margin: 30px 0;">
-                                    <a href="${baseUrl}/subscription" style="display: inline-block; padding: 16px 32px; background-color: #10b981; color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);">Finalizar Suscripción</a>
+                                    <a href="${baseUrl}/subscribe" style="display: inline-block; padding: 16px 32px; background-color: #10b981; color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);">Finalizar Suscripción</a>
                                 </div>
 
                                 <p style="color: #94a3b8; font-size: 14px; line-height: 1.5; border-top: 1px solid #f1f5f9; padding-top: 25px; margin-top: 35px;">

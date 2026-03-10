@@ -118,6 +118,7 @@ export const SYNC_COLLECTIONS = [
 export const SYNC_DOCUMENTS = [
     'personalData',
     'signatureStampData',
+    'subscriptionData',
 ];
 
 /**
