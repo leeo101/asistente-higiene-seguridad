@@ -5,6 +5,8 @@ import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { HistoryCardSkeleton } from '../components/SkeletonLoader';
 import { ArrowLeft, Search, Plus, Calendar, AlertTriangle, ShieldCheck, MapPin, Trash2, Share2, AlertCircle } from 'lucide-react';
+import ShareModal from '../components/ShareModal';
+import StopCardPdfGenerator from '../components/StopCardPdfGenerator';
 
 function DeleteConfirm({ onConfirm, onCancel }) {
     return (
@@ -50,6 +52,7 @@ export default function StopCardsHistory() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteTarget, setDeleteTarget] = useState(null);
+    const [shareCard, setShareCard] = useState(null);
 
     useEffect(() => {
         setLoading(true);
@@ -88,6 +91,18 @@ export default function StopCardsHistory() {
     return (
         <div className="container page-transition" style={{ paddingBottom: '4rem' }}>
             {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
+            
+            <ShareModal
+                open={!!shareCard}
+                onClose={() => setShareCard(null)}
+                title={`Tarjeta STOP - ${shareCard?.type || ''}`}
+                text={shareCard ? `🚨 Tarjeta STOP\n🛑 Tipo: ${shareCard.type}\n📍 Ubicación: ${shareCard.location}\n📅 Fecha: ${new Date(shareCard.date).toLocaleDateString()} ${shareCard.time}\n\n📝 Hallazgo:\n${shareCard.description}` : ''}
+                elementIdToPrint="pdf-content"
+            />
+
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                <StopCardPdfGenerator card={shareCard} />
+            </div>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', minWidth: '200px' }}>
@@ -151,14 +166,13 @@ export default function StopCardsHistory() {
                                 )}
 
                                 <div style={{ display: 'flex', gap: '0.8rem', borderTop: '1px solid var(--color-border)', paddingTop: '0.8rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                                    <a
-                                        href={`https://wa.me/?text=${encodeURIComponent(`🚨 Tarjeta STOP\n🛑 Tipo: ${item.type}\n📍 Ubicación: ${item.location}\n📅 Fecha: ${new Date(item.date).toLocaleDateString()} ${item.time}\n\n📝 Hallazgo:\n${item.description}\n\n📱 Generado con Asistente HYS\n🔗 https://asistentehs.com`)}`}
-                                        target="_blank" rel="noreferrer"
+                                    <button
+                                        onClick={() => setShareCard(item)}
                                         className="btn-secondary"
-                                        style={{ padding: '0.5rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none', color: 'var(--color-text)' }}
+                                        style={{ padding: '0.5rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-text)', border: '1px solid var(--color-border)', cursor: 'pointer', background: 'transparent', borderRadius: '10px' }}
                                     >
                                         <Share2 size={16} /> Compartir
-                                    </a>
+                                    </button>
                                     <button
                                         onClick={() => setDeleteTarget(item.id)}
                                         style={{
