@@ -89,26 +89,25 @@ const typeColors = {
 };
 
 const quickLinks = [
-    { to: '/training-management', icon: <Users size={26} />, label: 'Capacitar', sub: 'Planillas y Asistencia', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
-    { to: '/accident-investigation', icon: <Siren size={26} />, label: 'Investigación', sub: 'Accidentes / Árbol', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
     { to: '/ats', icon: <ShieldCheck size={26} />, label: 'ATS', sub: 'Análisis Trabajo Seguro', color: '#10b981', bg: 'rgba(16,185,129,0.1)' },
-    { to: '/fire-load', icon: <Flame size={26} />, label: 'Carga Fuego', sub: 'Dec. 351/79', color: '#f97316', bg: 'rgba(249,115,22,0.1)' },
-    { to: '/extinguishers', icon: <Flame size={26} />, label: 'Matafuegos', sub: 'Control y Vencimientos', color: '#dc2626', bg: 'rgba(220,38,38,0.1)' },
-    { to: '/thermal-stress', icon: <ThermometerSun size={26} />, label: 'Estrés Térmico', sub: 'TGBH Res. 295/03', color: '#f97316', bg: 'rgba(249,115,22,0.1)' },
-    { to: '/drills', icon: <Siren size={26} />, label: 'Simulacros', sub: 'Actas de Evacuación', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
-    { to: '/risk-maps', icon: <Map size={26} />, label: 'Mapas', sub: 'Croquis de Riesgos', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
-    { to: '/working-permits', icon: <KeySquare size={26} />, label: 'Permisos', sub: 'Trabajo Seguro', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
-    { to: '/ergonomics', icon: <Accessibility size={26} />, label: 'Ergonomía', sub: 'Res. SRT 886/15', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
-    { to: '/reports', icon: <ScrollText size={26} />, label: 'Informes', sub: 'Técnicos', color: '#ec4899', bg: 'rgba(236,72,153,0.1)' },
-    { to: '/legislation', icon: <Gavel size={26} />, label: 'Legislación', sub: 'Biblioteca Legal', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
-    { to: '/lighting', icon: <Lightbulb size={26} />, label: 'Iluminación', sub: 'Dec. 351/79', color: '#eab308', bg: 'rgba(234,179,8,0.1)' },
-    { to: '/ai-camera', icon: <Camera size={26} />, label: 'Cámara IA', sub: 'Detección EPP', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)' },
     { to: '/ai-advisor', icon: <Bot size={26} />, label: 'Asesor IA', sub: 'Consultas de Seguridad', color: '#a855f7', bg: 'rgba(168,85,247,0.1)' },
+    { to: '/ai-camera', icon: <Camera size={26} />, label: 'Cámara IA', sub: 'Detección EPP', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)' },
+    { to: '/training-management', icon: <Users size={26} />, label: 'Capacitar', sub: 'Planillas y Asistencia', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
+    { to: '/fire-load', icon: <Flame size={26} />, label: 'Carga Fuego', sub: 'Dec. 351/79', color: '#f97316', bg: 'rgba(249,115,22,0.1)' },
     { to: '/checklists', icon: <ClipboardList size={26} />, label: 'Checklists', sub: 'Herramientas y Equipos', color: '#14b8a6', bg: 'rgba(20,184,166,0.1)' },
-    { to: '/work-permit', icon: <KeySquare size={26} />, label: 'Permisos', sub: 'Tareas Críticas', color: '#2563eb', bg: 'rgba(37,99,235,0.1)' },
-    { to: '/risk', icon: <Shield size={26} />, label: 'Eval. Riesgo', sub: 'IPER', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
-    { to: '/ai-general-camera', icon: <ShieldAlert size={26} />, label: 'Riesgos IA', sub: 'Análisis de Entorno', color: '#f43f5e', bg: 'rgba(244, 63, 94, 0.1)' },
     { to: '/ppe-tracker', icon: <HardHat size={26} />, label: 'Control EPP', sub: 'Vencimientos', color: '#10b981', bg: 'rgba(16,185,129,0.08)' },
+    { to: '/ergonomics', icon: <Accessibility size={26} />, label: 'Ergonomía', sub: 'Res. SRT 886/15', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
+    { to: '/thermal-stress', icon: <ThermometerSun size={26} />, label: 'Estrés Térmico', sub: 'TGBH Res. 295/03', color: '#f97316', bg: 'rgba(249,115,22,0.1)' },
+    { to: '/risk', icon: <Shield size={26} />, label: 'Eval. Riesgo', sub: 'IPER', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
+    { to: '/lighting', icon: <Lightbulb size={26} />, label: 'Iluminación', sub: 'Dec. 351/79', color: '#eab308', bg: 'rgba(234,179,8,0.1)' },
+    { to: '/reports', icon: <ScrollText size={26} />, label: 'Informes', sub: 'Técnicos', color: '#ec4899', bg: 'rgba(236,72,153,0.1)' },
+    { to: '/accident-investigation', icon: <Siren size={26} />, label: 'Investigación', sub: 'Accidentes / Árbol', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
+    { to: '/legislation', icon: <Gavel size={26} />, label: 'Legislación', sub: 'Biblioteca Legal', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
+    { to: '/risk-maps', icon: <Map size={26} />, label: 'Mapas', sub: 'Croquis de Riesgos', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
+    { to: '/extinguishers', icon: <Flame size={26} />, label: 'Matafuegos', sub: 'Control y Vencimientos', color: '#dc2626', bg: 'rgba(220,38,38,0.1)' },
+    { to: '/work-permit', icon: <KeySquare size={26} />, label: 'Permisos', sub: 'Tareas Críticas', color: '#2563eb', bg: 'rgba(37,99,235,0.1)' },
+    { to: '/ai-general-camera', icon: <ShieldAlert size={26} />, label: 'Riesgos IA', sub: 'Análisis de Entorno', color: '#f43f5e', bg: 'rgba(244, 63, 94, 0.1)' },
+    { to: '/drills', icon: <Siren size={26} />, label: 'Simulacros', sub: 'Actas de Evacuación', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
 ];
 
 export default function Home() {
@@ -120,16 +119,16 @@ export default function Home() {
     const [daysLeft, setDaysLeft] = useState(null);
     const [showOnboarding, setShowOnboarding] = useState(false);
     const [stats, setStats] = useState([
-        { label: 'Inspecciones', value: 0, icon: <ClipboardCheck />, color: '#3b82f6', grad: 'linear-gradient(135deg,#3b82f6,#2563eb)', key: 'inspections_history' },
-        { label: 'ATS', value: 0, icon: <ShieldCheck />, color: '#10b981', grad: 'linear-gradient(135deg,#10b981,#059669)', key: 'ats_history' },
-        { label: 'Checklists', value: 0, icon: <ClipboardList />, color: '#14b8a6', grad: 'linear-gradient(135deg,#14b8a6,#0d9488)', key: 'tool_checklists_history' },
-        { label: 'Carga Fuego', value: 0, icon: <Flame />, color: '#f97316', grad: 'linear-gradient(135deg,#f97316,#ea580c)', key: 'fireload_history' },
-        { label: 'Matrices', value: 0, icon: <TriangleAlert />, color: '#8b5cf6', grad: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', key: 'risk_matrix_history' },
-        { label: 'Iluminación', value: 0, icon: <Lightbulb />, color: '#eab308', grad: 'linear-gradient(135deg,#eab308,#ca8a04)', key: 'lighting_history' },
-        { label: 'Permisos', value: 0, icon: <KeySquare />, color: '#2563eb', grad: 'linear-gradient(135deg,#2563eb,#1d4ed8)', key: 'work_permits_history' },
-        { label: 'Informes', value: 0, icon: <ScrollText />, color: '#ec4899', grad: 'linear-gradient(135deg,#ec4899,#db2777)', key: 'reports_history' },
-        { label: 'Eval. Riesgo', value: 0, icon: <Shield />, color: '#ef4444', grad: 'linear-gradient(135deg,#ef4444,#dc2626)', key: 'risk_assessment_history' },
         { label: 'Accidentes', value: 0, icon: <Siren />, color: '#ef4444', grad: 'linear-gradient(135deg,#ef4444,#b91c1c)', key: 'accident_history' },
+        { label: 'ATS', value: 0, icon: <ShieldCheck />, color: '#10b981', grad: 'linear-gradient(135deg,#10b981,#059669)', key: 'ats_history' },
+        { label: 'Carga Fuego', value: 0, icon: <Flame />, color: '#f97316', grad: 'linear-gradient(135deg,#f97316,#ea580c)', key: 'fireload_history' },
+        { label: 'Checklists', value: 0, icon: <ClipboardList />, color: '#14b8a6', grad: 'linear-gradient(135deg,#14b8a6,#0d9488)', key: 'tool_checklists_history' },
+        { label: 'Eval. Riesgo', value: 0, icon: <Shield />, color: '#ef4444', grad: 'linear-gradient(135deg,#ef4444,#dc2626)', key: 'risk_assessment_history' },
+        { label: 'Iluminación', value: 0, icon: <Lightbulb />, color: '#eab308', grad: 'linear-gradient(135deg,#eab308,#ca8a04)', key: 'lighting_history' },
+        { label: 'Informes', value: 0, icon: <ScrollText />, color: '#ec4899', grad: 'linear-gradient(135deg,#ec4899,#db2777)', key: 'reports_history' },
+        { label: 'Inspecciones', value: 0, icon: <ClipboardCheck />, color: '#3b82f6', grad: 'linear-gradient(135deg,#3b82f6,#2563eb)', key: 'inspections_history' },
+        { label: 'Matrices', value: 0, icon: <TriangleAlert />, color: '#8b5cf6', grad: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', key: 'risk_matrix_history' },
+        { label: 'Permisos', value: 0, icon: <KeySquare />, color: '#2563eb', grad: 'linear-gradient(135deg,#2563eb,#1d4ed8)', key: 'work_permits_history' },
     ]);
     const [recentWorks, setRecentWorks] = useState([]);
     const [userName, setUserName] = useState('Profesional');

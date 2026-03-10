@@ -285,28 +285,14 @@ export default function AccidentInvestigation() {
                             </div>
 
                             {formData.testigos.map((t, i) => (
-                                <div key={i} style={{ background: 'var(--color-surface)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--color-border)', marginBottom: '1rem', position: 'relative' }}>
+                                <div key={i} className="responsive-list-card">
                                     {formData.testigos.length > 1 && (
                                         <button
                                             onClick={() => removeArrayItem('testigos', i)}
-                                            style={{
-                                                position: 'absolute',
-                                                top: '10px',
-                                                right: '10px',
-                                                background: '#ffe4e6',
-                                                border: '1.5px solid #fda4af',
-                                                color: '#be123c',
-                                                borderRadius: '8px',
-                                                width: '36px',
-                                                height: '36px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                cursor: 'pointer'
-                                            }}
-                                            title="Eliminar"
+                                            className="card-delete-btn"
+                                            title="Eliminar Testigo"
                                         >
-                                            <Trash2 size={20} />
+                                            <Trash2 size={16} />
                                         </button>
                                     )}
                                     <label>Nombre del Testigo {i + 1}</label>
@@ -332,28 +318,18 @@ export default function AccidentInvestigation() {
 
                             <div style={{ marginTop: '1.5rem', borderLeft: '3px solid var(--color-primary)', paddingLeft: '1rem' }}>
                                 {formData.porques.map((pq, i) => (
-                                    <div key={i} style={{ marginBottom: '1rem', position: 'relative' }}>
-                                        <label style={{ color: 'var(--color-text)' }}>¿Por qué? (Nivel {i + 1})</label>
+                                    <div key={i} className="responsive-list-card" style={{ padding: '1rem' }}>
+                                        <label style={{ color: 'var(--color-text)', margin: 0 }}>¿Por qué? (Nivel {i + 1})</label>
                                         <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                            <input type="text" placeholder="Respuesta al porqué anterior..." value={pq} onChange={e => handleArrayChange('porques', i, null, e.target.value)} style={{ marginBottom: 0 }} />
+                                            <input type="text" placeholder="Respuesta al porqué anterior..." value={pq} onChange={e => handleArrayChange('porques', i, null, e.target.value)} style={{ marginBottom: 0, flex: 1 }} />
                                             {formData.porques.length > 1 && (
                                                 <button
                                                     onClick={() => removeArrayItem('porques', i)}
-                                                    style={{
-                                                        padding: '0 0.8rem',
-                                                        background: '#ffe4e6',
-                                                        border: '1.5px solid #fda4af',
-                                                        borderRadius: '8px',
-                                                        color: '#be123c',
-                                                        cursor: 'pointer',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        width: '44px'
-                                                    }}
-                                                    title="Eliminar"
+                                                    className="card-delete-btn"
+                                                    style={{ position: 'relative', top: 'auto', right: 'auto', borderRadius: '8px', zIndex: 1 }}
+                                                    title="Eliminar Porqué"
                                                 >
-                                                    <Trash2 size={20} />
+                                                    <Trash2 size={16} />
                                                 </button>
                                             )}
                                         </div>
@@ -375,28 +351,14 @@ export default function AccidentInvestigation() {
                             </p>
 
                             {formData.medidas.map((m, i) => (
-                                <div key={i} style={{ background: 'var(--color-surface)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--color-border)', marginBottom: '1rem', position: 'relative' }}>
+                                <div key={i} className="responsive-list-card">
                                     {formData.medidas.length > 1 && (
                                         <button
                                             onClick={() => removeArrayItem('medidas', i)}
-                                            style={{
-                                                position: 'absolute',
-                                                top: '10px',
-                                                right: '10px',
-                                                background: '#ffe4e6',
-                                                border: '1.5px solid #fda4af',
-                                                color: '#be123c',
-                                                borderRadius: '8px',
-                                                width: '36px',
-                                                height: '36px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                cursor: 'pointer'
-                                            }}
-                                            title="Eliminar"
+                                            className="card-delete-btn"
+                                            title="Eliminar Medida"
                                         >
-                                            <Trash2 size={20} />
+                                            <Trash2 size={16} />
                                         </button>
                                     )}
                                     <label>Acción Correctiva / Preventiva</label>

@@ -203,76 +203,87 @@ export default function Extinguishers() {
 
                 {/* Table/List */}
                 <div className="card" style={{ overflow: 'hidden' }}>
-                    <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', minWidth: '700px', borderCollapse: 'collapse', textAlign: 'left' }}>
-                            <thead>
-                                <tr style={{ background: 'var(--color-background)', borderBottom: '2px solid var(--color-border)' }}>
-                                    <th style={{ padding: '1rem', color: 'var(--color-text-muted)', fontWeight: 700, fontSize: '0.85rem' }}>Nº CHAPA</th>
-                                    <th style={{ padding: '1rem', color: 'var(--color-text-muted)', fontWeight: 700, fontSize: '0.85rem' }}>UBICACIÓN</th>
-                                    <th style={{ padding: '1rem', color: 'var(--color-text-muted)', fontWeight: 700, fontSize: '0.85rem' }}>TIPO / CAP.</th>
-                                    <th style={{ padding: '1rem', color: 'var(--color-text-muted)', fontWeight: 700, fontSize: '0.85rem' }}>VENCIMIENTO CARGA (1 AÑO)</th>
-                                    <th style={{ padding: '1rem', color: 'var(--color-text-muted)', fontWeight: 700, fontSize: '0.85rem' }}>VTO. P.H. (5 AÑOS)</th>
-                                    <th style={{ padding: '1rem', color: 'var(--color-text-muted)', fontWeight: 700, fontSize: '0.85rem', textAlign: 'center' }}>ACCIONES</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredList.map(ext => {
-                                    const stCarga = getStatus(ext.ultimaCarga, 12);
-                                    const stPH = getStatus(ext.ultimaPH, 60);
+                    <div className="hidden sm:grid" style={{ gridTemplateColumns: 'minmax(80px, 1fr) 2fr 1.5fr 2fr 2fr 100px', gap: '1rem', padding: '1rem', background: 'var(--color-surface)', borderBottom: '2px solid var(--color-border)', fontWeight: 800, fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>
+                        <div>Nº Chapa</div>
+                        <div>Ubicación</div>
+                        <div>Tipo / Cap.</div>
+                        <div>Vto. Carga (1 año)</div>
+                        <div>Vto. P.H. (5 años)</div>
+                        <div style={{ textAlign: 'center' }}>Acciones</div>
+                    </div>
 
-                                    return (
-                                        <tr key={ext.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
-                                            <td style={{ padding: '1rem', fontWeight: 800 }}>#{ext.chapa}</td>
-                                            <td style={{ padding: '1rem' }}>
+                    <div style={{ padding: '0.5rem 0' }}>
+                        {filteredList.map(ext => {
+                            const stCarga = getStatus(ext.ultimaCarga, 12);
+                            const stPH = getStatus(ext.ultimaPH, 60);
+
+                            return (
+                                <div key={ext.id} className="responsive-list-card" style={{ padding: '1rem', margin: '0.5rem 1rem 1rem 1rem', display: 'flex', flexDirection: 'column' }}>
+                                    {/* Desktop mapping uses grid, mobile uses stacked */}
+                                    <div className="sm:grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', alignItems: 'center' }}>
+                                        {/* CSS to make it a row on desktop */}
+                                        <style>{`@media (min-width: 640px) { .ext-row-${ext.id} { grid-template-columns: minmax(80px, 1fr) 2fr 1.5fr 2fr 2fr 100px !important; } }`}</style>
+
+                                        <div className={`ext-row-${ext.id}`} style={{ display: 'grid', gap: '1rem', gridTemplateColumns: '1fr', alignItems: 'center' }}>
+
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                                                <span className="sm:hidden" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>Nº Chapa</span>
+                                                <span style={{ fontWeight: 900, fontSize: '1.1rem', color: 'var(--color-primary)' }}>#{ext.chapa}</span>
+                                            </div>
+
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                                                <span className="sm:hidden" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>Ubicación</span>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600 }}>
                                                     <MapPin size={16} style={{ color: 'var(--color-text-muted)' }} /> {ext.ubicacion}
                                                 </div>
                                                 {ext.empresa && <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>{ext.empresa}</div>}
-                                            </td>
-                                            <td style={{ padding: '1rem' }}>
-                                                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                    <span style={{ fontWeight: 600 }}>{ext.tipo}</span>
-                                                    <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{ext.capacidad}</span>
-                                                </div>
-                                            </td>
-                                            <td style={{ padding: '1rem' }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                                    <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: stCarga.color }}></div>
-                                                    <span style={{ color: stCarga.color, fontWeight: 700, fontSize: '0.9rem' }}>{stCarga.text}</span>
-                                                </div>
-                                                {ext.ultimaCarga && <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>Últ: {new Date(ext.ultimaCarga + 'T12:00:00Z').toLocaleDateString()}</div>}
-                                            </td>
-                                            <td style={{ padding: '1rem' }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                                    <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: stPH.color }}></div>
-                                                    <span style={{ color: stPH.color, fontWeight: 700, fontSize: '0.9rem' }}>{stPH.text}</span>
-                                                </div>
-                                                {ext.ultimaPH && <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>Últ: {new Date(ext.ultimaPH + 'T12:00:00Z').toLocaleDateString()}</div>}
-                                            </td>
-                                            <td style={{ padding: '1rem', textAlign: 'center' }}>
-                                                <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
-                                                    <button onClick={() => openModal(ext)} style={{ padding: '0.4rem', background: 'transparent', border: '1px solid var(--color-border)', borderRadius: '8px', color: 'var(--color-primary)', cursor: 'pointer' }}>
-                                                        <Edit2 size={16} />
-                                                    </button>
-                                                    <button onClick={() => handleDelete(ext.id)} style={{ padding: '0.4rem', background: 'transparent', border: '1px solid var(--color-border)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}>
-                                                        <Trash2 size={16} />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )
-                                })}
+                                            </div>
 
-                                {filteredList.length === 0 && (
-                                    <tr>
-                                        <td colSpan="6" style={{ padding: '3rem 1rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
-                                            <Flame size={48} style={{ opacity: 0.3, marginBottom: '1rem', display: 'block', margin: '0 auto 1rem' }} />
-                                            No hay extintores registrados para estos filtros.
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                                                <span className="sm:hidden" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>Tipo / Cap.</span>
+                                                <span style={{ fontWeight: 700 }}>{ext.tipo}</span>
+                                                <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{ext.capacidad}</span>
+                                            </div>
+
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                                                <span className="sm:hidden" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>Vto. Carga</span>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                    <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: stCarga.color }}></div>
+                                                    <span style={{ color: stCarga.color, fontWeight: 800, fontSize: '0.95rem' }}>{stCarga.text}</span>
+                                                </div>
+                                                {ext.ultimaCarga && <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>Últ: {new Date(ext.ultimaCarga + 'T12:00:00Z').toLocaleDateString()}</div>}
+                                            </div>
+
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                                                <span className="sm:hidden" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>Vto. P.H.</span>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                    <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: stPH.color }}></div>
+                                                    <span style={{ color: stPH.color, fontWeight: 800, fontSize: '0.95rem' }}>{stPH.text}</span>
+                                                </div>
+                                                {ext.ultimaPH && <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>Últ: {new Date(ext.ultimaPH + 'T12:00:00Z').toLocaleDateString()}</div>}
+                                            </div>
+
+                                            <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '0.5rem', marginTop: '0.5rem' }} className="sm:justify-center sm:mt-0">
+                                                <button onClick={() => openModal(ext)} style={{ padding: '0.5rem 1rem', background: 'rgba(37,99,235,0.1)', border: '1px solid rgba(37,99,235,0.2)', borderRadius: '8px', color: 'var(--color-primary)', cursor: 'pointer', fontWeight: 700, flex: 1 }} className="sm:flex-none sm:p-2">
+                                                    <Edit2 size={16} /> <span className="sm:hidden" style={{ marginLeft: '4px' }}>Editar</span>
+                                                </button>
+                                                <button onClick={() => handleDelete(ext.id)} style={{ padding: '0.5rem 1rem', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer', fontWeight: 700, flex: 1 }} className="sm:flex-none sm:p-2">
+                                                    <Trash2 size={16} /> <span className="sm:hidden" style={{ marginLeft: '4px' }}>Borrar</span>
+                                                </button>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                        })}
+
+                        {filteredList.length === 0 && (
+                            <div style={{ padding: '3rem 1rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+                                <Flame size={48} style={{ opacity: 0.3, marginBottom: '1rem', display: 'block', margin: '0 auto 1rem' }} />
+                                No hay extintores registrados para estos filtros.
+                            </div>
+                        )}
                     </div>
                 </div>
 

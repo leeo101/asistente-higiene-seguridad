@@ -9,6 +9,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import toast from 'react-hot-toast';
+import { usePaywall } from '../hooks/usePaywall';
+import AdBanner from '../components/AdBanner';
 
 // SRT 295/03 Permissible Limits Table (Values in Celsius)
 const LIMITS_295 = {
@@ -23,6 +25,7 @@ export default function ThermalStress() {
     const navigate = useNavigate();
     const location = useLocation();
     const { currentUser } = useAuth();
+    const { requirePro } = usePaywall();
     const { syncCollection } = useSync();
 
     const editData = location.state?.editData;
@@ -87,7 +90,7 @@ export default function ThermalStress() {
         }
     }, [formData.tbh, formData.tg, formData.tbs, formData.cargaSolar, formData.ritmo, formData.ciclo]);
 
-    const handleSave = () => {
+    const doSave = () => {
         if (!formData.puesto) {
             toast.error('Debe indicar el nombre del puesto/estudio.');
             return;
@@ -121,9 +124,8 @@ export default function ThermalStress() {
         navigate('/thermal-stress-history');
     };
 
-    const handlePrint = () => {
-        window.print();
-    };
+    const handleSave = () => requirePro(doSave);
+    const handlePrint = () => requirePro(() => window.print());
 
     return (
         <div className="container" style={{ paddingBottom: '6rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -144,7 +146,7 @@ export default function ThermalStress() {
                     <Save size={18} /> GUARDAR
                 </button>
                 <button
-                    onClick={() => setShowShareModal(true)}
+                    onClick={() => requirePro(() => setShowShareModal(true))}
                     className="btn-floating-action"
                     style={{ background: '#0052CC', color: '#ffffff' }}
                 >
@@ -202,9 +204,9 @@ export default function ThermalStress() {
                         </div>
 
                         <div className="card" style={{ padding: '1.5rem' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
                                 <h2 style={{ fontSize: '1.1rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#f97316' }}>
-                                    <ThermometerSun size={20} /> Mediciones Ambientales (Instrumento)
+                                    <ThermometerSun size={20} /> Mediciones Ambientales
                                 </h2>
                                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', cursor: 'pointer', background: 'rgba(249,115,22,0.1)', padding: '0.3rem 0.8rem', borderRadius: '12px', color: '#c2410c', fontWeight: 700 }}>
                                     <input type="checkbox" checked={formData.cargaSolar} onChange={e => handleInput('cargaSolar', e.target.checked)} style={{ margin: 0 }} /> Al sol / Carga Solar
@@ -328,6 +330,9 @@ export default function ThermalStress() {
                     </div>
                 </div>
             </div>
+
+            {/* PRO upgrade banner for free users */}
+            <AdBanner />
 
             {/* Hidden report for direct printing */}
             <div className="print-only">

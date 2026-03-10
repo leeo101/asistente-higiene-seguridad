@@ -15,8 +15,6 @@ const navItems = [
     { to: '/calendar', icon: <Calendar size={18} />, label: 'Calendario', always: true },
     { to: '/analytics', icon: <BarChart3 size={18} color="#3b82f6" />, label: 'Estadísticas', auth: true },
     { to: '/management-report', icon: <BarChart3 size={18} color="#10b981" />, label: 'Reporte Mensual', auth: true },
-    { to: '/training-management', icon: <Users size={18} color="#3b82f6" />, label: 'Capacitaciones', auth: true },
-    { to: '/accident-investigation', icon: <TriangleAlert size={18} color="#ef4444" />, label: 'Accidentes', auth: true },
     { to: '/settings', icon: <Settings size={18} />, label: 'Configuración', auth: true },
     { to: '/privacy', icon: <ShieldCheck size={18} />, label: 'Privacidad', always: true },
 ];

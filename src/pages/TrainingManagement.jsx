@@ -11,6 +11,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import toast from 'react-hot-toast';
+import { usePaywall } from '../hooks/usePaywall';
+import AdBanner from '../components/AdBanner';
 
 export default function TrainingManagement() {
     useDocumentTitle('Gestión de Capacitaciones');
@@ -18,6 +20,7 @@ export default function TrainingManagement() {
     const location = useLocation();
     const { currentUser } = useAuth();
     const { syncCollection } = useSync();
+    const { requirePro } = usePaywall();
 
     const editData = location.state?.editData;
 
@@ -37,9 +40,7 @@ export default function TrainingManagement() {
     const [viewMode, setViewMode] = useState('edit'); // 'edit' or 'report'
     const [showShareModal, setShowShareModal] = useState(false);
 
-    const handlePrint = () => {
-        window.print();
-    };
+    const handlePrint = () => requirePro(() => window.print());
 
     const handleInputChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
@@ -67,7 +68,7 @@ export default function TrainingManagement() {
         }));
     };
 
-    const handleSave = () => {
+    const doSave = () => {
         if (!formData.tema || !formData.fecha) {
             toast.error('El tema y la fecha son obligatorios.');
             return;
@@ -105,6 +106,8 @@ export default function TrainingManagement() {
         navigate('/training-history');
     };
 
+    const handleSave = () => requirePro(doSave);
+
     const handleBack = () => {
         navigate('/training-history');
     };
@@ -129,7 +132,7 @@ export default function TrainingManagement() {
                         <Save size={18} /> GUARDAR
                     </button>
                     <button
-                        onClick={() => setShowShareModal(true)}
+                        onClick={() => requirePro(() => setShowShareModal(true))}
                         className="btn-floating-action"
                         style={{ background: '#0052CC', color: '#ffffff' }}
                     >
@@ -234,56 +237,64 @@ export default function TrainingManagement() {
                     </div>
 
                     {formData.asistentes.map((asistente, i) => (
-                        <div key={i} style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            background: 'var(--color-surface)',
-                            padding: '1rem',
-                            borderRadius: '12px',
-                            border: '1px solid var(--color-border)',
-                            marginBottom: '1rem',
-                            gap: '1rem'
-                        }} className="asistente-row-desktop">
+                        <div key={i} className="responsive-list-card">
 
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: 2 }}>
-                                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)' }} className="sm:hidden">Apellido y Nombre</label>
-                                <input
-                                    type="text"
-                                    placeholder="Nombre completo"
-                                    value={asistente.nombre}
-                                    onChange={e => handleArrayChange(i, 'nombre', e.target.value)}
-                                    style={{ margin: 0, height: '44px' }}
-                                />
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: 1 }}>
-                                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)' }} className="sm:hidden">DNI / CUIL</label>
-                                <input
-                                    type="text"
-                                    placeholder="DNI..."
-                                    value={asistente.dni}
-                                    onChange={e => handleArrayChange(i, 'dni', e.target.value)}
-                                    style={{ margin: 0, height: '44px' }}
-                                />
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: 1.5 }}>
-                                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)' }} className="sm:hidden">Puesto / Sector</label>
-                                <input
-                                    type="text"
-                                    placeholder="Ej. Soldador"
-                                    value={asistente.puesto}
-                                    onChange={e => handleArrayChange(i, 'puesto', e.target.value)}
-                                    style={{ margin: 0, height: '44px' }}
-                                />
-                            </div>
-                            <div className="asistente-actions">
-                                <button
-                                    onClick={() => removeAsistente(i)}
-                                    disabled={formData.asistentes.length <= 1}
-                                    className="delete-asistente-btn"
-                                    title="Eliminar Asistente"
-                                >
-                                    <Trash2 size={26} />
-                                </button>
+                            <div className="responsive-card-row">
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: 2 }}>
+                                    <label className="sm:hidden" style={{ fontSize: '0.75rem', fontWeight: 700, margin: 0 }}>Apellido y Nombre</label>
+                                    <input
+                                        type="text"
+                                        placeholder="Nombre completo"
+                                        value={asistente.nombre}
+                                        onChange={e => handleArrayChange(i, 'nombre', e.target.value)}
+                                        style={{ margin: 0, height: '44px' }}
+                                    />
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: 1 }}>
+                                    <label className="sm:hidden" style={{ fontSize: '0.75rem', fontWeight: 700, margin: 0 }}>DNI / CUIL</label>
+                                    <input
+                                        type="text"
+                                        placeholder="DNI..."
+                                        value={asistente.dni}
+                                        onChange={e => handleArrayChange(i, 'dni', e.target.value)}
+                                        style={{ margin: 0, height: '44px' }}
+                                    />
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: 1.5 }}>
+                                    <label className="sm:hidden" style={{ fontSize: '0.75rem', fontWeight: 700, margin: 0 }}>Puesto / Sector</label>
+                                    <input
+                                        type="text"
+                                        placeholder="Ej. Soldador"
+                                        value={asistente.puesto}
+                                        onChange={e => handleArrayChange(i, 'puesto', e.target.value)}
+                                        style={{ margin: 0, height: '44px' }}
+                                    />
+                                </div>
+
+                                {/* Acción de Borrar (Móvil full, PC cuadrado 44px) */}
+                                {formData.asistentes.length > 1 ? (
+                                    <div style={{ display: 'flex' }} className="mt-2 sm:mt-0 sm:ml-2 sm:w-[44px] flex-none">
+                                        <style>{`
+                                            @media (min-width: 640px) {
+                                                .btn-del-${i} { width: 44px !important; flex: none !important; margin-top: 0 !important; }
+                                            }
+                                        `}</style>
+                                        <button
+                                            onClick={() => removeAsistente(i)}
+                                            className={`delete-asistente-btn btn-del-${i}`}
+                                            title="Eliminar Asistente"
+                                            style={{
+                                                width: '100%', height: '44px', borderRadius: '8px',
+                                                marginTop: '0.5rem', padding: 0, display: 'flex',
+                                                alignItems: 'center', justifyContent: 'center'
+                                            }}
+                                        >
+                                            <Trash2 size={20} />
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="hidden sm:block" style={{ width: '44px', flex: 'none' }}></div>
+                                )}
                             </div>
                         </div>
                     ))}
@@ -301,6 +312,9 @@ export default function TrainingManagement() {
                     </button>
                 </div>
             </div>
+
+            {/* PRO upgrade banner for free users */}
+            <AdBanner />
 
             {/* Hidden report for direct printing */}
             <div className="print-only">

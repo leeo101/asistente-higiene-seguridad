@@ -11,6 +11,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import toast from 'react-hot-toast';
+import { usePaywall } from '../hooks/usePaywall';
+import AdBanner from '../components/AdBanner';
 
 export default function Drills() {
     useDocumentTitle('Registro de Simulacro');
@@ -18,6 +20,7 @@ export default function Drills() {
     const location = useLocation();
     const { currentUser } = useAuth();
     const { syncCollection } = useSync();
+    const { requirePro } = usePaywall();
 
     const editData = location.state?.editData;
 
@@ -89,7 +92,7 @@ export default function Drills() {
         setFormData(p => ({ ...p, [field]: value }));
     };
 
-    const handleSave = () => {
+    const doSave = () => {
         if (!formData.empresa || !formData.origen) {
             toast.error('Complete la empresa y el origen del siniestro.');
             return;
@@ -127,9 +130,8 @@ export default function Drills() {
         navigate('/drills-history');
     };
 
-    const handlePrint = () => {
-        window.print();
-    };
+    const handleSave = () => requirePro(doSave);
+    const handlePrint = () => requirePro(() => window.print());
 
     const formatDisplayTime = (totalSecs) => {
         const m = Math.floor(totalSecs / 60);
@@ -157,7 +159,7 @@ export default function Drills() {
                         <Save size={18} /> GUARDAR
                     </button>
                     <button
-                        onClick={() => setShowShareModal(true)}
+                        onClick={() => requirePro(() => setShowShareModal(true))}
                         className="btn-floating-action"
                         style={{ background: '#0052CC', color: '#ffffff' }}
                     >
@@ -324,6 +326,9 @@ export default function Drills() {
                     </div>
                 </div>
             </div>
+
+            {/* PRO upgrade banner for free users */}
+            <AdBanner />
 
             {/* Hidden report for direct printing */}
             <div className="print-only">

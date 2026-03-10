@@ -3,11 +3,11 @@ import { ClipboardList, ShieldCheck, ScrollText, Camera, HardHat, TriangleAlert 
 
 const STATS_CONFIG = [
     { key: 'ats_history', label: 'ATS', color: '#10b981', bg: 'rgba(16,185,129,0.1)', icon: <ClipboardList size={18} /> },
-    { key: 'inspections_history', label: 'Inspecciones', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', icon: <ShieldCheck size={18} /> },
-    { key: 'reports_history', label: 'Informes', color: '#ec4899', bg: 'rgba(236,72,153,0.1)', icon: <ScrollText size={18} /> },
     { key: 'ai_camera_history', label: 'Cámara IA', color: '#06b6d4', bg: 'rgba(6,182,212,0.1)', icon: <Camera size={18} /> },
-    { key: 'work_permits_history', label: 'Permisos', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', icon: <HardHat size={18} /> },
     { key: 'tool_checklists_history', label: 'Checklists', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', icon: <ClipboardList size={18} /> },
+    { key: 'reports_history', label: 'Informes', color: '#ec4899', bg: 'rgba(236,72,153,0.1)', icon: <ScrollText size={18} /> },
+    { key: 'inspections_history', label: 'Inspecciones', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', icon: <ShieldCheck size={18} /> },
+    { key: 'work_permits_history', label: 'Permisos', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', icon: <HardHat size={18} /> },
 ];
 
 function AnimatedNumber({ value }) {
