@@ -5,9 +5,12 @@ import {
     ClipboardList, Flame, BarChart3, ShieldAlert, Plus, Sparkles, Trash2, Camera, Lightbulb, HardHat, Share2,
     ClipboardCheck, ScrollText, ShieldCheck, KeySquare, Bot, TriangleAlert, FileText, Shield, ThermometerSun, Siren, Map, BookOpen
 } from 'lucide-react';
-import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { HistoryCardSkeleton } from '../components/SkeletonLoader';
+import ShareModal from '../components/ShareModal';
+import RiskMatrixPdfGenerator from '../components/RiskMatrixPdfGenerator';
+import ProfessionalReportPdfGenerator from '../components/ProfessionalReportPdfGenerator';
+import ReportPdfGenerator from '../components/ReportPdfGenerator';
 
 // ─── Reusable delete confirmation dialog ───────────────────────────
 function DeleteConfirm({ onConfirm, onCancel }) {
@@ -63,6 +66,7 @@ export default function History() {
     const [reportsData, setReportsData] = useState([]);
     const [thermalData, setThermalData] = useState([]);
     const [deleteTarget, setDeleteTarget] = useState(null); // { storageKey, id, view }
+    const [shareItem, setShareItem] = useState(null); // { type, data }
     const [counts, setCounts] = useState({});
     const [loading, setLoading] = useState(true);
 
@@ -240,6 +244,19 @@ export default function History() {
         return (
             <div className="container page-transition">
                 {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
+                
+                <ShareModal
+                    open={!!shareItem}
+                    onClose={() => setShareItem(null)}
+                    title={`Matriz de Riesgos - ${shareItem?.data?.name || ''}`}
+                    text={shareItem ? `🚫 Matriz de Riesgo\n🏗️ ${shareItem.data.name}\n📍 ${shareItem.data.location}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString()}` : ''}
+                    elementIdToPrint="pdf-content"
+                />
+
+                <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                    {shareItem?.type === 'matrix' && <RiskMatrixPdfGenerator initialData={shareItem.data} isHeadless={true} />}
+                </div>
+
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', minWidth: '200px' }}>
                         <button onClick={() => setView('hub')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
@@ -285,14 +302,13 @@ export default function History() {
                                     >
                                         Editar
                                     </button>
-                                    <a
-                                        href={`https://wa.me/?text=${encodeURIComponent(`🚫 Matriz de Riesgo\n🏗️ ${item.name}\n📍 ${item.location}\n📅 ${new Date(item.createdAt).toLocaleDateString()}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS\n🔗 https://asistentehs.com`)}`}
-                                        target="_blank" rel="noreferrer"
-                                        style={{ padding: '0.5rem 0.7rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', display: 'flex', alignItems: 'center', textDecoration: 'none' }}
-                                        title="Compartir por WhatsApp"
+                                    <button
+                                        onClick={() => setShareItem({ type: 'matrix', data: item })}
+                                        style={{ padding: '0.5rem 0.7rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+                                        title="Compartir"
                                     >
                                         <Share2 size={16} />
-                                    </a>
+                                    </button>
                                     <DeleteBtn storageKey="risk_matrix_history" id={item.id} />
                                 </div>
                             </div>
@@ -314,6 +330,19 @@ export default function History() {
         return (
             <div className="container">
                 {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
+                
+                <ShareModal
+                    open={!!shareItem}
+                    onClose={() => setShareItem(null)}
+                    title={`Informe - ${shareItem?.data?.title || ''}`}
+                    text={shareItem ? `📄 Informe Profesional\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString()}` : ''}
+                    elementIdToPrint="pdf-content"
+                />
+
+                <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                    {shareItem?.type === 'report' && <ProfessionalReportPdfGenerator currentReport={shareItem.data} isHeadless={true} />}
+                </div>
+
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', minWidth: '200px' }}>
                         <button onClick={() => setView('hub')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
@@ -359,14 +388,13 @@ export default function History() {
                                     >
                                         Editar
                                     </button>
-                                    <a
-                                        href={`https://wa.me/?text=${encodeURIComponent(`📄 Informe Profesional\n🏗️ ${item.title}\n🏢 ${item.company}\n📅 ${new Date(item.createdAt).toLocaleDateString()}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS\n🔗 https://asistentehs.com`)}`}
-                                        target="_blank" rel="noreferrer"
-                                        style={{ padding: '0.5rem 0.7rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', display: 'flex', alignItems: 'center', textDecoration: 'none' }}
-                                        title="Compartir por WhatsApp"
+                                    <button
+                                        onClick={() => setShareItem({ type: 'report', data: item })}
+                                        style={{ padding: '0.5rem 0.7rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+                                        title="Compartir"
                                     >
                                         <Share2 size={16} />
-                                    </a>
+                                    </button>
                                     <DeleteBtn storageKey="reports_history" id={item.id} />
                                 </div>
                             </div>
@@ -387,6 +415,19 @@ export default function History() {
     return (
         <div className="container page-transition">
             {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
+            
+            <ShareModal
+                open={!!shareItem}
+                onClose={() => setShareItem(null)}
+                title={`Inspección - ${shareItem?.data?.name || ''}`}
+                text={shareItem ? `📋 Inspección de Seguridad\n🏗️ ${shareItem.data.name || 'Sin nombre'}\n📅 ${new Date(shareItem.data.date).toLocaleDateString()}\n🔎 Tipo: ${shareItem.data.type || '—'}\n📊 Resultado: ${shareItem.data.result || '—'}` : ''}
+                elementIdToPrint="pdf-content"
+            />
+
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                {shareItem?.type === 'inspection' && <ReportPdfGenerator initialData={shareItem.data} isHeadless={true} />}
+            </div>
+
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                 <button onClick={() => setView('hub')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
                     <ArrowLeft />
@@ -436,14 +477,13 @@ export default function History() {
                                     Editar
                                 </button>
                                 <DeleteBtn storageKey="inspections_history" id={item.id} />
-                                <a
-                                    href={`https://wa.me/?text=${encodeURIComponent(`📋 Inspección de Seguridad\n🏗️ ${item.name || 'Sin nombre'}\n📅 ${new Date(item.date).toLocaleDateString()}\n🔎 Tipo: ${item.type || '—'}\n📊 Resultado: ${item.result || '—'}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS\n🔗 https://asistentehs.com`)}`}
-                                    target="_blank" rel="noreferrer"
-                                    style={{ padding: '0.5rem 0.7rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', display: 'flex', alignItems: 'center', textDecoration: 'none' }}
-                                    title="Compartir por WhatsApp"
+                                <button
+                                    onClick={() => setShareItem({ type: 'inspection', data: item })}
+                                    style={{ padding: '0.5rem 0.7rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+                                    title="Compartir"
                                 >
                                     <Share2 size={16} />
-                                </a>
+                                </button>
                             </div>
                         </div>
                     </div>

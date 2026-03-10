@@ -5,6 +5,8 @@ import {
     Trash2, Eye, FileText, Printer, Share2,
     Plus, KeySquare, Construction, Download, QrCode
 } from 'lucide-react';
+import ShareModal from '../components/ShareModal';
+import WorkPermitPdfGenerator from '../components/WorkPermitPdfGenerator';
 import QRModal from '../components/QRModal';
 import { downloadCSV } from '../services/exportCsv';
 import { useSync } from '../contexts/SyncContext';
@@ -17,6 +19,7 @@ export default function WorkPermitHistory() {
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [qrTarget, setQrTarget] = useState(null);
+    const [shareItem, setShareItem] = useState(null);
 
     useEffect(() => {
         const saved = localStorage.getItem('work_permits_history');
@@ -75,6 +78,18 @@ export default function WorkPermitHistory() {
 
     return (
         <div className="container" style={{ maxWidth: '900px', paddingBottom: '8rem' }}>
+            <ShareModal
+                open={!!shareItem}
+                onClose={() => setShareItem(null)}
+                title={`Permiso de Trabajo - ${shareItem?.empresa || ''}`}
+                text={shareItem ? `🔐 Permiso de Trabajo\n🏗️ Empresa: ${shareItem.empresa}\n🚧 Obra: ${shareItem.obra}\n📅 Fecha: ${shareItem.fecha}\n📋 Tipo: ${permitTypes.find(t => t.id === shareItem.tipoPermiso)?.label || 'Permiso'}` : ''}
+                elementIdToPrint="pdf-content"
+            />
+
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                {shareItem && <WorkPermitPdfGenerator data={shareItem} />}
+            </div>
+
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', minWidth: '200px' }}>
                     <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -147,14 +162,13 @@ export default function WorkPermitHistory() {
                                 >
                                     <QrCode size={18} />
                                 </button>
-                                <a
-                                    href={`https://wa.me/?text=${encodeURIComponent(`🔐 Permiso de Trabajo\n🏗️ Empresa: ${item.empresa}\n🚧 Obra: ${item.obra}\n📅 Fecha: ${item.fecha}\n📋 Tipo: ${permitTypes.find(t => t.id === item.tipoPermiso)?.label || 'Permiso'}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS con IA\n🔗 https://asistentehs.com`)}`}
-                                    target="_blank" rel="noreferrer"
-                                    style={{ padding: '0.6rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '10px', cursor: 'pointer', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', minWidth: '40px' }}
-                                    title="Compartir por WhatsApp"
+                                <button
+                                    onClick={() => setShareItem(item)}
+                                    style={{ padding: '0.6rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '10px', cursor: 'pointer', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '40px' }}
+                                    title="Compartir"
                                 >
-                                    <Share2 size={16} /> <span className="hidden sm:inline" style={{ marginLeft: '0.3rem', fontWeight: 700, fontSize: '0.75rem' }}>WA</span>
-                                </a>
+                                    <Share2 size={16} /> <span className="hidden sm:inline" style={{ marginLeft: '0.3rem', fontWeight: 700, fontSize: '0.75rem' }}>Compartir</span>
+                                </button>
                                 <button onClick={() => handleDelete(item.id)} style={{ padding: '0.6rem', background: 'rgba(239, 68, 68, 0.1)', border: 'none', borderRadius: '10px', cursor: 'pointer', color: '#ef4444' }}>
                                     <Trash2 size={18} />
                                 </button>

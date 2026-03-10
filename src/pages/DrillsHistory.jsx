@@ -5,9 +5,9 @@ import {
     ArrowLeft, Search, Siren, Calendar, ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import DrillPdfGenerator from '../components/DrillPdfGenerator';
+import ShareModal from '../components/ShareModal';
 
 export default function DrillsHistory() {
     useDocumentTitle('Historial de Simulacros');
@@ -19,6 +19,7 @@ export default function DrillsHistory() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedReport, setSelectedReport] = useState(null);
     const [deleteTarget, setDeleteTarget] = useState(null);
+    const [shareItem, setShareItem] = useState(null);
 
     useEffect(() => {
         const h = JSON.parse(localStorage.getItem('drills_history') || '[]');
@@ -62,6 +63,19 @@ export default function DrillsHistory() {
                     </div>
                 </div>
             )}
+
+            <ShareModal
+                open={!!shareItem}
+                onClose={() => setShareItem(null)}
+                title={`Simulacro - ${shareItem?.empresa || ''}`}
+                text={shareItem ? `🔔 Acta de Simulacro de Evacuación\n🏢 Empresa: ${shareItem.empresa}\n📅 Fecha: ${shareItem.fecha}\n⏱️ Tiempo: ${shareItem.tiempoVisual}` : ''}
+                elementIdToPrint="pdf-content"
+            />
+
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                {shareItem && <DrillPdfGenerator report={shareItem} isHeadless={true} />}
+            </div>
+
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <button onClick={() => navigate('/')} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)' }}>
@@ -119,12 +133,11 @@ export default function DrillsHistory() {
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    const text = `🔔 Acta de Simulacro de Evacuación\n🏢 Empresa: ${report.empresa}\n📅 Fecha: ${report.fecha}\n⏱️ Tiempo: ${report.tiempoVisual}\n\nEnviado desde Asistente HYS`;
-                                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                                    setShareItem(report);
                                 }}
                                 style={{ padding: '0.5rem', borderRadius: '8px', background: '#dcfce7', color: '#16a34a', border: '1px solid #86efac', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', fontWeight: 700 }}
                             >
-                                <Share2 size={16} /> WhatsApp
+                                <Share2 size={16} /> Compartir
                             </button>
                             <button
                                 onClick={(e) => {

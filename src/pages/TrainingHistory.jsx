@@ -5,9 +5,9 @@ import {
     BookOpen, ArrowLeft, Calendar, ChevronRight, Search
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import TrainingPdfGenerator from '../components/TrainingPdfGenerator';
+import ShareModal from '../components/ShareModal';
 
 export default function TrainingHistory() {
     useDocumentTitle('Historial de Capacitaciones');
@@ -19,6 +19,7 @@ export default function TrainingHistory() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedTraining, setSelectedTraining] = useState(null);
     const [deleteTarget, setDeleteTarget] = useState(null);
+    const [shareItem, setShareItem] = useState(null);
 
     useEffect(() => {
         const h = JSON.parse(localStorage.getItem('training_history') || '[]');
@@ -62,6 +63,19 @@ export default function TrainingHistory() {
                     </div>
                 </div>
             )}
+
+            <ShareModal
+                open={!!shareItem}
+                onClose={() => setShareItem(null)}
+                title={`Capacitación - ${shareItem?.tema || ''}`}
+                text={shareItem ? `📊 Registro de Capacitación\n📚 Tema: ${shareItem.tema}\n🧑‍🏫 Expositor: ${shareItem.expositor}\n📅 Fecha: ${shareItem.fecha}\n👥 Asistentes: ${shareItem.asistentes.length}` : ''}
+                elementIdToPrint="pdf-content"
+            />
+
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                {shareItem && <TrainingPdfGenerator training={shareItem} isHeadless={true} />}
+            </div>
+
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <button onClick={() => navigate('/')} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)' }}>
@@ -121,12 +135,11 @@ export default function TrainingHistory() {
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    const text = `📊 Registro de Capacitación\n📚 Tema: ${training.tema}\n🧑‍🏫 Expositor: ${training.expositor}\n📅 Fecha: ${training.fecha}\n👥 Asistentes: ${training.asistentes.length}\n\nGenerado con Asistente HYS`;
-                                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                                    setShareItem(training);
                                 }}
                                 style={{ padding: '0.5rem', borderRadius: '8px', background: '#dcfce7', color: '#16a34a', border: '1px solid #86efac', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', fontWeight: 700 }}
                             >
-                                <Share2 size={16} /> WhatsApp
+                                <Share2 size={16} /> Compartir
                             </button>
                             <button
                                 onClick={(e) => {

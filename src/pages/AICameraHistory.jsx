@@ -5,6 +5,8 @@ import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
 import QRModal from '../components/QRModal';
 import { downloadCSV } from '../services/exportCsv';
+import ShareModal from '../components/ShareModal';
+import AiReportPdfGenerator from '../components/AiReportPdfGenerator';
 
 function DeleteConfirm({ onConfirm, onCancel }) {
     return (
@@ -37,6 +39,7 @@ export default function AICameraHistory() {
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [qrTarget, setQrTarget] = useState(null);
+    const [shareItem, setShareItem] = useState(null);
 
     useEffect(() => {
         const raw = localStorage.getItem('ai_camera_history');
@@ -131,6 +134,18 @@ export default function AICameraHistory() {
         <div className="container" style={{ maxWidth: '800px', paddingBottom: '5rem' }}>
             {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
             {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
+
+            <ShareModal
+                open={!!shareItem}
+                onClose={() => setShareItem(null)}
+                title={`Inspección IA - ${shareItem?.company || ''}`}
+                text={shareItem ? `📸 Inspección Visual con IA\n🏗️ Empresa: ${shareItem.company || 'Local'}\n📍 Tipo: ${shareItem.type === 'general_risks' ? 'Riesgos Generales' : 'Verificación EPP'}\n🛡️ Resultado: ${shareItem.type === 'general_risks' ? 'Análisis de entorno' : (shareItem.ppeComplete ? '✅ EPP OK' : '⚠️ Falta EPP')}` : ''}
+                elementIdToPrint="pdf-content"
+            />
+
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                {shareItem && <AiReportPdfGenerator item={shareItem} />}
+            </div>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', minWidth: '200px' }}>
@@ -292,14 +307,13 @@ export default function AICameraHistory() {
                                 >
                                     <QrCode size={16} />
                                 </button>
-                                <a
-                                    href={`https://wa.me/?text=${encodeURIComponent(`📸 Inspección Visual con IA\n🏗️ Empresa: ${item.company || 'Local'}\n📍 Tipo: ${item.type === 'general_risks' ? 'Riesgos Generales' : 'Verificación EPP'}\n🛡️ Resultado: ${item.type === 'general_risks' ? 'Análisis de entorno' : (item.ppeComplete ? '✅ EPP OK' : '⚠️ Falta EPP')}\n\n📱 Generado con *Asistente HYS* — https://asistentehs.com`)}`}
-                                    target="_blank" rel="noreferrer"
+                                <button
+                                    onClick={() => setShareItem(item)}
                                     style={{ padding: '0.6rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', minWidth: '40px' }}
-                                    title="Compartir por WhatsApp"
+                                    title="Compartir"
                                 >
-                                    <Share2 size={16} /> <span className="hidden sm:inline" style={{ marginLeft: '0.3rem', fontWeight: 700, fontSize: '0.75rem' }}>WA</span>
-                                </a>
+                                    <Share2 size={16} /> <span className="hidden sm:inline" style={{ marginLeft: '0.3rem', fontWeight: 700, fontSize: '0.75rem' }}>Compartir</span>
+                                </button>
                                 <button
                                     onClick={() => setDeleteTarget(item.id)}
                                     style={{ padding: '0.6rem', background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}

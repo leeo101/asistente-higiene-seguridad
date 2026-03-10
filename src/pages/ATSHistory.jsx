@@ -4,6 +4,8 @@ import { ArrowLeft, Search, Trash2, FileText, Printer, Building2, Calendar, Shie
 import { useSync } from '../contexts/SyncContext';
 import QRModal from '../components/QRModal';
 import { downloadCSV } from '../services/exportCsv';
+import ShareModal from '../components/ShareModal';
+import ATSPdfGenerator from '../components/ATSPdfGenerator';
 
 function DeleteConfirm({ onConfirm, onCancel }) {
     return (
@@ -36,6 +38,7 @@ export default function ATSHistory() {
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [qrTarget, setQrTarget] = useState(null);
+    const [shareItem, setShareItem] = useState(null);
 
     useEffect(() => {
         const historyRaw = localStorage.getItem('ats_history');
@@ -70,6 +73,18 @@ export default function ATSHistory() {
         <div className="container" style={{ maxWidth: '800px', paddingBottom: '5rem' }}>
             {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
             {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
+
+            <ShareModal
+                open={!!shareItem}
+                onClose={() => setShareItem(null)}
+                title={`ATS - ${shareItem?.obra || ''}`}
+                text={shareItem ? `📋 Análisis de Trabajo Seguro (ATS)\n🏗️ Empresa: ${shareItem.empresa}\n🚧 Obra: ${shareItem.obra}\n📅 Fecha: ${shareItem.fecha}\n👷 Responsable: ${shareItem.capatazNombre || '-'}` : ''}
+                elementIdToPrint="pdf-content"
+            />
+
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                <ATSPdfGenerator atsData={shareItem} />
+            </div>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', minWidth: '200px' }}>
@@ -139,14 +154,13 @@ export default function ATSHistory() {
                                 >
                                     <QrCode size={16} />
                                 </button>
-                                <a
-                                    href={`https://wa.me/?text=${encodeURIComponent(`📋 Análisis de Trabajo Seguro (ATS)\n🏗️ Empresa: ${item.empresa}\n🚧 Obra: ${item.obra}\n📅 Fecha: ${item.fecha}\n👷 Responsable: ${item.capatazNombre || '-'}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS con IA\n🔗 https://asistentehs.com`)}`}
-                                    target="_blank" rel="noreferrer"
+                                <button
+                                    onClick={() => setShareItem(item)}
                                     style={{ padding: '0.6rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '40px' }}
-                                    title="Compartir por WhatsApp"
+                                    title="Compartir Informe"
                                 >
                                     <Share2 size={15} /> <span className="hidden sm:inline" style={{ marginLeft: '0.4rem', fontWeight: 700, fontSize: '0.8rem' }}>WA</span>
-                                </a>
+                                </button>
                                 <button
                                     onClick={() => setDeleteTarget(item.id)}
                                     style={{

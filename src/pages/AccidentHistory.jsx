@@ -7,6 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import AccidentPdfGenerator from '../components/AccidentPdfGenerator';
+import ShareModal from '../components/ShareModal';
 
 export default function AccidentHistory() {
     useDocumentTitle('Historial de Accidentes');
@@ -18,6 +19,7 @@ export default function AccidentHistory() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedReport, setSelectedReport] = useState(null);
     const [deleteTarget, setDeleteTarget] = useState(null);
+    const [shareItem, setShareItem] = useState(null);
 
     useEffect(() => {
         const h = JSON.parse(localStorage.getItem('accident_history') || '[]');
@@ -69,6 +71,19 @@ export default function AccidentHistory() {
                     </div>
                 </div>
             )}
+
+            <ShareModal
+                open={!!shareItem}
+                onClose={() => setShareItem(null)}
+                title={`Investigación de Accidente - ${shareItem?.victimaNombre || ''}`}
+                text={shareItem ? `⚠️ Informe de Investigación de Accidente\n👤 Accidentado: ${shareItem.victimaNombre}\n🏢 Empresa: ${shareItem.empresa}\n📅 Fecha: ${shareItem.fecha}\n⚠️ Gravedad: ${shareItem.gravedad}` : ''}
+                elementIdToPrint="pdf-content"
+            />
+
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                {shareItem && <AccidentPdfGenerator report={shareItem} isHeadless={true} />}
+            </div>
+
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <button onClick={() => navigate('/')} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)' }}>
@@ -125,12 +140,11 @@ export default function AccidentHistory() {
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        const text = `⚠️ Informe de Investigación de Accidente\n👤 Accidentado: ${report.victimaNombre}\n🏢 Empresa: ${report.empresa}\n📅 Fecha: ${report.fecha}\n⚠️ Gravedad: ${report.gravedad}\n\nGenerado con Asistente HYS`;
-                                        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                                        setShareItem(report);
                                     }}
                                     style={{ padding: '0.5rem', borderRadius: '8px', background: '#dcfce7', color: '#16a34a', border: '1px solid #86efac', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', fontWeight: 700 }}
                                 >
-                                    <Share2 size={16} /> WhatsApp
+                                    <Share2 size={16} /> Compartir
                                 </button>
                                 <button
                                     onClick={(e) => {

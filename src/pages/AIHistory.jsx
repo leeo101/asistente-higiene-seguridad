@@ -6,8 +6,8 @@ import {
     ShieldAlert, Lightbulb, Gavel, Share2
 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import ShareModal from '../components/ShareModal';
+import AiAdvisorPdfGenerator from '../components/AiAdvisorPdfGenerator';
 import toast from 'react-hot-toast';
 
 export default function AIHistory() {
@@ -44,81 +44,7 @@ export default function AIHistory() {
         );
     };
 
-    const handleDownloadPDF = (result) => {
-        try {
-            const doc = new jsPDF();
-            const pageWidth = doc.internal.pageSize.getWidth();
-            const colors = {
-                primary: [37, 99, 235],
-                text: [31, 41, 55],
-                muted: [107, 114, 128]
-            };
-
-            // Header
-            doc.setFillColor(...colors.primary);
-            doc.rect(0, 0, pageWidth, 35, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(22);
-            doc.setFont('helvetica', 'bold');
-            doc.text('ASISTENTE H&S', 15, 15);
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'normal');
-            doc.text('Análisis de Seguridad con Inteligencia Artificial', 15, 22);
-            doc.setFontSize(8);
-            doc.text(`Fecha de consulta: ${new Date(result.date).toLocaleString()}`, 15, 28);
-
-            // Task
-            doc.setTextColor(...colors.text);
-            doc.setFontSize(14);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Análisis de Tarea:', 15, 45);
-            doc.setFontSize(12);
-            doc.setFont('helvetica', 'normal');
-            const taskLines = doc.splitTextToSize(result.task, pageWidth - 30);
-            doc.text(taskLines, 15, 52);
-
-            let currentY = 52 + (taskLines.length * 7);
-
-            const createSection = (title, items, color) => {
-                if (currentY > 240) { doc.addPage(); currentY = 20; }
-                doc.setFontSize(14); doc.setFont('helvetica', 'bold');
-                doc.setTextColor(...color); doc.text(title, 15, currentY + 10);
-                doc.setDrawColor(...color); doc.setLineWidth(0.5);
-                doc.line(15, currentY + 12, pageWidth - 15, currentY + 12);
-                autoTable(doc, {
-                    startY: currentY + 15,
-                    head: [], body: items.map(it => [it.startsWith('•') ? it : `• ${it}`]),
-                    theme: 'plain', styles: { fontSize: 10, cellPadding: 2 },
-                    columnStyles: { 0: { cellWidth: pageWidth - 30 } }
-                });
-                currentY = doc.lastAutoTable.finalY + 10;
-            };
-
-            createSection('Riesgos Detectados', result.riesgos, [239, 68, 68]);
-            createSection('EPP Recomendado', result.epp, [37, 99, 235]);
-            createSection('Medidas Preventivas', result.recomendaciones, [16, 185, 129]);
-            createSection('Marco Legal (Arg)', result.normativa, [139, 92, 246]);
-
-            // Professional Signature
-            const personalData = JSON.parse(localStorage.getItem('personalData') || '{}');
-            const profName = personalData.fullName || 'Profesional Responsable';
-            const profTitle = personalData.profession || 'Lic. en Higiene y Seguridad';
-            const profMat = personalData.license || '-------';
-
-            if (currentY > 230) { doc.addPage(); currentY = 20; }
-            doc.setFontSize(10); doc.setTextColor(...colors.text); doc.setFont('helvetica', 'bold');
-            doc.text(profName.toUpperCase(), 120, currentY + 22);
-            doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
-            doc.text(`${profTitle}`, 120, currentY + 27);
-            doc.text(`Matrícula: ${profMat}`, 120, currentY + 32);
-            doc.setDrawColor(...colors.primary); doc.setLineWidth(1); doc.rect(115, currentY + 10, 80, 28);
-
-            doc.save(`Analisis_IA_${new Date(result.date).getTime()}.pdf`);
-        } catch (error) {
-            console.error('[PDF ERROR]', error);
-            toast.error('Error al generar el PDF.');
-        }
-    };
+    const [shareItem, setShareItem] = useState(null);
 
     const filteredHistory = history.filter(item =>
         item.task.toLowerCase().includes(searchTerm.toLowerCase())
@@ -143,12 +69,24 @@ export default function AIHistory() {
                             <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>{selectedItem.task}</h3>
                         </div>
                         <button
-                            onClick={() => handleDownloadPDF(selectedItem)}
+                            onClick={() => setShareItem(selectedItem)}
                             className="btn-primary"
                             style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}
                         >
-                            <Download size={16} /> Descargar PDF
+                            <Share2 size={16} /> Compartir Reporte
                         </button>
+                    </div>
+
+                    <ShareModal
+                        open={!!shareItem}
+                        onClose={() => setShareItem(null)}
+                        title={`Análisis IA - ${shareItem?.task || ''}`}
+                        text={shareItem ? `✨ Análisis de Seguridad (IA)\n📋 Tarea: ${shareItem.task}\n🚨 Riesgos: ${(shareItem.riesgos || []).slice(0, 2).join(', ')}...\n🛡️ EPP: ${(shareItem.epp || []).slice(0, 2).join(', ')}...\n📚 Normativa: ${(shareItem.normativa || []).join(', ')}` : ''}
+                        elementIdToPrint="pdf-content"
+                    />
+
+                    <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                        {shareItem && <AiAdvisorPdfGenerator data={shareItem} />}
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.2rem', marginTop: '1.5rem' }}>
@@ -192,6 +130,18 @@ export default function AIHistory() {
 
     return (
         <div className="container" style={{ paddingBottom: '3rem' }}>
+            <ShareModal
+                open={!!shareItem}
+                onClose={() => setShareItem(null)}
+                title={`Análisis IA - ${shareItem?.task || ''}`}
+                text={shareItem ? `✨ Análisis de Seguridad (IA)\n📋 Tarea: ${shareItem.task}\n🚨 Riesgos: ${(shareItem.riesgos || []).slice(0, 2).join(', ')}...\n🛡️ EPP: ${(shareItem.epp || []).slice(0, 2).join(', ')}...\n📚 Normativa: ${(shareItem.normativa || []).join(', ')}` : ''}
+                elementIdToPrint="pdf-content"
+            />
+
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                {shareItem && <AiAdvisorPdfGenerator data={shareItem} />}
+            </div>
+
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', minWidth: '200px' }}>
                     <button onClick={() => navigate('/history')} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--color-text)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -247,21 +197,12 @@ export default function AIHistory() {
                             </div>
                             <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                                 <button
-                                    onClick={(e) => { e.stopPropagation(); handleDownloadPDF(item); }}
-                                    style={{ background: 'transparent', border: 'none', color: 'var(--color-primary)', cursor: 'pointer', padding: '0.5rem' }}
-                                    title="Descargar PDF"
-                                >
-                                    <Download size={20} />
-                                </button>
-                                <a
-                                    href={`https://wa.me/?text=${encodeURIComponent(`✨ Análisis de Seguridad (IA)\n📋 Tarea: ${item.task}\n🚨 Riesgos: ${(item.riesgos || []).slice(0, 2).join(', ')}...\n🛡️ EPP: ${(item.epp || []).slice(0, 2).join(', ')}...\n📚 Normativa: ${(item.normativa || []).join(', ')}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS con IA\n🔗 https://asistentehs.com`)}`}
-                                    target="_blank" rel="noreferrer"
-                                    onClick={e => e.stopPropagation()}
+                                    onClick={(e) => { e.stopPropagation(); setShareItem(item); }}
                                     style={{ background: '#dcfce7', border: '1px solid #86efac', borderRadius: '10px', color: '#16a34a', cursor: 'pointer', padding: '0.5rem 0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', minWidth: '40px' }}
-                                    title="Compartir por WhatsApp"
+                                    title="Compartir"
                                 >
-                                    <Share2 size={18} /> <span className="hidden sm:inline" style={{ marginLeft: '0.3rem', fontWeight: 700, fontSize: '0.75rem' }}>WA</span>
-                                </a>
+                                    <Share2 size={18} /> <span className="hidden sm:inline" style={{ marginLeft: '0.3rem', fontWeight: 700, fontSize: '0.75rem' }}>Compartir</span>
+                                </button>
                                 <button
                                     onClick={(e) => handleDelete(item.id, e)}
                                     style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.5rem' }}

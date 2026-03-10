@@ -5,6 +5,8 @@ import {
     Calendar, Building2, Flame, ExternalLink, Plus, Share2, Download
 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
+import ShareModal from '../components/ShareModal';
+import FireLoadPdfGenerator from '../components/FireLoadPdfGenerator';
 
 function DeleteConfirm({ onConfirm, onCancel }) {
     return (
@@ -36,6 +38,7 @@ export default function FireLoadHistory() {
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteTarget, setDeleteTarget] = useState(null);
+    const [shareItem, setShareItem] = useState(null);
 
     useEffect(() => {
         const historyRaw = localStorage.getItem('fireload_history');
@@ -58,6 +61,19 @@ export default function FireLoadHistory() {
     return (
         <div className="container" style={{ maxWidth: '800px', paddingBottom: '5rem' }}>
             {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
+
+            <ShareModal
+                open={!!shareItem}
+                onClose={() => setShareItem(null)}
+                title={`Carga de Fuego - ${shareItem?.sector || ''}`}
+                text={shareItem ? `🔥 Estudio de Carga de Fuego\n🏗️ Empresa: ${shareItem.empresa}\n📍 Sector: ${shareItem.sector}\n🔥 Carga Qf: ${shareItem.results?.cargaDeFuego?.toFixed(2)} Kg/m²\n🛡️ RF Requerida: ${shareItem.results?.rfRequerida}` : ''}
+                elementIdToPrint="pdf-content"
+            />
+
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                <FireLoadPdfGenerator contentRef={null} data={shareItem} />
+            </div>
+
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', minWidth: '200px' }}>
                     <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -125,13 +141,12 @@ export default function FireLoadHistory() {
                                 >
                                     <FileText size={16} /> Ver / Editar
                                 </button>
-                                <a
-                                    href={`https://wa.me/?text=${encodeURIComponent(`🔥 Estudio de Carga de Fuego\n🏗️ Empresa: ${item.empresa}\n📍 Sector: ${item.sector}\n🔥 Carga Qf: ${item.results?.cargaDeFuego?.toFixed(2)} Kg/m²\n🛡️ RF Requerida: ${item.results?.rfRequerida}\n\n📱 Generado con *Asistente HYS* — plataforma gratuita de HyS con IA\n🔗 https://asistentehs.com`)}`}
-                                    target="_blank" rel="noreferrer"
+                                <button
+                                    onClick={() => setShareItem(item)}
                                     style={{ padding: '0.6rem 0.9rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, fontSize: '0.8rem', textDecoration: 'none' }}
                                 >
-                                    <Share2 size={15} /> WA
-                                </a>
+                                    <Share2 size={15} /> Compartir
+                                </button>
                                 <button
                                     onClick={() => setDeleteTarget(item.id)}
                                     style={{
