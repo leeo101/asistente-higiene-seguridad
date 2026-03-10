@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Moon, Sun, Smartphone, Bell,
     Shield, Info, ChevronRight, Cloud, RefreshCw,
-    CheckCircle, Lock, Download, Upload, AlertTriangle
+    CheckCircle, Lock, Download, Upload, TriangleAlert
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
@@ -190,7 +190,7 @@ export default function AppSettings() {
                         </button>
                         <input ref={importRef} type="file" accept=".json" hidden onChange={handleImport} />
                         <div style={{ width: '100%', display: 'flex', alignItems: 'flex-start', gap: '0.4rem', fontSize: '0.7rem', color: 'var(--color-text-muted)', padding: '0.5rem 0.7rem', background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: '8px' }}>
-                            <AlertTriangle size={12} color="#f59e0b" style={{ flexShrink: 0, marginTop: '1px' }} />
+                            <TriangleAlert size={12} color="#f59e0b" style={{ flexShrink: 0, marginTop: '1px' }} />
                             Importar reemplaza los datos actuales del dispositivo.
                         </div>
                     </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Plus, Trash2, Save, AlertTriangle, ShieldCheck, Flame, Zap, Leaf, Activity, Brain, Wrench, Share2, Printer } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Save, TriangleAlert, ShieldCheck, Flame, Zap, Leaf, Activity, Brain, Wrench, Share2, Printer } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
@@ -161,7 +161,7 @@ export default function RiskMatrix() {
                     </button>
                     <div>
                         <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, color: 'var(--color-text)', letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
-                            <AlertTriangle size={28} color="#f59e0b" /> Matriz de Riesgos
+                            <TriangleAlert size={28} color="#f59e0b" /> Matriz de Riesgos
                         </h1>
                         <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>
                             Ley 19.587 / Dec. 351/79 - HYS

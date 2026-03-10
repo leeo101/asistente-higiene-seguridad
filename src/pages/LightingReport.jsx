@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
     ArrowLeft, Save, Plus, Trash2, Lightbulb, Calculator,
     FileText, Printer, Building2, Layout, Maximize2,
-    Info, AlertTriangle, ShieldCheck, History, Share2, Sun, Sparkles, Loader2
+    Info, TriangleAlert, ShieldCheck, History, Share2, Sun, Sparkles, Loader2
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';

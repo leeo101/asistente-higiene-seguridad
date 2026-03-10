@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
     ArrowLeft, Search, Calendar, ChevronRight,
     ClipboardList, Flame, BarChart3, ShieldAlert, Plus, Sparkles, Trash2, Camera, Lightbulb, HardHat, Share2,
-    ClipboardCheck, ScrollText, ShieldCheck, KeySquare, Bot, TriangleAlert, FileText, Shield, ThermometerSun, Siren, Map
+    ClipboardCheck, ScrollText, ShieldCheck, KeySquare, Bot, TriangleAlert, FileText, Shield, ThermometerSun, Siren, Map, BookOpen
 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -61,6 +61,7 @@ export default function History() {
     const [historicalData, setHistoricalData] = useState([]);
     const [matrixData, setMatrixData] = useState([]);
     const [reportsData, setReportsData] = useState([]);
+    const [thermalData, setThermalData] = useState([]);
     const [deleteTarget, setDeleteTarget] = useState(null); // { storageKey, id, view }
     const [counts, setCounts] = useState({});
     const [loading, setLoading] = useState(true);
@@ -101,6 +102,7 @@ export default function History() {
             thermal: safeGetList('thermal_history').length,
             drills: safeGetList('drills_history').length,
             riskmaps: safeGetList('risk_map_history').length,
+            extinguishers: safeGetList('extinguishers_inventory').length,
         });
     };
 
@@ -172,8 +174,9 @@ export default function History() {
         { title: 'Consultas Asesor IA', icon: <Bot size={24} />, color: '#a855f7', bg: 'rgba(168,85,247,0.1)', path: '/ai-history', countKey: 'ai' },
         { title: 'Control de EPP', icon: <HardHat size={24} />, color: '#10b981', bg: 'rgba(16,185,129,0.1)', path: '/ppe-tracker', countKey: 'ppeTracker' },
         { title: 'Evaluaciones de Riesgo', icon: <Shield size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/risk-assessment-history', countKey: 'riskAssessments' },
-        { title: 'Investigación de Accidentes', icon: <AlertTriangle size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/accident-history', countKey: 'accidents' },
+        { title: 'Investigación de Accidentes', icon: <TriangleAlert size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/accident-history', countKey: 'accidents' },
         { title: 'Capacitaciones Dictadas', icon: <BookOpen size={24} />, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', path: '/training-history', countKey: 'trainings' },
+        { title: 'Control de Extintores', icon: <Flame size={24} />, color: '#f97316', bg: 'rgba(249,115,22,0.1)', path: '/extinguishers-history', countKey: 'extinguishers' },
     ];
 
     // ─── HUB ──────────────────────────────────────────────────────

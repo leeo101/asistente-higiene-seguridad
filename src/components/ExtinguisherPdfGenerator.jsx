@@ -1,5 +1,4 @@
 import React, { useRef } from 'react';
-import { useReactToPrint } from 'react-to-print';
 import { ArrowLeft, Printer, Flame, MapPin, Calendar, Building, CheckCircle2 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useNavigate } from 'react-router-dom';
@@ -22,20 +21,9 @@ const getStatus = (lastDate, monthsValid) => {
     return { text: 'Vigente', color: '#166534', vto: new Date(dueDate).toLocaleDateString() };
 };
 
-export default function ExtinguisherPdfGenerator() {
-    useDocumentTitle('Reporte de Extintores');
-    const navigate = useNavigate();
+export default function ExtinguisherPdfGenerator({ extinguishers = [] }) {
     const componentRef = useRef();
-
-    // Fetch data and current active filters if any, for simplicity we print all OR we can filter
-    // For this version, we print all from local storage.
-    const extinguishers = JSON.parse(localStorage.getItem('extinguishers_inventory') || '[]');
     const isLandscape = extinguishers.length > 15; // Auto rotate if many
-
-    const handlePrint = useReactToPrint({
-        content: () => componentRef.current,
-        documentTitle: `Inventario_Matafuegos_${new Date().toISOString().split('T')[0]}`,
-    });
 
     const stats = {
         total: extinguishers.length,
@@ -44,17 +32,6 @@ export default function ExtinguisherPdfGenerator() {
 
     return (
         <div className="container" style={{ paddingBottom: '3rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <div className="no-print" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10, flexWrap: 'wrap', gap: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <button onClick={() => navigate('/extinguishers')} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)' }}>
-                        <ArrowLeft size={20} />
-                    </button>
-                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Generar Reporte</h1>
-                </div>
-                <button onClick={handlePrint} className="btn-primary" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Printer size={18} /> Imprimir A4
-                </button>
-            </div>
 
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center', overflowX: 'auto' }}>
                 <div
@@ -73,7 +50,15 @@ export default function ExtinguisherPdfGenerator() {
                             @page { size: A4 ${isLandscape ? 'landscape' : 'portrait'}; margin: 15mm; }
                             body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                             .no-print { display: none !important; }
-                            .print-area { box-shadow: none !important; margin: 0 !important; padding: 0 !important; width: 100% !important; max-width: none !important; border-radius: 0 !important; }
+                            .print-area { 
+                                box-shadow: none !important; 
+                                margin: 0 !important; 
+                                padding: 10mm !important; 
+                                width: 100% !important; 
+                                max-width: none !important; 
+                                border: 1px solid #1e293b !important;
+                                border-radius: 0 !important; 
+                            }
                         `}
                     </style>
 
@@ -103,20 +88,20 @@ export default function ExtinguisherPdfGenerator() {
                             </tr>
                         </thead>
                         <tbody>
-                            {extinguishers.map((ext, idx) => {
-                                const sCarga = getStatus(ext.ultimaCarga, 12);
-                                const sPH = getStatus(ext.ultimaPH, 60);
+                            {extinguishers?.map((ext, idx) => {
+                                const sCarga = getStatus(ext?.ultimaCarga, 12);
+                                const sPH = getStatus(ext?.ultimaPH, 60);
 
                                 return (
                                     <tr key={idx}>
-                                        <td style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', fontWeight: 'bold' }}>{ext.chapa}</td>
+                                        <td style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', fontWeight: 'bold' }}>{ext?.chapa || '-'}</td>
                                         <td style={{ border: '1px solid #cbd5e1', padding: '8px' }}>
-                                            {ext.ubicacion}
-                                            {ext.empresa && <div style={{ fontSize: '7.5pt', color: '#64748b' }}>{ext.empresa}</div>}
+                                            {ext?.ubicacion || 'Sin ubicación'}
+                                            {ext?.empresa && <div style={{ fontSize: '7.5pt', color: '#64748b' }}>{ext.empresa}</div>}
                                         </td>
                                         <td style={{ border: '1px solid #cbd5e1', padding: '8px' }}>
-                                            {ext.tipo} <br />
-                                            <span style={{ fontSize: '8pt', color: '#475569' }}>{ext.capacidad}</span>
+                                            {ext?.tipo || 'N/A'} <br />
+                                            <span style={{ fontSize: '8pt', color: '#475569' }}>{ext?.capacidad || '-'}</span>
                                         </td>
 
                                         <td style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center' }}>

@@ -932,7 +932,6 @@ label {
   }
 
   .container,
-  .print-area,
   .report-area,
   .report-print,
   .report-print-container {
@@ -992,9 +991,7 @@ label {
     -webkit-backdrop-filter: none !important;
     background: white !important;
     box-shadow: none !important;
-    border: none !important;
     margin-bottom: 0 !important;
-    padding: 0 !important;
     transform: none !important;
   }
 
@@ -1281,18 +1278,38 @@ label {
   box-shadow: var(--glass-shadow), var(--glass-glow);
   border-color: rgba(var(--color-primary-rgb), 0.2);
 }
+
 /* HERO PREMIUM ANIMATIONS */
 @keyframes gradientMove {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes floatOrbs {
-  0% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(30px, -50px) scale(1.1); }
-  66% { transform: translate(-20px, 20px) scale(0.9); }
-  100% { transform: translate(0, 0) scale(1); }
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
 }
 
 .hero-animated-bg {
@@ -1307,7 +1324,7 @@ label {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: 
+  background-image:
     radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
     radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   background-position: 0 0, 20px 20px;
@@ -1348,13 +1365,23 @@ label {
 
 /* PREMIUM 3D STARRY NIGHT EFFECT */
 @keyframes animStar {
-  from { transform: translateY(0px); }
-  to { transform: translateY(-2000px); }
+  from {
+    transform: translateY(0px);
+  }
+
+  to {
+    transform: translateY(-2000px);
+  }
 }
 
 @keyframes animStarSide {
-  from { transform: translate(0px, 0px); }
-  to { transform: translate(-1000px, -2000px); }
+  from {
+    transform: translate(0px, 0px);
+  }
+
+  to {
+    transform: translate(-1000px, -2000px);
+  }
 }
 
 .stars-container {
@@ -1369,7 +1396,9 @@ label {
   background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #1e40af 100%);
 }
 
-.stars, .stars2, .stars3 {
+.stars,
+.stars2,
+.stars3 {
   position: absolute;
   top: 0;
   left: 0;
@@ -1395,7 +1424,9 @@ label {
   animation: animStarSide 150s linear infinite;
 }
 
-.stars::after, .stars2::after, .stars3::after {
+.stars::after,
+.stars2::after,
+.stars3::after {
   content: " ";
   position: absolute;
   top: 2000px;
@@ -1408,16 +1439,29 @@ label {
     transform: translateX(0) translateY(0) rotate(45deg) scale(0);
     opacity: 0;
   }
+
   10% {
     opacity: 1;
     transform: translateX(-100px) translateY(100px) rotate(45deg) scale(1);
   }
+
   20% {
     transform: translateX(-500px) translateY(500px) rotate(45deg) scale(0);
     opacity: 0;
   }
+
   100% {
     opacity: 0;
+  }
+}
+
+@media (min-width: 640px) {
+  .asistente-row-desktop {
+    display: grid !important;
+    grid-template-columns: 2fr 1fr 1.5fr 44px !important;
+    align-items: center !important;
+    flex-direction: row !important;
+    gap: 1rem !important;
   }
 }
 
@@ -1431,4 +1475,64 @@ label {
   filter: drop-shadow(0 0 6px rgba(105, 155, 255, 1));
   animation: shootingStar 8s ease-in-out infinite;
   pointer-events: none;
+}
+
+/* --- ASISTENTE ROW RESPONSIVENESS --- */
+@media (min-width: 640px) {
+  .asistente-row-desktop {
+    flex-direction: row !important;
+    align-items: flex-end !important;
+  }
+}
+
+.asistente-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+
+.delete-asistente-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: #ffe4e6;
+  border: 2.5px solid #fda4af;
+  color: #be123c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 4px 6px -1px rgba(225, 29, 72, 0.1), 0 2px 4px -1px rgba(225, 29, 72, 0.06);
+  flex-shrink: 0;
+}
+
+.delete-asistente-btn:hover:not(:disabled) {
+  background: #be123c;
+  color: #ffffff !important;
+  border-color: #be123c;
+  transform: scale(1.15) rotate(-8deg);
+  box-shadow: 0 10px 20px -5px rgba(225, 29, 72, 0.4);
+}
+
+.delete-asistente-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.delete-asistente-btn:disabled {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Soporte para modo oscuro */
+.dark .delete-asistente-btn {
+  background: rgba(225, 29, 72, 0.15);
+  border-color: rgba(225, 29, 72, 0.3);
+}
+
+.dark .delete-asistente-btn:hover:not(:disabled) {
+  background: #e11d48;
 }

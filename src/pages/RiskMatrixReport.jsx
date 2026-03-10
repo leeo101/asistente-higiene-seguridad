@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Printer, Share2, AlertTriangle, X, Copy, Check, Mail, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Printer, Share2, TriangleAlert, X, Copy, Check, Mail, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
@@ -156,7 +156,7 @@ export default function RiskMatrixReport() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '3px solid #6366f1', paddingBottom: '1.5rem', marginBottom: '2rem', gap: '1rem' }}>
                     <div>
                         <h1 style={{ margin: '0 0 0.3rem 0', fontSize: '2.5rem', fontWeight: 900, color: 'var(--color-primary)', letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
-                            <AlertTriangle size={28} color="#f59e0b" /> INFORME
+                            <TriangleAlert size={28} color="#f59e0b" /> INFORME
                         </h1>
                         <p style={{ margin: '0 0 0.2rem 0', fontWeight: 700, color: '#334155', fontSize: '1rem' }}>{matrix.name}</p>
                         <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.85rem' }}>{matrix.location}</p>

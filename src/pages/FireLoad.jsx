@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
     ArrowLeft, Save, Plus, Trash2, Flame, Calculator,
     FileText, Printer, Building2, Layout, Maximize2,
-    Info, AlertTriangle, ShieldCheck, History, Share2, Sparkles, Loader2
+    Info, TriangleAlert, ShieldCheck, History, Share2, Sparkles, Loader2
 } from 'lucide-react';
 import { fireMaterials, riskActivityGroups } from '../data/fireMaterials';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';

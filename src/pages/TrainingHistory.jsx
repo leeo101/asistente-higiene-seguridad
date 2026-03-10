@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    ArrowLeft, Search, Calendar, ChevronRight, BookOpen,
-    Clock, MapPin, Printer, FileText, Users, Download
+    Clock, MapPin, Printer, FileText, Users, Download, Trash2, Share2, Edit2,
+    BookOpen, ArrowLeft, Calendar, ChevronRight, Search
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
@@ -13,16 +13,30 @@ export default function TrainingHistory() {
     useDocumentTitle('Historial de Capacitaciones');
     const navigate = useNavigate();
     const { currentUser } = useAuth();
-    const { syncing } = useSync();
+    const { syncing, syncCollection } = useSync();
 
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedTraining, setSelectedTraining] = useState(null);
+    const [deleteTarget, setDeleteTarget] = useState(null);
 
     useEffect(() => {
         const h = JSON.parse(localStorage.getItem('training_history') || '[]');
         setHistory(h.sort((a, b) => new Date(b.date) - new Date(a.date)));
     }, [syncing]);
+
+    const handleDelete = (id, e) => {
+        e.stopPropagation();
+        setDeleteTarget(id);
+    };
+
+    const confirmDelete = () => {
+        const updated = history.filter(item => item.id !== deleteTarget);
+        setHistory(updated);
+        localStorage.setItem('training_history', JSON.stringify(updated));
+        syncCollection('training_history', updated);
+        setDeleteTarget(null);
+    };
 
     const filteredHistory = history.filter(item => {
         const searchStr = `${item.tema} ${item.expositor} ${item.empresa}`.toLowerCase();
@@ -35,6 +49,19 @@ export default function TrainingHistory() {
 
     return (
         <div className="container" style={{ paddingBottom: '3rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+            {deleteTarget && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+                    <div className="card" style={{ maxWidth: '320px', textAlign: 'center', padding: '2rem' }}>
+                        <Trash2 size={48} style={{ color: '#ef4444', marginBottom: '1rem' }} />
+                        <h3>¿Eliminar capacitación?</h3>
+                        <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>Esta acción borrará definitivamente el registro de {history.find(h => h.id === deleteTarget)?.tema}.</p>
+                        <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                            <button onClick={() => setDeleteTarget(null)} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: 'var(--color-background)', border: 'none' }}>Cancelar</button>
+                            <button onClick={confirmDelete} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: '#ef4444', color: 'white', border: 'none' }}>Eliminar</button>
+                        </div>
+                    </div>
+                </div>
+            )}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <button onClick={() => navigate('/')} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)' }}>
@@ -65,28 +92,61 @@ export default function TrainingHistory() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {filteredHistory.map((training) => (
-                    <div key={training.id} className="card" style={{ padding: '1.25rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '1rem', borderLeft: `6px solid #3b82f6` }}
-                        onClick={() => setSelectedTraining(training)}>
-                        <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: `rgba(59,130,246,0.15)`, color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            <BookOpen size={24} />
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                    {training.tema}
-                                </h3>
-                                <span style={{ fontSize: '0.8rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '12px', background: '#f1f5f9', color: '#475569', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                                    <Users size={14} /> {training.asistentes.length}
-                                </span>
+                    <React.Fragment key={training.id}>
+                        <div className="card" style={{ padding: '1.25rem', cursor: 'pointer', borderLeft: `6px solid #3b82f6` }}
+                            onClick={() => setSelectedTraining(training)}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: `rgba(59,130,246,0.15)`, color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    <BookOpen size={24} />
+                                </div>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                            {training.tema}
+                                        </h3>
+                                        <span style={{ fontSize: '0.8rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '12px', background: '#f1f5f9', color: '#475569', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                            <Users size={14} /> {training.asistentes.length}
+                                        </span>
+                                    </div>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginTop: '0.5rem', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={14} /> {new Date(training.fecha + 'T12:00:00Z').toLocaleDateString()}</span>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Clock size={14} /> {training.duracion} hs</span>
+                                    </div>
+                                </div>
+                                <ChevronRight style={{ color: 'var(--color-border)', flexShrink: 0 }} className="hidden sm:block" />
                             </div>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginTop: '0.5rem', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={14} /> {new Date(training.fecha + 'T12:00:00Z').toLocaleDateString()}</span>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Clock size={14} /> {training.duracion} hs</span>
-                                {training.empresa && <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--color-text)' }}><MapPin size={14} /> {training.empresa}</span>}
-                            </div>
                         </div>
-                        <ChevronRight style={{ color: 'var(--color-border)', flexShrink: 0 }} />
-                    </div>
+
+                        <div style={{ marginTop: '0.5rem', marginBottom: '1.5rem', padding: '0 1rem', display: 'flex', justifyContent: 'flex-end', gap: '0.8rem' }}>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    const text = `📊 Registro de Capacitación\n📚 Tema: ${training.tema}\n🧑‍🏫 Expositor: ${training.expositor}\n📅 Fecha: ${training.fecha}\n👥 Asistentes: ${training.asistentes.length}\n\nGenerado con Asistente HYS`;
+                                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                                }}
+                                style={{ padding: '0.5rem', borderRadius: '8px', background: '#dcfce7', color: '#16a34a', border: '1px solid #86efac', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', fontWeight: 700 }}
+                            >
+                                <Share2 size={16} /> WhatsApp
+                            </button>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate('/training-management', { state: { editData: training } });
+                                }}
+                                style={{ padding: '0.5rem', borderRadius: '8px', background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', fontWeight: 700 }}
+                            >
+                                <Edit2 size={16} /> Editar
+                            </button>
+                            <button
+                                onClick={(e) => handleDelete(training.id, e)}
+                                className="delete-asistente-btn"
+                                style={{ width: '40px', height: '40px', borderRadius: '10px' }}
+                                title="Eliminar Registro"
+                            >
+                                <Trash2 size={22} />
+                            </button>
+                        </div>
+                    </React.Fragment>
                 ))}
 
                 {filteredHistory.length === 0 && (

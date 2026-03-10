@@ -82,6 +82,7 @@ const AccidentHistory = lazyWithRetry(() => import('./pages/AccidentHistory.jsx'
 const TrainingManagement = lazyWithRetry(() => import('./pages/TrainingManagement.jsx'));
 const TrainingHistory = lazyWithRetry(() => import('./pages/TrainingHistory.jsx'));
 const Extinguishers = lazyWithRetry(() => import('./pages/Extinguishers.jsx'));
+const ExtinguishersHistory = lazyWithRetry(() => import('./pages/ExtinguishersHistory.jsx'));
 const ExtinguisherPdfGenerator = lazyWithRetry(() => import('./components/ExtinguisherPdfGenerator.jsx'));
 const ThermalStress = lazyWithRetry(() => import('./pages/ThermalStress.jsx'));
 const ThermalStressHistory = lazyWithRetry(() => import('./pages/ThermalStressHistory.jsx'));
@@ -282,7 +283,7 @@ function App() {
         <div className="app-container">
           {showMenuButton && (
             <div
-              className="glass-panel"
+              className="glass-panel no-print"
               style={{
                 position: 'fixed',
                 top: '1rem',
@@ -318,8 +319,8 @@ function App() {
                 <Menu size={22} />
               </button>
               <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', textDecoration: 'none', color: 'var(--color-text)', flex: 1 }}>
-                <img src="/logo.png" alt="Logo" style={{ width: '38px', height: '38px', objectFit: 'contain' }} />
-                <h1 className="header-title" style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-text)', letterSpacing: '-0.3px' }}>Asistente HYS</h1>
+                <img src="/logo.png" alt="Logo" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
+                <h1 className="header-title" style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text)', letterSpacing: '-0.3px' }}>Asistente HYS</h1>
               </Link>
               {/* Global Search button */}
               <button
@@ -349,7 +350,9 @@ function App() {
           {/* Global Search Modal */}
           {isSearchOpen && <GlobalSearch onClose={() => setIsSearchOpen(false)} />}
 
-          <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+          <div className="no-print">
+            <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+          </div>
 
           <Suspense fallback={<LoadingScreen />}>
             <div key={location.pathname} className="page-transition" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -396,6 +399,7 @@ function App() {
                 <Route path="/security" element={<ProtectedRoute><Security /></ProtectedRoute>} />
                 <Route path="/settings" element={<ProtectedRoute><AppSettings /></ProtectedRoute>} />
                 <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
+                <Route path="/extinguishers-history" element={<ProtectedRoute><ExtinguishersHistory /></ProtectedRoute>} />
                 <Route path="/ats-history" element={<ProtectedRoute><ATSHistory /></ProtectedRoute>} />
                 <Route path="/fire-load-history" element={<ProtectedRoute><FireLoadHistory /></ProtectedRoute>} />
                 <Route path="/checklists-history" element={<ProtectedRoute><ChecklistsHistory /></ProtectedRoute>} />
@@ -412,7 +416,6 @@ function App() {
                 <Route path="/training-management" element={<ProtectedRoute><TrainingManagement /></ProtectedRoute>} />
                 <Route path="/training-history" element={<ProtectedRoute><TrainingHistory /></ProtectedRoute>} />
                 <Route path="/extinguishers" element={<ProtectedRoute><Extinguishers /></ProtectedRoute>} />
-                <Route path="/extinguishers-report" element={<ProtectedRoute><ExtinguisherPdfGenerator /></ProtectedRoute>} />
                 <Route path="/thermal-stress" element={<ProtectedRoute><ThermalStress /></ProtectedRoute>} />
                 <Route path="/thermal-stress-history" element={<ProtectedRoute><ThermalStressHistory /></ProtectedRoute>} />
                 <Route path="/drills" element={<ProtectedRoute><Drills /></ProtectedRoute>} />
@@ -427,8 +430,10 @@ function App() {
               </Routes>
             </div>
           </Suspense>
-          <Footer />
-          <InstallBanner />
+          <div className="no-print">
+            <Footer />
+            <InstallBanner />
+          </div>
         </div>
       </SyncProvider>
     </AuthProvider >

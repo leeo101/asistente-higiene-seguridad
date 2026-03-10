@@ -1,14 +1,15 @@
 import React, { useRef } from 'react';
-import { useReactToPrint } from 'react-to-print';
 import { ArrowLeft, Printer, Calendar, MapPin, CheckSquare, Clock, Users, Flame } from 'lucide-react';
 
 export default function DrillPdfGenerator({ report, onBack }) {
     const componentRef = useRef();
 
-    const handlePrint = useReactToPrint({
-        content: () => componentRef.current,
-        documentTitle: `Acta_Simulacro_${report.empresa.replace(/\s+/g, '_')}_${report.fecha}`,
-    });
+    const safeEmpresa = (report?.empresa || 'Empresa').replace(/\s+/g, '_');
+    const safeFecha = report?.fecha || new Date().toISOString().split('T')[0];
+
+    const handlePrint = () => {
+        window.print();
+    };
 
     return (
         <div className="container" style={{ paddingBottom: '3rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -44,7 +45,15 @@ export default function DrillPdfGenerator({ report, onBack }) {
                             @page { size: A4 portrait; margin: 15mm; }
                             body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                             .no-print { display: none !important; }
-                            .print-area { box-shadow: none !important; margin: 0 !important; padding: 0 !important; width: 100% !important; max-width: none !important; border-radius: 0 !important; }
+                            .print-area { 
+                                box-shadow: none !important; 
+                                margin: 0 !important; 
+                                padding: 10mm !important; 
+                                width: 100% !important; 
+                                max-width: none !important; 
+                                border: 1px solid #1e293b !important;
+                                border-radius: 0 !important; 
+                            }
                         `}
                     </style>
 
@@ -55,8 +64,8 @@ export default function DrillPdfGenerator({ report, onBack }) {
                                 ACTA DE SIMULACRO DE EVACUACIÓN
                             </h1>
                             <div style={{ display: 'flex', gap: '1.5rem', color: '#475569', fontSize: '10pt' }}>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><strong>Empresa:</strong> {report.empresa}</span>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><strong>Fecha:</strong> {new Date(report.fecha + 'T12:00:00Z').toLocaleDateString()}</span>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><strong>Empresa:</strong> {report?.empresa || 'N/A'}</span>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><strong>Fecha:</strong> {report?.fecha ? new Date(report.fecha + 'T12:00:00Z').toLocaleDateString() : 'N/A'}</span>
                             </div>
                         </div>
                     </div>
@@ -74,9 +83,9 @@ export default function DrillPdfGenerator({ report, onBack }) {
                                 <Flame size={16} color="#ef4444" /> HIPÓTESIS DEL EVENTO
                             </div>
                             <div style={{ padding: '12px', fontSize: '10pt' }}>
-                                <div style={{ marginBottom: '8px' }}><strong>Tipo de Emergencia:</strong> {report.hipotesis}</div>
-                                <div><strong>Sector/Foco de Origen:</strong> {report.origen}</div>
-                                <div style={{ marginTop: '8px' }}><strong>Hora de Alarma:</strong> {report.hora} hs</div>
+                                <div style={{ marginBottom: '8px' }}><strong>Tipo de Emergencia:</strong> {report?.hipotesis || 'N/A'}</div>
+                                <div><strong>Sector/Foco de Origen:</strong> {report?.origen || 'N/A'}</div>
+                                <div style={{ marginTop: '8px' }}><strong>Hora de Alarma:</strong> {report?.hora || '--:--'} hs</div>
                             </div>
                         </div>
 
@@ -87,7 +96,7 @@ export default function DrillPdfGenerator({ report, onBack }) {
                             <div style={{ padding: '12px', textAlign: 'center' }}>
                                 <div style={{ fontSize: '9pt', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>Tiempo Total Evacuación</div>
                                 <div style={{ fontSize: '28pt', fontWeight: 900, color: '#dc2626', lineHeight: 1, margin: '8px 0' }}>
-                                    {report.tiempoVisual}
+                                    {report?.tiempoVisual || '00:00'}
                                 </div>
                                 <div style={{ fontSize: '9pt', color: '#475569' }}>Minutos : Segundos</div>
                             </div>
@@ -100,12 +109,12 @@ export default function DrillPdfGenerator({ report, onBack }) {
                             <Users size={16} color="#8b5cf6" /> POBLACIÓN Y ESTADÍSTICAS
                         </div>
                         <div style={{ padding: '12px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '10pt' }}>
-                            <div><strong>Personas Evacuadas:</strong> <span style={{ fontSize: '12pt', fontWeight: 900 }}>{report.evacuados || '-'}</span></div>
-                            <div><strong>Heridos Simulados:</strong> <span style={{ fontSize: '12pt', fontWeight: 900, color: report.heridosSimulados > 0 ? '#ef4444' : '#1e293b' }}>{report.heridosSimulados || '0'}</span></div>
+                            <div><strong>Personas Evacuadas:</strong> <span style={{ fontSize: '12pt', fontWeight: 900 }}>{report?.evacuados || '-'}</span></div>
+                            <div><strong>Heridos Simulados:</strong> <span style={{ fontSize: '12pt', fontWeight: 900, color: (report?.heridosSimulados || 0) > 0 ? '#ef4444' : '#1e293b' }}>{report?.heridosSimulados || '0'}</span></div>
                             <div style={{ gridColumn: '1 / -1' }}>
                                 <strong>Puntos de Encuentro Utilizados:</strong>
                                 <p style={{ margin: '4px 0 0 0', background: '#f8fafc', padding: '8px', borderLeft: '3px solid #cbd5e1', minHeight: '30px' }}>
-                                    {report.puntosEncuentro || 'No registrados'}
+                                    {report?.puntosEncuentro || 'No registrados'}
                                 </p>
                             </div>
                         </div>
@@ -121,13 +130,13 @@ export default function DrillPdfGenerator({ report, onBack }) {
                                 <tr>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '8px', background: '#f8fafc', width: '50%' }}>¿La alarma fue perfectamente audible en todos los sectores afectados?</td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '8px', fontWeight: 'bold', textAlign: 'center' }}>
-                                        {report.alarmaSonó === 'Sí' ? 'SÍ, Audible' : report.alarmaSonó}
+                                        {report?.alarmaSonó === 'Sí' ? 'SÍ, Audible' : (report?.alarmaSonó || '-')}
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '8px', background: '#f8fafc' }}>¿Se cumplieron los roles de emergencia (guías, líderes de encuentro)?</td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '8px', fontWeight: 'bold', textAlign: 'center' }}>
-                                        {report.rolCumplido}
+                                        {report?.rolCumplido || '-'}
                                     </td>
                                 </tr>
                             </tbody>
@@ -143,7 +152,7 @@ export default function DrillPdfGenerator({ report, onBack }) {
                             border: '1px solid #cbd5e1', borderRadius: '4px', padding: '12px', minHeight: '100px',
                             fontSize: '10pt', background: '#fefce8', color: '#422006'
                         }}>
-                            {report.observaciones ? report.observaciones : 'No se registraron observaciones o desvíos técnicos durante el ejercicio.'}
+                            {report?.observaciones ? report.observaciones : 'No se registraron observaciones o desvíos técnicos durante el ejercicio.'}
                         </div>
                     </div>
 
@@ -151,7 +160,7 @@ export default function DrillPdfGenerator({ report, onBack }) {
                     <div style={{ marginTop: 'auto', paddingTop: '40px', display: 'flex', justifyContent: 'space-between', pageBreakInside: 'avoid' }}>
                         <div style={{ width: '45%', textAlign: 'center' }}>
                             <div style={{ borderBottom: '1px solid #1e293b', height: '50px', marginBottom: '5px' }}></div>
-                            <div style={{ fontSize: '10pt', color: '#1e293b', fontWeight: 'bold' }}>{report.evaluador}</div>
+                            <div style={{ fontSize: '10pt', color: '#1e293b', fontWeight: 'bold' }}>{report?.evaluador || '-'}</div>
                             <div style={{ fontSize: '8pt', color: '#64748b' }}>Responsable Higiene y Seguridad</div>
                         </div>
                         <div style={{ width: '45%', textAlign: 'center' }}>

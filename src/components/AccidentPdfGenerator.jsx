@@ -1,14 +1,15 @@
 import React, { useRef } from 'react';
-import { useReactToPrint } from 'react-to-print';
-import { ArrowLeft, Printer, Download, MapPin, Calendar, Clock, AlertTriangle, User, FileText, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Printer, Download, MapPin, Calendar, Clock, TriangleAlert, User, FileText, CheckCircle2 } from 'lucide-react';
 
 export default function AccidentPdfGenerator({ report, onBack }) {
     const componentRef = useRef();
 
-    const handlePrint = useReactToPrint({
-        content: () => componentRef.current,
-        documentTitle: `Investigacion_Accidente_${report.victimaNombre.replace(/\s+/g, '_')}_${report.fecha}`,
-    });
+    const safeNombre = (report?.victimaNombre || 'Sin_Nombre').replace(/\s+/g, '_');
+    const safeFecha = report?.fecha || new Date().toISOString().split('T')[0];
+
+    const handlePrint = () => {
+        window.print();
+    };
 
     const getSeverityLabel = (sev) => {
         if (sev === 'Leve') return { color: '#3b82f6', text: 'Leve (Sin baja)' };
@@ -56,7 +57,15 @@ export default function AccidentPdfGenerator({ report, onBack }) {
                             @page { size: A4 portrait; margin: 15mm; }
                             body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                             .no-print { display: none !important; }
-                            .print-area { box-shadow: none !important; margin: 0 !important; padding: 0 !important; width: 100% !important; max-width: none !important; border-radius: 0 !important; }
+                            .print-area { 
+                                box-shadow: none !important; 
+                                margin: 0 !important; 
+                                padding: 10mm !important; 
+                                width: 100% !important; 
+                                max-width: none !important; 
+                                border: 1px solid #1e293b !important;
+                                border-radius: 0 !important; 
+                            }
                         `}
                     </style>
 
@@ -67,7 +76,7 @@ export default function AccidentPdfGenerator({ report, onBack }) {
                                 Investigación de Accidente
                             </h1>
                             <div style={{ display: 'flex', gap: '1.5rem', color: '#475569', fontSize: '10pt' }}>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><FileText size={14} /> Ref: INV-{report.id.toString().slice(-6)}</span>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><FileText size={14} /> Ref: INV-{report?.id?.toString().slice(-6) || '000000'}</span>
                                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={14} /> Generado: {new Date().toLocaleDateString()}</span>
                             </div>
                         </div>
@@ -84,10 +93,10 @@ export default function AccidentPdfGenerator({ report, onBack }) {
                             1. DATOS DEL SINIESTRO
                         </div>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', fontSize: '10pt' }}>
-                            <div><strong style={{ color: '#64748b' }}>Empresa / Razón Social:</strong> {report.empresa}</div>
-                            <div><strong style={{ color: '#64748b' }}>Ubicación / Sector:</strong> {report.ubicacion}</div>
-                            <div><strong style={{ color: '#64748b' }}>Fecha del Accidente:</strong> {new Date(report.fecha + 'T12:00:00Z').toLocaleDateString()}</div>
-                            <div><strong style={{ color: '#64748b' }}>Hora Estimada:</strong> {report.hora || 'No especificada'}</div>
+                            <div><strong style={{ color: '#64748b' }}>Empresa / Razón Social:</strong> {report?.empresa || 'N/A'}</div>
+                            <div><strong style={{ color: '#64748b' }}>Ubicación / Sector:</strong> {report?.ubicacion || 'N/A'}</div>
+                            <div><strong style={{ color: '#64748b' }}>Fecha del Accidente:</strong> {report?.fecha ? new Date(report.fecha + 'T12:00:00Z').toLocaleDateString() : 'N/A'}</div>
+                            <div><strong style={{ color: '#64748b' }}>Hora Estimada:</strong> {report?.hora || 'No especificada'}</div>
                         </div>
                     </div>
 
@@ -97,14 +106,14 @@ export default function AccidentPdfGenerator({ report, onBack }) {
                             2. DATOS DEL ACCIDENTADO
                         </div>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', fontSize: '10pt', marginBottom: '0.8rem' }}>
-                            <div><strong style={{ color: '#64748b' }}>Nombre y Apellido:</strong> {report.victimaNombre}</div>
-                            <div><strong style={{ color: '#64748b' }}>DNI / CUIL:</strong> {report.victimaDni || 'N/A'}</div>
-                            <div><strong style={{ color: '#64748b' }}>Puesto de Trabajo:</strong> {report.victimaPuesto || 'N/A'}</div>
-                            <div><strong style={{ color: '#64748b' }}>Antigüedad:</strong> {report.victimaAntiguedad || 'N/A'}</div>
+                            <div><strong style={{ color: '#64748b' }}>Nombre y Apellido:</strong> {report?.victimaNombre || 'N/A'}</div>
+                            <div><strong style={{ color: '#64748b' }}>DNI / CUIL:</strong> {report?.victimaDni || 'N/A'}</div>
+                            <div><strong style={{ color: '#64748b' }}>Puesto de Trabajo:</strong> {report?.victimaPuesto || 'N/A'}</div>
+                            <div><strong style={{ color: '#64748b' }}>Antigüedad:</strong> {report?.victimaAntiguedad || 'N/A'}</div>
                         </div>
                         <div style={{ background: '#fff1f2', border: '1px solid #fecdd3', padding: '0.8rem', borderRadius: '6px', fontSize: '10pt' }}>
-                            <div style={{ marginBottom: '0.3rem' }}><strong style={{ color: '#e11d48' }}>Tipo de Lesión:</strong> {report.lesion}</div>
-                            <div><strong style={{ color: '#e11d48' }}>Parte del Cuerpo Afectada:</strong> {report.parteCuerpo}</div>
+                            <div style={{ marginBottom: '0.3rem' }}><strong style={{ color: '#e11d48' }}>Tipo de Lesión:</strong> {report?.lesion || 'No especificada'}</div>
+                            <div><strong style={{ color: '#e11d48' }}>Parte del Cuerpo Afectada:</strong> {report?.parteCuerpo || 'No especificada'}</div>
                         </div>
                     </div>
 
@@ -114,14 +123,14 @@ export default function AccidentPdfGenerator({ report, onBack }) {
                             3. DESCRIPCIÓN DEL HECHO
                         </div>
                         <p style={{ fontSize: '10pt', lineHeight: 1.6, color: '#334155', margin: '0 0 1rem 0', whiteSpace: 'pre-wrap', textAlign: 'justify' }}>
-                            {report.descripcionHecho || 'Sin descripción detallada.'}
+                            {report?.descripcionHecho || 'Sin descripción detallada.'}
                         </p>
 
                         {report.testigos && report.testigos.length > 0 && report.testigos.some(t => t.nombre) && (
                             <div style={{ marginTop: '1rem' }}>
                                 <strong style={{ fontSize: '10pt', color: '#1e293b' }}>Testigos Intervinientes:</strong>
                                 <ul style={{ fontSize: '9.5pt', color: '#475569', paddingLeft: '1.2rem', marginTop: '0.5rem' }}>
-                                    {report.testigos.filter(t => t.nombre).map((t, idx) => (
+                                    {report?.testigos?.filter(t => t.nombre).map((t, idx) => (
                                         <li key={idx} style={{ marginBottom: '0.4rem' }}>
                                             <strong>{t.nombre}:</strong> "{t.declaracion}"
                                         </li>
@@ -140,7 +149,7 @@ export default function AccidentPdfGenerator({ report, onBack }) {
                             <strong style={{ color: '#dc2626' }}>Problema / Efecto:</strong> {report.problemaCentral || 'No definido'}
                         </div>
                         <div style={{ marginLeft: '1rem', borderLeft: '2px solid #cbd5e1', paddingLeft: '1rem' }}>
-                            {report.porques && report.porques.map((pq, idx) => {
+                            {report?.porques && report.porques.map((pq, idx) => {
                                 if (!pq) return null;
                                 return (
                                     <div key={idx} style={{ fontSize: '9.5pt', marginBottom: '0.5rem', color: '#334155' }}>
@@ -169,7 +178,7 @@ export default function AccidentPdfGenerator({ report, onBack }) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {report.medidas && report.medidas.length > 0 && report.medidas.some(m => m.accion) ? (
+                                {report?.medidas && report.medidas.length > 0 && report.medidas.some(m => m.accion) ? (
                                     report.medidas.filter(m => m.accion).map((m, idx) => (
                                         <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
                                             <td style={{ padding: '0.6rem 0.5rem', color: '#1e293b' }}>{m.accion}</td>

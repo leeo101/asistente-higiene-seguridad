@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Trash2, HardHat, AlertTriangle, CheckCircle, Clock, Shield, Download } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, HardHat, TriangleAlert, CheckCircle, Clock, Shield, Download } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useSync } from '../contexts/SyncContext';
 import { downloadCSV } from '../services/exportCsv';
@@ -23,7 +23,7 @@ function StatusBadge({ days }) {
     if (days === null) return null;
     if (days < 0) return (
         <span style={{ background: 'rgba(239,68,68,0.12)', color: '#ef4444', padding: '0.25rem 0.7rem', borderRadius: '20px', fontSize: '0.7rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-            <AlertTriangle size={11} /> VENCIDO
+            <TriangleAlert size={11} /> VENCIDO
         </span>
     );
     if (days <= 30) return (
@@ -115,7 +115,7 @@ export default function PPETracker() {
                 <div style={{ display: 'flex', gap: '0.8rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
                     {expired > 0 && (
                         <div style={{ flex: 1, minWidth: '140px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '12px', padding: '0.8rem 1rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                            <AlertTriangle size={20} color="#ef4444" />
+                            <TriangleAlert size={20} color="#ef4444" />
                             <div><div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#ef4444' }}>{expired}</div><div style={{ fontSize: '0.7rem', color: '#ef4444', fontWeight: 700 }}>VENCIDOS</div></div>
                         </div>
                     )}

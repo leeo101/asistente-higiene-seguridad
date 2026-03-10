@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Trash2, Camera, Calendar, Building2, ShieldCheck, AlertTriangle, Share2, Info, FileText, QrCode, Download, BarChart2 } from 'lucide-react';
+import { ArrowLeft, Search, Trash2, Camera, Calendar, Building2, ShieldCheck, TriangleAlert, Share2, Info, FileText, QrCode, Download, BarChart2 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
 import QRModal from '../components/QRModal';
@@ -258,7 +258,7 @@ export default function AICameraHistory() {
                                         color: item.ppeComplete ? '#10b981' : '#ef4444',
                                         flexShrink: 0
                                     }}>
-                                        {item.ppeComplete ? <ShieldCheck size={14} /> : <AlertTriangle size={14} />}
+                                        {item.ppeComplete ? <ShieldCheck size={14} /> : <TriangleAlert size={14} />}
                                         {item.ppeComplete ? 'EPP OK' : 'Falta EPP'}
                                     </div>
                                 )}

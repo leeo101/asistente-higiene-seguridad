@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download, FileText, Calendar, TrendingUp, AlertTriangle, CheckCircle, Shield, FileSignature, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Download, FileText, Calendar, TrendingUp, TriangleAlert, CheckCircle, Shield, FileSignature, ChevronRight } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import toast from 'react-hot-toast';
 import { jsPDF } from 'jspdf';
@@ -272,7 +272,7 @@ export default function ManagementReport() {
 
                     <div className="card" style={{ padding: '1.5rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1rem', color: '#8b5cf6' }}>
-                            <AlertTriangle size={24} />
+                            <TriangleAlert size={24} />
                             <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>Evaluación de Riesgo</h3>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.8rem 0', borderBottom: '1px solid var(--color-border)' }}>

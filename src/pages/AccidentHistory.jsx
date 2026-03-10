@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    ArrowLeft, FileText, Calendar, MapPin, Printer,
-    Search, AlertTriangle, ChevronRight, Activity
+    Search, TriangleAlert, ChevronRight, Activity, Trash2, Share2, Edit2, ArrowLeft, Calendar, FileText, MapPin
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
@@ -13,17 +12,30 @@ export default function AccidentHistory() {
     useDocumentTitle('Historial de Accidentes');
     const navigate = useNavigate();
     const { currentUser } = useAuth();
-    const { syncing } = useSync();
+    const { syncing, syncCollection } = useSync();
 
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedReport, setSelectedReport] = useState(null);
+    const [deleteTarget, setDeleteTarget] = useState(null);
 
     useEffect(() => {
         const h = JSON.parse(localStorage.getItem('accident_history') || '[]');
-        // Sort newest first
         setHistory(h.sort((a, b) => new Date(b.date) - new Date(a.date)));
     }, [syncing]);
+
+    const handleDelete = (id, e) => {
+        e.stopPropagation();
+        setDeleteTarget(id);
+    };
+
+    const confirmDelete = () => {
+        const updated = history.filter(item => item.id !== deleteTarget);
+        setHistory(updated);
+        localStorage.setItem('accident_history', JSON.stringify(updated));
+        syncCollection('accident_history', updated);
+        setDeleteTarget(null);
+    };
 
     const filteredHistory = history.filter(item => {
         const searchStr = `${item.empresa} ${item.victimaNombre} ${item.lesion}`.toLowerCase();
@@ -44,6 +56,19 @@ export default function AccidentHistory() {
 
     return (
         <div className="container" style={{ paddingBottom: '3rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+            {deleteTarget && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+                    <div className="card" style={{ maxWidth: '320px', textAlign: 'center', padding: '2rem' }}>
+                        <Trash2 size={48} style={{ color: '#ef4444', marginBottom: '1rem' }} />
+                        <h3>¿Eliminar reporte?</h3>
+                        <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>Esta acción borrará definitivamente la investigación de {history.find(h => h.id === deleteTarget)?.victimaNombre}.</p>
+                        <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                            <button onClick={() => setDeleteTarget(null)} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: 'var(--color-background)', border: 'none' }}>Cancelar</button>
+                            <button onClick={confirmDelete} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: '#ef4444', color: 'white', border: 'none' }}>Eliminar</button>
+                        </div>
+                    </div>
+                </div>
+            )}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <button onClick={() => navigate('/')} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)' }}>
@@ -73,27 +98,56 @@ export default function AccidentHistory() {
                 {filteredHistory.map((report) => {
                     const sevColor = getSeverityColor(report.gravedad);
                     return (
-                        <div key={report.id} className="card" style={{ padding: '1.25rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '1rem', borderLeft: `6px solid ${sevColor}` }}
+                        <div key={report.id} className="card" style={{ padding: '1.25rem', cursor: 'pointer', borderLeft: `6px solid ${sevColor}` }}
                             onClick={() => setSelectedReport(report)}>
-                            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: `${sevColor}15`, color: sevColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                <AlertTriangle size={24} />
-                            </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                        {report.victimaNombre}
-                                    </h3>
-                                    <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '12px', background: sevColor, color: '#fff' }}>
-                                        {report.gravedad}
-                                    </span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: `${sevColor}15`, color: sevColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    <TriangleAlert size={24} />
                                 </div>
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginTop: '0.5rem', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={14} /> {new Date(report.date).toLocaleDateString()}</span>
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><MapPin size={14} /> {report.empresa}</span>
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--color-text)' }}><Activity size={14} /> {report.lesion}</span>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                            {report.victimaNombre}
+                                        </h3>
+                                        <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '12px', background: sevColor, color: '#fff' }}>
+                                            {report.gravedad}
+                                        </span>
+                                    </div>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginTop: '0.5rem', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={14} /> {new Date(report.date).toLocaleDateString()}</span>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><MapPin size={14} /> {report.empresa}</span>
+                                    </div>
                                 </div>
+                                <ChevronRight style={{ color: 'var(--color-border)', flexShrink: 0 }} className="hidden sm:block" />
                             </div>
-                            <ChevronRight style={{ color: 'var(--color-border)', flexShrink: 0 }} />
+
+                            <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--color-border)', display: 'flex', justifyContent: 'flex-end', gap: '0.8rem' }}>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        const text = `⚠️ Informe de Investigación de Accidente\n👤 Accidentado: ${report.victimaNombre}\n🏢 Empresa: ${report.empresa}\n📅 Fecha: ${report.fecha}\n⚠️ Gravedad: ${report.gravedad}\n\nGenerado con Asistente HYS`;
+                                        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                                    }}
+                                    style={{ padding: '0.5rem', borderRadius: '8px', background: '#dcfce7', color: '#16a34a', border: '1px solid #86efac', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', fontWeight: 700 }}
+                                >
+                                    <Share2 size={16} /> WhatsApp
+                                </button>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigate('/accident-investigation', { state: { editData: report } });
+                                    }}
+                                    style={{ padding: '0.5rem', borderRadius: '8px', background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', fontWeight: 700 }}
+                                >
+                                    <Edit2 size={16} /> Editar
+                                </button>
+                                <button
+                                    onClick={(e) => handleDelete(report.id, e)}
+                                    style={{ padding: '0.5rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.05)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)' }}
+                                >
+                                    <Trash2 size={16} />
+                                </button>
+                            </div>
                         </div>
                     );
                 })}

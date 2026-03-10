@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera, RefreshCw, CheckCircle, AlertTriangle, ShieldCheck, Zap, ZapOff, FlipHorizontal } from 'lucide-react';
+import { ArrowLeft, Camera, RefreshCw, CheckCircle, TriangleAlert, ShieldCheck, Zap, ZapOff, FlipHorizontal } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { usePaywall } from '../hooks/usePaywall';
 import { useSync } from '../contexts/SyncContext';
@@ -304,7 +304,7 @@ export default function AICamera() {
                                         </div>
                                     ) : (
                                         <div style={{ background: '#ef4444', padding: '0.6rem 1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                            <AlertTriangle size={18} /> <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>⚠️ FALTA CASCO</span>
+                                            <TriangleAlert size={18} /> <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>⚠️ FALTA CASCO</span>
                                         </div>
                                     )}
                                 </div>

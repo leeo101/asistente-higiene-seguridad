@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
     X, User, History, LogOut, Home, Settings,
-    Calendar, MessageSquare, Sun, Moon, Sparkles, Star, ShieldCheck, HardHat, BarChart3
+    Calendar, MessageSquare, Sun, Moon, Sparkles, Star, ShieldCheck, HardHat, BarChart3, Users, TriangleAlert
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
@@ -15,6 +15,8 @@ const navItems = [
     { to: '/calendar', icon: <Calendar size={18} />, label: 'Calendario', always: true },
     { to: '/analytics', icon: <BarChart3 size={18} color="#3b82f6" />, label: 'Estadísticas', auth: true },
     { to: '/management-report', icon: <BarChart3 size={18} color="#10b981" />, label: 'Reporte Mensual', auth: true },
+    { to: '/training-management', icon: <Users size={18} color="#3b82f6" />, label: 'Capacitaciones', auth: true },
+    { to: '/accident-investigation', icon: <TriangleAlert size={18} color="#ef4444" />, label: 'Accidentes', auth: true },
     { to: '/settings', icon: <Settings size={18} />, label: 'Configuración', auth: true },
     { to: '/privacy', icon: <ShieldCheck size={18} />, label: 'Privacidad', always: true },
 ];
@@ -128,7 +130,7 @@ export default function Sidebar({ isOpen, onClose }) {
                     {/* Top row: Logo + close */}
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.2rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
-                            <div style={{ width: '36px', height: '36px', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '10px', padding: '5px', flexShrink: 0, backdropFilter: 'blur(8px)' }}>
+                            <div style={{ width: '44px', height: '44px', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '12px', padding: '6px', flexShrink: 0, backdropFilter: 'blur(8px)' }}>
                                 <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                             </div>
                             <span style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--color-hero-text)', letterSpacing: '-0.5px' }}>Asistente HYS</span>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
     ClipboardCheck, Printer, Plus,
-    Settings, AlertTriangle, Building2, Calendar,
+    Settings, TriangleAlert, Building2, Calendar,
     Check, ShieldCheck, Trash2, Edit3, X,
     Share2, Save, ArrowLeft
 } from 'lucide-react';
@@ -52,7 +52,7 @@ const DEFAULT_TEMPLATES = {
     },
     'grinder': {
         title: 'Amoladora Angular',
-        icon: <AlertTriangle size={18} />,
+        icon: <TriangleAlert size={18} />,
         items: [
             'Resguardo metalico cubre como minimo el 50% del disco',
             'Mango lateral colocado y permanentemente firme',

@@ -1,23 +1,31 @@
 import React, { useRef } from 'react';
-import { useReactToPrint } from 'react-to-print';
 import { ArrowLeft, Printer, Map as MapIcon } from 'lucide-react';
 import { SAFETY_ICONS } from '../data/mapIcons';
 
 export default function RiskMapPdfGenerator({ mapData, onBack }) {
     const componentRef = useRef();
 
-    const handlePrint = useReactToPrint({
-        content: () => componentRef.current,
-        documentTitle: `Mapa_Riesgos_${mapData.empresa.replace(/\s+/g, '_')}_${mapData.fecha}`,
-    });
+    const safeEmpresa = (mapData?.empresa || 'Empresa').replace(/\s+/g, '_');
+    const safeFecha = mapData?.fecha || new Date().toISOString().split('T')[0];
+
+    const handlePrint = () => {
+        window.print();
+    };
+
+    // Determine if it's an Evacuation Diagram based on placed elements
+    const isEvacuation = mapData?.elements?.some(el =>
+        el.type === 'arrow' || (el.type === 'icon' && el.iconId === 'YOU_ARE_HERE')
+    );
 
     // Extract unique ISO icons used in this map specifically for the legend
     const usedIconsMap = {};
-    mapData.elements.forEach(el => {
-        if (el.type === 'icon' && SAFETY_ICONS[el.iconId]) {
-            usedIconsMap[el.iconId] = SAFETY_ICONS[el.iconId];
-        }
-    });
+    if (mapData?.elements) {
+        mapData.elements.forEach(el => {
+            if (el.type === 'icon' && SAFETY_ICONS[el.iconId]) {
+                usedIconsMap[el.iconId] = SAFETY_ICONS[el.iconId];
+            }
+        });
+    }
     const legendIcons = Object.values(usedIconsMap);
 
     return (
@@ -52,7 +60,16 @@ export default function RiskMapPdfGenerator({ mapData, onBack }) {
                             @page { size: A4 landscape; margin: 10mm; }
                             body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                             .no-print { display: none !important; }
-                            .print-area { box-shadow: none !important; margin: 0 !important; padding: 0 !important; width: 100% !important; max-width: none !important; border-radius: 0 !important; height: 100% !important;}
+                            .print-area { 
+                                box-shadow: none !important; 
+                                margin: 0 !important; 
+                                padding: 10mm !important; 
+                                width: 100% !important; 
+                                max-width: none !important; 
+                                border: 2px solid #1e293b !important;
+                                border-radius: 0 !important; 
+                                height: 100% !important;
+                            }
                         `}
                     </style>
 
@@ -60,12 +77,12 @@ export default function RiskMapPdfGenerator({ mapData, onBack }) {
                     <div style={{ flex: 1, border: '2px solid #1e293b', position: 'relative', overflow: 'hidden', background: '#f8fafc', backgroundImage: 'linear-gradient(to right, #e2e8f0 1px, transparent 1px), linear-gradient(to bottom, #e2e8f0 1px, transparent 1px)', backgroundSize: '10px 10px' }}>
 
                         {/* Static render of the elements based on saved coordinates */}
-                        {/* We center the drawing bounds so it looks good on PDF */}
-                        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
-                            {mapData.backgroundImage && (
-                                <img src={mapData.backgroundImage} alt="Plano" style={{ position: 'absolute', top: '100px', left: '100px', opacity: 0.8, maxWidth: '100%', maxHeight: '100%' }} />
+                        {/* Using explicit 4000px boundaries makes sure print layout engines don't collapse absolutely positioned wrappers */}
+                        <div style={{ position: 'absolute', top: 0, left: 0, width: '4000px', height: '4000px', pointerEvents: 'none' }}>
+                            {mapData?.backgroundImage && (
+                                <img src={mapData.backgroundImage} alt="Plano" style={{ position: 'absolute', top: '100px', left: '100px', opacity: 0.8, maxWidth: '2000px', maxHeight: 'none' }} />
                             )}
-                            {mapData.elements.map((el) => {
+                            {mapData?.elements?.map((el) => {
                                 if (el.type === 'icon' && SAFETY_ICONS[el.iconId]) {
                                     const iconDef = SAFETY_ICONS[el.iconId];
                                     return (
@@ -96,6 +113,36 @@ export default function RiskMapPdfGenerator({ mapData, onBack }) {
                                 }
                                 return null;
                             })}
+
+                            {/* SVG Layer for Vectors */}
+                            <svg width="4000" height="4000" xmlns="http://www.w3.org/2000/svg" style={{ position: 'absolute', top: 0, left: 0, width: '4000px', height: '4000px', pointerEvents: 'none', overflow: 'visible' }}>
+                                <defs>
+                                    <marker id="pdf-arrowhead" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
+                                        <polygon points="0 0, 6 2, 0 4" fill="#2563eb" />
+                                    </marker>
+                                </defs>
+                                {mapData?.elements?.filter(el => ['arrow', 'line', 'rect'].includes(el.type)).map(el => {
+                                    const commonProps = {
+                                        key: el.id,
+                                        stroke: el.color || '#0f172a'
+                                    };
+
+                                    if (el.type === 'arrow') {
+                                        return <line {...commonProps} x1={el.startX} y1={el.startY} x2={el.endX} y2={el.endY} strokeWidth="3" markerEnd="url(#pdf-arrowhead)" />;
+                                    }
+                                    if (el.type === 'line') {
+                                        return <line {...commonProps} x1={el.startX} y1={el.startY} x2={el.endX} y2={el.endY} strokeWidth="3" strokeLinecap="round" />;
+                                    }
+                                    if (el.type === 'rect') {
+                                        const rx = Math.min(el.startX, el.endX);
+                                        const ry = Math.min(el.startY, el.endY);
+                                        const rw = Math.abs(el.endX - el.startX);
+                                        const rh = Math.abs(el.endY - el.startY);
+                                        return <rect {...commonProps} x={rx} y={ry} width={rw} height={rh} strokeWidth="2" fill="transparent" />;
+                                    }
+                                    return null;
+                                })}
+                            </svg>
                         </div>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 250px', gap: '10px', marginTop: '10px', height: '100px' }}>
@@ -115,16 +162,23 @@ export default function RiskMapPdfGenerator({ mapData, onBack }) {
                         </div>
 
                         {/* Rótulo Oficial */}
-                        <div style={{ border: '2px solid #1e293b', display: 'flex', flexDirection: 'column', fontSize: '8pt', background: '#f8fafc' }}>
-                            <div style={{ borderBottom: '1px solid #1e293b', padding: '4px 6px', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold' }}>
-                                <MapIcon size={14} /> MAPA DE RIESGOS INTEGRAL
+                        <div style={{ border: '2px solid #1e293b', display: 'flex', flexDirection: 'column', fontSize: '8pt', background: '#f8fafc', overflow: 'hidden' }}>
+                            <div style={{
+                                padding: '4px 6px',
+                                display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold',
+                                background: isEvacuation ? '#16a34a' : 'transparent',
+                                color: isEvacuation ? '#ffffff' : 'inherit',
+                                borderBottom: '1px solid #1e293b'
+                            }}>
+                                <MapIcon size={14} color={isEvacuation ? '#ffffff' : 'currentColor'} />
+                                {isEvacuation ? 'DIAGRAMA DE EVACUACIÓN' : 'MAPA DE RIESGOS INTEGRAL'}
                             </div>
                             <div style={{ flex: 1, padding: '4px 6px', display: 'grid', gridTemplateColumns: '1fr', gap: '2px' }}>
-                                <div><strong>Empresa:</strong> {mapData.empresa}</div>
-                                <div><strong>Sector:</strong> {mapData.sector}</div>
-                                <div><strong>Fecha:</strong> {new Date(mapData.fecha + 'T12:00:00Z').toLocaleDateString()}</div>
+                                <div><strong>Empresa:</strong> {mapData?.empresa || 'N/A'}</div>
+                                <div><strong>Sector:</strong> {mapData?.sector || 'N/A'}</div>
+                                <div><strong>Fecha:</strong> {mapData?.fecha ? new Date(mapData.fecha + 'T12:00:00Z').toLocaleDateString() : 'N/A'}</div>
                             </div>
-                            <div style={{ borderTop: '1px solid #1e293b', padding: '4px 6px', textAlign: 'center' }}>
+                            <div style={{ borderTop: '1px solid #1e293b', padding: '4px 6px', textAlign: 'center', background: '#ffffff' }}>
                                 <div style={{ height: '20px' }}></div> {/* Signature space */}
                                 <div style={{ borderTop: '1px dashed #94a3b8', paddingTop: '2px' }}>
                                     <strong style={{ fontSize: '7pt' }}>Firma Profesional RyS</strong>

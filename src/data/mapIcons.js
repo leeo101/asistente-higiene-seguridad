@@ -50,5 +50,25 @@ export const SAFETY_ICONS = {
     TEXT_LABEL: {
         id: 'TEXT_LABEL', type: 'text', label: 'Etiqueta Texto', color: '#0f172a',
         svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>` // Type
+    },
+
+    // Evacuation Routing
+    YOU_ARE_HERE: {
+        id: 'YOU_ARE_HERE', type: 'indicator', label: 'Usted Está Aquí', color: '#dc2626',
+        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>` // MapPin filled concept
+    },
+    ARROW_LINE: {
+        id: 'ARROW_LINE', type: 'arrow', label: 'Ruta de Escape', color: '#2563eb',
+        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>` // ArrowRight
+    },
+
+    // Structural Drawing Tools
+    LINE: {
+        id: 'LINE', type: 'line', label: 'Pared / Línea', color: '#0f172a',
+        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="20" x2="20" y2="4"/></svg>`
+    },
+    RECTANGLE: {
+        id: 'RECTANGLE', type: 'rect', label: 'Salón / Zona', color: '#0f172a',
+        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>`
     }
 };

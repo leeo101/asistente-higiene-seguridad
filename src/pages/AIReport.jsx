@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Printer, Share2, Download, CheckCircle2, AlertTriangle, ShieldCheck, Info } from 'lucide-react';
+import { ArrowLeft, Printer, Share2, Download, CheckCircle2, TriangleAlert, ShieldCheck, Info } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
@@ -136,14 +136,14 @@ export default function AIReport() {
                                     { label: 'Ropa / Chaleco Reflectivo', pass: data.analysis?.clothingUsed },
                                 ].map((item, i) => (
                                     <div key={i} style={{ padding: '0.8rem', borderRadius: '8px', background: item.pass ? '#f0fdf4' : '#fef2f2', border: `1px solid ${item.pass ? '#bbf7d0' : '#fecaca'}`, display: 'flex', alignItems: 'center', gap: '0.8rem', color: item.pass ? '#15803d' : '#b91c1c' }}>
-                                        {item.pass ? <ShieldCheck size={20} /> : <AlertTriangle size={20} />}
+                                        {item.pass ? <ShieldCheck size={20} /> : <TriangleAlert size={20} />}
                                         <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{item.label}: {item.pass ? 'CUMPLE' : 'FALTA'}</span>
                                     </div>
                                 ))}
                             </div>
 
                             <div style={{ marginTop: '1rem', padding: '1rem', borderRadius: '8px', background: data.analysis?.ppeComplete ? '#f0fdf4' : '#fff7ed', border: `1px solid ${data.analysis?.ppeComplete ? '#bbf7d0' : '#ffedd5'}`, display: 'flex', alignItems: 'center', gap: '0.8rem', color: data.analysis?.ppeComplete ? '#15803d' : '#c2410c' }}>
-                                {data.analysis?.ppeComplete ? <ShieldCheck /> : <AlertTriangle />}
+                                {data.analysis?.ppeComplete ? <ShieldCheck /> : <TriangleAlert />}
                                 <span style={{ fontWeight: 800 }}>ESTADO GENERAL: {data.analysis?.ppeComplete ? 'ADECUADO' : 'REQUIERE ATENCIÓN INMEDIATA'}</span>
                             </div>
                         </>

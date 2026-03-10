@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ClipboardList, ShieldCheck, ScrollText, Camera, HardHat, AlertTriangle } from 'lucide-react';
+import { ClipboardList, ShieldCheck, ScrollText, Camera, HardHat, TriangleAlert } from 'lucide-react';
 
 const STATS_CONFIG = [
     { key: 'ats_history', label: 'ATS', color: '#10b981', bg: 'rgba(16,185,129,0.1)', icon: <ClipboardList size={18} /> },
@@ -91,7 +91,7 @@ export default function StatsBar() {
                 </h2>
                 {eppAlert > 0 && (
                     <a href="/ppe-tracker" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '20px', padding: '0.3rem 0.8rem', fontSize: '0.72rem', fontWeight: 800, color: '#ef4444', textDecoration: 'none' }}>
-                        <AlertTriangle size={12} /> {eppAlert} EPP por vencer
+                        <TriangleAlert size={12} /> {eppAlert} EPP por vencer
                     </a>
                 )}
             </div>

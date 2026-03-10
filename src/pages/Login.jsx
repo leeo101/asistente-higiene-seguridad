@@ -185,7 +185,7 @@ export default function Login() {
                     className="floating-logo"
                     style={{
                         width: 'auto',
-                        height: '70px',
+                        height: '90px',
                         margin: '0 auto 2rem auto',
                         display: 'block',
                         filter: 'drop-shadow(0 0 15px var(--color-primary))'

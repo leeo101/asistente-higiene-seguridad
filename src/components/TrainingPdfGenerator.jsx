@@ -1,16 +1,17 @@
 import React, { useRef } from 'react';
-import { useReactToPrint } from 'react-to-print';
 import { ArrowLeft, Printer, Users, Calendar, MapPin, Clock, BookOpen, Briefcase } from 'lucide-react';
 
 export default function TrainingPdfGenerator({ training, onBack }) {
     const componentRef = useRef();
 
-    const handlePrint = useReactToPrint({
-        content: () => componentRef.current,
-        documentTitle: `Planilla_Capacitacion_${training.tema.replace(/\s+/g, '_')}_${training.fecha}`,
-    });
+    const safeTema = (training?.tema || 'Capacitacion').replace(/\s+/g, '_');
+    const safeFecha = training?.fecha || new Date().toISOString().split('T')[0];
 
-    const isLandscape = training.asistentes.length > 20;
+    const handlePrint = () => {
+        window.print();
+    };
+
+    const isLandscape = (training?.asistentes?.length || 0) > 20;
 
     return (
         <div className="container" style={{ paddingBottom: '3rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -50,7 +51,15 @@ export default function TrainingPdfGenerator({ training, onBack }) {
                             }
                             body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                             .no-print { display: none !important; }
-                            .print-area { box-shadow: none !important; margin: 0 !important; padding: 0 !important; width: 100% !important; max-width: none !important; border-radius: 0 !important; }
+                            .print-area { 
+                                box-shadow: none !important; 
+                                margin: 0 !important; 
+                                padding: 10mm !important; 
+                                width: 100% !important; 
+                                max-width: none !important; 
+                                border: 1px solid #1e293b !important;
+                                border-radius: 0 !important; 
+                            }
                         `}
                     </style>
 
@@ -73,7 +82,9 @@ export default function TrainingPdfGenerator({ training, onBack }) {
                                 <td style={{ border: '1px solid #cbd5e1', padding: '8px', background: '#f8fafc', fontWeight: 'bold', width: '20%' }}>Tema dictado:</td>
                                 <td style={{ border: '1px solid #cbd5e1', padding: '8px', width: '30%', fontWeight: 'bold' }}>{training.tema}</td>
                                 <td style={{ border: '1px solid #cbd5e1', padding: '8px', background: '#f8fafc', fontWeight: 'bold', width: '20%' }}>Fecha:</td>
-                                <td style={{ border: '1px solid #cbd5e1', padding: '8px', width: '30%' }}>{new Date(training.fecha + 'T12:00:00Z').toLocaleDateString()}</td>
+                                <td style={{ border: '1px solid #cbd5e1', padding: '8px', width: '30%' }}>
+                                    {training?.fecha ? new Date(training.fecha + 'T12:00:00Z').toLocaleDateString() : 'N/A'}
+                                </td>
                             </tr>
                             <tr>
                                 <td style={{ border: '1px solid #cbd5e1', padding: '8px', background: '#f8fafc', fontWeight: 'bold' }}>Expositor / Instructor:</td>
@@ -92,7 +103,7 @@ export default function TrainingPdfGenerator({ training, onBack }) {
 
                     <p style={{ fontSize: '9pt', color: '#334155', textAlign: 'justify', marginBottom: '15px' }}>
                         Los abajo firmantes declaran haber recibido, comprendido e internalizado la capacitación en materia de Higiene y Seguridad Laboral
-                        sobre el tema detallado ut supra, recibiendo respuesta satisfactoria a las consultas realizadas y comprometiéndose a aplicar
+                        sobre el tema detallado arriba, recibiendo respuesta satisfactoria a las consultas realizadas y comprometiéndose a aplicar
                         las normativas y procedimientos en sus labores diarias.
                     </p>
 
@@ -108,7 +119,7 @@ export default function TrainingPdfGenerator({ training, onBack }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {training.asistentes.map((asist, idx) => (
+                            {training?.asistentes?.map((asist, idx) => (
                                 <tr key={idx}>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '8px 4px', textAlign: 'center', color: '#64748b' }}>{idx + 1}</td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '8px', fontWeight: 'bold' }}>{asist.nombre}</td>
@@ -119,7 +130,7 @@ export default function TrainingPdfGenerator({ training, onBack }) {
                                 </tr>
                             ))}
                             {/* Fill with a few empty rows if less than 5 people to make sheet look complete */}
-                            {Array.from({ length: Math.max(0, 5 - training.asistentes.length) }).map((_, i) => (
+                            {Array.from({ length: Math.max(0, 5 - (training?.asistentes?.length || 0)) }).map((_, i) => (
                                 <tr key={`empty-${i}`}>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '20px 8px' }}></td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '20px 8px' }}></td>
@@ -135,7 +146,7 @@ export default function TrainingPdfGenerator({ training, onBack }) {
                     <div style={{ marginTop: '50px', display: 'flex', justifyContent: 'flex-end', pageBreakInside: 'avoid' }}>
                         <div style={{ width: '250px', textAlign: 'center' }}>
                             <div style={{ borderBottom: '1px solid #64748b', height: '40px', marginBottom: '5px' }}></div>
-                            <div style={{ fontSize: '9pt', color: '#1e293b', fontWeight: 'bold' }}>{training.expositor}</div>
+                            <div style={{ fontSize: '9pt', color: '#1e293b', fontWeight: 'bold' }}>{training?.expositor || '-'}</div>
                             <div style={{ fontSize: '8pt', color: '#64748b' }}>Firma y Aclaración Instructor</div>
                         </div>
                     </div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Save, Printer, Building2, User, Calendar,
-    CheckCircle2, AlertCircle, Info, Pencil, AlertTriangle,
+    CheckCircle2, AlertCircle, Info, Pencil, TriangleAlert,
     ChevronRight, Share2, FileText, ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -146,7 +146,7 @@ export default function Report() {
 
                 {/* Findings Table */}
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <AlertTriangle size={20} color="#FF991F" /> Detalle de Hallazgos y No Conformidades
+                    <TriangleAlert size={20} color="#FF991F" /> Detalle de Hallazgos y No Conformidades
                 </h3>
 
                 {findings.length > 0 ? (

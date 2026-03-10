@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-    ClipboardList, PlusCircle, History, User, Settings,
+    ClipboardList, PlusCircle, History, User, Users, Settings,
     Flame, BarChart3, ChevronRight, Plus, Gavel, Siren,
-    Accessibility, AlertTriangle, Lock, UserPlus, LogIn, Sparkles,
+    Accessibility, Lock, UserPlus, LogIn, Sparkles,
     Camera, CalendarCheck, Shield, Cpu, Lightbulb, ThermometerSun, Map,
     ShieldCheck, TriangleAlert, KeySquare, ScrollText, Bot, ClipboardCheck, FileText, HardHat, ShieldAlert, PenTool,
     ArrowRight, Activity, BookOpen, Calendar as CalendarIcon, Search, TrendingUp
@@ -129,6 +129,7 @@ export default function Home() {
         { label: 'Permisos', value: 0, icon: <KeySquare />, color: '#2563eb', grad: 'linear-gradient(135deg,#2563eb,#1d4ed8)', key: 'work_permits_history' },
         { label: 'Informes', value: 0, icon: <ScrollText />, color: '#ec4899', grad: 'linear-gradient(135deg,#ec4899,#db2777)', key: 'reports_history' },
         { label: 'Eval. Riesgo', value: 0, icon: <Shield />, color: '#ef4444', grad: 'linear-gradient(135deg,#ef4444,#dc2626)', key: 'risk_assessment_history' },
+        { label: 'Accidentes', value: 0, icon: <Siren />, color: '#ef4444', grad: 'linear-gradient(135deg,#ef4444,#b91c1c)', key: 'accident_history' },
     ]);
     const [recentWorks, setRecentWorks] = useState([]);
     const [userName, setUserName] = useState('Profesional');
@@ -179,6 +180,7 @@ export default function Home() {
             const reports = JSON.parse(localStorage.getItem('reports_history') || '[]');
             const tools = JSON.parse(localStorage.getItem('tool_checklists_history') || '[]');
             const lighting = JSON.parse(localStorage.getItem('lighting_history') || '[]');
+            const accidents = JSON.parse(localStorage.getItem('accident_history') || '[]');
 
             const combined = [
                 ...ats.map(a => ({ id: a.id, title: a.empresa, subtitle: a.obra, date: a.fecha, type: 'ATS' })),
@@ -190,6 +192,7 @@ export default function Home() {
                 ...lighting.map(l => ({ id: l.id, title: l.empresa, subtitle: l.sector, date: l.date, type: 'Iluminación' })),
                 ...JSON.parse(localStorage.getItem('work_permits_history') || '[]').map(p => ({ id: p.id, title: p.empresa, subtitle: p.obra, date: p.createdAt, type: 'Permiso' })),
                 ...JSON.parse(localStorage.getItem('risk_assessment_history') || '[]').map(r => ({ id: r.id, title: r.name, subtitle: r.location, date: r.date || r.createdAt, type: 'Eval. Riesgo' })),
+                ...accidents.map(acc => ({ id: acc.id, title: acc.victimaNombre, subtitle: acc.empresa, date: acc.date, type: 'Accidente' })),
             ].sort((a, b) => new Date(b.date || b.fecha || b.createdAt) - new Date(a.date || a.fecha || a.createdAt)).slice(0, 4);
             setRecentWorks(combined);
         };
@@ -329,7 +332,7 @@ export default function Home() {
                                 onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}
                             >
                                 <div style={{ width: '42px', height: '42px', background: 'rgba(245,158,11,0.15)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <AlertTriangle size={22} color="#f59e0b" />
+                                    <TriangleAlert size={22} color="#f59e0b" />
                                 </div>
                                 <div style={{ flex: 1 }}>
                                     <h4 style={{ margin: 0, fontWeight: 800, fontSize: '0.95rem' }}>Renovación Próxima <ChevronRight size={16} style={{ verticalAlign: 'middle' }} /></h4>
@@ -611,6 +614,7 @@ export default function Home() {
                                                 else if (work.type === 'Iluminación') navigate('/lighting-history');
                                                 else if (work.type === 'Permiso') navigate('/work-permit-history');
                                                 else if (work.type === 'Eval. Riesgo') navigate('/risk-assessment-history');
+                                                else if (work.type === 'Accidente') navigate('/accident-history');
                                             }}
                                             onMouseOver={e => e.currentTarget.style.transform = 'translateX(4px)'}
                                             onMouseOut={e => e.currentTarget.style.transform = 'translateX(0)'}
