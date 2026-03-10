@@ -15,45 +15,78 @@ export async function generatePdfBlob(elementId, filename = 'reporte.pdf', isLan
         throw new Error(`Element with id '${elementId}' not found.`);
     }
 
-    // Add a temporary class to force print styles if needed
-    element.classList.add('pdf-render-in-progress');
-
     try {
+        // Default configuration
+        const A4_WIDTH_MM = 210;
+        const A4_HEIGHT_MM = 297;
+        
+        // Wait a tiny bit for any re-renders triggered by the 'pdf-render-in-progress' class
+        await new Promise(resolve => setTimeout(resolve, 200));
+
         const canvas = await html2canvas(element, {
-            scale: 2, // Higher scale for better resolution
-            useCORS: true, // Allow cross-origin images to be rendered
+            scale: 2, // 2x resolution is a good balance of quality/size
+            useCORS: true,
             logging: false,
-            windowWidth: document.documentElement.offsetWidth,
-            windowHeight: document.documentElement.offsetHeight,
+            // Ensure we capture the full height of the element, not just the viewport
+            windowWidth: element.scrollWidth,
+            windowHeight: element.scrollHeight,
+            // Add some padding to the sides to simulate print margins
+            x: 0,
+            y: 0,
+            width: element.offsetWidth,
+            height: element.offsetHeight,
+            backgroundColor: '#ffffff'
         });
 
         const imgData = canvas.toDataURL('image/jpeg', 0.95);
 
-        const orientation = isLandscape ? 'l' : 'p';
         const pdf = new jsPDF({
-            orientation: orientation,
+            orientation: isLandscape ? 'l' : 'p',
             unit: 'mm',
             format: 'a4',
             compress: true
         });
 
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
+        // Dimensions of the page in mm depending on orientation
+        const pdfWidth = isLandscape ? A4_HEIGHT_MM : A4_WIDTH_MM;
+        const pdfHeight = isLandscape ? A4_WIDTH_MM : A4_HEIGHT_MM;
 
-        const imgWidth = canvas.width;
-        const imgHeight = canvas.height;
-        const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+        // Calculate the image width in mm, keeping it within the PDF width
+        // We use a small margin (e.g. 10mm on each side)
+        const marginX = 10;
+        const marginY = 10;
+        const contentWidthMM = pdfWidth - (marginX * 2);
 
-        const destWidth = imgWidth * ratio;
-        const destHeight = imgHeight * ratio;
+        // Calculate the height of the image in mm while maintaining aspect ratio
+        const imgWidthPx = canvas.width;
+        const imgHeightPx = canvas.height;
+        const ratioPxToMm = contentWidthMM / imgWidthPx;
+        const contentHeightMM = imgHeightPx * ratioPxToMm;
 
-        // Center the image if it doesn't take up the full height
-        const marginX = (pdfWidth - destWidth) / 2;
-        const marginY = 5; // Top margin
+        // If the content fits on one page
+        if (contentHeightMM <= (pdfHeight - marginY * 2)) {
+            pdf.addImage(imgData, 'JPEG', marginX, marginY, contentWidthMM, contentHeightMM);
+        } else {
+            // The content is taller than a single A4 page, so we split it into multiple pages
+            let heightLeft = contentHeightMM;
+            let positionY = marginY;
+            let pageNum = 1;
 
-        pdf.addImage(imgData, 'JPEG', marginX, marginY, destWidth, destHeight);
+            // First page
+            pdf.addImage(imgData, 'JPEG', marginX, positionY, contentWidthMM, contentHeightMM);
+            heightLeft -= (pdfHeight - marginY * 2);
 
-        // Return the PDF as a Blob instead of downloading it directly
+            // Subsequent pages
+            while (heightLeft > 0) {
+                positionY = heightLeft - contentHeightMM + marginY; // Move the image UP to show the next chunk
+                pdf.addPage();
+                pdf.addImage(imgData, 'JPEG', marginX, positionY, contentWidthMM, contentHeightMM);
+                heightLeft -= (pdfHeight - marginY * 2);
+                pageNum++;
+            }
+        }
+
+        // Return the PDF as a Blob
         return pdf.output('blob');
 
     } finally {
