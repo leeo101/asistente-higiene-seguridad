@@ -131,36 +131,45 @@ export default function ShareModal({ open, onClose, title = '', text = '', eleme
 
                 <p style={{ margin: '0 0 0.8rem', fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text)' }}>{elementIdToPrint ? 'Selecciona una app para enviar el informe (PDF adjunto):' : 'Compartir enlace:'}</p>
 
-                {/* Social buttons grid */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginBottom: '1.2rem' }}>
-                    {options.map(opt => (
-                        <a
-                            key={opt.label}
-                            href={opt.hijack && elementIdToPrint ? '#' : opt.url}
-                            target={opt.hijack && elementIdToPrint ? '_self' : '_blank'}
-                            rel="noreferrer"
-                            onClick={async (e) => {
-                                if (opt.hijack && elementIdToPrint) {
-                                    e.preventDefault();
-                                    toast(`Elige tu app de ${opt.label} para poder adjuntar el PDF automáticamente.`, { icon: opt.icon, duration: 4500 });
-                                    await handleNativeShare();
-                                }
-                            }}
-                            style={{
-                                display: 'flex', alignItems: 'center', gap: '0.7rem',
-                                padding: '0.7rem 1rem', background: opt.bg,
-                                borderRadius: '12px', border: `1px solid ${opt.color}30`,
-                                textDecoration: 'none', color: opt.color,
-                                fontWeight: 800, fontSize: '0.8rem',
-                                transition: 'transform 0.15s'
-                            }}
-                            onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.03)'; }}
-                            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
-                        >
-                            <span style={{ fontSize: '1.1rem' }}>{opt.icon}</span>
-                            {opt.label}
-                        </a>
-                    ))}
+                    {options.map(opt => {
+                        const isHijacked = opt.hijack && elementIdToPrint;
+                        
+                        return (
+                            <a
+                                key={opt.label}
+                                href={isHijacked ? '#' : opt.url}
+                                target={isHijacked ? '_self' : '_blank'}
+                                rel="noreferrer"
+                                onClick={async (e) => {
+                                    if (isHijacked) {
+                                        e.preventDefault();
+                                        if (isGenerating) return;
+                                        
+                                        toast(`Preparando archivo PDF para ${opt.label}...`, { icon: opt.icon, duration: 4000 });
+                                        await handleNativeShare();
+                                    }
+                                }}
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: '0.7rem',
+                                    padding: '0.7rem 1rem', background: opt.bg,
+                                    borderRadius: '12px', border: `1px solid ${opt.color}30`,
+                                    textDecoration: 'none', color: opt.color,
+                                    fontWeight: 800, fontSize: '0.8rem',
+                                    transition: 'transform 0.15s, opacity 0.2s',
+                                    opacity: (isGenerating && isHijacked) ? 0.6 : 1,
+                                    pointerEvents: (isGenerating && isHijacked) ? 'none' : 'auto'
+                                }}
+                                onMouseEnter={e => { if (!isGenerating) e.currentTarget.style.transform = 'scale(1.03)'; }}
+                                onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+                            >
+                                <span style={{ fontSize: '1.1rem' }}>
+                                    {(isGenerating && isHijacked) ? <Loader2 size={16} className="animate-spin" /> : opt.icon}
+                                </span>
+                                {(isGenerating && isHijacked) ? 'Generando...' : opt.label}
+                            </a>
+                        );
+                    })}
                 </div>
 
                 {/* Clipboard button */}
