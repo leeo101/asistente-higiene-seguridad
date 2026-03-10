@@ -129,39 +129,7 @@ export default function ShareModal({ open, onClose, title = '', text = '', eleme
                     {title}
                 </p>
 
-                {/* NATIVE PDF SHARING BUTTON */}
-                {elementIdToPrint && (
-                    <div style={{ marginBottom: '1.5rem' }}>
-                        <button
-                            onClick={handleNativeShare}
-                            disabled={isGenerating}
-                            style={{
-                                width: '100%', padding: '1rem',
-                                background: 'linear-gradient(135deg, #2563eb, #4f46e5)',
-                                color: 'white', borderRadius: '16px', border: 'none',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.8rem',
-                                fontWeight: 800, fontSize: '1rem', cursor: isGenerating ? 'wait' : 'pointer',
-                                boxShadow: '0 4px 15px rgba(37, 99, 235, 0.3)',
-                                opacity: isGenerating ? 0.8 : 1, transition: 'transform 0.15s'
-                            }}
-                            onMouseEnter={e => { if (!isGenerating) e.currentTarget.style.transform = 'scale(1.02)'; }}
-                            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
-                        >
-                            {isGenerating ? <Loader2 size={22} className="animate-spin" /> : <FileDown size={22} />}
-                            {isGenerating ? 'GENERANDO PDF...' : 'ENVIAR PDF DIRECTAMENTE'}
-                        </button>
-                        <p style={{ margin: '0.5rem 0 0', fontSize: '0.7rem', color: 'var(--color-text-muted)', textAlign: 'center' }}>
-                            Genera un archivo PDF real y lo adjunta a WhatsApp o Correo. (Requiere celular).
-                        </p>
-                    </div>
-                )}
-
-
-                <div style={{ borderTop: '1px solid var(--color-border)', margin: '1.5rem 0', position: 'relative' }}>
-                    <span style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', background: 'var(--color-surface)', padding: '0 10px', fontSize: '0.7rem', fontWeight: 800, color: 'var(--color-text-muted)' }}>O OTRAS OPCIONES</span>
-                </div>
-
-                <p style={{ margin: '0 0 0.8rem', fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text)' }}>{elementIdToPrint ? 'Opciones Rápidas (Elige la app en el menú que aparecerá):' : 'Solo Link / Redes Sociales:'}</p>
+                <p style={{ margin: '0 0 0.8rem', fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text)' }}>{elementIdToPrint ? 'Selecciona una app para enviar el informe (PDF adjunto):' : 'Compartir enlace:'}</p>
 
                 {/* Social buttons grid */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginBottom: '1.2rem' }}>
