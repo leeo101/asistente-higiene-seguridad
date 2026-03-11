@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Save, Printer, Building2, User, Calendar,
     CheckCircle2, AlertCircle, Info, Pencil, TriangleAlert,
-    ChevronRight, Share2, FileText, ShieldCheck
+    ChevronRight, Share2, FileText, ShieldCheck, Camera
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
@@ -135,7 +135,7 @@ export default function Report() {
                     </div>
                     <div className="card" style={{ padding: '1rem', textAlign: 'center', background: '#f8fafc' }}>
                         <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#172B4D' }}>
-                            {Math.round(((Object.values(inspectionData.responses || {}).filter(v => v === 'ok').length) / 10) * 100) || 0}%
+                            {inspectionData.responses ? Math.round(((Object.values(inspectionData.responses).filter(v => v === 'ok').length) / 10) * 100) : 0}%
                         </div>
                         <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#6B778C', textTransform: 'uppercase' }}>Cumplimiento</div>
                     </div>
