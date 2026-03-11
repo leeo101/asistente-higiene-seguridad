@@ -103,8 +103,19 @@ export default function WorkPermitPdfGenerator({ data }) {
                             {checklist.map((item, idx) => (
                                 <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '2.5fr 80px 1.5fr', gap: '1rem', alignItems: 'center', padding: '0.8rem 1rem', borderBottom: '1px solid #f1f5f9', background: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
                                     <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#334155', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{item.pregunta}</div>
-                                    <div style={{ textAlign: 'center', fontWeight: 900, color: item.estado === 'No Cumple' ? '#ef4444' : '#10b981', fontSize: '0.85rem' }}>
-                                        {item.estado === 'Cumple' ? 'SI' : 'NO'}
+                                    <div style={{ display: 'flex', gap: '3px', flexShrink: 0, justifyContent: 'center' }}>
+                                        <div style={{ 
+                                            width: '28px', height: '22px', border: '1px solid #cbd5e1', borderRadius: '4px',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 900,
+                                            background: (item.estado === 'Cumple' || item.estado === 'SI') ? '#10b981' : 'transparent',
+                                            color: (item.estado === 'Cumple' || item.estado === 'SI') ? '#ffffff' : '#cbd5e1'
+                                        }}>SI</div>
+                                        <div style={{ 
+                                            width: '28px', height: '22px', border: '1px solid #cbd5e1', borderRadius: '4px',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 900,
+                                            background: (item.estado === 'No Cumple' || item.estado === 'NO') ? '#ef4444' : 'transparent',
+                                            color: (item.estado === 'No Cumple' || item.estado === 'NO') ? '#ffffff' : '#cbd5e1'
+                                        }}>NO</div>
                                     </div>
                                     <div style={{ fontSize: '0.8rem', color: '#64748b', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{item.observaciones || '-'}</div>
                                 </div>

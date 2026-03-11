@@ -596,10 +596,28 @@ export default function ATS() {
                                                     <Trash2 size={15} />
                                                 </button>
                                             </div>
-                                            <div className="hidden print:block text-[0.8rem] font-black" style={{ 
-                                                color: (item.estado === 'Cumple' || item.estado === 'SI') ? '#16a34a' : (item.estado === 'No Cumple' || item.estado === 'NO') ? '#dc2626' : '#64748b'
-                                            }}>
-                                                {(item.estado === 'Cumple' || item.estado === 'SI') ? '✓ SI' : (item.estado === 'No Cumple' || item.estado === 'NO') ? '✗ NO' : '— N/A'}
+                                            <div className="hidden print:flex gap-1" style={{ flexShrink: 0 }}>
+                                                <div style={{ 
+                                                    width: '28px', height: '20px', border: '1px solid #cbd5e1', borderRadius: '4px',
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 900,
+                                                    background: (item.estado === 'Cumple' || item.estado === 'SI') ? '#16a34a' : 'transparent',
+                                                    color: (item.estado === 'Cumple' || item.estado === 'SI') ? '#ffffff' : '#cbd5e1',
+                                                    WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact'
+                                                }}>SI</div>
+                                                <div style={{ 
+                                                    width: '28px', height: '20px', border: '1px solid #cbd5e1', borderRadius: '4px',
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 900,
+                                                    background: (item.estado === 'No Cumple' || item.estado === 'NO') ? '#dc2626' : 'transparent',
+                                                    color: (item.estado === 'No Cumple' || item.estado === 'NO') ? '#ffffff' : '#cbd5e1',
+                                                    WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact'
+                                                }}>NO</div>
+                                                <div style={{ 
+                                                    width: '28px', height: '20px', border: '1px solid #cbd5e1', borderRadius: '4px',
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 900,
+                                                    background: item.estado === 'N/A' ? '#64748b' : 'transparent',
+                                                    color: item.estado === 'N/A' ? '#ffffff' : '#cbd5e1',
+                                                    WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact'
+                                                }}>NA</div>
                                             </div>
                                         </div>
                                     ))}

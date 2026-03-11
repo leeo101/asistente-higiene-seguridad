@@ -140,18 +140,25 @@ export default function ATSPdfGenerator({ atsData }) {
                                                     <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#1e293b', marginBottom: '0.2rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{item.pregunta}</div>
                                                     {item.observaciones && <div style={{ fontSize: '0.75rem', color: '#64748b', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{item.observaciones}</div>}
                                                 </div>
-                                                <div style={{ 
-                                                    fontWeight: 900, 
-                                                    fontSize: '0.8rem', 
-                                                    padding: '0.3rem 0.6rem', 
-                                                    borderRadius: '6px',
-                                                    background: (item.estado === 'Cumple' || item.estado === 'SI') ? '#dcfce7' : (item.estado === 'No Cumple' || item.estado === 'NO') ? '#fee2e2' : '#f1f5f9',
-                                                    color: (item.estado === 'Cumple' || item.estado === 'SI') ? '#16a34a' : (item.estado === 'No Cumple' || item.estado === 'NO') ? '#dc2626' : '#64748b',
-                                                    border: `1px solid ${(item.estado === 'Cumple' || item.estado === 'SI') ? '#86efac' : (item.estado === 'No Cumple' || item.estado === 'NO') ? '#fca5a5' : '#e2e8f0'}`,
-                                                    textAlign: 'center',
-                                                    minWidth: '60px'
-                                                 }}>
-                                                    {(item.estado === 'Cumple' || item.estado === 'SI') ? '✓ SI' : (item.estado === 'No Cumple' || item.estado === 'NO') ? '✗ NO' : '— N/A'}
+                                                <div style={{ display: 'flex', gap: '3px', flexShrink: 0 }}>
+                                                    <div style={{ 
+                                                        width: '28px', height: '22px', border: '1px solid #cbd5e1', borderRadius: '4px',
+                                                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 900,
+                                                        background: (item.estado === 'Cumple' || item.estado === 'SI') ? '#16a34a' : 'transparent',
+                                                        color: (item.estado === 'Cumple' || item.estado === 'SI') ? '#ffffff' : '#cbd5e1'
+                                                    }}>SI</div>
+                                                    <div style={{ 
+                                                        width: '28px', height: '22px', border: '1px solid #cbd5e1', borderRadius: '4px',
+                                                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 900,
+                                                        background: (item.estado === 'No Cumple' || item.estado === 'NO') ? '#dc2626' : 'transparent',
+                                                        color: (item.estado === 'No Cumple' || item.estado === 'NO') ? '#ffffff' : '#cbd5e1'
+                                                    }}>NO</div>
+                                                    <div style={{ 
+                                                        width: '28px', height: '22px', border: '1px solid #cbd5e1', borderRadius: '4px',
+                                                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 900,
+                                                        background: item.estado === 'N/A' ? '#64748b' : 'transparent',
+                                                        color: item.estado === 'N/A' ? '#ffffff' : '#cbd5e1'
+                                                    }}>N/A</div>
                                                 </div>
                                             </div>
                                         ))}
