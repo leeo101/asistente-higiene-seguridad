@@ -146,6 +146,13 @@ export default function ATSPdfGenerator({ atsData }) {
                                                                          (label === 'NO' && (item.estado === 'No Cumple' || item.estado === 'NO')) ||
                                                                          (label === 'NA' && (item.estado === 'N/A' || item.estado === 'NA'));
                                                         
+                                                        let icon = '';
+                                                        if (isSelected) {
+                                                            if (label === 'SI') icon = '✓';
+                                                            else if (label === 'NO') icon = '✕';
+                                                            else icon = 'X';
+                                                        }
+
                                                         return (
                                                             <div key={label} style={{
                                                                 width: '35px',
@@ -155,13 +162,14 @@ export default function ATSPdfGenerator({ atsData }) {
                                                                 display: 'flex',
                                                                 alignItems: 'center',
                                                                 justifyContent: 'center',
-                                                                fontSize: '0.65rem',
+                                                                fontSize: '0.8rem',
                                                                 fontWeight: isSelected ? 900 : 400,
-                                                                color: isSelected ? '#000000' : '#cbd5e1',
-                                                                background: 'transparent'
+                                                                color: isSelected ? (label === 'SI' ? '#16a34a' : label === 'NO' ? '#dc2626' : '#000000') : '#cbd5e1',
+                                                                background: isSelected ? (label === 'SI' ? '#f0fdf4' : label === 'NO' ? '#fef2f2' : 'transparent') : 'transparent',
+                                                                pageBreakInside: 'avoid'
                                                             }}>
-                                                                {isSelected ? 'X' : ''}
-                                                                <span style={{ fontSize: '0.55rem', marginLeft: '2px', opacity: isSelected ? 1 : 0.6 }}>{label === 'NA' ? 'NA' : label}</span>
+                                                                {icon}
+                                                                <span style={{ fontSize: '0.55rem', marginLeft: '2px', opacity: isSelected ? 1 : 0.6, fontWeight: 900 }}>{label === 'NA' ? 'NA' : label}</span>
                                                             </div>
                                                         );
                                                     })}

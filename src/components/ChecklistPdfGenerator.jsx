@@ -112,7 +112,13 @@ export default function ChecklistPdfGenerator({ checklistData }) {
                             </div>
                             <div>
                                 {section.items.map((item, idx) => (
-                                    <div key={idx} style={{ display: 'grid', gridTemplateColumns: '40px 1fr 100px', borderBottom: idx === section.items.length - 1 ? 'none' : '1px solid #f1f5f9', alignItems: 'stretch' }}>
+                                    <div key={idx} style={{ 
+                                        display: 'grid', 
+                                        gridTemplateColumns: '40px 1fr 100px', 
+                                        borderBottom: idx === section.items.length - 1 ? 'none' : '1px solid #f1f5f9', 
+                                        alignItems: 'stretch',
+                                        pageBreakInside: 'avoid'
+                                    }}>
                                         <div style={{ padding: '0.8rem 0', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                             <div style={{ background: '#f8fafc', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 900, color: '#94a3b8', border: '1px solid #e2e8f0' }}>{idx + 1}</div>
                                         </div>
