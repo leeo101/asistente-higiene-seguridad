@@ -79,7 +79,7 @@ export default function ThermalStressPdfGenerator({ report, onBack }) {
                 </p>
 
                 {/* Section 1: Puesto y Metadatos */}
-                <div style={{ marginBottom: '1.5rem' }}>
+                <div style={{ marginBottom: '1.5rem', pageBreakInside: 'avoid' }}>
                     <div style={{ background: '#f1f5f9', padding: '0.4rem 0.8rem', fontWeight: 800, color: '#1e293b', fontSize: '11pt', borderLeft: '4px solid #3b82f6', marginBottom: '0.8rem' }}>
                         1. IDENTIFICACIÓN DEL PUESTO
                     </div>
@@ -102,7 +102,7 @@ export default function ThermalStressPdfGenerator({ report, onBack }) {
                 </div>
 
                 {/* Section 2: Variables Ambientales */}
-                <div style={{ marginBottom: '1.5rem' }}>
+                <div style={{ marginBottom: '1.5rem', pageBreakInside: 'avoid' }}>
                     <div style={{ background: '#f1f5f9', padding: '0.4rem 0.8rem', fontWeight: 800, color: '#1e293b', fontSize: '11pt', borderLeft: '4px solid #f97316', marginBottom: '0.8rem' }}>
                         2. VARIABLES AMBIENTALES MEDIDAS
                     </div>

@@ -47,7 +47,7 @@ export default function FireLoadPdfGenerator({ data }) {
                     </div>
                 </div>
 
-                <div style={{ border: '2px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden', marginBottom: '2rem' }}>
+                <div style={{ border: '2px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden', marginBottom: '2rem', pageBreakInside: 'avoid' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', borderBottom: '2px solid #e2e8f0' }}>
                         <div style={{ padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                             <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>EMPRESA / CLIENTE</span>
@@ -89,7 +89,7 @@ export default function FireLoadPdfGenerator({ data }) {
                             <div style={{ padding: '1rem', textAlign: 'center', color: '#64748b', fontStyle: 'italic' }}>No hay materiales registrados</div>
                         ) : (
                             materiales.map((m, idx) => (
-                                <div key={idx} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1.2fr 1.5fr', gap: '0.8rem', padding: '0.8rem', borderBottom: idx === materiales.length - 1 ? 'none' : '1px solid #f1f5f9' }}>
+                                <div key={idx} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1.2fr 1.5fr', gap: '0.8rem', padding: '0.8rem', borderBottom: idx === materiales.length - 1 ? 'none' : '1px solid #f1f5f9', pageBreakInside: 'avoid' }}>
                                     <div style={{ fontWeight: 700, color: '#334155', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{m.nombre || '-'}</div>
                                     <div>{m.peso} Kg</div>
                                     <div>{m.poderCalorifico} Mcal/Kg</div>

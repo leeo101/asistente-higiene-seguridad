@@ -128,13 +128,13 @@ export default function DrillPdfGenerator({ report, onBack }) {
                         </div>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10pt' }}>
                             <tbody>
-                                <tr>
+                                <tr style={{ pageBreakInside: 'avoid' }}>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '8px', background: '#f8fafc', width: '50%' }}>¿La alarma fue perfectamente audible en todos los sectores afectados?</td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '8px', fontWeight: 'bold', textAlign: 'center' }}>
                                         {report?.alarmaSonó === 'Sí' ? 'SÍ, Audible' : (report?.alarmaSonó || '-')}
                                     </td>
                                 </tr>
-                                <tr>
+                                <tr style={{ pageBreakInside: 'avoid' }}>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '8px', background: '#f8fafc' }}>¿Se cumplieron los roles de emergencia (guías, líderes de encuentro)?</td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '8px', fontWeight: 'bold', textAlign: 'center' }}>
                                         {report?.rolCumplido || '-'}

@@ -57,7 +57,7 @@ export default function WorkPermitPdfGenerator({ data }) {
                 </div>
 
                 {/* Form Grid */}
-                <div style={{ border: '2px solid #ddd', borderRadius: '10px', overflow: 'hidden', marginBottom: '2rem' }}>
+                <div style={{ border: '2px solid #ddd', borderRadius: '10px', overflow: 'hidden', marginBottom: '2rem', pageBreakInside: 'avoid' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', borderBottom: '2px solid #ddd' }}>
                         <div style={{ padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                             <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>CLIENTE / EMPRESA</span>
@@ -101,7 +101,7 @@ export default function WorkPermitPdfGenerator({ data }) {
                                 <div>OBSERVACIONES</div>
                             </div>
                             {checklist.map((item, idx) => (
-                                <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '2.5fr 80px 1.5fr', gap: '1rem', alignItems: 'center', padding: '0.8rem 1rem', borderBottom: '1px solid #f1f5f9', background: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
+                                <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '2.5fr 80px 1.5fr', gap: '1rem', alignItems: 'center', padding: '0.8rem 1rem', borderBottom: '1px solid #f1f5f9', background: idx % 2 === 0 ? '#ffffff' : '#f8fafc', pageBreakInside: 'avoid' }}>
                                     <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#334155', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{item.pregunta}</div>
                                     <div style={{ display: 'flex', gap: '4px', flexShrink: 0, justifyContent: 'center' }}>
                                         {['SI', 'NO'].map((label) => {
@@ -148,7 +148,7 @@ export default function WorkPermitPdfGenerator({ data }) {
                                 <div>FIRMA</div>
                             </div>
                             {personal.map((p, idx) => (
-                                <div key={p.id} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '1rem', padding: '1rem', borderBottom: '1px solid #f1f5f9' }}>
+                                <div key={p.id} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '1rem', padding: '1rem', borderBottom: '1px solid #f1f5f9', pageBreakInside: 'avoid' }}>
                                     <div style={{ fontWeight: 600, fontSize: '0.9rem', color: '#334155' }}>{p.nombre}</div>
                                     <div style={{ fontSize: '0.9rem', color: '#64748b' }}>{p.dni}</div>
                                     <div style={{ display: 'flex', alignItems: 'center' }}>

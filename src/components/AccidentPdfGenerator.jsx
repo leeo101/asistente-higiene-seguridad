@@ -89,7 +89,7 @@ export default function AccidentPdfGenerator({ report, onBack }) {
                     </div>
 
                     {/* Section 1: Datos Generales */}
-                    <div style={{ marginBottom: '1.5rem' }}>
+                    <div style={{ marginBottom: '1.5rem', pageBreakInside: 'avoid' }}>
                         <div style={{ background: '#f1f5f9', padding: '0.4rem 0.8rem', fontWeight: 800, color: '#1e293b', fontSize: '11pt', borderLeft: '4px solid #3b82f6', marginBottom: '0.8rem' }}>
                             1. DATOS DEL SINIESTRO
                         </div>
@@ -102,7 +102,7 @@ export default function AccidentPdfGenerator({ report, onBack }) {
                     </div>
 
                     {/* Section 2: Datos del Accidentado */}
-                    <div style={{ marginBottom: '1.5rem' }}>
+                    <div style={{ marginBottom: '1.5rem', pageBreakInside: 'avoid' }}>
                         <div style={{ background: '#f1f5f9', padding: '0.4rem 0.8rem', fontWeight: 800, color: '#1e293b', fontSize: '11pt', borderLeft: '4px solid #3b82f6', marginBottom: '0.8rem' }}>
                             2. DATOS DEL ACCIDENTADO
                         </div>
@@ -181,7 +181,7 @@ export default function AccidentPdfGenerator({ report, onBack }) {
                             <tbody>
                                 {report?.medidas && report.medidas.length > 0 && report.medidas.some(m => m.accion) ? (
                                     report.medidas.filter(m => m.accion).map((m, idx) => (
-                                        <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                                        <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0', pageBreakInside: 'avoid' }}>
                                             <td style={{ padding: '0.6rem 0.5rem', color: '#1e293b', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{m.accion}</td>
                                             <td style={{ padding: '0.6rem 0.5rem', color: '#475569', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{m.responsable || '-'}</td>
                                             <td style={{ padding: '0.6rem 0.5rem', color: '#475569' }}>

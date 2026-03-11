@@ -94,7 +94,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers = [] }) {
                                 const sPH = getStatus(ext?.ultimaPH, 60);
 
                                 return (
-                                    <tr key={idx}>
+                                    <tr key={idx} style={{ pageBreakInside: 'avoid' }}>
                                         <td style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', fontWeight: 'bold' }}>{ext?.chapa || '-'}</td>
                                         <td style={{ border: '1px solid #cbd5e1', padding: '8px' }}>
                                             {ext?.ubicacion || 'Sin ubicación'}

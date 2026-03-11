@@ -56,7 +56,7 @@ export default function LightingPdfGenerator({ data }) {
                 </div>
 
                 {/* Primary Info Box */}
-                <div style={{ border: '2px solid #e2e8f0', borderRadius: '12px', marginBottom: '2.5rem', width: '100%', overflow: 'hidden' }}>
+                <div style={{ border: '2px solid #e2e8f0', borderRadius: '12px', marginBottom: '2.5rem', width: '100%', overflow: 'hidden', pageBreakInside: 'avoid' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', borderBottom: '2px solid #e2e8f0', width: '100%' }}>
                         <div style={{ padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                             <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>EMPRESA / CLIENTE</span>
@@ -111,7 +111,7 @@ export default function LightingPdfGenerator({ data }) {
                             <div style={{ padding: '1rem', textAlign: 'center', color: '#64748b', fontStyle: 'italic' }}>No hay mediciones registradas.</div>
                         ) : (
                             meds.map((m, idx) => (
-                                <div key={m.id || idx} style={{ display: 'grid', gridTemplateColumns: '3fr 1fr', gap: '0.8rem', padding: '0.8rem', borderBottom: idx === meds.length - 1 ? 'none' : '1px solid #f1f5f9' }}>
+                                <div key={m.id || idx} style={{ display: 'grid', gridTemplateColumns: '3fr 1fr', gap: '0.8rem', padding: '0.8rem', borderBottom: idx === meds.length - 1 ? 'none' : '1px solid #f1f5f9', pageBreakInside: 'avoid' }}>
                                     <div style={{ fontWeight: 700, color: '#334155' }}>{m.ubicacion || '-'}</div>
                                     <div style={{ fontWeight: 900, textAlign: 'center', color: '#1e293b' }}>{m.luxMedido}</div>
                                 </div>

@@ -113,7 +113,7 @@ export default function RiskMatrixPdfGenerator({ data, initialData }) {
                             ) : rows.map((row, idx) => {
                                 const level = getRiskLevel(row.probability || 1, row.severity || 1);
                                 return (
-                                    <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0', background: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
+                                    <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0', background: idx % 2 === 0 ? '#ffffff' : '#f8fafc', pageBreakInside: 'avoid' }}>
                                         <td style={{ padding: '0.6rem 0.8rem', fontSize: '0.8rem', fontWeight: 700, color: '#1e293b', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{row.task}</td>
                                         <td style={{ padding: '0.6rem 0.8rem', fontSize: '0.75rem', color: '#334155', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                                             <div style={{ fontWeight: 800, color: '#0f172a' }}>{row.hazardType}</div>
