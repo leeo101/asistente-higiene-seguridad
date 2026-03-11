@@ -19,7 +19,7 @@ export default function Legislation() {
             subtitle: 'Higiene y Seguridad en el Trabajo',
             description: 'Ley fundamental que establece las normas de seguridad y salud para todos los establecimientos y explotaciones.',
             category: 'Leyes',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/15000-19999/17612/norma.htm'
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=17612'
         },
         {
             id: 'dto-351-79',
@@ -27,7 +27,7 @@ export default function Legislation() {
             subtitle: 'Reglamentación General Ley 19.587',
             description: 'Reglamentación general para establecimientos industriales y comerciales. Especificaciones técnicas de protección.',
             category: 'Decretos',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/30000-34999/32030/texact.htm'
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=32030'
         },
         {
             id: 'dto-911-96',
@@ -35,7 +35,7 @@ export default function Legislation() {
             subtitle: 'Higiene y Seguridad en la Construcción',
             description: 'Normas específicas para la industria de la construcción, excavaciones, andamios y trabajos en altura.',
             category: 'Decretos',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/35000-39999/37402/norma.htm'
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=37402'
         },
         {
             id: 'ley-24557',
@@ -43,7 +43,7 @@ export default function Legislation() {
             subtitle: 'Ley de Riesgos del Trabajo (LRT)',
             description: 'Establece el sistema de prevención de riesgos y reparación de daños derivados del trabajo.',
             category: 'Leyes',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/25000-29999/27956/texact.htm'
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=27971'
         },
         {
             id: 'dto-617-97',
@@ -51,7 +51,7 @@ export default function Legislation() {
             subtitle: 'Higiene y Seguridad en el Agro',
             description: 'Normativa específica para la actividad agraria y el uso de maquinaria rural.',
             category: 'Decretos',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/40000-44999/44613/norma.htm'
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=44408'
         },
         {
             id: 'ley-27348',
@@ -59,7 +59,7 @@ export default function Legislation() {
             subtitle: 'Complementaria de LRT',
             description: 'Ley que establece el sistema de Comisiones Médicas y procedimientos administrativos.',
             category: 'Leyes',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/270000-274999/271810/norma.htm'
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=271810'
         },
         {
             id: 'dto-1338-96',
@@ -67,7 +67,7 @@ export default function Legislation() {
             subtitle: 'Servicios de Medicina y de H&S',
             description: 'Establece obligaciones referentes a la conformación de los Servicios de Medicina y de Higiene y Seguridad y Asignación de Horas Profesionales.',
             category: 'Decretos',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/35000-39999/39908/texact.htm'
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=40574'
         },
         {
             id: 'res-295-03',
@@ -75,7 +75,7 @@ export default function Legislation() {
             subtitle: 'Especificaciones Técnicas: Ergonomía, Radiaciones y Estrés Térmico',
             description: 'Aprueba especificaciones técnicas sobre ergonomía, levantamiento manual de cargas, radiaciones y carga térmica.',
             category: 'Resoluciones',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/90000-94999/90460/texact.htm'
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=90396'
         },
         {
             id: 'res-886-15',
@@ -83,7 +83,7 @@ export default function Legislation() {
             subtitle: 'Protocolo de Ergonomía',
             description: 'Establece el Protocolo de Ergonomía y Planilla de Levantamiento de Riesgos Ergonómicos obligatorios SRT.',
             category: 'Resoluciones',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/245000-249999/246479/norma.htm'
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=246272'
         },
         {
             id: 'res-299-11',
@@ -91,7 +91,7 @@ export default function Legislation() {
             subtitle: 'Registro de Entrega de EPP',
             description: 'Regula el formulario y la obligatoriedad del Registro de Entrega de Elementos de Protección Personal.',
             category: 'Resoluciones',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/180000-184999/180590/norma.htm'
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=180669'
         },
         {
             id: 'res-905-15',
@@ -99,7 +99,7 @@ export default function Legislation() {
             subtitle: 'Funciones de los Servicios de H&S',
             description: 'Define claramente las funciones que deben cumplir los servicios de higiene y seguridad y de medicina del trabajo.',
             category: 'Resoluciones',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/245000-249999/246473/norma.htm'
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=246509'
         },
         {
             id: 'res-84-12',
@@ -107,7 +107,7 @@ export default function Legislation() {
             subtitle: 'Protocolo de Medición de Iluminación',
             description: 'Formulario obligatorio y metodología técnica para realizar la medición de la iluminación en el ambiente laboral.',
             category: 'Resoluciones',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/190000-194999/193856/norma.htm'
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=193616'
         },
         {
             id: 'res-85-12',
@@ -115,7 +115,7 @@ export default function Legislation() {
             subtitle: 'Protocolo de Medición de Ruido',
             description: 'Formulario obligatorio y metodología técnica para realizar la medición del ruido en el ambiente laboral.',
             category: 'Resoluciones',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/190000-194999/193855/norma.htm'
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=193617'
         },
         {
             id: 'res-801-15',
@@ -123,7 +123,7 @@ export default function Legislation() {
             subtitle: 'Sistema Globalmente Armonizado (SGA)',
             description: 'Implementación del Sistema Globalmente Armonizado de Clasificación y Etiquetado de Productos Químicos.',
             category: 'Resoluciones',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/245000-249999/245887/texact.htm'
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=245850'
         },
         {
             id: 'res-960-15',
@@ -131,7 +131,7 @@ export default function Legislation() {
             subtitle: 'Condiciones de Seguridad para Autoelevadores',
             description: 'Establece las condiciones y requisitos de seguridad obligatorios para la circulación y uso de autoelevadores.',
             category: 'Resoluciones',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/245000-249999/246996/norma.htm'
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=246619'
         },
         {
             id: 'res-3345-15',
@@ -139,7 +139,7 @@ export default function Legislation() {
             subtitle: 'Límites Máximos de Carga',
             description: 'Fija los límites máximos para la manipulación manual de cargas en los lugares de trabajo.',
             category: 'Resoluciones',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/250000-254999/252994/norma.htm'
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=252684'
         },
         {
             id: 'res-900-15',
@@ -147,7 +147,7 @@ export default function Legislation() {
             subtitle: 'Protocolo de Puesta a Tierra',
             description: 'Protocolo para la Medición del Valor de Resistencia de Puesta a Tierra y Verificación de la Continuidad.',
             category: 'Resoluciones',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/anexos/245000-249999/246476/norma.htm'
+            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=246348'
         }
     ];
 
