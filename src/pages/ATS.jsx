@@ -597,27 +597,39 @@ export default function ATS() {
                                                 </button>
                                             </div>
                                             <div className="hidden print:flex gap-1" style={{ flexShrink: 0 }}>
+                                                {/* SI */}
                                                 <div style={{ 
-                                                    width: '28px', height: '20px', border: '1px solid #cbd5e1', borderRadius: '4px',
-                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 900,
-                                                    background: (item.estado === 'Cumple' || item.estado === 'SI') ? '#16a34a' : 'transparent',
-                                                    color: (item.estado === 'Cumple' || item.estado === 'SI') ? '#ffffff' : '#cbd5e1',
-                                                    WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact'
-                                                }}>SI</div>
+                                                    width: '32px', height: '22px', border: (item.estado === 'Cumple' || item.estado === 'SI') ? '2px solid #000' : '1px solid #cbd5e1', 
+                                                    borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', 
+                                                    fontWeight: (item.estado === 'Cumple' || item.estado === 'SI') ? 900 : 400,
+                                                    color: (item.estado === 'Cumple' || item.estado === 'SI') ? '#000' : '#cbd5e1',
+                                                    position: 'relative'
+                                                }}>
+                                                    {(item.estado === 'Cumple' || item.estado === 'SI') && <span style={{ position: 'absolute', fontSize: '1rem', top: '-4px', fontWeight: 900 }}>X</span>}
+                                                    <span style={{ fontSize: '0.5rem', marginTop: '6px' }}>SI</span>
+                                                </div>
+                                                {/* NO */}
                                                 <div style={{ 
-                                                    width: '28px', height: '20px', border: '1px solid #cbd5e1', borderRadius: '4px',
-                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 900,
-                                                    background: (item.estado === 'No Cumple' || item.estado === 'NO') ? '#dc2626' : 'transparent',
-                                                    color: (item.estado === 'No Cumple' || item.estado === 'NO') ? '#ffffff' : '#cbd5e1',
-                                                    WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact'
-                                                }}>NO</div>
+                                                    width: '32px', height: '22px', border: (item.estado === 'No Cumple' || item.estado === 'NO') ? '2px solid #000' : '1px solid #cbd5e1', 
+                                                    borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', 
+                                                    fontWeight: (item.estado === 'No Cumple' || item.estado === 'NO') ? 900 : 400,
+                                                    color: (item.estado === 'No Cumple' || item.estado === 'NO') ? '#000' : '#cbd5e1',
+                                                    position: 'relative'
+                                                }}>
+                                                    {(item.estado === 'No Cumple' || item.estado === 'NO') && <span style={{ position: 'absolute', fontSize: '1rem', top: '-4px', fontWeight: 900 }}>X</span>}
+                                                    <span style={{ fontSize: '0.5rem', marginTop: '6px' }}>NO</span>
+                                                </div>
+                                                {/* NA */}
                                                 <div style={{ 
-                                                    width: '28px', height: '20px', border: '1px solid #cbd5e1', borderRadius: '4px',
-                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 900,
-                                                    background: item.estado === 'N/A' ? '#64748b' : 'transparent',
-                                                    color: item.estado === 'N/A' ? '#ffffff' : '#cbd5e1',
-                                                    WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact'
-                                                }}>NA</div>
+                                                    width: '32px', height: '22px', border: item.estado === 'N/A' ? '2px solid #000' : '1px solid #cbd5e1', 
+                                                    borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', 
+                                                    fontWeight: item.estado === 'N/A' ? 900 : 400,
+                                                    color: item.estado === 'N/A' ? '#000' : '#cbd5e1',
+                                                    position: 'relative'
+                                                }}>
+                                                    {item.estado === 'N/A' && <span style={{ position: 'absolute', fontSize: '1rem', top: '-4px', fontWeight: 900 }}>X</span>}
+                                                    <span style={{ fontSize: '0.5rem', marginTop: '6px' }}>NA</span>
+                                                </div>
                                             </div>
                                         </div>
                                     ))}

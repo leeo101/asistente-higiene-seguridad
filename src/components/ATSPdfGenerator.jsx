@@ -140,25 +140,40 @@ export default function ATSPdfGenerator({ atsData }) {
                                                     <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#1e293b', marginBottom: '0.2rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{item.pregunta}</div>
                                                     {item.observaciones && <div style={{ fontSize: '0.75rem', color: '#64748b', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{item.observaciones}</div>}
                                                 </div>
-                                                <div style={{ display: 'flex', gap: '3px', flexShrink: 0 }}>
+                                                <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+                                                    {/* SI */}
                                                     <div style={{ 
-                                                        width: '28px', height: '22px', border: '1px solid #cbd5e1', borderRadius: '4px',
-                                                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 900,
-                                                        background: (item.estado === 'Cumple' || item.estado === 'SI') ? '#16a34a' : 'transparent',
-                                                        color: (item.estado === 'Cumple' || item.estado === 'SI') ? '#ffffff' : '#cbd5e1'
-                                                    }}>SI</div>
+                                                        width: '32px', height: '24px', border: (item.estado === 'Cumple' || item.estado === 'SI') ? '2px solid #000000' : '1px solid #cbd5e1', 
+                                                        borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', 
+                                                        fontWeight: (item.estado === 'Cumple' || item.estado === 'SI') ? 900 : 400,
+                                                        color: (item.estado === 'Cumple' || item.estado === 'SI') ? '#000000' : '#cbd5e1',
+                                                        position: 'relative'
+                                                    }}>
+                                                        {(item.estado === 'Cumple' || item.estado === 'SI') && <span style={{ position: 'absolute', fontSize: '1.2rem', top: '-4px', fontWeight: 900 }}>X</span>}
+                                                        <span style={{ fontSize: '0.55rem', marginTop: '8px' }}>SI</span>
+                                                    </div>
+                                                    {/* NO */}
                                                     <div style={{ 
-                                                        width: '28px', height: '22px', border: '1px solid #cbd5e1', borderRadius: '4px',
-                                                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 900,
-                                                        background: (item.estado === 'No Cumple' || item.estado === 'NO') ? '#dc2626' : 'transparent',
-                                                        color: (item.estado === 'No Cumple' || item.estado === 'NO') ? '#ffffff' : '#cbd5e1'
-                                                    }}>NO</div>
+                                                        width: '32px', height: '24px', border: (item.estado === 'No Cumple' || item.estado === 'NO') ? '2px solid #000000' : '1px solid #cbd5e1', 
+                                                        borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', 
+                                                        fontWeight: (item.estado === 'No Cumple' || item.estado === 'NO') ? 900 : 400,
+                                                        color: (item.estado === 'No Cumple' || item.estado === 'NO') ? '#000000' : '#cbd5e1',
+                                                        position: 'relative'
+                                                    }}>
+                                                        {(item.estado === 'No Cumple' || item.estado === 'NO') && <span style={{ position: 'absolute', fontSize: '1.2rem', top: '-4px', fontWeight: 900 }}>X</span>}
+                                                        <span style={{ fontSize: '0.55rem', marginTop: '8px' }}>NO</span>
+                                                    </div>
+                                                    {/* N/A */}
                                                     <div style={{ 
-                                                        width: '28px', height: '22px', border: '1px solid #cbd5e1', borderRadius: '4px',
-                                                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 900,
-                                                        background: item.estado === 'N/A' ? '#64748b' : 'transparent',
-                                                        color: item.estado === 'N/A' ? '#ffffff' : '#cbd5e1'
-                                                    }}>N/A</div>
+                                                        width: '32px', height: '24px', border: item.estado === 'N/A' ? '2px solid #000000' : '1px solid #cbd5e1', 
+                                                        borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', 
+                                                        fontWeight: item.estado === 'N/A' ? 900 : 400,
+                                                        color: item.estado === 'N/A' ? '#000000' : '#cbd5e1',
+                                                        position: 'relative'
+                                                    }}>
+                                                        {item.estado === 'N/A' && <span style={{ position: 'absolute', fontSize: '1.2rem', top: '-4px', fontWeight: 900 }}>X</span>}
+                                                        <span style={{ fontSize: '0.55rem', marginTop: '8px' }}>N/A</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         ))}

@@ -103,19 +103,29 @@ export default function WorkPermitPdfGenerator({ data }) {
                             {checklist.map((item, idx) => (
                                 <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '2.5fr 80px 1.5fr', gap: '1rem', alignItems: 'center', padding: '0.8rem 1rem', borderBottom: '1px solid #f1f5f9', background: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
                                     <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#334155', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{item.pregunta}</div>
-                                    <div style={{ display: 'flex', gap: '3px', flexShrink: 0, justifyContent: 'center' }}>
+                                    <div style={{ display: 'flex', gap: '4px', flexShrink: 0, justifyContent: 'center' }}>
+                                        {/* SI */}
                                         <div style={{ 
-                                            width: '28px', height: '22px', border: '1px solid #cbd5e1', borderRadius: '4px',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 900,
-                                            background: (item.estado === 'Cumple' || item.estado === 'SI') ? '#10b981' : 'transparent',
-                                            color: (item.estado === 'Cumple' || item.estado === 'SI') ? '#ffffff' : '#cbd5e1'
-                                        }}>SI</div>
+                                            width: '32px', height: '22px', border: (item.estado === 'Cumple' || item.estado === 'SI') ? '2px solid #000' : '1px solid #cbd5e1', 
+                                            borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', 
+                                            fontWeight: (item.estado === 'Cumple' || item.estado === 'SI') ? 900 : 400,
+                                            color: (item.estado === 'Cumple' || item.estado === 'SI') ? '#000' : '#cbd5e1',
+                                            position: 'relative'
+                                        }}>
+                                            {(item.estado === 'Cumple' || item.estado === 'SI') && <span style={{ position: 'absolute', fontSize: '1rem', top: '-4px', fontWeight: 900 }}>X</span>}
+                                            <span style={{ fontSize: '0.5rem', marginTop: '6px' }}>SI</span>
+                                        </div>
+                                        {/* NO */}
                                         <div style={{ 
-                                            width: '28px', height: '22px', border: '1px solid #cbd5e1', borderRadius: '4px',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 900,
-                                            background: (item.estado === 'No Cumple' || item.estado === 'NO') ? '#ef4444' : 'transparent',
-                                            color: (item.estado === 'No Cumple' || item.estado === 'NO') ? '#ffffff' : '#cbd5e1'
-                                        }}>NO</div>
+                                            width: '32px', height: '22px', border: (item.estado === 'No Cumple' || item.estado === 'NO') ? '2px solid #000' : '1px solid #cbd5e1', 
+                                            borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', 
+                                            fontWeight: (item.estado === 'No Cumple' || item.estado === 'NO') ? 900 : 400,
+                                            color: (item.estado === 'No Cumple' || item.estado === 'NO') ? '#000' : '#cbd5e1',
+                                            position: 'relative'
+                                        }}>
+                                            {(item.estado === 'No Cumple' || item.estado === 'NO') && <span style={{ position: 'absolute', fontSize: '1rem', top: '-4px', fontWeight: 900 }}>X</span>}
+                                            <span style={{ fontSize: '0.5rem', marginTop: '6px' }}>NO</span>
+                                        </div>
                                     </div>
                                     <div style={{ fontSize: '0.8rem', color: '#64748b', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{item.observaciones || '-'}</div>
                                 </div>
