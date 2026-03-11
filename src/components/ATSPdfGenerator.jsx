@@ -106,7 +106,7 @@ export default function ATSPdfGenerator({ atsData }) {
                             </div>
                             
                             {tareas.map((t, idx) => (
-                                <div key={t.id} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.5fr', borderBottom: idx === tareas.length - 1 ? 'none' : '1px solid #e2e8f0' }}>
+                                <div key={t.id} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.5fr', borderBottom: idx === tareas.length - 1 ? 'none' : '1px solid #e2e8f0', pageBreakInside: 'avoid' }}>
                                     <div style={{ padding: '0.8rem', borderRight: '1px solid #e2e8f0', fontSize: '0.85rem', fontWeight: 700, color: '#1e293b', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{t.paso}</div>
                                     <div style={{ padding: '0.8rem', borderRight: '1px solid #e2e8f0', fontSize: '0.8rem', color: '#334155', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{t.riesgo}</div>
                                     <div style={{ padding: '0.8rem', fontSize: '0.8rem', color: '#334155', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{t.control}</div>
@@ -118,7 +118,7 @@ export default function ATSPdfGenerator({ atsData }) {
 
                 {/* Checklist Verification */}
                 {categories.length > 0 && (
-                    <div style={{ marginTop: '2rem', pageBreakInside: 'avoid' }}>
+                    <div style={{ marginTop: '2rem' }}>
                         <h3 style={{ margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.8rem', color: '#2563eb', fontWeight: 900, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
                             <ShieldCheck size={20} /> Verificación de Seguridad
                         </h3>
@@ -135,7 +135,7 @@ export default function ATSPdfGenerator({ atsData }) {
                                     </div>
                                     <div>
                                         {catItems.map((item, idx) => (
-                                            <div key={item.id} style={{ padding: '0.8rem 1.2rem', borderBottom: idx === catItems.length - 1 ? 'none' : '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+                                            <div key={item.id} style={{ padding: '0.8rem 1.2rem', borderBottom: idx === catItems.length - 1 ? 'none' : '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', pageBreakInside: 'avoid' }}>
                                                 <div style={{ flex: 1 }}>
                                                     <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#1e293b', marginBottom: '0.2rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{item.pregunta}</div>
                                                     {item.observaciones && <div style={{ fontSize: '0.75rem', color: '#64748b', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{item.observaciones}</div>}
@@ -148,8 +148,8 @@ export default function ATSPdfGenerator({ atsData }) {
                                                         
                                                         let icon = '';
                                                         if (isSelected) {
-                                                            if (label === 'SI') icon = '✓';
-                                                            else if (label === 'NO') icon = '✕';
+                                                            if (label === 'SI') icon = '✔';
+                                                            else if (label === 'NO') icon = '✘';
                                                             else icon = 'X';
                                                         }
 
@@ -162,11 +162,10 @@ export default function ATSPdfGenerator({ atsData }) {
                                                                 display: 'flex',
                                                                 alignItems: 'center',
                                                                 justifyContent: 'center',
-                                                                fontSize: '0.8rem',
+                                                                fontSize: '0.9rem',
                                                                 fontWeight: isSelected ? 900 : 400,
                                                                 color: isSelected ? (label === 'SI' ? '#16a34a' : label === 'NO' ? '#dc2626' : '#000000') : '#cbd5e1',
-                                                                background: isSelected ? (label === 'SI' ? '#f0fdf4' : label === 'NO' ? '#fef2f2' : 'transparent') : 'transparent',
-                                                                pageBreakInside: 'avoid'
+                                                                background: isSelected ? (label === 'SI' ? '#f0fdf4' : label === 'NO' ? '#fef2f2' : 'transparent') : 'transparent'
                                                             }}>
                                                                 {icon}
                                                                 <span style={{ fontSize: '0.55rem', marginLeft: '2px', opacity: isSelected ? 1 : 0.6, fontWeight: 900 }}>{label === 'NA' ? 'NA' : label}</span>

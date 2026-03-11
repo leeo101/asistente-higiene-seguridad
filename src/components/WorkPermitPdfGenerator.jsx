@@ -117,12 +117,12 @@ export default function WorkPermitPdfGenerator({ data }) {
                                                     display: 'flex',
                                                     alignItems: 'center',
                                                     justifyContent: 'center',
-                                                    fontSize: '0.65rem',
+                                                    fontSize: '0.9rem',
                                                     fontWeight: isSelected ? 900 : 400,
-                                                    color: isSelected ? '#000' : '#94a3b8',
-                                                    background: 'transparent'
+                                                    color: isSelected ? (label === 'SI' ? '#166534' : '#dc2626') : '#94a3b8',
+                                                    background: isSelected ? (label === 'SI' ? '#f0fdf4' : '#fef2f2') : 'transparent'
                                                 }}>
-                                                    {isSelected ? 'X' : ''}
+                                                    {isSelected ? (label === 'SI' ? '✔' : '✘') : ''}
                                                     <span style={{ fontSize: '0.5rem', marginLeft: '2px', opacity: isSelected ? 1 : 0.6 }}>{label}</span>
                                                 </div>
                                             );
