@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Search, Flame, Calendar, MapPin,
-    ChevronRight, AlertCircle, TriangleAlert, Printer
+    ChevronRight, AlertCircle, TriangleAlert, Printer, Share2
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import ShareModal from '../components/ShareModal';
+import ExtinguisherPdfGenerator from '../components/ExtinguisherPdfGenerator';
 
 export default function ExtinguishersHistory() {
     useDocumentTitle('Historial de Extintores');
@@ -15,6 +17,7 @@ export default function ExtinguishersHistory() {
 
     const [inventory, setInventory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [shareItem, setShareItem] = useState(null); // Can be a single extinguisher or the whole array
 
     useEffect(() => {
         const stored = JSON.parse(localStorage.getItem('extinguishers_inventory') || '[]');
@@ -47,6 +50,21 @@ export default function ExtinguishersHistory() {
 
     return (
         <div className="container" style={{ paddingBottom: '3rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+            
+            <ShareModal
+                open={!!shareItem}
+                onClose={() => setShareItem(null)}
+                title={Array.isArray(shareItem) ? "Inventario de Extintores" : `Extintor #${shareItem?.chapa}`}
+                text={shareItem ? (Array.isArray(shareItem) 
+                    ? `🧯 Inventario de Extintores\n📊 Total equipos: ${shareItem.length}\n📅 Fecha: ${new Date().toLocaleDateString()}`
+                    : `🧯 Extintor #${shareItem.chapa}\n📍 Ubicación: ${shareItem.ubicacion}\n🏢 Empresa: ${shareItem.empresa || '-'}\n🔥 Tipo: ${shareItem.tipo} (${shareItem.capacidad})`) : ''}
+                elementIdToPrint="pdf-content"
+            />
+
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                <ExtinguisherPdfGenerator extinguishers={Array.isArray(shareItem) ? shareItem : (shareItem ? [shareItem] : [])} />
+            </div>
+
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <button onClick={() => navigate('/history')} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)' }}>
@@ -105,7 +123,30 @@ export default function ExtinguishersHistory() {
                                     </span>
                                 </div>
                             </div>
-                            <ChevronRight style={{ color: 'var(--color-border)', flexShrink: 0 }} />
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShareItem(ext);
+                                    }}
+                                    style={{
+                                        padding: '0.6rem',
+                                        background: '#dcfce7',
+                                        border: '1px solid #86efac',
+                                        borderRadius: '10px',
+                                        color: '#16a34a',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    title="Compartir"
+                                >
+                                    <Share2 size={16} />
+                                </button>
+                                <ChevronRight style={{ color: 'var(--color-border)', flexShrink: 0 }} />
+                            </div>
                         </div>
                     );
                 })}
@@ -121,13 +162,22 @@ export default function ExtinguishersHistory() {
                 )}
             </div>
 
-            <button
-                onClick={() => navigate('/extinguishers-report')}
-                className="btn-outline"
-                style={{ marginTop: '2rem', display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}
-            >
-                <Printer size={18} /> Exportar Inventario Completo (PDF)
-            </button>
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+                <button
+                    onClick={() => navigate('/extinguishers-report')}
+                    className="btn-outline"
+                    style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', margin: 0 }}
+                >
+                    <Printer size={18} /> <span className="hidden sm:inline">Imprimir Vista Previa</span>
+                </button>
+                <button
+                    onClick={() => setShareItem(inventory)}
+                    className="btn-primary"
+                    style={{ flex: 1.5, display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', margin: 0, background: '#16a34a', border: 'none' }}
+                >
+                    <Share2 size={18} /> Compartir Inventario (WA)
+                </button>
+            </div>
         </div>
     );
 }

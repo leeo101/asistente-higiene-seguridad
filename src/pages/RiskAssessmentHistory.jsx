@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Shield, ShieldAlert, Calendar, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, Shield, ShieldAlert, Calendar, Trash2, Share2 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import ShareModal from '../components/ShareModal';
+import RiskAssessmentPdfGenerator from '../components/RiskAssessmentPdfGenerator';
 
 // ─── Reusable delete confirmation dialog ───────────────────────────
 function DeleteConfirm({ onConfirm, onCancel }) {
@@ -47,6 +49,7 @@ export default function RiskAssessmentHistory() {
 
     const [data, setData] = useState([]);
     const [deleteTarget, setDeleteTarget] = useState(null);
+    const [shareItem, setShareItem] = useState(null);
 
     useEffect(() => {
         const raw = localStorage.getItem('risk_assessment_history');
@@ -92,6 +95,18 @@ export default function RiskAssessmentHistory() {
     return (
         <div className="container" style={{ paddingBottom: '4rem' }}>
             {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
+
+            <ShareModal
+                open={!!shareItem}
+                onClose={() => setShareItem(null)}
+                title={`IPER - ${shareItem?.name || ''}`}
+                text={shareItem ? `🛡️ Evaluación de Riesgo (IPER)\n📝 Tarea: ${shareItem.name}\n📍 Ubicación: ${shareItem.location || '-'}\n📅 Fecha: ${new Date(shareItem.date || shareItem.createdAt).toLocaleDateString()}\n⚠️ Resultado: ${shareItem.score} (${shareItem.riskLabel})` : ''}
+                elementIdToPrint="pdf-content"
+            />
+
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                <RiskAssessmentPdfGenerator assessmentData={shareItem} />
+            </div>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', minWidth: '200px' }}>
@@ -152,6 +167,25 @@ export default function RiskAssessmentHistory() {
                                     style={{ flex: 1, padding: '0.6rem', fontSize: '0.85rem', fontWeight: 700 }}
                                 >
                                     Editar Evaluación
+                                </button>
+                                <button
+                                    onClick={() => setShareItem(item)}
+                                    style={{ 
+                                        padding: '0.6rem 1rem', 
+                                        background: '#dcfce7', 
+                                        border: '1px solid #86efac', 
+                                        borderRadius: '12px', 
+                                        color: '#16a34a', 
+                                        cursor: 'pointer', 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        gap: '0.4rem',
+                                        fontWeight: 800,
+                                        fontSize: '0.8rem'
+                                    }}
+                                    title="Compartir Informe"
+                                >
+                                    <Share2 size={16} /> <span>WA</span>
                                 </button>
                                 <button
                                     onClick={e => askDelete(e, item.id)}

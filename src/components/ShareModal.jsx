@@ -48,6 +48,9 @@ const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdT
         const toastId = toast.loading(`Preparando PDF para ${optLabel}...`, { id: 'pdf-gen' });
 
         try {
+            // Safety delay to ensure hidden generator has rendered
+            await new Promise(resolve => setTimeout(resolve, 150));
+            
             const pdfBlob = await generatePdfBlob(elementIdToPrint);
             const fileName = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'reporte'}.pdf`;
 
@@ -148,13 +151,13 @@ const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdT
                     onClick={onClose}
                     style={{
                         position: 'absolute',
-                        top: '1rem',
-                        right: '1rem',
-                        background: 'rgba(255,255,255,0.1)',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        borderRadius: '12px',
-                        width: '36px',
-                        height: '36px',
+                        top: '1.25rem',
+                        right: '1.25rem',
+                        background: '#ef4444',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: '32px',
+                        height: '32px',
                         cursor: 'pointer',
                         color: '#ffffff',
                         display: 'flex',
@@ -162,19 +165,19 @@ const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdT
                         justifyContent: 'center',
                         transition: 'all 0.2s',
                         zIndex: 1000,
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                        boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
                     }}
                     onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.8)';
-                        e.currentTarget.style.color = '#ffffff';
+                        e.currentTarget.style.transform = 'scale(1.1)';
+                        e.currentTarget.style.background = '#dc2626';
                     }}
                     onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-                        e.currentTarget.style.color = '#ffffff';
+                        e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.background = '#ef4444';
                     }}
                     title="Cerrar"
                 >
-                    <X size={20} strokeWidth={3} />
+                    <X size={18} strokeWidth={3} />
                 </button>
 
                 <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>

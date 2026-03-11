@@ -35,6 +35,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers = [] }) {
 
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center', overflowX: 'auto' }}>
                 <div
+                    id="pdf-content"
                     className="pdf-container card print-area"
                     ref={componentRef}
                     style={{
