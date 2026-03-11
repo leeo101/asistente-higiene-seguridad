@@ -1,14 +1,19 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Camera, Shield, Save, Clock, User } from 'lucide-react';
 
 export default function Observation() {
     const navigate = useNavigate();
+    const location = useLocation();
+    const { itemId, category } = location.state || {};
+
     const [observation, setObservation] = useState({
         description: '',
         severity: 'Moderada',
         assignee: '',
-        deadline: '48 horas'
+        deadline: '48 horas',
+        itemId: itemId || null,
+        category: category || 'General'
     });
 
     const handleSave = () => {
@@ -17,14 +22,25 @@ export default function Observation() {
         if (current) {
             const inspection = JSON.parse(current);
             if (!inspection.observations) inspection.observations = [];
-            inspection.observations.push({
+            
+            // Si ya existe una observación para este ítem, la actualizamos
+            const existingIdx = inspection.observations.findIndex(o => o.itemId === observation.itemId && observation.itemId !== null);
+            
+            const newObs = {
                 ...observation,
-                id: Date.now(),
+                id: observation.id || Date.now(),
                 timestamp: new Date().toISOString()
-            });
+            };
+
+            if (existingIdx >= 0) {
+                inspection.observations[existingIdx] = newObs;
+            } else {
+                inspection.observations.push(newObs);
+            }
+
             localStorage.setItem('current_inspection', JSON.stringify(inspection));
         }
-        navigate('/photos');
+        navigate('/photos', { state: { fromObservation: true, itemId: observation.itemId } });
     };
 
     return (
@@ -35,7 +51,7 @@ export default function Observation() {
                 </button>
                 <div>
                     <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Registro de Hallazgo</h1>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Observación planificada de seguridad</p>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{category ? `Categoría: ${category}` : 'Observación planificada de seguridad'}</p>
                 </div>
             </div>
 
@@ -52,10 +68,8 @@ export default function Observation() {
                             e.target.style.height = e.target.scrollHeight + 'px';
                         }}
                         onChange={(e) => setObservation({ ...observation, description: e.target.value })}
+                        style={{ background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '8px', padding: '0.8rem', color: 'var(--color-text)', outline: 'none' }}
                     />
-                    <div className="print-only whitespace-pre-wrap break-words mt-2 font-semibold">
-                        {observation.description || 'Sin descripción detallada.'}
-                    </div>
                 </div>
 
                 <div style={{ marginBottom: '1.5rem' }}>
@@ -70,9 +84,10 @@ export default function Observation() {
                                     padding: '0.8rem',
                                     borderRadius: '8px',
                                     border: `1px solid ${observation.severity === level ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                                    background: observation.severity === level ? 'var(--color-primary-light)' : 'transparent',
+                                    background: observation.severity === level ? 'rgba(37, 99, 235, 0.1)' : 'transparent',
                                     color: observation.severity === level ? 'var(--color-primary)' : 'var(--color-text)',
-                                    fontWeight: observation.severity === level ? 600 : 400
+                                    fontWeight: observation.severity === level ? 600 : 400,
+                                    cursor: 'pointer'
                                 }}
                             >
                                 {level}
@@ -90,6 +105,7 @@ export default function Observation() {
                         placeholder="Nombre del responsable"
                         value={observation.assignee}
                         onChange={(e) => setObservation({ ...observation, assignee: e.target.value })}
+                        style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-background)', color: 'var(--color-text)' }}
                     />
                     <datalist id="responsables">
                         <option value="Jefe de Obra" />
@@ -107,6 +123,7 @@ export default function Observation() {
                         list="plazos"
                         value={observation.deadline}
                         onChange={(e) => setObservation({ ...observation, deadline: e.target.value })}
+                        style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-background)', color: 'var(--color-text)' }}
                     />
                     <datalist id="plazos">
                         <option value="Inmediato" />
@@ -117,18 +134,18 @@ export default function Observation() {
                     </datalist>
                 </div>
 
-                <div className="flex-res">
+                <div style={{ display: 'flex', gap: '1rem' }}>
                     <button
                         className="btn-primary"
                         onClick={handleSave}
-                        style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                        style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '1rem' }}
                     >
                         <Camera size={20} /> Tomar Foto
                     </button>
                     <button
-                        className="btn-secondary"
-                        onClick={() => navigate('/risk')}
-                        style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                        className="btn-outline"
+                        onClick={() => navigate('/risk', { state: { fromObservation: true, itemId: observation.itemId } })}
+                        style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '1rem', border: '1px solid var(--color-primary)', color: 'var(--color-primary)', background: 'transparent' }}
                     >
                         <Shield size={20} /> Evaluar Riesgo
                     </button>
