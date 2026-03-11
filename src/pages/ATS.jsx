@@ -9,6 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
+import ATSPdfGenerator from '../components/ATSPdfGenerator';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
@@ -300,6 +301,10 @@ export default function ATS() {
                     text={`📋 Análisis de Trabajo Seguro\n🏗️ Empresa: ${formData.empresa}\n🚧 Obra: ${formData.obra}\n📅 Fecha: ${formData.fecha}\n👷 Responsable: ${formData.capatazNombre}\n\nGenerado con Asistente HYS`}
                     elementIdToPrint="pdf-content"
                 />
+
+                <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                    <ATSPdfGenerator atsData={formData} />
+                </div>
 
                 {/* Floating Action Buttons */}
                 <div className="no-print floating-action-bar">

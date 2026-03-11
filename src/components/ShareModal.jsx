@@ -4,7 +4,10 @@ import { toast } from 'react-hot-toast';
 import { createPortal } from 'react-dom';
 import { generatePdfBlob } from '../utils/pdfHelper';
 
-const ShareModal = ({ isOpen, onClose, title, rawMessage, elementIdToPrint }) => {
+const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdToPrint }) => {
+    const displayOpen = isOpen !== undefined ? isOpen : open;
+    const message = rawMessage !== undefined ? rawMessage : text;
+
     const [copied, setCopied] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 450);
@@ -17,18 +20,19 @@ const ShareModal = ({ isOpen, onClose, title, rawMessage, elementIdToPrint }) =>
 
     // Also close on Escape key
     useEffect(() => {
-        if (!isOpen) return;
+        if (!displayOpen) return;
         const handleEsc = (e) => {
             if (e.key === 'Escape') onClose();
         };
         window.addEventListener('keydown', handleEsc);
         return () => window.removeEventListener('keydown', handleEsc);
-    }, [isOpen, onClose]);
+    }, [displayOpen, onClose]);
 
-    if (!isOpen) return null;
+    if (!displayOpen) return null;
 
     const handleCopy = () => {
-        navigator.clipboard.writeText(rawMessage);
+        navigator.clipboard.writeText(message);
+
         setCopied(true);
         toast.success('Resumen copiado');
         setTimeout(() => setCopied(false), 2000);
@@ -65,7 +69,7 @@ const ShareModal = ({ isOpen, onClose, title, rawMessage, elementIdToPrint }) =>
                 try {
                     await navigator.share({
                         title: title,
-                        text: rawMessage,
+                        text: message,
                         files: [file]
                     });
                     toast.success('¡Compartido con éxito!', { id: 'pdf-gen' });
@@ -91,7 +95,7 @@ const ShareModal = ({ isOpen, onClose, title, rawMessage, elementIdToPrint }) =>
         {
             label: 'WhatsApp',
             icon: <MessageCircle size={22} />,
-            url: `https://wa.me/?text=${encodeURIComponent(rawMessage)}`,
+            url: `https://wa.me/?text=${encodeURIComponent(message)}`,
             bg: '#25D366',
             color: '#ffffff',
             hijack: true
@@ -99,7 +103,7 @@ const ShareModal = ({ isOpen, onClose, title, rawMessage, elementIdToPrint }) =>
         {
             label: 'Correo',
             icon: <Mail size={22} />,
-            url: `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(rawMessage)}`,
+            url: `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(message)}`,
             bg: '#3b82f6',
             color: '#ffffff',
             hijack: true
@@ -284,7 +288,7 @@ const ShareModal = ({ isOpen, onClose, title, rawMessage, elementIdToPrint }) =>
                         textOverflow: 'ellipsis',
                         fontWeight: 600
                     }}>
-                        {rawMessage}
+                        {message}
                     </p>
                 </div>
             </div>
