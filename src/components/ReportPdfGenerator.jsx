@@ -53,12 +53,12 @@ export default function ReportPdfGenerator({ initialData }) {
                 </div>
 
                 {/* Summary Cards */}
-                <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
-                    <div style={{ flex: 1, padding: '1rem', textAlign: 'center', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', pageBreakInside: 'avoid' }}>
+                    <div style={{ flex: 1, padding: '1rem', textAlign: 'center', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', pageBreakInside: 'avoid' }}>
                         <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0f172a' }}>{findingCount}</div>
                         <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Hallazgos</div>
                     </div>
-                    <div style={{ flex: 1, padding: '1rem', textAlign: 'center', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                    <div style={{ flex: 1, padding: '1rem', textAlign: 'center', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', pageBreakInside: 'avoid' }}>
                         <div style={{ fontSize: '1.2rem', fontWeight: 900, color: findingCount > 0 ? '#dc2626' : '#16a34a' }}>
                             {findingCount > 0 ? 'CRÍTICO' : 'CONFORME'}
                         </div>

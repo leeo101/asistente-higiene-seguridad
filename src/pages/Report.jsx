@@ -173,9 +173,9 @@ export default function Report() {
                         const percent = Math.round((ok / total) * 100) || 0;
 
                         return (
-                            <div key={cat.id} style={{ padding: '1.2rem', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                            <div key={cat.id} style={{ padding: '1.2rem', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', pageBreakInside: 'avoid' }}>
                                 <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#172B4D', marginBottom: '0.8rem' }}>{cat.name}</div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.5rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.5rem', pageBreakInside: 'avoid' }}>
                                     <div style={{ flex: 1, height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
                                         <div style={{ width: `${percent}%`, height: '100%', background: percent === 100 ? '#00875A' : '#3b82f6', transition: 'width 0.5s ease' }}></div>
                                     </div>
@@ -207,7 +207,7 @@ export default function Report() {
                                 </thead>
                                 <tbody>
                                     {riskAssessment.map((risk, idx) => (
-                                        <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                                        <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9', pageBreakInside: 'avoid' }}>
                                             <td style={{ padding: '1rem', fontWeight: 600 }}>{risk.danger}</td>
                                             <td style={{ padding: '1rem' }}>{risk.risk}</td>
                                             <td style={{ padding: '1rem', textAlign: 'center' }}>{risk.probability} x {risk.severity}</td>

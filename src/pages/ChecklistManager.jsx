@@ -395,8 +395,8 @@ export default function ChecklistManager() {
 
                 <div className="space-y-12">
                     {activeSections.map(section => (
-                        <div key={section.id} className="card w-full mb-6" style={{ padding: 0 }}>
-                            <div style={{ background: 'var(--color-background)', padding: '1rem', borderBottom: '2px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', minHeight: '4rem' }}>
+                        <div key={section.id} className="card w-full mb-6" style={{ padding: 0, pageBreakInside: section.items.length < 10 ? 'avoid' : 'auto' }}>
+                            <div style={{ background: 'var(--color-background)', padding: '1rem', borderBottom: '2px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', minHeight: '4rem', pageBreakInside: 'avoid' }}>
                                 <input
                                     className="font-black text-xl uppercase tracking-tighter bg-transparent outline-none w-full border-none focus:ring-0 text-black text-center placeholder:text-slate-400 print-text-center block"
                                     style={{ textAlign: 'center', margin: 0 }}
@@ -427,8 +427,8 @@ export default function ChecklistManager() {
 
                             <div className="w-full flex-col divide-y divide-slate-200">
                                 {section.items.map((item, idx) => (
-                                    <div key={idx} className="group hover:bg-slate-50/20 transition-colors flex flex-col sm:flex-row print-flex items-stretch sm:items-center print-items-center">
-                                        <div className="flex-1 flex flex-row items-start sm:items-center min-w-0 p-4 pb-0 sm:pb-4 print:pb-4 border-b border-transparent sm:pr-4 print:pr-4">
+                                    <div key={idx} className="group hover:bg-slate-50/20 transition-colors flex flex-col sm:flex-row print-flex items-stretch sm:items-center print-items-center" style={{ pageBreakInside: 'avoid' }}>
+                                        <div className="flex-1 flex flex-row items-start sm:items-center min-w-0 p-4 pb-0 sm:pb-4 print:pb-4 border-b border-transparent sm:pr-4 print:pr-4" style={{ pageBreakInside: 'avoid' }}>
                                             <div className="text-center font-black text-[0.6rem] bg-slate-50/50 h-10 w-8 flex items-center justify-center rounded-md mr-3 text-slate-400 border border-slate-100 shrink-0">{idx + 1}</div>
                                             <textarea
                                                 rows={1}
