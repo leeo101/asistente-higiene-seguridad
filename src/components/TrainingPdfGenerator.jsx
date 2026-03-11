@@ -121,7 +121,7 @@ export default function TrainingPdfGenerator({ training, onBack }) {
                         </thead>
                         <tbody>
                             {training?.asistentes?.map((asist, idx) => (
-                                <tr key={idx}>
+                                <tr key={idx} style={{ pageBreakInside: 'avoid' }}>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '8px 4px', textAlign: 'center', color: '#64748b' }}>{idx + 1}</td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '8px', fontWeight: 'bold', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{asist.nombre}</td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center' }}>{asist.dni}</td>
