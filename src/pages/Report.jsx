@@ -134,15 +134,50 @@ export default function Report() {
                         <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#6B778C', textTransform: 'uppercase' }}>Hallazgos</div>
                     </div>
                     <div className="card" style={{ padding: '1rem', textAlign: 'center', background: '#f8fafc' }}>
-                        <div style={{ fontSize: '1.2rem', fontWeight: 900, color: findingCount > 0 ? '#DE350B' : '#00875A' }}>
-                            {findingCount > 0 ? 'CRÍTICO' : 'CONFORME'}
+                        <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#172B4D' }}>
+                            {Math.round(((Object.values(inspectionData.responses || {}).filter(v => v === 'ok').length) / 10) * 100) || 0}%
                         </div>
-                        <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#6B778C', textTransform: 'uppercase' }}>Estado General</div>
+                        <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#6B778C', textTransform: 'uppercase' }}>Cumplimiento</div>
                     </div>
                     <div className="card md:col-span-2" style={{ padding: '1rem', background: '#f8fafc' }}>
                         <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>Profesional Actuante:</div>
                         <div style={{ fontSize: '0.95rem', color: 'var(--color-primary)', fontWeight: 800 }}>{professional?.name || 'No especificado'}</div>
                     </div>
+                </div>
+
+                {/* Checklist Summary Section */}
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <ShieldCheck size={20} color="#00875A" /> Resumen de Inspección por Categoría
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2.5rem' }}>
+                    {[
+                        { name: 'Extintores y Protección', id: 'extintores', items: ['e1', 'e2'] },
+                        { name: 'Riesgo Eléctrico', id: 'electrico', items: ['L1', 'L2'] },
+                        { name: 'EPP', id: 'epp', items: ['p1', 'p2'] },
+                        { name: 'Orden y Limpieza', id: 'orden', items: ['o1', 'o2'] },
+                        { name: 'Señalización y Evacuación', id: 'senyalizacion', items: ['s1', 's2'] }
+                    ].map(cat => {
+                        const total = cat.items.length;
+                        const ok = cat.items.filter(id => inspectionData.responses?.[id] === 'ok').length;
+                        const fail = cat.items.filter(id => inspectionData.responses?.[id] === 'fail').length;
+                        const na = cat.items.filter(id => inspectionData.responses?.[id] === 'na').length;
+                        const percent = Math.round((ok / total) * 100) || 0;
+
+                        return (
+                            <div key={cat.id} style={{ padding: '1rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                                <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#172B4D', marginBottom: '0.5rem' }}>{cat.name}</div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.3rem' }}>
+                                    <div style={{ flex: 1, height: '6px', background: '#e2e8f0', borderRadius: '3px', overflow: 'hidden' }}>
+                                        <div style={{ width: `${percent}%`, height: '100%', background: percent === 100 ? '#00875A' : '#3b82f6' }}></div>
+                                    </div>
+                                    <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#6B778C' }}>{percent}%</span>
+                                </div>
+                                <div style={{ fontSize: '0.65rem', color: '#6B778C', fontWeight: 600 }}>
+                                    {ok} OK · {fail} No Conformidades
+                                </div>
+                            </div>
+                        );
+                    })}
                 </div>
 
                 {/* Findings Table */}
@@ -200,8 +235,25 @@ export default function Report() {
                 ) : (
                     <div className="card" style={{ padding: '2rem', textAlign: 'center', background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534', marginBottom: '2rem' }}>
                         <CheckCircle2 size={32} style={{ marginBottom: '0.5rem', opacity: 0.7 }} />
-                        <p style={{ margin: 0, fontWeight: 700 }}>No se detectaron hallazgos durante la inspección.</p>
-                        <p style={{ margin: '0.3rem 0 0 0', fontSize: '0.85rem' }}>El sector cumple con las condiciones mínimas de seguridad.</p>
+                        <p style={{ margin: 0, fontWeight: 700 }}>No se detectaron hallazgos críticos durante la inspección.</p>
+                        <p style={{ margin: '0.3rem 0 0 0', fontSize: '0.85rem' }}>El sector cumple con las condiciones de seguridad evaluadas.</p>
+                    </div>
+                )}
+
+                {/* Photo Gallery */}
+                {inspectionData.photos && inspectionData.photos.length > 0 && (
+                    <div style={{ marginTop: '3rem', pageBreakBefore: 'auto' }}>
+                        <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '2px solid #eee', paddingBottom: '0.5rem' }}>
+                            <Camera size={20} color="var(--color-primary)" /> Registro Fotográfico de Respaldo
+                        </h3>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
+                            {inspectionData.photos.map((photo, index) => (
+                                <div key={index} style={{ border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden', padding: '0.5rem', background: '#f8fafc', pageBreakInside: 'avoid' }}>
+                                    <img src={photo} alt={`Evidencia ${index + 1}`} style={{ width: '100%', height: '220px', objectFit: 'cover', borderRadius: '8px', marginBottom: '0.5rem' }} />
+                                    <p style={{ margin: 0, fontSize: '0.7rem', fontWeight: 700, textAlign: 'center', color: '#6B778C', textTransform: 'uppercase' }}>Foto de Evidencia #{index + 1}</p>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
 

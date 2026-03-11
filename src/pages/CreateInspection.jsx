@@ -82,13 +82,23 @@ export default function CreateInspection() {
                     </datalist>
                 </div>
 
-                <button
-                    className="btn-primary"
-                    onClick={handleStart}
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.8rem' }}
-                >
-                    Iniciar Relevamiento <Play size={20} fill="currentColor" />
-                </button>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <button
+                        className="btn-primary"
+                        onClick={handleStart}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.8rem' }}
+                    >
+                        Iniciar Relevamiento <Play size={20} fill="currentColor" />
+                    </button>
+
+                    <button
+                        className="btn-outline"
+                        onClick={() => navigate('/risk', { state: { fromInspection: true } })}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.8rem', borderColor: 'var(--color-primary)', color: 'var(--color-primary)' }}
+                    >
+                        Evaluación de Riesgo Previa
+                    </button>
+                </div>
             </div>
 
             <div style={{ marginTop: '2rem', textAlign: 'center' }}>

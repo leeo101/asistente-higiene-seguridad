@@ -100,7 +100,15 @@ export default function Checklist() {
 
             <button
                 className="btn-primary"
-                onClick={() => navigate('/report')}
+                onClick={() => {
+                    const current = localStorage.getItem('current_inspection');
+                    if (current) {
+                        const inspection = JSON.parse(current);
+                        inspection.responses = responses;
+                        localStorage.setItem('current_inspection', JSON.stringify(inspection));
+                    }
+                    navigate('/report');
+                }}
                 style={{ width: '100%', marginTop: '2rem' }}
             >
                 Finalizar Relevamiento
