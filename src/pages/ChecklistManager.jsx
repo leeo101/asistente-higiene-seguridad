@@ -371,12 +371,12 @@ export default function ChecklistManager() {
                 </div>
 
                 <div style={{ border: '2px solid var(--color-border)', borderRadius: '12px', marginBottom: '2.5rem', width: '100%', overflow: 'hidden' }}>
-                    <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ borderBottom: '2px solid var(--color-border)', width: '100%' }}>
+                    <div className="grid grid-cols-1 sm:grid-cols-4 print-grid" style={{ borderBottom: '2px solid var(--color-border)', width: '100%' }}>
                         <div className="sm:col-span-2 print:col-span-2"><DocBox label="CLIENTE / EMPRESA" value={companyInfo.name} onChange={v => setCompanyInfo({ ...companyInfo, name: v })} large /></div>
                         <div className="sm:col-span-1 print:col-span-1 border-t sm:border-t-0 border-[var(--color-border)] sm:border-l"><DocBox label="CUIT / CUIL" value={companyInfo.cuit} onChange={v => setCompanyInfo({ ...companyInfo, cuit: v })} /></div>
                         <div className="sm:col-span-1 print:col-span-1 border-t sm:border-t-0 border-[var(--color-border)] sm:border-l"><DocBox label="UBICACIÓN / OBRA" value={companyInfo.location} onChange={v => setCompanyInfo({ ...companyInfo, location: v })} /></div>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ width: '100%' }}>
+                    <div className="grid grid-cols-1 sm:grid-cols-4 print-grid" style={{ width: '100%' }}>
                         <div className="sm:col-span-2 print:col-span-2">
                             <DocBox
                                 label="EQUIPO REVISADO"
@@ -427,7 +427,7 @@ export default function ChecklistManager() {
 
                             <div className="w-full flex-col divide-y divide-slate-200">
                                 {section.items.map((item, idx) => (
-                                    <div key={idx} className="group hover:bg-slate-50/20 transition-colors flex flex-col sm:flex-row print:flex-row items-stretch sm:items-center print:items-center">
+                                    <div key={idx} className="group hover:bg-slate-50/20 transition-colors flex flex-col sm:flex-row print-flex items-stretch sm:items-center print-items-center">
                                         <div className="flex-1 flex flex-row items-start sm:items-center min-w-0 p-4 pb-0 sm:pb-4 print:pb-4 border-b border-transparent sm:pr-4 print:pr-4">
                                             <div className="text-center font-black text-[0.6rem] bg-slate-50/50 h-10 w-8 flex items-center justify-center rounded-md mr-3 text-slate-400 border border-slate-100 shrink-0">{idx + 1}</div>
                                             <textarea
@@ -450,10 +450,10 @@ export default function ChecklistManager() {
                                                 <StatusBtn active={item.status === 'FAIL'} type="FAIL" onClick={() => updateItem(section.id, idx, 'status', 'FAIL')} />
                                                 <StatusBtn active={item.status === 'NA'} type="NA" onClick={() => updateItem(section.id, idx, 'status', 'NA')} />
                                             </div>
-                                            <div className="hidden print:flex items-center justify-center font-black text-black">
-                                                {item.status === 'OK' ? <Check size={18} strokeWidth={4} /> :
-                                                    item.status === 'FAIL' ? <X size={18} strokeWidth={4} /> :
-                                                        item.status === 'NA' ? <span className="text-[0.6rem]">N/A</span> : ''}
+                                            <div className="hidden print-flex items-center justify-center font-black text-black" style={{ minWidth: '40px', border: '2px solid #000', borderRadius: '4px', height: '32px' }}>
+                                                {item.status === 'OK' ? <Check size={20} strokeWidth={4} /> :
+                                                    item.status === 'FAIL' ? <X size={20} strokeWidth={4} /> :
+                                                        item.status === 'NA' ? <span className="text-[0.7rem] uppercase">N/A</span> : ''}
                                             </div>
                                             <button
                                                 onClick={() => {
