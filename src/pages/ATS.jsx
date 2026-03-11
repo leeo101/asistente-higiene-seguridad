@@ -15,6 +15,14 @@ import toast from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import { API_BASE_URL } from '../config';
 
+const printStyles = `
+@media print {
+    .no-print { display: none !important; }
+    .print-area { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
+    .checklist-print-box { display: flex !important; gap: 4px !important; }
+}
+`;
+
 const defaultChecklist = [
     // General
     { id: 1, categoria: 'General', pregunta: '¿Se cuenta con el Programa de Seguridad aprobado por ART?', estado: 'Cumple', observaciones: '' },
@@ -293,6 +301,7 @@ export default function ATS() {
 
     return (
         <>
+            <style>{printStyles}</style>
             <div className="container" style={{ maxWidth: '1200px', paddingBottom: '12rem' }}>
                 <ShareModal
                     open={showShare}
@@ -596,40 +605,33 @@ export default function ATS() {
                                                     <Trash2 size={15} />
                                                 </button>
                                             </div>
-                                            <div className="hidden print:flex gap-1" style={{ flexShrink: 0 }}>
-                                                {/* SI */}
-                                                <div style={{ 
-                                                    width: '32px', height: '22px', border: (item.estado === 'Cumple' || item.estado === 'SI') ? '2px solid #000' : '1px solid #cbd5e1', 
-                                                    borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', 
-                                                    fontWeight: (item.estado === 'Cumple' || item.estado === 'SI') ? 900 : 400,
-                                                    color: (item.estado === 'Cumple' || item.estado === 'SI') ? '#000' : '#cbd5e1',
-                                                    position: 'relative'
-                                                }}>
-                                                    {(item.estado === 'Cumple' || item.estado === 'SI') && <span style={{ position: 'absolute', fontSize: '1rem', top: '-4px', fontWeight: 900 }}>X</span>}
-                                                    <span style={{ fontSize: '0.5rem', marginTop: '6px' }}>SI</span>
-                                                </div>
-                                                {/* NO */}
-                                                <div style={{ 
-                                                    width: '32px', height: '22px', border: (item.estado === 'No Cumple' || item.estado === 'NO') ? '2px solid #000' : '1px solid #cbd5e1', 
-                                                    borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', 
-                                                    fontWeight: (item.estado === 'No Cumple' || item.estado === 'NO') ? 900 : 400,
-                                                    color: (item.estado === 'No Cumple' || item.estado === 'NO') ? '#000' : '#cbd5e1',
-                                                    position: 'relative'
-                                                }}>
-                                                    {(item.estado === 'No Cumple' || item.estado === 'NO') && <span style={{ position: 'absolute', fontSize: '1rem', top: '-4px', fontWeight: 900 }}>X</span>}
-                                                    <span style={{ fontSize: '0.5rem', marginTop: '6px' }}>NO</span>
-                                                </div>
-                                                {/* NA */}
-                                                <div style={{ 
-                                                    width: '32px', height: '22px', border: item.estado === 'N/A' ? '2px solid #000' : '1px solid #cbd5e1', 
-                                                    borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', 
-                                                    fontWeight: item.estado === 'N/A' ? 900 : 400,
-                                                    color: item.estado === 'N/A' ? '#000' : '#cbd5e1',
-                                                    position: 'relative'
-                                                }}>
-                                                    {item.estado === 'N/A' && <span style={{ position: 'absolute', fontSize: '1rem', top: '-4px', fontWeight: 900 }}>X</span>}
-                                                    <span style={{ fontSize: '0.5rem', marginTop: '6px' }}>NA</span>
-                                                </div>
+                                            {/* Vista de Impresión Reforzada */}
+                                            <div className="checklist-print-box hidden print:flex gap-1" style={{ flexShrink: 0 }}>
+                                                {['SI', 'NO', 'NA'].map((label) => {
+                                                    const isSelected = (label === 'SI' && (item.estado === 'Cumple' || item.estado === 'SI')) ||
+                                                                     (label === 'NO' && (item.estado === 'No Cumple' || item.estado === 'NO')) ||
+                                                                     (label === 'NA' && (item.estado === 'N/A' || item.estado === 'NA'));
+                                                    
+                                                    return (
+                                                        <div key={label} style={{
+                                                            width: '35px',
+                                                            height: '24px',
+                                                            border: isSelected ? '2.5px solid #000' : '1px solid #94a3b8',
+                                                            borderRadius: '4px',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            fontSize: '0.65rem',
+                                                            fontWeight: isSelected ? 900 : 400,
+                                                            color: isSelected ? '#000' : '#94a3b8',
+                                                            background: 'transparent',
+                                                            WebkitPrintColorAdjust: 'exact'
+                                                        }}>
+                                                            {isSelected ? 'X' : ''}
+                                                            <span style={{ fontSize: '0.5rem', marginLeft: '2px', opacity: isSelected ? 1 : 0.6 }}>{label}</span>
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                     ))}

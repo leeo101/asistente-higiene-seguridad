@@ -141,39 +141,30 @@ export default function ATSPdfGenerator({ atsData }) {
                                                     {item.observaciones && <div style={{ fontSize: '0.75rem', color: '#64748b', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{item.observaciones}</div>}
                                                 </div>
                                                 <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
-                                                    {/* SI */}
-                                                    <div style={{ 
-                                                        width: '32px', height: '24px', border: (item.estado === 'Cumple' || item.estado === 'SI') ? '2px solid #000000' : '1px solid #cbd5e1', 
-                                                        borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', 
-                                                        fontWeight: (item.estado === 'Cumple' || item.estado === 'SI') ? 900 : 400,
-                                                        color: (item.estado === 'Cumple' || item.estado === 'SI') ? '#000000' : '#cbd5e1',
-                                                        position: 'relative'
-                                                    }}>
-                                                        {(item.estado === 'Cumple' || item.estado === 'SI') && <span style={{ position: 'absolute', fontSize: '1.2rem', top: '-4px', fontWeight: 900 }}>X</span>}
-                                                        <span style={{ fontSize: '0.55rem', marginTop: '8px' }}>SI</span>
-                                                    </div>
-                                                    {/* NO */}
-                                                    <div style={{ 
-                                                        width: '32px', height: '24px', border: (item.estado === 'No Cumple' || item.estado === 'NO') ? '2px solid #000000' : '1px solid #cbd5e1', 
-                                                        borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', 
-                                                        fontWeight: (item.estado === 'No Cumple' || item.estado === 'NO') ? 900 : 400,
-                                                        color: (item.estado === 'No Cumple' || item.estado === 'NO') ? '#000000' : '#cbd5e1',
-                                                        position: 'relative'
-                                                    }}>
-                                                        {(item.estado === 'No Cumple' || item.estado === 'NO') && <span style={{ position: 'absolute', fontSize: '1.2rem', top: '-4px', fontWeight: 900 }}>X</span>}
-                                                        <span style={{ fontSize: '0.55rem', marginTop: '8px' }}>NO</span>
-                                                    </div>
-                                                    {/* N/A */}
-                                                    <div style={{ 
-                                                        width: '32px', height: '24px', border: item.estado === 'N/A' ? '2px solid #000000' : '1px solid #cbd5e1', 
-                                                        borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', 
-                                                        fontWeight: item.estado === 'N/A' ? 900 : 400,
-                                                        color: item.estado === 'N/A' ? '#000000' : '#cbd5e1',
-                                                        position: 'relative'
-                                                    }}>
-                                                        {item.estado === 'N/A' && <span style={{ position: 'absolute', fontSize: '1.2rem', top: '-4px', fontWeight: 900 }}>X</span>}
-                                                        <span style={{ fontSize: '0.55rem', marginTop: '8px' }}>N/A</span>
-                                                    </div>
+                                                    {['SI', 'NO', 'NA'].map((label) => {
+                                                        const isSelected = (label === 'SI' && (item.estado === 'Cumple' || item.estado === 'SI')) ||
+                                                                         (label === 'NO' && (item.estado === 'No Cumple' || item.estado === 'NO')) ||
+                                                                         (label === 'NA' && (item.estado === 'N/A' || item.estado === 'NA'));
+                                                        
+                                                        return (
+                                                            <div key={label} style={{
+                                                                width: '35px',
+                                                                height: '24px',
+                                                                border: isSelected ? '2.5px solid #000000' : '1px solid #cbd5e1',
+                                                                borderRadius: '4px',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                fontSize: '0.65rem',
+                                                                fontWeight: isSelected ? 900 : 400,
+                                                                color: isSelected ? '#000000' : '#cbd5e1',
+                                                                background: 'transparent'
+                                                            }}>
+                                                                {isSelected ? 'X' : ''}
+                                                                <span style={{ fontSize: '0.55rem', marginLeft: '2px', opacity: isSelected ? 1 : 0.6 }}>{label === 'NA' ? 'NA' : label}</span>
+                                                            </div>
+                                                        );
+                                                    })}
                                                 </div>
                                             </div>
                                         ))}

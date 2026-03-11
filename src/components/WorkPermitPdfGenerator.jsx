@@ -104,28 +104,29 @@ export default function WorkPermitPdfGenerator({ data }) {
                                 <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '2.5fr 80px 1.5fr', gap: '1rem', alignItems: 'center', padding: '0.8rem 1rem', borderBottom: '1px solid #f1f5f9', background: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
                                     <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#334155', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{item.pregunta}</div>
                                     <div style={{ display: 'flex', gap: '4px', flexShrink: 0, justifyContent: 'center' }}>
-                                        {/* SI */}
-                                        <div style={{ 
-                                            width: '32px', height: '22px', border: (item.estado === 'Cumple' || item.estado === 'SI') ? '2px solid #000' : '1px solid #cbd5e1', 
-                                            borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', 
-                                            fontWeight: (item.estado === 'Cumple' || item.estado === 'SI') ? 900 : 400,
-                                            color: (item.estado === 'Cumple' || item.estado === 'SI') ? '#000' : '#cbd5e1',
-                                            position: 'relative'
-                                        }}>
-                                            {(item.estado === 'Cumple' || item.estado === 'SI') && <span style={{ position: 'absolute', fontSize: '1rem', top: '-4px', fontWeight: 900 }}>X</span>}
-                                            <span style={{ fontSize: '0.5rem', marginTop: '6px' }}>SI</span>
-                                        </div>
-                                        {/* NO */}
-                                        <div style={{ 
-                                            width: '32px', height: '22px', border: (item.estado === 'No Cumple' || item.estado === 'NO') ? '2px solid #000' : '1px solid #cbd5e1', 
-                                            borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', 
-                                            fontWeight: (item.estado === 'No Cumple' || item.estado === 'NO') ? 900 : 400,
-                                            color: (item.estado === 'No Cumple' || item.estado === 'NO') ? '#000' : '#cbd5e1',
-                                            position: 'relative'
-                                        }}>
-                                            {(item.estado === 'No Cumple' || item.estado === 'NO') && <span style={{ position: 'absolute', fontSize: '1rem', top: '-4px', fontWeight: 900 }}>X</span>}
-                                            <span style={{ fontSize: '0.5rem', marginTop: '6px' }}>NO</span>
-                                        </div>
+                                        {['SI', 'NO'].map((label) => {
+                                            const isSelected = (label === 'SI' && (item.estado === 'Cumple' || item.estado === 'SI')) ||
+                                                             (label === 'NO' && (item.estado === 'No Cumple' || item.estado === 'NO'));
+                                            
+                                            return (
+                                                <div key={label} style={{
+                                                    width: '35px',
+                                                    height: '24px',
+                                                    border: isSelected ? '2.5px solid #000' : '1px solid #94a3b8',
+                                                    borderRadius: '4px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    fontSize: '0.65rem',
+                                                    fontWeight: isSelected ? 900 : 400,
+                                                    color: isSelected ? '#000' : '#94a3b8',
+                                                    background: 'transparent'
+                                                }}>
+                                                    {isSelected ? 'X' : ''}
+                                                    <span style={{ fontSize: '0.5rem', marginLeft: '2px', opacity: isSelected ? 1 : 0.6 }}>{label}</span>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                     <div style={{ fontSize: '0.8rem', color: '#64748b', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{item.observaciones || '-'}</div>
                                 </div>
