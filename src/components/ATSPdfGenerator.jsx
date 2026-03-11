@@ -145,10 +145,13 @@ export default function ATSPdfGenerator({ atsData }) {
                                                     fontSize: '0.8rem', 
                                                     padding: '0.3rem 0.6rem', 
                                                     borderRadius: '6px',
-                                                    background: item.estado === 'Cumple' ? '#dcfce7' : item.estado === 'No Cumple' ? '#fee2e2' : '#f1f5f9',
-                                                    color: item.estado === 'Cumple' ? '#16a34a' : item.estado === 'No Cumple' ? '#dc2626' : '#64748b'
+                                                    background: (item.estado === 'Cumple' || item.estado === 'SI') ? '#dcfce7' : (item.estado === 'No Cumple' || item.estado === 'NO') ? '#fee2e2' : '#f1f5f9',
+                                                    color: (item.estado === 'Cumple' || item.estado === 'SI') ? '#16a34a' : (item.estado === 'No Cumple' || item.estado === 'NO') ? '#dc2626' : '#64748b',
+                                                    border: `1px solid ${(item.estado === 'Cumple' || item.estado === 'SI') ? '#86efac' : (item.estado === 'No Cumple' || item.estado === 'NO') ? '#fca5a5' : '#e2e8f0'}`,
+                                                    textAlign: 'center',
+                                                    minWidth: '60px'
                                                  }}>
-                                                    {item.estado === 'Cumple' ? '✓ SI' : item.estado === 'No Cumple' ? '✗ NO' : '— N/A'}
+                                                    {(item.estado === 'Cumple' || item.estado === 'SI') ? '✓ SI' : (item.estado === 'No Cumple' || item.estado === 'NO') ? '✗ NO' : '— N/A'}
                                                 </div>
                                             </div>
                                         ))}

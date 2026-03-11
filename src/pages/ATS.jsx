@@ -596,8 +596,10 @@ export default function ATS() {
                                                     <Trash2 size={15} />
                                                 </button>
                                             </div>
-                                            <div className="hidden print:block text-[0.8rem] font-black">
-                                                {item.estado === 'Cumple' ? '✓ SI' : item.estado === 'No Cumple' ? '✗ NO' : '— N/A'}
+                                            <div className="hidden print:block text-[0.8rem] font-black" style={{ 
+                                                color: (item.estado === 'Cumple' || item.estado === 'SI') ? '#16a34a' : (item.estado === 'No Cumple' || item.estado === 'NO') ? '#dc2626' : '#64748b'
+                                            }}>
+                                                {(item.estado === 'Cumple' || item.estado === 'SI') ? '✓ SI' : (item.estado === 'No Cumple' || item.estado === 'NO') ? '✗ NO' : '— N/A'}
                                             </div>
                                         </div>
                                     ))}
