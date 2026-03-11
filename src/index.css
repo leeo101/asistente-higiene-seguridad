@@ -179,7 +179,7 @@ a:hover {
 
 @media (max-width: 768px) {
   .container {
-    padding-top: 6rem;
+    padding-top: 8rem !important;
   }
 }
 
