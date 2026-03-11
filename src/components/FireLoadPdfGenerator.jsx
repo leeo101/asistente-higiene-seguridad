@@ -100,7 +100,7 @@ export default function FireLoadPdfGenerator({ data }) {
                     </div>
                 </div>
 
-                <div style={{ pageBreakInside: 'avoid', marginBottom: '2rem' }}>
+                <div style={{ pageBreakInside: 'avoid', breakInside: 'avoid', marginBottom: '2rem' }}>
                     <h3 style={{ fontSize: '1.1rem', fontWeight: 900, margin: '0 0 1rem 0', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <ShieldCheck size={20} color="#2563eb" /> Resultados Finales del Cálculo
                     </h3>
@@ -140,7 +140,7 @@ export default function FireLoadPdfGenerator({ data }) {
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem', color: '#1d4ed8', fontWeight: 800, fontSize: '0.85rem' }}>
                                 <ShieldCheck size={16} /> Requisitos Extinción
                             </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#1e40af' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#1e40af', pageBreakInside: 'avoid' }}>
                                 <span>Min. Matafuegos:</span>
                                 <span style={{ fontWeight: 900 }}>{results?.minMatafuegos || 0} u. (ABC)</span>
                             </div>
