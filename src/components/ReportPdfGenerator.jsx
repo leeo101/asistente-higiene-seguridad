@@ -89,7 +89,7 @@ export default function ReportPdfGenerator({ initialData }) {
                                         <td style={{ border: '1px solid #e2e8f0', padding: '0.8rem' }}>
                                             <div style={{ fontWeight: 800, color: '#0f172a' }}>{obs.category}</div>
                                         </td>
-                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.8rem', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
+                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.8rem', wordBreak: 'break-word', overflowWrap: 'anywhere', whiteSpace: 'pre-wrap' }}>
                                             {obs.description}
                                         </td>
                                         <td style={{ border: '1px solid #e2e8f0', padding: '0.8rem', textAlign: 'center' }}>

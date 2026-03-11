@@ -81,7 +81,7 @@ export default function TrainingPdfGenerator({ training, onBack }) {
                         <tbody>
                             <tr>
                                 <td style={{ border: '1px solid #cbd5e1', padding: '8px', background: '#f8fafc', fontWeight: 'bold', width: '20%' }}>Tema dictado:</td>
-                                <td style={{ border: '1px solid #cbd5e1', padding: '8px', width: '30%', fontWeight: 'bold' }}>{training.tema}</td>
+                                <td style={{ border: '1px solid #cbd5e1', padding: '8px', width: '30%', fontWeight: 'bold', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{training.tema}</td>
                                 <td style={{ border: '1px solid #cbd5e1', padding: '8px', background: '#f8fafc', fontWeight: 'bold', width: '20%' }}>Fecha:</td>
                                 <td style={{ border: '1px solid #cbd5e1', padding: '8px', width: '30%' }}>
                                     {training?.fecha ? new Date(training.fecha + 'T12:00:00Z').toLocaleDateString() : 'N/A'}
@@ -123,9 +123,9 @@ export default function TrainingPdfGenerator({ training, onBack }) {
                             {training?.asistentes?.map((asist, idx) => (
                                 <tr key={idx}>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '8px 4px', textAlign: 'center', color: '#64748b' }}>{idx + 1}</td>
-                                    <td style={{ border: '1px solid #cbd5e1', padding: '8px', fontWeight: 'bold' }}>{asist.nombre}</td>
+                                    <td style={{ border: '1px solid #cbd5e1', padding: '8px', fontWeight: 'bold', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{asist.nombre}</td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center' }}>{asist.dni}</td>
-                                    <td style={{ border: '1px solid #cbd5e1', padding: '8px' }}>{asist.puesto}</td>
+                                    <td style={{ border: '1px solid #cbd5e1', padding: '8px', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{asist.puesto}</td>
                                     {/* Empty cell for physical signature */}
                                     <td style={{ border: '1px solid #cbd5e1', padding: '20px 8px', textAlign: 'center' }}></td>
                                 </tr>

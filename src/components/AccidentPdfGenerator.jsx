@@ -132,7 +132,7 @@ export default function AccidentPdfGenerator({ report, onBack }) {
                                 <strong style={{ fontSize: '10pt', color: '#1e293b' }}>Testigos Intervinientes:</strong>
                                 <ul style={{ fontSize: '9.5pt', color: '#475569', paddingLeft: '1.2rem', marginTop: '0.5rem' }}>
                                     {report?.testigos?.filter(t => t.nombre).map((t, idx) => (
-                                        <li key={idx} style={{ marginBottom: '0.4rem' }}>
+                                        <li key={idx} style={{ marginBottom: '0.4rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                                             <strong>{t.nombre}:</strong> "{t.declaracion}"
                                         </li>
                                     ))}
@@ -153,13 +153,13 @@ export default function AccidentPdfGenerator({ report, onBack }) {
                             {report?.porques && report.porques.map((pq, idx) => {
                                 if (!pq) return null;
                                 return (
-                                    <div key={idx} style={{ fontSize: '9.5pt', marginBottom: '0.5rem', color: '#334155' }}>
+                                    <div key={idx} style={{ fontSize: '9.5pt', marginBottom: '0.5rem', color: '#334155', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                                         <strong style={{ color: '#64748b' }}>Por qué {idx + 1}:</strong> {pq}
                                     </div>
                                 );
                             })}
                         </div>
-                        <div style={{ marginTop: '0.8rem', padding: '0.6rem', background: '#f8fafc', border: '1px dashed #94a3b8', fontSize: '9.5pt', borderRadius: '4px' }}>
+                        <div style={{ marginTop: '0.8rem', padding: '0.6rem', background: '#f8fafc', border: '1px dashed #94a3b8', fontSize: '9.5pt', borderRadius: '4px', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                             <strong style={{ color: '#1e293b' }}>Causa Raíz Identificada:</strong> {report.porques?.filter(p => p).reverse()[0] || 'No determinada'}
                         </div>
                     </div>
@@ -182,8 +182,8 @@ export default function AccidentPdfGenerator({ report, onBack }) {
                                 {report?.medidas && report.medidas.length > 0 && report.medidas.some(m => m.accion) ? (
                                     report.medidas.filter(m => m.accion).map((m, idx) => (
                                         <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                                            <td style={{ padding: '0.6rem 0.5rem', color: '#1e293b' }}>{m.accion}</td>
-                                            <td style={{ padding: '0.6rem 0.5rem', color: '#475569' }}>{m.responsable || '-'}</td>
+                                            <td style={{ padding: '0.6rem 0.5rem', color: '#1e293b', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{m.accion}</td>
+                                            <td style={{ padding: '0.6rem 0.5rem', color: '#475569', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{m.responsable || '-'}</td>
                                             <td style={{ padding: '0.6rem 0.5rem', color: '#475569' }}>
                                                 {m.fechaLimite ? new Date(m.fechaLimite + 'T12:00:00Z').toLocaleDateString() : '-'}
                                             </td>

@@ -107,9 +107,9 @@ export default function ATSPdfGenerator({ atsData }) {
                             
                             {tareas.map((t, idx) => (
                                 <div key={t.id} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.5fr', borderBottom: idx === tareas.length - 1 ? 'none' : '1px solid #e2e8f0' }}>
-                                    <div style={{ padding: '0.8rem', borderRight: '1px solid #e2e8f0', fontSize: '0.85rem', fontWeight: 700, color: '#1e293b', whiteSpace: 'pre-wrap' }}>{t.paso}</div>
-                                    <div style={{ padding: '0.8rem', borderRight: '1px solid #e2e8f0', fontSize: '0.8rem', color: '#334155', whiteSpace: 'pre-wrap' }}>{t.riesgo}</div>
-                                    <div style={{ padding: '0.8rem', fontSize: '0.8rem', color: '#334155', whiteSpace: 'pre-wrap' }}>{t.control}</div>
+                                    <div style={{ padding: '0.8rem', borderRight: '1px solid #e2e8f0', fontSize: '0.85rem', fontWeight: 700, color: '#1e293b', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{t.paso}</div>
+                                    <div style={{ padding: '0.8rem', borderRight: '1px solid #e2e8f0', fontSize: '0.8rem', color: '#334155', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{t.riesgo}</div>
+                                    <div style={{ padding: '0.8rem', fontSize: '0.8rem', color: '#334155', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{t.control}</div>
                                 </div>
                             ))}
                         </div>
@@ -137,8 +137,8 @@ export default function ATSPdfGenerator({ atsData }) {
                                         {catItems.map((item, idx) => (
                                             <div key={item.id} style={{ padding: '0.8rem 1.2rem', borderBottom: idx === catItems.length - 1 ? 'none' : '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
                                                 <div style={{ flex: 1 }}>
-                                                    <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#1e293b', marginBottom: '0.2rem' }}>{item.pregunta}</div>
-                                                    {item.observaciones && <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{item.observaciones}</div>}
+                                                    <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#1e293b', marginBottom: '0.2rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{item.pregunta}</div>
+                                                    {item.observaciones && <div style={{ fontSize: '0.75rem', color: '#64748b', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{item.observaciones}</div>}
                                                 </div>
                                                 <div style={{ 
                                                     fontWeight: 900, 

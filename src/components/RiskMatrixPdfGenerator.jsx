@@ -114,12 +114,12 @@ export default function RiskMatrixPdfGenerator({ data, initialData }) {
                                 const level = getRiskLevel(row.probability || 1, row.severity || 1);
                                 return (
                                     <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0', background: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
-                                        <td style={{ padding: '0.6rem 0.8rem', fontSize: '0.8rem', fontWeight: 700, color: '#1e293b' }}>{row.task}</td>
-                                        <td style={{ padding: '0.6rem 0.8rem', fontSize: '0.75rem', color: '#334155' }}>
+                                        <td style={{ padding: '0.6rem 0.8rem', fontSize: '0.8rem', fontWeight: 700, color: '#1e293b', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{row.task}</td>
+                                        <td style={{ padding: '0.6rem 0.8rem', fontSize: '0.75rem', color: '#334155', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                                             <div style={{ fontWeight: 800, color: '#0f172a' }}>{row.hazardType}</div>
                                             <div style={{ marginTop: '0.1rem' }}>{row.hazard}</div>
                                         </td>
-                                        <td style={{ padding: '0.6rem 0.8rem', fontSize: '0.75rem', color: '#475569' }}>{row.probableEffect}</td>
+                                        <td style={{ padding: '0.6rem 0.8rem', fontSize: '0.75rem', color: '#475569', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{row.probableEffect}</td>
                                         <td style={{ padding: '0.6rem 0.8rem', fontSize: '0.8rem', textAlign: 'center', fontWeight: 800, color: '#3b82f6' }}>{row.exposedCount}</td>
                                         <td style={{ padding: '0.6rem 0.8rem' }}>
                                             <div style={{ background: level.bg, color: level.color, padding: '0.4rem 0.2rem', borderRadius: '6px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -127,7 +127,7 @@ export default function RiskMatrixPdfGenerator({ data, initialData }) {
                                                 <span style={{ fontSize: '0.5rem', fontWeight: 900, letterSpacing: '0.05em' }}>{level.label}</span>
                                             </div>
                                         </td>
-                                        <td style={{ padding: '0.6rem 0.8rem', fontSize: '0.75rem', color: '#166534', fontWeight: 600, whiteSpace: 'pre-wrap' }}>{row.controls}</td>
+                                        <td style={{ padding: '0.6rem 0.8rem', fontSize: '0.75rem', color: '#166534', fontWeight: 600, whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{row.controls}</td>
                                     </tr>
                                 );
                             })}

@@ -102,11 +102,11 @@ export default function WorkPermitPdfGenerator({ data }) {
                             </div>
                             {checklist.map((item, idx) => (
                                 <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '2.5fr 80px 1.5fr', gap: '1rem', alignItems: 'center', padding: '0.8rem 1rem', borderBottom: '1px solid #f1f5f9', background: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
-                                    <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#334155' }}>{item.pregunta}</div>
+                                    <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#334155', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{item.pregunta}</div>
                                     <div style={{ textAlign: 'center', fontWeight: 900, color: item.estado === 'No Cumple' ? '#ef4444' : '#10b981', fontSize: '0.85rem' }}>
                                         {item.estado === 'Cumple' ? 'SI' : 'NO'}
                                     </div>
-                                    <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{item.observaciones || '-'}</div>
+                                    <div style={{ fontSize: '0.8rem', color: '#64748b', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{item.observaciones || '-'}</div>
                                 </div>
                             ))}
                         </div>

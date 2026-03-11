@@ -90,7 +90,7 @@ export default function FireLoadPdfGenerator({ data }) {
                         ) : (
                             materiales.map((m, idx) => (
                                 <div key={idx} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1.2fr 1.5fr', gap: '0.8rem', padding: '0.8rem', borderBottom: idx === materiales.length - 1 ? 'none' : '1px solid #f1f5f9' }}>
-                                    <div style={{ fontWeight: 700, color: '#334155' }}>{m.nombre || '-'}</div>
+                                    <div style={{ fontWeight: 700, color: '#334155', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{m.nombre || '-'}</div>
                                     <div>{m.peso} Kg</div>
                                     <div>{m.poderCalorifico} Mcal/Kg</div>
                                     <div style={{ fontWeight: 700 }}>{Math.round(m.totalKcal || 0).toLocaleString()} Kcal</div>
@@ -156,7 +156,7 @@ export default function FireLoadPdfGenerator({ data }) {
                         <h3 style={{ margin: '0 0 0.8rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem', color: '#1e293b', fontWeight: 800 }}>
                             <FileText size={18} color="#2563eb" /> Conclusión Profesional
                         </h3>
-                        <div style={{ fontSize: '0.85rem', color: '#334155', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
+                        <div style={{ fontSize: '0.85rem', color: '#334155', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere', lineHeight: 1.5 }}>
                             {conclusion}
                         </div>
                     </div>
