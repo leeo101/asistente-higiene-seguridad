@@ -32,6 +32,7 @@ export default function Profile() {
     const menuItems = [
         { id: 'data', label: 'Datos Personales', icon: <User />, path: '/personal-data' },
         { id: 'signature', label: 'Firma y Sello', icon: <PenTool />, path: '/signature-stamp' },
+        { id: 'subscription', label: 'Suscripción', icon: <CreditCard />, path: '/subscribe' },
         { id: 'settings', label: 'Configuración', icon: <Settings />, path: '/settings' },
         { id: 'privacy', label: 'Seguridad', icon: <Shield />, path: '/security' },
     ];

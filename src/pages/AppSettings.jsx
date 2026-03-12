@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Moon, Sun, Smartphone, Bell,
     Shield, Info, ChevronRight, Cloud, RefreshCw,
-    CheckCircle, Lock, Download, Upload, TriangleAlert
+    CheckCircle, Lock, Download, Upload, TriangleAlert, CreditCard
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
