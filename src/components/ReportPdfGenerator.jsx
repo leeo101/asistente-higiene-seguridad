@@ -54,16 +54,73 @@ export default function ReportPdfGenerator({ initialData }) {
 
                 {/* Summary Cards */}
                 <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', pageBreakInside: 'avoid' }}>
-                    <div style={{ flex: 1, padding: '1rem', textAlign: 'center', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', pageBreakInside: 'avoid' }}>
-                        <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0f172a' }}>{findingCount}</div>
-                        <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Hallazgos</div>
+                    <div style={{ flex: 1, padding: '1rem', textAlign: 'center', background: '#f1f5f9', border: '1.5px solid #e2e8f0', borderRadius: '12px', pageBreakInside: 'avoid' }}>
+                        <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#1e293b' }}>{findingCount}</div>
+                        <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Hallazgos</div>
                     </div>
-                    <div style={{ flex: 1, padding: '1rem', textAlign: 'center', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', pageBreakInside: 'avoid' }}>
-                        <div style={{ fontSize: '1.2rem', fontWeight: 900, color: findingCount > 0 ? '#dc2626' : '#16a34a' }}>
-                            {findingCount > 0 ? 'CRÍTICO' : 'CONFORME'}
+                    <div style={{ flex: 1, padding: '1rem', textAlign: 'center', background: '#f1f5f9', border: '1.5px solid #e2e8f0', borderRadius: '12px', pageBreakInside: 'avoid' }}>
+                        <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#1e293b' }}>
+                            {(() => {
+                                const categories = [
+                                    { items: ['e1', 'e2'] },
+                                    { items: ['L1', 'L2'] },
+                                    { items: ['p1', 'p2'] },
+                                    { items: ['o1', 'o2'] },
+                                    { items: ['s1', 's2'] }
+                                ];
+                                const allItems = categories.flatMap(c => c.items);
+                                const total = allItems.length;
+                                const okCount = allItems.filter(id => initialData.responses?.[id] === 'ok').length;
+                                return Math.round((okCount / total) * 100) || 0;
+                            })()}%
                         </div>
-                        <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Estado General</div>
+                        <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Cumplimiento</div>
                     </div>
+                    <div style={{ flex: 2, padding: '1rem', background: '#f1f5f9', border: '1.5px solid #e2e8f0', borderRadius: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748b', marginBottom: '0.2rem' }}>ESTADO GENERAL</div>
+                        <div style={{ fontSize: '1rem', fontWeight: 900, color: findingCount > 0 ? '#dc2626' : '#16a34a' }}>
+                            {findingCount > 0 ? '⚠️ SE REQUIERAN ACCIONES' : '✅ CONDICIONES ÓPTIMAS'}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Checklist Summary Section */}
+                <h3 style={{ fontSize: '1rem', fontWeight: 900, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#1e293b' }}>
+                    📈 Resumen de Inspección por Áreas
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.8rem', marginBottom: '2.5rem' }}>
+                    {[
+                        { name: 'Extintores y Protección', items: ['e1', 'e2'] },
+                        { name: 'Riesgo Eléctrico', items: ['L1', 'L2'] },
+                        { name: 'EPP', items: ['p1', 'p2'] },
+                        { name: 'Orden y Limpieza', items: ['o1', 'o2'] },
+                        { name: 'Señalización y Evacuación', items: ['s1', 's2'] }
+                    ].map((cat, idx) => {
+                        const total = cat.items.length;
+                        const ok = cat.items.filter(id => initialData.responses?.[id] === 'ok').length;
+                        const fail = cat.items.filter(id => {
+                            const isResponseFail = initialData.responses?.[id] === 'fail';
+                            const hasObservation = initialData.observations?.some(o => o.itemId === id);
+                            return isResponseFail || hasObservation;
+                        }).length;
+                        const percent = Math.round((ok / total) * 100) || 0;
+
+                        return (
+                            <div key={idx} style={{ padding: '0.8rem', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', pageBreakInside: 'avoid' }}>
+                                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#334155', marginBottom: '0.5rem' }}>{cat.name}</div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
+                                    <div style={{ flex: 1, height: '6px', background: '#e2e8f0', borderRadius: '3px', overflow: 'hidden' }}>
+                                        <div style={{ width: `${percent}%`, height: '100%', background: percent === 100 ? '#16a34a' : '#3b82f6' }}></div>
+                                    </div>
+                                    <span style={{ fontSize: '0.7rem', fontWeight: 900 }}>{percent}%</span>
+                                </div>
+                                <div style={{ fontSize: '0.65rem', fontWeight: 800, display: 'flex', justifyContent: 'space-between' }}>
+                                    <span style={{ color: '#16a34a' }}>✓ {ok} OK</span>
+                                    <span style={{ color: fail > 0 ? '#dc2626' : '#64748b' }}>{fail > 0 ? '✕' : ''} {fail} Fallos</span>
+                                </div>
+                            </div>
+                        );
+                    })}
                 </div>
 
                 {/* Findings Table */}

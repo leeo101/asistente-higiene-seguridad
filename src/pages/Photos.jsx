@@ -69,6 +69,7 @@ export default function Photos() {
             }
             
             localStorage.setItem('current_inspection', JSON.stringify(inspection));
+            console.log('[Photos] Saved to current_inspection. Observations:', inspection.observations?.length);
         }
         navigate('/checklist');
     };

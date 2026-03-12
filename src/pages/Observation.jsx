@@ -39,6 +39,7 @@ export default function Observation() {
             }
 
             localStorage.setItem('current_inspection', JSON.stringify(inspection));
+            console.log('[Observation] Saved finding. Observations count:', inspection.observations.length);
         }
         navigate('/photos', { state: { fromObservation: true, itemId: observation.itemId } });
     };

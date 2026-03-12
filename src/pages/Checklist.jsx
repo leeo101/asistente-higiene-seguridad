@@ -49,24 +49,42 @@ export default function Checklist() {
         }
     }, []);
 
-    // Save responses on change
-    useEffect(() => {
-        if (Object.keys(responses).length === 0) return;
+    // Helper to save current state to localStorage with defensive merging
+    const saveToLocalStorage = (updatedResponses) => {
         const current = localStorage.getItem('current_inspection');
+        let inspection = {};
         if (current) {
-            const inspection = JSON.parse(current);
-            inspection.responses = responses;
-            localStorage.setItem('current_inspection', JSON.stringify(inspection));
+            try {
+                inspection = JSON.parse(current);
+            } catch (e) {
+                console.error('[Checklist] Error parsing current_inspection from localStorage:', e);
+                // If parsing fails, start with an empty inspection object
+                inspection = {};
+            }
         }
-    }, [responses]);
+
+        // MERGE: Ensure we keep existing data (like observations, photos, etc.)
+        // and only update the 'responses' field.
+        const finalResponses = updatedResponses; // updatedResponses already contains the latest state for responses
+        
+        inspection.responses = finalResponses;
+        localStorage.setItem('current_inspection', JSON.stringify(inspection));
+        console.log('[Checklist] Saved responses. Total responses:', Object.keys(finalResponses).length);
+    };
 
     const handleToggle = (itemId, status) => {
-        setResponses(prev => ({ ...prev, [itemId]: status }));
+        setResponses(prev => {
+            const updated = { ...prev, [itemId]: status };
+            saveToLocalStorage(updated);
+            return updated;
+        });
     };
 
     const handleRecordFinding = (itemId, catName) => {
         // Automatically mark as fail when recording a finding
-        handleToggle(itemId, 'fail');
+        const updated = { ...responses, [itemId]: 'fail' };
+        setResponses(updated);
+        saveToLocalStorage(updated);
         navigate('/observation', { state: { itemId, category: catName } });
     };
 
@@ -74,11 +92,29 @@ export default function Checklist() {
 
     return (
         <div className="container" style={{ paddingBottom: '5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
-                    <ArrowLeft />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
+                        <ArrowLeft />
+                    </button>
+                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Lista de Control</h1>
+                </div>
+                <button 
+                    onClick={() => navigate('/risk', { state: { fromInspection: true } })}
+                    className="btn-outline"
+                    style={{ 
+                        fontSize: '0.8rem', 
+                        padding: '0.4rem 0.8rem', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '0.4rem',
+                        borderColor: 'var(--color-primary)',
+                        color: 'var(--color-primary)',
+                        fontWeight: 700
+                    }}
+                >
+                    <AlertCircle size={14} /> Evaluación IPER
                 </button>
-                <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Lista de Control</h1>
             </div>
 
             <div style={{ marginBottom: '2.5rem' }}>
@@ -117,16 +153,17 @@ export default function Checklist() {
                                         style={{
                                             width: '40px', height: '40px',
                                             borderRadius: '12px',
-                                            background: responses[item.id] === 'ok' ? 'var(--color-primary)' : 'var(--color-surface)',
-                                            border: `2px solid ${responses[item.id] === 'ok' ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                                            background: responses[item.id] === 'ok' ? '#10b981' : 'var(--color-surface)',
+                                            border: `2px solid ${responses[item.id] === 'ok' ? '#10b981' : 'var(--color-border)'}`,
                                             color: responses[item.id] === 'ok' ? 'white' : 'var(--color-text-muted)',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                                             cursor: 'pointer',
-                                            transition: 'all 0.2s'
+                                            transition: 'all 0.2s',
+                                            fontWeight: 900
                                         }}
                                         title="Cumple"
                                     >
-                                        <CheckCircle2 size={22} />
+                                        {responses[item.id] === 'ok' ? '✓' : <CheckCircle2 size={22} />}
                                     </button>
                                     <button
                                         onClick={() => handleRecordFinding(item.id, cat.name)}
@@ -138,11 +175,12 @@ export default function Checklist() {
                                             color: responses[item.id] === 'fail' ? 'white' : 'var(--color-text-muted)',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                                             cursor: 'pointer',
-                                            transition: 'all 0.2s'
+                                            transition: 'all 0.2s',
+                                            fontWeight: 900
                                         }}
                                         title="No Conformidad / Hallazgo"
                                     >
-                                        <AlertCircle size={22} />
+                                        {responses[item.id] === 'fail' ? '✕' : <AlertCircle size={22} />}
                                     </button>
                                 </div>
                             </div>

@@ -76,8 +76,20 @@ export default function Report() {
 
     if (!inspectionData) {
         return (
-            <div className="container" style={{ textAlign: 'center', padding: '5rem' }}>
-                <p>Cargando datos del reporte...</p>
+            <div className="container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '80vh', textAlign: 'center' }}>
+                <AlertCircle size={48} color="#ef4444" style={{ marginBottom: '1.5rem' }} />
+                <h1 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.5rem' }}>Datos no encontrados</h1>
+                <p style={{ color: 'var(--color-text-muted)', marginBottom: '2rem', maxWidth: '400px' }}>
+                    No se ha podido recuperar la información del relevamiento actual. 
+                    Por favor, regrese a la lista de control e intente nuevamente.
+                </p>
+                <button 
+                    onClick={() => navigate('/checklist')}
+                    className="btn-primary"
+                    style={{ padding: '0.8rem 2rem' }}
+                >
+                    Volver a la Lista
+                </button>
             </div>
         );
     }
@@ -143,7 +155,19 @@ export default function Report() {
                     </div>
                     <div className="card" style={{ padding: '1.2rem', textAlign: 'center', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
                         <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#172B4D' }}>
-                            {inspectionData.responses ? Math.round(((Object.values(inspectionData.responses).filter(v => v === 'ok').length) / 10) * 100) : 0}%
+                            {(() => {
+                                const categories = [
+                                    { items: ['e1', 'e2'] },
+                                    { items: ['L1', 'L2'] },
+                                    { items: ['p1', 'p2'] },
+                                    { items: ['o1', 'o2'] },
+                                    { items: ['s1', 's2'] }
+                                ];
+                                const allItems = categories.flatMap(c => c.items);
+                                const total = allItems.length;
+                                const okCount = allItems.filter(id => inspectionData.responses?.[id] === 'ok').length;
+                                return Math.round((okCount / total) * 100) || 0;
+                            })()}%
                         </div>
                         <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#6B778C', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Cumplimiento</div>
                     </div>
@@ -156,7 +180,7 @@ export default function Report() {
 
                 {/* Checklist Summary Section */}
                 <h3 style={{ fontSize: '1.2rem', fontWeight: 900, marginBottom: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#172B4D' }}>
-                    <ShieldCheck size={24} color="#00875A" /> Resumen por Categoría
+                    <ShieldCheck size={24} color="#00875A" /> Resumen de Inspección por Áreas
                 </h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '3rem' }}>
                     {[
@@ -168,8 +192,13 @@ export default function Report() {
                     ].map(cat => {
                         const total = cat.items.length;
                         const ok = cat.items.filter(id => inspectionData.responses?.[id] === 'ok').length;
-                        const fail = cat.items.filter(id => inspectionData.responses?.[id] === 'fail').length;
-                        const na = cat.items.filter(id => inspectionData.responses?.[id] === 'na').length;
+                        // For fail, we check responses OR if there's an observation for this item
+                        const fail = cat.items.filter(id => {
+                            const isResponseFail = inspectionData.responses?.[id] === 'fail';
+                            const hasObservation = inspectionData.observations?.some(o => o.itemId === id);
+                            return isResponseFail || hasObservation;
+                        }).length;
+                        
                         const percent = Math.round((ok / total) * 100) || 0;
 
                         return (
@@ -181,8 +210,11 @@ export default function Report() {
                                     </div>
                                     <span style={{ fontSize: '0.8rem', fontWeight: 900, color: '#172B4D' }}>{percent}%</span>
                                 </div>
-                                <div style={{ fontSize: '0.7rem', color: '#6B778C', fontWeight: 700 }}>
-                                    <span style={{ color: '#00875A' }}>{ok} OK</span> · <span style={{ color: '#dc2626' }}>{fail} Fallos</span>
+                                <div style={{ fontSize: '0.75rem', color: '#6B778C', fontWeight: 800, display: 'flex', justifyContent: 'space-between' }}>
+                                    <span style={{ color: '#00875A' }}>✓ {ok} OK</span>
+                                    <span style={{ color: fail > 0 ? '#ef4444' : '#6B778C', fontWeight: fail > 0 ? 900 : 800 }}>
+                                        {fail > 0 ? '✕' : ''} {fail} Fallos
+                                    </span>
                                 </div>
                             </div>
                         );

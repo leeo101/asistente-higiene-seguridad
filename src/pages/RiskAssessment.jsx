@@ -150,8 +150,13 @@ export default function RiskAssessment() {
             localStorage.setItem('risk_assessment_history', JSON.stringify(updated));
             toast.success('Evaluación de riesgo guardada con éxito');
 
-            // Navigate to history instead of /observation
-            navigate('/risk-assessment-history');
+            // Si viene de una inspección, volver atrás para no perder el flujo
+            if (location.state?.fromInspection) {
+                navigate(-1);
+            } else {
+                // Navigate to history instead of /observation
+                navigate('/risk-assessment-history');
+            }
         });
     };
 
