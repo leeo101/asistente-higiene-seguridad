@@ -505,7 +505,18 @@ export default function Home() {
                                         padding: '1.5rem 1rem',
                                         display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
                                         gap: '0.8rem',
-                                        minHeight: '140px', justifyContent: 'center'
+                                        minHeight: '140px', justifyContent: 'center',
+                                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                                    }}
+                                    onMouseOver={e => {
+                                        e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
+                                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.95)';
+                                        e.currentTarget.style.boxShadow = `0 20px 40px ${item.color}15`;
+                                    }}
+                                    onMouseOut={e => {
+                                        e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                                        e.currentTarget.style.background = 'var(--gradient-surface)';
+                                        e.currentTarget.style.boxShadow = 'var(--glass-shadow)';
                                     }}>
                                         <div style={{
                                             width: '52px', height: '52px', borderRadius: '16px',
@@ -513,7 +524,8 @@ export default function Home() {
                                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                                             color: item.color,
                                             marginBottom: '0.2rem',
-                                            boxShadow: `0 8px 16px ${item.color}15`
+                                            boxShadow: `0 8px 16px ${item.color}15`,
+                                            transition: 'transform 0.3s ease'
                                         }}>
                                             {item.icon}
                                         </div>
