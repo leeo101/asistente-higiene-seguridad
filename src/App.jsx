@@ -212,11 +212,19 @@ function ScrollToTop() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: 'instant'
-    });
+    // Immediate scroll
+    window.scrollTo(0, 0);
+
+    // Backup scroll with timeout to fight browser scroll restoration
+    const timeout = setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'instant'
+      });
+    }, 10);
+
+    return () => clearTimeout(timeout);
   }, [pathname]);
 
   return null;
@@ -251,6 +259,7 @@ function App() {
   return (
     <AuthProvider>
       <SyncProvider>
+        <ScrollToTop />
         <GlobalPrintGuard />
         <NetworkBadge />
         <Toaster

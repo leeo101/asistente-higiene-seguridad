@@ -226,11 +226,6 @@ export default function Home() {
                         <div>
                             <p style={{ color: 'var(--color-hero-subtext)', fontSize: '0.85rem', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 0.3rem', display: 'flex', alignItems: 'center', gap: '0.8rem', flexWrap: 'wrap' }}>
                                 {currentUser ? 'Bienvenido de vuelta' : 'Potenciá tu trabajo con IA'}
-                                {currentUser && isPro() && (
-                                    <span style={{ fontSize: '0.65rem', background: 'rgba(245,158,11,0.15)', color: '#f59e0b', padding: '2px 8px', borderRadius: '8px', border: '1px solid rgba(245,158,11,0.2)' }}>
-                                        Días PRO: {daysRemaining()}
-                                    </span>
-                                )}
                                 {currentUser && !isPro() && JSON.parse(localStorage.getItem('subscriptionData') || '{}').status === 'active' && (
                                     <span style={{ fontSize: '0.65rem', background: 'rgba(239,68,68,0.15)', color: '#ef4444', padding: '2px 8px', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.2)' }}>
                                         Plan Vencido ⚠️
