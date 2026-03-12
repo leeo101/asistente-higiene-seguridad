@@ -10,12 +10,14 @@ import WorkPermitPdfGenerator from '../components/WorkPermitPdfGenerator';
 import QRModal from '../components/QRModal';
 import { downloadCSV } from '../services/exportCsv';
 import { useSync } from '../contexts/SyncContext';
+import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 import { permitTypes } from '../data/workPermits';
 
 export default function WorkPermitHistory() {
     const navigate = useNavigate();
     const { syncCollection } = useSync();
+    const { currentUser } = useAuth();
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [qrTarget, setQrTarget] = useState(null);
@@ -156,7 +158,10 @@ export default function WorkPermitHistory() {
                                     <Eye size={18} />
                                 </button>
                                 <button
-                                    onClick={() => setQrTarget({ text: `Permiso de Trabajo - ${item.empresa}\nObra: ${item.obra}\nFecha: ${item.fecha}\nTipo: ${permitTypes.find(t => t.id === item.tipoPermiso)?.label || 'Permiso'}\n\nGenerado con Asistente HYS`, title: `Permiso — ${item.empresa}` })}
+                                    onClick={() => {
+                                        const url = `${window.location.origin}/v/${currentUser?.uid}/permit/${item.id}`;
+                                        setQrTarget({ text: url, title: `Permiso — ${item.empresa}` });
+                                    }}
                                     style={{ padding: '0.6rem', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: '10px', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                     title="Generar QR"
                                 >

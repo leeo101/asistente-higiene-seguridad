@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, Trash2, FileText, Printer, Building2, Calendar, ShieldCheck, X, Share2, ClipboardList, QrCode, Download } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
+import { useAuth } from '../contexts/AuthContext';
 import QRModal from '../components/QRModal';
 import { downloadCSV } from '../services/exportCsv';
 import ShareModal from '../components/ShareModal';
@@ -34,6 +35,7 @@ function DeleteConfirm({ onConfirm, onCancel }) {
 export default function ATSHistory() {
     const navigate = useNavigate();
     const { syncCollection, syncPulse } = useSync();
+    const { currentUser } = useAuth();
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteTarget, setDeleteTarget] = useState(null);
@@ -148,7 +150,10 @@ export default function ATSHistory() {
                                     <FileText size={16} /> Ver / Editar
                                 </button>
                                 <button
-                                    onClick={() => setQrTarget({ text: `ATS - ${item.empresa}\nObra: ${item.obra}\nFecha: ${item.fecha}\nResponsable: ${item.capatazNombre || '-'}\n\nGenerado con Asistente HYS`, title: `ATS — ${item.empresa}` })}
+                                    onClick={() => {
+                                        const url = `${window.location.origin}/v/${currentUser?.uid}/ats/${item.id}`;
+                                        setQrTarget({ text: url, title: `ATS — ${item.empresa}` });
+                                    }}
                                     style={{ padding: '0.6rem', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                     title="Generar QR"
                                 >

@@ -92,6 +92,7 @@ const RiskMapGenerator = lazyWithRetry(() => import('./pages/RiskMapGenerator.js
 const RiskMapHistory = lazyWithRetry(() => import('./pages/RiskMapHistory.jsx'));
 const StopCards = lazyWithRetry(() => import('./pages/StopCards.jsx'));
 const StopCardsHistory = lazyWithRetry(() => import('./pages/StopCardsHistory.jsx'));
+const PublicView = lazyWithRetry(() => import('./pages/PublicView.jsx'));
 
 import InstallBanner from './components/InstallBanner.jsx';
 import GlobalSearch from './components/GlobalSearch.jsx';
@@ -372,6 +373,7 @@ function App() {
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/subscribe" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/v/:uid/:cat/:id" element={<PublicView />} />
 
                 {/* Public Routes */}
                 <Route path="/" element={<Home />} />

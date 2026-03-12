@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, Trash2, Camera, Calendar, Building2, ShieldCheck, TriangleAlert, Share2, Info, FileText, QrCode, Download, BarChart2 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
+import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 import QRModal from '../components/QRModal';
 import { downloadCSV } from '../services/exportCsv';
@@ -35,6 +36,7 @@ function DeleteConfirm({ onConfirm, onCancel }) {
 export default function AICameraHistory() {
     const navigate = useNavigate();
     const { syncCollection, syncPulse } = useSync();
+    const { currentUser } = useAuth();
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteTarget, setDeleteTarget] = useState(null);
@@ -298,10 +300,10 @@ export default function AICameraHistory() {
                                     <Camera size={16} /> Re-inspección
                                 </button>
                                 <button
-                                    onClick={() => setQrTarget({
-                                        text: `Inspección IA\nEmpresa: ${item.company || 'Local'}\nUbicación: ${item.location || '-'}\nFecha: ${item.date ? new Date(item.date).toLocaleDateString('es-AR') : '-'}\nResultado: ${item.type === 'general_risks' ? 'Análisis de entorno' : (item.ppeComplete ? 'EPP OK' : 'Falta EPP')}\n\nAsistente HYS — asistentehs.com`,
-                                        title: `Inspección — ${item.company || 'IA'}`
-                                    })}
+                                    onClick={() => {
+                                        const url = `${window.location.origin}/v/${currentUser?.uid}/camera/${item.id}`;
+                                        setQrTarget({ text: url, title: `Inspección — ${item.company || 'IA'}` });
+                                    }}
                                     style={{ padding: '0.6rem', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                     title="Generar QR"
                                 >

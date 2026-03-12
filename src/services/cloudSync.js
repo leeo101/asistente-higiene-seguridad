@@ -97,6 +97,38 @@ export async function loadDocument(uid, key) {
     return null;
 }
 
+/**
+ * Busca un documento específico dentro de una colección en Firestore.
+ * Utilizado por el visor público de QR.
+ */
+export async function fetchPublicDoc(uid, category, docId) {
+    if (!uid || !category || !docId) return null;
+    
+    // Mapeo de categorías amigables a keys de Firestore
+    const categoryMap = {
+        'ats': 'ats_history',
+        'camera': 'ai_camera_history',
+        'permit': 'work_permits_history',
+        'checklist': 'checklists_history',
+        'fireload': 'fireload_history',
+        'matrix': 'risk_matrix_history',
+        'lighting': 'lighting_history',
+    };
+
+    const firestoreKey = categoryMap[category] || category;
+    
+    try {
+        const snap = await getDoc(userDocRef(uid, firestoreKey));
+        if (snap.exists()) {
+            const items = snap.data().items || [];
+            return items.find(i => String(i.id) === String(docId));
+        }
+    } catch (e) {
+        console.error(`[Sync] Error fetching public doc ${category}/${docId}:`, e.message);
+    }
+    return null;
+}
+
 // ─── Colecciones a sincronizar ──────────────────────────────────────
 export const SYNC_COLLECTIONS = [
     'inspections_history',
