@@ -342,6 +342,14 @@ export default function AICameraHistory() {
                     onClose={() => setQrTarget(null)}
                 />
             )}
+
+            <ShareModal
+                open={!!shareItem}
+                onClose={() => setShareItem(null)}
+                title={`Inspección IA - ${shareItem?.company || ''}`}
+                text={shareItem ? `📸 Inspección Visual con IA\n🏗️ Empresa: ${shareItem.company || 'Local'}\n📍 Tipo: ${shareItem.type === 'general_risks' ? 'Riesgos Generales' : 'Verificación EPP'}\n🛡️ Resultado: ${shareItem.type === 'general_risks' ? 'Análisis de entorno' : (shareItem.ppeComplete ? '✅ EPP OK' : '⚠️ Falta EPP')}` : ''}
+                elementIdToPrint="pdf-content"
+            />
         </div>
     );
 }

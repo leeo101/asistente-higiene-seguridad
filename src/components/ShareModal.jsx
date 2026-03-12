@@ -117,7 +117,7 @@ const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdT
         }
     ];
 
-    const modalContent = (
+    return createPortal(
         <div className="share-modal-overlay" style={{
             position: 'fixed',
             top: 0,
@@ -130,221 +130,217 @@ const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdT
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 999999, // Absolute top
+            zIndex: 999999,
             padding: '1.5rem'
         }} onClick={onClose}>
-            <div className="share-modal-content" style={{
-                background: 'var(--color-surface)',
-                borderRadius: '28px',
+            <div className="share-modal-container" style={{
+                position: 'relative',
                 width: '100%',
                 maxWidth: '440px',
-                maxHeight: '90vh',
-                overflowY: 'auto',
-                padding: isMobile ? '1.5rem' : '2.5rem',
-                position: 'relative',
-                boxShadow: '0 25px 70px -10px rgba(0, 0, 0, 0.5)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                marginTop: isMobile ? '3rem' : '0' // Extra margin to avoid top bar
+                marginTop: isMobile ? '2rem' : '0'
             }} onClick={e => e.stopPropagation()}>
                 
                 <button
                     onClick={onClose}
                     style={{
                         position: 'absolute',
-                        top: '1.25rem',
-                        right: '1.25rem',
+                        top: '-12px',
+                        right: '-12px',
                         background: '#ef4444',
-                        border: 'none',
-                        borderRadius: '50%',
-                        width: '32px',
-                        height: '32px',
+                        border: '3px solid #ffffff',
+                        borderRadius: '14px',
+                        width: '40px',
+                        height: '40px',
                         cursor: 'pointer',
                         color: '#ffffff',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        transition: 'all 0.2s',
                         zIndex: 1000,
-                        boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
+                        boxShadow: '0 8px 20px rgba(239, 68, 68, 0.4)',
+                        transition: 'all 0.2s',
                     }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'scale(1.1)';
-                        e.currentTarget.style.background = '#dc2626';
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'scale(1)';
-                        e.currentTarget.style.background = '#ef4444';
-                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1) rotate(90deg)'}
+                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1) rotate(0deg)'}
                     title="Cerrar"
                 >
-                    <X size={18} strokeWidth={3} />
+                    <X size={24} strokeWidth={4} color="#ffffff" />
                 </button>
 
-                <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                    <div style={{
-                        width: '80px',
-                        height: '80px',
-                        background: '#ffffff',
-                        borderRadius: '24px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        margin: '0 auto 1.25rem',
-                        boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.2)',
-                        padding: '10px',
-                        border: '1px solid var(--color-border)'
-                    }}>
-                        <img 
-                            src="/logo.png" 
-                            alt="Logo" 
-                            style={{ 
-                                width: '100%', 
-                                height: '100%', 
-                                objectFit: 'contain' 
-                            }} 
-                            onError={(e) => {
-                                e.target.style.display = 'none';
-                                e.target.parentElement.innerHTML = '<div style="color:var(--color-primary)"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div>';
-                            }}
-                        />
-                    </div>
-                    <h2 style={{
-                        fontSize: '1.5rem',
-                        fontWeight: 900,
-                        color: 'var(--color-text)',
-                        marginBottom: '0.5rem',
-                        letterSpacing: '-0.5px'
-                    }}>
-                        Compartir Reporte
-                    </h2>
-                    <p style={{
-                        color: 'var(--color-text-muted)',
-                        fontSize: '0.85rem',
-                        fontWeight: '500',
-                        margin: 0,
-                        padding: '0 1rem'
-                    }}>
-                        {title}
-                    </p>
-                </div>
-
-                <div style={{ margin: '1rem 0', textAlign: 'center' }}>
-                    <p style={{ margin: '0 0 0.8rem', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text)' }}>
-                        {elementIdToPrint ? 'Selecciona una app para enviar (PDF):' : 'Compartir enlace:'}
-                    </p>
-
-                    <div className="share-grid" style={{ 
-                        display: 'grid', 
-                        gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
-                        gap: '1rem' 
-                    }}>
-                        {options.map(opt => {
-                            const isHijacked = opt.hijack && elementIdToPrint;
-                            
-                            return (
-                                <a
-                                    key={opt.label}
-                                    href={isHijacked ? '#' : opt.url}
-                                    target={isHijacked ? '_self' : '_blank'}
-                                    rel="noreferrer"
-                                    onClick={async (e) => {
-                                        if (isHijacked) {
-                                            e.preventDefault();
-                                            if (isGenerating) return;
-                                            await handleNativeShare(opt.label);
-                                        }
-                                    }}
-                                    className="share-item-button"
-                                    style={{
-                                        display: 'flex', alignItems: 'center', gap: '0.8rem',
-                                        padding: '1rem', background: opt.bg,
-                                        borderRadius: '16px', border: `1px solid ${opt.color}20`,
-                                        textDecoration: 'none', color: opt.color,
-                                        fontWeight: 800, fontSize: '0.9rem',
-                                        transition: 'all 0.2s',
-                                        justifyContent: 'center',
-                                        opacity: (isGenerating && isHijacked) ? 0.7 : 1,
-                                        pointerEvents: (isGenerating && isHijacked) ? 'none' : 'auto'
-                                    }}
-                                >
-                                    <span style={{ display: 'flex' }}>
-                                        {(isGenerating && isHijacked) ? <div className="spinner-mini" /> : opt.icon}
-                                    </span>
-                                    {(isGenerating && isHijacked) ? 'Generando...' : opt.label}
-                                </a>
-                            );
-                        })}
-                    </div>
-                </div>
-
-                <div style={{
-                    padding: '1.25rem',
-                    background: 'var(--color-background)',
-                    borderRadius: '20px',
-                    border: '1.5px dashed var(--color-border)',
-                    position: 'relative',
-                    marginTop: '1rem'
+                <div className="share-modal-content" style={{
+                    background: 'var(--color-surface)',
+                    borderRadius: '28px',
+                    width: '100%',
+                    maxHeight: '80vh',
+                    overflowY: 'auto',
+                    padding: isMobile ? '1.5rem' : '2.5rem',
+                    boxShadow: '0 25px 70px -10px rgba(0, 0, 0, 0.5)',
+                    border: '1px solid rgba(255,255,255,0.1)',
                 }}>
-                    <button
-                        onClick={handleCopy}
-                        style={{
-                            position: 'absolute',
-                            right: '0.75rem',
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            background: copied ? '#22c55e' : 'var(--color-surface)',
-                            border: '1px solid var(--color-border)',
-                            borderRadius: '12px',
-                            padding: '0.6rem',
-                            cursor: 'pointer',
-                            color: copied ? 'white' : 'var(--color-primary)',
+                    <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                        <div style={{
+                            width: '80px',
+                            height: '80px',
+                            background: '#ffffff',
+                            borderRadius: '24px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
-                            transition: 'all 0.2s'
-                        }}
-                    >
-                        {copied ? <Check size={18} /> : <Copy size={18} />}
-                    </button>
-                    <p style={{
-                        fontSize: '0.8rem',
-                        color: 'var(--color-text-muted)',
-                        margin: 0,
-                        paddingRight: '3.5rem',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        fontWeight: 600
+                            margin: '0 auto 1.25rem',
+                            boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.2)',
+                            padding: '10px',
+                            border: '1px solid var(--color-border)'
+                        }}>
+                            <img 
+                                src="/logo.png" 
+                                alt="Logo" 
+                                style={{ 
+                                    width: '100%', 
+                                    height: '100%', 
+                                    objectFit: 'contain' 
+                                }} 
+                                onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    e.target.parentElement.innerHTML = '<div style="color:var(--color-primary)"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div>';
+                                }}
+                            />
+                        </div>
+                        <h2 style={{
+                            fontSize: '1.5rem',
+                            fontWeight: 900,
+                            color: 'var(--color-text)',
+                            marginBottom: '0.5rem',
+                            letterSpacing: '-0.5px'
+                        }}>
+                            Compartir Reporte
+                        </h2>
+                        <p style={{
+                            color: 'var(--color-text-muted)',
+                            fontSize: '0.85rem',
+                            fontWeight: '500',
+                            margin: 0,
+                            padding: '0 1rem'
+                        }}>
+                            {title}
+                        </p>
+                    </div>
+
+                    <div style={{ margin: '1rem 0', textAlign: 'center' }}>
+                        <p style={{ margin: '0 0 0.8rem', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text)' }}>
+                            {elementIdToPrint ? 'Selecciona una app para enviar (PDF):' : 'Compartir enlace:'}
+                        </p>
+
+                        <div className="share-grid" style={{ 
+                            display: 'grid', 
+                            gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
+                            gap: '1rem' 
+                        }}>
+                            {options.map(opt => {
+                                const isHijacked = opt.hijack && elementIdToPrint;
+                                
+                                return (
+                                    <a
+                                        key={opt.label}
+                                        href={isHijacked ? '#' : opt.url}
+                                        target={isHijacked ? '_self' : '_blank'}
+                                        rel="noreferrer"
+                                        onClick={async (e) => {
+                                            if (isHijacked) {
+                                                e.preventDefault();
+                                                if (isGenerating) return;
+                                                await handleNativeShare(opt.label);
+                                            }
+                                        }}
+                                        className="share-item-button"
+                                        style={{
+                                            display: 'flex', alignItems: 'center', gap: '0.8rem',
+                                            padding: '1rem', background: opt.bg,
+                                            borderRadius: '16px', border: `1px solid ${opt.color}20`,
+                                            textDecoration: 'none', color: opt.color,
+                                            fontWeight: 800, fontSize: '0.9rem',
+                                            transition: 'all 0.2s',
+                                            justifyContent: 'center',
+                                            opacity: (isGenerating && isHijacked) ? 0.7 : 1,
+                                            pointerEvents: (isGenerating && isHijacked) ? 'none' : 'auto'
+                                        }}
+                                    >
+                                        <span style={{ display: 'flex' }}>
+                                            {(isGenerating && isHijacked) ? <div className="spinner-mini" /> : opt.icon}
+                                        </span>
+                                        {(isGenerating && isHijacked) ? 'Generando...' : opt.label}
+                                    </a>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    <div style={{
+                        padding: '1.25rem',
+                        background: 'var(--color-background)',
+                        borderRadius: '20px',
+                        border: '1.5px dashed var(--color-border)',
+                        position: 'relative',
+                        marginTop: '1rem'
                     }}>
-                        {message}
-                    </p>
+                        <button
+                            onClick={handleCopy}
+                            style={{
+                                position: 'absolute',
+                                right: '0.75rem',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                background: copied ? '#22c55e' : 'var(--color-surface)',
+                                border: '1px solid var(--color-border)',
+                                borderRadius: '12px',
+                                padding: '0.6rem',
+                                cursor: 'pointer',
+                                color: copied ? 'white' : 'var(--color-primary)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            {copied ? <Check size={18} /> : <Copy size={18} />}
+                        </button>
+                        <p style={{
+                            fontSize: '0.8rem',
+                            color: 'var(--color-text-muted)',
+                            margin: 0,
+                            paddingRight: '3.5rem',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            fontWeight: 600
+                        }}>
+                            {message}
+                        </p>
+                    </div>
                 </div>
+
+                <style>{`
+                    .share-item-button:hover {
+                        filter: brightness(0.95);
+                        transform: translateY(-3px);
+                        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+                    }
+                    .spinner-mini {
+                        width: 20px;
+                        height: 20px;
+                        border: 2px solid currentColor;
+                        border-radius: 50%;
+                        border-top-color: transparent;
+                        animation: spin 0.8s linear infinite;
+                    }
+                    @keyframes spin {
+                        to { transform: rotate(360deg); }
+                    }
+                `}</style>
             </div>
-
-            <style>{`
-                .share-item-button:hover {
-                    filter: brightness(0.95);
-                    transform: translateY(-3px);
-                    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-                }
-                .spinner-mini {
-                    width: 20px;
-                    height: 20px;
-                    border: 2px solid currentColor;
-                    border-radius: 50%;
-                    border-top-color: transparent;
-                    animation: spin 0.8s linear infinite;
-                }
-                @keyframes spin {
-                    to { transform: rotate(360deg); }
-                }
-            `}</style>
-        </div>
+        </div>,
+        document.body
     );
-
-    // Render into body to bypass any stacking context issues (navbar overlap)
-    return createPortal(modalContent, document.body);
 };
 
 export default ShareModal;

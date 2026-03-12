@@ -190,6 +190,14 @@ export default function WorkPermitHistory() {
                     onClose={() => setQrTarget(null)}
                 />
             )}
+
+            <ShareModal
+                open={!!shareItem}
+                onClose={() => setShareItem(null)}
+                title={`Permiso - ${shareItem?.empresa || ''}`}
+                text={shareItem ? `📋 Permiso de Trabajo\n🏗️ Empresa: ${shareItem.empresa}\n🚧 Obra: ${shareItem.obra}\n📅 Fecha: ${shareItem.fecha}\n👷 Responsable: ${shareItem.capatazNombre || '-'}` : ''}
+                elementIdToPrint="pdf-content"
+            />
         </div>
     );
 }
