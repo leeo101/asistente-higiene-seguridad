@@ -323,31 +323,42 @@ export default function Home() {
             <div style={{ maxWidth: '700px', margin: '0 auto', padding: '0 1rem' }}>
 
                 {isSubscribed ? (
-                    daysLeft !== null && daysLeft <= 7 ? (
-                        <Link to="/subscribe" style={{ textDecoration: 'none' }}>
-                            <div style={{
+                    <div style={{ textDecoration: 'none', cursor: daysLeft === Infinity ? 'default' : 'pointer' }}>
+                        <div 
+                            onClick={() => daysLeft !== Infinity && navigate('/subscribe')}
+                            style={{
                                 display: 'flex', alignItems: 'center', gap: '1rem',
-                                background: 'linear-gradient(135deg,rgba(245,158,11,0.12),rgba(217,119,6,0.06))',
-                                border: '1px solid rgba(245,158,11,0.3)',
+                                background: daysLeft === Infinity 
+                                    ? 'linear-gradient(135deg,rgba(16,185,129,0.08),rgba(5,150,105,0.05))'
+                                    : daysLeft <= 7 
+                                        ? 'linear-gradient(135deg,rgba(245,158,11,0.12),rgba(217,119,6,0.06))'
+                                        : 'linear-gradient(135deg,rgba(59,130,246,0.08),rgba(37,99,235,0.05))',
+                                border: `1px solid ${daysLeft === Infinity ? 'rgba(16,185,129,0.3)' : daysLeft <= 7 ? 'rgba(245,158,11,0.3)' : 'rgba(59,130,246,0.3)'}`,
                                 borderRadius: '16px', padding: '1rem 1.5rem', marginTop: '1.5rem',
-                                cursor: 'pointer', transition: 'transform 0.2s',
+                                transition: 'transform 0.2s',
                             }}
-                                onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                                onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}
-                            >
-                                <div style={{ width: '42px', height: '42px', background: 'rgba(245,158,11,0.15)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <TriangleAlert size={22} color="#f59e0b" />
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <h4 style={{ margin: 0, fontWeight: 800, fontSize: '0.95rem' }}>Renovación Próxima <ChevronRight size={16} style={{ verticalAlign: 'middle' }} /></h4>
-                                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-                                        Tu suscripción vence en {daysLeft} día{daysLeft !== 1 ? 's' : ''}. ¡Renová ahora para no perder el acceso!
-                                    </p>
-                                </div>
-                                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#f59e0b', boxShadow: '0 0 8px #f59e0b' }} />
+                            onMouseOver={e => { if(daysLeft !== Infinity) e.currentTarget.style.transform = 'translateY(-2px)' }}
+                            onMouseOut={e => { if(daysLeft !== Infinity) e.currentTarget.style.transform = 'translateY(0)' }}
+                        >
+                            <div style={{ width: '42px', height: '42px', background: daysLeft === Infinity ? 'rgba(16,185,129,0.15)' : daysLeft <= 7 ? 'rgba(245,158,11,0.15)' : 'rgba(59,130,246,0.15)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                {daysLeft === Infinity ? <ShieldCheck size={22} color="#10b981" /> : daysLeft <= 7 ? <TriangleAlert size={22} color="#f59e0b" /> : <Sparkles size={22} color="#3b82f6" />}
                             </div>
-                        </Link>
-                    ) : null
+                            <div style={{ flex: 1 }}>
+                                <h4 style={{ margin: 0, fontWeight: 800, fontSize: '0.95rem' }}>
+                                    {daysLeft === Infinity ? 'Plan Administrador Activo' : daysLeft <= 7 ? 'Renovación Próxima' : 'Suscripción PRO Activa'}
+                                    {daysLeft !== Infinity && <ChevronRight size={16} style={{ verticalAlign: 'middle' }} />}
+                                </h4>
+                                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                                    {daysLeft === Infinity 
+                                        ? 'Tienes acceso total y permanente a todas las funciones.' 
+                                        : daysLeft <= 7 
+                                            ? `Tu suscripción vence en ${daysLeft} día${daysLeft !== 1 ? 's' : ''}. ¡Renová ahora!` 
+                                            : `Tu suscripción está vigente. Quedan ${daysLeft} días de acceso.`}
+                                </p>
+                            </div>
+                            <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: daysLeft === Infinity ? '#10b981' : daysLeft <= 7 ? '#f59e0b' : '#3b82f6', boxShadow: `0 0 8px ${daysLeft === Infinity ? '#10b981' : daysLeft <= 7 ? '#f59e0b' : '#3b82f6'}` }} />
+                        </div>
+                    </div>
                 ) : (
                     <Link to="/subscribe" style={{ textDecoration: 'none' }}>
                         <div style={{

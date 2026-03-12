@@ -48,6 +48,12 @@ export function usePaywall() {
     /** Days remaining in current subscription period (0 if expired/none) */
     const daysRemaining = () => {
         if (!isPro()) return 0;
+        
+        // Master Bypass for Owner/Admin
+        if (currentUser?.email && ADMIN_EMAILS.includes(currentUser.email)) {
+            return Infinity;
+        }
+
         try {
             const subData = JSON.parse(localStorage.getItem('subscriptionData') || '{}');
             const expiry = parseInt(subData.expiry || '0', 10);

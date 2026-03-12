@@ -140,7 +140,8 @@ export default function Subscription() {
                         </p>
                     )}
                     <p style={{ margin: '0.5rem 0 0', fontSize: '1.2rem', fontWeight: 900, color: 'var(--color-text)' }}>
-                        Quedan {days} días {isExpiringSoon && <Sparkles size={18} style={{ display: 'inline', marginLeft: '5px' }} />}
+                        {days === Infinity ? 'Acceso Permanente' : `Quedan ${days} días`} 
+                        {isExpiringSoon && <Sparkles size={18} style={{ display: 'inline', marginLeft: '5px' }} />}
                     </p>
                 </div>
 

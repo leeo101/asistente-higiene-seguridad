@@ -160,7 +160,14 @@ export default function Sidebar({ isOpen, onClose }) {
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--color-hero-text)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                     {currentUser ? userInfo.name : 'Invitado'}
-                                    {isPro() && <Sparkles size={14} color="#f59e0b" fill="#f59e0b" title="Plan PRO Activo" />}
+                                    {isPro() && (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }} title={daysRemaining() === Infinity ? "Plan Administrador - Acceso Total" : `Días PRO: ${daysRemaining()}`}>
+                                            <Sparkles size={14} color="#f59e0b" fill="#f59e0b" />
+                                            <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.8)', fontWeight: 700 }}>
+                                                {daysRemaining() === Infinity ? 'Admin' : `${daysRemaining()}d`}
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
                                 <button
                                     onClick={(e) => { e.stopPropagation(); toggleTheme(); }}
