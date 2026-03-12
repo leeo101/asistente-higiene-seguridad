@@ -200,6 +200,11 @@ export default function Sidebar({ isOpen, onClose }) {
                                             Días PRO restantes: {daysRemaining()}
                                         </div>
                                     )}
+                                    {!isPro() && JSON.parse(localStorage.getItem('subscriptionData') || '{}').status === 'active' && (
+                                        <div style={{ fontSize: '0.65rem', color: '#ef4444', marginTop: '0.4rem', background: 'rgba(239,68,68,0.15)', padding: '2px 8px', borderRadius: '10px', width: 'fit-content', fontWeight: 800 }}>
+                                            PLAN VENCIDO ⚠️
+                                        </div>
+                                    )}
                                 </div>
                             ) : (
                                 <Link to="/login" onClick={onClose} style={{ fontSize: '0.78rem', color: 'var(--color-primary)', textDecoration: 'none', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
