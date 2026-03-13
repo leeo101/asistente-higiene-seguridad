@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Clock, MapPin, Printer, FileText, Users, Download, Trash2, Share2, Edit2,
-    BookOpen, ArrowLeft, Calendar, ChevronRight, Search
+    BookOpen, ArrowLeft, Calendar, ChevronRight, Search, QrCode
 } from 'lucide-react';
+import { useSync } from '../contexts/SyncContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import TrainingPdfGenerator from '../components/TrainingPdfGenerator';
 import ShareModal from '../components/ShareModal';
+import QRModal from '../components/QRModal';
 
 export default function TrainingHistory() {
     useDocumentTitle('Historial de Capacitaciones');
@@ -19,6 +21,7 @@ export default function TrainingHistory() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedTraining, setSelectedTraining] = useState(null);
     const [deleteTarget, setDeleteTarget] = useState(null);
+    const [qrTarget, setQrTarget] = useState(null);
     const [shareItem, setShareItem] = useState(null);
 
     useEffect(() => {
@@ -135,6 +138,17 @@ export default function TrainingHistory() {
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
+                                    const url = `${window.location.origin}/v/${currentUser?.uid}/training/${training.id}?print=true`;
+                                    setQrTarget({ text: url, title: `Capacitación — ${training.tema}` });
+                                }}
+                                style={{ padding: '0.5rem', borderRadius: '8px', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                title="Generar QR"
+                            >
+                                <QrCode size={16} />
+                            </button>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
                                     setShareItem(training);
                                 }}
                                 style={{ padding: '0.5rem', borderRadius: '8px', background: '#dcfce7', color: '#16a34a', border: '1px solid #86efac', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', fontWeight: 700 }}
@@ -172,6 +186,13 @@ export default function TrainingHistory() {
                     </div>
                 )}
             </div>
+            {qrTarget && (
+                <QRModal
+                    text={qrTarget.text}
+                    title={qrTarget.title}
+                    onClose={() => setQrTarget(null)}
+                />
+            )}
         </div>
     );
 }

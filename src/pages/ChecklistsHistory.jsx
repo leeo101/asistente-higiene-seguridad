@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Trash2, FileText, Calendar, Building2, ClipboardCheck, Share2, Download } from 'lucide-react';
+import { ArrowLeft, Search, Trash2, FileText, Calendar, Building2, ClipboardCheck, Share2, Download, QrCode } from 'lucide-react';
 import { downloadCSV } from '../services/exportCsv';
 import { useSync } from '../contexts/SyncContext';
+import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
+import QRModal from '../components/QRModal';
 import ChecklistPdfGenerator from '../components/ChecklistPdfGenerator';
 
 function DeleteConfirm({ onConfirm, onCancel }) {
@@ -33,9 +35,11 @@ function DeleteConfirm({ onConfirm, onCancel }) {
 export default function ChecklistsHistory() {
     const navigate = useNavigate();
     const { syncCollection, syncPulse } = useSync();
+    const { currentUser } = useAuth();
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteTarget, setDeleteTarget] = useState(null);
+    const [qrTarget, setQrTarget] = useState(null);
     const [shareItem, setShareItem] = useState(null);
 
     useEffect(() => {
@@ -207,6 +211,16 @@ export default function ChecklistsHistory() {
                                         <FileText size={16} /> Ver / Editar
                                     </button>
                                     <button
+                                        onClick={() => {
+                                            const url = `${window.location.origin}/v/${currentUser?.uid}/checklist/${item.id}?print=true`;
+                                            setQrTarget({ text: url, title: `Checklist — ${item.equipo}` });
+                                        }}
+                                        style={{ padding: '0.6rem', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                        title="Generar QR"
+                                    >
+                                        <QrCode size={16} />
+                                    </button>
+                                    <button
                                         onClick={() => setShareItem(item)}
                                         style={{ padding: '0.6rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', minWidth: '40px' }}
                                         title="Compartir"
@@ -238,6 +252,13 @@ export default function ChecklistsHistory() {
                     </div>
                 )}
             </div>
+            {qrTarget && (
+                <QRModal
+                    text={qrTarget.text}
+                    title={qrTarget.title}
+                    onClose={() => setQrTarget(null)}
+                />
+            )}
         </div>
     );
 }

@@ -7,7 +7,7 @@ Write-Host "--- Sincronizando con GitHub ---" -ForegroundColor Cyan
 git add .
 
 # 2. Crear el commit con un mensaje descriptivo
-$mensaje = "Mejora Interfaz: Tema Azul Premium y Refinamiento de Layout"
+$mensaje = "Mejora: Vista directa PDF vía QR y correcciones de interfaz móvil"
 git commit -m $mensaje
 
 # 3. Empujar a la rama principal (main)

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Map as MapIcon, Calendar, ChevronRight, Trash2, Share2, Edit2 } from 'lucide-react';
+import { ArrowLeft, Search, Map as MapIcon, Calendar, ChevronRight, Trash2, Share2, Edit2, QrCode } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import RiskMapPdfGenerator from '../components/RiskMapPdfGenerator';
 import ShareModal from '../components/ShareModal';
+import QRModal from '../components/QRModal';
 
 export default function RiskMapHistory() {
     useDocumentTitle('Historial de Mapas de Riesgo');
@@ -17,6 +18,7 @@ export default function RiskMapHistory() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedMap, setSelectedMap] = useState(null);
     const [deleteTarget, setDeleteTarget] = useState(null);
+    const [qrTarget, setQrTarget] = useState(null);
     const [shareItem, setShareItem] = useState(null);
 
     useEffect(() => {
@@ -140,6 +142,17 @@ export default function RiskMapHistory() {
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
+                                    const url = `${window.location.origin}/v/${currentUser?.uid}/riskmap/${map.id}?print=true`;
+                                    setQrTarget({ text: url, title: `Mapa de Riesgos — ${map.sector}` });
+                                }}
+                                style={{ padding: '0.5rem', borderRadius: '8px', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                title="Generar QR"
+                            >
+                                <QrCode size={16} />
+                            </button>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
                                     navigate('/risk-maps', { state: { editData: map } });
                                 }}
                                 style={{ padding: '0.5rem', borderRadius: '8px', background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', fontWeight: 700 }}
@@ -166,6 +179,13 @@ export default function RiskMapHistory() {
                     </div>
                 )}
             </div>
+            {qrTarget && (
+                <QRModal
+                    text={qrTarget.text}
+                    title={qrTarget.title}
+                    onClose={() => setQrTarget(null)}
+                />
+            )}
         </div>
     );
 }

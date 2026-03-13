@@ -2,21 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Search, Flame, Calendar, MapPin,
-    ChevronRight, AlertCircle, TriangleAlert, Printer, Share2
+    ChevronRight, AlertCircle, TriangleAlert, Printer, Share2, QrCode
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import ShareModal from '../components/ShareModal';
+import QRModal from '../components/QRModal';
 import ExtinguisherPdfGenerator from '../components/ExtinguisherPdfGenerator';
 
 export default function ExtinguishersHistory() {
     useDocumentTitle('Historial de Extintores');
     const navigate = useNavigate();
     const { syncPulse } = useSync();
+    const { currentUser } = useAuth();
 
     const [inventory, setInventory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [qrTarget, setQrTarget] = useState(null);
     const [shareItem, setShareItem] = useState(null); // Can be a single extinguisher or the whole array
 
     useEffect(() => {
@@ -145,6 +148,27 @@ export default function ExtinguishersHistory() {
                                 >
                                     <Share2 size={16} />
                                 </button>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        const url = `${window.location.origin}/v/${currentUser?.uid}/extinguisher/${ext.id}?print=true`;
+                                        setQrTarget({ text: url, title: `Extintor — ${ext.chapa}` });
+                                    }}
+                                    style={{
+                                        padding: '0.6rem',
+                                        background: 'rgba(139,92,246,0.06)',
+                                        border: '1px solid rgba(139,92,246,0.18)',
+                                        borderRadius: '10px',
+                                        color: '#8b5cf6',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}
+                                    title="Generar QR"
+                                >
+                                    <QrCode size={18} />
+                                </button>
                                 <ChevronRight style={{ color: 'var(--color-border)', flexShrink: 0 }} />
                             </div>
                         </div>
@@ -178,6 +202,13 @@ export default function ExtinguishersHistory() {
                     <Share2 size={18} /> Compartir Inventario (WA)
                 </button>
             </div>
+            {qrTarget && (
+                <QRModal
+                    text={qrTarget.text}
+                    title={qrTarget.title}
+                    onClose={() => setQrTarget(null)}
+                />
+            )}
         </div>
     );
 }

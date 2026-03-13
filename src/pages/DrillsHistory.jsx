@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Clock, Building2, Timer, CheckCircle2, TriangleAlert, Edit2, Trash2, Share2,
-    ArrowLeft, Search, Siren, Calendar, ChevronRight
+    ArrowLeft, Search, Siren, Calendar, ChevronRight, QrCode
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import DrillPdfGenerator from '../components/DrillPdfGenerator';
 import ShareModal from '../components/ShareModal';
+import QRModal from '../components/QRModal';
 
 export default function DrillsHistory() {
     useDocumentTitle('Historial de Simulacros');
@@ -19,6 +21,7 @@ export default function DrillsHistory() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedReport, setSelectedReport] = useState(null);
     const [deleteTarget, setDeleteTarget] = useState(null);
+    const [qrTarget, setQrTarget] = useState(null);
     const [shareItem, setShareItem] = useState(null);
 
     useEffect(() => {
@@ -133,6 +136,17 @@ export default function DrillsHistory() {
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
+                                    const url = `${window.location.origin}/v/${currentUser?.uid}/drill/${report.id}?print=true`;
+                                    setQrTarget({ text: url, title: `Simulacro — ${report.empresa}` });
+                                }}
+                                style={{ padding: '0.5rem', borderRadius: '8px', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                title="Generar QR"
+                            >
+                                <QrCode size={16} />
+                            </button>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
                                     setShareItem(report);
                                 }}
                                 style={{ padding: '0.5rem', borderRadius: '8px', background: '#dcfce7', color: '#16a34a', border: '1px solid #86efac', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', fontWeight: 700 }}
@@ -168,6 +182,14 @@ export default function DrillsHistory() {
                     </div>
                 )}
             </div>
+
+            {qrTarget && (
+                <QRModal
+                    text={qrTarget.text}
+                    title={qrTarget.title}
+                    onClose={() => setQrTarget(null)}
+                />
+            )}
         </div >
     );
 }

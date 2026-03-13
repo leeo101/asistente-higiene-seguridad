@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Search, Trash2, FileText, Printer,
-    Calendar, Building2, Flame, ExternalLink, Plus, Share2, Download
+    Calendar, Building2, Flame, ExternalLink, Plus, Share2, Download, QrCode
 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
+import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
+import QRModal from '../components/QRModal';
 import FireLoadPdfGenerator from '../components/FireLoadPdfGenerator';
 
 function DeleteConfirm({ onConfirm, onCancel }) {
@@ -35,9 +37,11 @@ function DeleteConfirm({ onConfirm, onCancel }) {
 export default function FireLoadHistory() {
     const navigate = useNavigate();
     const { syncCollection, syncPulse } = useSync();
+    const { currentUser } = useAuth();
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteTarget, setDeleteTarget] = useState(null);
+    const [qrTarget, setQrTarget] = useState(null);
     const [shareItem, setShareItem] = useState(null);
 
     useEffect(() => {
@@ -148,6 +152,16 @@ export default function FireLoadHistory() {
                                     <Share2 size={15} /> Compartir
                                 </button>
                                 <button
+                                    onClick={() => {
+                                        const url = `${window.location.origin}/v/${currentUser?.uid}/fireload/${item.id}?print=true`;
+                                        setQrTarget({ text: url, title: `Carga de Fuego — ${item.sector}` });
+                                    }}
+                                    style={{ padding: '0.6rem', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                    title="Generar QR"
+                                >
+                                    <QrCode size={16} />
+                                </button>
+                                <button
                                     onClick={() => setDeleteTarget(item.id)}
                                     style={{
                                         padding: '0.6rem',
@@ -171,6 +185,13 @@ export default function FireLoadHistory() {
                     </div>
                 )}
             </div>
+            {qrTarget && (
+                <QRModal
+                    text={qrTarget.text}
+                    title={qrTarget.title}
+                    onClose={() => setQrTarget(null)}
+                />
+            )}
         </div>
     );
 }

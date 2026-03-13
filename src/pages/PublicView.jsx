@@ -26,6 +26,14 @@ export default function PublicView() {
     const [docData, setDocData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isPrintMode, setIsPrintMode] = useState(false);
+
+    useEffect(() => {
+        const searchParams = new URLSearchParams(window.location.search);
+        if (searchParams.get('print') === 'true') {
+            setIsPrintMode(true);
+        }
+    }, []);
 
     useEffect(() => {
         const loadDoc = async () => {
@@ -33,6 +41,13 @@ export default function PublicView() {
                 const data = await fetchPublicDoc(uid, cat, id);
                 if (data) {
                     setDocData(data);
+                    // auto-print if flag is set
+                    const searchParams = new URLSearchParams(window.location.search);
+                    if (searchParams.get('print') === 'true') {
+                        setTimeout(() => {
+                            window.print();
+                        }, 1000); // Wait for content to stabilize
+                    }
                 } else {
                     setError('Documento no encontrado o expirado.');
                 }
@@ -105,83 +120,85 @@ export default function PublicView() {
     };
 
     return (
-        <div style={{ background: 'var(--color-background)', minHeight: '100vh', paddingBottom: '4rem' }}>
-            <div className="no-print" style={{ 
-                padding: '0.75rem 1.5rem', 
-                background: 'var(--glass-bg)', 
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
-                borderBottom: '1px solid var(--glass-border)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                position: 'sticky',
-                top: 0,
-                zIndex: 1000,
-                boxShadow: 'var(--glass-shadow)'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                    <div style={{
-                        width: '36px',
-                        height: '36px',
-                        background: '#ffffff',
-                        borderRadius: '10px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                        padding: '5px'
-                    }}>
-                        <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={{ fontWeight: 900, fontSize: '0.95rem', color: 'var(--color-text)', letterSpacing: '-0.3px' }}>Asistente HYS</span>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                            <div style={{ width: '6px', height: '6px', background: '#10b981', borderRadius: '50%' }}></div>
-                            <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#10b981', textTransform: 'uppercase' }}>Documento Verificado</span>
+        <div style={{ background: isPrintMode ? '#fff' : 'var(--color-background)', minHeight: '100vh', paddingBottom: '4rem' }}>
+            {!isPrintMode && (
+                <div className="no-print" style={{ 
+                    padding: '0.75rem 1.5rem', 
+                    background: 'var(--glass-bg)', 
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
+                    borderBottom: '1px solid var(--glass-border)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 1000,
+                    boxShadow: 'var(--glass-shadow)'
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                        <div style={{
+                            width: '36px',
+                            height: '36px',
+                            background: '#ffffff',
+                            borderRadius: '10px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                            padding: '5px'
+                        }}>
+                            <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <span style={{ fontWeight: 900, fontSize: '0.95rem', color: 'var(--color-text)', letterSpacing: '-0.3px' }}>Asistente HYS</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                <div style={{ width: '6px', height: '6px', background: '#10b981', borderRadius: '50%' }}></div>
+                                <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#10b981', textTransform: 'uppercase' }}>Documento Verificado</span>
+                            </div>
                         </div>
                     </div>
+                    
+                    <div style={{ display: 'flex', gap: '0.6rem' }}>
+                        <button 
+                            onClick={handleShare}
+                            style={{ 
+                                background: 'rgba(59, 130, 246, 0.1)', 
+                                color: 'var(--color-primary)', 
+                                border: '1px solid rgba(59, 130, 246, 0.2)', 
+                                padding: '0.5rem', 
+                                borderRadius: '10px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}
+                            title="Compartir enlace"
+                        >
+                            <Download size={18} />
+                        </button>
+                        <button 
+                            onClick={() => window.print()}
+                            style={{ 
+                                background: 'var(--color-primary)', 
+                                color: 'white', 
+                                border: 'none', 
+                                padding: '0.5rem 1.2rem', 
+                                borderRadius: '10px',
+                                fontWeight: 800,
+                                fontSize: '0.85rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                cursor: 'pointer',
+                                boxShadow: '0 4px 15px rgba(37, 99, 235, 0.3)'
+                            }}
+                        >
+                            <Printer size={18} /> <span className="hidden-mobile">PDF</span>
+                        </button>
+                    </div>
                 </div>
-                
-                <div style={{ display: 'flex', gap: '0.6rem' }}>
-                    <button 
-                        onClick={handleShare}
-                        style={{ 
-                            background: 'rgba(59, 130, 246, 0.1)', 
-                            color: 'var(--color-primary)', 
-                            border: '1px solid rgba(59, 130, 246, 0.2)', 
-                            padding: '0.5rem', 
-                            borderRadius: '10px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                        }}
-                        title="Compartir enlace"
-                    >
-                        <Download size={18} />
-                    </button>
-                    <button 
-                        onClick={() => window.print()}
-                        style={{ 
-                            background: 'var(--color-primary)', 
-                            color: 'white', 
-                            border: 'none', 
-                            padding: '0.5rem 1.2rem', 
-                            borderRadius: '10px',
-                            fontWeight: 800,
-                            fontSize: '0.85rem',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            cursor: 'pointer',
-                            boxShadow: '0 4px 15px rgba(37, 99, 235, 0.3)'
-                        }}
-                    >
-                        <Printer size={18} /> <span className="hidden-mobile">PDF</span>
-                    </button>
-                </div>
-            </div>
+            )}
 
             <div style={{ maxWidth: '900px', margin: '2rem auto', padding: '0 1rem' }}>
                 <div style={{ 

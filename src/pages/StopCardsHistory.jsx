@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Search, Plus, Calendar, AlertTriangle, ShieldCheck, MapPin, Trash2, Share2, AlertCircle, QrCode } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
-import { HistoryCardSkeleton } from '../components/SkeletonLoader';
-import { ArrowLeft, Search, Plus, Calendar, AlertTriangle, ShieldCheck, MapPin, Trash2, Share2, AlertCircle } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
+import QRModal from '../components/QRModal';
 import StopCardPdfGenerator from '../components/StopCardPdfGenerator';
 
 function DeleteConfirm({ onConfirm, onCancel }) {
@@ -52,7 +52,9 @@ export default function StopCardsHistory() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteTarget, setDeleteTarget] = useState(null);
+    const [qrTarget, setQrTarget] = useState(null);
     const [shareCard, setShareCard] = useState(null);
+    const { currentUser } = useAuth();
 
     useEffect(() => {
         setLoading(true);
@@ -174,6 +176,16 @@ export default function StopCardsHistory() {
                                         <Share2 size={16} /> Compartir
                                     </button>
                                     <button
+                                        onClick={() => {
+                                            const url = `${window.location.origin}/v/${currentUser?.uid}/stopcard/${item.id}?print=true`;
+                                            setQrTarget({ text: url, title: `Tarjeta STOP — ${item.type}` });
+                                        }}
+                                        style={{ padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8b5cf6', border: '1px solid rgba(139,92,246,0.18)', cursor: 'pointer', background: 'rgba(139,92,246,0.06)', borderRadius: '10px' }}
+                                        title="Generar QR"
+                                    >
+                                        <QrCode size={18} />
+                                    </button>
+                                    <button
                                         onClick={() => setDeleteTarget(item.id)}
                                         style={{
                                             background: '#fee2e2', border: 'none', borderRadius: '10px',
@@ -195,6 +207,13 @@ export default function StopCardsHistory() {
                     </div>
                 )}
             </div>
+            {qrTarget && (
+                <QRModal
+                    text={qrTarget.text}
+                    title={qrTarget.title}
+                    onClose={() => setQrTarget(null)}
+                />
+            )}
         </div>
     );
 }

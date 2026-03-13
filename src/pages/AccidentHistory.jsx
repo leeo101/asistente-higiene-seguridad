@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    Search, TriangleAlert, ChevronRight, Activity, Trash2, Share2, Edit2, ArrowLeft, Calendar, FileText, MapPin
+    Search, TriangleAlert, ChevronRight, Activity, Trash2, Share2, Edit2, ArrowLeft, Calendar, FileText, MapPin, QrCode
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import AccidentPdfGenerator from '../components/AccidentPdfGenerator';
 import ShareModal from '../components/ShareModal';
+import QRModal from '../components/QRModal';
 
 export default function AccidentHistory() {
     useDocumentTitle('Historial de Accidentes');
@@ -19,6 +20,7 @@ export default function AccidentHistory() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedReport, setSelectedReport] = useState(null);
     const [deleteTarget, setDeleteTarget] = useState(null);
+    const [qrTarget, setQrTarget] = useState(null);
     const [shareItem, setShareItem] = useState(null);
 
     useEffect(() => {
@@ -149,6 +151,17 @@ export default function AccidentHistory() {
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
+                                        const url = `${window.location.origin}/v/${currentUser?.uid}/accident/${report.id}?print=true`;
+                                        setQrTarget({ text: url, title: `Accidente — ${report.victimaNombre}` });
+                                    }}
+                                    style={{ padding: '0.5rem', borderRadius: '8px', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                    title="Generar QR"
+                                >
+                                    <QrCode size={18} />
+                                </button>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
                                         navigate('/accident-investigation', { state: { editData: report } });
                                     }}
                                     style={{ padding: '0.5rem', borderRadius: '8px', background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', fontWeight: 700 }}
@@ -176,6 +189,13 @@ export default function AccidentHistory() {
                     </div>
                 )}
             </div>
+            {qrTarget && (
+                <QRModal
+                    text={qrTarget.text}
+                    title={qrTarget.title}
+                    onClose={() => setQrTarget(null)}
+                />
+            )}
         </div>
     );
 }

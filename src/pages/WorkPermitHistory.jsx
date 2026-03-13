@@ -159,7 +159,7 @@ export default function WorkPermitHistory() {
                                 </button>
                                 <button
                                     onClick={() => {
-                                        const url = `${window.location.origin}/v/${currentUser?.uid}/permit/${item.id}`;
+                                        const url = `${window.location.origin}/v/${currentUser?.uid}/permit/${item.id}?print=true`;
                                         setQrTarget({ text: url, title: `Permiso — ${item.empresa}` });
                                     }}
                                     style={{ padding: '0.6rem', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: '10px', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Shield, ShieldAlert, Calendar, Trash2, Share2 } from 'lucide-react';
+import { ArrowLeft, Plus, Shield, ShieldAlert, Calendar, Trash2, Share2, QrCode } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import ShareModal from '../components/ShareModal';
+import QRModal from '../components/QRModal';
 import RiskAssessmentPdfGenerator from '../components/RiskAssessmentPdfGenerator';
 
 // ─── Reusable delete confirmation dialog ───────────────────────────
@@ -45,10 +47,12 @@ function DeleteConfirm({ onConfirm, onCancel }) {
 export default function RiskAssessmentHistory() {
     const navigate = useNavigate();
     const { syncCollection, syncPulse } = useSync();
+    const { currentUser } = useAuth();
     useDocumentTitle('Historial Evaluación de Riesgos');
 
     const [data, setData] = useState([]);
     const [deleteTarget, setDeleteTarget] = useState(null);
+    const [qrTarget, setQrTarget] = useState(null);
     const [shareItem, setShareItem] = useState(null);
 
     useEffect(() => {
@@ -188,6 +192,16 @@ export default function RiskAssessmentHistory() {
                                     <Share2 size={16} /> <span>WA</span>
                                 </button>
                                 <button
+                                    onClick={() => {
+                                        const url = `${window.location.origin}/v/${currentUser?.uid}/riskassessment/${item.id}?print=true`;
+                                        setQrTarget({ text: url, title: `IPER — ${item.name}` });
+                                    }}
+                                    style={{ padding: '0.6rem', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: '12px', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                    title="Generar QR"
+                                >
+                                    <QrCode size={18} />
+                                </button>
+                                <button
                                     onClick={e => askDelete(e, item.id)}
                                     title="Eliminar"
                                     style={{
@@ -212,6 +226,13 @@ export default function RiskAssessmentHistory() {
                     </div>
                 )}
             </div>
+            {qrTarget && (
+                <QRModal
+                    text={qrTarget.text}
+                    title={qrTarget.title}
+                    onClose={() => setQrTarget(null)}
+                />
+            )}
         </div>
     );
 }
