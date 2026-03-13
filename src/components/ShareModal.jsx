@@ -137,46 +137,46 @@ const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdT
                 position: 'relative',
                 width: '100%',
                 maxWidth: '440px',
-                marginTop: isMobile ? '2rem' : '0'
             }} onClick={e => e.stopPropagation()}>
                 
-                <button
-                    onClick={onClose}
-                    style={{
-                        position: 'absolute',
-                        top: '-12px',
-                        right: '-12px',
-                        background: '#ef4444',
-                        border: '3px solid #ffffff',
-                        borderRadius: '14px',
-                        width: '40px',
-                        height: '40px',
-                        cursor: 'pointer',
-                        color: '#ffffff',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        zIndex: 1000,
-                        boxShadow: '0 8px 20px rgba(239, 68, 68, 0.4)',
-                        transition: 'all 0.2s',
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1) rotate(90deg)'}
-                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1) rotate(0deg)'}
-                    title="Cerrar"
-                >
-                    <X size={24} strokeWidth={4} color="#ffffff" />
-                </button>
-
                 <div className="share-modal-content" style={{
                     background: 'var(--color-surface)',
                     borderRadius: '28px',
                     width: '100%',
-                    maxHeight: '80vh',
+                    maxHeight: '85vh',
                     overflowY: 'auto',
                     padding: isMobile ? '1.5rem' : '2.5rem',
                     boxShadow: '0 25px 70px -10px rgba(0, 0, 0, 0.5)',
                     border: '1px solid rgba(255,255,255,0.1)',
+                    position: 'relative'
                 }}>
+                    <button
+                        onClick={onClose}
+                        style={{
+                            position: 'absolute',
+                            top: '1.25rem',
+                            right: '1.25rem',
+                            background: '#ef4444',
+                            border: 'none',
+                            borderRadius: '12px',
+                            width: '36px',
+                            height: '36px',
+                            cursor: 'pointer',
+                            color: '#ffffff',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            zIndex: 10,
+                            boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                            transition: 'all 0.2s',
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                        title="Cerrar"
+                    >
+                        <X size={20} strokeWidth={3} />
+                    </button>
+
                     <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
                         <div style={{
                             width: '80px',
