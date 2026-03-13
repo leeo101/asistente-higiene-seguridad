@@ -136,19 +136,21 @@ const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdT
             <div className="share-modal-container" style={{
                 position: 'relative',
                 width: '100%',
-                maxWidth: '440px',
+                maxWidth: 'min(440px, 100%)',
+                boxSizing: 'border-box'
             }} onClick={e => e.stopPropagation()}>
                 
                 <div className="share-modal-content" style={{
                     background: 'var(--color-surface)',
-                    borderRadius: '28px',
+                    borderRadius: isMobile ? '24px' : '28px',
                     width: '100%',
                     maxHeight: '85vh',
                     overflowY: 'auto',
-                    padding: isMobile ? '1.5rem' : '2.5rem',
+                    padding: isMobile ? '1.25rem 1rem' : '2.5rem',
                     boxShadow: '0 25px 70px -10px rgba(0, 0, 0, 0.5)',
                     border: '1px solid rgba(255,255,255,0.1)',
-                    position: 'relative'
+                    position: 'relative',
+                    boxSizing: 'border-box'
                 }}>
                     <button
                         onClick={onClose}
