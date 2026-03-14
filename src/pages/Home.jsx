@@ -180,15 +180,24 @@ export default function Home() {
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
+            if (!currentUser) {
+                setUserName('Profesional');
+                setIsSubscribed(false);
+                setDaysLeft(null);
+                setStats(prev => prev.map(s => ({ ...s, value: 0 })));
+                setRecentWorks([]);
+                return;
+            }
+
             const savedData = localStorage.getItem('personalData');
             if (savedData) {
                 const parsed = JSON.parse(savedData);
                 let name = parsed.name || 'Profesional';
                 if (parsed.profession) {
                     const prof = parsed.profession.toLowerCase();
-                    if (prof.includes('lic')) name = `Lic.${name} `;
-                    else if (prof.includes('téc')) name = `Téc.${name} `;
-                    else if (prof.includes('ing')) name = `Ing.${name} `;
+                    if (prof.includes('lic')) name = `Lic. ${name}`;
+                    else if (prof.includes('téc')) name = `Téc. ${name}`;
+                    else if (prof.includes('ing')) name = `Ing. ${name}`;
                 }
                 setUserName(name);
             }
@@ -270,7 +279,7 @@ export default function Home() {
         loadStats();
         loadRecent();
         loadDailyInsight();
-    }, [syncPulse]);
+    }, [syncPulse, currentUser]);
 
     return (
         <div className="page-transition" style={{ paddingBottom: '4rem' }}>

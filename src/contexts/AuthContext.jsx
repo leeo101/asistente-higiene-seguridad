@@ -30,7 +30,10 @@ export const AuthProvider = ({ children }) => {
         return signInWithEmailAndPassword(auth, email, password);
     };
 
-    const logout = () => {
+    const logout = async () => {
+        if (typeof window !== 'undefined') {
+            localStorage.clear();
+        }
         return signOut(auth);
     };
 

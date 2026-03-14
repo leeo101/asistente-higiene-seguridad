@@ -46,6 +46,15 @@ export default function Sidebar({ isOpen, onClose }) {
     };
 
     React.useEffect(() => {
+        if (!currentUser) {
+            setUserInfo({
+                name: 'Invitado',
+                photo: null,
+                profession: ''
+            });
+            return;
+        }
+
         setUserInfo(prev => ({ ...prev, name: currentUser?.displayName || currentUser?.email || 'Usuario' }));
         const savedData = localStorage.getItem('personalData');
         if (savedData) {
