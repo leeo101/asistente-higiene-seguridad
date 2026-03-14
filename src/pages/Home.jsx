@@ -613,25 +613,25 @@ export default function Home() {
 
                 {/* ── QUICK ACCESS GRID — solo usuarios logueados ── */}
                 {currentUser && (
-                    <div style={{ marginTop: '2.5rem', marginBottom: '2rem' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', padding: '0 0.5rem' }}>
-                            <h3 style={{ fontSize: '1.1rem', fontWeight: 900, margin: 0, letterSpacing: '-0.5px', fontFamily: 'var(--font-heading)' }}>Herramientas Profesionales</h3>
-                        </div>
+                        <div style={{ marginTop: '4rem', marginBottom: '2.5rem', paddingTop: '2.5rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', padding: '0 0.5rem' }}>
+                                <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: 0, letterSpacing: '-0.5px', fontFamily: 'var(--font-heading)' }}>Herramientas Profesionales</h3>
+                            </div>
                         <div style={{
                             display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
-                            gap: '1.2rem',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+                            gap: '1.5rem 1rem',
                             padding: '0.5rem',
-                            marginTop: '0.5rem'
+                            marginTop: '1.5rem'
                         }}>
                             {quickLinks.map((item, i) => (
                                 <Link key={i} className="stagger-item" to={item.to} style={{ textDecoration: 'none', animationDelay: `${0.1 + (i * 0.03)}s` }}>
                                     <div className="card" style={{
                                         borderRadius: '24px',
-                                        padding: '2.2rem 1rem 1.8rem',
+                                        padding: '3rem 0.8rem 2rem',
                                         display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
-                                        gap: '1.2rem',
-                                        minHeight: '170px', justifyContent: 'center',
+                                        gap: '1.8rem',
+                                        minHeight: '210px', justifyContent: 'center',
                                         transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
                                         background: 'var(--color-surface)',
                                         border: '1px solid var(--color-border)',
@@ -660,9 +660,9 @@ export default function Home() {
                                         }}>
                                             {React.cloneElement(item.icon, { size: 30 })}
                                         </div>
-                                        <div>
-                                            <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-text)', lineHeight: '1.2', marginBottom: '0.3rem' }}>{item.label}</div>
-                                            <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 0.8 }}>{item.sub}</div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                                            <div style={{ fontSize: '0.98rem', fontWeight: 800, color: 'var(--color-text)', lineHeight: '1.2', wordBreak: 'break-word', padding: '0 0.2rem' }}>{item.label}</div>
+                                            <div style={{ fontSize: '0.64rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 0.8 }}>{item.sub}</div>
                                         </div>
                                     </div>
                                 </Link>
