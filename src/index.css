@@ -183,7 +183,7 @@ a:hover {
 
 @media (max-width: 768px) {
   .container {
-    padding-top: 8rem !important;
+    padding-top: 9rem !important;
   }
 }
 
@@ -874,7 +874,7 @@ label {
 
   /* Fix header overlap in mobile */
   .container {
-    padding-top: 5rem !important;
+    padding-top: 9rem !important;
   }
 
   .floating-action-bar {
