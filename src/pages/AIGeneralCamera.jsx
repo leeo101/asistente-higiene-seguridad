@@ -216,7 +216,10 @@ export default function AIGeneralCamera() {
                 findingsCount: analysisResult?.detections?.length || 0
             };
 
-            // Save FULL report for detail view
+            // Save FULL report to a unique key for history detail views
+            localStorage.setItem(`ai_report_full_${report.id}`, JSON.stringify(report));
+
+            // Save FULL report for immediate detail view
             localStorage.setItem('current_ai_inspection', JSON.stringify(report));
 
             // Save ONLY lightweight summary to history (no image, no full analysis)

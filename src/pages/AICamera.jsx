@@ -219,7 +219,13 @@ export default function AICamera() {
                 location,
                 type: 'ppe_check', // Always set type so history shows correct badge
             };
+            
+            // Save FULL report to a unique key to prevent history fragmentation
+            localStorage.setItem(`ai_report_full_${report.id}`, JSON.stringify(report));
+            
+            // Still set current_ai_inspection for immediate navigation
             localStorage.setItem('current_ai_inspection', JSON.stringify(report));
+            
             const history = JSON.parse(localStorage.getItem('ai_camera_history') || '[]');
             // Only add if not a duplicate (same id)
             if (!history.find(h => h.id === report.id)) {

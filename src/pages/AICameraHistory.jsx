@@ -80,6 +80,10 @@ export default function AICameraHistory() {
         const updated = history.filter(item => item.id !== deleteTarget);
         setHistory(updated);
         localStorage.setItem('ai_camera_history', JSON.stringify(updated));
+        
+        // Cleanup the full report from storage to keep it lean
+        localStorage.removeItem(`ai_report_full_${deleteTarget}`);
+        
         syncCollection('ai_camera_history', updated);
         setDeleteTarget(null);
     };
@@ -284,7 +288,10 @@ export default function AICameraHistory() {
                             <div style={{ display: 'flex', gap: '0.8rem', marginTop: '1rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem', flexWrap: 'wrap' }}>
                                 <button
                                     onClick={() => {
-                                        localStorage.setItem('current_ai_inspection', JSON.stringify(item));
+                                        const fullReportKey = `ai_report_full_${item.id}`;
+                                        const savedFull = localStorage.getItem(fullReportKey);
+                                        const reportToLoad = savedFull ? JSON.parse(savedFull) : item;
+                                        localStorage.setItem('current_ai_inspection', JSON.stringify(reportToLoad));
                                         navigate('/ai-report');
                                     }}
                                     className="btn-primary"
