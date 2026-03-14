@@ -614,23 +614,24 @@ export default function Home() {
                 {/* ── QUICK ACCESS GRID — solo usuarios logueados ── */}
                 {currentUser && (
                     <div style={{ marginTop: '2.5rem', marginBottom: '2rem' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', padding: '0 0.5rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', padding: '0 0.5rem' }}>
                             <h3 style={{ fontSize: '1.1rem', fontWeight: 900, margin: 0, letterSpacing: '-0.5px', fontFamily: 'var(--font-heading)' }}>Herramientas Profesionales</h3>
                         </div>
                         <div style={{
                             display: 'grid',
                             gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
-                            gap: '1rem',
-                            padding: '0.5rem'
+                            gap: '1.2rem',
+                            padding: '0.5rem',
+                            marginTop: '0.5rem'
                         }}>
                             {quickLinks.map((item, i) => (
                                 <Link key={i} className="stagger-item" to={item.to} style={{ textDecoration: 'none', animationDelay: `${0.1 + (i * 0.03)}s` }}>
                                     <div className="card" style={{
                                         borderRadius: '24px',
-                                        padding: '1.8rem 1rem',
+                                        padding: '2.2rem 1rem 1.8rem',
                                         display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
-                                        gap: '1rem',
-                                        minHeight: '160px', justifyContent: 'center',
+                                        gap: '1.2rem',
+                                        minHeight: '170px', justifyContent: 'center',
                                         transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
                                         background: 'var(--color-surface)',
                                         border: '1px solid var(--color-border)',
