@@ -501,7 +501,7 @@ export default function RiskMapGenerator() {
                 {/* Header row */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <button onClick={() => navigate('/')} style={{ padding: '0.4rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)' }}><ArrowLeft size={18} /></button>
+                        <button onClick={() => navigate('/#tools')} style={{ padding: '0.4rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)' }}><ArrowLeft size={18} /></button>
                         <h1 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>{editData ? 'Editar Mapa' : 'Editor de Mapa de Riesgos'}</h1>
                     </div>
                     <button onClick={clearCanvas} className="btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', margin: 0, padding: '0.5rem 1rem' }}><Trash2 size={15} /> Borrar Todo</button>

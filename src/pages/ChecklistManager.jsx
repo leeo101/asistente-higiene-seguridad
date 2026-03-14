@@ -299,7 +299,7 @@ export default function ChecklistManager() {
                 boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                    <button onClick={() => navigate(-1)} style={{ padding: '0.6rem', background: 'var(--color-background)', borderRadius: '12px', border: 'none', cursor: 'pointer', color: 'var(--color-text)', display: 'flex' }}>
+                    <button onClick={() => navigate('/#tools')} style={{ padding: '0.6rem', background: 'var(--color-background)', borderRadius: '12px', border: 'none', cursor: 'pointer', color: 'var(--color-text)', display: 'flex' }}>
                         <ArrowLeft size={22} />
                     </button>
                     <div>

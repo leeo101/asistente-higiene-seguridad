@@ -112,7 +112,7 @@ export default function Reports() {
     return (
         <div className="container" style={{ maxWidth: '800px', paddingBottom: '4rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                <button onClick={() => navigate('/')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                <button onClick={() => navigate('/#tools')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer' }}>
                     <ArrowLeft />
                 </button>
                 <div style={{ flex: 1 }}>

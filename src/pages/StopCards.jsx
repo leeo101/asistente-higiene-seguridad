@@ -56,7 +56,7 @@ export default function StopCards() {
     return (
         <div className="container page-transition" style={{ paddingBottom: '4rem', maxWidth: '600px', margin: '0 auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                <button onClick={() => navigate('/#tools')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer' }}>
                     <ArrowLeft size={24} />
                 </button>
                 <h1 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800 }}>Tarjeta STOP</h1>

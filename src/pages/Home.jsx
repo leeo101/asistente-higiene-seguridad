@@ -280,6 +280,17 @@ export default function Home() {
         loadStats();
         loadRecent();
         loadDailyInsight();
+
+        // Handle hash scrolling
+        if (window.location.hash) {
+            const id = window.location.hash.substring(1);
+            setTimeout(() => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 500); // 500ms delay to ensure the page has rendered
+        }
     }, [syncPulse, currentUser]);
 
     return (
@@ -613,7 +624,7 @@ export default function Home() {
 
                 {/* ── QUICK ACCESS GRID — solo usuarios logueados ── */}
                 {currentUser && (
-                    <div style={{ marginTop: '2rem', marginBottom: '2rem' }}>
+                    <div id="tools" style={{ marginTop: '2rem', marginBottom: '2rem' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', padding: '0 0.5rem' }}>
                             <h3 style={{ fontSize: '1.1rem', fontWeight: 900, margin: 0, letterSpacing: '-0.5px', fontFamily: 'var(--font-heading)' }}>Herramientas Profesionales</h3>
                         </div>
@@ -672,7 +683,7 @@ export default function Home() {
 
                 {/* ── RECENT ACTIVITY — solo usuarios logueados ── */}
                 {currentUser && (
-                    <div style={{ marginTop: '2rem' }}>
+                    <div id="activity" style={{ marginTop: '2rem' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                             <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: 0 }}>Actividad Reciente</h3>
                             {recentWorks.length > 0 && (

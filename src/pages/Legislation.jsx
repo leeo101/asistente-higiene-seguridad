@@ -104,7 +104,7 @@ export default function Legislation() {
         <div className="container" style={{ paddingBottom: '3rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', marginTop: '1rem' }}>
                 <button
-                    onClick={() => navigate('/')}
+                    onClick={() => navigate('/#tools')}
                     style={{ background: 'none', border: 'none', padding: 0, color: 'var(--color-text)' }}
                 >
                     <ArrowLeft size={24} />
