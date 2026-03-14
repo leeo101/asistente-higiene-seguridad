@@ -154,13 +154,13 @@ export default function AIReport() {
                                 <Info size={20} />
                                 <span style={{ fontWeight: 800, fontSize: '1rem' }}>EVALUACIÓN GENERAL IA</span>
                             </div>
-                            <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: '1.6' }}>{data.analysis.generalAssessment || 'Análisis ambiental completado.'}</p>
+                            <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: '1.6' }}>{data.analysis?.generalAssessment || 'Análisis ambiental completado.'}</p>
                         </div>
                     )}
                 </div>
 
                 {/* Findings Legend (Numbered) */}
-                {data.analysis.detections && data.analysis.detections.length > 0 && (
+                {data.analysis?.detections && data.analysis.detections.length > 0 && (
                     <div style={{ marginBottom: '2.5rem' }}>
                         <h4 style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem', marginBottom: '1rem', color: '#1e293b' }}>Leyenda de Hallazgos</h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-3">
@@ -185,14 +185,14 @@ export default function AIReport() {
                 )}
 
                 {/* Additional Findings */}
-                {(data.analysis.foundRisks?.length > 0 || data.analysis.detections?.some(d => d.recommendation)) && (
+                {(data.analysis?.foundRisks?.length > 0 || data.analysis?.detections?.some(d => d.recommendation)) && (
                     <div style={{ marginBottom: '3rem' }}>
                         <h4 style={{ color: '#b91c1c', marginBottom: '0.8rem' }}>Riesgos y Observaciones Detalladas:</h4>
                         <ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#1e293b' }}>
-                            {data.analysis.foundRisks?.map((risk, i) => (
+                            {data.analysis?.foundRisks?.map((risk, i) => (
                                 <li key={i} style={{ marginBottom: '0.4rem' }}>{risk}</li>
                             ))}
-                            {data.analysis.detections?.filter(d => d.recommendation).map((det, i) => (
+                            {data.analysis?.detections?.filter(d => d.recommendation).map((det, i) => (
                                 <li key={`rec-${i}`} style={{ marginBottom: '0.4rem' }}>
                                     <strong>{det.label.replace('Riesgo: ', '')}:</strong> {det.recommendation}
                                 </li>

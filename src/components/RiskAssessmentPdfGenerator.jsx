@@ -91,7 +91,7 @@ export default function RiskAssessmentPdfGenerator({ assessmentData }) {
                             <Calendar size={14} />
                             <span style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase' }}>Fecha de Evaluación</span>
                         </div>
-                        <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#1e293b' }}>{new Date(data.date).toLocaleDateString()}</div>
+                        <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#1e293b' }}>{data.date ? new Date(data.date).toLocaleDateString() : 'N/A'}</div>
                     </div>
                 </div>
 
@@ -104,12 +104,12 @@ export default function RiskAssessmentPdfGenerator({ assessmentData }) {
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
                         <div style={{ textAlign: 'center', padding: '1.5rem', border: '2px solid #e2e8f0', borderRadius: '16px' }}>
                             <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Probabilidad</div>
-                            <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#2563eb' }}>{data.probability}</div>
+                            <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#2563eb' }}>{data.probability || 0}</div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', fontWeight: 300, color: '#64748b' }}>×</div>
                         <div style={{ textAlign: 'center', padding: '1.5rem', border: '2px solid #e2e8f0', borderRadius: '16px' }}>
                             <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Severidad</div>
-                            <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#ef4444' }}>{data.severity}</div>
+                            <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#ef4444' }}>{data.severity || 0}</div>
                         </div>
                     </div>
                 </div>

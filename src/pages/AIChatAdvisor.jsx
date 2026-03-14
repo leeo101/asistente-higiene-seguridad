@@ -515,7 +515,8 @@ export default function AIChatAdvisor() {
                                 <h4 style={{ margin: 0, fontWeight: 700 }}>Riesgos Detectados</h4>
                             </div>
                             <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', lineHeight: '1.5' }}>
-                                {result.riesgos.map((item, i) => <li key={i}>{item}</li>)}
+                                {(result.riesgos || []).map((item, i) => <li key={i}>{item}</li>)}
+                                {(!result.riesgos || result.riesgos.length === 0) && <li>No hay riesgos detectados</li>}
                             </ul>
                         </div>
 
@@ -526,7 +527,8 @@ export default function AIChatAdvisor() {
                                 <h4 style={{ margin: 0, fontWeight: 700 }}>EPP Recomendado</h4>
                             </div>
                             <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', lineHeight: '1.5' }}>
-                                {result.epp.map((item, i) => <li key={i}>{item}</li>)}
+                                {(result.epp || []).map((item, i) => <li key={i}>{item}</li>)}
+                                {(!result.epp || result.epp.length === 0) && <li>No hay EPP recomendados</li>}
                             </ul>
                         </div>
 
@@ -537,7 +539,8 @@ export default function AIChatAdvisor() {
                                 <h4 style={{ margin: 0, fontWeight: 700 }}>Medidas Preventivas</h4>
                             </div>
                             <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', lineHeight: '1.5' }}>
-                                {result.recomendaciones.map((item, i) => <li key={i}>{item}</li>)}
+                                {(result.recomendaciones || []).map((item, i) => <li key={i}>{item}</li>)}
+                                {(!result.recomendaciones || result.recomendaciones.length === 0) && <li>No hay medidas preventivas</li>}
                             </ul>
                         </div>
 
@@ -548,7 +551,8 @@ export default function AIChatAdvisor() {
                                 <h4 style={{ margin: 0, fontWeight: 700 }}>Marco Legal ({userCountry === 'chile' ? 'Chile' : userCountry === 'argentina' ? 'Arg' : 'Local'})</h4>
                             </div>
                             <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', lineHeight: '1.5', listStyleType: 'none' }}>
-                                {result.normativa.map((item, i) => <li key={i} style={{ marginBottom: '0.4rem' }}>• {item}</li>)}
+                                {(result.normativa || []).map((item, i) => <li key={i} style={{ marginBottom: '0.4rem' }}>• {item}</li>)}
+                                {(!result.normativa || result.normativa.length === 0) && <li style={{ marginBottom: '0.4rem' }}>• No hay normativa registrada</li>}
                             </ul>
                         </div>
                     </div>

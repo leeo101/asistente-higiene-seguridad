@@ -109,7 +109,8 @@ export default function AIHistory() {
                                 <ShieldAlert size={18} /> <h4 style={{ margin: 0 }}>Riesgos</h4>
                             </div>
                             <ul style={{ fontSize: '0.85rem', paddingLeft: '1.2rem', margin: 0 }}>
-                                {selectedItem.riesgos.map((it, i) => <li key={i}>{it}</li>)}
+                                {(selectedItem.riesgos || []).map((it, i) => <li key={i}>{it}</li>)}
+                                {(!selectedItem.riesgos || selectedItem.riesgos.length === 0) && <li>No hay riesgos detectados</li>}
                             </ul>
                         </div>
                         <div style={{ padding: '1rem', borderRadius: '12px', border: '1px solid var(--color-border)', borderLeft: '4px solid #3b82f6' }}>
@@ -117,7 +118,8 @@ export default function AIHistory() {
                                 <HardHat size={18} /> <h4 style={{ margin: 0 }}>EPP</h4>
                             </div>
                             <ul style={{ fontSize: '0.85rem', paddingLeft: '1.2rem', margin: 0 }}>
-                                {selectedItem.epp.map((it, i) => <li key={i}>{it}</li>)}
+                                {(selectedItem.epp || []).map((it, i) => <li key={i}>{it}</li>)}
+                                {(!selectedItem.epp || selectedItem.epp.length === 0) && <li>No hay EPP recomendados</li>}
                             </ul>
                         </div>
                         <div style={{ padding: '1rem', borderRadius: '12px', border: '1px solid var(--color-border)', borderLeft: '4px solid #10b981' }}>
@@ -125,7 +127,8 @@ export default function AIHistory() {
                                 <Lightbulb size={18} /> <h4 style={{ margin: 0 }}>Medidas</h4>
                             </div>
                             <ul style={{ fontSize: '0.85rem', paddingLeft: '1.2rem', margin: 0 }}>
-                                {selectedItem.recomendaciones.map((it, i) => <li key={i}>{it}</li>)}
+                                {(selectedItem.recomendaciones || []).map((it, i) => <li key={i}>{it}</li>)}
+                                {(!selectedItem.recomendaciones || selectedItem.recomendaciones.length === 0) && <li>No hay medidas preventivas</li>}
                             </ul>
                         </div>
                         <div style={{ padding: '1rem', borderRadius: '12px', border: '1px solid var(--color-border)', borderLeft: '4px solid #8b5cf6' }}>
@@ -133,7 +136,8 @@ export default function AIHistory() {
                                 <Gavel size={18} /> <h4 style={{ margin: 0 }}>Normativa</h4>
                             </div>
                             <ul style={{ fontSize: '0.85rem', paddingLeft: '1.2rem', margin: 0, listStyle: 'none' }}>
-                                {selectedItem.normativa.map((it, i) => <li key={i}>• {it}</li>)}
+                                {(selectedItem.normativa || []).map((it, i) => <li key={i}>• {it}</li>)}
+                                {(!selectedItem.normativa || selectedItem.normativa.length === 0) && <li>No hay normativa registrada</li>}
                             </ul>
                         </div>
                     </div>
