@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Send, ShieldAlert, HardHat,
@@ -17,7 +17,12 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 // ── Subcomponent for history panel ─────────────────────────────────────────
 function HistoryPanel({ onLoad }) {
     const [open, setOpen] = useState(false);
-    const history = JSON.parse(localStorage.getItem('ai_advisor_history') || '[]').slice(0, 5);
+    let history = [];
+    try {
+        history = JSON.parse(localStorage.getItem('ai_advisor_history') || '[]').slice(0, 5);
+    } catch (e) {
+        console.error("Error loading ai_advisor_history:", e);
+    }
 
     if (history.length === 0) return null;
 
