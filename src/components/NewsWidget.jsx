@@ -54,6 +54,60 @@ const NEWS_BY_COUNTRY = {
             link: "https://www.ispch.cl"
         }
     ],
+    bolivia: [
+        {
+            id: 1,
+            title: "Campaña Nacional de Seguridad",
+            description: "El Ministerio de Trabajo lanza campaña para reducir accidentes en el sector construcción.",
+            date: "Hace 2 días",
+            tag: "MIN TRABAJO",
+            link: "https://www.mintrabajo.gob.bo/"
+        },
+        {
+            id: 2,
+            title: "Inspecciones en Santa Cruz",
+            description: "Autoridades intensifican controles preventivos en establecimientos industriales de la región.",
+            date: "Hace 1 semana",
+            tag: "Prevención",
+            link: "https://www.mintrabajo.gob.bo/"
+        }
+    ],
+    paraguay: [
+        {
+            id: 1,
+            title: "Avances en Salud Laboral",
+            description: "MTESS presenta avances en la protección de la salud y seguridad de los trabajadores paraguayos.",
+            date: "Hace 4 días",
+            tag: "MTESS",
+            link: "https://www.mtess.gov.py/"
+        },
+        {
+            id: 2,
+            title: "Capacitación de Seguridad",
+            description: "Jornadas técnicas para empresas del sector servicios sobre prevención de incendios.",
+            date: "Hace 1 semana",
+            tag: "Técnico",
+            link: "https://www.mtess.gov.py/"
+        }
+    ],
+    uruguay: [
+        {
+            id: 1,
+            title: "Nuevos lineamientos en Altura",
+            description: "La IGTSS actualiza criterios de seguridad para el uso de andamios y plataformas elevadoras.",
+            date: "Hace 3 días",
+            tag: "IGTSS",
+            link: "https://www.gub.uy/ministerio-trabajo-seguridad-social/"
+        },
+        {
+            id: 2,
+            title: "Semana de la Seguridad",
+            description: "Actividades de sensibilización nacional bajo el marco del Decreto 406/88.",
+            date: "Hace 1 semana",
+            tag: "MTSS",
+            link: "https://www.gub.uy/ministerio-trabajo-seguridad-social/"
+        }
+    ],
     generic: [
         {
             id: 1,

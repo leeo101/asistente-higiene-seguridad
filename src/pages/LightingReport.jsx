@@ -12,6 +12,7 @@ import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import { API_BASE_URL } from '../config';
+import { getCountryNormativa } from '../data/legislationData';
 
 // Tipos de tareas visuales basados en el Decreto 351/79 (Anexo IV) - Resumido
 const visualTasks = [
@@ -52,7 +53,7 @@ export default function LightingReport() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    reportType: 'Iluminación en Ambiente Laboral',
+                    reportType: `Iluminación en Ambiente Laboral (${countryNorms.lighting})`,
                     reportData: {
                         luxRequerido: formData.luxRequerido,
                         promedioLux: results.promedioLux,
@@ -88,9 +89,12 @@ export default function LightingReport() {
 
     const [showShare, setShowShare] = useState(false);
 
+    const savedData = localStorage.getItem('personalData');
+    const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+    const countryNorms = getCountryNormativa(userCountry);
+
     useEffect(() => {
         try {
-            const savedData = localStorage.getItem('personalData');
             const savedSigData = localStorage.getItem('signatureStampData');
             const legacySignature = localStorage.getItem('capturedSignature');
 
@@ -253,7 +257,7 @@ export default function LightingReport() {
                 </button>
                 <div>
                     <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Estudio de Iluminación</h1>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Medición Dec. 351/79 Anexo IV</p>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Medición {countryNorms.lighting}</p>
                 </div>
             </div>
 
@@ -273,7 +277,7 @@ export default function LightingReport() {
                     <div>
                         <h1>INFORME DE ILUMINACIÓN</h1>
                         <p>PROTOCOLO DE MEDICIÓN PUESTO POR PUESTO</p>
-                        <p style={{ marginTop: '5px', fontWeight: 'bold' }}>Referencia: Dec. 351/79 (Ley 19.587)</p>
+                        <p style={{ marginTop: '5px', fontWeight: 'bold' }}>Referencia: {countryNorms.lighting} ({countryNorms.general})</p>
                     </div>
                     {professional?.name !== 'Profesional' ? (
                         <div style={{ textAlign: 'right' }}>
@@ -338,7 +342,7 @@ export default function LightingReport() {
 
                         <div className="card" style={{ padding: '1.5rem' }}>
                             <div style={{ marginBottom: '1.5rem' }}>
-                                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600 }}>Tipo de Tarea Visual (Dec 351/79 o Especial)</label>
+                                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600 }}>Tipo de Tarea Visual ({countryNorms.lighting.split(' ')[0]} o Especial)</label>
                                 <input
                                     list="visualTasksList"
                                     value={formData.tipoTarea}
@@ -452,7 +456,7 @@ export default function LightingReport() {
                                 </div>
                                 <div style={{ fontSize: '0.85rem' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                                        <span>Requerido s/ Dec 351/79:</span>
+                                        <span>Requerido s/ {countryNorms.lighting}:</span>
                                         <span style={{ fontWeight: 700 }}>{formData.luxRequerido} Lux</span>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>

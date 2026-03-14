@@ -1,10 +1,14 @@
-import React from 'react';
 import { Building2, MapPin, Calendar } from 'lucide-react';
+import { getCountryNormativa } from '../data/legislationData';
 
 export default function ProfessionalReportPdfGenerator({ currentReport }) {
     if (!currentReport) return null;
 
     const report = currentReport;
+
+    const savedData = localStorage.getItem('personalData');
+    const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+    const countryNorms = getCountryNormativa(userCountry);
 
     return (
         <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
@@ -131,7 +135,7 @@ export default function ProfessionalReportPdfGenerator({ currentReport }) {
 
                 {/* Footer Legal */}
                 <div style={{ width: '100%', textAlign: 'center', fontSize: '0.7rem', color: '#94a3b8', marginTop: '3rem', fontStyle: 'italic', borderTop: '1px solid #e2e8f0', paddingTop: '1rem' }}>
-                    Documento generado por Asistente de Higiene y Seguridad - Conforme a Ley 19.587 / Dec. 351/79
+                    Documento generado por Asistente de Higiene y Seguridad - Conforme a {countryNorms.general}
                 </div>
             </div>
         </div>

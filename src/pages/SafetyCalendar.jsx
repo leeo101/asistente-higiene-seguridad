@@ -12,6 +12,7 @@ import {
     cancelReminder,
     isNotificationDenied
 } from '../services/notifications';
+import { getCountryNormativa } from '../data/legislationData';
 
 export default function SafetyCalendar() {
     const navigate = useNavigate();
@@ -37,11 +38,17 @@ export default function SafetyCalendar() {
         'Other': { color: 'var(--color-text-muted)', label: 'Otro', icon: <CalendarIcon size={14} /> }
     };
 
-    const initialDates = [
+    const savedData = localStorage.getItem('personalData');
+    const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+    const countryNorms = getCountryNormativa(userCountry);
+
+    const initialDates = userCountry === 'argentina' ? [
         { title: 'Día de la Higiene y Seguridad en el Trabajo (Arg)', date: '2026-04-21', time: '09:00', type: 'Commemorative', description: 'Ley 19.587' },
         { title: 'Día Mundial de la Seguridad y Salud en el Trabajo', date: '2026-04-28', time: '09:00', type: 'Commemorative', description: 'OIT' },
         { title: 'Presentación Anual R.G.R.L.', date: '2026-03-31', time: '10:00', type: 'Legal', description: 'Resolución SRT 463/09' },
         { title: 'Presentación de Relevamiento de Agentes de Riesgo', date: '2026-04-15', time: '10:00', type: 'Legal', description: 'Res. 81/19' }
+    ] : [
+        { title: 'Día Mundial de la Seguridad y Salud en el Trabajo', date: '2026-04-28', time: '09:00', type: 'Commemorative', description: 'OIT' }
     ];
 
     // Load events and setup schedules

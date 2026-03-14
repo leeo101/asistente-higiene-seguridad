@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { getCountryNormativa } from '../data/legislationData';
 
 export default function Profile() {
     const navigate = useNavigate();
@@ -16,18 +17,22 @@ export default function Profile() {
         license: 'MP 5567'
     });
 
-    const [isSubscribed, setIsSubscribed] = useState(false);
+    const [userCountry, setUserCountry] = useState('argentina');
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const savedData = localStorage.getItem('personalData');
             if (savedData) {
-                setUserData(JSON.parse(savedData));
+                const parsed = JSON.parse(savedData);
+                setUserData(parsed);
+                setUserCountry(parsed.country || 'argentina');
             }
             const proStatus = isPro();
             setIsSubscribed(proStatus);
         }
-    }, []);
+    }, [isPro]);
+
+    const countryNorms = getCountryNormativa(userCountry);
 
     const menuItems = [
         { id: 'data', label: 'Datos Personales', icon: <User />, path: '/personal-data' },
@@ -192,7 +197,7 @@ export default function Profile() {
                 </p>
                 <div style={{ display: 'flex', gap: '0.8rem' }}>
                     <a
-                        href={`https://wa.me/?text=${encodeURIComponent(`🛡️ Hola! Te comparto esta plataforma gratuita para profesionales de Higiene y Seguridad.\n\n*Asistente HYS* te permite:\n🔥 Calcular Carga de Fuego (Dec 351/79)\n💡 Estudios de Iluminación\n📋 Hacer ATS y Matrices de Riesgo\n🤖 Consultar la IA legal\n\n¡Y todo gratis!\n🔗 https://asistentehs.com`)}`}
+                        href={`https://wa.me/?text=${encodeURIComponent(`🛡️ ¡Hola! Te comparto esta plataforma gratuita para profesionales de Higiene y Seguridad.\n\n*Asistente HYS* te permite:\n🔥 Calcular Carga de Fuego (${countryNorms.fire})\n💡 Estudios de Iluminación\n📋 Hacer ATS y Matrices de Riesgo\n🤖 Consultar la IA legal\n\n¡Y todo gratis!\n🔗 https://asistentehs.com`)}`}
                         target="_blank" rel="noreferrer"
                         style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', padding: '0.8rem', background: '#25D366', color: '#ffffff', borderRadius: '12px', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', boxShadow: '0 4px 12px rgba(37,211,102,0.3)' }}
                     >

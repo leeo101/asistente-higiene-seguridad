@@ -307,7 +307,7 @@ Proporciona un análisis detallado en formato JSON con los siguientes campos EXA
     "recomendaciones": ["Medida preventiva 1", "2"],
     "normativa": ["Ley o Decreto aplicable en ${country}"]
 }
-IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON, sin texto adicional. Asegúrate de incluir normativas de ${country} (ej. si es Argentina: Ley 19587, Dec 351/79; si es Chile: Ley 16744, DS 594).`;
+IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON, sin texto adicional. Asegúrate de incluir normativas de ${country} (ej. si es Argentina: Ley 19587, Dec 351/79; si es Chile: Ley 16744, DS 594; si es Bolivia: DL 16998; si es Paraguay: Dec 14390; si es Uruguay: Dec 406/88).`;
 
         let result;
         for (const modelName of models) {

@@ -1,8 +1,13 @@
 import React from 'react';
 import { Lightbulb, Calculator, FileText, Layout, Sun } from 'lucide-react';
+import { getCountryNormativa } from '../data/legislationData';
 
 export default function LightingPdfGenerator({ data }) {
     if (!data) return null;
+
+    const savedData = localStorage.getItem('personalData');
+    const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+    const countryNorms = getCountryNormativa(userCountry);
 
     const { empresa, fecha, sector, descripcionActividad, tipoTarea, luxRequerido, mediciones, results, conclusion } = data;
     const meds = mediciones || [];
@@ -81,7 +86,7 @@ export default function LightingPdfGenerator({ data }) {
 
                 <div style={{ marginBottom: '2rem' }}>
                     <h3 style={{ fontSize: '1.1rem', fontWeight: 900, margin: '0 0 1rem 0', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <Layout size={20} color="#2563eb" /> Requerimiento Legal (Dec 351/79)
+                        <Layout size={20} color="#2563eb" /> Requerimiento Legal ({countryNorms.lighting})
                     </h3>
                     <div style={{ border: '2px solid #e2e8f0', borderRadius: '10px', padding: '1rem', background: '#f8fafc', display: 'flex', gap: '1rem', alignItems: 'center' }}>
                         <div style={{ flex: 1 }}>
@@ -131,7 +136,7 @@ export default function LightingPdfGenerator({ data }) {
                         </div>
                         <div style={{ flex: 1, borderLeft: `2px solid ${results?.cumplePromedio ? '#bbf7d0' : '#fecaca'}`, paddingLeft: '1.5rem' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.5rem' }}>
-                                <span style={{ color: '#475569', fontWeight: 600 }}>Dec 351/79 Req:</span>
+                                <span style={{ color: '#475569', fontWeight: 600 }}>Req. {countryNorms.lighting.split(' ')[0]}:</span>
                                 <span style={{ fontWeight: 800, color: '#1e293b' }}>{luxRequerido || 0} Lux</span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.5rem' }}>

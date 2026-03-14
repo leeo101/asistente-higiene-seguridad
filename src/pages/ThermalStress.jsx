@@ -11,6 +11,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import toast from 'react-hot-toast';
 import { usePaywall } from '../hooks/usePaywall';
 import AdBanner from '../components/AdBanner';
+import { getCountryNormativa } from '../data/legislationData';
 
 // SRT 295/03 Permissible Limits Table (Values in Celsius)
 const LIMITS_295 = {
@@ -57,6 +58,10 @@ export default function ThermalStress() {
     const [viewMode, setViewMode] = useState('edit'); // 'edit' or 'report'
 
 
+
+    const savedData = localStorage.getItem('personalData');
+    const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+    const countryNorms = getCountryNormativa(userCountry);
 
     const handleInput = (field, value) => {
         setFormData(p => ({ ...p, [field]: value }));
@@ -263,7 +268,7 @@ export default function ThermalStress() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                         <div className="card shadow-xl" style={{ border: '2px solid var(--color-primary)', background: 'var(--color-surface)', overflow: 'hidden' }}>
                             <div style={{ background: 'var(--color-primary)', color: 'white', padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800 }}>
-                                <Calculator size={20} /> Dictamen Res. SRT 295/03
+                                <Calculator size={20} /> Dictamen {countryNorms.thermal.split(' (')[0]}
                             </div>
 
                             <div style={{ padding: '2rem', textAlign: 'center' }}>
@@ -321,7 +326,7 @@ export default function ThermalStress() {
                                 <Info size={16} /> Fundamento Legal
                             </h3>
                             <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '0 0 0.5rem 0', lineHeight: 1.5 }}>
-                                <strong>Res. SRT 295/03 - Anexo II.</strong> El valor adoptado es TGBH (Índice T° Globo Bulbo Húmedo).
+                                <strong>{countryNorms.thermal} ({countryNorms.general}).</strong> El valor adoptado es TGBH (Índice T° Globo Bulbo Húmedo).
                             </p>
                             <code style={{ fontSize: '0.75rem', background: '#e2e8f0', padding: '0.4rem', borderRadius: '4px', display: 'block', color: '#0f172a' }}>
                                 Int: TGBH = 0.7(Tbh) + 0.3(Tg)<br />

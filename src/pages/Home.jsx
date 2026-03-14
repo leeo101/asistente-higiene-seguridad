@@ -8,6 +8,7 @@ import {
     ShieldCheck, TriangleAlert, KeySquare, ScrollText, Bot, ClipboardCheck, FileText, HardHat, ShieldAlert, PenTool,
     ArrowRight, Activity, BookOpen, Calendar as CalendarIcon, Search, TrendingUp
 } from 'lucide-react';
+import { getCountryNormativa } from '../data/legislationData';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { usePaywall } from '../hooks/usePaywall';
@@ -30,7 +31,9 @@ function FaqSection() {
             q: userCountry === 'argentina' ? '¿Cumple con la normativa argentina?' : '¿Cumple con la normativa local?', 
             a: userCountry === 'argentina' 
                 ? 'Los cálculos están basados en la Ley 19.587, el Dec. 351/79, resoluciones SRT y normativas vigentes. Siempre recomendamos verificar cambios normativos recientes.' 
-                : 'Los cálculos y módulos están adaptados a las normativas generales del país seleccionado (ej: DS 594 en Chile). El asesor IA utiliza el contexto legal de tu región.'
+                : userCountry === 'chile'
+                ? 'Los cálculos están basados en el DS 594 y la Ley 16.744 de Chile. El asesor IA utiliza el contexto legal de tu región.'
+                : `Los cálculos y módulos están adaptados a las normativas vigentes de ${userCountry.charAt(0).toUpperCase() + userCountry.slice(1)} (ej: ${userCountry === 'bolivia' ? 'DL 16998' : userCountry === 'paraguay' ? 'Dec 14390' : 'Dec 406/88'}). El asesor IA utiliza el contexto legal regional.`
         },
         { q: '¿Mis datos están seguros?', a: 'Sí. Usamos Firebase (Google) para autenticación y almacenamiento cifrado. Nunca compartimos tus datos con terceros. Podés leer nuestra Política de Privacidad.' },
         { q: '¿Funciona en el celular?', a: 'Perfecto. Está optimizada para mobile y podés instalarla directamente en tu pantalla de inicio como una app nativa, sin pasar por ninguna tienda.' },
@@ -111,6 +114,21 @@ const typeColors = {
             if (module === 'ergo') return 'Ley 20.949';
             if (module === 'thermal') return 'DS 594';
             if (module === 'lighting') return 'DS 594';
+        } else if (userCountry === 'bolivia') {
+            if (module === 'fire') return 'DL 16998 / Art. 83';
+            if (module === 'ergo') return 'DL 16998';
+            if (module === 'thermal') return 'DL 16998 / Art. 54';
+            if (module === 'lighting') return 'DL 16998 / Art. 68';
+        } else if (userCountry === 'paraguay') {
+            if (module === 'fire') return 'Dec 14390 / Art. 147';
+            if (module === 'ergo') return 'Dec 14390';
+            if (module === 'thermal') return 'Dec 14390 / Art. 210';
+            if (module === 'lighting') return 'Dec 14390 / Art. 182';
+        } else if (userCountry === 'uruguay') {
+            if (module === 'fire') return 'Dec 406/88 / Tít. VII';
+            if (module === 'ergo') return 'Dec 406/88';
+            if (module === 'thermal') return 'Dec 406/88 / Tít. V';
+            if (module === 'lighting') return 'Dec 406/88 / Tít. IV';
         }
         return 'Referencia Normativa Local';
     };
@@ -414,9 +432,25 @@ export default function Home() {
                         </p>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.2rem', marginBottom: '3rem' }}>
                             {[
-                                { icon: '✨', color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', title: 'Asesoría Legal con IA', desc: userCountry === 'argentina' ? 'Consultá normativas argentinas (Ley 19587, Dec 351/79) y recibí recomendaciones preventivas al instante.' : 'Consultá normativas de tu país y recibí recomendaciones preventivas ajustadas a la legislación local.' },
+                                { 
+                                    icon: '✨', 
+                                    color: '#f59e0b', 
+                                    bg: 'rgba(245,158,11,0.08)', 
+                                    title: 'Asesoría Legal con IA', 
+                                    desc: userCountry === 'argentina' 
+                                        ? 'Consultá normativas argentinas (Ley 19587, Dec 351/79) y recibí recomendaciones preventivas al instante.' 
+                                        : `Consultá normativas de ${userCountry.charAt(0).toUpperCase() + userCountry.slice(1)} (${getCountryNormativa(userCountry).general}) y recibí recomendaciones preventivas ajustadas a la legislación local.` 
+                                },
                                 { icon: '📷', color: '#06b6d4', bg: 'rgba(6,182,212,0.08)', title: 'Cámara de Riesgos', desc: 'Detectá automáticamente la falta de casco, guantes o calzado de seguridad con la cámara de tu celular.' },
-                                { icon: '🔥', color: '#f97316', bg: 'rgba(249,115,22,0.08)', title: 'Cálculo Carga de Fuego', desc: userCountry === 'argentina' ? 'Calculá la carga de fuego según Dec 351/79. Genera el protocolo oficial listo para presentar.' : 'Calculá la carga de fuego según normativa local. Genera reportes técnicos listos para presentar.' },
+                                { 
+                                    icon: '🔥', 
+                                    color: '#f97316', 
+                                    bg: 'rgba(249,115,22,0.08)', 
+                                    title: 'Cálculo Carga de Fuego', 
+                                    desc: userCountry === 'argentina' 
+                                        ? 'Calculá la carga de fuego según Dec 351/79. Genera el protocolo oficial listo para presentar.' 
+                                        : `Calculá la carga de fuego según ${getCountryNormativa(userCountry).fire}. Genera reportes técnicos listos para presentar.` 
+                                },
                                 { icon: '💡', color: '#eab308', bg: 'rgba(234,179,8,0.08)', title: 'Iluminación', desc: 'Medición y cálculo de niveles de iluminación con factor de mantenimiento y comparación normativa.' },
                                 { icon: '⚠️', color: '#8b5cf6', bg: 'rgba(139,92,246,0.08)', title: 'Matriz de Riesgo', desc: 'Evaluá peligros con matrices 5x5 personalizadas. Genera reportes PDF automáticamente.' },
                                 { icon: '📋', color: '#10b981', bg: 'rgba(16,185,129,0.08)', title: 'ATS — Análisis de Trabajo Seguro', desc: 'Creá ATS por tarea con medidas de control. Listo para firma digital e impresión.' },

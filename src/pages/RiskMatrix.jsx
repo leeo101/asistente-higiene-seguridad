@@ -6,6 +6,7 @@ import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { getCountryNormativa } from '../data/legislationData';
 
 const HAZARD_TYPES = [
     { value: '', label: 'Seleccionar...', icon: null, color: 'var(--color-text-muted)' },
@@ -39,6 +40,10 @@ export default function RiskMatrix() {
     const location = useLocation();
     const { syncCollection } = useSync();
     const { requirePro } = usePaywall();
+    const savedData = localStorage.getItem('personalData');
+    const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+    const countryNorms = getCountryNormativa(userCountry);
+
     useDocumentTitle('Matriz de Riesgos');
     const [projectData, setProjectData] = useState({
         name: '', location: '',
@@ -164,7 +169,7 @@ export default function RiskMatrix() {
                             <TriangleAlert size={28} color="#f59e0b" /> Matriz de Riesgos
                         </h1>
                         <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>
-                            Ley 19.587 / Dec. 351/79 - HYS
+                            {countryNorms.general} - HYS
                         </p>
                     </div>
                 </div>

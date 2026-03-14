@@ -73,9 +73,61 @@ export const legislationData = {
             category: 'Ley Nacional'
         }
     ],
-    bolivia: [],
-    paraguay: [],
-    uruguay: []
+    bolivia: [
+        {
+            id: 'dl-16998',
+            title: 'Decreto Ley 16.998',
+            description: 'Ley General de Higiene, Seguridad Ocupacional y Bienestar.',
+            url: 'https://www.ilo.org/dyn/natlex/docs/ELECTRONIC/13274/91404/F1041151603/BOL13274.pdf',
+            category: 'Ley General'
+        },
+        {
+            id: 'ley-vigente-bo',
+            title: 'Normas de Seguridad Industrial',
+            description: 'Compendio de normas técnicas para la prevención de riesgos en Bolivia.',
+            url: 'https://www.minedu.gob.bo/',
+            category: 'Normativa Técnica'
+        }
+    ],
+    paraguay: [
+        {
+            id: 'dec-14390',
+            title: 'Decreto 14.390/92',
+            description: 'Reglamento General Técnico de Seguridad, Higiene y Medicina en el Trabajo.',
+            url: 'https://www.bacn.gov.py/leyes-paraguayas/8381/decreto-n-14390',
+            category: 'Reglamento General'
+        },
+        {
+            id: 'ley-5804',
+            title: 'Ley 5804/17',
+            description: 'Establece el Sistema Nacional de Prevención de Riesgos Laborales.',
+            url: 'https://www.bacn.gov.py/leyes-paraguayas/5267/ley-n-5804',
+            category: 'Ley Nacional'
+        }
+    ],
+    uruguay: [
+        {
+            id: 'ley-5032',
+            title: 'Ley 5.032',
+            description: 'Ley fundamental sobre la prevención de accidentes de trabajo.',
+            url: 'https://www.impo.com.uy/bases/leyes/5032-1914',
+            category: 'Ley Fundamental'
+        },
+        {
+            id: 'dec-406',
+            title: 'Decreto 406/88',
+            description: 'Reglamentación sobre Seguridad, Higiene y Salud Ocupacional.',
+            url: 'https://www.impo.com.uy/bases/decretos/406-1988',
+            category: 'Decreto Reglamentario'
+        },
+        {
+            id: 'dec-125',
+            title: 'Decreto 125/014',
+            description: 'Condiciones de seguridad en la industria de la construcción.',
+            url: 'https://www.impo.com.uy/bases/decretos/125-2014',
+            category: 'Construcción'
+        }
+    ]
 };
 
 export const countryList = [
@@ -85,3 +137,44 @@ export const countryList = [
     { code: 'paraguay', name: 'Paraguay', flag: '🇵🇾' },
     { code: 'uruguay', name: 'Uruguay', flag: '🇺🇾' }
 ];
+
+export const getCountryNormativa = (country) => {
+    const norms = {
+        argentina: {
+            fire: 'Dec. 351/79 Anexo VII',
+            lighting: 'Dec. 351/79 Anexo IV',
+            ergo: 'Res. SRT 886/15',
+            thermal: 'Res. SRT 295/03',
+            general: 'Ley 19.587'
+        },
+        chile: {
+            fire: 'DS 594 Art. 44',
+            lighting: 'DS 594 Art. 103',
+            ergo: 'Ley 20.949',
+            thermal: 'DS 594 Art. 96',
+            general: 'Ley 16.744'
+        },
+        bolivia: {
+            fire: 'DL 16998 Art. 83',
+            lighting: 'DL 16998 Art. 68',
+            ergo: 'DL 16998',
+            thermal: 'DL 16998 Art. 54',
+            general: 'DL 16998'
+        },
+        paraguay: {
+            fire: 'Dec 14390 Art. 147',
+            lighting: 'Dec 14390 Art. 182',
+            ergo: 'Dec 14390',
+            thermal: 'Dec 14390 Art. 210',
+            general: 'Dec 14390'
+        },
+        uruguay: {
+            fire: 'Dec 406/88 Tít. VII',
+            lighting: 'Dec 406/88 Tít. IV',
+            ergo: 'Dec 406/88',
+            thermal: 'Dec 406/88 Tít. V',
+            general: 'Dec 406/88'
+        }
+    };
+    return norms[country] || norms.argentina;
+};

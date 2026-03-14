@@ -14,6 +14,7 @@ import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import { API_BASE_URL } from '../config';
+import { getCountryNormativa } from '../data/legislationData';
 
 export default function FireLoad() {
     const navigate = useNavigate();
@@ -52,9 +53,12 @@ export default function FireLoad() {
 
     const [showShare, setShowShare] = useState(false);
 
+    const savedData = localStorage.getItem('personalData');
+    const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+    const countryNorms = getCountryNormativa(userCountry);
+
     useEffect(() => {
         try {
-            const savedData = localStorage.getItem('personalData');
             const savedSigData = localStorage.getItem('signatureStampData');
             const legacySignature = localStorage.getItem('capturedSignature');
 
@@ -80,7 +84,7 @@ export default function FireLoad() {
         } catch (error) {
             console.error('Error loading professional data:', error);
         }
-    }, []);
+    }, [savedData]);
 
     useEffect(() => {
         if (location.state?.editData) {
@@ -164,7 +168,7 @@ export default function FireLoad() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    reportType: 'Cálculo de Carga de Fuego (Dec. 351/79)',
+                    reportType: `Cálculo de Carga de Fuego (${countryNorms.fire})`,
                     reportData: {
                         empresa: formData.empresa,
                         sector: formData.sector,
@@ -310,7 +314,7 @@ export default function FireLoad() {
             <div id="pdf-content" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div className="print-header">
                     <h1 style={{ margin: 0, fontSize: '2.5rem', fontWeight: 900, color: 'var(--color-primary)' }}>INFORME</h1>
-                    <p style={{ margin: '5px 0', fontSize: '1rem', color: '#444' }}>Determinación de Carga Térmica y Resistencia al Fuego - Dec. 351/79</p>
+                    <p style={{ margin: '5px 0', fontSize: '1rem', color: '#444' }}>Determinación de Carga Térmica y Resistencia al Fuego - {countryNorms.fire}</p>
                     <div style={{ textAlign: 'left', marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.9rem' }}>
                         <div className="flex flex-col md:flex-row gap-2 md:gap-8">
                             <div><strong>Empresa:</strong> {formData.empresa}</div>
@@ -326,7 +330,7 @@ export default function FireLoad() {
                     </button>
                     <div>
                         <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Estudio de Carga de Fuego</h1>
-                        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Cálculo según Dec. 351/79 Anexo VII</p>
+                        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Cálculo según {countryNorms.fire}</p>
                     </div>
                 </div>
 
@@ -403,7 +407,7 @@ export default function FireLoad() {
                             </div>
 
                             <div style={{ marginTop: '1rem' }}>
-                                <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Nivel de Riesgo (Anexo VII)</label>
+                                <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Nivel de Riesgo ({countryNorms.fire.split(' ')[0]})</label>
                                 <select
                                     value={formData.riesgo}
                                     onChange={e => setFormData({ ...formData, riesgo: e.target.value })}

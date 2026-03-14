@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { ArrowLeft, Printer, MapPin, Calendar, ThermometerSun, Info } from 'lucide-react';
+import { getCountryNormativa } from '../data/legislationData';
 
 export default function ThermalStressPdfGenerator({ report, onBack }) {
     const componentRef = useRef();
@@ -15,6 +16,7 @@ export default function ThermalStressPdfGenerator({ report, onBack }) {
 
     const savedData = localStorage.getItem('personalData');
     const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+    const countryNorms = getCountryNormativa(userCountry);
 
     // Formatting helpers
     const getRitmoName = (rtm) => {
@@ -33,27 +35,11 @@ export default function ThermalStressPdfGenerator({ report, onBack }) {
     };
 
     const renderLegalBase = () => {
-        if (userCountry === 'argentina') {
-            return (
-                <p style={{ fontSize: '10pt', color: '#334155', textAlign: 'justify', marginBottom: '20px' }}>
-                    El presente documento certifica la evaluación de las condiciones de carga térmica en el puesto de trabajo detallado a continuación,
-                    realizada conforme a la estimación del TGBH (Índice de Temperatura Globo Bulbo Húmedo) y contrastado con los límites permisibles
-                    establecidos en el <strong>Anexo II de la Resolución SRT 295/03</strong> de la República Argentina.
-                </p>
-            );
-        } else if (userCountry === 'chile') {
-            return (
-                <p style={{ fontSize: '10pt', color: '#334155', textAlign: 'justify', marginBottom: '20px' }}>
-                    El presente documento certifica la evaluación de las condiciones de carga térmica en el puesto de trabajo detallado a continuación,
-                    realizada conforme a la estimación del TGBH (Índice de Temperatura Globo Bulbo Húmedo) y contrastado con los límites permisibles
-                    establecido en el <strong>Decreto Supremo N° 594</strong> de la República de Chile.
-                </p>
-            );
-        }
         return (
             <p style={{ fontSize: '10pt', color: '#334155', textAlign: 'justify', marginBottom: '20px' }}>
                 El presente documento certifica la evaluación de las condiciones de carga térmica en el puesto de trabajo detallado a continuación,
-                realizada conforme a la normativa local vigente en materia de seguridad y salud ocupacional.
+                realizada conforme a la estimación del TGBH (Índice de Temperatura Globo Bulbo Húmedo) y contrastado con los límites permisibles
+                establecidos en <strong>{countryNorms.thermal}</strong> ({countryNorms.general}).
             </p>
         );
     };

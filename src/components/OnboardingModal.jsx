@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Flame, Sparkles, Camera, X, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { getCountryNormativa } from '../data/legislationData';
+
+const savedData = localStorage.getItem('personalData');
+const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+const countryNorms = getCountryNormativa(userCountry);
 
 const STEPS = [
     {
         icon: <Flame size={28} color="#f97316" />,
         bg: 'rgba(249,115,22,0.1)',
         title: 'Hacé tu primer cálculo',
-        desc: 'Calculá la Carga de Fuego de un sector según Dec. 351/79 en minutos.',
+        desc: `Calculá la Carga de Fuego de un sector según ${countryNorms.fire} en minutos.`,
         cta: 'Ir a Carga de Fuego',
         path: '/fire-load',
     },
@@ -15,7 +20,7 @@ const STEPS = [
         icon: <Sparkles size={28} color="#f59e0b" />,
         bg: 'rgba(245,158,11,0.1)',
         title: 'Consultá el Asesor IA',
-        desc: 'Hacé preguntas sobre normativa argentina y recibí respuestas legales al instante.',
+        desc: `Hacé preguntas sobre normativa de ${userCountry.charAt(0).toUpperCase() + userCountry.slice(1)} y recibí respuestas legales al instante.`,
         cta: 'Ir al Asesor IA',
         path: '/ai-advisor',
     },

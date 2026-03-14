@@ -1,8 +1,13 @@
 import React from 'react';
 import { Flame, ShieldCheck, Info, FileText } from 'lucide-react';
+import { getCountryNormativa } from '../data/legislationData';
 
 export default function FireLoadPdfGenerator({ data }) {
     if (!data) return null;
+
+    const savedData = localStorage.getItem('personalData');
+    const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+    const countryNorms = getCountryNormativa(userCountry);
 
     const { empresa, obra, fecha, sector, superficie, riesgo, materiales, results, conclusion } = data;
 
@@ -43,7 +48,7 @@ export default function FireLoadPdfGenerator({ data }) {
                     </div>
                     <div style={{ textAlign: 'right' }}>
                         <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b' }}>SISTEMA DE GESTIÓN HYS</div>
-                        <div style={{ fontWeight: 800, color: '#1e293b' }}>Anexo VII (Ley 19.587)</div>
+                        <div style={{ fontWeight: 800, color: '#1e293b' }}>{countryNorms.fire}</div>
                     </div>
                 </div>
 

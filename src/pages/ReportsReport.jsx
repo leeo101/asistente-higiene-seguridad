@@ -6,6 +6,7 @@ import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import { toast } from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import { getCountryNormativa } from '../data/legislationData';
 
 export default function ReportsReport() {
     const navigate = useNavigate();
@@ -20,6 +21,10 @@ export default function ReportsReport() {
         supervisor: true,
         professional: true
     });
+
+    const savedData = localStorage.getItem('personalData');
+    const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+    const countryNorms = getCountryNormativa(userCountry);
 
     useEffect(() => {
         const current = localStorage.getItem('current_report');
@@ -198,7 +203,7 @@ export default function ReportsReport() {
 
                 {/* Footer Legal */}
                 <div style={{ width: '100%', textAlign: 'center', fontSize: '0.7rem', color: '#94a3b8', marginTop: '3rem', fontStyle: 'italic' }}>
-                    Documento generado por Asistente de Higiene y Seguridad - Conforme a Ley 19.587 / Dec. 351/79
+                    Documento generado por Asistente de Higiene y Seguridad - Conforme a {countryNorms.general}
                 </div>
                 <PdfBrandingFooter />
             </div>

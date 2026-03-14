@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { User, Lock, LogIn, Mail, ArrowLeft, CheckCircle2, AlertCircle, ShieldCheck, CreditCard, Award, GraduationCap, Phone, MapPin, Smartphone, ExternalLink } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { API_BASE_URL } from '../config';
+import { countryList } from '../data/legislationData';
 import toast from 'react-hot-toast';
 
 export default function Login() {
@@ -434,11 +435,9 @@ export default function Login() {
                                         style={{ paddingLeft: '40px' }}
                                         required
                                     >
-                                        <option value="argentina">🇦🇷 Argentina</option>
-                                        <option value="chile">🇨🇱 Chile</option>
-                                        <option value="bolivia">🇧🇴 Bolivia</option>
-                                        <option value="paraguay">🇵🇾 Paraguay</option>
-                                        <option value="uruguay">🇺🇾 Uruguay</option>
+                                        {countryList.map(c => (
+                                            <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
+                                        ))}
                                     </select>
                                 </div>
                             </div>

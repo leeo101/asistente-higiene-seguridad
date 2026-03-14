@@ -6,6 +6,7 @@ import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import { toast } from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import { getCountryNormativa } from '../data/legislationData';
 
 // ─── Visual Risk Grid (Probability × Impact) ───────────────────────
 // Rows: Probability (top = high), Columns: Impact (left = low)
@@ -107,6 +108,10 @@ export default function RiskMatrixReport() {
     const [showShare, setShowShare] = useState(false);
     const [showSignatures, setShowSignatures] = useState({ operator: true, supervisor: true, professional: true });
 
+    const savedData = localStorage.getItem('personalData');
+    const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+    const countryNorms = getCountryNormativa(userCountry);
+
     useEffect(() => {
         const current = localStorage.getItem('current_risk_matrix');
         const prof = localStorage.getItem('personalData');
@@ -163,7 +168,7 @@ export default function RiskMatrixReport() {
                         <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.85rem' }}>{matrix.location}</p>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                        <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.7rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Ley 19.587 / Dec. 351/79</p>
+                        <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.7rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{countryNorms.general}</p>
                         <p style={{ margin: '0 0 0.2rem 0', fontWeight: 700, fontSize: '0.9rem', color: '#334155' }}>ID #{matrix.id?.toString().slice(-6)}</p>
                         <p style={{ margin: 0, color: '#64748b', fontSize: '0.85rem' }}>Fecha: {new Date(matrix.date).toLocaleDateString('es-AR')}</p>
                         <p style={{ margin: 0, color: '#64748b', fontSize: '0.85rem' }}>Responsable: <strong>{profile?.name || matrix.responsable}</strong></p>
