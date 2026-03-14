@@ -112,7 +112,9 @@ export default function Sidebar({ isOpen, onClose }) {
                     borderRight: '1px solid var(--color-border)',
                     maxHeight: '100vh',
                     overflow: 'hidden',
-                    boxShadow: isOpen ? '8px 0 32px rgba(0,0,0,0.2)' : 'none',
+                    boxShadow: isOpen ? '20px 0 60px rgba(0,0,0,0.15)' : 'none',
+                    backdropFilter: 'blur(20px)',
+                    WebkitBackdropFilter: 'blur(20px)',
                 }}
             >
                 {/* ── HEADER ── */}
@@ -126,18 +128,18 @@ export default function Sidebar({ isOpen, onClose }) {
                     <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '120px', height: '120px', borderRadius: '50%', background: 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
 
                     {/* Top row: Logo + close */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.2rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
-                            <div style={{ width: '44px', height: '44px', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '12px', padding: '6px', flexShrink: 0, backdropFilter: 'blur(8px)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                            <div style={{ width: '48px', height: '48px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '14px', padding: '8px', flexShrink: 0, backdropFilter: 'blur(10px)', boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}>
                                 <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                             </div>
-                            <span style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--color-hero-text)', letterSpacing: '-0.5px' }}>Asistente HYS</span>
+                            <span style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--color-hero-text)', letterSpacing: '-0.8px', fontFamily: 'var(--font-heading)' }}>Asistente HYS</span>
                         </div>
-                        <button onClick={onClose} style={{ padding: 0, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#ffffff', backdropFilter: 'blur(8px)', transition: 'all 0.2s ease' }}
-                            onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
-                            onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                        <button onClick={onClose} style={{ padding: 0, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#ffffff', backdropFilter: 'blur(10px)', transition: 'all 0.3s ease' }}
+                            onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; e.currentTarget.style.transform = 'rotate(90deg)'; }}
+                            onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.transform = 'rotate(0)'; }}
                         >
-                            <X size={18} />
+                            <X size={20} />
                         </button>
                     </div>
 
@@ -222,24 +224,25 @@ export default function Sidebar({ isOpen, onClose }) {
                     {visibleItems.map((item, i) => {
                         const active = isActive(item.to);
                         return (
-                            <Link key={i} to={item.to} onClick={onClose} style={{ textDecoration: 'none' }}>
+                            <Link key={i} className="stagger-item" to={item.to} onClick={onClose} style={{ textDecoration: 'none', animationDelay: `${0.1 + (i * 0.03)}s` }}>
                                 <div style={{
                                     display: 'flex', alignItems: 'center', gap: '0.9rem',
-                                    padding: '0.7rem 1rem', borderRadius: '12px',
-                                    color: active ? 'var(--color-surface)' : 'var(--color-text)',
-                                    background: active ? 'linear-gradient(135deg,#2563eb,#3b82f6)' : 'transparent',
-                                    fontWeight: active ? 700 : 500,
+                                    padding: '0.8rem 1rem', borderRadius: '14px',
+                                    color: active ? '#ffffff' : 'var(--color-text)',
+                                    background: active ? 'var(--gradient-premium)' : 'transparent',
+                                    fontWeight: active ? 800 : 500,
                                     fontSize: '0.9rem',
-                                    transition: 'background 0.15s, transform 0.15s',
-                                    boxShadow: active ? '0 4px 12px rgba(37,99,235,0.35)' : 'none',
+                                    transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                                    boxShadow: active ? '0 10px 20px rgba(59, 130, 246, 0.3)' : 'none',
+                                    border: active ? '1px solid rgba(255,255,255,0.1)' : '1px solid transparent',
                                 }}
-                                    onMouseOver={e => { if (!active) e.currentTarget.style.background = 'var(--color-background)'; }}
-                                    onMouseOut={e => { if (!active) e.currentTarget.style.background = 'transparent'; }}
+                                    onMouseOver={e => { if (!active) { e.currentTarget.style.background = 'var(--color-surface-hover)'; e.currentTarget.style.transform = 'translateX(4px)'; } }}
+                                    onMouseOut={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.transform = 'translateX(0)'; } }}
                                 >
-                                    <span style={{ color: active ? 'white' : 'var(--color-text-muted)', flexShrink: 0 }}>
+                                    <span style={{ color: active ? 'white' : 'var(--color-primary)', flexShrink: 0, transition: 'transform 0.3s ease' }} className={active ? 'scale-110' : ''}>
                                         {item.icon}
                                     </span>
-                                    <span>{item.label}</span>
+                                    <span style={{ letterSpacing: active ? '0.2px' : '0' }}>{item.label}</span>
                                 </div>
                             </Link>
                         );

@@ -222,40 +222,40 @@ export default function Home() {
                 <StarryBackground />
 
                 <div style={{ position: 'relative', zIndex: 1, maxWidth: '700px', margin: '0 auto' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
-                        <div>
-                            <p style={{ color: 'var(--color-hero-subtext)', fontSize: '0.85rem', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 0.3rem', display: 'flex', alignItems: 'center', gap: '0.8rem', flexWrap: 'wrap' }}>
-                                {currentUser ? 'Bienvenido de vuelta' : 'Potenciá tu trabajo con IA'}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '2rem' }}>
+                        <div className="stagger-item" style={{ animationDelay: '0.1s' }}>
+                            <p style={{ color: 'var(--color-hero-accent)', fontSize: '0.9rem', fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase', margin: '0 0 0.5rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                                {currentUser ? 'Dashboard Profesional' : 'Inteligencia Artificial h&s'}
                                 {currentUser && !isPro() && JSON.parse(localStorage.getItem('subscriptionData') || '{}').status === 'active' && (
-                                    <span style={{ fontSize: '0.65rem', background: 'rgba(239,68,68,0.15)', color: '#ef4444', padding: '2px 8px', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.2)' }}>
-                                        Plan Vencido ⚠️
+                                    <span style={{ fontSize: '0.7rem', background: 'rgba(239,68,68,0.2)', color: '#ef4444', padding: '4px 12px', borderRadius: '20px', border: '1px solid rgba(239,68,68,0.3)', fontWeight: 900 }}>
+                                        Suscripción Vencida ⚠️
                                     </span>
                                 )}
                             </p>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.5rem' }}>
-                                <img src="/logo.png" alt="Logo" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
-                                <h1 style={{ fontSize: 'clamp(2rem, 6vw, 3.2rem)', fontWeight: 900, color: 'var(--color-hero-text)', margin: 0, lineHeight: 1, letterSpacing: '-1.5px', fontFamily: 'var(--font-heading)' }}>
-                                    {currentUser ? <>{userName} {isSubscribed && <Sparkles size={24} color="#f59e0b" fill="#f59e0b" title="Plan PRO Activo" />}</> : 'Asistente HYS'}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', marginBottom: '1rem' }}>
+                                <img src="/logo.png" alt="Logo" style={{ width: '64px', height: '64px', objectFit: 'contain', filter: 'drop-shadow(0 0 20px rgba(59, 130, 246, 0.4))' }} />
+                                <h1 style={{ fontSize: 'clamp(2.5rem, 8vw, 4rem)', fontWeight: 900, color: 'var(--color-hero-text)', margin: 0, lineHeight: 0.9, letterSpacing: '-2px', fontFamily: 'var(--font-heading)' }}>
+                                    {currentUser ? <>{userName} {isSubscribed && <Sparkles size={28} color="#f59e0b" fill="#f59e0b" className="animate-pulse" />}</> : 'Asistente HYS'}
                                 </h1>
                             </div>
-                            <p style={{ color: 'var(--color-hero-subtext)', fontSize: '1.1rem', marginTop: '1rem', fontWeight: 400, maxWidth: '500px' }}>
+                            <p style={{ color: 'var(--color-hero-subtext)', fontSize: '1.2rem', marginTop: '1.5rem', fontWeight: 500, maxWidth: '550px', lineHeight: 1.6 }}>
                                 {currentUser
-                                    ? 'Dashboard de Gestión de Riesgos'
-                                    : 'Cálculos normativos, reportes inteligentes y asesoría legal con Inteligencia Artificial. Todo en un solo lugar.'}
+                                    ? 'Gestión avanzada de riesgos y cumplimiento normativo potenciado por IA.'
+                                    : 'Cálculos normativos, reportes automáticos y asesoría legal inteligente. La herramienta definitiva para profesionales de SySO.'}
                             </p>
                         </div>
                         {!currentUser && (
-                            <div className="hero-buttons" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', marginTop: '2rem', width: '100%', maxWidth: '450px' }}>
+                            <div className="hero-buttons stagger-item" style={{ animationDelay: '0.3s', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', width: '100%', maxWidth: '450px' }}>
                                 <button onClick={() => navigate('/login', { state: { view: 'register' } })}
-                                    style={{ flex: 2, padding: '1.2rem 1.5rem', borderRadius: '16px', border: 'none', background: 'var(--color-primary)', color: 'white', fontWeight: 800, cursor: 'pointer', fontSize: '1.1rem', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
-                                    onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 25px 50px rgba(0,0,0,0.15)'; }}
-                                    onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.1)'; }}>
+                                    style={{ flex: 2, padding: '1.3rem 2rem', borderRadius: '20px', border: 'none', background: 'var(--color-primary)', color: 'white', fontWeight: 800, cursor: 'pointer', fontSize: '1.1rem', boxShadow: '0 20px 40px rgba(59, 130, 246, 0.4)', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}
+                                    onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-6px)'; e.currentTarget.style.boxShadow = '0 30px 60px rgba(59, 130, 246, 0.5)'; }}
+                                    onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(59, 130, 246, 0.4)'; }}>
                                     Comenzar Gratis
                                 </button>
                                 <button onClick={() => navigate('/login', { state: { view: 'login' } })}
-                                    style={{ flex: 1, padding: '1.2rem 1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', fontSize: '1rem', transition: 'all 0.3s ease' }}
-                                    onMouseOver={e => e.currentTarget.style.background = 'var(--color-surface-hover)'}
-                                    onMouseOut={e => e.currentTarget.style.background = 'var(--color-surface)'}>
+                                    style={{ flex: 1, padding: '1.3rem 2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', color: 'white', fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', fontSize: '1rem', transition: 'all 0.3s ease' }}
+                                    onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                                    onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}>
                                     Ingresar
                                 </button>
                             </div>
@@ -264,7 +264,7 @@ export default function Home() {
 
                     {/* STATS ROW inside hero - solo para usuarios logueados */}
                     {currentUser && (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '0.8rem', marginTop: '1.8rem' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '1rem', marginTop: '1.8rem' }}>
                             {stats.map((stat, i) => (
                                 <div key={i}
                                     onClick={() => {
@@ -278,24 +278,25 @@ export default function Home() {
                                         else if (stat.key === 'risk_assessment_history') navigate('/risk-assessment-history');
                                         else navigate('/history', { state: { view: 'inspections' } });
                                     }}
-                                    className="glass-card"
+                                    className="glass-card stagger-item"
                                     style={{
-                                        borderRadius: '16px',
-                                        padding: '1rem 0.6rem',
+                                        borderRadius: '24px',
+                                        padding: '1.2rem 0.6rem',
                                         textAlign: 'center',
                                         cursor: 'pointer',
-                                        transition: 'all 0.3s ease',
-                                        background: 'rgba(255,255,255,0.1)',
-                                        border: '1px solid rgba(255,255,255,0.2)'
+                                        transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+                                        background: 'rgba(255,255,255,0.05)',
+                                        border: '1px solid rgba(255,255,255,0.1)',
+                                        animationDelay: `${0.4 + (i * 0.05)}s`
                                     }}
-                                    onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'; }}
-                                    onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
+                                    onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-6px)'; e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
+                                    onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
                                 >
-                                    <div style={{ color: '#ffffff', marginBottom: '0.4rem', opacity: 0.9 }}>
-                                        {React.cloneElement(stat.icon, { size: 22 })}
+                                    <div style={{ color: 'var(--color-primary)', marginBottom: '0.6rem', opacity: 0.9, filter: 'drop-shadow(0 0 8px rgba(59, 130, 246, 0.5))' }}>
+                                        {React.cloneElement(stat.icon, { size: 24 })}
                                     </div>
-                                    <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#ffffff', lineHeight: 1 }}>{stat.value}</div>
-                                    <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.85)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '0.3rem' }}>{stat.label}</div>
+                                    <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#ffffff', lineHeight: 1 }}>{stat.value}</div>
+                                    <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.6)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', marginTop: '0.4rem' }}>{stat.label}</div>
                                 </div>
                             ))}
                         </div>
@@ -499,39 +500,44 @@ export default function Home() {
                             padding: '0.5rem'
                         }}>
                             {quickLinks.map((item, i) => (
-                                <Link key={i} to={item.to} style={{ textDecoration: 'none' }}>
-                                    <div className="glass-card" style={{
-                                        borderRadius: '20px',
-                                        padding: '1.5rem 1rem',
+                                <Link key={i} className="stagger-item" to={item.to} style={{ textDecoration: 'none', animationDelay: `${0.1 + (i * 0.03)}s` }}>
+                                    <div className="card" style={{
+                                        borderRadius: '24px',
+                                        padding: '1.8rem 1rem',
                                         display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
-                                        gap: '0.8rem',
-                                        minHeight: '140px', justifyContent: 'center',
-                                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                                        gap: '1rem',
+                                        minHeight: '160px', justifyContent: 'center',
+                                        transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+                                        background: 'var(--color-surface)',
+                                        border: '1px solid var(--color-border)',
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
                                     }}
                                     onMouseOver={e => {
-                                        e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
-                                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.95)';
+                                        e.currentTarget.style.transform = 'translateY(-10px)';
+                                        e.currentTarget.style.background = 'var(--color-surface-solid)';
+                                        e.currentTarget.style.borderColor = item.color;
                                         e.currentTarget.style.boxShadow = `0 20px 40px ${item.color}15`;
                                     }}
                                     onMouseOut={e => {
-                                        e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                                        e.currentTarget.style.background = 'var(--gradient-surface)';
-                                        e.currentTarget.style.boxShadow = 'var(--glass-shadow)';
+                                        e.currentTarget.style.transform = 'translateY(0)';
+                                        e.currentTarget.style.background = 'var(--color-surface)';
+                                        e.currentTarget.style.borderColor = 'var(--color-border)';
+                                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.03)';
                                     }}>
                                         <div style={{
-                                            width: '52px', height: '52px', borderRadius: '16px',
+                                            width: '60px', height: '60px', borderRadius: '18px',
                                             background: item.bg,
                                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                                             color: item.color,
                                             marginBottom: '0.2rem',
-                                            boxShadow: `0 8px 16px ${item.color}15`,
-                                            transition: 'transform 0.3s ease'
+                                            boxShadow: `0 8px 20px ${item.color}20`,
+                                            transition: 'all 0.3s ease'
                                         }}>
-                                            {item.icon}
+                                            {React.cloneElement(item.icon, { size: 30 })}
                                         </div>
                                         <div>
-                                            <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-text)', lineHeight: '1.2', marginBottom: '0.2rem' }}>{item.label}</div>
-                                            <div style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.3px', opacity: 0.8 }}>{item.sub}</div>
+                                            <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-text)', lineHeight: '1.2', marginBottom: '0.3rem' }}>{item.label}</div>
+                                            <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 0.8 }}>{item.sub}</div>
                                         </div>
                                     </div>
                                 </Link>
