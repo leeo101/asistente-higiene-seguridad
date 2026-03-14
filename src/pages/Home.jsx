@@ -432,15 +432,7 @@ export default function Home() {
                 </div>
             </div>
 
-            {/* ── STATS BAR — solo usuarios logueados ── */}
-            {currentUser && (
-                <div style={{ maxWidth: '700px', margin: '0 auto', padding: '0 1rem' }}>
-                    <StatsBar />
-                </div>
-            )}
-
-
-                {/* ── LANDING COMPLETA (solo visitantes) ── */}
+            {/* ── LANDING COMPLETA (solo visitantes) ── */}
                 {!currentUser && (
                     <div style={{ marginTop: '2.5rem' }}>
 

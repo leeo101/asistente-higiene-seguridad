@@ -5,6 +5,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
 import AdBanner from '../components/AdBanner';
+import StatsBar from '../components/StatsBar';
 
 export default function Analytics() {
     const navigate = useNavigate();
@@ -228,6 +229,7 @@ export default function Analytics() {
             </div>
 
             <div style={{ maxWidth: '1000px', margin: '2rem auto', padding: '0 1.5rem' }}>
+                <StatsBar />
 
                 {/* Top Metrics Cards */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
