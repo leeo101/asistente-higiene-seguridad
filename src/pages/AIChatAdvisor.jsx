@@ -11,7 +11,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { API_BASE_URL } from '../config';
 import AdBanner from '../components/AdBanner';
-import toast from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 // ── Subcomponent for history panel ─────────────────────────────────────────
@@ -19,7 +19,13 @@ function HistoryPanel({ onLoad }) {
     const [open, setOpen] = useState(false);
     let history = [];
     try {
-        history = JSON.parse(localStorage.getItem('ai_advisor_history') || '[]').slice(0, 5);
+        const raw = localStorage.getItem('ai_advisor_history');
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+                history = parsed.filter(item => item && item.id && item.task).slice(0, 5);
+            }
+        }
     } catch (e) {
         console.error("Error loading ai_advisor_history:", e);
     }
@@ -321,8 +327,16 @@ export default function AIChatAdvisor() {
             const data = await response.json();
             setResult(data);
 
-            // Save to history
-            const history = JSON.parse(localStorage.getItem('ai_advisor_history') || '[]');
+            let history = [];
+            try {
+                const raw = localStorage.getItem('ai_advisor_history');
+                if (raw) history = JSON.parse(raw);
+                if (!Array.isArray(history)) history = [];
+            } catch (e) {
+                console.error("Error parsing history for save:", e);
+                history = [];
+            }
+
             const newRecord = {
                 id: Date.now().toString(),
                 date: new Date().toISOString(),

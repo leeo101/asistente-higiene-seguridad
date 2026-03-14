@@ -18,8 +18,22 @@ export default function AIHistory() {
     const [selectedItem, setSelectedItem] = useState(null);
 
     useEffect(() => {
-        const raw = localStorage.getItem('ai_advisor_history');
-        if (raw) setHistory(JSON.parse(raw));
+        try {
+            const raw = localStorage.getItem('ai_advisor_history');
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed)) {
+                    setHistory(parsed.filter(item => item && item.id && item.task));
+                } else {
+                    setHistory([]);
+                }
+            } else {
+                setHistory([]);
+            }
+        } catch (e) {
+            console.error("Error parsing AI history:", e);
+            setHistory([]);
+        }
     }, [syncPulse]);
 
     const handleDelete = (id, e) => {
