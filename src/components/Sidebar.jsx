@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
     X, User, History, LogOut, Home, Settings,
-    Calendar, MessageSquare, Sun, Moon, Sparkles, Star, ShieldCheck, HardHat, BarChart3, Users, TriangleAlert, CreditCard
+    Calendar, MessageSquare, Sun, Moon, Sparkles, Star, ShieldCheck, HardHat, BarChart3, Users, TriangleAlert, CreditCard, Crown
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
@@ -163,10 +163,22 @@ export default function Sidebar({ isOpen, onClose }) {
                                 <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--color-hero-text)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                     {currentUser ? userInfo.name : 'Invitado'}
                                     {isPro() && (
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }} title={daysRemaining() === Infinity ? "Plan Administrador - Acceso Total" : `Días PRO: ${daysRemaining()}`}>
-                                            <Sparkles size={14} color="#f59e0b" fill="#f59e0b" />
-                                            <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.8)', fontWeight: 700 }}>
-                                                {daysRemaining() === Infinity ? 'Admin' : `${daysRemaining()}d`}
+                                        <div 
+                                            style={{ 
+                                                display: 'flex', 
+                                                alignItems: 'center', 
+                                                gap: '0.35rem',
+                                                padding: '0.2rem 0.5rem',
+                                                background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(251, 191, 36, 0.1))',
+                                                border: '1px solid rgba(245, 158, 11, 0.3)',
+                                                borderRadius: '20px',
+                                                backdropFilter: 'blur(4px)'
+                                            }} 
+                                            title={daysRemaining() === Infinity ? "Plan Administrador - Acceso Total" : `Días PRO: ${daysRemaining()}`}
+                                        >
+                                            <Crown size={12} color="#f59e0b" fill="#f59e0b" />
+                                            <span style={{ fontSize: '0.6rem', color: '#fcd34d', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                                {daysRemaining() === Infinity ? 'Admin' : `PRO ${daysRemaining()}d`}
                                             </span>
                                         </div>
                                     )}
@@ -269,14 +281,39 @@ export default function Sidebar({ isOpen, onClose }) {
                     {!isPro() && (
                         <Link to="/subscribe" onClick={onClose} style={{ textDecoration: 'none', marginBottom: '0.5rem' }}>
                             <div style={{
-                                display: 'flex', alignItems: 'center', gap: '0.8rem',
-                                padding: '0.9rem 1rem', borderRadius: '14px',
-                                background: 'linear-gradient(135deg,rgba(37,99,235,0.12),rgba(14,165,233,0.08))',
-                                border: '1px solid rgba(37,99,235,0.25)',
+                                display: 'flex', alignItems: 'center', gap: '0.9rem',
+                                padding: '1rem', borderRadius: '16px',
+                                background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1))',
+                                border: '1px solid rgba(59, 130, 246, 0.2)',
                                 cursor: 'pointer',
-                            }}>
-                                <Star size={18} color="#f59e0b" fill="#f59e0b" />
-                                <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-primary)' }}>Activar Versión Pro</span>
+                                transition: 'all 0.3s ease',
+                                position: 'relative',
+                                overflow: 'hidden'
+                            }}
+                                onMouseOver={e => {
+                                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15))';
+                                    e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+                                    e.currentTarget.style.transform = 'translateY(-2px)';
+                                }}
+                                onMouseOut={e => {
+                                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1))';
+                                    e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.2)';
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                }}
+                            >
+                                <div style={{ 
+                                    width: '32px', height: '32px', borderRadius: '10px', 
+                                    background: 'linear-gradient(135deg, #f59e0b, #fbbf24)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)',
+                                    flexShrink: 0
+                                }}>
+                                    <Crown size={18} color="#ffffff" fill="rgba(255,255,255,0.2)" />
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <span style={{ fontWeight: 800, fontSize: '0.85rem', color: 'var(--color-primary)', letterSpacing: '-0.3px' }}>Activar Versión Pro</span>
+                                    <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Desbloquea todas las funciones</span>
+                                </div>
                             </div>
                         </Link>
                     )}
