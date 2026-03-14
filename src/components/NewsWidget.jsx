@@ -1,34 +1,84 @@
 import React, { useState, useEffect } from 'react';
 import { Newspaper, ChevronRight, ExternalLink, BellRing } from 'lucide-react';
 
-const NEWS_ITEMS = [
-    {
-        id: 1,
-        title: "Nuevos valores de la cuota fija de ART",
-        description: "La Superintendencia de Riesgos del Trabajo actualizó el valor de la suma fija con destino al FFEP.",
-        date: "Hace 2 días",
-        tag: "SRT",
-        link: "https://www.argentina.gob.ar/srt"
-    },
-    {
-        id: 2,
-        title: "Recordatorio: Relevamiento Anual",
-        description: "Recordá presentar en término el Relevamiento de Agentes de Riesgo (RAR) para evitar intimaciones de tu ART.",
-        date: "Hace 1 semana",
-        tag: "Normativa",
-        link: "https://www.argentina.gob.ar/srt"
-    },
-    {
-        id: 3,
-        title: "Actualización Protocolo de Ergonomía",
-        description: "Revisá los nuevos lineamientos de la Res. 886/15 sobre medición de levantamiento manual de cargas.",
-        date: "Novedad",
-        tag: "Técnico",
-        link: "https://www.argentina.gob.ar/srt"
-    }
-];
+const NEWS_BY_COUNTRY = {
+    argentina: [
+        {
+            id: 1,
+            title: "Nuevos valores de la cuota fija de ART",
+            description: "La Superintendencia de Riesgos del Trabajo actualizó el valor de la suma fija con destino al FFEP.",
+            date: "Hace 2 días",
+            tag: "SRT",
+            link: "https://www.argentina.gob.ar/srt"
+        },
+        {
+            id: 2,
+            title: "Recordatorio: Relevamiento Anual",
+            description: "Recordá presentar en término el Relevamiento de Agentes de Riesgo (RAR) para evitar intimaciones de tu ART.",
+            date: "Hace 1 semana",
+            tag: "Normativa",
+            link: "https://www.argentina.gob.ar/srt"
+        },
+        {
+            id: 3,
+            title: "Actualización Protocolo de Ergonomía",
+            description: "Revisá los nuevos lineamientos de la Res. 886/15 sobre medición de levantamiento manual de cargas.",
+            date: "Novedad",
+            tag: "Técnico",
+            link: "https://www.argentina.gob.ar/srt"
+        }
+    ],
+    chile: [
+        {
+            id: 1,
+            title: "Actualización de Protocolos MINSAL",
+            description: "Revisa las últimas actualizaciones sobre el Protocolo de Vigilancia de Riesgos Psicosociales en el Trabajo.",
+            date: "Hace 3 días",
+            tag: "MINSAL",
+            link: "https://www.minsal.cl"
+        },
+        {
+            id: 2,
+            title: "Nueva Guía Técnica de Manejo Manual de Carga",
+            description: "La SUSESO ha publicado una actualización de la guía técnica para la evaluación de riesgos de manejo manual de carga.",
+            date: "Hace 1 semana",
+            tag: "Ley 20.949",
+            link: "https://www.suseso.cl"
+        },
+        {
+            id: 3,
+            title: "Prevención en el uso de Citostáticos",
+            description: "Nuevas directrices técnicas para la protección de trabajadores expuestos a citostáticos en centros de salud.",
+            date: "Novedad",
+            tag: "Técnico",
+            link: "https://www.ispch.cl"
+        }
+    ],
+    generic: [
+        {
+            id: 1,
+            title: "Tendencias Globales en Seguridad 4.0",
+            description: "Cómo la IA y el IoT están transformando la gestión de riesgos en la industria moderna.",
+            date: "Hace 2 días",
+            tag: "Innovación",
+            link: "#"
+        },
+        {
+            id: 2,
+            title: "Importancia de la Salud Mental en el Trabajo",
+            description: "Nuevos estudios destacan el impacto de la prevención de riesgos psicosociales en la productividad.",
+            date: "Hace 1 semana",
+            tag: "Salud",
+            link: "#"
+        }
+    ]
+};
 
 export default function NewsWidget() {
+    const savedData = localStorage.getItem('personalData');
+    const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+    const NEWS_ITEMS = NEWS_BY_COUNTRY[userCountry] || NEWS_BY_COUNTRY.generic;
+
     const [currentIndex, setCurrentIndex] = useState(0);
 
     useEffect(() => {

@@ -94,7 +94,7 @@ export default function AiAdvisorPdfGenerator({ data }) {
                     {data.normativa?.length > 0 && (
                         <div style={{ pageBreakInside: 'avoid' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#8b5cf6', marginBottom: '0.8rem', borderBottom: '2px solid #ddd6fe', paddingBottom: '0.5rem' }}>
-                                <Gavel size={20} /> <h3 style={{ margin: 0, fontSize: '12pt', fontWeight: 800 }}>Marco Legal (Argentina)</h3>
+                                <Gavel size={20} /> <h3 style={{ margin: 0, fontSize: '12pt', fontWeight: 800 }}>Marco Legal ({personalData.country === 'chile' ? 'Chile' : personalData.country === 'argentina' ? 'Argentina' : 'Local'})</h3>
                             </div>
                             <ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#334155', fontSize: '10pt', lineHeight: 1.5 }}>
                                 {data.normativa.map((item, i) => <li key={i} style={{ marginBottom: '0.3rem' }}>{item}</li>)}

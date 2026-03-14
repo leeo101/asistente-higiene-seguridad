@@ -131,7 +131,7 @@ export default function Sidebar({ isOpen, onClose }) {
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                             <div style={{ width: '48px', height: '48px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '14px', padding: '8px', flexShrink: 0, backdropFilter: 'blur(10px)', boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}>
-                                <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                <img src="/logo.png" alt="Logo de Asistente HYS" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                             </div>
                             <span style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--color-hero-text)', letterSpacing: '-0.8px', fontFamily: 'var(--font-heading)' }}>Asistente HYS</span>
                         </div>
@@ -153,7 +153,7 @@ export default function Sidebar({ isOpen, onClose }) {
                             flexShrink: 0,
                         }}>
                             {userInfo.photo ? (
-                                <img src={userInfo.photo} alt="Perfil" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                <img src={userInfo.photo} alt="Foto de Perfil" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             ) : (
                                 <User size={22} color="rgba(255,255,255,0.9)" />
                             )}

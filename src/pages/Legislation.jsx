@@ -6,150 +6,28 @@ import {
     Star, MessageSquare
 } from 'lucide-react';
 import { API_BASE_URL } from '../config';
+import { legislationData, countryList } from '../data/legislationData';
 import toast from 'react-hot-toast';
 
 export default function Legislation() {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
+    const [userCountry, setUserCountry] = useState('argentina');
 
-    const docs = [
-        {
-            id: 'ley-19587',
-            title: 'Ley 19.587',
-            subtitle: 'Higiene y Seguridad en el Trabajo',
-            description: 'Ley fundamental que establece las normas de seguridad y salud para todos los establecimientos y explotaciones.',
-            category: 'Leyes',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=17612'
-        },
-        {
-            id: 'dto-351-79',
-            title: 'Decreto 351/79',
-            subtitle: 'Reglamentación General Ley 19.587',
-            description: 'Reglamentación general para establecimientos industriales y comerciales. Especificaciones técnicas de protección.',
-            category: 'Decretos',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=32030'
-        },
-        {
-            id: 'dto-911-96',
-            title: 'Decreto 911/96',
-            subtitle: 'Higiene y Seguridad en la Construcción',
-            description: 'Normas específicas para la industria de la construcción, excavaciones, andamios y trabajos en altura.',
-            category: 'Decretos',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=37402'
-        },
-        {
-            id: 'ley-24557',
-            title: 'Ley 24.557',
-            subtitle: 'Ley de Riesgos del Trabajo (LRT)',
-            description: 'Establece el sistema de prevención de riesgos y reparación de daños derivados del trabajo.',
-            category: 'Leyes',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=27971'
-        },
-        {
-            id: 'dto-617-97',
-            title: 'Decreto 617/97',
-            subtitle: 'Higiene y Seguridad en el Agro',
-            description: 'Normativa específica para la actividad agraria y el uso de maquinaria rural.',
-            category: 'Decretos',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=44408'
-        },
-        {
-            id: 'ley-27348',
-            title: 'Ley 27.348',
-            subtitle: 'Complementaria de LRT',
-            description: 'Ley que establece el sistema de Comisiones Médicas y procedimientos administrativos.',
-            category: 'Leyes',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=271810'
-        },
-        {
-            id: 'dto-1338-96',
-            title: 'Decreto 1338/96',
-            subtitle: 'Servicios de Medicina y de H&S',
-            description: 'Establece obligaciones referentes a la conformación de los Servicios de Medicina y de Higiene y Seguridad y Asignación de Horas Profesionales.',
-            category: 'Decretos',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=40574'
-        },
-        {
-            id: 'res-295-03',
-            title: 'Resolución 295/03',
-            subtitle: 'Especificaciones Técnicas: Ergonomía, Radiaciones y Estrés Térmico',
-            description: 'Aprueba especificaciones técnicas sobre ergonomía, levantamiento manual de cargas, radiaciones y carga térmica.',
-            category: 'Resoluciones',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=90396'
-        },
-        {
-            id: 'res-886-15',
-            title: 'Resolución 886/15',
-            subtitle: 'Protocolo de Ergonomía',
-            description: 'Establece el Protocolo de Ergonomía y Planilla de Levantamiento de Riesgos Ergonómicos obligatorios SRT.',
-            category: 'Resoluciones',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=246272'
-        },
-        {
-            id: 'res-299-11',
-            title: 'Resolución 299/11',
-            subtitle: 'Registro de Entrega de EPP',
-            description: 'Regula el formulario y la obligatoriedad del Registro de Entrega de Elementos de Protección Personal.',
-            category: 'Resoluciones',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=180669'
-        },
-        {
-            id: 'res-905-15',
-            title: 'Resolución 905/15',
-            subtitle: 'Funciones de los Servicios de H&S',
-            description: 'Define claramente las funciones que deben cumplir los servicios de higiene y seguridad y de medicina del trabajo.',
-            category: 'Resoluciones',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=246509'
-        },
-        {
-            id: 'res-84-12',
-            title: 'Resolución 84/12',
-            subtitle: 'Protocolo de Medición de Iluminación',
-            description: 'Formulario obligatorio y metodología técnica para realizar la medición de la iluminación en el ambiente laboral.',
-            category: 'Resoluciones',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=193616'
-        },
-        {
-            id: 'res-85-12',
-            title: 'Resolución 85/12',
-            subtitle: 'Protocolo de Medición de Ruido',
-            description: 'Formulario obligatorio y metodología técnica para realizar la medición del ruido en el ambiente laboral.',
-            category: 'Resoluciones',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=193617'
-        },
-        {
-            id: 'res-801-15',
-            title: 'Resolución 801/15',
-            subtitle: 'Sistema Globalmente Armonizado (SGA)',
-            description: 'Implementación del Sistema Globalmente Armonizado de Clasificación y Etiquetado de Productos Químicos.',
-            category: 'Resoluciones',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=245850'
-        },
-        {
-            id: 'res-960-15',
-            title: 'Resolución 960/15',
-            subtitle: 'Condiciones de Seguridad para Autoelevadores',
-            description: 'Establece las condiciones y requisitos de seguridad obligatorios para la circulación y uso de autoelevadores.',
-            category: 'Resoluciones',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=246619'
-        },
-        {
-            id: 'res-3345-15',
-            title: 'Resolución 3345/15',
-            subtitle: 'Límites Máximos de Carga',
-            description: 'Fija los límites máximos para la manipulación manual de cargas en los lugares de trabajo.',
-            category: 'Resoluciones',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=252684'
-        },
-        {
-            id: 'res-900-15',
-            title: 'Resolución 900/15',
-            subtitle: 'Protocolo de Puesta a Tierra',
-            description: 'Protocolo para la Medición del Valor de Resistencia de Puesta a Tierra y Verificación de la Continuidad.',
-            category: 'Resoluciones',
-            url: 'https://servicios.infoleg.gob.ar/infolegInternet/verNorma.do?id=246348'
+    React.useEffect(() => {
+        const savedData = localStorage.getItem('personalData');
+        if (savedData) {
+            try {
+                const parsed = JSON.parse(savedData);
+                if (parsed.country) setUserCountry(parsed.country);
+            } catch (e) {
+                console.error('Error loading country from personalData:', e);
+            }
         }
-    ];
+    }, []);
+
+    const countryInfo = countryList.find(c => c.code === userCountry) || countryList[0];
+    const docs = legislationData[userCountry] || [];
 
     const [summaries, setSummaries] = useState({});
     const [loadingDocs, setLoadingDocs] = useState(new Set());
@@ -188,7 +66,7 @@ export default function Legislation() {
             const res = await fetch(`${API_BASE_URL}/api/ai-legal-summary`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ley: `${title}: ${subtitle}` })
+                body: JSON.stringify({ ley: `${title}: ${subtitle}`, country: userCountry })
             });
 
             if (!res.ok) throw new Error('Error al conectar con la IA');
@@ -231,7 +109,12 @@ export default function Legislation() {
                 >
                     <ArrowLeft size={24} />
                 </button>
-                <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Leyes y Normas</h1>
+                <div>
+                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Leyes y Normas</h1>
+                    <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.85rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        <span>{countryInfo.flag}</span> Región: <strong>{countryInfo.name}</strong>
+                    </p>
+                </div>
             </div>
 
             <div style={{ position: 'relative', marginBottom: '2rem' }}>

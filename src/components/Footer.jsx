@@ -53,7 +53,7 @@ export default function Footer() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
                     <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: 'var(--color-text)' }}>Marco Legal</h4>
                     <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', lineHeight: '1.6', margin: 0 }}>
-                        Basado en Ley 19.587, Dec. 351/79 y normativas SRT vigentes en la República Argentina.
+                        Adaptado a la normativa de Higiene y Seguridad del país seleccionado por el profesional.
                     </p>
                 </div>
             </div>

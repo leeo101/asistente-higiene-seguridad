@@ -13,6 +13,9 @@ export default function ThermalStressPdfGenerator({ report, onBack }) {
 
     const isAdmisible = report?.resultados?.admisible;
 
+    const savedData = localStorage.getItem('personalData');
+    const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+
     // Formatting helpers
     const getRitmoName = (rtm) => {
         if (rtm === 'liviano') return 'Liviana (Ej. Trabajo en banco, sentado)';
@@ -27,6 +30,32 @@ export default function ThermalStressPdfGenerator({ report, onBack }) {
         if (ccl === '50_50') return '50% Trabajo, 50% Descanso';
         if (ccl === '25_75') return '25% Trabajo, 75% Descanso';
         return ccl;
+    };
+
+    const renderLegalBase = () => {
+        if (userCountry === 'argentina') {
+            return (
+                <p style={{ fontSize: '10pt', color: '#334155', textAlign: 'justify', marginBottom: '20px' }}>
+                    El presente documento certifica la evaluación de las condiciones de carga térmica en el puesto de trabajo detallado a continuación,
+                    realizada conforme a la estimación del TGBH (Índice de Temperatura Globo Bulbo Húmedo) y contrastado con los límites permisibles
+                    establecidos en el <strong>Anexo II de la Resolución SRT 295/03</strong> de la República Argentina.
+                </p>
+            );
+        } else if (userCountry === 'chile') {
+            return (
+                <p style={{ fontSize: '10pt', color: '#334155', textAlign: 'justify', marginBottom: '20px' }}>
+                    El presente documento certifica la evaluación de las condiciones de carga térmica en el puesto de trabajo detallado a continuación,
+                    realizada conforme a la estimación del TGBH (Índice de Temperatura Globo Bulbo Húmedo) y contrastado con los límites permisibles
+                    establecido en el <strong>Decreto Supremo N° 594</strong> de la República de Chile.
+                </p>
+            );
+        }
+        return (
+            <p style={{ fontSize: '10pt', color: '#334155', textAlign: 'justify', marginBottom: '20px' }}>
+                El presente documento certifica la evaluación de las condiciones de carga térmica en el puesto de trabajo detallado a continuación,
+                realizada conforme a la normativa local vigente en materia de seguridad y salud ocupacional.
+            </p>
+        );
     };
 
     return (
@@ -72,11 +101,7 @@ export default function ThermalStressPdfGenerator({ report, onBack }) {
                     </div>
                 </div>
 
-                <p style={{ fontSize: '10pt', color: '#334155', textAlign: 'justify', marginBottom: '20px' }}>
-                    El presente documento certifica la evaluación de las condiciones de carga térmica en el puesto de trabajo detallado a continuación,
-                    realizada conforme a la estimación del TGBH (Índice de Temperatura Globo Bulbo Húmedo) y contrastado con los límites permisibles
-                    establecidos en el <strong>Anexo II de la Resolución SRT 295/03</strong> de la República Argentina.
-                </p>
+                {renderLegalBase()}
 
                 {/* Section 1: Puesto y Metadatos */}
                 <div style={{ marginBottom: '1.5rem', pageBreakInside: 'avoid' }}>
@@ -141,7 +166,7 @@ export default function ThermalStressPdfGenerator({ report, onBack }) {
                                 <td style={{ border: '1px solid #cbd5e1', padding: '6px 8px', fontWeight: 'bold' }}>{getCicloName(report?.ciclo)}</td>
                             </tr>
                             <tr>
-                                <td style={{ border: '1px solid #cbd5e1', padding: '6px 8px', background: '#f8fafc' }}>Límite Máximo Permitido (SRT):</td>
+                                <td style={{ border: '1px solid #cbd5e1', padding: '6px 8px', background: '#f8fafc' }}>Límite Máximo Permitido:</td>
                                 <td style={{ border: '1px solid #cbd5e1', padding: '6px 8px', fontWeight: '900', color: '#1e293b' }}>{report?.resultados?.limite || '--'}°C</td>
                             </tr>
                         </tbody>
@@ -177,7 +202,7 @@ export default function ThermalStressPdfGenerator({ report, onBack }) {
                             <div style={{ fontSize: '9.5pt', color: isAdmisible ? '#15803d' : '#b91c1c' }}>
                                 {isAdmisible
                                     ? 'El puesto de trabajo cumple con los valores límite umbral de estrés térmico vigentes. No se requiere de rotación obligatoria especial actual, pero se recomienda continuar con hidratación.'
-                                    : 'El índice TGBH ha superado el límite admisible para el metabolismo y ciclo indicados. SE REQUIEREN MEDIDAS INMEDIATAS: Bajar intensidad física, aumentar descansos en zonas frescas, o métodos de refrigeración. (Res 295/03).'}
+                                    : 'El índice TGBH ha superado el límite admisible para el metabolismo y ciclo indicados. SE REQUIEREN MEDIDAS INMEDIATAS: Bajar intensidad física, aumentar descansos en zonas frescas, o métodos de refrigeración.'}
                             </div>
                         </div>
                     </div>

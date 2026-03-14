@@ -245,15 +245,16 @@ Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de
 
 app.post('/api/daily-insight', async (req, res) => {
     try {
+        const { country = 'argentina' } = req.body;
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini' });
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-        const prompt = `Actúa como un Asesor Senior en Higiene y Seguridad Laboral en Argentina. 
+        const prompt = `Actúa como un Asesor Senior en Higiene y Seguridad Laboral en ${country}. 
 Genera un "Consejo del Día" breve y profesional para otros profesionales del área.
-Puede ser un recordatorio normativo (Ley 19587, Dec 351/79, etc.), un tip técnico sobre EPP, ergonomía, o prevención de riesgos.
+Puede ser un recordatorio normativo específico de ${country}, un tip técnico sobre EPP, ergonomía, o prevención de riesgos.
 Formato de respuesta JSON estricto:
 {
     "title": "Breve título del consejo (ej: Recordatorio SRT)",
@@ -281,7 +282,7 @@ IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON. Sea conciso y valioso.`;
 
 app.post('/api/ai-advisor', async (req, res) => {
     try {
-        const { taskDescription } = req.body;
+        const { taskDescription, country = 'argentina' } = req.body;
         if (!taskDescription) return res.status(400).json({ error: 'Falta la descripción de la tarea' });
 
         const apiKey = process.env.GEMINI_API_KEY;
@@ -296,7 +297,7 @@ app.post('/api/ai-advisor', async (req, res) => {
             "models/gemini-1.5-flash"
         ];
 
-        const prompt = `Actúa como un experto en Higiene y Seguridad Laboral en Argentina. 
+        const prompt = `Actúa como un experto en Higiene y Seguridad Laboral en ${country}. 
 Analiza la siguiente tarea o situación laboral: "${taskDescription}".
 Proporciona un análisis detallado en formato JSON con los siguientes campos EXACTOS:
 {
@@ -304,9 +305,9 @@ Proporciona un análisis detallado en formato JSON con los siguientes campos EXA
     "riesgos": ["Detalle del riesgo 1", "Riesgo 2"],
     "epp": ["EPP recomendado 1", "EPP 2"],
     "recomendaciones": ["Medida preventiva 1", "2"],
-    "normativa": ["Ley o Decreto aplicable"]
+    "normativa": ["Ley o Decreto aplicable en ${country}"]
 }
-IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON, sin texto adicional. Asegúrate de incluir normativas argentinas (ej: Ley 19587, Dec 351/79, Dec 911/96).`;
+IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON, sin texto adicional. Asegúrate de incluir normativas de ${country} (ej. si es Argentina: Ley 19587, Dec 351/79; si es Chile: Ley 16744, DS 594).`;
 
         let result;
         for (const modelName of models) {
@@ -350,7 +351,7 @@ IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON, sin texto adicional. Asegúrate
 // ==========================================
 app.post('/api/ai-ats-generator', async (req, res) => {
     try {
-        const { taskTitle } = req.body;
+        const { taskTitle, country = 'argentina' } = req.body;
         if (!taskTitle) return res.status(400).json({ error: 'Falta el título de la tarea' });
 
         const apiKey = process.env.GEMINI_API_KEY;
@@ -364,14 +365,14 @@ app.post('/api/ai-ats-generator', async (req, res) => {
             "gemini-1.5-flash"
         ];
 
-        const prompt = `Actúa como un experto en Higiene y Seguridad Laboral. 
+        const prompt = `Actúa como un experto en Higiene y Seguridad Laboral en ${country}. 
 Genera el Análisis de Trabajo Seguro (ATS) para la siguiente tarea: "${taskTitle}".
 Devuelve ÚNICAMENTE un array JSON estricto donde cada elemento represente un paso de la tarea, con este formato exacto:
 [
   { "paso": "Nombre del paso 1", "riesgo": "Riesgo principal", "control": "Medida preventiva / EPP recomendado" },
   { "paso": "Nombre del paso 2", "riesgo": "...", "control": "..." }
 ]
-IMPORTANTE: Provee entre 4 y 8 pasos ordenados cronológicamente. Devuelve SOLO el JSON válido.`;
+IMPORTANTE: Provee entre 4 y 8 pasos ordenados cronológicamente. Basate en normativas de ${country}. Devuelve SOLO el JSON válido.`;
 
         let result;
         for (const modelName of models) {
@@ -415,7 +416,7 @@ IMPORTANTE: Provee entre 4 y 8 pasos ordenados cronológicamente. Devuelve SOLO 
 // ==========================================
 app.post('/api/ai-report-conclusion', async (req, res) => {
     try {
-        const { reportType, reportData } = req.body;
+        const { reportType, reportData, country = 'argentina' } = req.body;
         if (!reportType || !reportData) return res.status(400).json({ error: 'Faltan datos del reporte' });
 
         const apiKey = process.env.GEMINI_API_KEY;
@@ -424,12 +425,12 @@ app.post('/api/ai-report-conclusion', async (req, res) => {
         const genAI = new GoogleGenerativeAI(apiKey);
         const models = ["gemini-2.0-flash", "gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-1.5-flash"];
 
-        const prompt = `Actúa como un experto consultor en Higiene y Seguridad Laboral en Argentina.
+        const prompt = `Actúa como un experto consultor en Higiene y Seguridad Laboral en ${country}.
 Analiza los siguientes datos extraídos de un reporte de "${reportType}":
 ${JSON.stringify(reportData)}
 
 Redacta una concisa y profesional conclusión técnica (entre 2 y 4 párrafos cortos).
-La conclusión debe analizar los resultados técnicos, indicar si hay desvíos según normativa y proponer recomendaciones concretas. 
+La conclusión debe analizar los resultados técnicos, indicar si hay desvíos según normativa de ${country} y proponer recomendaciones concretas. 
 Importante: tu respuesta debe contener ÚNICAMENTE el texto de la conclusión final, listo para insertar en un documento como respuesta cruda (sin comillas adicionales, sin bloque json, ni texto de saludo previo).`;
 
         let result;
@@ -453,7 +454,7 @@ Importante: tu respuesta debe contener ÚNICAMENTE el texto de la conclusión fi
 // ==========================================
 app.post('/api/ai-legal-summary', async (req, res) => {
     try {
-        const { leyTitle, leyDescription } = req.body;
+        const { leyTitle, leyDescription, country = 'argentina' } = req.body;
         if (!leyTitle) return res.status(400).json({ error: 'Faltan datos de la normativa' });
 
         const apiKey = process.env.GEMINI_API_KEY;
@@ -462,9 +463,9 @@ app.post('/api/ai-legal-summary', async (req, res) => {
         const genAI = new GoogleGenerativeAI(apiKey);
         const models = ["gemini-2.0-flash", "gemini-1.5-flash-latest"];
 
-        const prompt = `Como experto legislativo en Higiene y Seguridad en Argentina, realiza un resumen directo de esta norma operativa: "${leyTitle}".
+        const prompt = `Como experto legislativo en Higiene y Seguridad en ${country}, realiza un resumen directo de esta norma operativa: "${leyTitle}".
 Descripción corta: "${leyDescription}".
-Provee un resumen de puntos principales (en viñetas) que todo prevencionista debe saber de forma rápida para el trabajo de campo. No inventar contenido, basarse en el objeto material de la ley. Devuelve directamente el texto, y usa formato markdown.`;
+Provee un resumen de puntos principales (en viñetas) que todo prevencionista debe saber de forma rápida para el trabajo de campo. No inventar contenido, basarse en el objeto material de la ley de ${country}. Devuelve directamente el texto, y usa formato markdown.`;
 
         let result;
         for (const modelName of models) {

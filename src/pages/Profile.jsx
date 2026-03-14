@@ -73,7 +73,7 @@ export default function Profile() {
             <div className="card" style={{ textAlign: 'center', padding: '2.5rem 1.5rem' }}>
                 <img
                     src="/logo.png"
-                    alt="Logo"
+                    alt="Logo de Asistente HYS"
                     style={{
                         width: 'auto',
                         height: '40px',
@@ -98,7 +98,7 @@ export default function Profile() {
                     border: userData.photo ? '3px solid var(--color-primary)' : 'none'
                 }}>
                     {userData.photo ? (
-                        <img src={userData.photo} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <img src={userData.photo} alt="Foto de Perfil" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
                         userData.name.charAt(0)
                     )}

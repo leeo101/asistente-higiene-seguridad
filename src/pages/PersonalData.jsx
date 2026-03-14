@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, User, Mail, CreditCard, Award, Phone, MapPin, Camera, Trash2, GraduationCap } from 'lucide-react';
+import { ArrowLeft, Save, User, Mail, CreditCard, Award, Phone, MapPin, Camera, Trash2, GraduationCap, Globe } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
+import { countryList } from '../data/legislationData';
 import toast from 'react-hot-toast';
 
 export default function PersonalData() {
@@ -14,6 +15,7 @@ export default function PersonalData() {
         license: 'MP 5567',
         phone: '+54 9 11 1234-5678',
         address: 'Av. Corrientes 1234, CABA',
+        country: 'argentina',
         photo: null,
         profession: ''
     });
@@ -173,6 +175,21 @@ export default function PersonalData() {
 
                 <div style={{ marginBottom: '1.5rem' }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Globe size={16} color="var(--color-primary)" /> País / Región
+                    </label>
+                    <select
+                        value={formData.country}
+                        onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                        style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-surface)' }}
+                    >
+                        {countryList.map(c => (
+                            <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
+                        ))}
+                    </select>
+                </div>
+
+                <div style={{ marginBottom: '1.5rem' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <Mail size={16} color="var(--color-primary)" /> Email
                     </label>
                     <input
@@ -185,7 +202,7 @@ export default function PersonalData() {
                 <div className="grid-res-2">
                     <div style={{ marginBottom: '1.5rem' }}>
                         <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <CreditCard size={16} color="var(--color-primary)" /> DNI
+                            <CreditCard size={16} color="var(--color-primary)" /> DNI / Cédula
                         </label>
                         <input
                             type="text"

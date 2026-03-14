@@ -186,7 +186,7 @@ export default function StatsBar() {
                         {stat.key === 'ai_camera_history' && stat.compliance !== null && stat.compliance !== undefined && (
                             <div style={{ marginTop: '0.6rem', borderTop: `1px solid ${stat.color}33`, paddingTop: '0.6rem' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.6rem', fontWeight: 800, marginBottom: '0.2rem', color: stat.color }}>
-                                    <span>Compliance EPP</span>
+                                    <span>Cumplimiento de EPP</span>
                                     <span>{stat.compliance}%</span>
                                 </div>
                                 <div style={{ width: '100%', height: '4px', background: `${stat.color}22`, borderRadius: '2px', overflow: 'hidden' }}>

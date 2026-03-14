@@ -62,7 +62,7 @@ function HistoryPanel({ onLoad }) {
                                 </div>
                                 <div style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.2rem' }}>
                                     <Clock size={11} />
-                                    {new Date(item.date).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                    {new Date(item.date).toLocaleString(undefined, { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                 </div>
                             </div>
                             <button
@@ -94,6 +94,17 @@ export default function AIChatAdvisor() {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
     const [copied, setCopied] = useState(false);
+    const [userCountry, setUserCountry] = useState('argentina');
+
+    useEffect(() => {
+        const savedData = localStorage.getItem('personalData');
+        if (savedData) {
+            try {
+                const parsed = JSON.parse(savedData);
+                if (parsed.country) setUserCountry(parsed.country);
+            } catch (e) { console.error(e); }
+        }
+    }, []);
     const [isListening, setIsListening] = useState(false);
 
     const toggleListening = () => {
@@ -109,7 +120,7 @@ export default function AIChatAdvisor() {
         }
 
         const recognition = new SpeechRecognition();
-        recognition.lang = 'es-AR';
+        recognition.lang = userCountry === 'chile' ? 'es-CL' : 'es-AR';
         recognition.continuous = false;
         recognition.interimResults = false;
 
@@ -239,7 +250,7 @@ export default function AIChatAdvisor() {
             createSection('Riesgos Detectados', result.riesgos, colors.danger);
             createSection('EPP Recomendado', result.epp, colors.primary);
             createSection('Medidas Preventivas', result.recomendaciones, colors.success);
-            createSection('Marco Legal (Argentina)', result.normativa, [139, 92, 246]);
+            createSection(`Marco Legal (${userCountry === 'chile' ? 'Chile' : userCountry === 'argentina' ? 'Arg' : 'Local'})`, result.normativa, [139, 92, 246]);
 
             // Professional Signature Section
             const personalData = JSON.parse(localStorage.getItem('personalData') || '{}');
@@ -294,7 +305,7 @@ export default function AIChatAdvisor() {
             const response = await fetch(`${API_BASE_URL}/api/ai-advisor`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ taskDescription: task, contextData })
+                body: JSON.stringify({ taskDescription: task, contextData, country: userCountry })
             });
 
             if (!response.ok) {
@@ -515,7 +526,7 @@ export default function AIChatAdvisor() {
                         <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', borderLeft: '4px solid #8b5cf6' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: '#8b5cf6' }}>
                                 <Gavel size={20} />
-                                <h4 style={{ margin: 0, fontWeight: 700 }}>Marco Legal (Arg)</h4>
+                                <h4 style={{ margin: 0, fontWeight: 700 }}>Marco Legal ({userCountry === 'chile' ? 'Chile' : userCountry === 'argentina' ? 'Arg' : 'Local'})</h4>
                             </div>
                             <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', lineHeight: '1.5', listStyleType: 'none' }}>
                                 {result.normativa.map((item, i) => <li key={i} style={{ marginBottom: '0.4rem' }}>• {item}</li>)}

@@ -18,6 +18,7 @@ export default function Login() {
     const [profession, setProfession] = useState('');
     const [phone, setPhone] = useState('');
     const [address, setAddress] = useState('');
+    const [country, setCountry] = useState('argentina');
     const [view, setView] = useState(location.state?.view || 'login'); // 'login', 'register', or 'forgot'
     const [acceptedTerms, setAcceptedTerms] = useState(false);
     const [status, setStatus] = useState({ type: '', message: '', resetLink: '', code: '' });
@@ -44,7 +45,7 @@ export default function Login() {
         e.preventDefault();
 
         // Basic Validations
-        if (!name || !email || !password || !confirmPassword || !dni || !license || !profession || !phone || !address) {
+        if (!name || !email || !password || !confirmPassword || !dni || !license || !profession || !phone || !address || !country) {
             return setStatus({ type: 'error', message: 'Todos los campos son obligatorios.' });
         }
         if (!acceptedTerms) {
@@ -81,6 +82,7 @@ export default function Login() {
                 profession,
                 phone,
                 address,
+                country,
                 photo: null
             };
             localStorage.setItem('personalData', JSON.stringify(personalData));
@@ -181,7 +183,7 @@ export default function Login() {
             }}>
                 <img
                     src="/logo.png"
-                    alt="Logo"
+                    alt="Logo de Asistente HYS"
                     className="floating-logo"
                     style={{
                         width: 'auto',
@@ -417,6 +419,26 @@ export default function Login() {
                                         <option value="Técnico">Técnico</option>
                                         <option value="Ingeniero">Ingeniero</option>
                                         <option value="Licenciado">Licenciado</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <label htmlFor="country">País / Región</label>
+                                <div style={{ position: 'relative' }}>
+                                    <MapPin size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)', zIndex: 1 }} />
+                                    <select
+                                        id="country"
+                                        value={country}
+                                        onChange={(e) => setCountry(e.target.value)}
+                                        style={{ paddingLeft: '40px' }}
+                                        required
+                                    >
+                                        <option value="argentina">🇦🇷 Argentina</option>
+                                        <option value="chile">🇨🇱 Chile</option>
+                                        <option value="bolivia">🇧🇴 Bolivia</option>
+                                        <option value="paraguay">🇵🇾 Paraguay</option>
+                                        <option value="uruguay">🇺🇾 Uruguay</option>
                                     </select>
                                 </div>
                             </div>
