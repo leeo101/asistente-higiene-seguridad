@@ -468,7 +468,6 @@ label {
 /* Mobile Breakpoint (768px) */
 @media (max-width: 768px) {
   .container {
-    padding: 1.5rem 1rem;
     max-width: 100%;
   }
 
