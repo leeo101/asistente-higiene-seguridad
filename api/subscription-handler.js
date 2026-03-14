@@ -19,7 +19,7 @@ if (!admin.apps.length) {
 }
 
 const db = admin.firestore();
-const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN || 'APP_USR-3860010994191089-021817-aeecdbf839baea7dfbc52acde2364024-2275601956' });
+const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
 
 export default async function handler(req, res) {
     // Enable CORS

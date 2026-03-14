@@ -44,13 +44,14 @@ const allowedOrigins = [
 
 app.use(cors({
     origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) === -1) {
-            return callback(null, true); // Allow all for now to avoid issues, or restrict:
-            // var msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-            // return callback(new Error(msg), false);
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            return callback(null, true);
+        } else {
+            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+            return callback(new Error(msg), false);
         }
-        return callback(null, true);
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -65,7 +66,21 @@ process.on('uncaughtException', (err) => {
     console.error("Uncaught Exception:", err);
 });
 
-const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN || 'APP_USR-8644102194347274-021115-95fc0f02072be336a791b34e4cfbee7f-183552286' });
+const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
+
+// Admin Authentication Middleware
+const isAdmin = (req, res, next) => {
+    const adminKey = req.headers['x-admin-key'];
+    if (!process.env.ADMIN_API_KEY) {
+        console.error('[SECURITY] ADMIN_API_KEY not configured in environment.');
+        return res.status(500).json({ error: 'Configuración de seguridad incompleta.' });
+    }
+    if (adminKey !== process.env.ADMIN_API_KEY) {
+        console.warn(`[SECURITY] Unauthorized admin access attempt from ${req.ip}`);
+        return res.status(401).json({ error: 'No autorizado' });
+    }
+    next();
+};
 
 app.post('/api/create-subscription', async (req, res) => {
     try {
@@ -94,11 +109,9 @@ app.post('/api/create-subscription', async (req, res) => {
         console.log('Preference created successfully:', response.init_point);
         res.json({ init_point: response.init_point });
     } catch (error) {
-        console.log('Error creating Mercado Pago preference:');
-        console.error(error);
+        console.error('Error creating Mercado Pago preference:', error.message);
         res.status(500).json({
-            error: 'Error al generar link de pago.',
-            details: error.message
+            error: 'Error al generar link de pago.'
         });
     }
 });
@@ -225,8 +238,44 @@ Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de
         res.json(parsedData);
 
     } catch (error) {
-        console.error("Error analyzing image:", error);
-        res.status(500).json({ error: 'Error analizando la imagen', details: error.message });
+        console.error("Error analyzing image:", error.message);
+        res.status(500).json({ error: 'Error analizando la imagen' });
+    }
+});
+
+app.post('/api/daily-insight', async (req, res) => {
+    try {
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini' });
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        const prompt = `Actúa como un Asesor Senior en Higiene y Seguridad Laboral en Argentina. 
+Genera un "Consejo del Día" breve y profesional para otros profesionales del área.
+Puede ser un recordatorio normativo (Ley 19587, Dec 351/79, etc.), un tip técnico sobre EPP, ergonomía, o prevención de riesgos.
+Formato de respuesta JSON estricto:
+{
+    "title": "Breve título del consejo (ej: Recordatorio SRT)",
+    "content": "Contenido del consejo (máximo 140 caracteres)",
+    "category": "Una de: Normativa, Técnico, Prevención, IA"
+}
+IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON. Sea conciso y valioso.`;
+
+        const result = await model.generateContent(prompt);
+        const responseText = result.response.text();
+
+        let cleanedJson = responseText.trim();
+        if (cleanedJson.startsWith('\`\`\`json')) {
+            cleanedJson = cleanedJson.replace(/\`\`\`json/, '').replace(/\`\`\`$/, '').trim();
+        } else if (cleanedJson.startsWith('\`\`\`')) {
+            cleanedJson = cleanedJson.replace(/\`\`\`/, '').replace(/\`\`\`$/, '').trim();
+        }
+
+        res.json(JSON.parse(cleanedJson));
+    } catch (error) {
+        console.error("Error generating daily insight:", error.message);
+        res.status(500).json({ error: 'Error generando el consejo diario' });
     }
 });
 
@@ -291,8 +340,8 @@ IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON, sin texto adicional. Asegúrate
         res.json(parsedData);
 
     } catch (error) {
-        console.error("Error in AI Advisor:", error);
-        res.status(500).json({ error: 'Error procesando la consulta', details: error.message });
+        console.error("Error in AI Advisor:", error.message);
+        res.status(500).json({ error: 'Error procesando la consulta' });
     }
 });
 
@@ -356,8 +405,8 @@ IMPORTANTE: Provee entre 4 y 8 pasos ordenados cronológicamente. Devuelve SOLO 
         res.json(parsedData);
 
     } catch (error) {
-        console.error("Error in AI ATS Generator:", error);
-        res.status(500).json({ error: 'Error generando el ATS', details: error.message });
+        console.error("Error in AI ATS Generator:", error.message);
+        res.status(500).json({ error: 'Error generando el ATS' });
     }
 });
 
@@ -394,8 +443,8 @@ Importante: tu respuesta debe contener ÚNICAMENTE el texto de la conclusión fi
         if (!result) throw new Error('Todos los modelos fallaron');
         res.json({ conclusion: result.response.text().trim() });
     } catch (error) {
-        console.error("Error in AI Conclusion:", error);
-        res.status(500).json({ error: 'Error generando la conclusión', details: error.message });
+        console.error("Error in AI Conclusion:", error.message);
+        res.status(500).json({ error: 'Error generando la conclusión' });
     }
 });
 
@@ -428,8 +477,8 @@ Provee un resumen de puntos principales (en viñetas) que todo prevencionista de
         if (!result) throw new Error('Modelos fallaron');
         res.json({ summary: result.response.text().trim() });
     } catch (error) {
-        console.error("Error in AI Legal Summary:", error);
-        res.status(500).json({ error: 'Error generando resumen', details: error.message });
+        console.error("Error in AI Legal Summary:", error.message);
+        res.status(500).json({ error: 'Error generando resumen' });
     }
 });
 
@@ -480,8 +529,8 @@ Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de
 
         res.json(JSON.parse(cleanedJson));
     } catch (error) {
-        console.error("Error analyzing general risks:", error);
-        res.status(500).json({ error: 'Error en análisis de riesgos', details: error.message });
+        console.error("Error analyzing general risks:", error.message);
+        res.status(500).json({ error: 'Error en análisis de riesgos' });
     }
 });
 
@@ -549,9 +598,7 @@ app.post('/api/forgot-password', async (req, res) => {
                 return res.status(404).json({ error: "No existe ninguna cuenta registrada con este correo electrónico." });
             }
             return res.status(400).json({
-                error: "Error interno en Firebase.",
-                details: authErr.message,
-                suggestion: "Contacte al administrador si el error persiste."
+                error: "Error interno en el sistema de autenticación."
             });
         }
 
@@ -628,9 +675,7 @@ app.post('/api/forgot-password', async (req, res) => {
         } catch (err) {
             console.error('[PASSWORD RESET] Error sending email via Resend:', err);
             return res.status(500).json({
-                error: 'No se pudo enviar el email de recuperación (v-Resend).',
-                details: err.message,
-                suggestion: 'Verifique que la API Key de Resend esté configurada en el panel de RENDER (no solo en Vercel).'
+                error: 'No se pudo enviar el email de recuperación.'
             });
         }
 
@@ -708,19 +753,19 @@ app.post('/api/register-request', async (req, res) => {
     }
 });
 
-app.get('/api/admin/requests', async (req, res) => {
+app.get('/api/admin/requests', isAdmin, async (req, res) => {
     try {
         await ensureDataFile();
         const fileContent = await fs.readFile(REQUESTS_FILE, 'utf-8');
         const requests = fileContent ? JSON.parse(fileContent) : [];
         res.json(requests);
     } catch (error) {
-        console.error("Error reading registration requests:", error);
+        console.error("Error reading registration requests:", error.message);
         res.status(500).json({ error: 'Error al leer las solicitudes' });
     }
 });
 
-app.delete('/api/admin/requests/:id', async (req, res) => {
+app.delete('/api/admin/requests/:id', isAdmin, async (req, res) => {
     try {
         const { id } = req.params;
         await ensureDataFile();

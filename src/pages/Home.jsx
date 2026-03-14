@@ -132,6 +132,7 @@ export default function Home() {
     ]);
     const [recentWorks, setRecentWorks] = useState([]);
     const [userName, setUserName] = useState('Profesional');
+    const [dailyInsight, setDailyInsight] = useState(null);
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -196,8 +197,35 @@ export default function Home() {
             setRecentWorks(combined);
         };
 
+        const loadDailyInsight = async () => {
+            try {
+                const today = new Date().toDateString();
+                const cached = localStorage.getItem('daily_insight_cache');
+                if (cached) {
+                    const { date, data } = JSON.parse(cached);
+                    if (date === today) {
+                        setDailyInsight(data);
+                        return;
+                    }
+                }
+
+                const response = await fetch('/api/daily-insight', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setDailyInsight(data);
+                    localStorage.setItem('daily_insight_cache', JSON.stringify({ date: today, data }));
+                }
+            } catch (err) {
+                console.error("Error fetching daily insight:", err);
+            }
+        };
+
         loadStats();
         loadRecent();
+        loadDailyInsight();
     }, [syncPulse]);
 
     return (
@@ -307,6 +335,32 @@ export default function Home() {
                             <CounterItem value={1240} label="Profesionales registrados" suffix="+" />
                             <CounterItem value={8500} label="Reportes generados" suffix="+" />
                             <CounterItem value={11} label="Módulos disponibles" suffix="" />
+                        </div>
+                    )}
+
+                    {/* — DAILY INSIGHT — */}
+                    {currentUser && dailyInsight && (
+                        <div className="stagger-item" style={{
+                            marginTop: '2rem',
+                            padding: '1.2rem',
+                            borderRadius: '20px',
+                            background: 'rgba(59, 130, 246, 0.1)',
+                            border: '1px solid rgba(59,130,246,0.2)',
+                            display: 'flex',
+                            gap: '1rem',
+                            alignItems: 'center',
+                            animationDelay: '0.8s'
+                        }}>
+                            <div style={{ background: 'var(--color-primary)', color: 'white', padding: '0.8rem', borderRadius: '15px', display: 'flex' }}>
+                                <Sparkles size={20} />
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
+                                    <span style={{ fontSize: '0.7rem', color: 'var(--color-primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Consejo del día · {dailyInsight.category}</span>
+                                </div>
+                                <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#ffffff' }}>{dailyInsight.title}</h4>
+                                <p style={{ margin: '0.2rem 0 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.4 }}>{dailyInsight.content}</p>
+                            </div>
                         </div>
                     )}
 
