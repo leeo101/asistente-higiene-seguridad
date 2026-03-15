@@ -9,6 +9,10 @@ export default function FireLoadPdfGenerator({ data }) {
     const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
     const countryNorms = getCountryNormativa(userCountry);
 
+    // Obtener logo de empresa
+    const companyLogo = localStorage.getItem('companyLogo');
+    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+
     const { empresa, obra, fecha, sector, superficie, riesgo, materiales, results, conclusion } = data;
 
     return (
@@ -42,13 +46,27 @@ export default function FireLoadPdfGenerator({ data }) {
                 </style>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '3px solid #e2e8f0', paddingBottom: '1rem', marginBottom: '2rem' }}>
-                    <div>
+                    <div style={{ flex: 1 }}>
                         <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, color: '#1e293b', letterSpacing: '-0.5px' }}>ESTUDIO DE CARGA DE FUEGO</h1>
                         <p style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#f97316' }}>CÁLCULO Y RESULTADOS</p>
                     </div>
-                    <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b' }}>SISTEMA DE GESTIÓN HYS</div>
-                        <div style={{ fontWeight: 800, color: '#1e293b' }}>{countryNorms.fire}</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                        {companyLogo && showLogo && (
+                            <img
+                                src={companyLogo}
+                                alt="Logo de empresa"
+                                style={{
+                                    height: '50px',
+                                    width: 'auto',
+                                    objectFit: 'contain',
+                                    maxWidth: '150px'
+                                }}
+                            />
+                        )}
+                        <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b' }}>SISTEMA DE GESTIÓN HYS</div>
+                            <div style={{ fontWeight: 800, color: '#1e293b' }}>{countryNorms.fire}</div>
+                        </div>
                     </div>
                 </div>
 

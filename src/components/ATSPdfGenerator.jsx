@@ -8,6 +8,10 @@ export default function ATSPdfGenerator({ atsData }) {
     const tareas = data.tareas || [];
     const checklist = data.checklist || [];
 
+    // Obtener logo de empresa
+    const companyLogo = localStorage.getItem('companyLogo');
+    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+
     // Extract unique categories from checklist
     const categories = [...new Set(checklist.map(item => item.categoria))];
 
@@ -53,9 +57,23 @@ export default function ATSPdfGenerator({ atsData }) {
                         <p style={{ margin: 0, color: '#64748b', fontWeight: 900, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.4em', marginTop: '0.25rem' }}>Análisis de Trabajo Seguro</p>
                     </div>
 
-                    <div style={{ flex: 1, textAlign: 'right' }}>
-                        <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>PÁGINA</div>
-                        <div style={{ fontWeight: 900, fontSize: '1.5rem', color: '#1e293b' }}>01 / 01</div>
+                    <div style={{ flex: 1, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                        {companyLogo && showLogo && (
+                            <img
+                                src={companyLogo}
+                                alt="Logo de empresa"
+                                style={{
+                                    height: '40px',
+                                    width: 'auto',
+                                    objectFit: 'contain',
+                                    maxWidth: '120px'
+                                }}
+                            />
+                        )}
+                        <div>
+                            <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>PÁGINA</div>
+                            <div style={{ fontWeight: 900, fontSize: '1.5rem', color: '#1e293b' }}>01 / 01</div>
+                        </div>
                     </div>
                 </div>
 
@@ -104,7 +122,7 @@ export default function ATSPdfGenerator({ atsData }) {
                                 <div style={{ padding: '0.8rem', borderRight: '1px solid #e2e8f0' }}>Riesgos</div>
                                 <div style={{ padding: '0.8rem' }}>Controles</div>
                             </div>
-                            
+
                             {tareas.map((t, idx) => (
                                 <div key={t.id} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.5fr', borderBottom: idx === tareas.length - 1 ? 'none' : '1px solid #e2e8f0', pageBreakInside: 'avoid' }}>
                                     <div style={{ padding: '0.8rem', borderRight: '1px solid #e2e8f0', fontSize: '0.85rem', fontWeight: 700, color: '#1e293b', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{t.paso}</div>
@@ -143,9 +161,9 @@ export default function ATSPdfGenerator({ atsData }) {
                                                 <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
                                                     {['SI', 'NO', 'NA'].map((label) => {
                                                         const isSelected = (label === 'SI' && (item.estado === 'Cumple' || item.estado === 'SI')) ||
-                                                                         (label === 'NO' && (item.estado === 'No Cumple' || item.estado === 'NO')) ||
-                                                                         (label === 'NA' && (item.estado === 'N/A' || item.estado === 'NA'));
-                                                        
+                                                            (label === 'NO' && (item.estado === 'No Cumple' || item.estado === 'NO')) ||
+                                                            (label === 'NA' && (item.estado === 'N/A' || item.estado === 'NA'));
+
                                                         let icon = '';
                                                         if (isSelected) {
                                                             if (label === 'SI') icon = '✔';
@@ -191,7 +209,7 @@ export default function ATSPdfGenerator({ atsData }) {
                             <p style={{ margin: 0, fontSize: '0.65rem', color: '#64748b' }}>Firma y Aclaración</p>
                         </div>
                     </div>
-                    
+
                     <div style={{ textAlign: 'center', width: '35%' }}>
                         <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             {data.professionalSignature && <img src={data.professionalSignature} alt="Firma Profesional" style={{ height: '100%', objectFit: 'contain' }} />}
