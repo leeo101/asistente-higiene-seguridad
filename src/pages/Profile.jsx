@@ -13,9 +13,11 @@ export default function Profile() {
     useDocumentTitle('Mi Perfil');
     const [linkCopied, setLinkCopied] = useState(false);
     const [userData, setUserData] = useState({
-        name: 'Juan Pérez',
-        license: 'MP 5567'
+        name: 'Usuario',
+        license: '---'
     });
+
+    const [isSubscribed, setIsSubscribed] = useState(false);
 
     const [userCountry, setUserCountry] = useState('argentina');
 
@@ -105,15 +107,15 @@ export default function Profile() {
                     {userData.photo ? (
                         <img src={userData.photo} alt="Foto de Perfil" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
-                        userData.name.charAt(0)
+                        (userData.name || 'U').charAt(0)
                     )}
                 </div>
-                <h2 style={{ margin: '0 0 0.5rem 0' }}>{userData.name}</h2>
+                <h2 style={{ margin: '0 0 0.5rem 0' }}>{userData.name || 'Usuario'}</h2>
                 {userData.profession && (
                     <p style={{ margin: '0 0 0.5rem 0', color: 'var(--color-primary)', fontWeight: 700, fontSize: '1rem' }}>{userData.profession}</p>
                 )}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                    <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>Matrícula: {userData.license}</p>
+                    <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>Matrícula: {userData.license || '---'}</p>
                     <span style={{
                         padding: '0.2rem 0.6rem',
                         borderRadius: '20px',
