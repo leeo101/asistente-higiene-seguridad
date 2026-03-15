@@ -4,6 +4,10 @@ import { ClipboardCheck, Check, X } from 'lucide-react';
 export default function ChecklistPdfGenerator({ checklistData }) {
     const [fullData, setFullData] = useState(null);
 
+    // Obtener logo de empresa
+    const companyLogo = localStorage.getItem('companyLogo');
+    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+
     useEffect(() => {
         if (checklistData?.id) {
             const stored = localStorage.getItem(`checklist_${checklistData.id}`);
@@ -65,9 +69,23 @@ export default function ChecklistPdfGenerator({ checklistData }) {
                         <p style={{ margin: 0, color: '#64748b', fontWeight: 900, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.4em', marginTop: '0.25rem' }}>Higiene y Seguridad</p>
                     </div>
 
-                    <div style={{ flex: 1, textAlign: 'right' }}>
-                        <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>DOCUMENTO N°</div>
-                        <div style={{ fontWeight: 900, fontSize: '1.5rem', color: '#1e293b', borderBottom: '2px solid #e2e8f0', display: 'inline-block', paddingBottom: '2px' }}>{inspInfo.serial || checklistData.serial || 'S/N'}</div>
+                    <div style={{ flex: 1, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                        {companyLogo && showLogo && (
+                            <img
+                                src={companyLogo}
+                                alt="Logo de empresa"
+                                style={{
+                                    height: '40px',
+                                    width: 'auto',
+                                    objectFit: 'contain',
+                                    maxWidth: '120px'
+                                }}
+                            />
+                        )}
+                        <div>
+                            <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>DOCUMENTO N°</div>
+                            <div style={{ fontWeight: 900, fontSize: '1.5rem', color: '#1e293b', borderBottom: '2px solid #e2e8f0', display: 'inline-block', paddingBottom: '2px' }}>{inspInfo.serial || checklistData.serial || 'S/N'}</div>
+                        </div>
                     </div>
                 </div>
 
@@ -112,10 +130,10 @@ export default function ChecklistPdfGenerator({ checklistData }) {
                             </div>
                             <div>
                                 {section.items.map((item, idx) => (
-                                    <div key={idx} style={{ 
-                                        display: 'grid', 
-                                        gridTemplateColumns: '40px 1fr 100px', 
-                                        borderBottom: idx === section.items.length - 1 ? 'none' : '1px solid #f1f5f9', 
+                                    <div key={idx} style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: '40px 1fr 100px',
+                                        borderBottom: idx === section.items.length - 1 ? 'none' : '1px solid #f1f5f9',
                                         alignItems: 'stretch',
                                         pageBreakInside: 'avoid'
                                     }}>
@@ -127,8 +145,8 @@ export default function ChecklistPdfGenerator({ checklistData }) {
                                         </div>
                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.8rem', borderLeft: '1px dotted #e2e8f0' }}>
                                             {item.status === 'OK' ? <Check size={20} color="#16a34a" strokeWidth={3} /> :
-                                             item.status === 'FAIL' ? <X size={20} color="#dc2626" strokeWidth={3} /> :
-                                             item.status === 'NA' ? <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#94a3b8' }}>N/A</span> : ''}
+                                                item.status === 'FAIL' ? <X size={20} color="#dc2626" strokeWidth={3} /> :
+                                                    item.status === 'NA' ? <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#94a3b8' }}>N/A</span> : ''}
                                         </div>
                                     </div>
                                 ))}
@@ -155,7 +173,7 @@ export default function ChecklistPdfGenerator({ checklistData }) {
                             <p style={{ margin: 0, fontSize: '0.65rem', color: '#64748b' }}>Firma y Aclaración</p>
                         </div>
                     </div>
-                    
+
                     <div style={{ textAlign: 'center', width: '30%' }}>
                         <div style={{ borderTop: '2px solid #1e293b', paddingTop: '8px' }}>
                             <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>SUPERVISOR H&S</p>

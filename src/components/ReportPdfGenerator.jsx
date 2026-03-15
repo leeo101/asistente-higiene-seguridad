@@ -7,6 +7,10 @@ export default function ReportPdfGenerator({ initialData }) {
     const findings = initialData.observations || [];
     const findingCount = findings.length;
 
+    // Obtener logo de empresa
+    const companyLogo = localStorage.getItem('companyLogo');
+    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+
     return (
         <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
             <div
@@ -38,17 +42,31 @@ export default function ReportPdfGenerator({ initialData }) {
 
                 {/* Header Section */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '3px solid #3b82f6', paddingBottom: '1.5rem', marginBottom: '2rem' }}>
-                    <div>
+                    <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.5rem' }}>
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: '#3b82f6', fontWeight: 900 }}>ASISTENTE H&S</h2>
                         </div>
                         <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>INFORME TÉCNICO DE INSPECCIÓN</h1>
                         <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>Protocolo de Relevamiento General de Riesgos</p>
                     </div>
-                    <div style={{ textAlign: 'right', fontSize: '0.85rem' }}>
-                        <p style={{ margin: '0 0 0.2rem 0' }}><strong>Fecha:</strong> {new Date(initialData.date).toLocaleDateString()}</p>
-                        <p style={{ margin: '0 0 0.2rem 0' }}><strong>Referencia:</strong> {initialData.name}</p>
-                        <p style={{ margin: 0 }}><strong>Ubicación:</strong> {initialData.location || '-'}</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                        {companyLogo && showLogo && (
+                            <img
+                                src={companyLogo}
+                                alt="Logo de empresa"
+                                style={{
+                                    height: '45px',
+                                    width: 'auto',
+                                    objectFit: 'contain',
+                                    maxWidth: '140px'
+                                }}
+                            />
+                        )}
+                        <div style={{ textAlign: 'right', fontSize: '0.85rem' }}>
+                            <p style={{ margin: '0 0 0.2rem 0' }}><strong>Fecha:</strong> {new Date(initialData.date).toLocaleDateString()}</p>
+                            <p style={{ margin: '0 0 0.2rem 0' }}><strong>Referencia:</strong> {initialData.name}</p>
+                            <p style={{ margin: 0 }}><strong>Ubicación:</strong> {initialData.location || '-'}</p>
+                        </div>
                     </div>
                 </div>
 
@@ -163,7 +181,7 @@ export default function ReportPdfGenerator({ initialData }) {
                                 ))}
                             </tbody>
                         </table>
-                        
+
                         {/* Evidence Photos placed below to avoid table breakout issues */}
                         <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                             {findings.map((obs, i) => obs.photo && (
