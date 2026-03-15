@@ -13,8 +13,9 @@ const navItems = [
     { to: '/profile', icon: <User size={18} />, label: 'Mi Perfil', auth: true },
     { to: '/history', icon: <History size={18} />, label: 'Historiales', auth: true },
     { to: '/calendar', icon: <Calendar size={18} />, label: 'Calendario', always: true },
-    { to: '/analytics', icon: <BarChart3 size={18} color="#3b82f6" />, label: 'Estadísticas', auth: true },
-    { to: '/management-report', icon: <BarChart3 size={18} color="#10b981" />, label: 'Reporte Mensual', auth: true },
+    { to: '/dashboard', icon: <BarChart3 size={18} color="#10b981" />, label: 'Dashboard', auth: true },
+    { to: '/analytics', icon: <BarChart3 size={18} color="#3b82f6" />, label: 'Analítica Avanzada', auth: true },
+    { to: '/management-report', icon: <BarChart3 size={18} color="#8b5cf6" />, label: 'Reporte Mensual', auth: true },
     { to: '/settings', icon: <Settings size={18} />, label: 'Configuración', auth: true },
     { to: '/privacy', icon: <ShieldCheck size={18} />, label: 'Privacidad', always: true },
 ];
@@ -172,17 +173,17 @@ export default function Sidebar({ isOpen, onClose }) {
                                 <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--color-hero-text)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                     {currentUser ? userInfo.name : 'Invitado'}
                                     {isPro() && (
-                                        <div 
-                                            style={{ 
-                                                display: 'flex', 
-                                                alignItems: 'center', 
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
                                                 gap: '0.35rem',
                                                 padding: '0.2rem 0.5rem',
                                                 background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(251, 191, 36, 0.1))',
                                                 border: '1px solid rgba(245, 158, 11, 0.3)',
                                                 borderRadius: '20px',
                                                 backdropFilter: 'blur(4px)'
-                                            }} 
+                                            }}
                                             title={daysRemaining() === Infinity ? "Plan Administrador - Acceso Total" : `Días PRO: ${daysRemaining()}`}
                                         >
                                             <Crown size={12} color="#f59e0b" fill="#f59e0b" />
@@ -310,8 +311,8 @@ export default function Sidebar({ isOpen, onClose }) {
                                     e.currentTarget.style.transform = 'translateY(0)';
                                 }}
                             >
-                                <div style={{ 
-                                    width: '32px', height: '32px', borderRadius: '10px', 
+                                <div style={{
+                                    width: '32px', height: '32px', borderRadius: '10px',
                                     background: 'linear-gradient(135deg, #f59e0b, #fbbf24)',
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                                     boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)',
