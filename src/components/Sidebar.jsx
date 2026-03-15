@@ -14,7 +14,6 @@ const navItems = [
     { to: '/history', icon: <History size={18} />, label: 'Historiales', auth: true },
     { to: '/calendar', icon: <Calendar size={18} />, label: 'Calendario', always: true },
     { to: '/dashboard', icon: <BarChart3 size={18} color="#10b981" />, label: 'Dashboard', auth: true },
-    { to: '/analytics', icon: <BarChart3 size={18} color="#3b82f6" />, label: 'Analítica Avanzada', auth: true },
     { to: '/management-report', icon: <BarChart3 size={18} color="#8b5cf6" />, label: 'Reporte Mensual', auth: true },
     { to: '/settings', icon: <Settings size={18} />, label: 'Configuración', auth: true },
     { to: '/privacy', icon: <ShieldCheck size={18} />, label: 'Privacidad', always: true },
