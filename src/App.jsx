@@ -71,6 +71,7 @@ const RiskAssessmentHistory = lazyWithRetry(() => import('./pages/RiskAssessment
 const NotFound = lazyWithRetry(() => import('./pages/NotFound.jsx'));
 const PPETracker = lazyWithRetry(() => import('./pages/PPETracker.jsx'));
 const Analytics = lazyWithRetry(() => import('./pages/Analytics.jsx'));
+const Dashboard = lazyWithRetry(() => import('./pages/Dashboard.jsx'));
 const ChecklistsHistory = lazyWithRetry(() => import('./pages/ChecklistsHistory.jsx'));
 const ChecklistManager = lazyWithRetry(() => import('./pages/ChecklistManager.jsx'));
 const Subscription = lazyWithRetry(() => import('./pages/Subscription.jsx'));
@@ -423,6 +424,7 @@ function App() {
                 <Route path="/admin/requests" element={<ProtectedRoute><AdminRequests /></ProtectedRoute>} />
                 <Route path="/PPE-tracker" element={<ProtectedRoute><PPETracker /></ProtectedRoute>} />
                 <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                 <Route path="/management-report" element={<ProtectedRoute><ManagementReport /></ProtectedRoute>} />
                 <Route path="/accident-investigation" element={<ProtectedRoute><AccidentInvestigation /></ProtectedRoute>} />
                 <Route path="/accident-history" element={<ProtectedRoute><AccidentHistory /></ProtectedRoute>} />
