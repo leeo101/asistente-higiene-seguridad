@@ -28,13 +28,13 @@ function FaqSection() {
     const items = [
         { q: '¿Qué países están soportados?', a: 'Asistente HYS está totalmente legalizado para Argentina, Chile, Bolivia, Paraguay y Uruguay. Los cálculos y el Asesor IA se adaptan automáticamente a la normativa de tu país seleccionado al registrarte.' },
         { q: '¿Es realmente gratis?', a: 'Sí. Podés usar todos los módulos de cálculo, ATS, matrices, asesor IA y cámara sin pagar nada. El plan PRO agrega la impresión/PDF y el historial en nube.' },
-        { 
-            q: userCountry === 'argentina' ? '¿Cumple con la normativa argentina?' : '¿Cumple con la normativa local?', 
-            a: userCountry === 'argentina' 
-                ? 'Los cálculos están basados en la Ley 19.587, el Dec. 351/79, resoluciones SRT y normativas vigentes. Siempre recomendamos verificar cambios normativos recientes.' 
+        {
+            q: userCountry === 'argentina' ? '¿Cumple con la normativa argentina?' : '¿Cumple con la normativa local?',
+            a: userCountry === 'argentina'
+                ? 'Los cálculos están basados en la Ley 19.587, el Dec. 351/79, resoluciones SRT y normativas vigentes. Siempre recomendamos verificar cambios normativos recientes.'
                 : userCountry === 'chile'
-                ? 'Los cálculos están basados en el DS 594 y la Ley 16.744 de Chile. El asesor IA utiliza el contexto legal de tu región.'
-                : `Los cálculos y módulos están adaptados a las normativas vigentes de ${userCountry.charAt(0).toUpperCase() + userCountry.slice(1)} (ej: ${userCountry === 'bolivia' ? 'DL 16998' : userCountry === 'paraguay' ? 'Dec 14390' : 'Dec 406/88'}). El asesor IA utiliza el contexto legal regional.`
+                    ? 'Los cálculos están basados en el DS 594 y la Ley 16.744 de Chile. El asesor IA utiliza el contexto legal de tu región.'
+                    : `Los cálculos y módulos están adaptados a las normativas vigentes de ${userCountry.charAt(0).toUpperCase() + userCountry.slice(1)} (ej: ${userCountry === 'bolivia' ? 'DL 16998' : userCountry === 'paraguay' ? 'Dec 14390' : 'Dec 406/88'}). El asesor IA utiliza el contexto legal regional.`
         },
         { q: '¿Mis datos están seguros?', a: 'Sí. Usamos Firebase (Google) para autenticación y almacenamiento cifrado. Nunca compartimos tus datos con terceros. Podés leer nuestra Política de Privacidad.' },
         { q: '¿Funciona en el celular?', a: 'Perfecto. Está optimizada para mobile y podés instalarla directamente en tu pantalla de inicio como una app nativa, sin pasar por ninguna tienda.' },
@@ -101,60 +101,60 @@ const typeColors = {
     'Eval. Riesgo': { bg: 'rgba(239, 68, 68, 0.12)', text: '#ef4444', icon: <Shield size={18} /> },
 };
 
-    const savedData = localStorage.getItem('personalData');
-    const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+const savedData = localStorage.getItem('personalData');
+const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
 
-    const getRegSub = (module) => {
-        if (userCountry === 'argentina') {
-            if (module === 'fire') return 'Dec. 351/79';
-            if (module === 'ergo') return 'Res. SRT 886/15';
-            if (module === 'thermal') return 'TGBH Res. 295/03';
-            if (module === 'lighting') return 'Dec. 351/79';
-        } else if (userCountry === 'chile') {
-            if (module === 'fire') return 'DS 594 / Art. 44';
-            if (module === 'ergo') return 'Ley 20.949';
-            if (module === 'thermal') return 'DS 594';
-            if (module === 'lighting') return 'DS 594';
-        } else if (userCountry === 'bolivia') {
-            if (module === 'fire') return 'DL 16998 / Art. 83';
-            if (module === 'ergo') return 'DL 16998';
-            if (module === 'thermal') return 'DL 16998 / Art. 54';
-            if (module === 'lighting') return 'DL 16998 / Art. 68';
-        } else if (userCountry === 'paraguay') {
-            if (module === 'fire') return 'Dec 14390 / Art. 147';
-            if (module === 'ergo') return 'Dec 14390';
-            if (module === 'thermal') return 'Dec 14390 / Art. 210';
-            if (module === 'lighting') return 'Dec 14390 / Art. 182';
-        } else if (userCountry === 'uruguay') {
-            if (module === 'fire') return 'Dec 406/88 / Tít. VII';
-            if (module === 'ergo') return 'Dec 406/88';
-            if (module === 'thermal') return 'Dec 406/88 / Tít. V';
-            if (module === 'lighting') return 'Dec 406/88 / Tít. IV';
-        }
-        return 'Referencia Normativa Local';
-    };
+const getRegSub = (module) => {
+    if (userCountry === 'argentina') {
+        if (module === 'fire') return 'Dec. 351/79';
+        if (module === 'ergo') return 'Res. SRT 886/15';
+        if (module === 'thermal') return 'TGBH Res. 295/03';
+        if (module === 'lighting') return 'Dec. 351/79';
+    } else if (userCountry === 'chile') {
+        if (module === 'fire') return 'DS 594 / Art. 44';
+        if (module === 'ergo') return 'Ley 20.949';
+        if (module === 'thermal') return 'DS 594';
+        if (module === 'lighting') return 'DS 594';
+    } else if (userCountry === 'bolivia') {
+        if (module === 'fire') return 'DL 16998 / Art. 83';
+        if (module === 'ergo') return 'DL 16998';
+        if (module === 'thermal') return 'DL 16998 / Art. 54';
+        if (module === 'lighting') return 'DL 16998 / Art. 68';
+    } else if (userCountry === 'paraguay') {
+        if (module === 'fire') return 'Dec 14390 / Art. 147';
+        if (module === 'ergo') return 'Dec 14390';
+        if (module === 'thermal') return 'Dec 14390 / Art. 210';
+        if (module === 'lighting') return 'Dec 14390 / Art. 182';
+    } else if (userCountry === 'uruguay') {
+        if (module === 'fire') return 'Dec 406/88 / Tít. VII';
+        if (module === 'ergo') return 'Dec 406/88';
+        if (module === 'thermal') return 'Dec 406/88 / Tít. V';
+        if (module === 'lighting') return 'Dec 406/88 / Tít. IV';
+    }
+    return 'Referencia Normativa Local';
+};
 
-    const quickLinks = [
-        { to: '/ats', icon: <ShieldCheck size={26} />, label: 'ATS', sub: 'Análisis Trabajo Seguro', color: '#10b981', bg: 'rgba(16,185,129,0.1)' },
-        { to: '/ai-advisor', icon: <Bot size={26} />, label: 'Asesor IA', sub: 'Consultas de Seguridad', color: '#a855f7', bg: 'rgba(168,85,247,0.1)' },
-        { to: '/ai-camera', icon: <Camera size={26} />, label: 'Cámara IA', sub: 'Detección EPP', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)' },
-        { to: '/training-management', icon: <Users size={26} />, label: 'Capacitar', sub: 'Planillas y Asistencia', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
-        { to: '/fire-load', icon: <Flame size={26} />, label: 'Carga Fuego', sub: getRegSub('fire'), color: '#f97316', bg: 'rgba(249,115,22,0.1)' },
-        { to: '/checklists', icon: <ClipboardList size={26} />, label: 'Checklists', sub: 'Herramientas y Equipos', color: '#14b8a6', bg: 'rgba(20,184,166,0.1)' },
-        { to: '/ppe-tracker', icon: <HardHat size={26} />, label: 'Control EPP', sub: 'Vencimientos', color: '#10b981', bg: 'rgba(16,185,129,0.08)' },
-        { to: '/ergonomics', icon: <Accessibility size={26} />, label: 'Ergonomía', sub: getRegSub('ergo'), color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
-        { to: '/thermal-stress', icon: <ThermometerSun size={26} />, label: 'Estrés Térmico', sub: getRegSub('thermal'), color: '#f97316', bg: 'rgba(249,115,22,0.1)' },
-        { to: '/lighting', icon: <Lightbulb size={26} />, label: 'Iluminación', sub: getRegSub('lighting'), color: '#eab308', bg: 'rgba(234,179,8,0.1)' },
-        { to: '/reports', icon: <ScrollText size={26} />, label: 'Informes', sub: 'Técnicos', color: '#ec4899', bg: 'rgba(236,72,153,0.1)' },
-        { to: '/accident-investigation', icon: <Siren size={26} />, label: 'Investigación', sub: 'Accidentes / Árbol', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
-        { to: '/legislation', icon: <Gavel size={26} />, label: 'Legislación', sub: 'Biblioteca Legal', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
-        { to: '/risk-maps', icon: <Map size={26} />, label: 'Mapas', sub: 'Croquis de Riesgos', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
-        { to: '/extinguishers', icon: <Flame size={26} />, label: 'Matafuegos', sub: 'Control y Vencimientos', color: '#dc2626', bg: 'rgba(220,38,38,0.1)' },
-        { to: '/work-permit', icon: <KeySquare size={26} />, label: 'Permisos', sub: 'Tareas Críticas', color: '#2563eb', bg: 'rgba(37,99,235,0.1)' },
-        { to: '/ai-general-camera', icon: <ShieldAlert size={26} />, label: 'Riesgos IA', sub: 'Análisis de Entorno', color: '#f43f5e', bg: 'rgba(244, 63, 94, 0.1)' },
-        { to: '/drills', icon: <Siren size={26} />, label: 'Simulacros', sub: 'Actas de Evacuación', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
-        { to: '/stop-cards', icon: <TriangleAlert size={26} />, label: 'Tarjetas STOP', sub: 'Observaciones', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
-    ];
+const quickLinks = [
+    { to: '/ats', icon: <ShieldCheck size={26} />, label: 'ATS', sub: 'Análisis Trabajo Seguro', color: '#10b981', bg: 'rgba(16,185,129,0.1)' },
+    { to: '/ai-advisor', icon: <Bot size={26} />, label: 'Asesor IA', sub: 'Consultas de Seguridad', color: '#a855f7', bg: 'rgba(168,85,247,0.1)' },
+    { to: '/ai-camera', icon: <Camera size={26} />, label: 'Cámara IA', sub: 'Detección EPP', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)' },
+    { to: '/training-management', icon: <Users size={26} />, label: 'Capacitar', sub: 'Planillas y Asistencia', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
+    { to: '/fire-load', icon: <Flame size={26} />, label: 'Carga Fuego', sub: getRegSub('fire'), color: '#f97316', bg: 'rgba(249,115,22,0.1)' },
+    { to: '/checklists', icon: <ClipboardList size={26} />, label: 'Checklists', sub: 'Herramientas y Equipos', color: '#14b8a6', bg: 'rgba(20,184,166,0.1)' },
+    { to: '/ppe-tracker', icon: <HardHat size={26} />, label: 'Control EPP', sub: 'Vencimientos', color: '#10b981', bg: 'rgba(16,185,129,0.08)' },
+    { to: '/ergonomics', icon: <Accessibility size={26} />, label: 'Ergonomía', sub: getRegSub('ergo'), color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
+    { to: '/thermal-stress', icon: <ThermometerSun size={26} />, label: 'Estrés Térmico', sub: getRegSub('thermal'), color: '#f97316', bg: 'rgba(249,115,22,0.1)' },
+    { to: '/lighting', icon: <Lightbulb size={26} />, label: 'Iluminación', sub: getRegSub('lighting'), color: '#eab308', bg: 'rgba(234,179,8,0.1)' },
+    { to: '/reports', icon: <ScrollText size={26} />, label: 'Informes', sub: 'Técnicos', color: '#ec4899', bg: 'rgba(236,72,153,0.1)' },
+    { to: '/accident-investigation', icon: <Siren size={26} />, label: 'Investigación', sub: 'Accidentes / Árbol', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
+    { to: '/legislation', icon: <Gavel size={26} />, label: 'Legislación', sub: 'Biblioteca Legal', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
+    { to: '/risk-maps', icon: <Map size={26} />, label: 'Mapas', sub: 'Croquis de Riesgos', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
+    { to: '/extinguishers', icon: <Flame size={26} />, label: 'Matafuegos', sub: 'Control y Vencimientos', color: '#dc2626', bg: 'rgba(220,38,38,0.1)' },
+    { to: '/work-permit', icon: <KeySquare size={26} />, label: 'Permisos', sub: 'Tareas Críticas', color: '#2563eb', bg: 'rgba(37,99,235,0.1)' },
+    { to: '/ai-general-camera', icon: <ShieldAlert size={26} />, label: 'Riesgos IA', sub: 'Análisis de Entorno', color: '#f43f5e', bg: 'rgba(244, 63, 94, 0.1)' },
+    { to: '/drills', icon: <Siren size={26} />, label: 'Simulacros', sub: 'Actas de Evacuación', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
+    { to: '/stop-cards', icon: <TriangleAlert size={26} />, label: 'Tarjetas STOP', sub: 'Observaciones', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
+];
 
 export default function Home() {
     const navigate = useNavigate();
@@ -339,12 +339,12 @@ export default function Home() {
                         </div>
                         {!currentUser && (
                             <div className="hero-buttons stagger-item" style={{ animationDelay: '0.3s', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', width: '100%', maxWidth: '450px' }}>
-                                    <button onClick={() => navigate('/login', { state: { view: 'register' } })}
-                                        style={{ flex: 2, padding: '1.3rem 2rem', borderRadius: '20px', border: 'none', background: 'var(--color-primary)', color: 'white', fontWeight: 800, cursor: 'pointer', fontSize: '1.1rem', boxShadow: '0 20px 40px rgba(59, 130, 246, 0.4)', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}
-                                        onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-6px)'; e.currentTarget.style.boxShadow = '0 30px 60px rgba(59, 130, 246, 0.5)'; }}
-                                        onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(59, 130, 246, 0.4)'; }}>
-                                        Comenzar Ahora - Gratis
-                                    </button>
+                                <button onClick={() => navigate('/login', { state: { view: 'register' } })}
+                                    style={{ flex: 2, padding: '1.3rem 2rem', borderRadius: '20px', border: 'none', background: 'var(--color-primary)', color: 'white', fontWeight: 800, cursor: 'pointer', fontSize: '1.1rem', boxShadow: '0 20px 40px rgba(59, 130, 246, 0.4)', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}
+                                    onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-6px)'; e.currentTarget.style.boxShadow = '0 30px 60px rgba(59, 130, 246, 0.5)'; }}
+                                    onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(59, 130, 246, 0.4)'; }}>
+                                    Comenzar Ahora - Gratis
+                                </button>
                                 <button onClick={() => navigate('/login', { state: { view: 'login' } })}
                                     style={{ flex: 1, padding: '1.3rem 2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', color: 'white', fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', fontSize: '1rem', transition: 'all 0.3s ease' }}
                                     onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
@@ -433,212 +433,540 @@ export default function Home() {
             </div>
 
             {/* ── LANDING COMPLETA (solo visitantes) ── */}
-                {!currentUser && (
-                    <div style={{ marginTop: '2.5rem' }}>
+            {!currentUser && (
+                <div style={{ marginTop: '2.5rem' }}>
 
-                        {/* — FEATURES GRID — */}
-                        <h2 style={{ fontSize: '1.3rem', fontWeight: 900, textAlign: 'center', marginBottom: '0.4rem' }}>
-                            Todo lo que necesitás en una sola App
-                        </h2>
-                        <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '2rem' }}>
-                            11 módulos profesionales, gratis para usar
-                        </p>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.2rem', marginBottom: '3rem' }}>
-                            {[
-                                { 
-                                    icon: '✨', 
-                                    color: '#f59e0b', 
-                                    bg: 'rgba(245,158,11,0.08)', 
-                                    title: 'Asesoría Legal con IA', 
-                                    desc: userCountry === 'argentina' 
-                                        ? 'Consultá normativas argentinas (Ley 19587, Dec 351/79) y recibí recomendaciones preventivas al instante.' 
-                                        : `Consultá normativas de ${userCountry.charAt(0).toUpperCase() + userCountry.slice(1)} (${getCountryNormativa(userCountry).general}) y recibí recomendaciones preventivas ajustadas a la legislación local.` 
-                                },
-                                { icon: '📷', color: '#06b6d4', bg: 'rgba(6,182,212,0.08)', title: 'Cámara de Riesgos', desc: 'Detectá automáticamente la falta de casco, guantes o calzado de seguridad con la cámara de tu celular.' },
-                                { 
-                                    icon: '🔥', 
-                                    color: '#f97316', 
-                                    bg: 'rgba(249,115,22,0.08)', 
-                                    title: 'Cálculo Carga de Fuego', 
-                                    desc: userCountry === 'argentina' 
-                                        ? 'Calculá la carga de fuego según Dec 351/79. Genera el protocolo oficial listo para presentar.' 
-                                        : `Calculá la carga de fuego según ${getCountryNormativa(userCountry).fire}. Genera reportes técnicos listos para presentar.` 
-                                },
-                                { icon: '💡', color: '#eab308', bg: 'rgba(234,179,8,0.08)', title: 'Iluminación', desc: 'Medición y cálculo de niveles de iluminación con factor de mantenimiento y comparación normativa.' },
-                                { icon: '⚠️', color: '#8b5cf6', bg: 'rgba(139,92,246,0.08)', title: 'Matriz de Riesgo', desc: 'Evaluá peligros con matrices 5x5 personalizadas. Genera reportes PDF automáticamente.' },
-                                { icon: '📋', color: '#10b981', bg: 'rgba(16,185,129,0.08)', title: 'ATS — Análisis de Trabajo Seguro', desc: 'Creá ATS por tarea con medidas de control. Listo para firma digital e impresión.' },
-                            ].map((f, i) => (
-                                <div key={i} className="card" style={{ padding: '1.4rem', borderLeft: `4px solid ${f.color} `, background: 'var(--color-surface)', transition: 'all 0.3s ease' }}
-                                    onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.background = f.bg; }}
-                                    onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = 'var(--color-surface)'; }}>
-                                    <div style={{ fontSize: '1.8rem', marginBottom: '0.7rem' }}>{f.icon}</div>
-                                    <h4 style={{ margin: '0 0 0.5rem', fontWeight: 800, fontSize: '0.95rem' }}>{f.title}</h4>
-                                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>{f.desc}</p>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* — CÓMO FUNCIONA — */}
-                        <div style={{ background: 'linear-gradient(135deg,rgba(37,99,235,0.05),rgba(14,165,233,0.03))', borderRadius: '20px', padding: '2rem 1.5rem', marginBottom: '3rem', border: '1px solid rgba(37,99,235,0.1)' }}>
-                            <h2 style={{ fontSize: '1.2rem', fontWeight: 900, textAlign: 'center', marginBottom: '2rem' }}>
-                                ¿Cómo funciona?
-                            </h2>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1.5rem' }}>
-                                {[
-                                    { n: '1', icon: '🎯', title: 'Registrate Gratis', desc: 'Creá tu cuenta en 60 segundos con tu matrícula y datos profesionales.' },
-                                    { n: '2', icon: '🛠️', title: 'Usá las Herramientas', desc: 'Accedé a todos los módulos: cálculos, ATS, matrices, legislación y más.' },
-                                    { n: '3', icon: '📄', title: 'Descargá tus Reportes', desc: 'Generá PDFs profesionales listos para presentar con tu firma digital.' },
-                                ].map((s, i) => (
-                                    <div key={i} style={{ textAlign: 'center', padding: '1rem' }}>
-                                        <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'linear-gradient(135deg,#1e3a8a,#2563eb)', margin: '0 auto 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontWeight: 900, fontSize: '1.2rem', boxShadow: '0 4px 15px rgba(37,99,235,0.3)' }}>
-                                            {s.n}
-                                        </div>
-                                        <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{s.icon}</div>
-                                        <h4 style={{ margin: '0 0 0.4rem', fontWeight: 800, fontSize: '0.95rem' }}>{s.title}</h4>
-                                        <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>{s.desc}</p>
-                                    </div>
-                                ))}
+                    {/* — FEATURES GRID — */}
+                    <h2 style={{
+                        fontSize: 'clamp(1.3rem, 4vw, 1.5rem)',
+                        fontWeight: 900,
+                        textAlign: 'center',
+                        marginBottom: '0.4rem',
+                        background: 'linear-gradient(135deg, #1e3a8a, #2563eb)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text'
+                    }}>
+                        Todo lo que necesitás en una sola App
+                    </h2>
+                    <p style={{
+                        textAlign: 'center',
+                        color: 'var(--color-text-muted)',
+                        fontSize: 'clamp(0.85rem, 2.5vw, 0.95rem)',
+                        marginBottom: '2rem',
+                        maxWidth: '600px',
+                        margin: '0 auto 2rem'
+                    }}>
+                        11+ módulos profesionales con IA, gratis para usar
+                    </p>
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
+                        gap: '1rem',
+                        marginBottom: '3rem',
+                        padding: '0 0.5rem'
+                    }}>
+                        {[
+                            {
+                                icon: '✨',
+                                color: '#f59e0b',
+                                bg: 'rgba(245,158,11,0.08)',
+                                gradient: 'linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.02))',
+                                title: 'Asesoría Legal con IA',
+                                desc: userCountry === 'argentina'
+                                    ? 'Consultá normativas argentinas (Ley 19587, Dec 351/79) y recibí recomendaciones preventivas al instante.'
+                                    : `Consultá normativas de ${userCountry.charAt(0).toUpperCase() + userCountry.slice(1)} (${getCountryNormativa(userCountry).general}) y recibí recomendaciones preventivas ajustadas a la legislación local.`
+                            },
+                            {
+                                icon: '📷',
+                                color: '#06b6d4',
+                                bg: 'rgba(6,182,212,0.08)',
+                                gradient: 'linear-gradient(135deg, rgba(6,182,212,0.1), rgba(6,182,212,0.02))',
+                                title: 'Cámara de Riesgos',
+                                desc: 'Detectá automáticamente la falta de casco, guantes o calzado de seguridad con la cámara de tu celular.'
+                            },
+                            {
+                                icon: '🔥',
+                                color: '#f97316',
+                                bg: 'rgba(249,115,22,0.08)',
+                                gradient: 'linear-gradient(135deg, rgba(249,115,22,0.1), rgba(249,115,22,0.02))',
+                                title: 'Cálculo Carga de Fuego',
+                                desc: userCountry === 'argentina'
+                                    ? 'Calculá la carga de fuego según Dec 351/79. Genera el protocolo oficial listo para presentar.'
+                                    : `Calculá la carga de fuego según ${getCountryNormativa(userCountry).fire}. Genera reportes técnicos listos para presentar.`
+                            },
+                            {
+                                icon: '💡',
+                                color: '#eab308',
+                                bg: 'rgba(234,179,8,0.08)',
+                                gradient: 'linear-gradient(135deg, rgba(234,179,8,0.1), rgba(234,179,8,0.02))',
+                                title: 'Iluminación',
+                                desc: 'Medición y cálculo de niveles de iluminación con factor de mantenimiento y comparación normativa.'
+                            },
+                            {
+                                icon: '⚠️',
+                                color: '#8b5cf6',
+                                bg: 'rgba(139,92,246,0.08)',
+                                gradient: 'linear-gradient(135deg, rgba(139,92,246,0.1), rgba(139,92,246,0.02))',
+                                title: 'Matriz de Riesgo',
+                                desc: 'Evaluá peligros con matrices 5x5 personalizadas. Genera reportes PDF automáticamente.'
+                            },
+                            {
+                                icon: '📋',
+                                color: '#10b981',
+                                bg: 'rgba(16,185,129,0.08)',
+                                gradient: 'linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.02))',
+                                title: 'ATS — Análisis de Trabajo Seguro',
+                                desc: 'Creá ATS por tarea con medidas de control. Listo para firma digital e impresión.'
+                            },
+                        ].map((f, i) => (
+                            <div
+                                key={i}
+                                className="card feature-card"
+                                style={{
+                                    padding: 'clamp(1rem, 3vw, 1.4rem)',
+                                    borderLeft: `4px solid ${f.color}`,
+                                    background: 'var(--color-surface)',
+                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                    borderRadius: '16px',
+                                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                                    position: 'relative',
+                                    overflow: 'hidden'
+                                }}
+                                onMouseOver={e => {
+                                    e.currentTarget.style.transform = 'translateY(-6px)';
+                                    e.currentTarget.style.background = f.gradient;
+                                    e.currentTarget.style.boxShadow = `0 12px 24px ${f.color}40`;
+                                }}
+                                onMouseOut={e => {
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                    e.currentTarget.style.background = 'var(--color-surface)';
+                                    e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+                                }}
+                            >
+                                {/* Decorative gradient orb */}
+                                <div style={{
+                                    position: 'absolute',
+                                    top: '-20px',
+                                    right: '-20px',
+                                    width: '80px',
+                                    height: '80px',
+                                    borderRadius: '50%',
+                                    background: `radial-gradient(circle, ${f.color}20 0%, transparent 70%)`,
+                                    pointerEvents: 'none',
+                                    opacity: 0,
+                                    transition: 'opacity 0.3s ease'
+                                }} />
+                                <div style={{
+                                    fontSize: 'clamp(1.8rem, 5vw, 2.2rem)',
+                                    marginBottom: '0.7rem',
+                                    display: 'inline-block',
+                                    filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+                                }}>{f.icon}</div>
+                                <h4 style={{
+                                    margin: '0 0 0.5rem',
+                                    fontWeight: 800,
+                                    fontSize: 'clamp(0.95rem, 3vw, 1.05rem)',
+                                    lineHeight: 1.3
+                                }}>{f.title}</h4>
+                                <p style={{
+                                    margin: 0,
+                                    fontSize: 'clamp(0.8rem, 2.5vw, 0.88rem)',
+                                    color: 'var(--color-text-muted)',
+                                    lineHeight: 1.6
+                                }}>{f.desc}</p>
                             </div>
-                        </div>
-
-                        {/* — TESTIMONIOS — */}
-                        <h2 style={{ fontSize: '1.2rem', fontWeight: 900, textAlign: 'center', marginBottom: '0.4rem' }}>
-                            Lo que dicen los profesionales
-                        </h2>
-                        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                            {'⭐'.repeat(5)}
-                            <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginLeft: '0.5rem', fontWeight: 600 }}>4.9 / 5 — +1200 profesionales</span>
-                        </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.2rem', marginBottom: '3rem' }}>
-                            {[
-                                { name: 'Ing. Marcos V.', role: 'Técnico en HYS', text: 'La carga de fuego me llevaba horas. Ahora la hago en 5 minutos y el protocolo queda perfecto para entregar.' },
-                                { name: 'Lic. Fernanda G.', role: 'Profesional HYS', text: 'El asesor IA me resolvió dudas normativas que tardaba días en aclarar con otros recursos.' },
-                                { name: 'Téc. Rodrigo M.', role: 'Técnico en Seguridad', text: 'Uso la cámara IA en obra para verificar EPP al instante. Una herramienta que realmente te cambia el día a día.' },
-                            ].map((t, i) => (
-                                <div key={i} className="card" style={{ padding: '1.4rem', background: 'var(--color-surface)' }}>
-                                    <div style={{ color: '#f59e0b', fontSize: '0.85rem', marginBottom: '0.7rem', letterSpacing: '2px' }}>⭐⭐⭐⭐⭐</div>
-                                    <p style={{ margin: '0 0 1rem', fontSize: '0.88rem', color: 'var(--color-text)', lineHeight: 1.6, fontStyle: 'italic' }}>
-                                        "{t.text}"
-                                    </p>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
-                                        <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'linear-gradient(135deg,#1e3a8a,#2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontWeight: 900, fontSize: '0.9rem', flexShrink: 0 }}>
-                                            {t.name[0]}
-                                        </div>
-                                        <div>
-                                            <div style={{ fontWeight: 800, fontSize: '0.85rem' }}>{t.name}</div>
-                                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{t.role}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* — PRECIOS — */}
-                        <h2 style={{ fontSize: '1.2rem', fontWeight: 900, textAlign: 'center', marginBottom: '1.5rem' }}>
-                            Planes
-                        </h2>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.2rem', marginBottom: '3rem' }}>
-                            <div className="card" style={{ padding: '1.5rem', textAlign: 'center', border: '2px solid var(--color-border)', background: 'var(--color-surface)' }}>
-                                <div style={{ fontWeight: 900, fontSize: '1.1rem', marginBottom: '0.3rem' }}>Gratis</div>
-                                <div style={{ fontSize: '2rem', fontWeight: 900, color: '#10b981', marginBottom: '1rem' }}>$0</div>
-                                {['Todos los cálculos', 'ATS, Matrices, Checklists', 'Asesor IA', 'Cámara de Riesgos', 'Historial básico'].map((f, i) => (
-                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontSize: '0.85rem' }}>
-                                        <span style={{ color: '#10b981', fontWeight: 900 }}>✓</span> {f}
-                                    </div>
-                                ))}
-                                <button onClick={() => window.location.href = '/login?view=register'} style={{ marginTop: '1rem', width: '100%', padding: '0.8rem', borderRadius: '10px', border: '2px solid #10b981', background: 'transparent', color: '#10b981', fontWeight: 800, cursor: 'pointer', fontSize: '0.9rem' }}>
-                                    Comenzar Gratis
-                                </button>
-                            </div>
-                            <div className="card" style={{ padding: '1.5rem', textAlign: 'center', border: '2px solid #2563eb', position: 'relative', overflow: 'hidden', background: 'var(--color-surface)' }}>
-                                <div style={{ position: 'absolute', top: '12px', right: '12px', background: '#2563eb', color: '#ffffff', fontSize: '0.65rem', fontWeight: 900, padding: '0.2rem 0.6rem', borderRadius: '20px' }}>RECOMENDADO</div>
-                                <div style={{ fontWeight: 900, fontSize: '1.1rem', marginBottom: '0.3rem' }}>PRO</div>
-                                <div style={{ fontSize: '2rem', fontWeight: 900, color: '#2563eb', marginBottom: '1rem' }}>$2<span style={{ fontSize: '1rem', fontWeight: 600 }}>/mes</span></div>
-                                {['Todo lo del plan Gratis', 'Impresión y PDF ilimitados', 'Firma y sello digital', 'Historial completo en nube', 'Soporte prioritario'].map((f, i) => (
-                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontSize: '0.85rem' }}>
-                                        <span style={{ color: '#2563eb', fontWeight: 900 }}>✓</span> {f}
-                                    </div>
-                                ))}
-                                <button onClick={() => window.location.href = '/login?view=register'} style={{ marginTop: '1rem', width: '100%', padding: '0.8rem', borderRadius: '10px', border: 'none', background: 'linear-gradient(135deg,#1e3a8a,#2563eb)', color: '#ffffff', fontWeight: 800, cursor: 'pointer', fontSize: '0.9rem', boxShadow: '0 4px 15px rgba(37,99,235,0.3)' }}>
-                                    Activar PRO
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* — FAQ — */}
-                        <h2 style={{ fontSize: '1.2rem', fontWeight: 900, textAlign: 'center', marginBottom: '1.5rem' }}>
-                            Preguntas Frecuentes
-                        </h2>
-                        <FaqSection />
-
+                        ))}
                     </div>
-                )}
 
-
-                <AdBanner />
-
-                {/* ── NEW INSPECTION (CTA) — solo usuarios logueados ── */}
-                {currentUser && (
-                    <Link to="/create-inspection" style={{ textDecoration: 'none' }}>
-                        <div style={{
-                            display: 'flex', alignItems: 'center', gap: '1.2rem',
-                            background: 'linear-gradient(135deg, rgba(37,99,235,0.95) 0%, rgba(30,58,138,0.95) 100%)',
-                            backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
-                            border: '1px solid rgba(255,255,255,0.1)',
-                            borderRadius: '20px', padding: '1.5rem', marginTop: '1.5rem',
-                            cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                            boxShadow: '0 12px 32px rgba(37,99,235,0.3)',
-                            position: 'relative', overflow: 'hidden',
-                        }}
-                            onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(37,99,235,0.4)'; e.currentTarget.style.background = 'linear-gradient(135deg, rgba(37,99,235,1) 0%, rgba(30,58,138,1) 100%)'; }}
-                            onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(37,99,235,0.3)'; e.currentTarget.style.background = 'linear-gradient(135deg, rgba(37,99,235,0.95) 0%, rgba(30,58,138,0.95) 100%)'; }}
-                        >
-                            {/* Decorative background glow */}
-                            <div style={{ position: 'absolute', top: '-30px', right: '-20px', width: '120px', height: '120px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
-                            <div style={{ position: 'absolute', bottom: '-40px', left: '20%', width: '140px', height: '140px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(14,165,233,0.1) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
-
-                            <div style={{ width: '54px', height: '54px', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 1, boxShadow: 'inset 0 2px 10px rgba(255,255,255,0.1)' }}>
-                                <PlusCircle size={28} color="#ffffff" strokeWidth={2.5} style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.2))' }} />
-                            </div>
-                            <div style={{ flex: 1, zIndex: 1 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.2rem' }}>
-                                    <h4 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.5px' }}>Nueva Inspección</h4>
-                                    <Sparkles size={16} color="#fcd34d" fill="#fcd34d" style={{ animation: 'pulse 2s infinite' }} />
-                                </div>
-                                <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(255,255,255,0.85)', fontWeight: 500 }}>Comenzá un relevamiento inteligente ahora</p>
-                            </div>
-                            <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>
-                                <ChevronRight size={20} color="#ffffff" strokeWidth={3} />
-                            </div>
-                        </div>
-                    </Link>
-                )}
-
-                {/* ── QUICK ACCESS GRID — solo usuarios logueados ── */}
-                {currentUser && (
-                    <div id="tools" style={{ marginTop: '2rem', marginBottom: '2rem' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', padding: '0 0.5rem' }}>
-                            <h3 style={{ fontSize: '1.1rem', fontWeight: 900, margin: 0, letterSpacing: '-0.5px', fontFamily: 'var(--font-heading)' }}>Herramientas Profesionales</h3>
-                        </div>
+                    {/* — CÓMO FUNCIONA — */}
+                    <div style={{
+                        background: 'linear-gradient(135deg,rgba(37,99,235,0.05),rgba(14,165,233,0.03))',
+                        borderRadius: '24px',
+                        padding: 'clamp(1.5rem, 5vw, 2rem)',
+                        marginBottom: '3rem',
+                        border: '1px solid rgba(37,99,235,0.1)',
+                        boxShadow: '0 4px 24px rgba(37,99,235,0.06)'
+                    }}>
+                        <h2 style={{
+                            fontSize: 'clamp(1.2rem, 4vw, 1.5rem)',
+                            fontWeight: 900,
+                            textAlign: 'center',
+                            marginBottom: 'clamp(1.5rem, 4vw, 2rem)',
+                            color: 'var(--color-text)'
+                        }}>
+                            ¿Cómo funciona?
+                        </h2>
                         <div style={{
                             display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
-                            gap: '1rem',
-                            padding: '0.5rem'
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))',
+                            gap: 'clamp(1rem, 3vw, 1.5rem)'
                         }}>
-                            {quickLinks.map((item, i) => (
-                                <Link key={i} className="stagger-item" to={item.to} style={{ textDecoration: 'none', animationDelay: `${0.1 + (i * 0.03)}s` }}>
-                                    <div className="card" style={{
-                                        borderRadius: '24px',
-                                        padding: '1.8rem 1rem',
-                                        display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
-                                        gap: '1rem',
-                                        minHeight: '160px', justifyContent: 'center',
-                                        transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
-                                        background: 'var(--color-surface)',
-                                        border: '1px solid var(--color-border)',
-                                        boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+                            {[
+                                { n: '1', icon: '🎯', title: 'Registrate Gratis', desc: 'Creá tu cuenta en 60 segundos con tu matrícula y datos profesionales.' },
+                                { n: '2', icon: '🛠️', title: 'Usá las Herramientas', desc: 'Accedé a todos los módulos: cálculos, ATS, matrices, legislación y más.' },
+                                { n: '3', icon: '📄', title: 'Descargá tus Reportes', desc: 'Generá PDFs profesionales listos para presentar con tu firma digital.' },
+                            ].map((s, i) => (
+                                <div key={i} style={{
+                                    textAlign: 'center',
+                                    padding: 'clamp(0.8rem, 2vw, 1rem)',
+                                    background: 'rgba(255,255,255,0.03)',
+                                    borderRadius: '16px',
+                                    border: '1px solid rgba(255,255,255,0.05)',
+                                    transition: 'all 0.3s ease'
+                                }}
+                                    onMouseOver={e => {
+                                        e.currentTarget.style.background = 'rgba(37,99,235,0.08)';
+                                        e.currentTarget.style.borderColor = 'rgba(37,99,235,0.2)';
+                                        e.currentTarget.style.transform = 'translateY(-4px)';
                                     }}
+                                    onMouseOut={e => {
+                                        e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)';
+                                        e.currentTarget.style.transform = 'translateY(0)';
+                                    }}
+                                >
+                                    <div style={{
+                                        width: 'clamp(48px, 12vw, 56px)',
+                                        height: 'clamp(48px, 12vw, 56px)',
+                                        borderRadius: '50%',
+                                        background: 'linear-gradient(135deg,#1e3a8a,#2563eb)',
+                                        margin: '0 auto clamp(0.8rem, 2vw, 1rem)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        color: '#ffffff',
+                                        fontWeight: 900,
+                                        fontSize: 'clamp(1.1rem, 3vw, 1.3rem)',
+                                        boxShadow: '0 4px 15px rgba(37,99,235,0.3)',
+                                        border: '2px solid rgba(255,255,255,0.1)'
+                                    }}>
+                                        {s.n}
+                                    </div>
+                                    <div style={{ fontSize: 'clamp(1.5rem, 4vw, 1.8rem)', marginBottom: '0.5rem' }}>{s.icon}</div>
+                                    <h4 style={{
+                                        margin: '0 0 0.4rem',
+                                        fontWeight: 800,
+                                        fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
+                                        lineHeight: 1.3
+                                    }}>{s.title}</h4>
+                                    <p style={{
+                                        margin: 0,
+                                        fontSize: 'clamp(0.78rem, 2.3vw, 0.85rem)',
+                                        color: 'var(--color-text-muted)',
+                                        lineHeight: 1.5
+                                    }}>{s.desc}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* — TESTIMONIOS — */}
+                    <h2 style={{
+                        fontSize: 'clamp(1.2rem, 4vw, 1.5rem)',
+                        fontWeight: 900,
+                        textAlign: 'center',
+                        marginBottom: '0.4rem',
+                        background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text'
+                    }}>
+                        Lo que dicen los profesionales
+                    </h2>
+                    <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                        {'⭐'.repeat(5)}
+                        <span style={{ fontSize: 'clamp(0.75rem, 2vw, 0.85rem)', color: 'var(--color-text-muted)', marginLeft: '0.5rem', fontWeight: 600 }}>4.9 / 5 — +1200 profesionales</span>
+                    </div>
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
+                        gap: 'clamp(1rem, 2.5vw, 1.2rem)',
+                        marginBottom: '3rem',
+                        padding: '0 0.5rem'
+                    }}>
+                        {[
+                            { name: 'Ing. Marcos V.', role: 'Técnico en HYS', text: 'La carga de fuego me llevaba horas. Ahora la hago en 5 minutos y el protocolo queda perfecto para entregar.' },
+                            { name: 'Lic. Fernanda G.', role: 'Profesional HYS', text: 'El asesor IA me resolvió dudas normativas que tardaba días en aclarar con otros recursos.' },
+                            { name: 'Téc. Rodrigo M.', role: 'Técnico en Seguridad', text: 'Uso la cámara IA en obra para verificar EPP al instante. Una herramienta que realmente te cambia el día a día.' },
+                        ].map((t, i) => (
+                            <div key={i} className="card testimonial-card" style={{
+                                padding: 'clamp(1rem, 3vw, 1.4rem)',
+                                background: 'var(--color-surface)',
+                                borderRadius: '16px',
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                                border: '1px solid rgba(255,255,255,0.05)',
+                                transition: 'all 0.3s ease'
+                            }}
+                                onMouseOver={e => {
+                                    e.currentTarget.style.transform = 'translateY(-4px)';
+                                    e.currentTarget.style.boxShadow = '0 8px 24px rgba(37,99,235,0.15)';
+                                }}
+                                onMouseOut={e => {
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+                                }}
+                            >
+                                <div style={{ color: '#f59e0b', fontSize: 'clamp(0.8rem, 2vw, 0.85rem)', marginBottom: '0.7rem', letterSpacing: '2px' }}>⭐⭐⭐⭐⭐</div>
+                                <p style={{
+                                    margin: '0 0 1rem',
+                                    fontSize: 'clamp(0.85rem, 2.5vw, 0.9rem)',
+                                    color: 'var(--color-text)',
+                                    lineHeight: 1.6,
+                                    fontStyle: 'italic'
+                                }}>
+                                    "{t.text}"
+                                </p>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
+                                    <div style={{
+                                        width: 'clamp(36px, 8vw, 42px)',
+                                        height: 'clamp(36px, 8vw, 42px)',
+                                        borderRadius: '50%',
+                                        background: 'linear-gradient(135deg,#1e3a8a,#2563eb)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        color: '#ffffff',
+                                        fontWeight: 900,
+                                        fontSize: 'clamp(0.85rem, 2vw, 1rem)',
+                                        flexShrink: 0
+                                    }}>
+                                        {t.name[0]}
+                                    </div>
+                                    <div>
+                                        <div style={{ fontWeight: 800, fontSize: 'clamp(0.8rem, 2vw, 0.9rem)' }}>{t.name}</div>
+                                        <div style={{ fontSize: 'clamp(0.7rem, 1.8vw, 0.78rem)', color: 'var(--color-text-muted)' }}>{t.role}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* — PRECIOS — */}
+                    <h2 style={{
+                        fontSize: 'clamp(1.2rem, 4vw, 1.5rem)',
+                        fontWeight: 900,
+                        textAlign: 'center',
+                        marginBottom: '0.4rem',
+                        background: 'linear-gradient(135deg, #10b981, #059669)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text'
+                    }}>
+                        Planes
+                    </h2>
+                    <p style={{
+                        textAlign: 'center',
+                        color: 'var(--color-text-muted)',
+                        fontSize: 'clamp(0.8rem, 2.3vw, 0.9rem)',
+                        marginBottom: '1.5rem',
+                        maxWidth: '500px',
+                        margin: '0 auto 1.5rem'
+                    }}>
+                        Empezá gratis. Actualizá cuando quieras.
+                    </p>
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
+                        gap: 'clamp(1rem, 2.5vw, 1.2rem)',
+                        marginBottom: '3rem',
+                        padding: '0 0.5rem',
+                        maxWidth: '700px',
+                        margin: '0 auto 3rem'
+                    }}>
+                        <div className="card pricing-card" style={{
+                            padding: 'clamp(1.2rem, 3vw, 1.5rem)',
+                            textAlign: 'center',
+                            border: '2px solid var(--color-border)',
+                            background: 'var(--color-surface)',
+                            borderRadius: '20px',
+                            transition: 'all 0.3s ease',
+                            position: 'relative'
+                        }}
+                            onMouseOver={e => {
+                                e.currentTarget.style.transform = 'translateY(-4px)';
+                                e.currentTarget.style.borderColor = '#10b981';
+                                e.currentTarget.style.boxShadow = '0 8px 24px rgba(16,185,129,0.2)';
+                            }}
+                            onMouseOut={e => {
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.borderColor = 'var(--color-border)';
+                                e.currentTarget.style.boxShadow = 'none';
+                            }}
+                        >
+                            <div style={{ fontWeight: 900, fontSize: 'clamp(1.1rem, 3vw, 1.2rem)', marginBottom: '0.3rem', color: 'var(--color-text)' }}>Gratis</div>
+                            <div style={{ fontSize: 'clamp(2rem, 6vw, 2.5rem)', fontWeight: 900, color: '#10b981', marginBottom: '1rem', lineHeight: 1 }}>$0</div>
+                            {['Todos los cálculos', 'ATS, Matrices, Checklists', 'Asesor IA', 'Cámara de Riesgos', 'Historial básico'].map((f, i) => (
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontSize: 'clamp(0.8rem, 2.3vw, 0.88rem)', color: 'var(--color-text)' }}>
+                                    <span style={{ color: '#10b981', fontWeight: 900, fontSize: '1.1rem' }}>✓</span> {f}
+                                </div>
+                            ))}
+                            <button onClick={() => window.location.href = '/login?view=register'} style={{
+                                marginTop: '1rem',
+                                width: '100%',
+                                padding: 'clamp(0.75rem, 2vw, 0.9rem)',
+                                borderRadius: '12px',
+                                border: '2px solid #10b981',
+                                background: 'transparent',
+                                color: '#10b981',
+                                fontWeight: 800,
+                                cursor: 'pointer',
+                                fontSize: 'clamp(0.85rem, 2.5vw, 0.95rem)',
+                                transition: 'all 0.3s ease'
+                            }}
+                                onMouseOver={e => {
+                                    e.currentTarget.style.background = '#10b981';
+                                    e.currentTarget.style.color = '#ffffff';
+                                }}
+                                onMouseOut={e => {
+                                    e.currentTarget.style.background = 'transparent';
+                                    e.currentTarget.style.color = '#10b981';
+                                }}
+                            >
+                                Comenzar Gratis
+                            </button>
+                        </div>
+                        <div className="card pricing-card-pro" style={{
+                            padding: 'clamp(1.2rem, 3vw, 1.5rem)',
+                            textAlign: 'center',
+                            border: '2px solid #2563eb',
+                            position: 'relative',
+                            overflow: 'hidden',
+                            background: 'var(--color-surface)',
+                            borderRadius: '20px',
+                            boxShadow: '0 4px 20px rgba(37,99,235,0.15)',
+                            transition: 'all 0.3s ease'
+                        }}
+                            onMouseOver={e => {
+                                e.currentTarget.style.transform = 'translateY(-6px)';
+                                e.currentTarget.style.boxShadow = '0 12px 32px rgba(37,99,235,0.25)';
+                            }}
+                            onMouseOut={e => {
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = '0 4px 20px rgba(37,99,235,0.15)';
+                            }}
+                        >
+                            <div style={{
+                                position: 'absolute',
+                                top: '12px',
+                                right: '12px',
+                                background: 'linear-gradient(135deg,#1e3a8a,#2563eb)',
+                                color: '#ffffff',
+                                fontSize: 'clamp(0.6rem, 1.8vw, 0.7rem)',
+                                fontWeight: 900,
+                                padding: 'clamp(0.2rem, 1vw, 0.25rem) clamp(0.5rem, 1.5vw, 0.7rem)',
+                                borderRadius: '20px',
+                                boxShadow: '0 2px 8px rgba(37,99,235,0.3)'
+                            }}>RECOMENDADO</div>
+                            <div style={{ fontWeight: 900, fontSize: 'clamp(1.1rem, 3vw, 1.2rem)', marginBottom: '0.3rem', color: 'var(--color-text)' }}>PRO</div>
+                            <div style={{ fontSize: 'clamp(2rem, 6vw, 2.5rem)', fontWeight: 900, color: '#2563eb', marginBottom: '1rem', lineHeight: 1 }}>$2<span style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1rem)', fontWeight: 600 }}>/mes</span></div>
+                            {['Todo lo del plan Gratis', 'Impresión y PDF ilimitados', 'Firma y sello digital', 'Historial completo en nube', 'Soporte prioritario'].map((f, i) => (
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontSize: 'clamp(0.8rem, 2.3vw, 0.88rem)', color: 'var(--color-text)' }}>
+                                    <span style={{ color: '#2563eb', fontWeight: 900, fontSize: '1.1rem' }}>✓</span> {f}
+                                </div>
+                            ))}
+                            <button onClick={() => window.location.href = '/login?view=register'} style={{
+                                marginTop: '1rem',
+                                width: '100%',
+                                padding: 'clamp(0.75rem, 2vw, 0.9rem)',
+                                borderRadius: '12px',
+                                border: 'none',
+                                background: 'linear-gradient(135deg,#1e3a8a,#2563eb)',
+                                color: '#ffffff',
+                                fontWeight: 800,
+                                cursor: 'pointer',
+                                fontSize: 'clamp(0.85rem, 2.5vw, 0.95rem)',
+                                boxShadow: '0 4px 15px rgba(37,99,235,0.3)',
+                                transition: 'all 0.3s ease'
+                            }}
+                                onMouseOver={e => {
+                                    e.currentTarget.style.transform = 'scale(1.02)';
+                                    e.currentTarget.style.boxShadow = '0 8px 24px rgba(37,99,235,0.4)';
+                                }}
+                                onMouseOut={e => {
+                                    e.currentTarget.style.transform = 'scale(1)';
+                                    e.currentTarget.style.boxShadow = '0 4px 15px rgba(37,99,235,0.3)';
+                                }}
+                            >
+                                Activar PRO
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* — FAQ — */}
+                    <h2 style={{ fontSize: '1.2rem', fontWeight: 900, textAlign: 'center', marginBottom: '1.5rem' }}>
+                        Preguntas Frecuentes
+                    </h2>
+                    <FaqSection />
+
+                </div>
+            )}
+
+
+            <AdBanner />
+
+            {/* ── NEW INSPECTION (CTA) — solo usuarios logueados ── */}
+            {currentUser && (
+                <Link to="/create-inspection" style={{ textDecoration: 'none' }}>
+                    <div style={{
+                        display: 'flex', alignItems: 'center', gap: '1.2rem',
+                        background: 'linear-gradient(135deg, rgba(37,99,235,0.95) 0%, rgba(30,58,138,0.95) 100%)',
+                        backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: '20px', padding: '1.5rem', marginTop: '1.5rem',
+                        cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        boxShadow: '0 12px 32px rgba(37,99,235,0.3)',
+                        position: 'relative', overflow: 'hidden',
+                    }}
+                        onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(37,99,235,0.4)'; e.currentTarget.style.background = 'linear-gradient(135deg, rgba(37,99,235,1) 0%, rgba(30,58,138,1) 100%)'; }}
+                        onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(37,99,235,0.3)'; e.currentTarget.style.background = 'linear-gradient(135deg, rgba(37,99,235,0.95) 0%, rgba(30,58,138,0.95) 100%)'; }}
+                    >
+                        {/* Decorative background glow */}
+                        <div style={{ position: 'absolute', top: '-30px', right: '-20px', width: '120px', height: '120px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+                        <div style={{ position: 'absolute', bottom: '-40px', left: '20%', width: '140px', height: '140px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(14,165,233,0.1) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+
+                        <div style={{ width: '54px', height: '54px', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 1, boxShadow: 'inset 0 2px 10px rgba(255,255,255,0.1)' }}>
+                            <PlusCircle size={28} color="#ffffff" strokeWidth={2.5} style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.2))' }} />
+                        </div>
+                        <div style={{ flex: 1, zIndex: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.2rem' }}>
+                                <h4 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.5px' }}>Nueva Inspección</h4>
+                                <Sparkles size={16} color="#fcd34d" fill="#fcd34d" style={{ animation: 'pulse 2s infinite' }} />
+                            </div>
+                            <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(255,255,255,0.85)', fontWeight: 500 }}>Comenzá un relevamiento inteligente ahora</p>
+                        </div>
+                        <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>
+                            <ChevronRight size={20} color="#ffffff" strokeWidth={3} />
+                        </div>
+                    </div>
+                </Link>
+            )}
+
+            {/* ── QUICK ACCESS GRID — solo usuarios logueados ── */}
+            {currentUser && (
+                <div id="tools" style={{ marginTop: '2rem', marginBottom: '2rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', padding: '0 0.5rem' }}>
+                        <h3 style={{ fontSize: '1.1rem', fontWeight: 900, margin: 0, letterSpacing: '-0.5px', fontFamily: 'var(--font-heading)' }}>Herramientas Profesionales</h3>
+                    </div>
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
+                        gap: '1rem',
+                        padding: '0.5rem'
+                    }}>
+                        {quickLinks.map((item, i) => (
+                            <Link key={i} className="stagger-item" to={item.to} style={{ textDecoration: 'none', animationDelay: `${0.1 + (i * 0.03)}s` }}>
+                                <div className="card" style={{
+                                    borderRadius: '24px',
+                                    padding: '1.8rem 1rem',
+                                    display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
+                                    gap: '1rem',
+                                    minHeight: '160px', justifyContent: 'center',
+                                    transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+                                    background: 'var(--color-surface)',
+                                    border: '1px solid var(--color-border)',
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+                                }}
                                     onMouseOver={e => {
                                         e.currentTarget.style.transform = 'translateY(-10px)';
                                         e.currentTarget.style.background = 'var(--color-surface-solid)';
@@ -651,96 +979,96 @@ export default function Home() {
                                         e.currentTarget.style.borderColor = 'var(--color-border)';
                                         e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.03)';
                                     }}>
-                                        <div style={{
-                                            width: '60px', height: '60px', borderRadius: '18px',
-                                            background: item.bg,
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            color: item.color,
-                                            marginBottom: '0.2rem',
-                                            boxShadow: `0 8px 20px ${item.color}20`,
-                                            transition: 'all 0.3s ease'
-                                        }}>
-                                            {React.cloneElement(item.icon, { size: 30 })}
+                                    <div style={{
+                                        width: '60px', height: '60px', borderRadius: '18px',
+                                        background: item.bg,
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        color: item.color,
+                                        marginBottom: '0.2rem',
+                                        boxShadow: `0 8px 20px ${item.color}20`,
+                                        transition: 'all 0.3s ease'
+                                    }}>
+                                        {React.cloneElement(item.icon, { size: 30 })}
+                                    </div>
+                                    <div>
+                                        <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-text)', lineHeight: '1.2', marginBottom: '0.3rem' }}>{item.label}</div>
+                                        <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 0.8 }}>{item.sub}</div>
+                                    </div>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* ── RECENT ACTIVITY — solo usuarios logueados ── */}
+            {currentUser && (
+                <div id="activity" style={{ marginTop: '2rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                        <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: 0 }}>Actividad Reciente</h3>
+                        {recentWorks.length > 0 && (
+                            <Link to="/history" style={{ fontSize: '0.82rem', color: 'var(--color-primary)', textDecoration: 'none', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                                Ver todo <ChevronRight size={14} />
+                            </Link>
+                        )}
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
+                        {recentWorks.length > 0 ? (
+                            recentWorks.map((work, i) => {
+                                const tc = typeColors[work.type] || typeColors['Inspección'];
+                                return (
+                                    <div key={i} style={{
+                                        display: 'flex', alignItems: 'center', gap: '1rem',
+                                        background: 'var(--color-surface)',
+                                        border: '1px solid var(--color-border)',
+                                        borderRadius: '14px', padding: '0.9rem 1rem',
+                                        transition: 'transform 0.2s',
+                                        cursor: 'pointer'
+                                    }}
+                                        onClick={() => {
+                                            if (work.type === 'ATS') navigate('/ats-history');
+                                            else if (work.type === 'Carga Fuego') navigate('/fire-load-history');
+                                            else if (work.type === 'Inspección') navigate('/history', { state: { view: 'inspections' } });
+                                            else if (work.type === 'Matriz') navigate('/history', { state: { view: 'matrices' } });
+                                            else if (work.type === 'Informe') navigate('/history', { state: { view: 'reports' } });
+                                            else if (work.type === 'Checklist') navigate('/checklists-history');
+                                            else if (work.type === 'Iluminación') navigate('/lighting-history');
+                                            else if (work.type === 'Permiso') navigate('/work-permit-history');
+                                            else if (work.type === 'Eval. Riesgo') navigate('/risk-assessment-history');
+                                            else if (work.type === 'Accidente') navigate('/accident-history');
+                                        }}
+                                        onMouseOver={e => e.currentTarget.style.transform = 'translateX(4px)'}
+                                        onMouseOut={e => e.currentTarget.style.transform = 'translateX(0)'}
+                                    >
+                                        <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: tc.bg, color: tc.text, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                            {tc.icon}
                                         </div>
-                                        <div>
-                                            <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-text)', lineHeight: '1.2', marginBottom: '0.3rem' }}>{item.label}</div>
-                                            <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 0.8 }}>{item.sub}</div>
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                            <div style={{ fontWeight: 700, fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{work.title || '—'}</div>
+                                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'flex', gap: '0.5rem', marginTop: '0.1rem', alignItems: 'center' }}>
+                                                <span style={{ background: tc.bg, color: tc.text, padding: '0.1rem 0.5rem', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700 }}>{work.type}</span>
+                                                {work.subtitle && <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{work.subtitle}</span>}
+                                            </div>
+                                        </div>
+                                        <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                                            {new Date(work.date || work.createdAt).toLocaleDateString()}
                                         </div>
                                     </div>
-                                </Link>
-                            ))}
-                        </div>
+                                );
+                            })
+                        ) : (
+                            <div style={{ textAlign: 'center', padding: '2.5rem', border: '1.5px dashed var(--color-border)', borderRadius: '16px', opacity: 0.6 }}>
+                                <History size={36} color="var(--color-text-muted)" style={{ marginBottom: '0.8rem', opacity: 0.4 }} />
+                                <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>No hay actividad reciente</p>
+                                <p style={{ margin: '0.3rem 0 0', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Comenzá creando una nueva inspección</p>
+                            </div>
+                        )}
                     </div>
-                )}
+                </div>
+            )}
 
-                {/* ── RECENT ACTIVITY — solo usuarios logueados ── */}
-                {currentUser && (
-                    <div id="activity" style={{ marginTop: '2rem' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                            <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: 0 }}>Actividad Reciente</h3>
-                            {recentWorks.length > 0 && (
-                                <Link to="/history" style={{ fontSize: '0.82rem', color: 'var(--color-primary)', textDecoration: 'none', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-                                    Ver todo <ChevronRight size={14} />
-                                </Link>
-                            )}
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
-                            {recentWorks.length > 0 ? (
-                                recentWorks.map((work, i) => {
-                                    const tc = typeColors[work.type] || typeColors['Inspección'];
-                                    return (
-                                        <div key={i} style={{
-                                            display: 'flex', alignItems: 'center', gap: '1rem',
-                                            background: 'var(--color-surface)',
-                                            border: '1px solid var(--color-border)',
-                                            borderRadius: '14px', padding: '0.9rem 1rem',
-                                            transition: 'transform 0.2s',
-                                            cursor: 'pointer'
-                                        }}
-                                            onClick={() => {
-                                                if (work.type === 'ATS') navigate('/ats-history');
-                                                else if (work.type === 'Carga Fuego') navigate('/fire-load-history');
-                                                else if (work.type === 'Inspección') navigate('/history', { state: { view: 'inspections' } });
-                                                else if (work.type === 'Matriz') navigate('/history', { state: { view: 'matrices' } });
-                                                else if (work.type === 'Informe') navigate('/history', { state: { view: 'reports' } });
-                                                else if (work.type === 'Checklist') navigate('/checklists-history');
-                                                else if (work.type === 'Iluminación') navigate('/lighting-history');
-                                                else if (work.type === 'Permiso') navigate('/work-permit-history');
-                                                else if (work.type === 'Eval. Riesgo') navigate('/risk-assessment-history');
-                                                else if (work.type === 'Accidente') navigate('/accident-history');
-                                            }}
-                                            onMouseOver={e => e.currentTarget.style.transform = 'translateX(4px)'}
-                                            onMouseOut={e => e.currentTarget.style.transform = 'translateX(0)'}
-                                        >
-                                            <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: tc.bg, color: tc.text, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                                {tc.icon}
-                                            </div>
-                                            <div style={{ flex: 1, minWidth: 0 }}>
-                                                <div style={{ fontWeight: 700, fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{work.title || '—'}</div>
-                                                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'flex', gap: '0.5rem', marginTop: '0.1rem', alignItems: 'center' }}>
-                                                    <span style={{ background: tc.bg, color: tc.text, padding: '0.1rem 0.5rem', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700 }}>{work.type}</span>
-                                                    {work.subtitle && <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{work.subtitle}</span>}
-                                                </div>
-                                            </div>
-                                            <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                                                {new Date(work.date || work.createdAt).toLocaleDateString()}
-                                            </div>
-                                        </div>
-                                    );
-                                })
-                            ) : (
-                                <div style={{ textAlign: 'center', padding: '2.5rem', border: '1.5px dashed var(--color-border)', borderRadius: '16px', opacity: 0.6 }}>
-                                    <History size={36} color="var(--color-text-muted)" style={{ marginBottom: '0.8rem', opacity: 0.4 }} />
-                                    <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>No hay actividad reciente</p>
-                                    <p style={{ margin: '0.3rem 0 0', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Comenzá creando una nueva inspección</p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )}
-
-                {/* ── SRT NEWS WIDGET ── */}
-                <NewsWidget />
+            {/* ── SRT NEWS WIDGET ── */}
+            <NewsWidget />
         </div>
     );
 }
