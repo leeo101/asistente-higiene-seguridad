@@ -20,14 +20,19 @@ const app = initializeApp(firebaseConfig);
 // ==========================================
 // Inicializar App Check con reCAPTCHA v3 para verificar que las peticiones
 // vienen realmente de tu app y no de scripts maliciosos
-try {
-    initializeAppCheck(app, {
-        provider: new ReCaptchaV3Provider('6LfoT4ssAAAAAB2E7DDBo7FVr8mPVhrjWreWHCSY'),
-        isTokenAutoRefreshEnabled: true
-    });
-    console.log('[App Check] Inicializado correctamente con reCAPTCHA v3');
-} catch (error) {
-    console.warn('[App Check] Error al inicializar:', error.message);
+// NOTA: App Check es opcional en desarrollo - la app funciona sin él
+if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    try {
+        initializeAppCheck(app, {
+            provider: new ReCaptchaV3Provider('6LfoT4ssAAAAAB2E7DDBo7FVr8mPVhrjWreWHCSY'),
+            isTokenAutoRefreshEnabled: true
+        });
+        console.log('[App Check] Inicializado correctamente con reCAPTCHA v3');
+    } catch (error) {
+        console.warn('[App Check] Error al inicializar (la app continuará sin App Check):', error.message);
+    }
+} else {
+    console.log('[App Check] Skip en localhost - usando Firebase sin App Check');
 }
 
 export const auth = getAuth(app);
