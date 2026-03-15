@@ -6,6 +6,7 @@ import { Resend } from 'resend';
 import crypto from 'crypto';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import dotenv from 'dotenv';
+import rateLimit from 'express-rate-limit';
 
 dotenv.config();
 
@@ -59,6 +60,110 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' })) // Increase limit for images
 app.use(express.urlencoded({ limit: '50mb', extended: true }))
 
+// ==========================================
+// RATE LIMITING CONFIGURATION
+// ==========================================
+
+// General API limiter - 100 requests per minute
+const generalLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 100, // 100 requests per minute
+    message: { error: 'Demasiadas peticiones, intenta de nuevo en un minuto.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: (req) => req.path === '/api/scan-models' // Diagnostic endpoint excluded
+});
+
+// Strict limiter for authentication endpoints - 5 requests per minute
+const authLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 5, // 5 requests per minute
+    message: { error: 'Demasiados intentos. Por seguridad, espera 15 minutos.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+    keyGenerator: (req) => req.body.email || req.socket.remoteAddress || req.ip
+});
+
+// AI endpoints limiter - 20 requests per minute (to control costs)
+const aiLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 20, // 20 requests per minute
+    message: { error: 'Has excedido el límite de peticiones a la IA. Espera un minuto.' },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
+// Email endpoints limiter - 3 requests per minute (prevent spam)
+const emailLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 3, // 3 requests per 15 minutes
+    message: { error: 'Demasiados emails solicitados. Espera 15 minutos.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+    keyGenerator: (req) => req.body.email || req.socket.remoteAddress || req.ip
+});
+
+// Admin endpoints limiter - 10 requests per minute
+const adminLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 10, // 10 requests per minute
+    message: { error: 'Demasiadas peticiones administrativas.' },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
+// Apply general limiter to all API routes
+app.use('/api', generalLimiter);
+
+// ==========================================
+// SECURITY HEADERS MIDDLEWARE
+// ==========================================
+app.use((req, res, next) => {
+    // Prevenir MIME-type sniffing
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+
+    // Prevenir clickjacking (evita que tu sitio sea embebido en iframes)
+    res.setHeader('X-Frame-Options', 'DENY');
+
+    // Prevenir ataques XSS en navegadores antiguos
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+
+    // Forzar HTTPS en producción (HSTS)
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+
+    // Prevenir prefetching de DNS para mayor privacidad
+    res.setHeader('X-DNS-Prefetch-Control', 'off');
+
+    // Política de seguridad de contenido (CSP) - restringe fuentes de recursos
+    res.setHeader('Content-Security-Policy', [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://firebase.googleapis.com https://apis.google.com",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "font-src 'self' https://fonts.gstatic.com",
+        "img-src 'self' data: https: blob:",
+        "connect-src 'self' https://firebase.googleapis.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com wss: ws: https://generativelanguage.googleapis.com",
+        "media-src 'self' blob:",
+        "object-src 'none'",
+        "base-uri 'self'",
+        "form-action 'self'"
+    ].join('; '));
+
+    // Política de permisos/feature
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(self)');
+
+    // Referrer Policy - controlar qué información del referer se envía
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+    // No cachear respuestas de API (pero permitir caché en producción para assets estáticos)
+    if (req.path.startsWith('/api/')) {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+    }
+
+    next();
+});
+
 process.on('unhandledRejection', (reason, promise) => {
     console.error("Unhandled Rejection at:", promise, "reason:", reason);
 });
@@ -82,7 +187,8 @@ const isAdmin = (req, res, next) => {
     next();
 };
 
-app.post('/api/create-subscription', async (req, res) => {
+// Payment endpoint - moderate limiter
+app.post('/api/create-subscription', adminLimiter, async (req, res) => {
     try {
         console.log('API Request received for payment creation');
         const preference = new Preference(client);
@@ -120,7 +226,7 @@ app.post('/api/create-subscription', async (req, res) => {
 // AI VISION API (Gemini)
 // ==========================================
 
-app.post('/api/analyze-image', async (req, res) => {
+app.post('/api/analyze-image', aiLimiter, async (req, res) => {
     try {
         const { image } = req.body;
         if (!image) return res.status(400).json({ error: 'No se envió imagen' });
@@ -243,7 +349,7 @@ Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de
     }
 });
 
-app.post('/api/daily-insight', async (req, res) => {
+app.post('/api/daily-insight', aiLimiter, async (req, res) => {
     try {
         const { country = 'argentina' } = req.body;
         const apiKey = process.env.GEMINI_API_KEY;
@@ -280,7 +386,7 @@ IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON. Sea conciso y valioso.`;
     }
 });
 
-app.post('/api/ai-advisor', async (req, res) => {
+app.post('/api/ai-advisor', aiLimiter, async (req, res) => {
     try {
         const { taskDescription, country = 'argentina' } = req.body;
         if (!taskDescription) return res.status(400).json({ error: 'Falta la descripción de la tarea' });
@@ -349,7 +455,7 @@ IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON, sin texto adicional. Asegúrate
 // ==========================================
 // AI ATS GENERATOR (Gemini)
 // ==========================================
-app.post('/api/ai-ats-generator', async (req, res) => {
+app.post('/api/ai-ats-generator', aiLimiter, async (req, res) => {
     try {
         const { taskTitle, country = 'argentina' } = req.body;
         if (!taskTitle) return res.status(400).json({ error: 'Falta el título de la tarea' });
@@ -414,7 +520,7 @@ IMPORTANTE: Provee entre 4 y 8 pasos ordenados cronológicamente. Basate en norm
 // ==========================================
 // AI REPORT CONCLUSION GENERATOR (Gemini)
 // ==========================================
-app.post('/api/ai-report-conclusion', async (req, res) => {
+app.post('/api/ai-report-conclusion', aiLimiter, async (req, res) => {
     try {
         const { reportType, reportData, country = 'argentina' } = req.body;
         if (!reportType || !reportData) return res.status(400).json({ error: 'Faltan datos del reporte' });
@@ -452,7 +558,7 @@ Importante: tu respuesta debe contener ÚNICAMENTE el texto de la conclusión fi
 // ==========================================
 // AI LEGAL SUMMARY (Gemini)
 // ==========================================
-app.post('/api/ai-legal-summary', async (req, res) => {
+app.post('/api/ai-legal-summary', aiLimiter, async (req, res) => {
     try {
         const { leyTitle, leyDescription, country = 'argentina' } = req.body;
         if (!leyTitle) return res.status(400).json({ error: 'Faltan datos de la normativa' });
@@ -486,7 +592,7 @@ Provee un resumen de puntos principales (en viñetas) que todo prevencionista de
 // ==========================================
 // AI GENERAL RISKS VISION (Gemini)
 // ==========================================
-app.post('/api/analyze-general-risks', async (req, res) => {
+app.post('/api/analyze-general-risks', aiLimiter, async (req, res) => {
     try {
         const { image } = req.body;
         if (!image) return res.status(400).json({ error: 'No se envió imagen' });
@@ -579,7 +685,8 @@ if (process.env.RESEND_API_KEY) {
     console.error('[RESEND] ERROR: RESEND_API_KEY no encontrada en el .env');
 }
 
-app.post('/api/forgot-password', async (req, res) => {
+// Password reset - strict limiter (security critical)
+app.post('/api/forgot-password', authLimiter, async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Email requerido' });
 
@@ -754,7 +861,7 @@ app.post('/api/register-request', async (req, res) => {
     }
 });
 
-app.get('/api/admin/requests', isAdmin, async (req, res) => {
+app.get('/api/admin/requests', adminLimiter, isAdmin, async (req, res) => {
     try {
         await ensureDataFile();
         const fileContent = await fs.readFile(REQUESTS_FILE, 'utf-8');
@@ -766,7 +873,7 @@ app.get('/api/admin/requests', isAdmin, async (req, res) => {
     }
 });
 
-app.delete('/api/admin/requests/:id', isAdmin, async (req, res) => {
+app.delete('/api/admin/requests/:id', adminLimiter, isAdmin, async (req, res) => {
     try {
         const { id } = req.params;
         await ensureDataFile();
@@ -785,7 +892,8 @@ app.delete('/api/admin/requests/:id', isAdmin, async (req, res) => {
     }
 });
 
-app.post('/api/welcome-email', async (req, res) => {
+// Welcome email - email limiter (prevent spam)
+app.post('/api/welcome-email', emailLimiter, async (req, res) => {
     const { email, name } = req.body;
     if (!email || !name) return res.status(400).json({ error: 'Email y nombre requeridos' });
 

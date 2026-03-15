@@ -30,8 +30,26 @@ export default function ResetPassword() {
             setStatus({ type: 'error', message: 'Las contraseñas no coinciden.' });
             return;
         }
-        if (passwords.new.length < 6) {
-            setStatus({ type: 'error', message: 'La contraseña debe tener al menos 6 caracteres.' });
+
+        // Enhanced password validation
+        if (passwords.new.length < 8) {
+            setStatus({ type: 'error', message: 'La contraseña debe tener al menos 8 caracteres.' });
+            return;
+        }
+        if (!/[A-Z]/.test(passwords.new)) {
+            setStatus({ type: 'error', message: 'La contraseña debe incluir al menos una letra mayúscula.' });
+            return;
+        }
+        if (!/[a-z]/.test(passwords.new)) {
+            setStatus({ type: 'error', message: 'La contraseña debe incluir al menos una letra minúscula.' });
+            return;
+        }
+        if (!/[0-9]/.test(passwords.new)) {
+            setStatus({ type: 'error', message: 'La contraseña debe incluir al menos un número.' });
+            return;
+        }
+        if (!/[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\;'`~]/.test(passwords.new)) {
+            setStatus({ type: 'error', message: 'La contraseña debe incluir al menos un carácter especial (!@#$%^&*...).' });
             return;
         }
 
@@ -59,7 +77,7 @@ export default function ResetPassword() {
             console.error("Firebase Reset Error:", error);
             let errorMessage = 'El enlace ha expirado o ya fue utilizado.';
             if (error.code === 'auth/weak-password') {
-                errorMessage = 'La contraseña es demasiado débil (mínimo 6 caracteres).';
+                errorMessage = 'La contraseña es muy débil. Debe tener 8+ caracteres, mayúscula, minúscula, número y carácter especial.';
             } else if (error.code === 'auth/invalid-action-code') {
                 errorMessage = 'El enlace de recuperación es inválido o ya ha caducado.';
             }

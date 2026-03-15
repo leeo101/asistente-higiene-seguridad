@@ -23,6 +23,36 @@ export default function Login() {
     const [view, setView] = useState(location.state?.view || 'login'); // 'login', 'register', or 'forgot'
     const [acceptedTerms, setAcceptedTerms] = useState(false);
     const [status, setStatus] = useState({ type: '', message: '', resetLink: '', code: '' });
+    const [showPassword, setShowPassword] = useState(false);
+    const [passwordStrength, setPasswordStrength] = useState({
+        length: false,
+        uppercase: false,
+        lowercase: false,
+        number: false,
+        special: false
+    });
+
+    // Password strength validator
+    const validatePasswordStrength = (pwd) => {
+        return {
+            length: pwd.length >= 8,
+            uppercase: /[A-Z]/.test(pwd),
+            lowercase: /[a-z]/.test(pwd),
+            number: /[0-9]/.test(pwd),
+            special: /[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\;'`~]/.test(pwd)
+        };
+    };
+
+    const handlePasswordChange = (e) => {
+        const pwd = e.target.value;
+        setPassword(pwd);
+        setPasswordStrength(validatePasswordStrength(pwd));
+    };
+
+    const isPasswordStrong = () => {
+        return passwordStrength.length && passwordStrength.uppercase &&
+            passwordStrength.lowercase && passwordStrength.number && passwordStrength.special;
+    };
 
     // Redirect if already logged in
     useEffect(() => {
@@ -52,8 +82,22 @@ export default function Login() {
         if (!acceptedTerms) {
             return setStatus({ type: 'error', message: 'Debes aceptar las Políticas de Privacidad para registrarte.' });
         }
-        if (password.length < 6) {
-            return setStatus({ type: 'error', message: 'La contraseña debe tener al menos 6 caracteres.' });
+
+        // Enhanced password validation
+        if (password.length < 8) {
+            return setStatus({ type: 'error', message: 'La contraseña debe tener al menos 8 caracteres.' });
+        }
+        if (!/[A-Z]/.test(password)) {
+            return setStatus({ type: 'error', message: 'La contraseña debe incluir al menos una letra mayúscula.' });
+        }
+        if (!/[a-z]/.test(password)) {
+            return setStatus({ type: 'error', message: 'La contraseña debe incluir al menos una letra minúscula.' });
+        }
+        if (!/[0-9]/.test(password)) {
+            return setStatus({ type: 'error', message: 'La contraseña debe incluir al menos un número.' });
+        }
+        if (!/[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\;'`~]/.test(password)) {
+            return setStatus({ type: 'error', message: 'La contraseña debe incluir al menos un carácter especial (!@#$%^&*...).' });
         }
         if (password !== confirmPassword) {
             return setStatus({ type: 'error', message: 'Las contraseñas no coinciden.' });
@@ -93,7 +137,7 @@ export default function Login() {
             if (error.code === 'auth/email-already-in-use') {
                 setStatus({ type: 'error', message: 'Ese correo ya está registrado.' });
             } else if (error.code === 'auth/weak-password') {
-                setStatus({ type: 'error', message: 'La contraseña debe tener al menos 6 caracteres.' });
+                setStatus({ type: 'error', message: 'La contraseña es muy débil. Debe tener 8+ caracteres, mayúscula, minúscula, número y carácter especial.' });
             } else {
                 setStatus({ type: 'error', message: `Error: ${error.message}` });
             }
@@ -259,14 +303,33 @@ export default function Login() {
                                 <div style={{ position: 'relative' }}>
                                     <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
                                     <input
-                                        type="password"
+                                        type={showPassword ? 'text' : 'password'}
                                         id="password"
                                         placeholder="••••••••"
-                                        style={{ paddingLeft: '40px' }}
+                                        style={{ paddingLeft: '40px', paddingRight: '40px' }}
                                         value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
+                                        onChange={handlePasswordChange}
                                         required
                                     />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        style={{
+                                            position: 'absolute',
+                                            right: '12px',
+                                            top: '50%',
+                                            transform: 'translateY(-50%)',
+                                            background: 'none',
+                                            border: 'none',
+                                            cursor: 'pointer',
+                                            color: 'var(--color-text-muted)',
+                                            display: 'flex',
+                                            alignItems: 'center'
+                                        }}
+                                        aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                                    >
+                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </button>
                                 </div>
                             </div>
 
@@ -340,19 +403,75 @@ export default function Login() {
                             </div>
 
                             <div style={{ marginBottom: '1.5rem' }}>
-                                <label htmlFor="password">Contraseña (Mín. 6 caracteres)</label>
+                                <label htmlFor="password">Contraseña</label>
                                 <div style={{ position: 'relative' }}>
                                     <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
                                     <input
-                                        type="password"
+                                        type={showPassword ? 'text' : 'password'}
                                         id="password"
                                         placeholder="••••••••"
-                                        style={{ paddingLeft: '40px' }}
+                                        style={{ paddingLeft: '40px', paddingRight: '40px' }}
                                         value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
+                                        onChange={handlePasswordChange}
                                         required
-                                        minLength="6"
                                     />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        style={{
+                                            position: 'absolute',
+                                            right: '12px',
+                                            top: '50%',
+                                            transform: 'translateY(-50%)',
+                                            background: 'none',
+                                            border: 'none',
+                                            cursor: 'pointer',
+                                            color: 'var(--color-text-muted)',
+                                            display: 'flex',
+                                            alignItems: 'center'
+                                        }}
+                                        aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                                    >
+                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </button>
+                                </div>
+                                {/* Password Strength Indicator */}
+                                <div style={{
+                                    marginTop: '0.8rem',
+                                    padding: '0.8rem',
+                                    background: 'var(--color-surface)',
+                                    borderRadius: '8px',
+                                    fontSize: '0.8rem'
+                                }}>
+                                    <p style={{ margin: '0 0 0.5rem 0', fontWeight: '600', color: 'var(--color-text-muted)' }}>
+                                        Requisitos de contraseña:
+                                    </p>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.4rem' }}>
+                                        {[
+                                            { key: 'length', label: '8+ caracteres', icon: '📏' },
+                                            { key: 'uppercase', label: 'Mayúscula', icon: 'A' },
+                                            { key: 'lowercase', label: 'Minúscula', icon: 'a' },
+                                            { key: 'number', label: 'Número', icon: '1' },
+                                            { key: 'special', label: 'Carácter especial', icon: '#' }
+                                        ].map(req => (
+                                            <div
+                                                key={req.key}
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '0.4rem',
+                                                    color: passwordStrength[req.key] ? '#10b981' : 'var(--color-text-muted)',
+                                                    transition: 'color 0.2s'
+                                                }}
+                                            >
+                                                <span style={{ fontSize: '0.9rem' }}>{req.icon}</span>
+                                                <span>{req.label}</span>
+                                                {passwordStrength[req.key] && (
+                                                    <CheckCircle2 size={14} style={{ marginLeft: 'auto' }} />
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
 
@@ -361,15 +480,33 @@ export default function Login() {
                                 <div style={{ position: 'relative' }}>
                                     <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
                                     <input
-                                        type="password"
+                                        type={showPassword ? 'text' : 'password'}
                                         id="confirmPassword"
                                         placeholder="••••••••"
-                                        style={{ paddingLeft: '40px' }}
+                                        style={{ paddingLeft: '40px', paddingRight: '40px' }}
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         required
-                                        minLength="6"
                                     />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        style={{
+                                            position: 'absolute',
+                                            right: '12px',
+                                            top: '50%',
+                                            transform: 'translateY(-50%)',
+                                            background: 'none',
+                                            border: 'none',
+                                            cursor: 'pointer',
+                                            color: 'var(--color-text-muted)',
+                                            display: 'flex',
+                                            alignItems: 'center'
+                                        }}
+                                        aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                                    >
+                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </button>
                                 </div>
                             </div>
 

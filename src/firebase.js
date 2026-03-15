@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore, enableMultiTabIndexedDbPersistence } from "firebase/firestore";
+import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBzm6eZVk6WdfTJ8--4s6JWH47ytA9i0Mk",
@@ -13,6 +14,22 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+
+// ==========================================
+// FIREBASE APP CHECK - Protección de API Key
+// ==========================================
+// Inicializar App Check con reCAPTCHA v3 para verificar que las peticiones
+// vienen realmente de tu app y no de scripts maliciosos
+try {
+    initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider('6LfoT4ssAAAAAB2E7DDBo7FVr8mPVhrjWreWHCSY'),
+        isTokenAutoRefreshEnabled: true
+    });
+    console.log('[App Check] Inicializado correctamente con reCAPTCHA v3');
+} catch (error) {
+    console.warn('[App Check] Error al inicializar:', error.message);
+}
+
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
