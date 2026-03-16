@@ -28,15 +28,16 @@ export default function ReportPdfGenerator({ initialData }) {
                         @page { size: A4 portrait; margin: 10mm; }
                         body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                         .no-print { display: none !important; }
-                        .print-area { 
-                            box-shadow: none !important; 
-                            margin: 0 !important; 
-                            padding: 5mm !important; 
-                            width: 100% !important; 
-                            max-width: none !important; 
+                        .print-area {
+                            box-shadow: none !important;
+                            margin: 0 !important;
+                            padding: 5mm !important;
+                            width: 100% !important;
+                            max-width: none !important;
                             border: none !important;
-                            border-radius: 0 !important; 
+                            border-radius: 0 !important;
                         }
+                        img { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                     `}
                 </style>
 
