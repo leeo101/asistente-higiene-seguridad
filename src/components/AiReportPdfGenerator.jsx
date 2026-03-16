@@ -8,12 +8,17 @@ export default function AiReportPdfGenerator({ item }) {
 
     // Debug: verificar si el logo existe
     useEffect(() => {
+        console.log('[AiReport] === DEBUG LOGO ===');
+        console.log('[AiReport] companyLogo existe:', !!companyLogo);
+        console.log('[AiReport] companyLogo length:', companyLogo?.length);
+        console.log('[AiReport] showLogo:', showLogo);
+        console.log('[AiReport] Logo starts with:', companyLogo?.substring(0, 30));
         if (companyLogo && showLogo) {
-            console.log('[AiReport] Logo cargado:', companyLogo.substring(0, 50) + '...');
+            console.log('[AiReport] ✅ Logo debería mostrarse');
         } else if (!companyLogo) {
-            console.log('[AiReport] No hay logo guardado - El usuario debe subirlo desde Perfil > Logo de Empresa');
+            console.log('[AiReport] ❌ No hay logo guardado');
         } else if (!showLogo) {
-            console.log('[AiReport] Logo desactivado por el usuario');
+            console.log('[AiReport] ❌ Logo desactivado');
         }
     }, [companyLogo, showLogo]);
 
@@ -54,23 +59,39 @@ export default function AiReportPdfGenerator({ item }) {
                 </style>
 
                 {/* Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid var(--color-primary)', paddingBottom: '1.5rem', marginBottom: '2rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid var(--color-primary)', paddingBottom: '1.5rem', marginBottom: '2rem' }}>
                     <div>
                         <h1 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-primary)', fontSize: '24pt', fontWeight: 900 }}>INFORME AI</h1>
                         <p style={{ margin: 0, fontSize: '10pt', color: '#475569', textTransform: 'uppercase' }}>Inspección Visual de Seguridad</p>
                     </div>
-                    {companyLogo && showLogo && (
-                        <img
-                            src={companyLogo}
-                            alt="Logo de empresa"
-                            style={{
-                                height: '45px',
-                                width: 'auto',
-                                objectFit: 'contain',
-                                maxWidth: '140px'
-                            }}
-                        />
-                    )}
+                    <div style={{ textAlign: 'right' }}>
+                        {companyLogo && showLogo ? (
+                            <div style={{
+                                height: '50px',
+                                minWidth: '50px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'flex-end',
+                                marginBottom: '0.5rem'
+                            }}>
+                                <img
+                                    src={companyLogo}
+                                    alt="Logo de empresa"
+                                    style={{
+                                        height: '100%',
+                                        width: 'auto',
+                                        maxWidth: '150px',
+                                        objectFit: 'contain'
+                                    }}
+                                />
+                            </div>
+                        ) : (
+                            <div style={{ height: '50px', marginBottom: '0.5rem' }}></div>
+                        )}
+                        <div style={{ fontSize: '8pt', color: '#64748b', fontWeight: 700 }}>
+                            {new Date(data.date).toLocaleDateString()}
+                        </div>
+                    </div>
                 </div>
 
                 {/* Info Block */}
