@@ -42,7 +42,11 @@ export default function FireLoadPdfGenerator({ data }) {
                             border: none !important;
                             border-radius: 0 !important;
                         }
-                        img { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                        .company-logo {
+                            -webkit-print-color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                            color-adjust: exact !important;
+                        }
                     `}
                 </style>
 
@@ -54,13 +58,17 @@ export default function FireLoadPdfGenerator({ data }) {
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
                         {companyLogo && showLogo && (
                             <img
+                                className="company-logo"
                                 src={companyLogo}
                                 alt="Logo de empresa"
                                 style={{
                                     height: '50px',
                                     width: 'auto',
                                     objectFit: 'contain',
-                                    maxWidth: '150px'
+                                    maxWidth: '150px',
+                                    WebkitPrintColorAdjust: 'exact',
+                                    printColorAdjust: 'exact',
+                                    colorAdjust: 'exact'
                                 }}
                             />
                         )}

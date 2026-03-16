@@ -37,7 +37,11 @@ export default function ReportPdfGenerator({ initialData }) {
                             border: none !important;
                             border-radius: 0 !important;
                         }
-                        img { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                        .company-logo {
+                            -webkit-print-color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                            color-adjust: exact !important;
+                        }
                     `}
                 </style>
 
@@ -53,13 +57,17 @@ export default function ReportPdfGenerator({ initialData }) {
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
                         {companyLogo && showLogo && (
                             <img
+                                className="company-logo"
                                 src={companyLogo}
                                 alt="Logo de empresa"
                                 style={{
                                     height: '45px',
                                     width: 'auto',
                                     objectFit: 'contain',
-                                    maxWidth: '140px'
+                                    maxWidth: '140px',
+                                    WebkitPrintColorAdjust: 'exact',
+                                    printColorAdjust: 'exact',
+                                    colorAdjust: 'exact'
                                 }}
                             />
                         )}
