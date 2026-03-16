@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ShieldCheck, Pencil, Info } from 'lucide-react';
 
 export default function ATSPdfGenerator({ atsData }) {
@@ -11,6 +11,17 @@ export default function ATSPdfGenerator({ atsData }) {
     // Obtener logo de empresa
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+
+    // Debug: verificar si el logo existe
+    useEffect(() => {
+        if (companyLogo && showLogo) {
+            console.log('[ATS] Logo cargado:', companyLogo.substring(0, 50) + '...');
+        } else if (!companyLogo) {
+            console.log('[ATS] No hay logo guardado');
+        } else if (!showLogo) {
+            console.log('[ATS] Logo desactivado por el usuario');
+        }
+    }, [companyLogo, showLogo]);
 
     // Extract unique categories from checklist
     const categories = [...new Set(checklist.map(item => item.categoria))];

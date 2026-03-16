@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Flame, ShieldCheck, Info, FileText } from 'lucide-react';
 import { getCountryNormativa } from '../data/legislationData';
 
@@ -12,6 +12,17 @@ export default function FireLoadPdfGenerator({ data }) {
     // Obtener logo de empresa
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+
+    // Debug: verificar si el logo existe
+    useEffect(() => {
+        if (companyLogo && showLogo) {
+            console.log('[FireLoad] Logo cargado:', companyLogo.substring(0, 50) + '...');
+        } else if (!companyLogo) {
+            console.log('[FireLoad] No hay logo guardado');
+        } else if (!showLogo) {
+            console.log('[FireLoad] Logo desactivado por el usuario');
+        }
+    }, [companyLogo, showLogo]);
 
     const { empresa, obra, fecha, sector, superficie, riesgo, materiales, results, conclusion } = data;
 
