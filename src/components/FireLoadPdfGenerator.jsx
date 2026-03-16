@@ -1,28 +1,31 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Flame, ShieldCheck, Info, FileText } from 'lucide-react';
 import { getCountryNormativa } from '../data/legislationData';
 
 export default function FireLoadPdfGenerator({ data }) {
-    if (!data) return null;
+    const [logoData, setLogoData] = useState({ companyLogo: null, showLogo: true });
 
-    const savedData = localStorage.getItem('personalData');
-    const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
-    const countryNorms = getCountryNormativa(userCountry);
-
-    // Obtener logo de empresa
-    const companyLogo = localStorage.getItem('companyLogo');
-    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
-
-    // Debug: verificar si el logo existe
     useEffect(() => {
+        const companyLogo = localStorage.getItem('companyLogo');
+        const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+        setLogoData({ companyLogo, showLogo });
+
+        console.log('[FireLoad] === DEBUG LOGO ===');
+        console.log('[FireLoad] companyLogo existe:', !!companyLogo);
+        console.log('[FireLoad] companyLogo length:', companyLogo?.length);
+        console.log('[FireLoad] showLogo:', showLogo);
         if (companyLogo && showLogo) {
-            console.log('[FireLoad] Logo cargado:', companyLogo.substring(0, 50) + '...');
+            console.log('[FireLoad] ✅ Logo debería mostrarse');
         } else if (!companyLogo) {
-            console.log('[FireLoad] No hay logo guardado');
+            console.log('[FireLoad] ❌ No hay logo guardado - Subilo desde Perfil > Logo de Empresa');
         } else if (!showLogo) {
-            console.log('[FireLoad] Logo desactivado por el usuario');
+            console.log('[FireLoad] ❌ Logo desactivado - Activalo desde Perfil');
         }
-    }, [companyLogo, showLogo]);
+    }, []);
+
+    const { companyLogo, showLogo } = logoData;
+
+    if (!data) return null;
 
     const { empresa, obra, fecha, sector, superficie, riesgo, materiales, results, conclusion } = data;
 

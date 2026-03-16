@@ -1,13 +1,17 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ShieldCheck, TriangleAlert, Info } from 'lucide-react';
 
 export default function AiReportPdfGenerator({ item }) {
-    // Obtener logo de empresa
-    const companyLogo = localStorage.getItem('companyLogo');
-    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+    const [logoData, setLogoData] = useState({ companyLogo: null, showLogo: true });
 
-    // Debug: verificar si el logo existe
     useEffect(() => {
+        // Leer logo del localStorage
+        const companyLogo = localStorage.getItem('companyLogo');
+        const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+
+        setLogoData({ companyLogo, showLogo });
+
+        // Debug detallado
         console.log('[AiReport] === DEBUG LOGO ===');
         console.log('[AiReport] companyLogo existe:', !!companyLogo);
         console.log('[AiReport] companyLogo length:', companyLogo?.length);
@@ -16,11 +20,13 @@ export default function AiReportPdfGenerator({ item }) {
         if (companyLogo && showLogo) {
             console.log('[AiReport] ✅ Logo debería mostrarse');
         } else if (!companyLogo) {
-            console.log('[AiReport] ❌ No hay logo guardado');
+            console.log('[AiReport] ❌ No hay logo guardado - Subilo desde Perfil > Logo de Empresa');
         } else if (!showLogo) {
-            console.log('[AiReport] ❌ Logo desactivado');
+            console.log('[AiReport] ❌ Logo desactivado - Activalo desde Perfil');
         }
-    }, [companyLogo, showLogo]);
+    }, []);
+
+    const { companyLogo, showLogo } = logoData;
 
     if (!item) return null;
 

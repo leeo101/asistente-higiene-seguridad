@@ -1,27 +1,34 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ShieldCheck, Pencil, Info } from 'lucide-react';
 
 export default function ATSPdfGenerator({ atsData }) {
+    const [logoData, setLogoData] = useState({ companyLogo: null, showLogo: true });
+
+    useEffect(() => {
+        const companyLogo = localStorage.getItem('companyLogo');
+        const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+        setLogoData({ companyLogo, showLogo });
+
+        console.log('[ATS] === DEBUG LOGO ===');
+        console.log('[ATS] companyLogo existe:', !!companyLogo);
+        console.log('[ATS] companyLogo length:', companyLogo?.length);
+        console.log('[ATS] showLogo:', showLogo);
+        if (companyLogo && showLogo) {
+            console.log('[ATS] ✅ Logo debería mostrarse');
+        } else if (!companyLogo) {
+            console.log('[ATS] ❌ No hay logo guardado - Subilo desde Perfil > Logo de Empresa');
+        } else if (!showLogo) {
+            console.log('[ATS] ❌ Logo desactivado - Activalo desde Perfil');
+        }
+    }, []);
+
+    const { companyLogo, showLogo } = logoData;
+
     if (!atsData) return null;
 
     const data = atsData;
     const tareas = data.tareas || [];
     const checklist = data.checklist || [];
-
-    // Obtener logo de empresa
-    const companyLogo = localStorage.getItem('companyLogo');
-    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
-
-    // Debug: verificar si el logo existe
-    useEffect(() => {
-        if (companyLogo && showLogo) {
-            console.log('[ATS] Logo cargado:', companyLogo.substring(0, 50) + '...');
-        } else if (!companyLogo) {
-            console.log('[ATS] No hay logo guardado');
-        } else if (!showLogo) {
-            console.log('[ATS] Logo desactivado por el usuario');
-        }
-    }, [companyLogo, showLogo]);
 
     // Extract unique categories from checklist
     const categories = [...new Set(checklist.map(item => item.categoria))];
