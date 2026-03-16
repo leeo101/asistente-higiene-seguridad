@@ -4,6 +4,10 @@ import { ArrowLeft, Printer, Users, Calendar, MapPin, Clock, BookOpen, Briefcase
 export default function TrainingPdfGenerator({ training, onBack }) {
     const componentRef = useRef();
 
+    // Obtener logo de empresa
+    const companyLogo = localStorage.getItem('companyLogo');
+    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+
     const safeTema = (training?.tema || 'Capacitacion').replace(/\s+/g, '_');
     const safeFecha = training?.fecha || new Date().toISOString().split('T')[0];
 
@@ -65,7 +69,7 @@ export default function TrainingPdfGenerator({ training, onBack }) {
                     </style>
 
                     {/* Document Header */}
-                    <div style={{ display: 'flex', borderBottom: '2px solid #1e293b', paddingBottom: '10px', marginBottom: '20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #1e293b', paddingBottom: '10px', marginBottom: '20px' }}>
                         <div style={{ flex: 1, textAlign: 'center' }}>
                             <h1 style={{ margin: '0 0 5px 0', fontSize: '18pt', color: '#1e293b', fontWeight: 900, textTransform: 'uppercase' }}>
                                 Planilla de Asistencia a Capacitación
@@ -74,6 +78,19 @@ export default function TrainingPdfGenerator({ training, onBack }) {
                                 Registro obligatorio de inducción y entrenamiento en Higiene y Seguridad
                             </p>
                         </div>
+                        {companyLogo && showLogo && (
+                            <img
+                                src={companyLogo}
+                                alt="Logo de empresa"
+                                style={{
+                                    height: '50px',
+                                    width: 'auto',
+                                    objectFit: 'contain',
+                                    maxWidth: '150px',
+                                    marginLeft: '20px'
+                                }}
+                            />
+                        )}
                     </div>
 
                     {/* Training Metadata Table */}

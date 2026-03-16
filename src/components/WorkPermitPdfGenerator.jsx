@@ -6,7 +6,11 @@ export default function WorkPermitPdfGenerator({ data }) {
     if (!data) return null;
 
     const selectedTypeLabel = permitTypes.find(t => t.id === data.tipoPermiso)?.label || 'Permiso de Trabajo';
-    
+
+    // Obtener logo de empresa
+    const companyLogo = localStorage.getItem('companyLogo');
+    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+
     // Ensure all arrays exist
     const checklist = data.checklist || [];
     const personal = data.personal || [];
@@ -47,11 +51,25 @@ export default function WorkPermitPdfGenerator({ data }) {
                         <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, color: '#1e293b' }}>PERMISO DE TRABAJO</h1>
                         <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#666' }}>{selectedTypeLabel.toUpperCase()}</p>
                     </div>
-                    <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b' }}>SISTEMA DE GESTIÓN HYS</div>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' }}>
-                            <span style={{ fontSize: '1.2rem', fontWeight: 900, color: '#1e293b' }}>N°</span>
-                            <span style={{ fontSize: '1.2rem', fontWeight: 900, color: '#1e293b' }}>{data.numeroPermiso || 'S/N'}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                        {companyLogo && showLogo && (
+                            <img
+                                src={companyLogo}
+                                alt="Logo de empresa"
+                                style={{
+                                    height: '45px',
+                                    width: 'auto',
+                                    objectFit: 'contain',
+                                    maxWidth: '140px'
+                                }}
+                            />
+                        )}
+                        <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b' }}>SISTEMA DE GESTIÓN HYS</div>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' }}>
+                                <span style={{ fontSize: '1.2rem', fontWeight: 900, color: '#1e293b' }}>N°</span>
+                                <span style={{ fontSize: '1.2rem', fontWeight: 900, color: '#1e293b' }}>{data.numeroPermiso || 'S/N'}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -106,8 +124,8 @@ export default function WorkPermitPdfGenerator({ data }) {
                                     <div style={{ display: 'flex', gap: '4px', flexShrink: 0, justifyContent: 'center' }}>
                                         {['SI', 'NO'].map((label) => {
                                             const isSelected = (label === 'SI' && (item.estado === 'Cumple' || item.estado === 'SI')) ||
-                                                             (label === 'NO' && (item.estado === 'No Cumple' || item.estado === 'NO'));
-                                            
+                                                (label === 'NO' && (item.estado === 'No Cumple' || item.estado === 'NO'));
+
                                             return (
                                                 <div key={label} style={{
                                                     width: '35px',
@@ -169,7 +187,7 @@ export default function WorkPermitPdfGenerator({ data }) {
                             <p style={{ margin: 0, fontSize: '0.65rem', color: '#666' }}>Aclaración y Firma</p>
                         </div>
                     </div>
-                    
+
                     <div style={{ textAlign: 'center', width: '35%' }}>
                         <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             {data.professionalSignature && <img src={data.professionalSignature} alt="Firma" style={{ height: '100%', objectFit: 'contain' }} />}

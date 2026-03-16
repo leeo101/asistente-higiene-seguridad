@@ -9,6 +9,10 @@ export default function LightingPdfGenerator({ data }) {
     const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
     const countryNorms = getCountryNormativa(userCountry);
 
+    // Obtener logo de empresa
+    const companyLogo = localStorage.getItem('companyLogo');
+    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+
     const { empresa, fecha, sector, descripcionActividad, tipoTarea, luxRequerido, mediciones, results, conclusion } = data;
     const meds = mediciones || [];
 
@@ -54,9 +58,23 @@ export default function LightingPdfGenerator({ data }) {
                         <p style={{ margin: 0, color: '#eab308', fontWeight: 900, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.2em', marginTop: '0.25rem' }}>Niveles de Iluminación</p>
                     </div>
 
-                    <div style={{ flex: 1, textAlign: 'right' }}>
-                        <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>PÁGINA</div>
-                        <div style={{ fontWeight: 900, fontSize: '1.5rem', color: '#1e293b' }}>01 / 01</div>
+                    <div style={{ flex: 1, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                        {companyLogo && showLogo && (
+                            <img
+                                src={companyLogo}
+                                alt="Logo de empresa"
+                                style={{
+                                    height: '40px',
+                                    width: 'auto',
+                                    objectFit: 'contain',
+                                    maxWidth: '120px'
+                                }}
+                            />
+                        )}
+                        <div>
+                            <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>PÁGINA</div>
+                            <div style={{ fontWeight: 900, fontSize: '1.5rem', color: '#1e293b' }}>01 / 01</div>
+                        </div>
                     </div>
                 </div>
 
