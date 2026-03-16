@@ -8,6 +8,17 @@ export default function ChecklistPdfGenerator({ checklistData }) {
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
 
+    // Debug: verificar si el logo existe
+    useEffect(() => {
+        if (companyLogo && showLogo) {
+            console.log('[Checklist] Logo cargado:', companyLogo.substring(0, 50) + '...');
+        } else if (!companyLogo) {
+            console.log('[Checklist] No hay logo guardado');
+        } else if (!showLogo) {
+            console.log('[Checklist] Logo desactivado por el usuario');
+        }
+    }, [companyLogo, showLogo]);
+
     useEffect(() => {
         if (checklistData?.id) {
             const stored = localStorage.getItem(`checklist_${checklistData.id}`);
@@ -54,7 +65,11 @@ export default function ChecklistPdfGenerator({ checklistData }) {
                             border: none !important;
                             border-radius: 0 !important;
                         }
-                        img { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                        .company-logo {
+                            -webkit-print-color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                            color-adjust: exact !important;
+                        }
                     `}
                 </style>
 
@@ -73,13 +88,17 @@ export default function ChecklistPdfGenerator({ checklistData }) {
                     <div style={{ flex: 1, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
                         {companyLogo && showLogo && (
                             <img
+                                className="company-logo"
                                 src={companyLogo}
                                 alt="Logo de empresa"
                                 style={{
                                     height: '40px',
                                     width: 'auto',
                                     objectFit: 'contain',
-                                    maxWidth: '120px'
+                                    maxWidth: '120px',
+                                    WebkitPrintColorAdjust: 'exact',
+                                    printColorAdjust: 'exact',
+                                    colorAdjust: 'exact'
                                 }}
                             />
                         )}
