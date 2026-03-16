@@ -12,26 +12,33 @@ function LogoEmpresaSection({ isPro }) {
     const [logo, setLogo] = useState(null);
     const [showLogo, setShowLogo] = useState(true);
     const [dragActive, setDragActive] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
 
     useEffect(() => {
         const savedLogo = localStorage.getItem('companyLogo');
         const savedShowLogo = localStorage.getItem('showCompanyLogo');
-        if (savedLogo) setLogo(savedLogo);
+        if (savedLogo) {
+            setLogo(savedLogo);
+            console.log('[LogoEmpresa] Logo cargado desde localStorage:', savedLogo.substring(0, 50) + '...');
+        }
         if (savedShowLogo !== null) setShowLogo(savedShowLogo === 'true');
     }, []);
 
     const handleFileChange = (file) => {
         if (!file) return;
+        setIsUploading(true);
 
         // Validar tipo de archivo
         if (!file.type.startsWith('image/')) {
             toast.error('Por favor subí una imagen válida (PNG, JPG, SVG)');
+            setIsUploading(false);
             return;
         }
 
         // Validar tamaño (max 500KB)
         if (file.size > 500 * 1024) {
             toast.error('La imagen debe pesar menos de 500KB');
+            setIsUploading(false);
             return;
         }
 
@@ -40,10 +47,13 @@ function LogoEmpresaSection({ isPro }) {
             const base64 = e.target.result;
             setLogo(base64);
             localStorage.setItem('companyLogo', base64);
-            toast.success('Logo guardado exitosamente');
+            setIsUploading(false);
+            toast.success('✅ Logo guardado exitosamente. Aparecerá en todos tus PDFs.');
+            console.log('[LogoEmpresa] Logo guardado correctamente');
         };
         reader.onerror = () => {
             toast.error('Error al leer la imagen');
+            setIsUploading(false);
         };
         reader.readAsDataURL(file);
     };
@@ -148,24 +158,44 @@ function LogoEmpresaSection({ isPro }) {
                             <p style={{ margin: '0 0 1rem 0', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
                                 Se mostrará en todos tus reportes PDF
                             </p>
-                            <button
-                                onClick={handleRemoveLogo}
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '0.4rem',
-                                    padding: '0.5rem 0.8rem',
-                                    background: 'rgba(239,68,68,0.1)',
-                                    border: '1px solid rgba(239,68,68,0.2)',
-                                    borderRadius: '8px',
-                                    color: '#ef4444',
-                                    fontWeight: 600,
-                                    fontSize: '0.8rem',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                <X size={14} /> Eliminar logo
-                            </button>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                <button
+                                    onClick={() => document.getElementById('logo-upload-input')?.click()}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.4rem',
+                                        padding: '0.5rem 0.8rem',
+                                        background: 'rgba(59,130,246,0.1)',
+                                        border: '1px solid rgba(59,130,246,0.2)',
+                                        borderRadius: '8px',
+                                        color: '#3b82f6',
+                                        fontWeight: 600,
+                                        fontSize: '0.8rem',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    <Upload size={14} /> {isUploading ? 'Subiendo...' : 'Cambiar logo'}
+                                </button>
+                                <button
+                                    onClick={handleRemoveLogo}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.4rem',
+                                        padding: '0.5rem 0.8rem',
+                                        background: 'rgba(239,68,68,0.1)',
+                                        border: '1px solid rgba(239,68,68,0.2)',
+                                        borderRadius: '8px',
+                                        color: '#ef4444',
+                                        fontWeight: 600,
+                                        fontSize: '0.8rem',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    <X size={14} /> Eliminar
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -182,13 +212,14 @@ function LogoEmpresaSection({ isPro }) {
                         textAlign: 'center',
                         marginBottom: '1rem',
                         transition: 'all 0.2s ease',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        opacity: isUploading ? 0.7 : 1
                     }}
                     onClick={() => document.getElementById('logo-upload-input')?.click()}
                 >
                     <Upload size={32} style={{ color: 'var(--color-primary)', margin: '0 auto 0.5rem' }} />
                     <p style={{ margin: '0 0 0.5rem 0', fontWeight: 600, fontSize: '0.9rem' }}>
-                        Arrastrá tu logo o hacé clic para subir
+                        {isUploading ? 'Subiendo logo...' : 'Arrastrá tu logo o hacé clic para subir'}
                     </p>
                     <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
                         PNG, JPG o SVG - Máx. 500KB
@@ -199,6 +230,7 @@ function LogoEmpresaSection({ isPro }) {
                         accept="image/*"
                         style={{ display: 'none' }}
                         onChange={(e) => handleFileChange(e.target.files?.[0])}
+                        disabled={isUploading}
                     />
                 </div>
             )}
@@ -246,28 +278,43 @@ function LogoEmpresaSection({ isPro }) {
                 </div>
             )}
 
-            {!isPro() && (
-                <div style={{
-                    marginTop: '1rem',
-                    padding: '0.75rem',
-                    background: 'rgba(251,191,36,0.1)',
-                    borderRadius: '8px',
-                    border: '1px solid rgba(251,191,36,0.2)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                }}>
-                    <AlertCircle size={16} color="#f59e0b" style={{ flexShrink: 0 }} />
-                    <p style={{
-                        margin: 0,
-                        fontSize: '0.75rem',
-                        color: '#f59e0b',
-                        fontWeight: 600
-                    }}>
-                        Esta función está disponible solo para usuarios PRO
-                    </p>
-                </div>
-            )}
+            {/* Mensaje para usuarios no PRO - movido abajo para que siempre se vea la info */}
+            <div style={{
+                marginTop: '1rem',
+                padding: '0.75rem',
+                background: isPro() ? 'rgba(16,185,129,0.05)' : 'rgba(251,191,36,0.1)',
+                borderRadius: '8px',
+                border: `1px solid ${isPro() ? 'rgba(16,185,129,0.2)' : 'rgba(251,191,36,0.2)'}`,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+            }}>
+                {isPro() ? (
+                    <>
+                        <CheckCircle size={16} color="#10b981" style={{ flexShrink: 0 }} />
+                        <p style={{
+                            margin: 0,
+                            fontSize: '0.75rem',
+                            color: '#10b981',
+                            fontWeight: 600
+                        }}>
+                            ¡Tenés acceso PRO! El logo aparecerá en todos tus PDFs
+                        </p>
+                    </>
+                ) : (
+                    <>
+                        <AlertCircle size={16} color="#f59e0b" style={{ flexShrink: 0 }} />
+                        <p style={{
+                            margin: 0,
+                            fontSize: '0.75rem',
+                            color: '#f59e0b',
+                            fontWeight: 600
+                        }}>
+                            Esta función está disponible solo para usuarios PRO
+                        </p>
+                    </>
+                )}
+            </div>
         </div>
     );
 }

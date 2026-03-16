@@ -1,10 +1,22 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { ArrowLeft, Printer, Calendar, MapPin, CheckSquare, Clock, Users, Flame } from 'lucide-react';
 
 export default function DrillPdfGenerator({ report, onBack }) {
     // Obtener logo de empresa
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+
+    // Debug: verificar si el logo existe
+    useEffect(() => {
+        if (companyLogo && showLogo) {
+            console.log('[Drill] Logo cargado:', companyLogo.substring(0, 50) + '...');
+        } else if (!companyLogo) {
+            console.log('[Drill] No hay logo guardado - El usuario debe subirlo desde Perfil > Logo de Empresa');
+        } else if (!showLogo) {
+            console.log('[Drill] Logo desactivado por el usuario');
+        }
+    }, [companyLogo, showLogo]);
+
     const componentRef = useRef();
 
     const safeEmpresa = (report?.empresa || 'Empresa').replace(/\s+/g, '_');

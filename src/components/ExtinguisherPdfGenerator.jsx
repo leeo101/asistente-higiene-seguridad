@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { ArrowLeft, Printer, Flame, MapPin, Calendar, Building, CheckCircle2 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useNavigate } from 'react-router-dom';
@@ -25,6 +25,18 @@ export default function ExtinguisherPdfGenerator({ extinguishers = [] }) {
     // Obtener logo de empresa
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+
+    // Debug: verificar si el logo existe
+    useEffect(() => {
+        if (companyLogo && showLogo) {
+            console.log('[Extinguisher] Logo cargado:', companyLogo.substring(0, 50) + '...');
+        } else if (!companyLogo) {
+            console.log('[Extinguisher] No hay logo guardado - El usuario debe subirlo desde Perfil > Logo de Empresa');
+        } else if (!showLogo) {
+            console.log('[Extinguisher] Logo desactivado por el usuario');
+        }
+    }, [companyLogo, showLogo]);
+
     const componentRef = useRef();
     const isLandscape = extinguishers.length > 15; // Auto rotate if many
 

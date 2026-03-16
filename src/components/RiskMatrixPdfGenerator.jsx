@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ShieldCheck, Calendar, MapPin, UserCheck, AlertTriangle } from 'lucide-react';
 
 const getRiskLevel = (p, s) => {
@@ -15,6 +15,17 @@ export default function RiskMatrixPdfGenerator({ data, initialData }) {
     // Obtener logo de empresa
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+
+    // Debug: verificar si el logo existe
+    useEffect(() => {
+        if (companyLogo && showLogo) {
+            console.log('[RiskMatrix] Logo cargado:', companyLogo.substring(0, 50) + '...');
+        } else if (!companyLogo) {
+            console.log('[RiskMatrix] No hay logo guardado - El usuario debe subirlo desde Perfil > Logo de Empresa');
+        } else if (!showLogo) {
+            console.log('[RiskMatrix] Logo desactivado por el usuario');
+        }
+    }, [companyLogo, showLogo]);
 
     const rows = finalData.rows || [];
     const { name, location, date, responsable, id, createdAt } = finalData;

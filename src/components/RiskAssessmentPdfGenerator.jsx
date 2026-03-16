@@ -1,10 +1,22 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ShieldAlert, Activity, AlertCircle, Calendar, MapPin, Briefcase } from 'lucide-react';
 
 export default function RiskAssessmentPdfGenerator({ assessmentData }) {
     // Obtener logo de empresa
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+
+    // Debug: verificar si el logo existe
+    useEffect(() => {
+        if (companyLogo && showLogo) {
+            console.log('[RiskAssessment] Logo cargado:', companyLogo.substring(0, 50) + '...');
+        } else if (!companyLogo) {
+            console.log('[RiskAssessment] No hay logo guardado - El usuario debe subirlo desde Perfil > Logo de Empresa');
+        } else if (!showLogo) {
+            console.log('[RiskAssessment] Logo desactivado por el usuario');
+        }
+    }, [companyLogo, showLogo]);
+
     if (!assessmentData) return null;
 
     const data = assessmentData;

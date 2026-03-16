@@ -1,10 +1,23 @@
 import { Building2, MapPin, Calendar } from 'lucide-react';
+import { useEffect } from 'react';
 import { getCountryNormativa } from '../data/legislationData';
 
 export default function ProfessionalReportPdfGenerator({ currentReport }) {
     // Obtener logo de empresa
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+
+    // Debug: verificar si el logo existe
+    useEffect(() => {
+        if (companyLogo && showLogo) {
+            console.log('[ProfessionalReport] Logo cargado:', companyLogo.substring(0, 50) + '...');
+        } else if (!companyLogo) {
+            console.log('[ProfessionalReport] No hay logo guardado - El usuario debe subirlo desde Perfil > Logo de Empresa');
+        } else if (!showLogo) {
+            console.log('[ProfessionalReport] Logo desactivado por el usuario');
+        }
+    }, [companyLogo, showLogo]);
+
     if (!currentReport) return null;
 
     const report = currentReport;

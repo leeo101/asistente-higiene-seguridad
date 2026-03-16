@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Lightbulb, Calculator, FileText, Layout, Sun } from 'lucide-react';
 import { getCountryNormativa } from '../data/legislationData';
 
@@ -12,6 +12,17 @@ export default function LightingPdfGenerator({ data }) {
     // Obtener logo de empresa
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+
+    // Debug: verificar si el logo existe
+    useEffect(() => {
+        if (companyLogo && showLogo) {
+            console.log('[Lighting] Logo cargado:', companyLogo.substring(0, 50) + '...');
+        } else if (!companyLogo) {
+            console.log('[Lighting] No hay logo guardado - El usuario debe subirlo desde Perfil > Logo de Empresa');
+        } else if (!showLogo) {
+            console.log('[Lighting] Logo desactivado por el usuario');
+        }
+    }, [companyLogo, showLogo]);
 
     const { empresa, fecha, sector, descripcionActividad, tipoTarea, luxRequerido, mediciones, results, conclusion } = data;
     const meds = mediciones || [];

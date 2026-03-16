@@ -1,10 +1,22 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Sparkles, ShieldAlert, HardHat, Lightbulb, Gavel } from 'lucide-react';
 
 export default function AiAdvisorPdfGenerator({ data }) {
     // Obtener logo de empresa
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+
+    // Debug: verificar si el logo existe
+    useEffect(() => {
+        if (companyLogo && showLogo) {
+            console.log('[AiAdvisor] Logo cargado:', companyLogo.substring(0, 50) + '...');
+        } else if (!companyLogo) {
+            console.log('[AiAdvisor] No hay logo guardado - El usuario debe subirlo desde Perfil > Logo de Empresa');
+        } else if (!showLogo) {
+            console.log('[AiAdvisor] Logo desactivado por el usuario');
+        }
+    }, [companyLogo, showLogo]);
+
     if (!data) return null;
 
     const personalData = JSON.parse(localStorage.getItem('personalData') || '{}');

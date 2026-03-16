@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { ArrowLeft, Printer, Users, Calendar, MapPin, Clock, BookOpen, Briefcase } from 'lucide-react';
 
 export default function TrainingPdfGenerator({ training, onBack }) {
@@ -7,6 +7,17 @@ export default function TrainingPdfGenerator({ training, onBack }) {
     // Obtener logo de empresa
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+
+    // Debug: verificar si el logo existe
+    useEffect(() => {
+        if (companyLogo && showLogo) {
+            console.log('[Training] Logo cargado:', companyLogo.substring(0, 50) + '...');
+        } else if (!companyLogo) {
+            console.log('[Training] No hay logo guardado - El usuario debe subirlo desde Perfil > Logo de Empresa');
+        } else if (!showLogo) {
+            console.log('[Training] Logo desactivado por el usuario');
+        }
+    }, [companyLogo, showLogo]);
 
     const safeTema = (training?.tema || 'Capacitacion').replace(/\s+/g, '_');
     const safeFecha = training?.fecha || new Date().toISOString().split('T')[0];

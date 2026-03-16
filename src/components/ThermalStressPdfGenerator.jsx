@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { ArrowLeft, Printer, MapPin, Calendar, ThermometerSun, Info } from 'lucide-react';
 import { getCountryNormativa } from '../data/legislationData';
 
@@ -6,6 +6,18 @@ export default function ThermalStressPdfGenerator({ report, onBack }) {
     // Obtener logo de empresa
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+
+    // Debug: verificar si el logo existe
+    useEffect(() => {
+        if (companyLogo && showLogo) {
+            console.log('[ThermalStress] Logo cargado:', companyLogo.substring(0, 50) + '...');
+        } else if (!companyLogo) {
+            console.log('[ThermalStress] No hay logo guardado - El usuario debe subirlo desde Perfil > Logo de Empresa');
+        } else if (!showLogo) {
+            console.log('[ThermalStress] Logo desactivado por el usuario');
+        }
+    }, [companyLogo, showLogo]);
+
     const componentRef = useRef();
 
     const safePuesto = (report?.puesto || 'Puesto').replace(/\s+/g, '_');

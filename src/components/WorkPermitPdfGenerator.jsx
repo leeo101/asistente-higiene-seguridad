@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { permitTypes } from '../data/workPermits';
 import { ShieldCheck, Users } from 'lucide-react';
 
@@ -10,6 +10,17 @@ export default function WorkPermitPdfGenerator({ data }) {
     // Obtener logo de empresa
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+
+    // Debug: verificar si el logo existe
+    useEffect(() => {
+        if (companyLogo && showLogo) {
+            console.log('[WorkPermit] Logo cargado:', companyLogo.substring(0, 50) + '...');
+        } else if (!companyLogo) {
+            console.log('[WorkPermit] No hay logo guardado - El usuario debe subirlo desde Perfil > Logo de Empresa');
+        } else if (!showLogo) {
+            console.log('[WorkPermit] Logo desactivado por el usuario');
+        }
+    }, [companyLogo, showLogo]);
 
     // Ensure all arrays exist
     const checklist = data.checklist || [];
