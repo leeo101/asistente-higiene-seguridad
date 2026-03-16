@@ -65,14 +65,19 @@ export default function ThermalStressPdfGenerator({ report, onBack }) {
                             @page { size: A4 portrait; margin: 15mm; }
                             body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                             .no-print { display: none !important; }
-                            .print-area { 
-                                box-shadow: none !important; 
-                                margin: 0 !important; 
-                                padding: 10mm !important; 
-                                width: 100% !important; 
-                                max-width: none !important; 
+                            .print-area {
+                                box-shadow: none !important;
+                                margin: 0 !important;
+                                padding: 10mm !important;
+                                width: 100% !important;
+                                max-width: none !important;
                                 border: 1px solid #1e293b !important;
-                                border-radius: 0 !important; 
+                                border-radius: 0 !important;
+                            }
+                            .company-logo {
+                                -webkit-print-color-adjust: exact !important;
+                                print-color-adjust: exact !important;
+                                color-adjust: exact !important;
                             }
                         `}
                 </style>
@@ -90,6 +95,7 @@ export default function ThermalStressPdfGenerator({ report, onBack }) {
                     </div>
                     {companyLogo && showLogo && (
                         <img
+                            className="company-logo"
                             src={companyLogo}
                             alt="Logo de empresa"
                             style={{
@@ -97,7 +103,10 @@ export default function ThermalStressPdfGenerator({ report, onBack }) {
                                 width: 'auto',
                                 objectFit: 'contain',
                                 maxWidth: '140px',
-                                marginLeft: '20px'
+                                marginLeft: '20px',
+                                WebkitPrintColorAdjust: 'exact',
+                                printColorAdjust: 'exact',
+                                colorAdjust: 'exact'
                             }}
                         />
                     )}
