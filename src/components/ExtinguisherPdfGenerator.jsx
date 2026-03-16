@@ -78,6 +78,18 @@ export default function ExtinguisherPdfGenerator({ extinguishers = [] }) {
                                 {stats.vencidos > 0 && <span style={{ color: '#dc2626', fontWeight: 'bold' }}>({stats.vencidos} Vencidos)</span>}
                             </p>
                         </div>
+                        {companyLogo && showLogo && (
+                            <img
+                                src={companyLogo}
+                                alt="Logo de empresa"
+                                style={{
+                                    height: '45px',
+                                    width: 'auto',
+                                    objectFit: 'contain',
+                                    maxWidth: '140px'
+                                }}
+                            />
+                        )}
                     </div>
 
                     {/* Table */}

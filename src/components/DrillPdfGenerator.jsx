@@ -63,7 +63,7 @@ export default function DrillPdfGenerator({ report, onBack }) {
 
                     {/* Document Header */}
                     <div style={{ borderBottom: '3px solid #1e293b', paddingBottom: '1rem', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <div>
+                        <div style={{ flex: 1 }}>
                             <h1 style={{ margin: '0 0 0.5rem 0', fontSize: '20pt', color: '#1e293b', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
                                 ACTA DE SIMULACRO DE EVACUACIÓN
                             </h1>
@@ -72,6 +72,19 @@ export default function DrillPdfGenerator({ report, onBack }) {
                                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><strong>Fecha:</strong> {report?.fecha ? new Date(report.fecha + 'T12:00:00Z').toLocaleDateString() : 'N/A'}</span>
                             </div>
                         </div>
+                        {companyLogo && showLogo && (
+                            <img
+                                src={companyLogo}
+                                alt="Logo de empresa"
+                                style={{
+                                    height: '45px',
+                                    width: 'auto',
+                                    objectFit: 'contain',
+                                    maxWidth: '140px',
+                                    marginLeft: '20px'
+                                }}
+                            />
+                        )}
                     </div>
 
                     <p style={{ fontSize: '10pt', color: '#334155', textAlign: 'justify', marginBottom: '20px', lineHeight: '1.6' }}>

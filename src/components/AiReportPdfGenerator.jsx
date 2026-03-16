@@ -47,6 +47,18 @@ export default function AiReportPdfGenerator({ item }) {
                         <h1 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-primary)', fontSize: '24pt', fontWeight: 900 }}>INFORME AI</h1>
                         <p style={{ margin: 0, fontSize: '10pt', color: '#475569', textTransform: 'uppercase' }}>Inspección Visual de Seguridad</p>
                     </div>
+                    {companyLogo && showLogo && (
+                        <img
+                            src={companyLogo}
+                            alt="Logo de empresa"
+                            style={{
+                                height: '45px',
+                                width: 'auto',
+                                objectFit: 'contain',
+                                maxWidth: '140px'
+                            }}
+                        />
+                    )}
                 </div>
 
                 {/* Info Block */}
@@ -68,9 +80,9 @@ export default function AiReportPdfGenerator({ item }) {
                 </div>
 
                 {/* Evidence Photo */}
-                 <div style={{ marginBottom: '2rem', textAlign: 'center', pageBreakInside: 'avoid' }}>
+                <div style={{ marginBottom: '2rem', textAlign: 'center', pageBreakInside: 'avoid' }}>
                     <div style={{ width: '100%', maxWidth: '350px', height: '250px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #cbd5e1', margin: '0 auto', background: '#f1f5f9' }}>
-                         <img src={data.image} alt="Evidencia" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                        <img src={data.image} alt="Evidencia" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                     </div>
                 </div>
 
@@ -101,7 +113,7 @@ export default function AiReportPdfGenerator({ item }) {
                             </div>
                         </>
                     ) : (
-                         <div style={{ padding: '1rem', borderRadius: '8px', background: '#f8fafc', border: '1px solid #e2e8f0', color: '#334155' }}>
+                        <div style={{ padding: '1rem', borderRadius: '8px', background: '#f8fafc', border: '1px solid #e2e8f0', color: '#334155' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.5rem', color: 'var(--color-primary)' }}>
                                 <Info size={18} />
                                 <span style={{ fontWeight: 800, fontSize: '10pt' }}>EVALUACIÓN GENERAL</span>
@@ -112,7 +124,7 @@ export default function AiReportPdfGenerator({ item }) {
                 </div>
 
                 {data.type !== 'general_risks' && data.analysis?.foundRisks?.length > 0 && (
-                     <div style={{ marginBottom: '2rem', pageBreakInside: 'avoid' }}>
+                    <div style={{ marginBottom: '2rem', pageBreakInside: 'avoid' }}>
                         <h4 style={{ color: '#b91c1c', marginBottom: '0.8rem', fontSize: '11pt' }}>Riesgos Adicionales:</h4>
                         <ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#1e293b', fontSize: '10pt' }}>
                             {data.analysis.foundRisks.map((risk, i) => (
@@ -125,7 +137,7 @@ export default function AiReportPdfGenerator({ item }) {
                 {/* Signature Row */}
                 <div style={{ marginTop: 'auto', paddingTop: '40px', display: 'flex', justifyContent: 'flex-end', pageBreakInside: 'avoid' }}>
                     <div style={{ width: '250px', textAlign: 'center' }}>
-                         {signature?.signature || signature?.stamp ? (
+                        {signature?.signature || signature?.stamp ? (
                             <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', height: '60px' }}>
                                 {signature.signature && <img src={signature.signature} alt="Firma" style={{ maxWidth: '100px', maxHeight: '60px' }} />}
                                 {signature.stamp && <img src={signature.stamp} alt="Sello" style={{ maxWidth: '60px', maxHeight: '60px' }} />}

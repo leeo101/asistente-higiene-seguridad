@@ -58,6 +58,18 @@ export default function StopCardPdfGenerator({ card }) {
                         </h1>
                         <p style={{ margin: 0, color: '#64748b', fontSize: '12pt', fontWeight: 600 }}>Programa de Seguridad Basada en el Comportamiento</p>
                     </div>
+                    {companyLogo && showLogo && (
+                        <img
+                            src={companyLogo}
+                            alt="Logo de empresa"
+                            style={{
+                                height: '45px',
+                                width: 'auto',
+                                objectFit: 'contain',
+                                maxWidth: '140px'
+                            }}
+                        />
+                    )}
                 </div>
 
                 {/* Classification Box */}

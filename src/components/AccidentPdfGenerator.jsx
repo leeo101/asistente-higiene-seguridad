@@ -75,7 +75,7 @@ export default function AccidentPdfGenerator({ report, onBack }) {
 
                     {/* Document Header */}
                     <div style={{ borderBottom: '3px solid #1e293b', paddingBottom: '1rem', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <div>
+                        <div style={{ flex: 1 }}>
                             <h1 style={{ margin: '0 0 0.5rem 0', fontSize: '24pt', color: '#1e293b', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
                                 Investigación de Accidente
                             </h1>
@@ -84,10 +84,24 @@ export default function AccidentPdfGenerator({ report, onBack }) {
                                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={14} /> Generado: {new Date().toLocaleDateString()}</span>
                             </div>
                         </div>
-                        {/* Right side box (Severity) */}
-                        <div style={{ background: `${sev.color}15`, border: `2px solid ${sev.color}`, padding: '0.6rem 1.2rem', borderRadius: '8px', textAlign: 'center' }}>
-                            <div style={{ fontSize: '8pt', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.2rem' }}>Gravedad</div>
-                            <div style={{ color: sev.color, fontWeight: 800, fontSize: '12pt' }}>{sev.text}</div>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                            {companyLogo && showLogo && (
+                                <img
+                                    src={companyLogo}
+                                    alt="Logo de empresa"
+                                    style={{
+                                        height: '45px',
+                                        width: 'auto',
+                                        objectFit: 'contain',
+                                        maxWidth: '140px'
+                                    }}
+                                />
+                            )}
+                            {/* Right side box (Severity) */}
+                            <div style={{ background: `${sev.color}15`, border: `2px solid ${sev.color}`, padding: '0.6rem 1.2rem', borderRadius: '8px', textAlign: 'center' }}>
+                                <div style={{ fontSize: '8pt', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.2rem' }}>Gravedad</div>
+                                <div style={{ color: sev.color, fontWeight: 800, fontSize: '12pt' }}>{sev.text}</div>
+                            </div>
                         </div>
                     </div>
 

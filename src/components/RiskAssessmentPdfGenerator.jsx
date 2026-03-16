@@ -9,11 +9,11 @@ export default function RiskAssessmentPdfGenerator({ assessmentData }) {
 
     const data = assessmentData;
     const score = data.score || (data.probability * data.severity) || 0;
-    
+
     // Risk Level details for the report
-    let riskInfo = { 
-        label: data.riskLabel || 'Bajo', 
-        color: '#10b981', 
+    let riskInfo = {
+        label: data.riskLabel || 'Bajo',
+        color: '#10b981',
         bg: '#d1fae5',
         action: 'Riesgo aceptable. No requiere medidas adicionales.'
     };
@@ -65,9 +65,23 @@ export default function RiskAssessmentPdfGenerator({ assessmentData }) {
                             <h1 style={{ margin: 0, fontWeight: 900, fontSize: '1.5rem', color: '#1e293b', textTransform: 'uppercase' }}>Evaluación de Riesgo</h1>
                         </div>
                     </div>
-                    <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontWeight: 900, fontSize: '1.2rem', color: '#10b981' }}>IPER</div>
-                        <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>METODOLOGÍA BINARIA</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                        {companyLogo && showLogo && (
+                            <img
+                                src={companyLogo}
+                                alt="Logo de empresa"
+                                style={{
+                                    height: '45px',
+                                    width: 'auto',
+                                    objectFit: 'contain',
+                                    maxWidth: '140px'
+                                }}
+                            />
+                        )}
+                        <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontWeight: 900, fontSize: '1.2rem', color: '#10b981' }}>IPER</div>
+                            <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>METODOLOGÍA BINARIA</p>
+                        </div>
                     </div>
                 </div>
 
@@ -80,7 +94,7 @@ export default function RiskAssessmentPdfGenerator({ assessmentData }) {
                         </div>
                         <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#1e293b' }}>{data.name || 'Sin nombre'}</div>
                     </div>
-                    
+
                     <div style={{ padding: '1rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#64748b' }}>
                             <MapPin size={14} />
@@ -118,10 +132,10 @@ export default function RiskAssessmentPdfGenerator({ assessmentData }) {
                 </div>
 
                 {/* Result Card */}
-                <div style={{ 
-                    padding: '2.5rem', 
-                    borderRadius: '24px', 
-                    background: riskInfo.bg, 
+                <div style={{
+                    padding: '2.5rem',
+                    borderRadius: '24px',
+                    background: riskInfo.bg,
                     border: `2px solid ${riskInfo.color}30`,
                     textAlign: 'center',
                     marginBottom: '2.5rem'
