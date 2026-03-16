@@ -2,6 +2,9 @@ import React from 'react';
 import { ShieldCheck, TriangleAlert, Info } from 'lucide-react';
 
 export default function AiReportPdfGenerator({ item }) {
+    // Obtener logo de empresa
+    const companyLogo = localStorage.getItem('companyLogo');
+    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
     if (!item) return null;
 
     const data = item;

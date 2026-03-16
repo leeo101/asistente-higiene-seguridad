@@ -22,6 +22,9 @@ const getStatus = (lastDate, monthsValid) => {
 };
 
 export default function ExtinguisherPdfGenerator({ extinguishers = [] }) {
+    // Obtener logo de empresa
+    const companyLogo = localStorage.getItem('companyLogo');
+    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
     const componentRef = useRef();
     const isLandscape = extinguishers.length > 15; // Auto rotate if many
 

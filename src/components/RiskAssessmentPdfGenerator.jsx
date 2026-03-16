@@ -2,6 +2,9 @@ import React from 'react';
 import { ShieldAlert, Activity, AlertCircle, Calendar, MapPin, Briefcase } from 'lucide-react';
 
 export default function RiskAssessmentPdfGenerator({ assessmentData }) {
+    // Obtener logo de empresa
+    const companyLogo = localStorage.getItem('companyLogo');
+    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
     if (!assessmentData) return null;
 
     const data = assessmentData;

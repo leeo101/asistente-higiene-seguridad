@@ -2,6 +2,9 @@ import React, { useRef } from 'react';
 import { ArrowLeft, Printer, Download, MapPin, Calendar, Clock, TriangleAlert, User, FileText, CheckCircle2 } from 'lucide-react';
 
 export default function AccidentPdfGenerator({ report, onBack }) {
+    // Obtener logo de empresa
+    const companyLogo = localStorage.getItem('companyLogo');
+    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
     const componentRef = useRef();
 
     const safeNombre = (report?.victimaNombre || 'Sin_Nombre').replace(/\s+/g, '_');

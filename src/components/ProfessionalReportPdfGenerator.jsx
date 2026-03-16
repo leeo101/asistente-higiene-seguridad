@@ -2,6 +2,9 @@ import { Building2, MapPin, Calendar } from 'lucide-react';
 import { getCountryNormativa } from '../data/legislationData';
 
 export default function ProfessionalReportPdfGenerator({ currentReport }) {
+    // Obtener logo de empresa
+    const companyLogo = localStorage.getItem('companyLogo');
+    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
     if (!currentReport) return null;
 
     const report = currentReport;

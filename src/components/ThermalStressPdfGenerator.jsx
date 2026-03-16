@@ -3,6 +3,9 @@ import { ArrowLeft, Printer, MapPin, Calendar, ThermometerSun, Info } from 'luci
 import { getCountryNormativa } from '../data/legislationData';
 
 export default function ThermalStressPdfGenerator({ report, onBack }) {
+    // Obtener logo de empresa
+    const companyLogo = localStorage.getItem('companyLogo');
+    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
     const componentRef = useRef();
 
     const safePuesto = (report?.puesto || 'Puesto').replace(/\s+/g, '_');

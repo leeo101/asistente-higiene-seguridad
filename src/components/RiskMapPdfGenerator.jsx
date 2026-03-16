@@ -3,6 +3,9 @@ import { ArrowLeft, Printer, Map as MapIcon } from 'lucide-react';
 import { SAFETY_ICONS } from '../data/mapIcons';
 
 export default function RiskMapPdfGenerator({ mapData, onBack, onShare }) {
+    // Obtener logo de empresa
+    const companyLogo = localStorage.getItem('companyLogo');
+    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
     const componentRef = useRef();
 
     const safeEmpresa = (mapData?.empresa || 'Empresa').replace(/\s+/g, '_');

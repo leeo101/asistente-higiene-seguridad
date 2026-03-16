@@ -2,6 +2,9 @@ import React, { useRef } from 'react';
 import { MapPin, Calendar, Clock, User, AlertCircle, AlertTriangle, ShieldCheck } from 'lucide-react';
 
 export default function StopCardPdfGenerator({ card }) {
+    // Obtener logo de empresa
+    const companyLogo = localStorage.getItem('companyLogo');
+    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
     const componentRef = useRef();
     if (!card) return null;
 

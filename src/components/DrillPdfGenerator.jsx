@@ -2,6 +2,9 @@ import React, { useRef } from 'react';
 import { ArrowLeft, Printer, Calendar, MapPin, CheckSquare, Clock, Users, Flame } from 'lucide-react';
 
 export default function DrillPdfGenerator({ report, onBack }) {
+    // Obtener logo de empresa
+    const companyLogo = localStorage.getItem('companyLogo');
+    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
     const componentRef = useRef();
 
     const safeEmpresa = (report?.empresa || 'Empresa').replace(/\s+/g, '_');

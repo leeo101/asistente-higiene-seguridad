@@ -2,6 +2,9 @@ import React from 'react';
 import { Sparkles, ShieldAlert, HardHat, Lightbulb, Gavel } from 'lucide-react';
 
 export default function AiAdvisorPdfGenerator({ data }) {
+    // Obtener logo de empresa
+    const companyLogo = localStorage.getItem('companyLogo');
+    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
     if (!data) return null;
 
     const personalData = JSON.parse(localStorage.getItem('personalData') || '{}');
