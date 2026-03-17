@@ -71,10 +71,7 @@ export default function ATSPdfGenerator({ atsData }) {
                                     height: '40px',
                                     width: 'auto',
                                     objectFit: 'contain',
-                                    maxWidth: '120px',
-                                    WebkitPrintColorAdjust: 'exact',
-                                    printColorAdjust: 'exact',
-                                    colorAdjust: 'exact'
+                                    maxWidth: '120px'
                                 }}
                             />
                         )}

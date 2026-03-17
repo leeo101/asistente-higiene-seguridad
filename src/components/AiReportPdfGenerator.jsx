@@ -38,6 +38,11 @@ export default function AiReportPdfGenerator({ item }) {
                             border: none !important;
                             border-radius: 0 !important; 
                         }
+                        .company-logo {
+                            -webkit-print-color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                            color-adjust: exact !important;
+                        }
                     `}
                 </style>
 
@@ -58,6 +63,7 @@ export default function AiReportPdfGenerator({ item }) {
                                 marginBottom: '0.5rem'
                             }}>
                                 <img
+                                    className="company-logo"
                                     src={companyLogo}
                                     alt="Logo de empresa"
                                     style={{

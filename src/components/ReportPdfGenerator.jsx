@@ -11,16 +11,6 @@ export default function ReportPdfGenerator({ initialData }) {
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
 
-    // Debug: verificar si el logo existe
-    useEffect(() => {
-        if (companyLogo && showLogo) {
-            console.log('[Report] Logo cargado:', companyLogo.substring(0, 50) + '...');
-        } else if (!companyLogo) {
-            console.log('[Report] No hay logo guardado - El usuario debe subirlo desde Perfil > Logo de Empresa');
-        } else if (!showLogo) {
-            console.log('[Report] Logo desactivado por el usuario');
-        }
-    }, [companyLogo, showLogo]);
 
     return (
         <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>

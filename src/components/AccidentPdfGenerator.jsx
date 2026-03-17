@@ -72,6 +72,11 @@ export default function AccidentPdfGenerator({ report, onBack }) {
                                 border: 1px solid #1e293b !important;
                                 border-radius: 0 !important; 
                             }
+                            .company-logo {
+                                -webkit-print-color-adjust: exact !important;
+                                print-color-adjust: exact !important;
+                                color-adjust: exact !important;
+                            }
                         `}
                     </style>
 
@@ -89,6 +94,7 @@ export default function AccidentPdfGenerator({ report, onBack }) {
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
                             {companyLogo && showLogo && (
                                 <img
+                                    className="company-logo"
                                     src={companyLogo}
                                     alt="Logo de empresa"
                                     style={{

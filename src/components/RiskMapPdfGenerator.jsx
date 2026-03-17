@@ -105,6 +105,11 @@ export default function RiskMapPdfGenerator({ mapData, onBack, onShare }) {
                                 min-height: 190mm !important;
                                 display: block !important;
                             }
+                            .company-logo {
+                                -webkit-print-color-adjust: exact !important;
+                                print-color-adjust: exact !important;
+                                color-adjust: exact !important;
+                            }
                         `}
                     </style>
 
@@ -249,7 +254,12 @@ export default function RiskMapPdfGenerator({ mapData, onBack, onShare }) {
                             </div>
                             {companyLogo && showLogo && (
                                 <div style={{ padding: '4px 6px', borderTop: '1px solid #1e293b', display: 'flex', justifyContent: 'center', background: 'white' }}>
-                                    <img src={companyLogo} alt="Logo" style={{ maxHeight: '35px', maxWidth: '100%', objectFit: 'contain' }} />
+                                    <img
+                                        className="company-logo"
+                                        src={companyLogo}
+                                        alt="Logo"
+                                        style={{ maxHeight: '35px', maxWidth: '100%', objectFit: 'contain' }}
+                                    />
                                 </div>
                             )}
                             <div style={{ borderTop: '1px solid #1e293b', padding: '4px 6px', textAlign: 'center', background: '#ffffff' }}>
