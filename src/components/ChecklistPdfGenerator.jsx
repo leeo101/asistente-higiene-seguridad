@@ -2,28 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { ClipboardCheck, Check, X } from 'lucide-react';
 
 export default function ChecklistPdfGenerator({ checklistData }) {
-    const [logoData, setLogoData] = useState({ companyLogo: null, showLogo: true });
-    const [fullData, setFullData] = useState(null);
-
-    useEffect(() => {
-        const companyLogo = localStorage.getItem('companyLogo');
-        const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
-        setLogoData({ companyLogo, showLogo });
-
-        console.log('[Checklist] === DEBUG LOGO ===');
-        console.log('[Checklist] companyLogo existe:', !!companyLogo);
-        console.log('[Checklist] companyLogo length:', companyLogo?.length);
-        console.log('[Checklist] showLogo:', showLogo);
-        if (companyLogo && showLogo) {
-            console.log('[Checklist] ✅ Logo debería mostrarse');
-        } else if (!companyLogo) {
-            console.log('[Checklist] ❌ No hay logo guardado - Subilo desde Perfil > Logo de Empresa');
-        } else if (!showLogo) {
-            console.log('[Checklist] ❌ Logo desactivado - Activalo desde Perfil');
-        }
-    }, []);
-
-    const { companyLogo, showLogo } = logoData;
+    const companyLogo = localStorage.getItem('companyLogo');
+    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
 
     useEffect(() => {
         if (checklistData?.id) {

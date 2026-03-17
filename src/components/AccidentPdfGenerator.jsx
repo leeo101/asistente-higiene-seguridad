@@ -6,16 +6,6 @@ export default function AccidentPdfGenerator({ report, onBack }) {
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
 
-    // Debug: verificar si el logo existe
-    useEffect(() => {
-        if (companyLogo && showLogo) {
-            console.log('[Accident] Logo cargado:', companyLogo.substring(0, 50) + '...');
-        } else if (!companyLogo) {
-            console.log('[Accident] No hay logo guardado - El usuario debe subirlo desde Perfil > Logo de Empresa');
-        } else if (!showLogo) {
-            console.log('[Accident] Logo desactivado por el usuario');
-        }
-    }, [companyLogo, showLogo]);
 
     const componentRef = useRef();
 

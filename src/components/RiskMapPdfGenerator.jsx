@@ -7,16 +7,6 @@ export default function RiskMapPdfGenerator({ mapData, onBack, onShare }) {
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
 
-    // Debug: verificar si el logo existe
-    useEffect(() => {
-        if (companyLogo && showLogo) {
-            console.log('[RiskMap] Logo cargado:', companyLogo.substring(0, 50) + '...');
-        } else if (!companyLogo) {
-            console.log('[RiskMap] No hay logo guardado - El usuario debe subirlo desde Perfil > Logo de Empresa');
-        } else if (!showLogo) {
-            console.log('[RiskMap] Logo desactivado por el usuario');
-        }
-    }, [companyLogo, showLogo]);
 
     const componentRef = useRef();
 
@@ -257,6 +247,11 @@ export default function RiskMapPdfGenerator({ mapData, onBack, onShare }) {
                                 <div><strong>Sector:</strong> {mapData?.sector || 'N/A'}</div>
                                 <div><strong>Fecha:</strong> {mapData?.fecha ? new Date(mapData.fecha + 'T12:00:00Z').toLocaleDateString() : 'N/A'}</div>
                             </div>
+                            {companyLogo && showLogo && (
+                                <div style={{ padding: '4px 6px', borderTop: '1px solid #1e293b', display: 'flex', justifyContent: 'center', background: 'white' }}>
+                                    <img src={companyLogo} alt="Logo" style={{ maxHeight: '35px', maxWidth: '100%', objectFit: 'contain' }} />
+                                </div>
+                            )}
                             <div style={{ borderTop: '1px solid #1e293b', padding: '4px 6px', textAlign: 'center', background: '#ffffff' }}>
                                 <div style={{ height: '20px' }}></div> {/* Signature space */}
                                 <div style={{ borderTop: '1px dashed #94a3b8', paddingTop: '2px' }}>

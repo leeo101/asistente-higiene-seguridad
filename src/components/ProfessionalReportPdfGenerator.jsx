@@ -7,16 +7,6 @@ export default function ProfessionalReportPdfGenerator({ currentReport }) {
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
 
-    // Debug: verificar si el logo existe
-    useEffect(() => {
-        if (companyLogo && showLogo) {
-            console.log('[ProfessionalReport] Logo cargado:', companyLogo.substring(0, 50) + '...');
-        } else if (!companyLogo) {
-            console.log('[ProfessionalReport] No hay logo guardado - El usuario debe subirlo desde Perfil > Logo de Empresa');
-        } else if (!showLogo) {
-            console.log('[ProfessionalReport] Logo desactivado por el usuario');
-        }
-    }, [companyLogo, showLogo]);
 
     if (!currentReport) return null;
 
@@ -63,6 +53,19 @@ export default function ProfessionalReportPdfGenerator({ currentReport }) {
                             {report.title || 'Informe Técnico'}
                         </p>
                     </div>
+                    {companyLogo && showLogo && (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: '60px' }}>
+                            <img
+                                src={companyLogo}
+                                alt="Logo Empresa"
+                                style={{
+                                    maxHeight: '100%',
+                                    maxWidth: '150px',
+                                    objectFit: 'contain'
+                                }}
+                            />
+                        </div>
+                    )}
                     <div style={{ textAlign: 'right', borderLeft: '1px solid #e2e8f0', paddingLeft: '2rem' }}>
                         <p style={{ margin: 0, fontWeight: 800, fontSize: '1.2rem', color: '#1e293b' }}>PROFESIONAL HYS</p>
                     </div>

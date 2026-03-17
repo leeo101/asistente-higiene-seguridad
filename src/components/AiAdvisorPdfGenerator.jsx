@@ -6,16 +6,6 @@ export default function AiAdvisorPdfGenerator({ data }) {
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
 
-    // Debug: verificar si el logo existe
-    useEffect(() => {
-        if (companyLogo && showLogo) {
-            console.log('[AiAdvisor] Logo cargado:', companyLogo.substring(0, 50) + '...');
-        } else if (!companyLogo) {
-            console.log('[AiAdvisor] No hay logo guardado - El usuario debe subirlo desde Perfil > Logo de Empresa');
-        } else if (!showLogo) {
-            console.log('[AiAdvisor] Logo desactivado por el usuario');
-        }
-    }, [companyLogo, showLogo]);
 
     if (!data) return null;
 
@@ -62,6 +52,19 @@ export default function AiAdvisorPdfGenerator({ data }) {
                         </h1>
                         <p style={{ margin: 0, fontSize: '10pt', color: '#475569', textTransform: 'uppercase' }}>Análisis de Seguridad con Inteligencia Artificial</p>
                     </div>
+                    {companyLogo && showLogo && (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: '60px' }}>
+                            <img
+                                src={companyLogo}
+                                alt="Logo Empresa"
+                                style={{
+                                    maxHeight: '100%',
+                                    maxWidth: '150px',
+                                    objectFit: 'contain'
+                                }}
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {/* Info Block */}

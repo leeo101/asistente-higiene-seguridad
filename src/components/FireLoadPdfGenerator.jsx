@@ -3,27 +3,8 @@ import { Flame, ShieldCheck, Info, FileText } from 'lucide-react';
 import { getCountryNormativa } from '../data/legislationData';
 
 export default function FireLoadPdfGenerator({ data }) {
-    const [logoData, setLogoData] = useState({ companyLogo: null, showLogo: true });
-
-    useEffect(() => {
-        const companyLogo = localStorage.getItem('companyLogo');
-        const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
-        setLogoData({ companyLogo, showLogo });
-
-        console.log('[FireLoad] === DEBUG LOGO ===');
-        console.log('[FireLoad] companyLogo existe:', !!companyLogo);
-        console.log('[FireLoad] companyLogo length:', companyLogo?.length);
-        console.log('[FireLoad] showLogo:', showLogo);
-        if (companyLogo && showLogo) {
-            console.log('[FireLoad] ✅ Logo debería mostrarse');
-        } else if (!companyLogo) {
-            console.log('[FireLoad] ❌ No hay logo guardado - Subilo desde Perfil > Logo de Empresa');
-        } else if (!showLogo) {
-            console.log('[FireLoad] ❌ Logo desactivado - Activalo desde Perfil');
-        }
-    }, []);
-
-    const { companyLogo, showLogo } = logoData;
+    const companyLogo = localStorage.getItem('companyLogo');
+    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
 
     if (!data) return null;
 

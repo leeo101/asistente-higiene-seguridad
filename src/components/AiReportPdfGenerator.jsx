@@ -2,31 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { ShieldCheck, TriangleAlert, Info } from 'lucide-react';
 
 export default function AiReportPdfGenerator({ item }) {
-    const [logoData, setLogoData] = useState({ companyLogo: null, showLogo: true });
-
-    useEffect(() => {
-        // Leer logo del localStorage
-        const companyLogo = localStorage.getItem('companyLogo');
-        const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
-
-        setLogoData({ companyLogo, showLogo });
-
-        // Debug detallado
-        console.log('[AiReport] === DEBUG LOGO ===');
-        console.log('[AiReport] companyLogo existe:', !!companyLogo);
-        console.log('[AiReport] companyLogo length:', companyLogo?.length);
-        console.log('[AiReport] showLogo:', showLogo);
-        console.log('[AiReport] Logo starts with:', companyLogo?.substring(0, 30));
-        if (companyLogo && showLogo) {
-            console.log('[AiReport] ✅ Logo debería mostrarse');
-        } else if (!companyLogo) {
-            console.log('[AiReport] ❌ No hay logo guardado - Subilo desde Perfil > Logo de Empresa');
-        } else if (!showLogo) {
-            console.log('[AiReport] ❌ Logo desactivado - Activalo desde Perfil');
-        }
-    }, []);
-
-    const { companyLogo, showLogo } = logoData;
+    const companyLogo = localStorage.getItem('companyLogo');
+    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
 
     if (!item) return null;
 
