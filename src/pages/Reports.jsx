@@ -4,6 +4,7 @@ import { ArrowLeft, Save, FileText, AlertCircle, GraduationCap, ClipboardCheck, 
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
 import PhotoAttachments from '../components/PhotoAttachments';
+import CompanyLogo from '../components/CompanyLogo';
 
 export default function Reports() {
     const navigate = useNavigate();
@@ -118,6 +119,7 @@ export default function Reports() {
                 <div style={{ flex: 1 }}>
                     <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Generar Informe</h1>
                 </div>
+                <CompanyLogo style={{ height: '32px', width: 'auto', maxWidth: '80px', objectFit: 'contain' }} />
                 <button
                     onClick={() => navigate('/history')}
                     className="btn-outline"

@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Printer, Share2, Download, CheckCircle2, TriangleAlert, Info } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
+import CompanyLogo from '../components/CompanyLogo';
 import { usePaywall } from '../hooks/usePaywall';
 import { toast } from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
@@ -69,9 +70,12 @@ export default function ErgonomicsReport() {
             }}>
                 {/* Header Legal */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #333', paddingBottom: '20px', marginBottom: '30px', gap: '20px' }} className="flex-col md:flex-row">
-                    <div>
-                        <h1 style={{ margin: 0, fontSize: '2.5rem', textTransform: 'uppercase', color: 'var(--color-primary)', fontWeight: 900 }}>INFORME</h1>
-                        <p style={{ margin: '5px 0 0', fontSize: '14px', fontWeight: 'bold' }}>Resolución SRT N° 886/15</p>
+                    <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
+                        <CompanyLogo style={{ height: '60px', width: 'auto', objectFit: 'contain' }} />
+                        <div>
+                            <h1 style={{ margin: 0, fontSize: '2.5rem', textTransform: 'uppercase', color: 'var(--color-primary)', fontWeight: 900 }}>INFORME</h1>
+                            <p style={{ margin: '5px 0 0', fontSize: '14px', fontWeight: 'bold' }}>Resolución SRT N° 886/15</p>
+                        </div>
                     </div>
                     <div style={{ textAlign: 'right' }} className="md:text-right">
                         <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#3b82f6' }}>Estudio Ergonómico</div>

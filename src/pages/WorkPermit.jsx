@@ -13,6 +13,7 @@ import { usePaywall } from '../hooks/usePaywall';
 import { permitTypes } from '../data/workPermits';
 import toast from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import CompanyLogo from '../components/CompanyLogo';
 
 export default function WorkPermit() {
     const navigate = useNavigate();
@@ -228,9 +229,12 @@ export default function WorkPermit() {
 
                 {/* Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '3px solid #333', paddingBottom: '1rem', marginBottom: '2rem' }}>
-                    <div>
-                        <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, color: 'var(--color-text)' }}>PERMISO DE TRABAJO</h1>
-                        <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#666' }}>{selectedTypeLabel.toUpperCase()}</p>
+                    <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'center' }}>
+                        <CompanyLogo style={{ height: '50px', width: 'auto', objectFit: 'contain' }} />
+                        <div>
+                            <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, color: 'var(--color-text)' }}>PERMISO DE TRABAJO</h1>
+                            <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#666' }}>{selectedTypeLabel.toUpperCase()}</p>
+                        </div>
                     </div>
                     <div style={{ textAlign: 'right' }}>
                         <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#999' }}>SISTEMA DE GESTIÓN HYS</div>

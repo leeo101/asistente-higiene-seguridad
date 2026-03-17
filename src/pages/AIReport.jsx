@@ -4,6 +4,7 @@ import { ArrowLeft, Printer, Share2, Download, CheckCircle2, TriangleAlert, Shie
 import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
+import CompanyLogo from '../components/CompanyLogo';
 import { toast } from 'react-hot-toast';
 
 export default function AIReport() {
@@ -66,10 +67,13 @@ export default function AIReport() {
                 position: 'relative'
             }}>
                 {/* Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid var(--color-primary)', paddingBottom: '2rem', marginBottom: '2.5rem' }}>
-                    <div>
-                        <h1 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-primary)', fontSize: '2.5rem', fontWeight: 800 }}>INFORME</h1>
-                        <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569', textTransform: 'uppercase' }}>Sistema de Detección de Riesgos y EPP</p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid var(--color-primary)', paddingBottom: '2rem', marginBottom: '2.5rem', gap: '1.5rem' }}>
+                    <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
+                        <CompanyLogo style={{ height: '60px', width: 'auto', objectFit: 'contain' }} />
+                        <div>
+                            <h1 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-primary)', fontSize: '2.5rem', fontWeight: 800 }}>INFORME</h1>
+                            <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569', textTransform: 'uppercase' }}>Sistema de Detección de Riesgos y EPP</p>
+                        </div>
                     </div>
                     {profile && (
                         <div style={{ textAlign: 'right' }}>

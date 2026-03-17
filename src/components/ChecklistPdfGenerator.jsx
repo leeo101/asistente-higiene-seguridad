@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { ClipboardCheck, Check, X, AlertCircle, AlertTriangle, ShieldCheck, Calendar, User } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 

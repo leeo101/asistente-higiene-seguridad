@@ -5,6 +5,7 @@ import {
     Accessibility, Clock, Trash2, Search, Calendar, Building2
 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
+import CompanyLogo from '../components/CompanyLogo';
 
 function DeleteConfirm({ onConfirm, onCancel }) {
     return (
@@ -71,6 +72,7 @@ export default function Ergonomics() {
                     <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Protocolo de Ergonomía</h1>
                     <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Res. SRT 886/15 — Evaluación disergonómica</p>
                 </div>
+                <CompanyLogo style={{ height: '32px', width: 'auto', maxWidth: '80px', objectFit: 'contain' }} />
                 <button
                     onClick={() => navigate('/ergonomics-form')}
                     className="btn-primary"

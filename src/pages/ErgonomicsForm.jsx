@@ -5,6 +5,7 @@ import {
     Save, Accessibility, AlertCircle, Info, User, Building2, Sparkles, Loader2
 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
+import CompanyLogo from '../components/CompanyLogo';
 import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../config';
 
@@ -110,10 +111,11 @@ export default function ErgonomicsForm() {
                 >
                     <ArrowLeft />
                 </button>
-                <div>
+                <div style={{ flex: 1 }}>
                     <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Nuevo Estudio Ergonómico</h1>
                     <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Protocolo Res. SRT 886/15</p>
                 </div>
+                <CompanyLogo style={{ height: '32px', width: 'auto', maxWidth: '80px', objectFit: 'contain' }} />
             </div>
 
             {/* Stepper Header */}

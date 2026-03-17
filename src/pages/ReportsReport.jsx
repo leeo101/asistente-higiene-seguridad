@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Printer, Share2, Download, CheckCircle2, Info, Building2, User, HelpCircle, MapPin, Calendar } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
+import CompanyLogo from '../components/CompanyLogo';
 import { usePaywall } from '../hooks/usePaywall';
 import { toast } from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
@@ -68,14 +69,17 @@ export default function ReportsReport() {
             }}>
                 {/* Header with Professional Info */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid var(--color-primary)', paddingBottom: '2rem', marginBottom: '2.5rem', gap: '1.5rem' }} className="flex-col sm:flex-row">
-                    <div style={{ flex: 1 }}>
-                        <h1 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-primary)', fontSize: '2.5rem', fontWeight: 900, tracking: '-1px' }}>INFORME</h1>
-                        <p style={{ margin: 0, fontSize: '0.9rem', color: '#475569', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                            {report.template === 'general' ? 'Informe Técnico' :
-                                report.template === 'accident' ? 'Registro de Accidente' :
-                                    report.template === 'training' ? 'Capacitación de Personal' :
-                                        report.template === 'rgrl' ? 'RGRL' : 'EPP'}
-                        </p>
+                    <div style={{ flex: 1, display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
+                        <CompanyLogo style={{ height: '60px', width: 'auto', objectFit: 'contain' }} />
+                        <div>
+                            <h1 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-primary)', fontSize: '2.5rem', fontWeight: 900, tracking: '-1px' }}>INFORME</h1>
+                            <p style={{ margin: 0, fontSize: '0.9rem', color: '#475569', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                {report.template === 'general' ? 'Informe Técnico' :
+                                    report.template === 'accident' ? 'Registro de Accidente' :
+                                        report.template === 'training' ? 'Capacitación de Personal' :
+                                            report.template === 'rgrl' ? 'RGRL' : 'EPP'}
+                            </p>
+                        </div>
                     </div>
                     {profile && (
                         <div style={{ textAlign: 'right', borderLeft: '1px solid #e2e8f0', paddingLeft: '2rem' }} className="md:text-right md:border-t-0 md:border-l border-[#e2e8f0] pt-4 md:pt-0">

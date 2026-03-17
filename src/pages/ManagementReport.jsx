@@ -114,6 +114,20 @@ export default function ManagementReport() {
 
             // Subheader Data
             doc.setTextColor(...darkText);
+
+            // --- ADD LOGO ---
+            const companyLogo = localStorage.getItem('companyLogo');
+            if (companyLogo && (companyLogo.startsWith('data:image/') || companyLogo.startsWith('http'))) {
+                try {
+                    // Try to add the logo if it's base64 or a valid image URL
+                    // Note: If it's a cross-origin URL, jsPDF might fail, but base64 works perfectly.
+                    doc.addImage(companyLogo, 'PNG', pageWidth - 45, 10, 30, 20);
+                } catch (e) {
+                    console.error('Error adding logo to PDF:', e);
+                }
+            }
+            // ----------------
+
             doc.setFontSize(11);
             doc.setFont('helvetica', 'bold');
             doc.text('Datos Pormenorizados:', 15, 55);

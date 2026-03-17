@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import CompanyLogo from '../components/CompanyLogo';
 import { ArrowLeft, CheckCircle2, Circle, AlertCircle, ChevronRight } from 'lucide-react';
 
 export default function Checklist() {
@@ -92,29 +93,35 @@ export default function Checklist() {
 
     return (
         <div className="container" style={{ paddingBottom: '5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
                         <ArrowLeft />
                     </button>
                     <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Lista de Control</h1>
                 </div>
-                <button 
-                    onClick={() => navigate('/risk', { state: { fromInspection: true } })}
-                    className="btn-outline"
-                    style={{ 
-                        fontSize: '0.8rem', 
-                        padding: '0.4rem 0.8rem', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '0.4rem',
-                        borderColor: 'var(--color-primary)',
-                        color: 'var(--color-primary)',
-                        fontWeight: 700
-                    }}
-                >
-                    <AlertCircle size={14} /> Evaluación IPER
-                </button>
+                
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <button 
+                        onClick={() => navigate('/risk', { state: { fromInspection: true } })}
+                        className="btn-outline"
+                        style={{ 
+                            fontSize: '0.8rem', 
+                            padding: '0.4rem 0.8rem', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '0.4rem',
+                            borderColor: 'var(--color-primary)',
+                            color: 'var(--color-primary)',
+                            fontWeight: 700,
+                            margin: 0,
+                            width: 'auto'
+                        }}
+                    >
+                        <AlertCircle size={14} /> Evaluación IPER
+                    </button>
+                    <CompanyLogo style={{ height: '32px', width: 'auto', maxWidth: '80px', objectFit: 'contain' }} />
+                </div>
             </div>
 
             <div style={{ marginBottom: '2.5rem' }}>

@@ -89,7 +89,17 @@ export default function TrainingManagement() {
             asistentes: asistentesValidos
         };
 
-        let history = JSON.parse(localStorage.getItem('training_history') || '[]');
+        let history = [];
+        try {
+            const raw = localStorage.getItem('training_history');
+            if (raw && raw !== 'undefined') {
+                const parsed = JSON.parse(raw);
+                history = Array.isArray(parsed) ? parsed : [];
+            }
+        } catch (e) {
+            console.error('[TrainingManagement] Error parsing history:', e);
+            history = [];
+        }
 
         if (editData) {
             // Update existing

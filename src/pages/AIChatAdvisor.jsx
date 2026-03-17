@@ -149,18 +149,30 @@ export default function AIChatAdvisor() {
     };
 
     const getRecentContext = () => {
+        const safeParse = (key) => {
+            try {
+                const raw = localStorage.getItem(key);
+                if (!raw || raw === 'undefined') return [];
+                const parsed = JSON.parse(raw);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                console.error(`[Advisor IA] Error parsing ${key}:`, e);
+                return [];
+            }
+        };
+
         try {
-            const ats = JSON.parse(localStorage.getItem('atsHistory') || '[]')
+            const ats = safeParse('atsHistory')
                 .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
                 .slice(0, 3)
                 .map(a => `- Fecha: ${a.fecha}, Tarea: ${a.tarea}, Ubicación: ${a.ubicacion}`);
 
-            const insp = JSON.parse(localStorage.getItem('inspections_history') || '[]')
+            const insp = safeParse('inspections_history')
                 .sort((a, b) => new Date(b.date) - new Date(a.date))
                 .slice(0, 3)
                 .map(i => `- Fecha: ${i.date}, Sector: ${i.sector}, Resultado: ${i.score}%`);
 
-            const risk = JSON.parse(localStorage.getItem('risk_assessment_history') || '[]')
+            const risk = safeParse('risk_assessment_history')
                 .sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt))
                 .slice(0, 3)
                 .map(r => `- Fecha: ${r.date || (r.createdAt && r.createdAt.split('T')[0])}, Tarea: ${r.name}, Nivel de Riesgo: ${r.riskLevel}`);
@@ -171,6 +183,7 @@ export default function AIChatAdvisor() {
             if (risk.length) ctx.push("ÚLTIMAS EVALUACIONES DE RIESGO:\n" + risk.join("\n"));
             return ctx.join("\n\n");
         } catch (e) {
+            console.error("[Advisor IA] Error getting context:", e);
             return "";
         }
     };
@@ -330,19 +343,25 @@ export default function AIChatAdvisor() {
             let history = [];
             try {
                 const raw = localStorage.getItem('ai_advisor_history');
-                if (raw) history = JSON.parse(raw);
-                if (!Array.isArray(history)) history = [];
+                if (raw && raw !== 'undefined' && raw !== '') {
+                    const parsed = JSON.parse(raw);
+                    history = Array.isArray(parsed) ? parsed : [];
+                }
             } catch (e) {
-                console.error("Error parsing history for save:", e);
+                console.error("[Advisor IA] Error parsing history for save:", e);
                 history = [];
             }
-
+            
             const newRecord = {
                 id: Date.now().toString(),
                 date: new Date().toISOString(),
                 ...data
             };
-            localStorage.setItem('ai_advisor_history', JSON.stringify([newRecord, ...history].slice(0, 20)));
+            try {
+                localStorage.setItem('ai_advisor_history', JSON.stringify([newRecord, ...history].slice(0, 20)));
+            } catch (e) {
+                console.error("[Advisor IA] Error saving to history:", e);
+            }
         } catch (error) {
             console.error('Error:', error);
             toast.error(`Error: ${error.message}. Por favor, verifica tu conexión o intenta más tarde.`);

@@ -10,6 +10,7 @@ import Sidebar from '../components/Sidebar';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
+import CompanyLogo from '../components/CompanyLogo';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
 
@@ -443,14 +444,24 @@ export default function ChecklistManager() {
                         <p style={{ margin: 0, color: 'var(--color-text-muted)', fontWeight: 900, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.4em', marginTop: '0.25rem' }}>Higiene y Seguridad</p>
                     </div>
 
-                    {/* Right Document Counter */}
-                    <div style={{ flex: 1, textAlign: 'right' }}>
-                        <div style={{ fontSize: '0.6rem', fontWeight: 900, color: 'var(--color-border)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>DOCUMENTO N°</div>
-                        <input
-                            style={{ textAlign: 'right', fontWeight: 900, fontSize: '1.5rem', border: 'none', borderBottom: '2px solid var(--color-border)', background: 'transparent', width: '120px', outline: 'none' }}
-                            value={inspectionInfo.serial}
-                            onChange={e => setInspectionInfo({ ...inspectionInfo, serial: e.target.value })}
+                    {/* Right Document Counter + Logo */}
+                    <div style={{ flex: 1, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                        <CompanyLogo 
+                            style={{ 
+                                height: '40px', 
+                                width: 'auto', 
+                                objectFit: 'contain', 
+                                maxWidth: '120px' 
+                            }} 
                         />
+                        <div>
+                            <div style={{ fontSize: '0.6rem', fontWeight: 900, color: 'var(--color-border)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>DOCUMENTO N°</div>
+                            <input
+                                style={{ textAlign: 'right', fontWeight: 900, fontSize: '1.5rem', border: 'none', borderBottom: '2px solid var(--color-border)', background: 'transparent', width: '120px', outline: 'none' }}
+                                value={inspectionInfo.serial}
+                                onChange={e => setInspectionInfo({ ...inspectionInfo, serial: e.target.value })}
+                            />
+                        </div>
                     </div>
                 </div>
 

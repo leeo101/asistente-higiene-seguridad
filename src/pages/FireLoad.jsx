@@ -325,7 +325,7 @@ export default function FireLoad() {
                             <div><strong>Actividad:</strong> {formData.actividadResumen || 'No especificada'}</div>
                         </div>
                     </div>
-                    <div className="print-only">
+                    <div>
                         <CompanyLogo style={{ height: '70px', maxWidth: '180px' }} />
                     </div>
                 </div>

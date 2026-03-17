@@ -10,6 +10,7 @@ import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
+import CompanyLogo from '../components/CompanyLogo';
 
 export default function Report() {
     const navigate = useNavigate();
@@ -26,17 +27,19 @@ export default function Report() {
     });
 
     useEffect(() => {
-        // Load inspection data
+        // Load inspection data and update history if not already final
         const current = localStorage.getItem('current_inspection');
         if (current) {
             const inspection = JSON.parse(current);
             setInspectionData(inspection);
 
+            // Update history with latest inspection data and mark as final
             const historyRaw = localStorage.getItem('inspections_history');
             const history = historyRaw ? JSON.parse(historyRaw) : [];
 
             const existingIndex = history.findIndex(item => item.id === inspection.id);
             if (existingIndex >= 0) {
+                // Update with latest changes even if already final
                 history[existingIndex] = { ...inspection, status: 'Finalizada' };
                 localStorage.setItem('inspections_history', JSON.stringify(history));
             } else {
@@ -133,17 +136,16 @@ export default function Report() {
                 {/* Header Section */}
                 <div className="report-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '3px solid var(--color-primary)', paddingBottom: '1.5rem', marginBottom: '2rem' }}>
                     <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.5rem' }}>
-                            <img src="/logo.png" alt="Logo" style={{ height: '40px' }} />
-                            <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--color-primary)', fontWeight: 900 }}>ASISTENTE H&S</h2>
-                        </div>
                         <h1 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: '#172B4D' }}>INFORME TÉCNICO DE INSPECCIÓN</h1>
                         <p style={{ margin: 0, fontSize: '0.9rem', color: '#6B778C', fontWeight: 600 }}>Protocolo de Relevamiento General de Riesgos</p>
+                        <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <p style={{ margin: 0, fontSize: '0.9rem' }}><strong>Fecha:</strong> {new Date(inspectionData.date).toLocaleDateString('es-AR')}</p>
+                            <p style={{ margin: 0, fontSize: '0.9rem' }}><strong>Referencia:</strong> {inspectionData.name}</p>
+                            <p style={{ margin: 0, fontSize: '0.9rem' }}><strong>Ubicación:</strong> {inspectionData.location || '-'}</p>
+                        </div>
                     </div>
-                    <div style={{ textAlign: 'right', fontSize: '0.9rem' }}>
-                        <p style={{ margin: '0 0 0.3rem 0' }}><strong>Fecha:</strong> {new Date(inspectionData.date).toLocaleDateString('es-AR')}</p>
-                        <p style={{ margin: '0 0 0.3rem 0' }}><strong>Referencia:</strong> {inspectionData.name}</p>
-                        <p style={{ margin: 0 }}><strong>Ubicación:</strong> {inspectionData.location || '-'}</p>
+                    <div style={{ textAlign: 'right' }}>
+                        <CompanyLogo style={{ height: '70px', maxWidth: '180px' }} />
                     </div>
                 </div>
 

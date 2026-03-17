@@ -25,8 +25,18 @@ export default function TrainingHistory() {
     const [shareItem, setShareItem] = useState(null);
 
     useEffect(() => {
-        const h = JSON.parse(localStorage.getItem('training_history') || '[]');
-        setHistory(h.sort((a, b) => new Date(b.date) - new Date(a.date)));
+        try {
+            const raw = localStorage.getItem('training_history');
+            if (raw && raw !== 'undefined') {
+                const h = JSON.parse(raw);
+                setHistory(Array.isArray(h) ? h.sort((a, b) => new Date(b.date) - new Date(a.date)) : []);
+            } else {
+                setHistory([]);
+            }
+        } catch (e) {
+            console.error('[TrainingHistory] Error loading history:', e);
+            setHistory([]);
+        }
     }, [syncing]);
 
     const handleDelete = (id, e) => {
