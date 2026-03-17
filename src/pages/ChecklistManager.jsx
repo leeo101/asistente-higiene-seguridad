@@ -339,8 +339,11 @@ export default function ChecklistManager() {
 
     return (
         <div className="container" style={{ maxWidth: '1100px', paddingBottom: '8rem' }}>
-            {/* Estilos para impresión */}
+            {/* Estilos para ocultar el contenido PDF en vista normal */}
             <style>{`
+                #pdf-content {
+                    display: none !important;
+                }
                 @media print {
                     body * {
                         visibility: hidden;
