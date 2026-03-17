@@ -3,12 +3,33 @@ import { useNavigate } from 'react-router-dom';
 import {
     TrendingUp, TrendingDown, Shield, ShieldAlert, CheckCircle,
     AlertTriangle, Calendar, Users, FileText, HardHat, Flame,
-    ClipboardList, Eye, Activity, Award, Clock, Target, Zap
+    ClipboardList, Eye, Activity, Award, Clock, Target, Zap,
+    BarChart3, PieChart as PieChartIcon, RefreshCw, Download, Filter
 } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, AreaChart, Area } from 'recharts';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
+
+// Colores modernos para gráficos
+const CHART_COLORS = {
+    primary: '#3b82f6',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#06b6d4',
+    purple: '#8b5cf6'
+};
+
+// Gradientes para tarjetas
+const CARD_GRADIENTS = {
+    blue: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+    green: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+    orange: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+    red: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+    purple: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+    cyan: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)'
+};
 
 export default function Dashboard() {
     const navigate = useNavigate();
