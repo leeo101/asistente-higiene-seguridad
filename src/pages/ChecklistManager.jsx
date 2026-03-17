@@ -339,6 +339,18 @@ export default function ChecklistManager() {
 
     return (
         <div className="container" style={{ maxWidth: '1100px', paddingBottom: '8rem' }}>
+            {/* Ocultar contenido duplicado del PDF en vista normal */}
+            <style>{`
+                #pdf-content > * {
+                    display: none !important;
+                }
+                @media print {
+                    #pdf-content > * {
+                        display: block !important;
+                    }
+                }
+            `}</style>
+
             <ShareModal
                 open={showShare}
                 onClose={() => setShowShare(false)}
