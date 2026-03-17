@@ -92,6 +92,22 @@ const MANDATORY_SECTIONS = [
     }
 ];
 
+// Normativas aplicables comunes
+const AVAILABLE_NORMS = [
+    { id: 'ley19587', name: 'Ley 19.587 - Higiene y Seguridad en el Trabajo', category: 'Nacional' },
+    { id: 'dec351', name: 'Decreto 351/79 - Reglamento General', category: 'Nacional' },
+    { id: 'res481', name: 'Res. SRT 481/16 - Estiba y Desestiba', category: 'SRT' },
+    { id: 'res299', name: 'Res. SRT 299/11 - Trabajo en Altura', category: 'SRT' },
+    { id: 'res295', name: 'Res. SRT 295/11 - Espacios Confinados', category: 'SRT' },
+    { id: 'res101', name: 'Res. SRT 101/17 - Soldadura', category: 'SRT' },
+    { id: 'iso45001', name: 'ISO 45001:2018 - Sistema de Gestión SST', category: 'Internacional' },
+    { id: 'iso14001', name: 'ISO 14001 - Gestión Ambiental', category: 'Internacional' },
+    { id: 'nfpa10', name: 'NFPA 10 - Extintores Portátiles', category: 'Internacional' },
+    { id: 'nfpa70e', name: 'NFPA 70E - Seguridad Eléctrica', category: 'Internacional' },
+    { id: 'oshact', name: 'OSHA Act - Seguridad y Salud Ocupacional', category: 'Internacional' },
+    { id: 'art_reglamento', name: 'Reglamento Interno de ART', category: 'ART' }
+];
+
 export default function ChecklistManager() {
     const navigate = useNavigate();
     const { currentUser } = useAuth();
@@ -121,6 +137,7 @@ export default function ChecklistManager() {
     const [actionPlan, setActionPlan] = useState([]);
     const [nextReview, setNextReview] = useState('');
     const [newAction, setNewAction] = useState({ action: '', responsible: '', dueDate: '', priority: 'medio' });
+    const [selectedNorms, setSelectedNorms] = useState([]);
 
     useEffect(() => {
         const id = searchParams.get('id');
@@ -134,6 +151,7 @@ export default function ChecklistManager() {
                 setObservations(parsed.observations || '');
                 setActionPlan(parsed.actionPlan || []);
                 setNextReview(parsed.nextReview || '');
+                setSelectedNorms(parsed.selectedNorms || []);
                 if (parsed.showSignatures) setShowSignatures(parsed.showSignatures);
             }
         }
@@ -150,6 +168,7 @@ export default function ChecklistManager() {
             observations,
             actionPlan,
             nextReview,
+            selectedNorms,
             showSignatures,
             updatedAt: new Date().toISOString()
         };
@@ -605,6 +624,58 @@ export default function ChecklistManager() {
                         onChange={(e) => setNextReview(e.target.value)}
                         className="px-4 py-2 border border-blue-300 rounded-lg text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-400 bg-white"
                     />
+                </div>
+
+                {/* NORMATIVA APLICABLE - NUEVO */}
+                <div className="no-print mt-6 border-2 border-purple-300 rounded-xl p-6 bg-gradient-to-br from-purple-50 to-indigo-50 relative">
+                    <div className="absolute -top-4 left-8 bg-purple-600 text-white px-5 py-0.5 font-black text-[0.65rem] uppercase italic tracking-[0.2em] shadow-sm z-10 rounded-b-md flex items-center gap-2">
+                        📚 NORMATIVA APLICABLE
+                    </div>
+
+                    <p style={{ fontSize: '0.8rem', color: '#475569', marginBottom: '1rem', marginTop: '0.5rem' }}>
+                        Seleccioná las normativas que aplican a esta inspección:
+                    </p>
+
+                    {/* Grid de normativas agrupadas por categoría */}
+                    {['Nacional', 'SRT', 'Internacional', 'ART'].map(category => (
+                        <div key={category} style={{ marginBottom: '1rem' }}>
+                            <h4 style={{ fontSize: '0.75rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+                                {category}
+                            </h4>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.5rem' }}>
+                                {AVAILABLE_NORMS.filter(norm => norm.category === category).map(norm => (
+                                    <label
+                                        key={norm.id}
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.5rem',
+                                            padding: '0.6rem 0.8rem',
+                                            background: selectedNorms.includes(norm.id) ? '#f3e8ff' : '#ffffff',
+                                            border: `1px solid ${selectedNorms.includes(norm.id) ? '#a855f7' : '#e2e8f0'}`,
+                                            borderRadius: '8px',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s'
+                                        }}
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedNorms.includes(norm.id)}
+                                            onChange={(e) => {
+                                                if (e.target.checked) {
+                                                    setSelectedNorms([...selectedNorms, norm.id]);
+                                                } else {
+                                                    setSelectedNorms(selectedNorms.filter(id => id !== norm.id));
+                                                }
+                                            }}
+                                            className="w-4 h-4 accent-purple-600"
+                                        />
+                                        <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#1e293b' }}>{norm.name}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
                 </div>
 
                 <div className="mt-8 border-2 border-slate-300 rounded-xl p-8 bg-slate-50 relative text-left">

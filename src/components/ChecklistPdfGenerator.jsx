@@ -27,6 +27,23 @@ export default function ChecklistPdfGenerator({ checklistData }) {
     const obs = fullData.observations || '';
     const actionPlan = fullData.actionPlan || [];
     const nextReview = fullData.nextReview || '';
+    const selectedNorms = fullData.selectedNorms || [];
+
+    // Normativas disponibles para mostrar
+    const AVAILABLE_NORMS = [
+        { id: 'ley19587', name: 'Ley 19.587 - Higiene y Seguridad en el Trabajo' },
+        { id: 'dec351', name: 'Decreto 351/79 - Reglamento General' },
+        { id: 'res481', name: 'Res. SRT 481/16 - Estiba y Desestiba' },
+        { id: 'res299', name: 'Res. SRT 299/11 - Trabajo en Altura' },
+        { id: 'res295', name: 'Res. SRT 295/11 - Espacios Confinados' },
+        { id: 'res101', name: 'Res. SRT 101/17 - Soldadura' },
+        { id: 'iso45001', name: 'ISO 45001:2018 - Sistema de Gestión SST' },
+        { id: 'iso14001', name: 'ISO 14001 - Gestión Ambiental' },
+        { id: 'nfpa10', name: 'NFPA 10 - Extintores Portátiles' },
+        { id: 'nfpa70e', name: 'NFPA 70E - Seguridad Eléctrica' },
+        { id: 'oshact', name: 'OSHA Act - Seguridad y Salud Ocupacional' },
+        { id: 'art_reglamento', name: 'Reglamento Interno de ART' }
+    ];
 
     // Calcular estadísticas
     let totalItems = 0;
@@ -493,6 +510,83 @@ export default function ChecklistPdfGenerator({ checklistData }) {
                                         </div>
                                     </div>
                                 ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* NORMATIVA APLICABLE - NUEVO */}
+                {selectedNorms && selectedNorms.length > 0 && (
+                    <div style={{
+                        border: '2px solid #a855f7',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        marginBottom: '1.5rem',
+                        background: 'linear-gradient(135deg, #faf5ff, #f3e8ff)'
+                    }}>
+                        <div style={{
+                            background: 'linear-gradient(135deg, #a855f7, #7e22ce)',
+                            padding: '1rem',
+                            borderBottom: '2px solid #7e22ce',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem'
+                        }}>
+                            <ShieldCheck size={20} color="#ffffff" />
+                            <h3 style={{ margin: 0, fontWeight: 900, fontSize: '1rem', color: '#ffffff', textTransform: 'uppercase' }}>
+                                📚 NORMATIVA APLICABLE
+                            </h3>
+                        </div>
+
+                        <div style={{ padding: '1rem' }}>
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                                gap: '0.8rem'
+                            }}>
+                                {selectedNorms.map((normId, idx) => {
+                                    const norm = AVAILABLE_NORMS.find(n => n.id === normId);
+                                    if (!norm) return null;
+                                    return (
+                                        <div key={idx} style={{
+                                            display: 'flex',
+                                            alignItems: 'flex-start',
+                                            gap: '0.5rem',
+                                            padding: '0.8rem',
+                                            background: '#ffffff',
+                                            border: '1px solid #d8b4fe',
+                                            borderRadius: '8px',
+                                            boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                                        }}>
+                                            <div style={{
+                                                minWidth: '24px',
+                                                height: '24px',
+                                                background: '#a855f7',
+                                                color: '#ffffff',
+                                                borderRadius: '50%',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                fontSize: '0.75rem',
+                                                fontWeight: 900,
+                                                flexShrink: 0
+                                            }}>
+                                                ✓
+                                            </div>
+                                            <div style={{ flex: 1 }}>
+                                                <p style={{
+                                                    margin: 0,
+                                                    fontWeight: 700,
+                                                    fontSize: '0.8rem',
+                                                    color: '#1e293b',
+                                                    lineHeight: '1.4'
+                                                }}>
+                                                    {norm.name}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
