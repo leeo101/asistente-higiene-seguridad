@@ -94,6 +94,8 @@ const StopCards = lazyWithRetry(() => import('./pages/StopCards.jsx'));
 const StopCardsHistory = lazyWithRetry(() => import('./pages/StopCardsHistory.jsx'));
 const LogoSettings = lazyWithRetry(() => import('./pages/LogoSettings.jsx'));
 const PublicView = lazyWithRetry(() => import('./pages/PublicView.jsx'));
+const EmergencyBot = lazyWithRetry(() => import('./pages/EmergencyBot.jsx'));
+const ExtinguisherAI = lazyWithRetry(() => import('./pages/ExtinguisherAI.jsx'));
 
 import InstallBanner from './components/InstallBanner.jsx';
 import GlobalSearch from './components/GlobalSearch.jsx';
@@ -391,6 +393,8 @@ function App() {
                 <Route path="/ai-advisor" element={<AIChatAdvisor />} />
                 <Route path="/ai-history" element={<AIHistory />} />
                 <Route path="/ai-report" element={<AIReport />} />
+                <Route path="/emergency-bot" element={<EmergencyBot />} />
+                <Route path="/extinguisher-ai" element={<ExtinguisherAI />} />
                 <Route path="/calendar" element={<SafetyCalendar />} />
                 <Route path="/ai-camera-history" element={<AICameraHistory />} />
                 <Route path="/lighting" element={<LightingReport />} />

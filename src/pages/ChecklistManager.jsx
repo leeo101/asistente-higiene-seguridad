@@ -504,37 +504,38 @@ export default function ChecklistManager() {
 
                     return (
                         <div style={{ 
-                            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-                            border: '2px solid #e2e8f0',
-                            borderRadius: '12px',
-                            padding: '1.2rem',
-                            marginBottom: '2rem'
+                            background: '#fff',
+                            border: '1px solid #e2e8f0',
+                            borderRadius: '8px',
+                            padding: '1rem',
+                            marginBottom: '2rem',
+                            breakInside: 'avoid'
                         }}>
-                            <h2 style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', fontWeight: 900, color: '#1e293b', textTransform: 'uppercase', letterSpacing: '1px', textAlign: 'left' }}>
-                                📊 RESUMEN DE ESTADO
+                            <h2 style={{ margin: '0 0 0.75rem 0', fontSize: '0.8rem', fontWeight: 800, color: '#1e293b', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'left' }}>
+                                📊 Resumen de Inspección
                             </h2>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1.2rem' }}>
                                 <div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                                        <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#16a34a' }}>CONFORMES: {ok} ({okP}%)</span>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
+                                        <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#16a34a' }}>CUMPLE: {ok} ({okP}%)</span>
                                     </div>
-                                    <div style={{ height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
+                                    <div style={{ height: '6px', background: '#f1f5f9', borderRadius: '3px', overflow: 'hidden' }}>
                                         <div style={{ width: `${okP}%`, height: '100%', background: '#16a34a', transition: 'width 0.5s' }}></div>
                                     </div>
                                 </div>
                                 <div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                                        <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#dc2626' }}>NO CONFORMES: {fail} ({failP}%)</span>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
+                                        <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#dc2626' }}>NO CUMPLE: {fail} ({failP}%)</span>
                                     </div>
-                                    <div style={{ height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
+                                    <div style={{ height: '6px', background: '#f1f5f9', borderRadius: '3px', overflow: 'hidden' }}>
                                         <div style={{ width: `${failP}%`, height: '100%', background: '#dc2626', transition: 'width 0.5s' }}></div>
                                     </div>
                                 </div>
                                 <div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                                        <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#64748b' }}>N/A: {na} ({naP}%)</span>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
+                                        <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#64748b' }}>N/A: {na} ({naP}%)</span>
                                     </div>
-                                    <div style={{ height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
+                                    <div style={{ height: '6px', background: '#f1f5f9', borderRadius: '3px', overflow: 'hidden' }}>
                                         <div style={{ width: `${naP}%`, height: '100%', background: '#64748b', transition: 'width 0.5s' }}></div>
                                     </div>
                                 </div>
@@ -545,10 +546,19 @@ export default function ChecklistManager() {
 
                 <div className="space-y-12">
                     {activeSections.map(section => (
-                        <div key={section.id} className="card w-full mb-6" style={{ padding: 0, pageBreakInside: section.items.length < 10 ? 'avoid' : 'auto' }}>
-                            <div style={{ background: 'var(--color-background)', padding: '1rem', borderBottom: '2px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', minHeight: '4rem', pageBreakInside: 'avoid' }}>
+                        <div key={section.id} className="card w-full mb-6" style={{ padding: 0, border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden', breakInside: 'auto' }}>
+                            <div style={{ 
+                                background: '#f8fafc', 
+                                padding: '0.75rem 1rem', 
+                                borderBottom: '1px solid #e2e8f0', 
+                                display: 'flex', 
+                                justifyContent: 'space-between', 
+                                alignItems: 'center', 
+                                minHeight: '3.5rem', 
+                                breakInside: 'avoid' 
+                            }}>
                                 <input
-                                    className="font-black text-xl uppercase tracking-tighter bg-transparent outline-none w-full border-none focus:ring-0 text-black text-center placeholder:text-slate-400 print-text-center block"
+                                    className="font-bold text-lg uppercase tracking-tight bg-transparent outline-none w-full border-none focus:ring-0 text-slate-800 text-center placeholder:text-slate-300 print-text-center block"
                                     style={{ textAlign: 'center', margin: 0 }}
                                     value={section.title}
                                     onChange={e => updateSectionTitle(section.id, e.target.value)}
@@ -556,33 +566,33 @@ export default function ChecklistManager() {
                                 <div className="flex gap-2 no-print shrink-0 ml-4">
                                     <button
                                         onClick={() => removeSection(section.id)}
-                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-danger)', color: '#ffffff', fontSize: '0.65rem', fontWeight: 900, border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                                        style={{ padding: '0.4rem 0.8rem', background: '#fee2e2', color: '#dc2626', fontSize: '0.65rem', fontWeight: 800, border: '1px solid #fecaca', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
                                     >
-                                        <X size={12} strokeWidth={4} /> QUITAR
+                                        <X size={12} /> QUITAR
                                     </button>
                                     <button
                                         onClick={() => checkAllOk(section.id)}
-                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-text)', color: '#ffffff', fontSize: '0.65rem', fontWeight: 900, border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                        style={{ padding: '0.4rem 0.8rem', background: '#f1f5f9', color: '#475569', fontSize: '0.65rem', fontWeight: 800, border: '1px solid #e2e8f0', borderRadius: '4px', cursor: 'pointer' }}
                                     >
                                         TODO OK
                                     </button>
                                     <button
                                         onClick={() => addItem(section.id)}
-                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-primary)', color: '#ffffff', fontSize: '0.65rem', fontWeight: 900, border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                        style={{ padding: '0.4rem 0.8rem', background: '#3b82f6', color: '#ffffff', fontSize: '0.65rem', fontWeight: 800, border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                                     >
                                         + ITEM
                                     </button>
                                 </div>
                             </div>
 
-                            <div className="w-full flex-col divide-y divide-slate-200">
+                            <div className="w-full flex-col divide-y divide-slate-100">
                                 {section.items.map((item, idx) => (
-                                    <div key={idx} className="group hover:bg-slate-50/20 transition-colors flex flex-col sm:flex-row print-flex items-stretch sm:items-center print-items-center" style={{ pageBreakInside: 'avoid' }}>
-                                        <div className="flex-1 flex flex-row items-start sm:items-center min-w-0 p-4 pb-0 sm:pb-4 print:pb-4 border-b border-transparent sm:pr-4 print:pr-4" style={{ pageBreakInside: 'avoid' }}>
-                                            <div className="text-center font-black text-[0.6rem] bg-slate-50/50 h-10 w-8 flex items-center justify-center rounded-md mr-3 text-slate-400 border border-slate-100 shrink-0">{idx + 1}</div>
+                                    <div key={idx} className="group hover:bg-slate-50/30 transition-colors flex flex-col sm:flex-row print-flex items-stretch sm:items-center print-items-center" style={{ breakInside: 'avoid', background: item.status === 'FAIL' ? '#fff1f2' : 'transparent' }}>
+                                        <div className="flex-1 flex flex-row items-start sm:items-center min-w-0 p-3 sm:p-4 print:p-3 border-b border-transparent sm:pr-4 print:pr-4" style={{ breakInside: 'avoid' }}>
+                                            <div className="text-center font-bold text-[0.65rem] bg-slate-50/50 h-8 w-8 flex items-center justify-center rounded-md mr-3 text-slate-400 border border-slate-100 shrink-0">{idx + 1}</div>
                                             <textarea
                                                 rows={1}
-                                                className="w-full px-1 py-2 font-bold text-slate-800 text-[0.85rem] outline-none bg-transparent resize-none leading-tight border-none focus:ring-0 placeholder:text-slate-300 min-h-[40px] no-print block"
+                                                className="w-full px-1 py-1.5 font-semibold text-slate-700 text-[0.8rem] outline-none bg-transparent resize-none leading-relaxed border-none focus:ring-0 placeholder:text-slate-300 min-h-[36px] no-print block"
                                                 value={item.text}
                                                 onInput={(e) => {
                                                     e.target.style.height = 'auto';
@@ -590,40 +600,61 @@ export default function ChecklistManager() {
                                                 }}
                                                 onChange={e => updateItem(section.id, idx, 'text', e.target.value)}
                                             />
-                                            <div className="print-only w-full px-1 py-2 font-bold text-slate-800 text-[0.85rem] leading-tight whitespace-pre-wrap break-words">
+                                            <div className="print-only w-full px-1 py-1.5 font-semibold text-slate-700 text-[0.8rem] leading-relaxed whitespace-pre-wrap break-words">
                                                 {item.text}
                                             </div>
                                         </div>
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', padding: '0.5rem 1rem 0.75rem 1rem', flexWrap: 'nowrap' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.4rem', padding: '0.3rem 1rem 0.75rem 1rem', flexWrap: 'nowrap' }}>
                                             <div className="no-print checklist-status-buttons" style={{ flexShrink: 0 }}>
                                                 <StatusBtn active={item.status === 'OK'} type="OK" onClick={() => updateItem(section.id, idx, 'status', 'OK')} />
                                                 <StatusBtn active={item.status === 'FAIL'} type="FAIL" onClick={() => updateItem(section.id, idx, 'status', 'FAIL')} />
                                                 <StatusBtn active={item.status === 'NA'} type="NA" onClick={() => updateItem(section.id, idx, 'status', 'NA')} />
                                             </div>
-                                            <div className="hidden print-flex items-center justify-center font-black text-black" style={{ minWidth: '40px', border: '2px solid #000', borderRadius: '4px', height: '32px' }}>
-                                                {item.status === 'OK' ? <Check size={20} strokeWidth={4} /> :
-                                                    item.status === 'FAIL' ? <X size={20} strokeWidth={4} /> :
-                                                        item.status === 'NA' ? <span className="text-[0.7rem] uppercase">N/A</span> : ''}
+                                            
+                                            <div className="print-only block font-bold text-[0.7rem] text-center min-w-[80px]" style={{ breakInside: 'avoid' }}>
+                                                {item.status === 'OK' ? (
+                                                    <span style={{ color: '#16a34a' }}>CUMPLE</span>
+                                                ) : item.status === 'FAIL' ? (
+                                                    <span style={{ color: '#dc2626' }}>NO CUMPLE</span>
+                                                ) : (
+                                                    <span style={{ color: '#94a3b8' }}>N/A</span>
+                                                )}
                                             </div>
-                                            <button
-                                                onClick={() => {
-                                                    const toastId = toast(
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                                                            <span style={{ fontSize: '0.9rem' }}>¿Eliminar este punto?</span>
-                                                            <button
-                                                                onClick={() => { removeItem(section.id, idx); toast.dismiss(toastId); }}
-                                                                style={{ background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem' }}
-                                                            >Sí</button>
-                                                        </div>,
-                                                        { duration: 4000, icon: '🗑️' }
-                                                    );
-                                                }}
-                                                className="no-print"
-                                                style={{ flexShrink: 0, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', cursor: 'pointer', color: '#ef4444', padding: '0.3rem 0.45rem', display: 'flex', alignItems: 'center' }}
-                                                title="Eliminar"
-                                            >
-                                                <Trash2 size={15} />
-                                            </button>
+
+                                            <div className="flex gap-1 items-center shrink-0">
+                                                {item.status === 'FAIL' && (
+                                                    <select
+                                                        value={item.severity || 'medio'}
+                                                        onChange={e => updateItem(section.id, idx, 'severity', e.target.value)}
+                                                        className="h-8 px-2 py-0 text-[0.6rem] font-bold border rounded-md outline-none bg-white text-slate-600 focus:ring-1 focus:ring-blue-500"
+                                                        style={{ width: '85px', margin: 0 }}
+                                                    >
+                                                        <option value="bajo">🟢 BAJO</option>
+                                                        <option value="medio">🟡 MEDIO</option>
+                                                        <option value="alto">🟠 ALTO</option>
+                                                        <option value="critico">🔴 CRÍTICO</option>
+                                                    </select>
+                                                )}
+                                                <button
+                                                    onClick={() => {
+                                                        const toastId = toast(
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                                                                <span style={{ fontSize: '0.9rem' }}>¿Eliminar este punto?</span>
+                                                                <button
+                                                                    onClick={() => { removeItem(section.id, idx); toast.dismiss(toastId); }}
+                                                                    style={{ background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem' }}
+                                                                >Sí</button>
+                                                            </div>,
+                                                            { duration: 4000, icon: '🗑️' }
+                                                        );
+                                                    }}
+                                                    className="no-print"
+                                                    style={{ flexShrink: 0, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', cursor: 'pointer', color: '#ef4444', padding: '0.3rem 0.45rem', display: 'flex', alignItems: 'center' }}
+                                                    title="Eliminar"
+                                                >
+                                                    <Trash2 size={15} />
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
@@ -804,19 +835,26 @@ export default function ChecklistManager() {
 
                 {/* PLAN DE ACCIÓN - PRINTABLE */}
                 {actionPlan.length > 0 && (
-                    <div style={{ border: '2px solid #f59e0b', borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem', background: '#fffbeb', pageBreakInside: 'avoid' }}>
-                        <div style={{ background: '#f59e0b', padding: '0.8rem 1.2rem', color: '#fff', fontWeight: 900, fontSize: '0.9rem', textTransform: 'uppercase' }}>🎯 Plan de Acción Correctiva</div>
-                        <div style={{ padding: '1.2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+                    <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden', marginBottom: '2rem', background: '#fff', breakInside: 'auto' }}>
+                        <div style={{ background: '#f8fafc', padding: '0.6rem 1rem', color: '#1e293b', borderBottom: '1px solid #e2e8f0', fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>🎯 Plan de Acción Correctiva</div>
+                        <div style={{ padding: '1rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.75rem' }}>
                             {actionPlan.map((action, idx) => (
-                                <div key={action.id} style={{ background: '#fff', border: '1px solid #fcd34d', borderRadius: '8px', padding: '1rem' }}>
+                                <div key={action.id} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', breakInside: 'avoid' }}>
                                     <div style={{ display: 'flex', gap: '0.6rem' }}>
-                                        <span style={{ background: '#f59e0b', color: '#fff', width: '22px', height: '22px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 900, flexShrink: 0 }}>{idx + 1}</span>
+                                        <span style={{ background: '#1e293b', color: '#fff', width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 800, flexShrink: 0 }}>{idx + 1}</span>
                                         <div style={{ flex: 1 }}>
-                                            <p style={{ margin: '0 0 0.4rem 0', fontWeight: 800, fontSize: '0.85rem', color: '#1e293b' }}>{action.action}</p>
-                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', fontSize: '0.7rem', color: '#64748b', fontWeight: 700 }}>
-                                                {action.responsible && <span>👤 Resp: {action.responsible}</span>}
-                                                {action.dueDate && <span>📅 Vence: {new Date(action.dueDate).toLocaleDateString()}</span>}
-                                                <span style={{ color: action.priority === 'critico' ? '#dc2626' : action.priority === 'alto' ? '#ea580c' : '#ca8a04' }}>🔥 {action.priority.toUpperCase()}</span>
+                                            <p style={{ margin: '0 0 0.4rem 0', fontWeight: 700, fontSize: '0.8rem', color: '#334155' }}>{action.action}</p>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', fontSize: '0.65rem', color: '#64748b', fontWeight: 700 }}>
+                                                {action.responsible && <span>👤 {action.responsible}</span>}
+                                                {action.dueDate && <span style={{ color: '#dc2626' }}>📅 {new Date(action.dueDate).toLocaleDateString()}</span>}
+                                                <span style={{ 
+                                                    padding: '0.1rem 0.4rem', 
+                                                    borderRadius: '4px', 
+                                                    background: action.priority === 'critico' ? '#fef2f2' : action.priority === 'alto' ? '#fff7ed' : '#f8fafc',
+                                                    color: action.priority === 'critico' ? '#dc2626' : action.priority === 'alto' ? '#ea580c' : '#64748b'
+                                                }}>
+                                                    {action.priority.toUpperCase()}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -828,16 +866,16 @@ export default function ChecklistManager() {
 
                 {/* NORMATIVA - PRINTABLE */}
                 {selectedNorms.length > 0 && (
-                    <div style={{ border: '2px solid #a855f7', borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem', background: '#faf5ff', pageBreakInside: 'avoid' }}>
-                        <div style={{ background: '#a855f7', padding: '0.8rem 1.2rem', color: '#fff', fontWeight: 900, fontSize: '0.9rem', textTransform: 'uppercase' }}>📚 Normativa Legal Aplicable</div>
-                        <div style={{ padding: '1.2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.6rem' }}>
+                    <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden', marginBottom: '2rem', background: '#fff', breakInside: 'auto' }}>
+                        <div style={{ background: '#f8fafc', padding: '0.6rem 1rem', color: '#1e293b', borderBottom: '1px solid #e2e8f0', fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>📚 Normativa Legal Aplicable</div>
+                        <div style={{ padding: '0.8rem 1rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.5rem' }}>
                             {selectedNorms.map(normId => {
                                 const norm = availableNorms.find(n => n.id === normId);
                                 if (!norm) return null;
                                 return (
-                                    <div key={normId} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', background: '#fff', padding: '0.6rem 0.8rem', borderRadius: '8px', border: '1px solid #e9d5ff' }}>
-                                        <div style={{ width: '18px', height: '18px', background: '#a855f7', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', fontWeight: 900 }}>✓</div>
-                                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1e293b' }}>{norm.name}</span>
+                                    <div key={normId} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', background: '#f8fafc', padding: '0.5rem 0.75rem', borderRadius: '6px', border: '1px solid #e2e8f0', breakInside: 'avoid' }}>
+                                        <div style={{ width: '16px', height: '16px', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>✓</div>
+                                        <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#475569' }}>{norm.name}</span>
                                     </div>
                                 );
                             })}
@@ -845,10 +883,10 @@ export default function ChecklistManager() {
                     </div>
                 )}
 
-                <div className="mt-8 border-2 border-slate-300 rounded-xl p-8 bg-slate-50 relative text-left" style={{ pageBreakInside: 'avoid' }}>
-                    <div className="absolute -top-4 left-8 bg-slate-800 text-white px-5 py-0.5 font-black text-[0.65rem] uppercase italic tracking-[0.2em] shadow-sm z-10 rounded-b-md">OBSERVACIONES</div>
+                <div className="mt-8 border border-slate-300 rounded-lg p-6 bg-slate-50 relative text-left" style={{ breakInside: 'avoid' }}>
+                    <div className="absolute -top-3 left-6 bg-slate-800 text-white px-3 py-0.5 font-bold text-[0.6rem] uppercase tracking-wider shadow-sm z-10 rounded-md">OBSERVACIONES</div>
                     <textarea
-                        className="w-full bg-transparent outline-none text-[1rem] font-bold leading-relaxed resize-none min-h-[140px] placeholder:text-slate-300 relative z-20 text-left no-print block"
+                        className="w-full bg-transparent outline-none text-[0.9rem] font-semibold leading-relaxed resize-none min-h-[120px] placeholder:text-slate-300 relative z-20 text-left no-print block"
                         placeholder="Ingrese observaciones, hallazgos o medidas correctivas..."
                         value={observations}
                         onInput={(e) => {
@@ -857,7 +895,7 @@ export default function ChecklistManager() {
                         }}
                         onChange={e => setObservations(e.target.value)}
                     />
-                    <div className="print-only w-full text-[1rem] font-bold leading-relaxed whitespace-pre-wrap break-words relative z-20 text-left min-h-[140px]">
+                    <div className="print-only w-full text-[0.85rem] font-semibold leading-relaxed whitespace-pre-wrap break-words relative z-20 text-left min-h-[120px]">
                         {observations || 'Sin observaciones adicionales.'}
                     </div>
                 </div>
@@ -878,23 +916,23 @@ export default function ChecklistManager() {
                     </div>
                 </div>
 
-                <div className="mt-16 sm:px-4 signature-section">
-                    <div className="signature-container-row">
+                <div className="mt-12 sm:px-4 signature-section">
+                    <div className="signature-container-row" style={{ breakInside: 'avoid' }}>
                         {showSignatures.operator && (
-                            <div className="signature-item-box">
-                                <div className="signature-line"></div>
-                                <p className="text-[0.6rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
-                                <p className="text-[0.7rem] font-black uppercase text-black leading-none break-words min-h-[0.7rem]">{companyInfo.inspector || ' '}</p>
-                                <p className="text-[0.5rem] font-bold text-blue-600 uppercase tracking-tighter mt-1" style={{ color: 'var(--color-primary)' }}>Firma / Aclaración</p>
+                            <div className="signature-item-box" style={{ paddingTop: '4rem' }}>
+                                <div className="signature-line" style={{ borderTopStyle: 'solid', borderTopWidth: '1px' }}></div>
+                                <p className="text-[0.6rem] font-bold uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
+                                <p className="text-[0.75rem] font-bold uppercase text-slate-800 leading-none break-words min-h-[0.75rem]">{companyInfo.inspector || ' '}</p>
+                                <p className="text-[0.55rem] font-bold text-blue-600 uppercase tracking-tighter mt-1">Firma / Aclaración</p>
                             </div>
                         )}
 
                         {showSignatures.supervisor && (
-                            <div className="signature-item-box">
-                                <div className="signature-line"></div>
-                                <p className="text-[0.6rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR</p>
-                                <p className="text-[0.7rem] font-black uppercase text-black leading-none">DNI / ACLARACIÓN</p>
-                                <p className="text-[0.5rem] font-bold text-blue-600 uppercase tracking-tighter mt-1" style={{ color: 'var(--color-primary)' }}>Firma del Supervisor</p>
+                            <div className="signature-item-box" style={{ paddingTop: '4rem' }}>
+                                <div className="signature-line" style={{ borderTopStyle: 'solid', borderTopWidth: '1px' }}></div>
+                                <p className="text-[0.6rem] font-bold uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR</p>
+                                <p className="text-[0.75rem] font-bold uppercase text-slate-800 leading-none">DNI / ACLARACIÓN</p>
+                                <p className="text-[0.55rem] font-bold text-blue-600 uppercase tracking-tighter mt-1">Firma del Supervisor</p>
                             </div>
                         )}
 
