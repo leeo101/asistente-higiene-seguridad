@@ -6,16 +6,6 @@ export default function StopCardPdfGenerator({ card }) {
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
 
-    // Debug: verificar si el logo existe
-    useEffect(() => {
-        if (companyLogo && showLogo) {
-            console.log('[StopCard] Logo cargado:', companyLogo.substring(0, 50) + '...');
-        } else if (!companyLogo) {
-            console.log('[StopCard] No hay logo guardado - El usuario debe subirlo desde Perfil > Logo de Empresa');
-        } else if (!showLogo) {
-            console.log('[StopCard] Logo desactivado por el usuario');
-        }
-    }, [companyLogo, showLogo]);
 
     const componentRef = useRef();
     if (!card) return null;
@@ -59,6 +49,11 @@ export default function StopCardPdfGenerator({ card }) {
                             border: none !important;
                             border-radius: 0 !important; 
                         }
+                        .company-logo {
+                            -webkit-print-color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                            color-adjust: exact !important;
+                        }
                     `}
                 </style>
 
@@ -70,18 +65,19 @@ export default function StopCardPdfGenerator({ card }) {
                         </h1>
                         <p style={{ margin: 0, color: '#64748b', fontSize: '12pt', fontWeight: 600 }}>Programa de Seguridad Basada en el Comportamiento</p>
                     </div>
-                    {companyLogo && showLogo && (
-                        <img
-                            src={companyLogo}
-                            alt="Logo de empresa"
-                            style={{
-                                height: '45px',
-                                width: 'auto',
-                                objectFit: 'contain',
-                                maxWidth: '140px'
-                            }}
-                        />
-                    )}
+                        {companyLogo && showLogo && (
+                            <img
+                                className="company-logo"
+                                src={companyLogo}
+                                alt="Logo de empresa"
+                                style={{
+                                    height: '45px',
+                                    width: 'auto',
+                                    objectFit: 'contain',
+                                    maxWidth: '140px'
+                                }}
+                            />
+                        )}
                 </div>
 
                 {/* Classification Box */}

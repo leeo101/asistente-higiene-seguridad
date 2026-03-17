@@ -8,6 +8,7 @@ export default function FireLoadPdfGenerator({ data }) {
 
     if (!data) return null;
 
+    const countryNorms = getCountryNormativa(data.pais || 'Argentina');
     const { empresa, obra, fecha, sector, superficie, riesgo, materiales, results, conclusion } = data;
 
     return (
@@ -60,10 +61,7 @@ export default function FireLoadPdfGenerator({ data }) {
                                     height: '50px',
                                     width: 'auto',
                                     objectFit: 'contain',
-                                    maxWidth: '150px',
-                                    WebkitPrintColorAdjust: 'exact',
-                                    printColorAdjust: 'exact',
-                                    colorAdjust: 'exact'
+                                    maxWidth: '150px'
                                 }}
                             />
                         )}

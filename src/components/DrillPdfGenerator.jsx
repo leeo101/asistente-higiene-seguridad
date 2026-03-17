@@ -6,16 +6,6 @@ export default function DrillPdfGenerator({ report, onBack }) {
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
 
-    // Debug: verificar si el logo existe
-    useEffect(() => {
-        if (companyLogo && showLogo) {
-            console.log('[Drill] Logo cargado:', companyLogo.substring(0, 50) + '...');
-        } else if (!companyLogo) {
-            console.log('[Drill] No hay logo guardado - El usuario debe subirlo desde Perfil > Logo de Empresa');
-        } else if (!showLogo) {
-            console.log('[Drill] Logo desactivado por el usuario');
-        }
-    }, [companyLogo, showLogo]);
 
     const componentRef = useRef();
 
@@ -99,10 +89,7 @@ export default function DrillPdfGenerator({ report, onBack }) {
                                     width: 'auto',
                                     objectFit: 'contain',
                                     maxWidth: '140px',
-                                    marginLeft: '20px',
-                                    WebkitPrintColorAdjust: 'exact',
-                                    printColorAdjust: 'exact',
-                                    colorAdjust: 'exact'
+                                    marginLeft: '20px'
                                 }}
                             />
                         )}

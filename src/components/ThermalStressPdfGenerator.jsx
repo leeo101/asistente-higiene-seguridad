@@ -7,16 +7,6 @@ export default function ThermalStressPdfGenerator({ report, onBack }) {
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
 
-    // Debug: verificar si el logo existe
-    useEffect(() => {
-        if (companyLogo && showLogo) {
-            console.log('[ThermalStress] Logo cargado:', companyLogo.substring(0, 50) + '...');
-        } else if (!companyLogo) {
-            console.log('[ThermalStress] No hay logo guardado - El usuario debe subirlo desde Perfil > Logo de Empresa');
-        } else if (!showLogo) {
-            console.log('[ThermalStress] Logo desactivado por el usuario');
-        }
-    }, [companyLogo, showLogo]);
 
     const componentRef = useRef();
 
@@ -105,23 +95,20 @@ export default function ThermalStressPdfGenerator({ report, onBack }) {
                             <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={14} /> Fecha de Medición: {report?.fecha ? new Date(report.fecha + 'T12:00:00Z').toLocaleDateString() : 'N/A'}</span>
                         </div>
                     </div>
-                    {companyLogo && showLogo && (
-                        <img
-                            className="company-logo"
-                            src={companyLogo}
-                            alt="Logo de empresa"
-                            style={{
-                                height: '45px',
-                                width: 'auto',
-                                objectFit: 'contain',
-                                maxWidth: '140px',
-                                marginLeft: '20px',
-                                WebkitPrintColorAdjust: 'exact',
-                                printColorAdjust: 'exact',
-                                colorAdjust: 'exact'
-                            }}
-                        />
-                    )}
+                        {companyLogo && showLogo && (
+                            <img
+                                className="company-logo"
+                                src={companyLogo}
+                                alt="Logo de empresa"
+                                style={{
+                                    height: '45px',
+                                    width: 'auto',
+                                    objectFit: 'contain',
+                                    maxWidth: '140px',
+                                    marginLeft: '20px'
+                                }}
+                            />
+                        )}
                 </div>
 
                 {renderLegalBase()}

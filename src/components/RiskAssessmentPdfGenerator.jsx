@@ -65,13 +65,17 @@ export default function RiskAssessmentPdfGenerator({ assessmentData }) {
                             border: none !important;
                             border-radius: 0 !important; 
                         }
+                        .company-logo {
+                            -webkit-print-color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                            color-adjust: exact !important;
+                        }
                     `}
                 </style>
 
                 {/* Header Section */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '3px solid #1e293b', paddingBottom: '1.5rem', marginBottom: '2rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <img src="/logo.png" alt="Logo" style={{ height: '60px', width: 'auto' }} onError={(e) => e.target.style.display = 'none'} />
                         <div>
                             <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Sistema de Gestión HYS</p>
                             <h1 style={{ margin: 0, fontWeight: 900, fontSize: '1.5rem', color: '#1e293b', textTransform: 'uppercase' }}>Evaluación de Riesgo</h1>
@@ -80,6 +84,7 @@ export default function RiskAssessmentPdfGenerator({ assessmentData }) {
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
                         {companyLogo && showLogo && (
                             <img
+                                className="company-logo"
                                 src={companyLogo}
                                 alt="Logo de empresa"
                                 style={{

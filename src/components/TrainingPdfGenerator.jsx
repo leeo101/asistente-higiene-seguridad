@@ -8,16 +8,6 @@ export default function TrainingPdfGenerator({ training, onBack }) {
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
 
-    // Debug: verificar si el logo existe
-    useEffect(() => {
-        if (companyLogo && showLogo) {
-            console.log('[Training] Logo cargado:', companyLogo.substring(0, 50) + '...');
-        } else if (!companyLogo) {
-            console.log('[Training] No hay logo guardado - El usuario debe subirlo desde Perfil > Logo de Empresa');
-        } else if (!showLogo) {
-            console.log('[Training] Logo desactivado por el usuario');
-        }
-    }, [companyLogo, showLogo]);
 
     const safeTema = (training?.tema || 'Capacitacion').replace(/\s+/g, '_');
     const safeFecha = training?.fecha || new Date().toISOString().split('T')[0];
@@ -104,10 +94,7 @@ export default function TrainingPdfGenerator({ training, onBack }) {
                                     width: 'auto',
                                     objectFit: 'contain',
                                     maxWidth: '150px',
-                                    marginLeft: '20px',
-                                    WebkitPrintColorAdjust: 'exact',
-                                    printColorAdjust: 'exact',
-                                    colorAdjust: 'exact'
+                                    marginLeft: '20px'
                                 }}
                             />
                         )}

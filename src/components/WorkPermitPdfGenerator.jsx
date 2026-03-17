@@ -11,16 +11,6 @@ export default function WorkPermitPdfGenerator({ data }) {
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
 
-    // Debug: verificar si el logo existe
-    useEffect(() => {
-        if (companyLogo && showLogo) {
-            console.log('[WorkPermit] Logo cargado:', companyLogo.substring(0, 50) + '...');
-        } else if (!companyLogo) {
-            console.log('[WorkPermit] No hay logo guardado - El usuario debe subirlo desde Perfil > Logo de Empresa');
-        } else if (!showLogo) {
-            console.log('[WorkPermit] Logo desactivado por el usuario');
-        }
-    }, [companyLogo, showLogo]);
 
     // Ensure all arrays exist
     const checklist = data.checklist || [];
@@ -53,6 +43,11 @@ export default function WorkPermitPdfGenerator({ data }) {
                             border: none !important;
                             border-radius: 0 !important; 
                         }
+                        .company-logo {
+                            -webkit-print-color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                            color-adjust: exact !important;
+                        }
                     `}
                 </style>
 
@@ -65,6 +60,7 @@ export default function WorkPermitPdfGenerator({ data }) {
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
                         {companyLogo && showLogo && (
                             <img
+                                className="company-logo"
                                 src={companyLogo}
                                 alt="Logo de empresa"
                                 style={{

@@ -13,16 +13,6 @@ export default function LightingPdfGenerator({ data }) {
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
 
-    // Debug: verificar si el logo existe
-    useEffect(() => {
-        if (companyLogo && showLogo) {
-            console.log('[Lighting] Logo cargado:', companyLogo.substring(0, 50) + '...');
-        } else if (!companyLogo) {
-            console.log('[Lighting] No hay logo guardado - El usuario debe subirlo desde Perfil > Logo de Empresa');
-        } else if (!showLogo) {
-            console.log('[Lighting] Logo desactivado por el usuario');
-        }
-    }, [companyLogo, showLogo]);
 
     const { empresa, fecha, sector, descripcionActividad, tipoTarea, luxRequerido, mediciones, results, conclusion } = data;
     const meds = mediciones || [];
@@ -54,6 +44,11 @@ export default function LightingPdfGenerator({ data }) {
                             border: none !important;
                             border-radius: 0 !important; 
                         }
+                        .company-logo {
+                            -webkit-print-color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                            color-adjust: exact !important;
+                        }
                     `}
                 </style>
 
@@ -72,6 +67,7 @@ export default function LightingPdfGenerator({ data }) {
                     <div style={{ flex: 1, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
                         {companyLogo && showLogo && (
                             <img
+                                className="company-logo"
                                 src={companyLogo}
                                 alt="Logo de empresa"
                                 style={{

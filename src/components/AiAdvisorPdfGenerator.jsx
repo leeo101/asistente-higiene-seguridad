@@ -41,6 +41,11 @@ export default function AiAdvisorPdfGenerator({ data }) {
                             border: none !important;
                             border-radius: 0 !important; 
                         }
+                        .company-logo {
+                            -webkit-print-color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                            color-adjust: exact !important;
+                        }
                     `}
                 </style>
 
@@ -55,6 +60,7 @@ export default function AiAdvisorPdfGenerator({ data }) {
                     {companyLogo && showLogo && (
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: '60px' }}>
                             <img
+                                className="company-logo"
                                 src={companyLogo}
                                 alt="Logo Empresa"
                                 style={{

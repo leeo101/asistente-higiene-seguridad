@@ -118,6 +118,9 @@ export default function ChecklistManager() {
         supervisor: true,
         professional: true
     });
+    const [actionPlan, setActionPlan] = useState([]);
+    const [nextReview, setNextReview] = useState('');
+    const [newAction, setNewAction] = useState({ action: '', responsible: '', dueDate: '', priority: 'medio' });
 
     useEffect(() => {
         const id = searchParams.get('id');
@@ -129,6 +132,8 @@ export default function ChecklistManager() {
                 setInspectionInfo(parsed.inspectionInfo);
                 setActiveSections(parsed.activeSections);
                 setObservations(parsed.observations || '');
+                setActionPlan(parsed.actionPlan || []);
+                setNextReview(parsed.nextReview || '');
                 if (parsed.showSignatures) setShowSignatures(parsed.showSignatures);
             }
         }
@@ -143,6 +148,8 @@ export default function ChecklistManager() {
             inspectionInfo,
             activeSections,
             observations,
+            actionPlan,
+            nextReview,
             showSignatures,
             updatedAt: new Date().toISOString()
         };
@@ -480,6 +487,124 @@ export default function ChecklistManager() {
                             </div>
                         </div>
                     ))}
+                </div>
+
+                {/* PLAN DE ACCIÓN - NUEVO */}
+                <div className="no-print mt-8 border-2 border-amber-400 rounded-xl p-6 bg-gradient-to-br from-amber-50 to-yellow-50 relative text-left">
+                    <div className="absolute -top-4 left-8 bg-amber-500 text-white px-5 py-0.5 font-black text-[0.65rem] uppercase italic tracking-[0.2em] shadow-sm z-10 rounded-b-md flex items-center gap-2">
+                        🎯 PLAN DE ACCIÓN
+                    </div>
+
+                    {/* Formulario para agregar acción */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.8rem', marginBottom: '1rem' }}>
+                        <input
+                            type="text"
+                            placeholder="Acción correctiva"
+                            value={newAction.action}
+                            onChange={(e) => setNewAction({ ...newAction, action: e.target.value })}
+                            className="px-3 py-2 border border-slate-300 rounded-lg text-sm font-semibold outline-none focus:ring-2 focus:ring-amber-400"
+                        />
+                        <input
+                            type="text"
+                            placeholder="Responsable"
+                            value={newAction.responsible}
+                            onChange={(e) => setNewAction({ ...newAction, responsible: e.target.value })}
+                            className="px-3 py-2 border border-slate-300 rounded-lg text-sm font-semibold outline-none focus:ring-2 focus:ring-amber-400"
+                        />
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <input
+                                type="date"
+                                value={newAction.dueDate}
+                                onChange={(e) => setNewAction({ ...newAction, dueDate: e.target.value })}
+                                className="px-3 py-2 border border-slate-300 rounded-lg text-sm font-semibold outline-none focus:ring-2 focus:ring-amber-400 flex-1"
+                            />
+                            <select
+                                value={newAction.priority}
+                                onChange={(e) => setNewAction({ ...newAction, priority: e.target.value })}
+                                className="px-3 py-2 border border-slate-300 rounded-lg text-sm font-semibold outline-none focus:ring-2 focus:ring-amber-400"
+                            >
+                                <option value="bajo">🟢 Bajo</option>
+                                <option value="medio">🟡 Medio</option>
+                                <option value="alto">🟠 Alto</option>
+                                <option value="critico">🔴 Crítico</option>
+                            </select>
+                        </div>
+                        <button
+                            onClick={() => {
+                                if (newAction.action.trim()) {
+                                    setActionPlan([...actionPlan, { ...newAction, id: Date.now() }]);
+                                    setNewAction({ action: '', responsible: '', dueDate: '', priority: 'medio' });
+                                    toast.success('Acción agregada al plan ✅');
+                                }
+                            }}
+                            className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-black text-sm rounded-lg cursor-pointer transition-colors flex items-center justify-center gap-2"
+                        >
+                            <Plus size={16} /> AGREGAR
+                        </button>
+                    </div>
+
+                    {/* Lista de acciones */}
+                    {actionPlan.length > 0 && (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.8rem' }}>
+                            {actionPlan.map((action, idx) => (
+                                <div key={action.id} style={{ background: '#ffffff', border: '1px solid #fcd34d', borderRadius: '8px', padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
+                                        <div style={{ minWidth: '24px', height: '24px', background: '#f59e0b', color: '#ffffff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 900, flexShrink: 0 }}>
+                                            {idx + 1}
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                            <p style={{ margin: 0, fontWeight: 700, fontSize: '0.85rem', color: '#1e293b' }}>{action.action}</p>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.3rem', fontSize: '0.75rem' }}>
+                                                {action.responsible && (
+                                                    <span style={{ color: '#475569' }}>👤 {action.responsible}</span>
+                                                )}
+                                                {action.dueDate && (
+                                                    <span style={{ color: '#dc2626' }}>📅 {new Date(action.dueDate).toLocaleDateString()}</span>
+                                                )}
+                                                <span style={{
+                                                    padding: '0.2rem 0.5rem',
+                                                    borderRadius: '4px',
+                                                    fontWeight: 700,
+                                                    fontSize: '0.7rem',
+                                                    background: action.priority === 'critico' ? '#fef2f2' : action.priority === 'alto' ? '#fff7ed' : action.priority === 'medio' ? '#fefce8' : '#f0fdf4',
+                                                    color: action.priority === 'critico' ? '#dc2626' : action.priority === 'alto' ? '#ea580c' : action.priority === 'medio' ? '#ca8a04' : '#16a34a'
+                                                }}>
+                                                    {action.priority === 'critico' ? '🔴' : action.priority === 'alto' ? '🟠' : action.priority === 'medio' ? '🟡' : '🟢'} {action.priority.toUpperCase()}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                setActionPlan(actionPlan.filter(a => a.id !== action.id));
+                                                toast.success('Acción eliminada');
+                                            }}
+                                            className="no-print"
+                                            style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '6px', cursor: 'pointer', color: '#ef4444', padding: '0.3rem', display: 'flex', alignItems: 'center', flexShrink: 0 }}
+                                        >
+                                            <X size={14} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* PRÓXIMA REVISIÓN - NUEVO */}
+                <div className="no-print mt-6 p-6 bg-blue-50 border border-blue-200 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                        <Calendar size={24} color="#2563eb" />
+                        <div>
+                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.85rem', color: '#1e3a8a', textTransform: 'uppercase' }}>Próxima Revisión Programada</p>
+                            <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b' }}>Seleccioná la fecha para el próximo control</p>
+                        </div>
+                    </div>
+                    <input
+                        type="date"
+                        value={nextReview}
+                        onChange={(e) => setNextReview(e.target.value)}
+                        className="px-4 py-2 border border-blue-300 rounded-lg text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                    />
                 </div>
 
                 <div className="mt-8 border-2 border-slate-300 rounded-xl p-8 bg-slate-50 relative text-left">

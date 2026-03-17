@@ -26,16 +26,6 @@ export default function ExtinguisherPdfGenerator({ extinguishers = [] }) {
     const companyLogo = localStorage.getItem('companyLogo');
     const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
 
-    // Debug: verificar si el logo existe
-    useEffect(() => {
-        if (companyLogo && showLogo) {
-            console.log('[Extinguisher] Logo cargado:', companyLogo.substring(0, 50) + '...');
-        } else if (!companyLogo) {
-            console.log('[Extinguisher] No hay logo guardado - El usuario debe subirlo desde Perfil > Logo de Empresa');
-        } else if (!showLogo) {
-            console.log('[Extinguisher] Logo desactivado por el usuario');
-        }
-    }, [companyLogo, showLogo]);
 
     const componentRef = useRef();
     const isLandscape = extinguishers.length > 15; // Auto rotate if many
@@ -75,6 +65,11 @@ export default function ExtinguisherPdfGenerator({ extinguishers = [] }) {
                                 border: 1px solid #1e293b !important;
                                 border-radius: 0 !important; 
                             }
+                            .company-logo {
+                                -webkit-print-color-adjust: exact !important;
+                                print-color-adjust: exact !important;
+                                color-adjust: exact !important;
+                            }
                         `}
                     </style>
 
@@ -92,6 +87,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers = [] }) {
                         </div>
                         {companyLogo && showLogo && (
                             <img
+                                className="company-logo"
                                 src={companyLogo}
                                 alt="Logo de empresa"
                                 style={{
