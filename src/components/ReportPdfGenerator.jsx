@@ -65,10 +65,7 @@ export default function ReportPdfGenerator({ initialData }) {
                                     height: '45px',
                                     width: 'auto',
                                     objectFit: 'contain',
-                                    maxWidth: '140px',
-                                    WebkitPrintColorAdjust: 'exact',
-                                    printColorAdjust: 'exact',
-                                    colorAdjust: 'exact'
+                                    maxWidth: '140px'
                                 }}
                             />
                         )}
