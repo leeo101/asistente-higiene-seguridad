@@ -342,7 +342,13 @@ export default function ChecklistManager() {
             {/* Estilos para impresión */}
             <style>{`
                 @media print {
-                    .print-only-content {
+                    body * {
+                        visibility: hidden;
+                    }
+                    #pdf-content, #pdf-content * {
+                        visibility: visible;
+                    }
+                    #pdf-content {
                         display: block !important;
                         position: fixed;
                         left: 0;
@@ -448,7 +454,7 @@ export default function ChecklistManager() {
             </div>
 
             {/* Contenido SOLO para impresión - Oculto en vista normal */}
-            <div id="pdf-content" className="print-only-content" style={{ display: 'none' }}>
+            <div id="pdf-content" className="print-only-content" style={{ position: 'fixed', left: '-9999px', top: '-9999px', zIndex: -9999 }}>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', alignItems: 'center', borderBottom: '4px solid #e2e8f0', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
                     {/* Top Left Text */}
