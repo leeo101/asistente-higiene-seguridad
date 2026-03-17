@@ -10,7 +10,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 export default function LogoSettings() {
     const navigate = useNavigate();
     const { isPro } = usePaywall();
-    const { user } = useAuth();
+    const { currentUser } = useAuth();
     useDocumentTitle('Logo de Empresa');
     
     const [logo, setLogo] = useState(null);
@@ -46,8 +46,8 @@ export default function LogoSettings() {
             const base64 = e.target.result;
             setLogo(base64);
             localStorage.setItem('companyLogo', base64);
-            if (user?.uid) {
-                saveValue(user.uid, 'companyLogo', base64);
+            if (currentUser?.uid) {
+                saveValue(currentUser.uid, 'companyLogo', base64);
             }
             setIsUploading(false);
             toast.success('✅ Logo guardado exitosamente. Se aplicará a todos tus PDFs.');
@@ -81,8 +81,8 @@ export default function LogoSettings() {
     const removeLogo = () => {
         setLogo(null);
         localStorage.removeItem('companyLogo');
-        if (user?.uid) {
-            saveValue(user.uid, 'companyLogo', null);
+        if (currentUser?.uid) {
+            saveValue(currentUser.uid, 'companyLogo', null);
         }
         toast.success('Logo eliminado');
     };
@@ -91,8 +91,8 @@ export default function LogoSettings() {
         const newValue = !showLogo;
         setShowLogo(newValue);
         localStorage.setItem('showCompanyLogo', String(newValue));
-        if (user?.uid) {
-            saveValue(user.uid, 'showCompanyLogo', newValue);
+        if (currentUser?.uid) {
+            saveValue(currentUser.uid, 'showCompanyLogo', newValue);
         }
         toast.success(newValue ? 'Logo activado en PDFs' : 'Logo desactivado en PDFs');
     };
