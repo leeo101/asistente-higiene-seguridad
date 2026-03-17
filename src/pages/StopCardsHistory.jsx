@@ -86,9 +86,9 @@ export default function StopCardsHistory() {
     };
 
     const filtered = cards.filter(c =>
-        c.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.type.toLowerCase().includes(searchTerm.toLowerCase())
+        (c.location || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (c.description || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (c.type || "").toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
