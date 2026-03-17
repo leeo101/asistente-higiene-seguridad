@@ -29,21 +29,78 @@ export default function ChecklistPdfGenerator({ checklistData }) {
     const nextReview = fullData.nextReview || '';
     const selectedNorms = fullData.selectedNorms || [];
 
-    // Normativas disponibles para mostrar
-    const AVAILABLE_NORMS = [
-        { id: 'ley19587', name: 'Ley 19.587 - Higiene y Seguridad en el Trabajo' },
-        { id: 'dec351', name: 'Decreto 351/79 - Reglamento General' },
-        { id: 'res481', name: 'Res. SRT 481/16 - Estiba y Desestiba' },
-        { id: 'res299', name: 'Res. SRT 299/11 - Trabajo en Altura' },
-        { id: 'res295', name: 'Res. SRT 295/11 - Espacios Confinados' },
-        { id: 'res101', name: 'Res. SRT 101/17 - Soldadura' },
-        { id: 'iso45001', name: 'ISO 45001:2018 - Sistema de Gestión SST' },
-        { id: 'iso14001', name: 'ISO 14001 - Gestión Ambiental' },
-        { id: 'nfpa10', name: 'NFPA 10 - Extintores Portátiles' },
-        { id: 'nfpa70e', name: 'NFPA 70E - Seguridad Eléctrica' },
-        { id: 'oshact', name: 'OSHA Act - Seguridad y Salud Ocupacional' },
-        { id: 'art_reglamento', name: 'Reglamento Interno de ART' }
-    ];
+    // Obtener país para filtrar normativas
+    const savedPersonalData = localStorage.getItem('personalData');
+    const userCountry = savedPersonalData ? JSON.parse(savedPersonalData).country || 'argentina' : 'argentina';
+
+    // Normativas por país
+    const NORMS_BY_COUNTRY = {
+        argentina: [
+            { id: 'ley19587', name: 'Ley 19.587 - Higiene y Seguridad en el Trabajo' },
+            { id: 'dec351', name: 'Decreto 351/79 - Reglamento General' },
+            { id: 'res481', name: 'Res. SRT 481/16 - Estiba y Desestiba' },
+            { id: 'res299', name: 'Res. SRT 299/11 - Trabajo en Altura' },
+            { id: 'res295', name: 'Res. SRT 295/11 - Espacios Confinados' },
+            { id: 'res101', name: 'Res. SRT 101/17 - Soldadura' },
+            { id: 'res594', name: 'Res. SRT 594/15 - Agentes Químicos' },
+            { id: 'art_reglamento', name: 'Reglamento Interno de ART' }
+        ],
+        chile: [
+            { id: 'dl109', name: 'D.L. 109/1970 - Código del Trabajo' },
+            { id: 'dec594', name: 'Decreto 594/1999 - Condiciones Sanitarias' },
+            { id: 'dec40', name: 'Decreto 40/1969 - Reglamento Higiene y Seguridad' },
+            { id: 'dec32', name: 'Decreto 32/2014 - Elementos Protección Personal' },
+            { id: 'ley16744', name: 'Ley 16.744 - Accidentes del Trabajo' },
+            { id: 'dec109', name: 'Decreto 109/2012 - Trabajo en Altura' },
+            { id: 'dec118', name: 'Decreto 118/2020 - Espacios Confinados' },
+            { id: 'mutual', name: 'Reglamento Mutual de Seguridad' }
+        ],
+        uruguay: [
+            { id: 'dec351', name: 'Decreto 351/007 - Reglamento de Higiene y Seguridad' },
+            { id: 'ley18320', name: 'Ley 18.320 - Accidentes de Trabajo' },
+            { id: 'dec488', name: 'Decreto 488/013 - Trabajo en Altura' },
+            { id: 'dec182', name: 'Decreto 182/018 - Espacios Confinados' },
+            { id: 'bps', name: 'Normativa BPS - Seguros de Accidentes' }
+        ],
+        colombia: [
+            { id: 'dec1072', name: 'Decreto 1072/2015 - SST Compilado' },
+            { id: 'res0312', name: 'Res. 0312/2019 - Estándares Mínimos' },
+            { id: 'dec1443', name: 'Decreto 1443/2014 - SG-SST' },
+            { id: 'ley1562', name: 'Ley 1562/2012 - Sistema Riesgos Laborales' },
+            { id: 'res1401', name: 'Res. 1401/2007 - Investigación Incidentes' },
+            { id: 'arl', name: 'Reglamento ARL' }
+        ],
+        mexico: [
+            { id: 'lft', name: 'Ley Federal del Trabajo' },
+            { id: 'nom001', name: 'NOM-001-STPS - Edificios y Áreas' },
+            { id: 'nom002', name: 'NOM-002-STPS - Prevención Incendios' },
+            { id: 'nom004', name: 'NOM-004-STPS - Maquinaria y Herramienta' },
+            { id: 'nom006', name: 'NOM-006-STPS - Manejo de Materiales' },
+            { id: 'nom009', name: 'NOM-009-STPS - Trabajo en Alturas' },
+            { id: 'nom011', name: 'NOM-011-STPS - Ruido' },
+            { id: 'imss', name: 'Reglamento IMSS' }
+        ],
+        peru: [
+            { id: 'ley29783', name: 'Ley 29.783 - SST' },
+            { id: 'dec005', name: 'Decreto Supremo 005-2012-TR' },
+            { id: 'dec024', name: 'Decreto Supremo 024-2016-TR' },
+            { id: 'g050', name: 'G.050 - Seguridad en Edificaciones' },
+            { id: 'essalud', name: 'Reglamento EsSalud' }
+        ],
+        internacional: [
+            { id: 'iso45001', name: 'ISO 45001:2018 - Sistema de Gestión SST' },
+            { id: 'iso14001', name: 'ISO 14001 - Gestión Ambiental' },
+            { id: 'iso9001', name: 'ISO 9001 - Gestión de Calidad' },
+            { id: 'nfpa10', name: 'NFPA 10 - Extintores Portátiles' },
+            { id: 'nfpa70e', name: 'NFPA 70E - Seguridad Eléctrica' },
+            { id: 'oshact', name: 'OSHA Act - Seguridad y Salud Ocupacional' }
+        ]
+    };
+
+    // Obtener normativas disponibles según el país + internacionales
+    const countryNorms = NORMS_BY_COUNTRY[userCountry] || [];
+    const internationalNorms = NORMS_BY_COUNTRY.internacional || [];
+    const allAvailableNorms = [...countryNorms, ...internationalNorms];
 
     // Calcular estadísticas
     let totalItems = 0;
@@ -545,7 +602,7 @@ export default function ChecklistPdfGenerator({ checklistData }) {
                                 gap: '0.8rem'
                             }}>
                                 {selectedNorms.map((normId, idx) => {
-                                    const norm = AVAILABLE_NORMS.find(n => n.id === normId);
+                                    const norm = allAvailableNorms.find(n => n.id === normId);
                                     if (!norm) return null;
                                     return (
                                         <div key={idx} style={{

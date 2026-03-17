@@ -92,21 +92,76 @@ const MANDATORY_SECTIONS = [
     }
 ];
 
-// Normativas aplicables comunes
-const AVAILABLE_NORMS = [
-    { id: 'ley19587', name: 'Ley 19.587 - Higiene y Seguridad en el Trabajo', category: 'Nacional' },
-    { id: 'dec351', name: 'Decreto 351/79 - Reglamento General', category: 'Nacional' },
-    { id: 'res481', name: 'Res. SRT 481/16 - Estiba y Desestiba', category: 'SRT' },
-    { id: 'res299', name: 'Res. SRT 299/11 - Trabajo en Altura', category: 'SRT' },
-    { id: 'res295', name: 'Res. SRT 295/11 - Espacios Confinados', category: 'SRT' },
-    { id: 'res101', name: 'Res. SRT 101/17 - Soldadura', category: 'SRT' },
-    { id: 'iso45001', name: 'ISO 45001:2018 - Sistema de Gestión SST', category: 'Internacional' },
-    { id: 'iso14001', name: 'ISO 14001 - Gestión Ambiental', category: 'Internacional' },
-    { id: 'nfpa10', name: 'NFPA 10 - Extintores Portátiles', category: 'Internacional' },
-    { id: 'nfpa70e', name: 'NFPA 70E - Seguridad Eléctrica', category: 'Internacional' },
-    { id: 'oshact', name: 'OSHA Act - Seguridad y Salud Ocupacional', category: 'Internacional' },
-    { id: 'art_reglamento', name: 'Reglamento Interno de ART', category: 'ART' }
-];
+// Normativas aplicables por país
+const NORMS_BY_COUNTRY = {
+    argentina: [
+        { id: 'ley19587', name: 'Ley 19.587 - Higiene y Seguridad en el Trabajo', category: 'Nacional' },
+        { id: 'dec351', name: 'Decreto 351/79 - Reglamento General', category: 'Nacional' },
+        { id: 'res481', name: 'Res. SRT 481/16 - Estiba y Desestiba', category: 'SRT' },
+        { id: 'res299', name: 'Res. SRT 299/11 - Trabajo en Altura', category: 'SRT' },
+        { id: 'res295', name: 'Res. SRT 295/11 - Espacios Confinados', category: 'SRT' },
+        { id: 'res101', name: 'Res. SRT 101/17 - Soldadura', category: 'SRT' },
+        { id: 'res594', name: 'Res. SRT 594/15 - Agentes Químicos', category: 'SRT' },
+        { id: 'art_reglamento', name: 'Reglamento Interno de ART', category: 'ART' }
+    ],
+    chile: [
+        { id: 'dl109', name: 'D.L. 109/1970 - Código del Trabajo', category: 'Nacional' },
+        { id: 'dec594', name: 'Decreto 594/1999 - Condiciones Sanitarias', category: 'Ministerio Salud' },
+        { id: 'dec40', name: 'Decreto 40/1969 - Reglamento Higiene y Seguridad', category: 'Ministerio Trabajo' },
+        { id: 'dec32', name: 'Decreto 32/2014 - Elementos Protección Personal', category: 'Ministerio Trabajo' },
+        { id: 'ley16744', name: 'Ley 16.744 - Accidentes del Trabajo', category: 'Nacional' },
+        { id: 'dec109', name: 'Decreto 109/2012 - Trabajo en Altura', category: 'Ministerio Trabajo' },
+        { id: 'dec118', name: 'Decreto 118/2020 - Espacios Confinados', category: 'Ministerio Trabajo' },
+        { id: 'mutual', name: 'Reglamento Mutual de Seguridad', category: 'Mutual' }
+    ],
+    uruguay: [
+        { id: 'dec351', name: 'Decreto 351/007 - Reglamento de Higiene y Seguridad', category: 'Nacional' },
+        { id: 'ley18320', name: 'Ley 18.320 - Accidentes de Trabajo', category: 'Nacional' },
+        { id: 'dec488', name: 'Decreto 488/013 - Trabajo en Altura', category: 'MTSS' },
+        { id: 'dec182', name: 'Decreto 182/018 - Espacios Confinados', category: 'MTSS' },
+        { id: 'bps', name: 'Normativa BPS - Seguros de Accidentes', category: 'BPS' }
+    ],
+    colombia: [
+        { id: 'dec1072', name: 'Decreto 1072/2015 - SST Compilado', category: 'Nacional' },
+        { id: 'res0312', name: 'Res. 0312/2019 - Estándares Mínimos', category: 'Ministerio Trabajo' },
+        { id: 'dec1443', name: 'Decreto 1443/2014 - SG-SST', category: 'Nacional' },
+        { id: 'ley1562', name: 'Ley 1562/2012 - Sistema Riesgos Laborales', category: 'Nacional' },
+        { id: 'res1401', name: 'Res. 1401/2007 - Investigación Incidentes', category: 'Ministerio Trabajo' },
+        { id: 'arl', name: 'Reglamento ARL', category: 'ARL' }
+    ],
+    mexico: [
+        { id: 'lft', name: 'Ley Federal del Trabajo', category: 'Nacional' },
+        { id: 'nom001', name: 'NOM-001-STPS - Edificios y Áreas', category: 'STPS' },
+        { id: 'nom002', name: 'NOM-002-STPS - Prevención Incendios', category: 'STPS' },
+        { id: 'nom004', name: 'NOM-004-STPS - Maquinaria y Herramienta', category: 'STPS' },
+        { id: 'nom006', name: 'NOM-006-STPS - Manejo de Materiales', category: 'STPS' },
+        { id: 'nom009', name: 'NOM-009-STPS - Trabajo en Alturas', category: 'STPS' },
+        { id: 'nom011', name: 'NOM-011-STPS - Ruido', category: 'STPS' },
+        { id: 'imss', name: 'Reglamento IMSS', category: 'IMSS' }
+    ],
+    peru: [
+        { id: 'ley29783', name: 'Ley 29.783 - SST', category: 'Nacional' },
+        { id: 'dec005', name: 'Decreto Supremo 005-2012-TR', category: 'Ministerio Trabajo' },
+        { id: 'dec024', name: 'Decreto Supremo 024-2016-TR', category: 'Ministerio Trabajo' },
+        { id: 'g050', name: 'G.050 - Seguridad en Edificaciones', category: 'Ministerio Vivienda' },
+        { id: 'essalud', name: 'Reglamento EsSalud', category: 'EsSalud' }
+    ],
+    internacional: [
+        { id: 'iso45001', name: 'ISO 45001:2018 - Sistema de Gestión SST', category: 'ISO' },
+        { id: 'iso14001', name: 'ISO 14001 - Gestión Ambiental', category: 'ISO' },
+        { id: 'iso9001', name: 'ISO 9001 - Gestión de Calidad', category: 'ISO' },
+        { id: 'nfpa10', name: 'NFPA 10 - Extintores Portátiles', category: 'NFPA' },
+        { id: 'nfpa70e', name: 'NFPA 70E - Seguridad Eléctrica', category: 'NFPA' },
+        { id: 'oshact', name: 'OSHA Act - Seguridad y Salud Ocupacional', category: 'OSHA' }
+    ]
+};
+
+// Función para obtener normativas según el país
+const getNormsForCountry = (country) => {
+    const countryNorms = NORMS_BY_COUNTRY[country] || [];
+    const internationalNorms = NORMS_BY_COUNTRY.internacional || [];
+    return [...countryNorms, ...internationalNorms];
+};
 
 export default function ChecklistManager() {
     const navigate = useNavigate();
@@ -138,6 +193,21 @@ export default function ChecklistManager() {
     const [nextReview, setNextReview] = useState('');
     const [newAction, setNewAction] = useState({ action: '', responsible: '', dueDate: '', priority: 'medio' });
     const [selectedNorms, setSelectedNorms] = useState([]);
+    const [userCountry, setUserCountry] = useState('argentina');
+    const [availableNorms, setAvailableNorms] = useState([]);
+
+    useEffect(() => {
+        // Obtener país del usuario desde personalData
+        const savedData = localStorage.getItem('personalData');
+        if (savedData) {
+            const parsed = JSON.parse(savedData);
+            const country = parsed.country || 'argentina';
+            setUserCountry(country);
+            setAvailableNorms(getNormsForCountry(country));
+        } else {
+            setAvailableNorms(getNormsForCountry('argentina'));
+        }
+    }, []);
 
     useEffect(() => {
         const id = searchParams.get('id');
@@ -637,13 +707,13 @@ export default function ChecklistManager() {
                     </p>
 
                     {/* Grid de normativas agrupadas por categoría */}
-                    {['Nacional', 'SRT', 'Internacional', 'ART'].map(category => (
+                    {Array.from(new Set(availableNorms.map(norm => norm.category))).map(category => (
                         <div key={category} style={{ marginBottom: '1rem' }}>
                             <h4 style={{ fontSize: '0.75rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
                                 {category}
                             </h4>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.5rem' }}>
-                                {AVAILABLE_NORMS.filter(norm => norm.category === category).map(norm => (
+                                {availableNorms.filter(norm => norm.category === category).map(norm => (
                                     <label
                                         key={norm.id}
                                         style={{
