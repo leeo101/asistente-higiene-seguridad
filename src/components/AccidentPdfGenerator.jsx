@@ -1,10 +1,7 @@
-import React, { useRef, useEffect } from 'react';
 import { ArrowLeft, Printer, Download, MapPin, Calendar, Clock, TriangleAlert, User, FileText, CheckCircle2 } from 'lucide-react';
+import CompanyLogo from './CompanyLogo';
 
 export default function AccidentPdfGenerator({ report, onBack }) {
-    // Obtener logo de empresa
-    const companyLogo = localStorage.getItem('companyLogo');
-    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
 
 
     const componentRef = useRef();
@@ -97,19 +94,14 @@ export default function AccidentPdfGenerator({ report, onBack }) {
                             </div>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
-                            {companyLogo && showLogo && (
-                                <img
-                                    className="company-logo"
-                                    src={companyLogo}
-                                    alt="Logo de empresa"
-                                    style={{
-                                        height: '45px',
-                                        width: 'auto',
-                                        objectFit: 'contain',
-                                        maxWidth: '140px'
-                                    }}
-                                />
-                            )}
+                            <CompanyLogo
+                                style={{
+                                    height: '45px',
+                                    width: 'auto',
+                                    objectFit: 'contain',
+                                    maxWidth: '140px'
+                                }}
+                            />
                             {/* Right side box (Severity) */}
                             <div style={{ background: `${sev.color}15`, border: `2px solid ${sev.color}`, padding: '0.6rem 1.2rem', borderRadius: '8px', textAlign: 'center' }}>
                                 <div style={{ fontSize: '8pt', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.2rem' }}>Gravedad</div>

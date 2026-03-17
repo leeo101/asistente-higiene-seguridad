@@ -1,15 +1,13 @@
-import React, { useEffect } from 'react';
 import { permitTypes } from '../data/workPermits';
 import { ShieldCheck, Users } from 'lucide-react';
+import CompanyLogo from './CompanyLogo';
 
 export default function WorkPermitPdfGenerator({ data }) {
     if (!data) return null;
 
     const selectedTypeLabel = permitTypes.find(t => t.id === data.tipoPermiso)?.label || 'Permiso de Trabajo';
 
-    // Obtener logo de empresa
-    const companyLogo = localStorage.getItem('companyLogo');
-    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+// logo code removed
 
 
     // Ensure all arrays exist
@@ -58,19 +56,14 @@ export default function WorkPermitPdfGenerator({ data }) {
                         <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#666' }}>{selectedTypeLabel.toUpperCase()}</p>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
-                        {companyLogo && showLogo && (
-                            <img
-                                className="company-logo"
-                                src={companyLogo}
-                                alt="Logo de empresa"
-                                style={{
-                                    height: '45px',
-                                    width: 'auto',
-                                    objectFit: 'contain',
-                                    maxWidth: '140px'
-                                }}
-                            />
-                        )}
+                        <CompanyLogo
+                            style={{
+                                height: '45px',
+                                width: 'auto',
+                                objectFit: 'contain',
+                                maxWidth: '140px'
+                            }}
+                        />
                         <div style={{ textAlign: 'right' }}>
                             <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b' }}>SISTEMA DE GESTIÓN HYS</div>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' }}>

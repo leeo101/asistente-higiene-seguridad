@@ -1,10 +1,8 @@
-import React, { useRef, useEffect } from 'react';
 import { MapPin, Calendar, Clock, User, AlertCircle, AlertTriangle, ShieldCheck } from 'lucide-react';
+import CompanyLogo from './CompanyLogo';
 
 export default function StopCardPdfGenerator({ card }) {
-    // Obtener logo de empresa
-    const companyLogo = localStorage.getItem('companyLogo');
-    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+// logo code removed
 
 
     const componentRef = useRef();
@@ -65,19 +63,14 @@ export default function StopCardPdfGenerator({ card }) {
                         </h1>
                         <p style={{ margin: 0, color: '#64748b', fontSize: '12pt', fontWeight: 600 }}>Programa de Seguridad Basada en el Comportamiento</p>
                     </div>
-                        {companyLogo && showLogo && (
-                            <img
-                                className="company-logo"
-                                src={companyLogo}
-                                alt="Logo de empresa"
-                                style={{
-                                    height: '45px',
-                                    width: 'auto',
-                                    objectFit: 'contain',
-                                    maxWidth: '140px'
-                                }}
-                            />
-                        )}
+                        <CompanyLogo
+                            style={{
+                                height: '45px',
+                                width: 'auto',
+                                objectFit: 'contain',
+                                maxWidth: '140px'
+                            }}
+                        />
                 </div>
 
                 {/* Classification Box */}

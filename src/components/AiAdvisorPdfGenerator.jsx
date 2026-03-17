@@ -1,10 +1,8 @@
-import React, { useEffect } from 'react';
 import { Sparkles, ShieldAlert, HardHat, Lightbulb, Gavel } from 'lucide-react';
+import CompanyLogo from './CompanyLogo';
 
 export default function AiAdvisorPdfGenerator({ data }) {
-    // Obtener logo de empresa
-    const companyLogo = localStorage.getItem('companyLogo');
-    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+// function body start
 
 
     if (!data) return null;
@@ -57,20 +55,15 @@ export default function AiAdvisorPdfGenerator({ data }) {
                         </h1>
                         <p style={{ margin: 0, fontSize: '10pt', color: '#475569', textTransform: 'uppercase' }}>Análisis de Seguridad con Inteligencia Artificial</p>
                     </div>
-                    {companyLogo && showLogo && (
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: '60px' }}>
-                            <img
-                                className="company-logo"
-                                src={companyLogo}
-                                alt="Logo Empresa"
-                                style={{
-                                    maxHeight: '100%',
-                                    maxWidth: '150px',
-                                    objectFit: 'contain'
-                                }}
-                            />
-                        </div>
-                    )}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: '60px' }}>
+                        <CompanyLogo
+                            style={{
+                                maxHeight: '100%',
+                                maxWidth: '150px',
+                                objectFit: 'contain'
+                            }}
+                        />
+                    </div>
                 </div>
 
                 {/* Info Block */}

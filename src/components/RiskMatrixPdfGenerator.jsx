@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
 import { ShieldCheck, Calendar, MapPin, UserCheck, AlertTriangle } from 'lucide-react';
+import CompanyLogo from './CompanyLogo';
 
 const getRiskLevel = (p, s) => {
     const val = p * s;
@@ -12,9 +12,7 @@ export default function RiskMatrixPdfGenerator({ data, initialData }) {
     const finalData = data || initialData;
     if (!finalData) return null;
 
-    // Obtener logo de empresa
-    const companyLogo = localStorage.getItem('companyLogo');
-    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+// logo code removed
 
 
     const rows = finalData.rows || [];
@@ -62,19 +60,14 @@ export default function RiskMatrixPdfGenerator({ data, initialData }) {
                         <h1 style={{ margin: 0, fontWeight: 900, fontSize: '2rem', color: '#1e293b', letterSpacing: '-0.02em', textTransform: 'uppercase' }}>MATRIZ DE RIESGOS</h1>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
-                        {companyLogo && showLogo && (
-                            <img
-                                className="company-logo"
-                                src={companyLogo}
-                                alt="Logo de empresa"
-                                style={{
-                                    height: '45px',
-                                    width: 'auto',
-                                    objectFit: 'contain',
-                                    maxWidth: '140px'
-                                }}
-                            />
-                        )}
+                        <CompanyLogo
+                            style={{
+                                height: '45px',
+                                width: 'auto',
+                                objectFit: 'contain',
+                                maxWidth: '140px'
+                            }}
+                        />
                         <div style={{ textAlign: 'right' }}>
                             <div style={{ fontWeight: 900, fontSize: '1.2rem', color: '#1e293b' }}>MR-{id?.toString().slice(-6) || 'HYS'}</div>
                         </div>

@@ -1,22 +1,7 @@
-import React, { useEffect } from 'react';
 import { ShieldAlert, Activity, AlertCircle, Calendar, MapPin, Briefcase } from 'lucide-react';
+import CompanyLogo from './CompanyLogo';
 
 export default function RiskAssessmentPdfGenerator({ assessmentData }) {
-    // Obtener logo de empresa
-    const companyLogo = localStorage.getItem('companyLogo');
-    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
-
-    // Debug: verificar si el logo existe
-    useEffect(() => {
-        if (companyLogo && showLogo) {
-            console.log('[RiskAssessment] Logo cargado:', companyLogo.substring(0, 50) + '...');
-        } else if (!companyLogo) {
-            console.log('[RiskAssessment] No hay logo guardado - El usuario debe subirlo desde Perfil > Logo de Empresa');
-        } else if (!showLogo) {
-            console.log('[RiskAssessment] Logo desactivado por el usuario');
-        }
-    }, [companyLogo, showLogo]);
-
     if (!assessmentData) return null;
 
     const data = assessmentData;
@@ -82,19 +67,14 @@ export default function RiskAssessmentPdfGenerator({ assessmentData }) {
                         </div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
-                        {companyLogo && showLogo && (
-                            <img
-                                className="company-logo"
-                                src={companyLogo}
-                                alt="Logo de empresa"
-                                style={{
-                                    height: '45px',
-                                    width: 'auto',
-                                    objectFit: 'contain',
-                                    maxWidth: '140px'
-                                }}
-                            />
-                        )}
+                        <CompanyLogo
+                            style={{
+                                height: '45px',
+                                width: 'auto',
+                                objectFit: 'contain',
+                                maxWidth: '140px'
+                            }}
+                        />
                         <div style={{ textAlign: 'right' }}>
                             <div style={{ fontWeight: 900, fontSize: '1.2rem', color: '#10b981' }}>IPER</div>
                             <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>METODOLOGÍA BINARIA</p>

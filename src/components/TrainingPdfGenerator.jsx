@@ -1,12 +1,10 @@
-import React, { useRef, useEffect } from 'react';
 import { ArrowLeft, Printer, Users, Calendar, MapPin, Clock, BookOpen, Briefcase } from 'lucide-react';
+import CompanyLogo from './CompanyLogo';
 
 export default function TrainingPdfGenerator({ training, onBack }) {
     const componentRef = useRef();
 
-    // Obtener logo de empresa
-    const companyLogo = localStorage.getItem('companyLogo');
-    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+// logo code removed
 
 
     const safeTema = (training?.tema || 'Capacitacion').replace(/\s+/g, '_');
@@ -84,20 +82,15 @@ export default function TrainingPdfGenerator({ training, onBack }) {
                                 Registro obligatorio de inducción y entrenamiento en Higiene y Seguridad
                             </p>
                         </div>
-                        {companyLogo && showLogo && (
-                            <img
-                                className="company-logo"
-                                src={companyLogo}
-                                alt="Logo de empresa"
-                                style={{
-                                    height: '50px',
-                                    width: 'auto',
-                                    objectFit: 'contain',
-                                    maxWidth: '150px',
-                                    marginLeft: '20px'
-                                }}
-                            />
-                        )}
+                        <CompanyLogo
+                            style={{
+                                height: '50px',
+                                width: 'auto',
+                                objectFit: 'contain',
+                                maxWidth: '150px',
+                                marginLeft: '20px'
+                            }}
+                        />
                     </div>
 
                     {/* Training Metadata Table */}

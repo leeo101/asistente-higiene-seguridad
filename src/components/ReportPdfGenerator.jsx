@@ -1,15 +1,11 @@
-import React, { useEffect } from 'react';
 import { TriangleAlert, CheckCircle2 } from 'lucide-react';
+import CompanyLogo from './CompanyLogo';
 
 export default function ReportPdfGenerator({ initialData }) {
     if (!initialData) return null;
 
     const findings = initialData.observations || [];
     const findingCount = findings.length;
-
-    // Obtener logo de empresa
-    const companyLogo = localStorage.getItem('companyLogo');
-    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
 
 
     return (
@@ -56,19 +52,14 @@ export default function ReportPdfGenerator({ initialData }) {
                         <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>Protocolo de Relevamiento General de Riesgos</p>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
-                        {companyLogo && showLogo && (
-                            <img
-                                className="company-logo"
-                                src={companyLogo}
-                                alt="Logo de empresa"
-                                style={{
-                                    height: '45px',
-                                    width: 'auto',
-                                    objectFit: 'contain',
-                                    maxWidth: '140px'
-                                }}
-                            />
-                        )}
+                        <CompanyLogo
+                            style={{
+                                height: '45px',
+                                width: 'auto',
+                                objectFit: 'contain',
+                                maxWidth: '140px'
+                            }}
+                        />
                         <div style={{ textAlign: 'right', fontSize: '0.85rem' }}>
                             <p style={{ margin: '0 0 0.2rem 0' }}><strong>Fecha:</strong> {new Date(initialData.date).toLocaleDateString()}</p>
                             <p style={{ margin: '0 0 0.2rem 0' }}><strong>Referencia:</strong> {initialData.name}</p>

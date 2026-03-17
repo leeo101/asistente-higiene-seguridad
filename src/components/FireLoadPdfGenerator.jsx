@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from 'react';
 import { Flame, ShieldCheck, Info, FileText } from 'lucide-react';
+import CompanyLogo from './CompanyLogo';
 import { getCountryNormativa } from '../data/legislationData';
 
 export default function FireLoadPdfGenerator({ data }) {
-    const companyLogo = localStorage.getItem('companyLogo');
-    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
 
     if (!data) return null;
 
@@ -52,19 +50,14 @@ export default function FireLoadPdfGenerator({ data }) {
                         <p style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#f97316' }}>CÁLCULO Y RESULTADOS</p>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
-                        {companyLogo && showLogo && (
-                            <img
-                                className="company-logo"
-                                src={companyLogo}
-                                alt="Logo de empresa"
-                                style={{
-                                    height: '50px',
-                                    width: 'auto',
-                                    objectFit: 'contain',
-                                    maxWidth: '150px'
-                                }}
-                            />
-                        )}
+                        <CompanyLogo
+                            style={{
+                                height: '50px',
+                                width: 'auto',
+                                objectFit: 'contain',
+                                maxWidth: '150px'
+                            }}
+                        />
                         <div style={{ textAlign: 'right' }}>
                             <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b' }}>SISTEMA DE GESTIÓN HYS</div>
                             <div style={{ fontWeight: 800, color: '#1e293b' }}>{countryNorms.fire}</div>

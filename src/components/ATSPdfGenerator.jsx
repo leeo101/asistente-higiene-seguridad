@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { ShieldCheck, Pencil, Info } from 'lucide-react';
+import CompanyLogo from './CompanyLogo';
 
 export default function ATSPdfGenerator({ atsData }) {
-    const companyLogo = localStorage.getItem('companyLogo');
-    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
 
     if (!atsData) return null;
 
@@ -62,19 +61,14 @@ export default function ATSPdfGenerator({ atsData }) {
                     </div>
 
                     <div style={{ flex: 1, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
-                        {companyLogo && showLogo && (
-                            <img
-                                className="company-logo"
-                                src={companyLogo}
-                                alt="Logo de empresa"
-                                style={{
-                                    height: '40px',
-                                    width: 'auto',
-                                    objectFit: 'contain',
-                                    maxWidth: '120px'
-                                }}
-                            />
-                        )}
+                        <CompanyLogo
+                            style={{
+                                height: '40px',
+                                width: 'auto',
+                                objectFit: 'contain',
+                                maxWidth: '120px'
+                            }}
+                        />
                         <div>
                             <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>PÁGINA</div>
                             <div style={{ fontWeight: 900, fontSize: '1.5rem', color: '#1e293b' }}>01 / 01</div>

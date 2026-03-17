@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
 import { ShieldCheck, TriangleAlert, Info } from 'lucide-react';
+import CompanyLogo from './CompanyLogo';
 
 export default function AiReportPdfGenerator({ item }) {
-    const companyLogo = localStorage.getItem('companyLogo');
-    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+// function body start
 
     if (!item) return null;
 
@@ -53,30 +52,23 @@ export default function AiReportPdfGenerator({ item }) {
                         <p style={{ margin: 0, fontSize: '10pt', color: '#475569', textTransform: 'uppercase' }}>Inspección Visual de Seguridad</p>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                        {companyLogo && showLogo ? (
-                            <div style={{
-                                height: '50px',
-                                minWidth: '50px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'flex-end',
-                                marginBottom: '0.5rem'
-                            }}>
-                                <img
-                                    className="company-logo"
-                                    src={companyLogo}
-                                    alt="Logo de empresa"
-                                    style={{
-                                        height: '100%',
-                                        width: 'auto',
-                                        maxWidth: '150px',
-                                        objectFit: 'contain'
-                                    }}
-                                />
-                            </div>
-                        ) : (
-                            <div style={{ height: '50px', marginBottom: '0.5rem' }}></div>
-                        )}
+                        <div style={{
+                            height: '50px',
+                            minWidth: '50px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'flex-end',
+                            marginBottom: '0.5rem'
+                        }}>
+                            <CompanyLogo
+                                style={{
+                                    height: '100%',
+                                    width: 'auto',
+                                    maxWidth: '150px',
+                                    objectFit: 'contain'
+                                }}
+                            />
+                        </div>
                         <div style={{ fontSize: '8pt', color: '#64748b', fontWeight: 700 }}>
                             {new Date(data.date).toLocaleDateString()}
                         </div>

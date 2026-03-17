@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from 'react';
 import { ClipboardCheck, Check, X, AlertCircle, AlertTriangle, ShieldCheck, Calendar, User } from 'lucide-react';
+import CompanyLogo from './CompanyLogo';
 
 export default function ChecklistPdfGenerator({ checklistData }) {
     const [fullData, setFullData] = useState(null);
-    const companyLogo = localStorage.getItem('companyLogo');
-    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
 
     useEffect(() => {
         if (checklistData?.id) {
@@ -171,19 +169,14 @@ export default function ChecklistPdfGenerator({ checklistData }) {
                     </div>
 
                     <div style={{ flex: 1, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem', minWidth: '150px' }}>
-                        {companyLogo && showLogo && (
-                            <img
-                                className="company-logo"
-                                src={companyLogo}
-                                alt="Logo de empresa"
-                                style={{
-                                    height: '40px',
-                                    width: 'auto',
-                                    objectFit: 'contain',
-                                    maxWidth: '120px'
-                                }}
-                            />
-                        )}
+                        <CompanyLogo
+                            style={{
+                                height: '40px',
+                                width: 'auto',
+                                objectFit: 'contain',
+                                maxWidth: '120px'
+                            }}
+                        />
                         <div>
                             <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>DOCUMENTO N°</div>
                             <div style={{ fontWeight: 900, fontSize: '1.5rem', color: '#1e293b', borderBottom: '2px solid #e2e8f0', display: 'inline-block', paddingBottom: '2px' }}>{inspInfo.serial || checklistData.serial || 'S/N'}</div>

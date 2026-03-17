@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
     X, User, History, LogOut, Home, Settings,
-    Calendar, MessageSquare, Sun, Moon, Sparkles, Star, ShieldCheck, HardHat, BarChart3, Users, TriangleAlert, CreditCard, Crown
+    Calendar, MessageSquare, Sun, Moon, Sparkles, Star, ShieldCheck, HardHat, BarChart3, Users, TriangleAlert, CreditCard, Crown, ImageIcon, Upload, X as CloseIcon, CheckCircle, AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
@@ -32,6 +32,11 @@ export default function Sidebar({ isOpen, onClose }) {
     const [isDarkMode, setIsDarkMode] = React.useState(() => {
         return typeof document !== 'undefined' ? document.documentElement.classList.contains('dark') : false;
     });
+
+    // Logo Management State
+    const [logo, setLogo] = React.useState(null);
+    const [showLogo, setShowLogo] = React.useState(true);
+    const [isUploading, setIsUploading] = React.useState(false);
 
     const toggleTheme = () => {
         const newDark = !isDarkMode;
@@ -74,6 +79,51 @@ export default function Sidebar({ isOpen, onClose }) {
             document.body.classList.remove('sidebar-open-lock');
         };
     }, [isOpen, currentUser]);
+
+    // Load logo data
+    React.useEffect(() => {
+        const savedLogo = localStorage.getItem('companyLogo');
+        const savedShowLogo = localStorage.getItem('showCompanyLogo');
+        if (savedLogo) setLogo(savedLogo);
+        if (savedShowLogo !== null) setShowLogo(savedShowLogo === 'true');
+    }, [isOpen]);
+
+    const handleLogoUpload = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setIsUploading(true);
+
+        if (!file.type.startsWith('image/')) {
+            // Reusing toast if available globally, otherwise quiet fail
+            setIsUploading(false);
+            return;
+        }
+
+        if (file.size > 500 * 1024) {
+            setIsUploading(false);
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const base64 = event.target.result;
+            setLogo(base64);
+            localStorage.setItem('companyLogo', base64);
+            setIsUploading(false);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const toggleShowLogo = () => {
+        const newValue = !showLogo;
+        setShowLogo(newValue);
+        localStorage.setItem('showCompanyLogo', String(newValue));
+    };
+
+    const removeLogo = () => {
+        setLogo(null);
+        localStorage.removeItem('companyLogo');
+    };
 
     const handleLogout = async () => {
         try {
@@ -270,6 +320,162 @@ export default function Sidebar({ isOpen, onClose }) {
                     })}
 
                     <div style={{ height: '1px', background: 'var(--color-border)', margin: '0.8rem 0.5rem' }} />
+
+                    <div style={{ height: '1px', background: 'var(--color-border)', margin: '0.8rem 0.5rem' }} />
+
+                    {/* Logo Empresa Section - Premium Looking */}
+                    <div style={{
+                        padding: '1.2rem',
+                        margin: '0.8rem',
+                        background: 'linear-gradient(145deg, rgba(37,99,235,0.08), rgba(37,99,235,0.02))',
+                        borderRadius: '20px',
+                        border: '1px solid rgba(37,99,235,0.15)',
+                        boxShadow: '0 4px 15px rgba(37,99,235,0.05)',
+                        position: 'relative',
+                        overflow: 'hidden'
+                    }}>
+                        {/* Decorative circle */}
+                        <div style={{ position: 'absolute', top: '-15px', right: '-15px', width: '50px', height: '50px', borderRadius: '50%', background: 'rgba(37,99,235,0.05)', pointerEvents: 'none' }} />
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1rem' }}>
+                            <div style={{ width: '36px', height: '36px', background: 'var(--gradient-premium)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', boxShadow: '0 4px 10px rgba(37,99,235,0.2)' }}>
+                                <ImageIcon size={20} />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <span style={{ fontWeight: 900, fontSize: '0.85rem', color: 'var(--color-text)', letterSpacing: '-0.2px' }}>Personalización</span>
+                                <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Logo para Reportes PDF</span>
+                            </div>
+                        </div>
+
+                        {logo ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                                <div style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    gap: '1rem',
+                                    background: 'var(--color-surface)',
+                                    padding: '0.6rem',
+                                    borderRadius: '14px',
+                                    border: '1px solid var(--color-border)',
+                                    boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+                                }}>
+                                    <div style={{ 
+                                        width: '60px', 
+                                        height: '60px', 
+                                        background: 'white', 
+                                        border: '1px solid var(--color-border)', 
+                                        borderRadius: '10px', 
+                                        padding: '6px', 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        justifyContent: 'center',
+                                        flexShrink: 0
+                                    }}>
+                                        <img src={logo} alt="Preview" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                                    </div>
+                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                                        <button 
+                                            onClick={() => document.getElementById('sidebar-logo-input').click()} 
+                                            style={{ 
+                                                width: '100%',
+                                                padding: '0.4rem', 
+                                                background: 'var(--color-primary)', 
+                                                color: 'white', 
+                                                border: 'none', 
+                                                borderRadius: '8px', 
+                                                fontSize: '0.75rem', 
+                                                fontWeight: 800, 
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: '0.4rem',
+                                                transition: 'all 0.2s'
+                                            }}
+                                        >
+                                            <Upload size={12} /> Cambiar
+                                        </button>
+                                        <button 
+                                            onClick={removeLogo} 
+                                            style={{ 
+                                                width: '100%',
+                                                padding: '0.4rem', 
+                                                background: 'rgba(239,68,68,0.1)', 
+                                                color: '#ef4444', 
+                                                border: '1px solid rgba(239,68,68,0.2)', 
+                                                borderRadius: '8px', 
+                                                fontSize: '0.75rem', 
+                                                fontWeight: 700, 
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s'
+                                            }}
+                                        >
+                                            Eliminar
+                                        </button>
+                                    </div>
+                                </div>
+                                <div style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    justifyContent: 'space-between', 
+                                    background: showLogo ? 'rgba(16,185,129,0.05)' : 'rgba(156,163,175,0.05)', 
+                                    padding: '0.7rem 0.9rem', 
+                                    borderRadius: '12px', 
+                                    border: `1px solid ${showLogo ? 'rgba(16,185,129,0.2)' : 'rgba(156,163,175,0.2)'}`,
+                                    transition: 'all 0.3s'
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                        {showLogo ? <CheckCircle size={14} color="#10b981" /> : <AlertCircle size={14} color="#9ca3af" />}
+                                        <span style={{ fontSize: '0.75rem', fontWeight: 800, color: showLogo ? '#059669' : '#6b7280' }}>
+                                            {showLogo ? 'Visible en PDFs' : 'Oculto en PDFs'}
+                                        </span>
+                                    </div>
+                                    <button
+                                        onClick={toggleShowLogo}
+                                        style={{
+                                            width: '42px', height: '22px', borderRadius: '22px', border: 'none',
+                                            background: showLogo ? '#10b981' : '#9ca3af',
+                                            position: 'relative', cursor: 'pointer', transition: 'all 0.3s',
+                                            boxShadow: showLogo ? '0 0 10px rgba(16,185,129,0.2)' : 'none'
+                                        }}
+                                    >
+                                        <div style={{ width: '16px', height: '16px', background: 'white', borderRadius: '50%', position: 'absolute', top: '3px', left: showLogo ? '23px' : '3px', transition: 'all 0.3s', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }} />
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={() => document.getElementById('sidebar-logo-input').click()}
+                                style={{ 
+                                    width: '100%', 
+                                    padding: '1.2rem', 
+                                    border: '2px dashed rgba(37,99,235,0.2)', 
+                                    background: 'rgba(37,99,235,0.02)', 
+                                    borderRadius: '16px', 
+                                    color: 'var(--color-primary)', 
+                                    fontSize: '0.8rem', 
+                                    fontWeight: 800, 
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    gap: '0.6rem',
+                                    transition: 'all 0.3s'
+                                }}
+                                onMouseOver={e => { e.currentTarget.style.background = 'rgba(37,99,235,0.05)'; e.currentTarget.style.borderColor = 'rgba(37,99,235,0.4)'; }}
+                                onMouseOut={e => { e.currentTarget.style.background = 'rgba(37,99,235,0.02)'; e.currentTarget.style.borderColor = 'rgba(37,99,235,0.2)'; }}
+                            >
+                                <div style={{ width: '40px', height: '40px', background: 'rgba(37,99,235,0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Upload size={20} />
+                                </div>
+                                <div style={{ textAlign: 'center' }}>
+                                    <div>Subir Logo de Empresa</div>
+                                    <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 600, marginTop: '2px' }}>PNG o JPG (máx. 500KB)</div>
+                                </div>
+                            </button>
+                        )}
+                        <input id="sidebar-logo-input" type="file" accept="image/*" onChange={handleLogoUpload} style={{ display: 'none' }} />
+                    </div>
 
                     <a href="mailto:asistente.hs.soporte@gmail.com?subject=Sugerencia - Asistente HYS" onClick={onClose} style={{ textDecoration: 'none' }}>
                         <div style={{

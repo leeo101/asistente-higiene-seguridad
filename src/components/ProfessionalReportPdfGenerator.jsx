@@ -1,11 +1,10 @@
 import { Building2, MapPin, Calendar } from 'lucide-react';
+import CompanyLogo from './CompanyLogo';
 import { useEffect } from 'react';
 import { getCountryNormativa } from '../data/legislationData';
 
 export default function ProfessionalReportPdfGenerator({ currentReport }) {
-    // Obtener logo de empresa
-    const companyLogo = localStorage.getItem('companyLogo');
-    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
+// logo code removed
 
 
     if (!currentReport) return null;
@@ -58,20 +57,15 @@ export default function ProfessionalReportPdfGenerator({ currentReport }) {
                             {report.title || 'Informe Técnico'}
                         </p>
                     </div>
-                    {companyLogo && showLogo && (
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: '60px' }}>
-                            <img
-                                className="company-logo"
-                                src={companyLogo}
-                                alt="Logo Empresa"
-                                style={{
-                                    maxHeight: '100%',
-                                    maxWidth: '150px',
-                                    objectFit: 'contain'
-                                }}
-                            />
-                        </div>
-                    )}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: '60px' }}>
+                        <CompanyLogo
+                            style={{
+                                maxHeight: '100%',
+                                maxWidth: '150px',
+                                objectFit: 'contain'
+                            }}
+                        />
+                    </div>
                     <div style={{ textAlign: 'right', borderLeft: '1px solid #e2e8f0', paddingLeft: '2rem' }}>
                         <p style={{ margin: 0, fontWeight: 800, fontSize: '1.2rem', color: '#1e293b' }}>PROFESIONAL HYS</p>
                     </div>

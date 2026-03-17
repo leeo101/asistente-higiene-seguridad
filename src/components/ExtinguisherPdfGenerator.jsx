@@ -1,5 +1,5 @@
-import React, { useRef, useEffect } from 'react';
 import { ArrowLeft, Printer, Flame, MapPin, Calendar, Building, CheckCircle2 } from 'lucide-react';
+import CompanyLogo from './CompanyLogo';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,9 +22,6 @@ const getStatus = (lastDate, monthsValid) => {
 };
 
 export default function ExtinguisherPdfGenerator({ extinguishers = [] }) {
-    // Obtener logo de empresa
-    const companyLogo = localStorage.getItem('companyLogo');
-    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
 
 
     const componentRef = useRef();
@@ -85,19 +82,14 @@ export default function ExtinguisherPdfGenerator({ extinguishers = [] }) {
                                 {stats.vencidos > 0 && <span style={{ color: '#dc2626', fontWeight: 'bold' }}>({stats.vencidos} Vencidos)</span>}
                             </p>
                         </div>
-                        {companyLogo && showLogo && (
-                            <img
-                                className="company-logo"
-                                src={companyLogo}
-                                alt="Logo de empresa"
-                                style={{
-                                    height: '45px',
-                                    width: 'auto',
-                                    objectFit: 'contain',
-                                    maxWidth: '140px'
-                                }}
-                            />
-                        )}
+                        <CompanyLogo
+                            style={{
+                                height: '45px',
+                                width: 'auto',
+                                objectFit: 'contain',
+                                maxWidth: '140px'
+                            }}
+                        />
                     </div>
 
                     {/* Table */}
