@@ -339,17 +339,6 @@ export default function ChecklistManager() {
 
     return (
         <div className="container" style={{ maxWidth: '1100px', paddingBottom: '8rem' }}>
-            {/* Ocultar contenido duplicado del PDF en vista normal */}
-            <style>{`
-                #pdf-content > * {
-                    display: none !important;
-                }
-                @media print {
-                    #pdf-content > * {
-                        display: block !important;
-                    }
-                }
-            `}</style>
 
             <ShareModal
                 open={showShare}
@@ -441,7 +430,7 @@ export default function ChecklistManager() {
                 })}
             </div>
 
-            <div id="pdf-content" className="bg-white text-black p-12 shadow-2xl mx-auto print-area border border-slate-200 rounded-2xl print:mb-0 print:border-none print:shadow-none" style={{ width: '100%', maxWidth: '850px', boxSizing: 'border-box' }}>
+            <div id="pdf-content" className="print-area" style={{ width: '100%', maxWidth: '850px', boxSizing: 'border-box', background: '#ffffff', color: '#000000', padding: '3rem', margin: '0 auto', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', alignItems: 'center', borderBottom: '4px solid #e2e8f0', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
                     {/* Top Left Text */}
