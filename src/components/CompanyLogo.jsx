@@ -4,9 +4,12 @@ import React from 'react';
  * Shared component to render the company logo with standardized styling and print-safe rules.
  */
 export default function CompanyLogo({ style = {}, className = "" }) {
-    const companyLogo = localStorage.getItem('companyLogo');
-    const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
-
+    // If we are in public view, the logo might be passed via window.sharedLogoData
+    const sharedData = typeof window !== 'undefined' ? window.sharedLogoData : null;
+    
+    const companyLogo = sharedData ? sharedData.logo : localStorage.getItem('companyLogo');
+    const showLogo = sharedData ? sharedData.show : (localStorage.getItem('showCompanyLogo') !== 'false');
+ 
     if (!companyLogo || !showLogo) return null;
 
     return (

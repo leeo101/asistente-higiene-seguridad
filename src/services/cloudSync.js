@@ -52,6 +52,18 @@ export async function saveCollection(uid, key, items) {
         console.warn(`[Sync] Error saving ${key}:`, e.message);
     }
 }
+ 
+ /**
+  * Guarda un valor simple (string o bool) envuelto en un objeto.
+  */
+ export async function saveValue(uid, key, value) {
+     if (!uid) return;
+     try {
+         await setDoc(userDocRef(uid, key), { value, updatedAt: Date.now() }, { merge: true });
+     } catch (e) {
+         console.warn(`[Sync] Error saving value ${key}:`, e.message);
+     }
+ }
 
 /**
  * Carga un array de items desde Firestore.
@@ -128,6 +140,25 @@ export async function fetchPublicDoc(uid, category, docId) {
     }
     return null;
 }
+ 
+ /**
+  * Obtiene el logo de un usuario para el visor público.
+  */
+ export async function fetchPublicLogo(uid) {
+     if (!uid) return null;
+     try {
+         const logoSnap = await getDoc(userDocRef(uid, 'companyLogo'));
+         const showSnap = await getDoc(userDocRef(uid, 'showCompanyLogo'));
+         
+         return {
+             logo: logoSnap.exists() ? logoSnap.data().value : null,
+             show: showSnap.exists() ? showSnap.data().value : true
+         };
+     } catch (e) {
+         console.error(`[Sync] Error fetching public logo for ${uid}:`, e.message);
+     }
+     return null;
+ }
 
 // ─── Colecciones a sincronizar ──────────────────────────────────────
 export const SYNC_COLLECTIONS = [
@@ -151,6 +182,8 @@ export const SYNC_DOCUMENTS = [
     'personalData',
     'signatureStampData',
     'subscriptionData',
+    'companyLogo',
+    'showCompanyLogo',
 ];
 
 /**

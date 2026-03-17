@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchPublicDoc } from '../services/cloudSync';
+import { fetchPublicDoc, fetchPublicLogo } from '../services/cloudSync';
 import { FileText, ArrowLeft, Loader2, AlertTriangle, Printer, Download } from 'lucide-react';
 import LoadingScreen from '../components/LoadingScreen';
 
@@ -41,6 +41,17 @@ export default function PublicView() {
                 const data = await fetchPublicDoc(uid, cat, id);
                 if (data) {
                     setDocData(data);
+                    
+                    // Fetch owner's logo settings for consistency
+                    try {
+                        const logoData = await fetchPublicLogo(uid);
+                        if (logoData && logoData.logo) {
+                            window.sharedLogoData = logoData;
+                        }
+                    } catch (logoErr) {
+                        console.warn('Could not fetch shared logo:', logoErr);
+                    }
+
                     // auto-print if flag is set
                     const searchParams = new URLSearchParams(window.location.search);
                     if (searchParams.get('print') === 'true') {
