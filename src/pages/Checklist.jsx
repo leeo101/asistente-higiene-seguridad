@@ -93,21 +93,21 @@ export default function Checklist() {
 
     return (
         <div className="container" style={{ paddingBottom: '5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', marginBottom: '2rem', gap: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
-                        <ArrowLeft />
+                        <ArrowLeft size={20} />
                     </button>
-                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Lista de Control</h1>
+                    <h1 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>Control</h1>
                 </div>
-                
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <button 
+
+                <div style={{ textAlign: 'center' }}>
+                     <button 
                         onClick={() => navigate('/risk', { state: { fromInspection: true } })}
                         className="btn-outline"
                         style={{ 
-                            fontSize: '0.8rem', 
-                            padding: '0.4rem 0.8rem', 
+                            fontSize: '0.75rem', 
+                            padding: '0.4rem 0.6rem', 
                             display: 'flex', 
                             alignItems: 'center', 
                             gap: '0.4rem',
@@ -115,12 +115,15 @@ export default function Checklist() {
                             color: 'var(--color-primary)',
                             fontWeight: 700,
                             margin: 0,
-                            width: 'auto'
+                            borderRadius: '10px'
                         }}
                     >
                         <AlertCircle size={14} /> Evaluación IPER
                     </button>
-                    <CompanyLogo style={{ height: '32px', width: 'auto', maxWidth: '80px', objectFit: 'contain' }} />
+                </div>
+                
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                     <CompanyLogo style={{ height: '32px', width: 'auto', maxWidth: '100px', objectFit: 'contain' }} />
                 </div>
             </div>
 

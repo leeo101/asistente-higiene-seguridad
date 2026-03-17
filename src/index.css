@@ -548,11 +548,20 @@ label {
 
 /* Print UI Visibility Helpers */
 .print-only,
-.print-text-box,
+.print-text-box {
+  display: block;
+}
+
+@media screen {
+  .print-only-strict {
+    display: none !important;
+  }
+}
+
 .print-header {
-  position: fixed !important;
-  top: -10000px !important;
-  left: -10000px !important;
+  display: block;
+  background: white;
+  z-index: 5;
   width: 297mm;
   height: 210mm;
   pointer-events: none;
@@ -791,6 +800,45 @@ label {
   border-color: #000000;
   color: #ffffff;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Professional Checklist Overrides */
+.print-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+}
+
+@media (max-width: 640px) {
+  .print-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.checklist-item-row {
+  display: flex;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.2s;
+}
+
+.checklist-item-row:hover {
+  background: #f8fafc;
+}
+
+.checklist-num {
+  width: 28px;
+  height: 28px;
+  background: #f1f5f9;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 900;
+  color: #64748b;
+  margin-right: 1rem;
+  flex-shrink: 0;
 }
 
 .signature-container-row {

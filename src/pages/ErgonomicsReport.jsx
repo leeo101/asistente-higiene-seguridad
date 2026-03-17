@@ -69,18 +69,27 @@ export default function ErgonomicsReport() {
                 fontFamily: 'Arial, sans-serif'
             }}>
                 {/* Header Legal */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #333', paddingBottom: '20px', marginBottom: '30px', gap: '20px' }} className="flex-col md:flex-row">
-                    <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
-                        <CompanyLogo style={{ height: '60px', width: 'auto', objectFit: 'contain' }} />
-                        <div>
-                            <h1 style={{ margin: 0, fontSize: '2.5rem', textTransform: 'uppercase', color: 'var(--color-primary)', fontWeight: 900 }}>INFORME</h1>
-                            <p style={{ margin: '5px 0 0', fontSize: '14px', fontWeight: 'bold' }}>Resolución SRT N° 886/15</p>
-                        </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', alignItems: 'center', borderBottom: '4px solid #3b82f6', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
+                    <div style={{ textAlign: 'left' }}>
+                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.05em' }}>Sistema de Gestión</p>
+                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', color: '#1e293b' }}>Control H&S</p>
                     </div>
-                    <div style={{ textAlign: 'right' }} className="md:text-right">
-                        <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#3b82f6' }}>Estudio Ergonómico</div>
-                        <div style={{ fontSize: '12px', color: '#666' }}>Fecha: {new Date(parseInt(data.id)).toLocaleDateString()}</div>
+
+                    <div style={{ textAlign: 'center' }}>
+                        <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: '#1d4ed8', textTransform: 'uppercase', letterSpacing: '1px', lineHeight: 1.2 }}>
+                            Protocolo de Ergonomía
+                        </h2>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b', fontWeight: 600 }}>Resolución SRT N° 886/15</p>
                     </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <CompanyLogo style={{ height: '45px', width: 'auto', maxWidth: '140px', objectFit: 'contain' }} />
+                    </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', fontSize: '0.8rem', color: '#64748b' }} className="no-print">
+                    <span>Fecha: {new Date(parseInt(data.id)).toLocaleDateString()}</span>
+                    {profile && <span>Profesional: {profile.name}</span>}
                 </div>
 
                 {/* Datos Empresa */}

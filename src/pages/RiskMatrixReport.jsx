@@ -160,22 +160,36 @@ export default function RiskMatrixReport() {
             <div id="pdf-content" className="print-area print:mb-0 print:border-none print:shadow-none" style={{ background: '#fff', borderRadius: '20px', padding: '2.5rem', border: '1px solid #e2e8f0', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
 
                 {/* Report Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '3px solid #6366f1', paddingBottom: '1.5rem', marginBottom: '2rem', gap: '1rem' }}>
-                    <div>
-                        <h1 style={{ margin: '0 0 0.3rem 0', fontSize: '2.5rem', fontWeight: 900, color: 'var(--color-primary)', letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
-                            <TriangleAlert size={28} color="#f59e0b" /> INFORME
-                        </h1>
-                        <p style={{ margin: '0 0 0.2rem 0', fontWeight: 700, color: '#334155', fontSize: '1rem' }}>{matrix.name}</p>
-                        <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.85rem' }}>{matrix.location}</p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', alignItems: 'center', borderBottom: '4px solid #6366f1', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
+                    <div style={{ textAlign: 'left' }}>
+                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.05em' }}>Sistema de Gestión</p>
+                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', color: '#1e293b' }}>Control H&S</p>
                     </div>
-                    <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.8rem' }}>
-                        <CompanyLogo style={{ height: '40px', maxWidth: '120px' }} />
-                        <div>
-                            <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.7rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{countryNorms.general}</p>
-                            <p style={{ margin: '0 0 0.2rem 0', fontWeight: 700, fontSize: '0.9rem', color: '#334155' }}>ID #{matrix.id?.toString().slice(-6)}</p>
-                            <p style={{ margin: 0, color: '#64748b', fontSize: '0.85rem' }}>Fecha: {new Date(matrix.date).toLocaleDateString('es-AR')}</p>
-                            <p style={{ margin: 0, color: '#64748b', fontSize: '0.85rem' }}>Responsable: <strong>{profile?.name || matrix.responsable}</strong></p>
-                        </div>
+
+                    <div style={{ textAlign: 'center' }}>
+                        <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '1px', lineHeight: 1.2 }}>
+                            Matriz de Valoración de Riesgos
+                        </h2>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b', fontWeight: 600 }}>ISO 31000 / Estándar HyS</p>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '15px' }}>
+                         <div style={{ textAlign: 'right', fontSize: '0.7rem', color: '#64748b' }}>
+                             <div style={{ fontWeight: 800, color: '#1e293b' }}>ID #{matrix.id?.toString().slice(-6)}</div>
+                             <div>{new Date(matrix.date).toLocaleDateString('es-AR')}</div>
+                         </div>
+                        <CompanyLogo style={{ height: '40px', width: 'auto', maxWidth: '120px', objectFit: 'contain' }} />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 bg-slate-50 p-5 rounded-xl border border-slate-200">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div><span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>PROYECTO:</span> <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>{matrix.name}</span></div>
+                        <div><span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>UBICACIÓN:</span> <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>{matrix.location || '-'}</span></div>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                         <div><span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>RESPONSABLE:</span> <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>{profile?.name || matrix.responsable}</span></div>
+                         <div><span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>NORMATIVA:</span> <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>{countryNorms.general}</span></div>
                     </div>
                 </div>
 

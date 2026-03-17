@@ -67,22 +67,29 @@ export default function AIReport() {
                 position: 'relative'
             }}>
                 {/* Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid var(--color-primary)', paddingBottom: '2rem', marginBottom: '2.5rem', gap: '1.5rem' }}>
-                    <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
-                        <CompanyLogo style={{ height: '60px', width: 'auto', objectFit: 'contain' }} />
-                        <div>
-                            <h1 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-primary)', fontSize: '2.5rem', fontWeight: 800 }}>INFORME</h1>
-                            <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569', textTransform: 'uppercase' }}>Sistema de Detección de Riesgos y EPP</p>
-                        </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', alignItems: 'center', borderBottom: '4px solid var(--color-primary)', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
+                    <div style={{ textAlign: 'left' }}>
+                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.05em' }}>Sistema de Gestión</p>
+                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', color: '#1e293b' }}>Control H&S</p>
                     </div>
-                    {profile && (
-                        <div style={{ textAlign: 'right' }}>
-                            <p style={{ margin: 0, fontWeight: 700, fontSize: '1.1rem' }}>{profile.name}</p>
-                            <p style={{ margin: '0.1rem 0', fontSize: '0.8rem', color: '#64748b' }}>{profile.profession}</p>
-                            <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b' }}>Mat: {profile.license}</p>
-                        </div>
-                    )}
+
+                    <div style={{ textAlign: 'center' }}>
+                        <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '1px', lineHeight: 1.2 }}>
+                            Informe de Inspección IA
+                        </h2>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b', fontWeight: 600 }}>Detección de Riesgos y EPP</p>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <CompanyLogo style={{ height: '45px', width: 'auto', maxWidth: '140px', objectFit: 'contain' }} />
+                    </div>
                 </div>
+
+                {profile && (
+                    <div className="no-print" style={{ marginBottom: '1.5rem', textAlign: 'right', fontSize: '0.8rem', color: '#64748b' }}>
+                        <p style={{ margin: 0, fontWeight: 700 }}>Profesional: {profile.name} | Mat: {profile.license}</p>
+                    </div>
+                )}
 
                 {/* Info Block */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-4 mb-10 bg-slate-50 p-5 rounded-lg border border-slate-200">

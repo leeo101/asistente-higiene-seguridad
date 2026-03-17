@@ -228,35 +228,25 @@ export default function WorkPermit() {
             <div id="pdf-content" className="bg-white text-black p-6 sm:p-10 shadow-xl mx-auto print-area border border-slate-200 rounded-2xl print:shadow-none print:border-none" style={{ width: '100%', boxSizing: 'border-box' }}>
 
                 {/* Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '3px solid #333', paddingBottom: '1rem', marginBottom: '2rem' }}>
-                    <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'center' }}>
-                        <CompanyLogo style={{ height: '50px', width: 'auto', objectFit: 'contain' }} />
-                        <div>
-                            <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, color: 'var(--color-text)' }}>PERMISO DE TRABAJO</h1>
-                            <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#666' }}>{selectedTypeLabel.toUpperCase()}</p>
-                        </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', alignItems: 'center', borderBottom: '4px solid #333', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
+                    <div style={{ textAlign: 'left' }}>
+                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.05em' }}>Sistema de Gestión</p>
+                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', color: '#1e293b' }}>Control H&S</p>
                     </div>
-                    <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#999' }}>SISTEMA DE GESTIÓN HYS</div>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' }}>
-                            <span style={{ fontSize: '1.2rem', fontWeight: 900 }}>N°</span>
-                            <input
-                                type="text"
-                                value={formData.numeroPermiso}
-                                placeholder="####"
-                                onChange={e => setFormData({ ...formData, numeroPermiso: e.target.value })}
-                                style={{
-                                    border: 'none',
-                                    background: 'transparent',
-                                    fontSize: '1.2rem',
-                                    fontWeight: 900,
-                                    textAlign: 'right',
-                                    width: '80px',
-                                    outline: 'none',
-                                    color: 'var(--color-text)'
-                                }}
-                            />
+
+                    <div style={{ textAlign: 'center' }}>
+                        <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '1px', lineHeight: 1.2 }}>
+                            Permiso de Trabajo
+                        </h2>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b', fontWeight: 600 }}>{selectedTypeLabel}</p>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column' }}>
+                             <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#999' }}>N° PERMISO</span>
+                             <span style={{ fontSize: '1rem', fontWeight: 900 }}>{formData.numeroPermiso || '____'}</span>
                         </div>
+                        <CompanyLogo style={{ height: '40px', width: 'auto', maxWidth: '120px', objectFit: 'contain' }} />
                     </div>
                 </div>
 

@@ -431,45 +431,46 @@ export default function ChecklistManager() {
 
             <div id="pdf-content" className="bg-white text-black p-12 shadow-2xl mx-auto print-area border border-slate-200 rounded-2xl print:mb-0 print:border-none print:shadow-none" style={{ width: '100%', maxWidth: '850px', boxSizing: 'border-box' }}>
 
-                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottom: '4px solid var(--color-border)', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', alignItems: 'center', borderBottom: '4px solid #e2e8f0', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
                     {/* Top Left Text */}
-                    <div style={{ flex: 1, textAlign: 'left' }}>
-                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', letterSpacing: '0.05em' }}>Sistema de Gestión</p>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--color-text)' }}>Control H&S</p>
+                    <div style={{ textAlign: 'left' }}>
+                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.05em' }}>Sistema de Gestión</p>
+                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', color: '#1e293b' }}>Control H&S</p>
                     </div>
 
                     {/* Center Main Title */}
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                        <h1 style={{ margin: 0, fontWeight: 900, fontSize: '2.5rem', letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1 }}>CHECK LIST</h1>
-                        <p style={{ margin: 0, color: 'var(--color-text-muted)', fontWeight: 900, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.4em', marginTop: '0.25rem' }}>Higiene y Seguridad</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                        <h1 style={{ margin: 0, fontWeight: 900, fontSize: 'clamp(1.5rem, 5vw, 2.8rem)', letterSpacing: '-0.04em', textTransform: 'uppercase', lineHeight: 1, color: '#1e293b' }}>CHECK LIST</h1>
+                        <p style={{ margin: 0, color: '#64748b', fontWeight: 900, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.4em', marginTop: '0.25rem' }}>Higiene y Seguridad</p>
                     </div>
 
                     {/* Right Document Counter + Logo */}
-                    <div style={{ flex: 1, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                    <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.6rem' }}>
                         <CompanyLogo 
                             style={{ 
-                                height: '40px', 
+                                height: '45px', 
                                 width: 'auto', 
                                 objectFit: 'contain', 
-                                maxWidth: '120px' 
+                                maxWidth: '140px' 
                             }} 
                         />
-                        <div>
-                            <div style={{ fontSize: '0.6rem', fontWeight: 900, color: 'var(--color-border)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>DOCUMENTO N°</div>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                            <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.1rem' }}>DOCUMENTO N°</div>
                             <input
-                                style={{ textAlign: 'right', fontWeight: 900, fontSize: '1.5rem', border: 'none', borderBottom: '2px solid var(--color-border)', background: 'transparent', width: '120px', outline: 'none' }}
+                                style={{ textAlign: 'right', fontWeight: 900, fontSize: '1.6rem', border: 'none', borderBottom: '2px solid #e2e8f0', background: 'transparent', width: '140px', outline: 'none', padding: 0, margin: 0, color: '#1e293b' }}
                                 value={inspectionInfo.serial}
+                                placeholder="000-000"
                                 onChange={e => setInspectionInfo({ ...inspectionInfo, serial: e.target.value })}
                             />
                         </div>
                     </div>
                 </div>
 
-                <div style={{ border: '2px solid var(--color-border)', borderRadius: '12px', marginBottom: '2.5rem', width: '100%', overflow: 'hidden' }}>
-                    <div className="grid grid-cols-1 sm:grid-cols-4 print-grid" style={{ borderBottom: '2px solid var(--color-border)', width: '100%' }}>
+                <div style={{ border: '2px solid #e2e8f0', borderRadius: '12px', marginBottom: '2.5rem', width: '100%', overflow: 'hidden' }}>
+                    <div className="grid grid-cols-1 sm:grid-cols-4 print-grid" style={{ borderBottom: '2px solid #e2e8f0', width: '100%' }}>
                         <div className="sm:col-span-2 print:col-span-2"><DocBox label="CLIENTE / EMPRESA" value={companyInfo.name} onChange={v => setCompanyInfo({ ...companyInfo, name: v })} large /></div>
-                        <div className="sm:col-span-1 print:col-span-1 border-t sm:border-t-0 border-[var(--color-border)] sm:border-l"><DocBox label="CUIT / CUIL" value={companyInfo.cuit} onChange={v => setCompanyInfo({ ...companyInfo, cuit: v })} /></div>
-                        <div className="sm:col-span-1 print:col-span-1 border-t sm:border-t-0 border-[var(--color-border)] sm:border-l"><DocBox label="UBICACIÓN / OBRA" value={companyInfo.location} onChange={v => setCompanyInfo({ ...companyInfo, location: v })} /></div>
+                        <div className="sm:col-span-1 print:col-span-1 border-t sm:border-t-0 border-[#e2e8f0] sm:border-l"><DocBox label="CUIT / CUIL" value={companyInfo.cuit} onChange={v => setCompanyInfo({ ...companyInfo, cuit: v })} /></div>
+                        <div className="sm:col-span-1 print:col-span-1 border-t sm:border-t-0 border-[#e2e8f0] sm:border-l"><DocBox label="UBICACIÓN / OBRA" value={companyInfo.location} onChange={v => setCompanyInfo({ ...companyInfo, location: v })} /></div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-4 print-grid" style={{ width: '100%' }}>
                         <div className="sm:col-span-2 print:col-span-2">
@@ -483,10 +484,64 @@ export default function ChecklistManager() {
                                 placeholder="Ej: Amoladora, Andamio..."
                             />
                         </div>
-                        <div className="sm:col-span-1 print:col-span-1 border-t sm:border-t-0 border-[var(--color-border)] sm:border-l"><DocBox label="FECHA REVISIÓN" value={inspectionInfo.date} onChange={v => setInspectionInfo({ ...inspectionInfo, date: v })} type="date" /></div>
-                        <div className="sm:col-span-1 print:col-span-1 border-t sm:border-t-0 border-[var(--color-border)] sm:border-l"><DocBox label="OPERADOR" value={companyInfo.inspector} onChange={v => setCompanyInfo({ ...companyInfo, inspector: v })} /></div>
+                        <div className="sm:col-span-1 print:col-span-1 border-t sm:border-t-0 border-[#e2e8f0] sm:border-l"><DocBox label="FECHA REVISIÓN" value={inspectionInfo.date} onChange={v => setInspectionInfo({ ...inspectionInfo, date: v })} type="date" /></div>
+                        <div className="sm:col-span-1 print:col-span-1 border-t sm:border-t-0 border-[#e2e8f0] sm:border-l"><DocBox label="INSPECTOR" value={companyInfo.inspector} onChange={v => setCompanyInfo({ ...companyInfo, inspector: v })} /></div>
                     </div>
                 </div>
+
+                {/* Dashboard de Estadísticas en vivo */}
+                {(() => {
+                    let total = 0, ok = 0, fail = 0, na = 0;
+                    activeSections.forEach(s => s.items.forEach(i => {
+                        total++;
+                        if (i.status === 'OK') ok++;
+                        else if (i.status === 'FAIL') fail++;
+                        else if (i.status === 'NA') na++;
+                    }));
+                    const okP = total > 0 ? Math.round((ok / total) * 100) : 0;
+                    const failP = total > 0 ? Math.round((fail / total) * 100) : 0;
+                    const naP = total > 0 ? Math.round((na / total) * 100) : 0;
+
+                    return (
+                        <div style={{ 
+                            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+                            border: '2px solid #e2e8f0',
+                            borderRadius: '12px',
+                            padding: '1.2rem',
+                            marginBottom: '2rem'
+                        }}>
+                            <h2 style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', fontWeight: 900, color: '#1e293b', textTransform: 'uppercase', letterSpacing: '1px', textAlign: 'left' }}>
+                                📊 RESUMEN DE ESTADO
+                            </h2>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
+                                <div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                                        <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#16a34a' }}>CONFORMES: {ok} ({okP}%)</span>
+                                    </div>
+                                    <div style={{ height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
+                                        <div style={{ width: `${okP}%`, height: '100%', background: '#16a34a', transition: 'width 0.5s' }}></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                                        <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#dc2626' }}>NO CONFORMES: {fail} ({failP}%)</span>
+                                    </div>
+                                    <div style={{ height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
+                                        <div style={{ width: `${failP}%`, height: '100%', background: '#dc2626', transition: 'width 0.5s' }}></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                                        <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#64748b' }}>N/A: {na} ({naP}%)</span>
+                                    </div>
+                                    <div style={{ height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
+                                        <div style={{ width: `${naP}%`, height: '100%', background: '#64748b', transition: 'width 0.5s' }}></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })()}
 
                 <div className="space-y-12">
                     {activeSections.map(section => (
@@ -747,7 +802,50 @@ export default function ChecklistManager() {
                     ))}
                 </div>
 
-                <div className="mt-8 border-2 border-slate-300 rounded-xl p-8 bg-slate-50 relative text-left">
+                {/* PLAN DE ACCIÓN - PRINTABLE */}
+                {actionPlan.length > 0 && (
+                    <div style={{ border: '2px solid #f59e0b', borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem', background: '#fffbeb', pageBreakInside: 'avoid' }}>
+                        <div style={{ background: '#f59e0b', padding: '0.8rem 1.2rem', color: '#fff', fontWeight: 900, fontSize: '0.9rem', textTransform: 'uppercase' }}>🎯 Plan de Acción Correctiva</div>
+                        <div style={{ padding: '1.2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+                            {actionPlan.map((action, idx) => (
+                                <div key={action.id} style={{ background: '#fff', border: '1px solid #fcd34d', borderRadius: '8px', padding: '1rem' }}>
+                                    <div style={{ display: 'flex', gap: '0.6rem' }}>
+                                        <span style={{ background: '#f59e0b', color: '#fff', width: '22px', height: '22px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 900, flexShrink: 0 }}>{idx + 1}</span>
+                                        <div style={{ flex: 1 }}>
+                                            <p style={{ margin: '0 0 0.4rem 0', fontWeight: 800, fontSize: '0.85rem', color: '#1e293b' }}>{action.action}</p>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', fontSize: '0.7rem', color: '#64748b', fontWeight: 700 }}>
+                                                {action.responsible && <span>👤 Resp: {action.responsible}</span>}
+                                                {action.dueDate && <span>📅 Vence: {new Date(action.dueDate).toLocaleDateString()}</span>}
+                                                <span style={{ color: action.priority === 'critico' ? '#dc2626' : action.priority === 'alto' ? '#ea580c' : '#ca8a04' }}>🔥 {action.priority.toUpperCase()}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* NORMATIVA - PRINTABLE */}
+                {selectedNorms.length > 0 && (
+                    <div style={{ border: '2px solid #a855f7', borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem', background: '#faf5ff', pageBreakInside: 'avoid' }}>
+                        <div style={{ background: '#a855f7', padding: '0.8rem 1.2rem', color: '#fff', fontWeight: 900, fontSize: '0.9rem', textTransform: 'uppercase' }}>📚 Normativa Legal Aplicable</div>
+                        <div style={{ padding: '1.2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.6rem' }}>
+                            {selectedNorms.map(normId => {
+                                const norm = availableNorms.find(n => n.id === normId);
+                                if (!norm) return null;
+                                return (
+                                    <div key={normId} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', background: '#fff', padding: '0.6rem 0.8rem', borderRadius: '8px', border: '1px solid #e9d5ff' }}>
+                                        <div style={{ width: '18px', height: '18px', background: '#a855f7', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', fontWeight: 900 }}>✓</div>
+                                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1e293b' }}>{norm.name}</span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
+
+                <div className="mt-8 border-2 border-slate-300 rounded-xl p-8 bg-slate-50 relative text-left" style={{ pageBreakInside: 'avoid' }}>
                     <div className="absolute -top-4 left-8 bg-slate-800 text-white px-5 py-0.5 font-black text-[0.65rem] uppercase italic tracking-[0.2em] shadow-sm z-10 rounded-b-md">OBSERVACIONES</div>
                     <textarea
                         className="w-full bg-transparent outline-none text-[1rem] font-bold leading-relaxed resize-none min-h-[140px] placeholder:text-slate-300 relative z-20 text-left no-print block"

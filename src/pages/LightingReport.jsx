@@ -274,26 +274,29 @@ export default function LightingReport() {
 
             {/* ENCABEZADO PARA IMPRESIÓN */}
             <div id="pdf-content" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div className="report-header">
-                    <div>
-                        <h1>INFORME DE ILUMINACIÓN</h1>
-                        <p>PROTOCOLO DE MEDICIÓN PUESTO POR PUESTO</p>
-                        <p style={{ marginTop: '5px', fontWeight: 'bold' }}>Referencia: {countryNorms.lighting} ({countryNorms.general})</p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', alignItems: 'center', borderBottom: '4px solid #3b82f6', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
+                    <div style={{ textAlign: 'left' }}>
+                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.05em' }}>Sistema de Gestión</p>
+                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', color: '#1e293b' }}>Control H&S</p>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.8rem' }}>
-                        <CompanyLogo style={{ height: '45px', maxWidth: '140px' }} />
-                        {professional?.name !== 'Profesional' ? (
-                            <div style={{ textAlign: 'right' }}>
-                                <h2 style={{ fontSize: '1.2rem', margin: '0 0 5px 0' }}>{professional.name}</h2>
-                                {professional.license && <p style={{ margin: 0 }}>MP/Reg: {professional.license}</p>}
-                                <p style={{ margin: 0 }}>Gestión de Riesgos Laborales</p>
-                            </div>
-                        ) : (
-                            <div style={{ opacity: 0.5, fontSize: '0.9rem', textAlign: 'right' }}>
-                                <p>Perfil Profesional Incompleto</p>
-                                <p style={{ fontSize: '0.8rem' }}>Actualice sus datos en Configuración</p>
-                            </div>
-                        )}
+
+                    <div style={{ textAlign: 'center' }}>
+                        <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: '#1d4ed8', textTransform: 'uppercase', letterSpacing: '1px', lineHeight: 1.2 }}>
+                            Estudio de Iluminación
+                        </h2>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b', fontWeight: 600 }}>{countryNorms.lighting}</p>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '15px' }}>
+                         <div style={{ textAlign: 'right', fontSize: '0.7rem', color: '#64748b' }}>
+                            {professional?.name !== 'Profesional' ? (
+                                <>
+                                    <div style={{ fontWeight: 800, color: '#1e293b' }}>{professional.name}</div>
+                                    <div>Mat: {professional.license}</div>
+                                </>
+                            ) : <div>Perfil Incompleto</div>}
+                         </div>
+                        <CompanyLogo style={{ height: '40px', width: 'auto', maxWidth: '120px', objectFit: 'contain' }} />
                     </div>
                 </div>
 

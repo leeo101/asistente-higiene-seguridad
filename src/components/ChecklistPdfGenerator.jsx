@@ -157,30 +157,72 @@ export default function ChecklistPdfGenerator({ checklistData }) {
                     `}
                 </style>
 
-                {/* Header */}
-                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottom: '4px solid #e2e8f0', paddingBottom: '1.5rem', marginBottom: '1.5rem', width: '100%', flexWrap: 'wrap', gap: '1rem' }}>
-                    <div style={{ flex: 1, minWidth: '150px' }}>
+                {/* Header - Fixed Grid for Alignment */}
+                <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: '1fr 2fr 1fr', 
+                    alignItems: 'center', 
+                    borderBottom: '4px solid #e2e8f0', 
+                    paddingBottom: '1.5rem', 
+                    marginBottom: '1.5rem', 
+                    width: '100%', 
+                    gap: '1.5rem' 
+                }}>
+                    <div style={{ textAlign: 'left' }}>
                         <p style={{ margin: 0, fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.05em' }}>Sistema de Gestión</p>
                         <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', color: '#1e293b' }}>Control H&S</p>
                     </div>
 
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', minWidth: '150px' }}>
-                        <h1 style={{ margin: 0, fontWeight: 900, fontSize: 'clamp(1.5rem, 5vw, 2.5rem)', letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1, color: '#1e293b' }}>CHECK LIST</h1>
-                        <p style={{ margin: 0, color: '#64748b', fontWeight: 900, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.4em', marginTop: '0.25rem' }}>Higiene y Seguridad</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                        <h1 style={{ 
+                            margin: 0, 
+                            fontWeight: 900, 
+                            fontSize: 'clamp(1.5rem, 5vw, 2.5rem)', 
+                            letterSpacing: '-0.02em', 
+                            textTransform: 'uppercase', 
+                            lineHeight: 1, 
+                            color: '#1e293b' 
+                        }}>CHECK LIST</h1>
+                        <p style={{ 
+                            margin: 0, 
+                            color: '#64748b', 
+                            fontWeight: 900, 
+                            fontSize: '0.6rem', 
+                            textTransform: 'uppercase', 
+                            letterSpacing: '0.4em', 
+                            marginTop: '0.25rem' 
+                        }}>Higiene y Seguridad</p>
                     </div>
 
-                    <div style={{ flex: 1, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem', minWidth: '150px' }}>
+                    <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.6rem' }}>
                         <CompanyLogo
                             style={{
-                                height: '40px',
+                                height: '45px',
                                 width: 'auto',
                                 objectFit: 'contain',
-                                maxWidth: '120px'
+                                maxWidth: '130px'
                             }}
                         />
-                        <div>
-                            <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>DOCUMENTO N°</div>
-                            <div style={{ fontWeight: 900, fontSize: '1.5rem', color: '#1e293b', borderBottom: '2px solid #e2e8f0', display: 'inline-block', paddingBottom: '2px' }}>{inspInfo.serial || checklistData.serial || 'S/N'}</div>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                            <div style={{ 
+                                fontSize: '0.6rem', 
+                                fontWeight: 900, 
+                                color: '#cbd5e1', 
+                                textTransform: 'uppercase', 
+                                letterSpacing: '0.1em', 
+                                marginBottom: '0.1rem' 
+                            }}>DOCUMENTO N°</div>
+                            <div style={{ 
+                                fontWeight: 900, 
+                                fontSize: '1.5rem', 
+                                color: '#1e293b', 
+                                borderBottom: '2px solid #e2e8f0', 
+                                display: 'inline-block', 
+                                paddingBottom: '2px',
+                                minWidth: '100px'
+                            }}>
+                                {inspInfo.serial || checklistData.serial || 'S/N'}
+                            </div>
                         </div>
                     </div>
                 </div>

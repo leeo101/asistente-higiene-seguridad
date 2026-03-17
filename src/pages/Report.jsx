@@ -134,18 +134,32 @@ export default function Report() {
             {/* PRINTABLE AREA */}
             <div id="pdf-content" className="bg-white text-black p-4 md:p-12 shadow-sm border border-slate-200 rounded-2xl print-area print:mb-0 print:border-none print:shadow-none">
                 {/* Header Section */}
-                <div className="report-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '3px solid var(--color-primary)', paddingBottom: '1.5rem', marginBottom: '2rem' }}>
-                    <div>
-                        <h1 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: '#172B4D' }}>INFORME TÉCNICO DE INSPECCIÓN</h1>
-                        <p style={{ margin: 0, fontSize: '0.9rem', color: '#6B778C', fontWeight: 600 }}>Protocolo de Relevamiento General de Riesgos</p>
-                        <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            <p style={{ margin: 0, fontSize: '0.9rem' }}><strong>Fecha:</strong> {new Date(inspectionData.date).toLocaleDateString('es-AR')}</p>
-                            <p style={{ margin: 0, fontSize: '0.9rem' }}><strong>Referencia:</strong> {inspectionData.name}</p>
-                            <p style={{ margin: 0, fontSize: '0.9rem' }}><strong>Ubicación:</strong> {inspectionData.location || '-'}</p>
-                        </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', alignItems: 'center', borderBottom: '4px solid var(--color-primary)', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
+                    <div style={{ textAlign: 'left' }}>
+                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.05em' }}>Sistema de Gestión</p>
+                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', color: '#1e293b' }}>Control H&S</p>
                     </div>
-                    <div style={{ textAlign: 'right' }}>
-                        <CompanyLogo style={{ height: '70px', maxWidth: '180px' }} />
+
+                    <div style={{ textAlign: 'center' }}>
+                        <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '1px', lineHeight: 1.2 }}>
+                            Informe Técnico de Inspección
+                        </h2>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b', fontWeight: 600 }}>Protocolo de Relevamiento General de Riesgos</p>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <CompanyLogo style={{ height: '45px', width: 'auto', maxWidth: '140px', objectFit: 'contain' }} />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 bg-slate-50 p-5 rounded-xl border border-slate-200">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div><span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>FECHA:</span> <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>{new Date(inspectionData.date).toLocaleDateString('es-AR')}</span></div>
+                        <div><span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>REFERENCIA:</span> <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>{inspectionData.name}</span></div>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                         <div><span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>UBICACIÓN:</span> <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>{inspectionData.location || '-'}</span></div>
+                         <div><span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>ESTADO:</span> <span style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--color-primary)' }}>FINALIZADO</span></div>
                     </div>
                 </div>
 
