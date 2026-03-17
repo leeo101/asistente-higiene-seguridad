@@ -339,6 +339,24 @@ export default function ChecklistManager() {
 
     return (
         <div className="container" style={{ maxWidth: '1100px', paddingBottom: '8rem' }}>
+            {/* Estilos para impresión */}
+            <style>{`
+                @media print {
+                    .print-only-content {
+                        display: block !important;
+                        position: fixed;
+                        left: 0;
+                        top: 0;
+                        width: 100%;
+                        background: white;
+                        z-index: 9999;
+                    }
+                    .no-print, .floating-action-bar, .template-selector, .stagger-item {
+                        display: none !important;
+                    }
+                }
+            `}</style>
+
             <ShareModal
                 open={showShare}
                 onClose={() => setShowShare(false)}
@@ -429,7 +447,8 @@ export default function ChecklistManager() {
                 })}
             </div>
 
-            <div id="pdf-content" className="bg-white text-black p-12 shadow-2xl mx-auto print-area border border-slate-200 rounded-2xl print:mb-0 print:border-none print:shadow-none" style={{ width: '100%', maxWidth: '850px', boxSizing: 'border-box' }}>
+            {/* Contenido SOLO para impresión - Oculto en vista normal */}
+            <div id="pdf-content" className="print-only-content" style={{ display: 'none' }}>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', alignItems: 'center', borderBottom: '4px solid #e2e8f0', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
                     {/* Top Left Text */}
