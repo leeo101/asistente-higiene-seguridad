@@ -33,7 +33,7 @@ export default function ChecklistPdfGenerator({ checklistData }) {
     const savedPersonalData = localStorage.getItem('personalData');
     const userCountry = savedPersonalData ? JSON.parse(savedPersonalData).country || 'argentina' : 'argentina';
 
-    // Normativas por país
+    // Normativas por país (Mercosur + Chile)
     const NORMS_BY_COUNTRY = {
         argentina: [
             { id: 'ley19587', name: 'Ley 19.587 - Higiene y Seguridad en el Trabajo' },
@@ -62,30 +62,18 @@ export default function ChecklistPdfGenerator({ checklistData }) {
             { id: 'dec182', name: 'Decreto 182/018 - Espacios Confinados' },
             { id: 'bps', name: 'Normativa BPS - Seguros de Accidentes' }
         ],
-        colombia: [
-            { id: 'dec1072', name: 'Decreto 1072/2015 - SST Compilado' },
-            { id: 'res0312', name: 'Res. 0312/2019 - Estándares Mínimos' },
-            { id: 'dec1443', name: 'Decreto 1443/2014 - SG-SST' },
-            { id: 'ley1562', name: 'Ley 1562/2012 - Sistema Riesgos Laborales' },
-            { id: 'res1401', name: 'Res. 1401/2007 - Investigación Incidentes' },
-            { id: 'arl', name: 'Reglamento ARL' }
+        bolivia: [
+            { id: 'ley548', name: 'Ley 548 - Código Niña, Niño y Adolescente' },
+            { id: 'dec16998', name: 'Decreto Supremo 16998 - Seguridad Industrial' },
+            { id: 'dec24266', name: 'Decreto Supremo 24266 - Reglamento Higiene y Seguridad' },
+            { id: 'res068', name: 'Res. Min. 068/94 - Salud Ocupacional' },
+            { id: 'cnss', name: 'Reglamento CNSS - Seguridad Social' }
         ],
-        mexico: [
-            { id: 'lft', name: 'Ley Federal del Trabajo' },
-            { id: 'nom001', name: 'NOM-001-STPS - Edificios y Áreas' },
-            { id: 'nom002', name: 'NOM-002-STPS - Prevención Incendios' },
-            { id: 'nom004', name: 'NOM-004-STPS - Maquinaria y Herramienta' },
-            { id: 'nom006', name: 'NOM-006-STPS - Manejo de Materiales' },
-            { id: 'nom009', name: 'NOM-009-STPS - Trabajo en Alturas' },
-            { id: 'nom011', name: 'NOM-011-STPS - Ruido' },
-            { id: 'imss', name: 'Reglamento IMSS' }
-        ],
-        peru: [
-            { id: 'ley29783', name: 'Ley 29.783 - SST' },
-            { id: 'dec005', name: 'Decreto Supremo 005-2012-TR' },
-            { id: 'dec024', name: 'Decreto Supremo 024-2016-TR' },
-            { id: 'g050', name: 'G.050 - Seguridad en Edificaciones' },
-            { id: 'essalud', name: 'Reglamento EsSalud' }
+        paraguay: [
+            { id: 'ley213', name: 'Ley 213/93 - Seguridad y Salud en el Trabajo' },
+            { id: 'dec4234', name: 'Decreto 4.234 - Reglamento General' },
+            { id: 'res616', name: 'Res. MTES 616/14 - Trabajo en Altura' },
+            { id: 'ips', name: 'Reglamento IPS - Instituto de Previsión Social' }
         ],
         internacional: [
             { id: 'iso45001', name: 'ISO 45001:2018 - Sistema de Gestión SST' },
