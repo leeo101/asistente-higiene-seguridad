@@ -7,6 +7,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import ShareModal from '../components/ShareModal';
 import QRModal from '../components/QRModal';
 import StopCardPdfGenerator from '../components/StopCardPdfGenerator';
+import { HistoryCardSkeleton } from '../components/SkeletonLoader';
 
 function DeleteConfirm({ onConfirm, onCancel }) {
     return (
