@@ -1,3 +1,4 @@
+import React, { useRef } from 'react';
 import { Flame, ShieldCheck, Info, FileText } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import { getCountryNormativa } from '../data/legislationData';

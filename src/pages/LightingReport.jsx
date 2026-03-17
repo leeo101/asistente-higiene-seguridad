@@ -11,6 +11,7 @@ import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import CompanyLogo from '../components/CompanyLogo';
 import { API_BASE_URL } from '../config';
 import { getCountryNormativa } from '../data/legislationData';
 
@@ -279,18 +280,21 @@ export default function LightingReport() {
                         <p>PROTOCOLO DE MEDICIÓN PUESTO POR PUESTO</p>
                         <p style={{ marginTop: '5px', fontWeight: 'bold' }}>Referencia: {countryNorms.lighting} ({countryNorms.general})</p>
                     </div>
-                    {professional?.name !== 'Profesional' ? (
-                        <div style={{ textAlign: 'right' }}>
-                            <h2 style={{ fontSize: '1.2rem', margin: '0 0 5px 0' }}>{professional.name}</h2>
-                            {professional.license && <p style={{ margin: 0 }}>MP/Reg: {professional.license}</p>}
-                            <p style={{ margin: 0 }}>Gestión de Riesgos Laborales</p>
-                        </div>
-                    ) : (
-                        <div style={{ opacity: 0.5, fontSize: '0.9rem', textAlign: 'right' }}>
-                            <p>Perfil Profesional Incompleto</p>
-                            <p style={{ fontSize: '0.8rem' }}>Actualice sus datos en Configuración</p>
-                        </div>
-                    )}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.8rem' }}>
+                        <CompanyLogo style={{ height: '45px', maxWidth: '140px' }} />
+                        {professional?.name !== 'Profesional' ? (
+                            <div style={{ textAlign: 'right' }}>
+                                <h2 style={{ fontSize: '1.2rem', margin: '0 0 5px 0' }}>{professional.name}</h2>
+                                {professional.license && <p style={{ margin: 0 }}>MP/Reg: {professional.license}</p>}
+                                <p style={{ margin: 0 }}>Gestión de Riesgos Laborales</p>
+                            </div>
+                        ) : (
+                            <div style={{ opacity: 0.5, fontSize: '0.9rem', textAlign: 'right' }}>
+                                <p>Perfil Profesional Incompleto</p>
+                                <p style={{ fontSize: '0.8rem' }}>Actualice sus datos en Configuración</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-8 print-block">

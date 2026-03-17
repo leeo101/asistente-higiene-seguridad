@@ -12,6 +12,7 @@ import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
+import CompanyLogo from '../components/CompanyLogo';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import { API_BASE_URL } from '../config';
 import { getCountryNormativa } from '../data/legislationData';
@@ -312,15 +313,20 @@ export default function FireLoad() {
             </div>
 
             <div id="pdf-content" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div className="print-header">
-                    <h1 style={{ margin: 0, fontSize: '2.5rem', fontWeight: 900, color: 'var(--color-primary)' }}>INFORME</h1>
-                    <p style={{ margin: '5px 0', fontSize: '1rem', color: '#444' }}>Determinación de Carga Térmica y Resistencia al Fuego - {countryNorms.fire}</p>
-                    <div style={{ textAlign: 'left', marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.9rem' }}>
-                        <div className="flex flex-col md:flex-row gap-2 md:gap-8">
-                            <div><strong>Empresa:</strong> {formData.empresa}</div>
-                            <div><strong>Sector:</strong> {formData.sector}</div>
+                <div className="print-header" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #eee', paddingBottom: '1rem' }}>
+                    <div>
+                        <h1 style={{ margin: 0, fontSize: '2.5rem', fontWeight: 900, color: 'var(--color-primary)' }}>INFORME</h1>
+                        <p style={{ margin: '5px 0', fontSize: '1rem', color: '#444' }}>Determinación de Carga Térmica y Resistencia al Fuego - {countryNorms.fire}</p>
+                        <div style={{ textAlign: 'left', marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.9rem' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <div><strong>Empresa:</strong> {formData.empresa}</div>
+                                <div><strong>Sector:</strong> {formData.sector}</div>
+                            </div>
+                            <div><strong>Actividad:</strong> {formData.actividadResumen || 'No especificada'}</div>
                         </div>
-                        <div><strong>Actividad:</strong> {formData.actividadResumen || 'No especificada'}</div>
+                    </div>
+                    <div className="print-only">
+                        <CompanyLogo style={{ height: '70px', maxWidth: '180px' }} />
                     </div>
                 </div>
 

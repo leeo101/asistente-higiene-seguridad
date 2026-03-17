@@ -1,3 +1,4 @@
+import React, { useRef } from 'react';
 import { ArrowLeft, Printer, Flame, MapPin, Calendar, Building, CheckCircle2 } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';

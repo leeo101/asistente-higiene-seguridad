@@ -90,6 +90,7 @@ const Drills = lazyWithRetry(() => import('./pages/Drills.jsx'));
 const DrillsHistory = lazyWithRetry(() => import('./pages/DrillsHistory.jsx'));
 const RiskMapGenerator = lazyWithRetry(() => import('./pages/RiskMapGenerator.jsx'));
 const RiskMapHistory = lazyWithRetry(() => import('./pages/RiskMapHistory.jsx'));
+const StopCards = lazyWithRetry(() => import('./pages/StopCards.jsx'));
 const StopCardsHistory = lazyWithRetry(() => import('./pages/StopCardsHistory.jsx'));
 const LogoSettings = lazyWithRetry(() => import('./pages/LogoSettings.jsx'));
 const PublicView = lazyWithRetry(() => import('./pages/PublicView.jsx'));

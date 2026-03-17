@@ -1,3 +1,4 @@
+import React, { useRef } from 'react';
 import { ArrowLeft, Printer, Map as MapIcon } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import { SAFETY_ICONS } from '../data/mapIcons';

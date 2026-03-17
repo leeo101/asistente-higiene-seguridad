@@ -3,11 +3,6 @@ import { jsPDF } from 'jspdf';
 
 /**
  * Generates a PDF from an HTML element id and returns it as a Blob.
- * 
- * @param {string} elementId - The ID of the HTML element to render (e.g., 'pdf-content').
- * @param {string} filename - The desired filename (used internally or for fallbacks).
- * @param {boolean} isLandscape - Whether the PDF should be in landscape mode.
- * @returns {Promise<Blob>} A Promise that resolves to the PDF Blob.
  */
 export async function generatePdfBlob(elementId, filename = 'reporte.pdf', isLandscape = false) {
     const element = document.getElementById(elementId);
@@ -15,22 +10,40 @@ export async function generatePdfBlob(elementId, filename = 'reporte.pdf', isLan
         throw new Error(`Element with id '${elementId}' not found.`);
     }
 
+    // Store original styles to restore later
+    const originalStyles = {
+        position: element.style.position,
+        left: element.style.left,
+        top: element.style.top,
+        zIndex: element.style.zIndex,
+        opacity: element.style.opacity,
+        pointerEvents: element.style.pointerEvents,
+        visibility: element.style.visibility
+    };
+
     try {
+        // Make element visible and positioned for capture
+        element.style.position = 'fixed';
+        element.style.left = '0';
+        element.style.top = '0';
+        element.style.zIndex = '9999';
+        element.style.opacity = '1';
+        element.style.pointerEvents = 'none';
+        element.style.visibility = 'visible';
+
+        // Wait for styles to apply
+        await new Promise(resolve => setTimeout(resolve, 300));
+
         // Default configuration
         const A4_WIDTH_MM = 210;
         const A4_HEIGHT_MM = 297;
-        
-        // Wait a tiny bit for any re-renders triggered by the 'pdf-render-in-progress' class
-        await new Promise(resolve => setTimeout(resolve, 200));
 
         const canvas = await html2canvas(element, {
-            scale: 2, // 2x resolution is a good balance of quality/size
+            scale: 2,
             useCORS: true,
             logging: false,
-            // Ensure we capture the full height of the element, not just the viewport
             windowWidth: element.scrollWidth,
             windowHeight: element.scrollHeight,
-            // Add some padding to the sides to simulate print margins
             x: 0,
             y: 0,
             width: element.offsetWidth,
@@ -47,37 +60,30 @@ export async function generatePdfBlob(elementId, filename = 'reporte.pdf', isLan
             compress: true
         });
 
-        // Dimensions of the page in mm depending on orientation
         const pdfWidth = isLandscape ? A4_HEIGHT_MM : A4_WIDTH_MM;
         const pdfHeight = isLandscape ? A4_WIDTH_MM : A4_HEIGHT_MM;
 
-        // Calculate the image width in mm, keeping it within the PDF width
         const marginX = 10;
         const marginY = 10;
         const contentWidthMM = pdfWidth - (marginX * 2);
 
-        // Calculate the height of the image in mm while maintaining aspect ratio
         const imgWidthPx = canvas.width;
         const imgHeightPx = canvas.height;
         const ratioPxToMm = contentWidthMM / imgWidthPx;
         const contentHeightMM = imgHeightPx * ratioPxToMm;
 
-        // If the content fits on one page
         if (contentHeightMM <= (pdfHeight - marginY * 2)) {
             pdf.addImage(imgData, 'JPEG', marginX, marginY, contentWidthMM, contentHeightMM);
         } else {
-            // The content is taller than a single A4 page, so we split it into multiple pages
             let heightLeft = contentHeightMM;
             let positionY = marginY;
             let pageNum = 1;
 
-            // First page
-            pdf.addImage(imgData, 'JPEG', marginX, positionY, contentWidthMM, contentHeightMM);
+            pdf.addImage(imgData, 'JPEG', marginX, marginY, contentWidthMM, contentHeightMM);
             heightLeft -= (pdfHeight - marginY * 2);
 
-            // Subsequent pages
             while (heightLeft > 0) {
-                positionY = heightLeft - contentHeightMM + marginY; // Move the image UP to show the next chunk
+                positionY = heightLeft - contentHeightMM + marginY;
                 pdf.addPage();
                 pdf.addImage(imgData, 'JPEG', marginX, positionY, contentWidthMM, contentHeightMM);
                 heightLeft -= (pdfHeight - marginY * 2);
@@ -85,10 +91,17 @@ export async function generatePdfBlob(elementId, filename = 'reporte.pdf', isLan
             }
         }
 
-        // Return the PDF as a Blob
         return pdf.output('blob');
 
     } finally {
+        // Restore original styles
+        element.style.position = originalStyles.position;
+        element.style.left = originalStyles.left;
+        element.style.top = originalStyles.top;
+        element.style.zIndex = originalStyles.zIndex;
+        element.style.opacity = originalStyles.opacity;
+        element.style.pointerEvents = originalStyles.pointerEvents;
+        element.style.visibility = originalStyles.visibility;
         element.classList.remove('pdf-render-in-progress');
     }
 }

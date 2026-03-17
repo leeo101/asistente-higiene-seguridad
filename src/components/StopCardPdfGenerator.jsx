@@ -1,17 +1,9 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef } from 'react';
 import { MapPin, Calendar, Clock, User, AlertCircle, AlertTriangle, ShieldCheck, Camera, FileText, CheckCircle2 } from 'lucide-react';
+import CompanyLogo from './CompanyLogo';
 import { getCountryNormativa } from '../data/legislationData';
 
 export default function StopCardPdfGenerator({ card }) {
-    const [logoData, setLogoData] = useState({ companyLogo: null, showLogo: true });
-
-    useEffect(() => {
-        const companyLogo = localStorage.getItem('companyLogo');
-        const showLogo = localStorage.getItem('showCompanyLogo') !== 'false';
-        setLogoData({ companyLogo, showLogo });
-    }, []);
-
-    const { companyLogo, showLogo } = logoData;
     const componentRef = useRef();
     
     if (!card) return null;
@@ -80,7 +72,7 @@ export default function StopCardPdfGenerator({ card }) {
     return (
         <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
             <div
-                id="pdf-content"
+                id="stop-card-pdf-content"
                 className="pdf-container card print-area"
                 ref={componentRef}
                 style={{
@@ -161,25 +153,20 @@ export default function StopCardPdfGenerator({ card }) {
                         </div>
                     </div>
                     
-                    {companyLogo && showLogo && (
-                        <div style={{ marginLeft: '20px', flexShrink: 0 }}>
-                            <img
-                                className="company-logo"
-                                src={companyLogo}
-                                alt="Logo de empresa"
-                                style={{
-                                    height: '55px',
-                                    width: 'auto',
-                                    objectFit: 'contain',
-                                    maxWidth: '160px',
-                                    background: '#ffffff',
-                                    padding: '10px',
-                                    borderRadius: '10px',
-                                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-                                }}
-                            />
-                        </div>
-                    )}
+                    <div style={{ marginLeft: '20px', flexShrink: 0 }}>
+                        <CompanyLogo 
+                            style={{
+                                height: '55px',
+                                width: 'auto',
+                                objectFit: 'contain',
+                                maxWidth: '160px',
+                                background: '#ffffff',
+                                padding: '10px',
+                                borderRadius: '10px',
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                            }}
+                        />
+                    </div>
                 </div>
 
                 {/* Classification Box - Mejorado visualmente */}

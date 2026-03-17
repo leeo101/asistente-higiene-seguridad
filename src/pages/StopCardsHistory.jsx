@@ -100,11 +100,11 @@ export default function StopCardsHistory() {
                 onClose={() => setShareCard(null)}
                 title={`Tarjeta STOP - ${shareCard?.type || ''}`}
                 text={shareCard ? `🚨 Tarjeta STOP\n🛑 Tipo: ${shareCard.type}\n📍 Ubicación: ${shareCard.location}\n📅 Fecha: ${new Date(shareCard.date).toLocaleDateString()} ${shareCard.time}\n\n📝 Hallazgo:\n${shareCard.description}` : ''}
-                elementIdToPrint="pdf-content"
+                elementIdToPrint="stop-card-pdf-content"
             />
 
-            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
-                <StopCardPdfGenerator card={shareCard} />
+            <div id="stop-card-pdf-container" style={{ position: 'fixed', left: '0', top: '0', zIndex: -9999, opacity: 0, pointerEvents: 'none' }}>
+                {shareCard && <StopCardPdfGenerator card={shareCard} />}
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>

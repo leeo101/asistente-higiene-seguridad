@@ -13,6 +13,7 @@ import ATSPdfGenerator from '../components/ATSPdfGenerator';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import CompanyLogo from '../components/CompanyLogo';
 import { API_BASE_URL } from '../config';
 
 const printStyles = `
@@ -382,10 +383,13 @@ export default function ATS() {
                             <p style={{ margin: 0, color: 'var(--color-text-muted)', fontWeight: 900, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.4em', marginTop: '0.25rem' }}>Análisis de Trabajo Seguro</p>
                         </div>
 
-                        {/* Right Document Counter */}
-                        <div style={{ flex: 1, textAlign: 'right' }}>
-                            <div style={{ fontSize: '0.6rem', fontWeight: 900, color: 'var(--color-border)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>PÁGINA</div>
-                            <div style={{ fontWeight: 900, fontSize: '1.5rem', color: 'var(--color-text)' }}>01 / 01</div>
+                        {/* Right Document Counter + Logo */}
+                        <div style={{ flex: 1, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                            <CompanyLogo style={{ height: '40px', maxWidth: '120px' }} />
+                            <div>
+                                <div style={{ fontSize: '0.6rem', fontWeight: 900, color: 'var(--color-border)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>PÁGINA</div>
+                                <div style={{ fontWeight: 900, fontSize: '1.5rem', color: 'var(--color-text)' }}>01 / 01</div>
+                            </div>
                         </div>
                     </div>
 
