@@ -2,16 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Search, CheckCircle2, XCircle, Clock, User, Calendar, AlertTriangle, Tent, Eye, Trash2, Wind, Droplets } from 'lucide-react';
 
-const SPACE_TYPES = [
-    { id: 'tank', name: 'Tanque', icon: '🛢️' },
-    { id: 'vessel', name: 'Recipiente', icon: '📦' },
-    { id: 'silo', name: 'Silo', icon: '🏭' },
-    { id: 'pit', name: 'Fosa', icon: '⬇️' },
-    { id: 'tunnel', name: 'Túnel', icon: '🚇' },
-    { id: 'sewer', name: 'Alcantarilla', icon: '🕳️' },
-    { id: 'manhole', name: 'Boca de Visita', icon: '⭕' }
-];
-
 const PERMIT_STATUS = {
     draft: { label: 'BORRADOR', color: '#6b7280', bg: '#f3f4f6' },
     pending: { label: 'PENDIENTE', color: '#f59e0b', bg: '#fffbeb' },
@@ -23,10 +13,8 @@ export default function ConfinedSpacePage() {
     const navigate = useNavigate();
     const [permits, setPermits] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [showAddModal, setShowAddModal] = useState(false);
     const [selectedPermit, setSelectedPermit] = useState(null);
     const [isMobile, setIsMobile] = useState(false);
-    const [newPermit, setNewPermit] = useState({ spaceName: '', spaceType: '', location: '', worker: '', attendant: '', observations: '' });
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -38,14 +26,6 @@ export default function ConfinedSpacePage() {
     }, []);
 
     const savePermits = (data) => { localStorage.setItem('confined_space_permits_db', JSON.stringify(data)); setPermits(data); };
-
-    const handleCreatePermit = () => {
-        if (!newPermit.spaceName) return;
-        const permit = { ...newPermit, id: `CS-${Date.now()}`, createdAt: new Date().toISOString(), status: 'pending' };
-        savePermits([permit, ...permits]);
-        setShowAddModal(false);
-        setNewPermit({ spaceName: '', spaceType: '', location: '', worker: '', attendant: '', observations: '' });
-    };
 
     const updateStatus = (id, status) => { savePermits(permits.map(p => p.id === id ? { ...p, status } : p)); };
     const deletePermit = (id) => { if (confirm('¿Eliminar este permiso?')) savePermits(permits.filter(p => p.id !== id)); };
@@ -62,7 +42,7 @@ export default function ConfinedSpacePage() {
                         <h1 style={{ margin: 0, fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: 900 }}><Tent size={isMobile ? 20 : 24} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />Espacios Confinados</h1>
                         <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>OSHA 1910.146 • {stats.active} activos</p>
                     </div>
-                    <button onClick={() => setShowAddModal(true)} className="btn-primary" style={{ width: 'auto', margin: 0, padding: '0.75rem 1.25rem', display: isMobile ? 'none' : 'flex', alignItems: 'center', gap: '0.5rem' }}><Plus size={20} strokeWidth={2.5} />Nuevo Permiso</button>
+                    <button onClick={() => navigate('/confined-space/new')} className="btn-primary" style={{ width: 'auto', margin: 0, padding: '0.75rem 1.25rem', display: isMobile ? 'none' : 'flex', alignItems: 'center', gap: '0.5rem' }}><Plus size={20} strokeWidth={2.5} />Nuevo Permiso</button>
                 </div>
             </div>
 
@@ -79,17 +59,16 @@ export default function ConfinedSpacePage() {
                         <Search size={18} color="var(--color-text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
                         <input type="text" placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 2.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)', background: 'var(--color-surface)', fontSize: '0.95rem' }} />
                     </div>
-                    <button onClick={() => setShowAddModal(true)} className="btn-primary" style={{ width: 'auto', margin: 0, padding: '0 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Plus size={20} /></button>
+                    <button onClick={() => navigate('/confined-space/new')} className="btn-primary" style={{ width: 'auto', margin: 0, padding: '0 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Plus size={20} /></button>
                 </div>
             )}
 
             <div style={{ padding: isMobile ? '0 1rem' : '0 1.5rem', maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {filtered.length === 0 ? <EmptyState onAdd={() => setShowAddModal(true)} isMobile={isMobile} /> : filtered.map(p => (
+                {filtered.length === 0 ? <EmptyState onAdd={() => navigate('/confined-space/new')} isMobile={isMobile} /> : filtered.map(p => (
                     <PermitCard key={p.id} permit={p} statusConfig={PERMIT_STATUS[p.status] || PERMIT_STATUS.pending} onStart={() => updateStatus(p.id, 'active')} onComplete={() => updateStatus(p.id, 'completed')} onView={() => setSelectedPermit(p)} onDelete={() => deletePermit(p.id)} isMobile={isMobile} />
                 ))}
             </div>
 
-            {showAddModal && <AddPermitModal permit={newPermit} setPermit={setNewPermit} onSave={handleCreatePermit} onClose={() => setShowAddModal(false)} isMobile={isMobile} SPACE_TYPES={SPACE_TYPES} />}
             {selectedPermit && <DetailModal permit={selectedPermit} onClose={() => setSelectedPermit(null)} isMobile={isMobile} />}
         </div>
     );
@@ -105,7 +84,7 @@ function PermitCard({ permit, statusConfig, onStart, onComplete, onView, onDelet
             <div style={{ width: isMobile ? '56px' : '64px', height: isMobile ? '56px' : '64px', background: `${statusConfig.color}15`, borderRadius: 'var(--radius-xl)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: `2px solid ${statusConfig.color}`, flexShrink: 0 }}><Tent size={isMobile ? 20 : 24} color={statusConfig.color} /></div>
             <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
-                    <h3 style={{ margin: 0, fontSize: isMobile ? '1rem' : '1.1rem', fontWeight: 800, color: 'var(--color-text)' }}>{SPACE_TYPES.find(t => t.id === permit.spaceType)?.icon} {permit.spaceName}</h3>
+                    <h3 style={{ margin: 0, fontSize: isMobile ? '1rem' : '1.1rem', fontWeight: 800, color: 'var(--color-text)' }}>{permit.spaceName}</h3>
                     <span style={{ padding: '0.25rem 0.65rem', background: statusConfig.bg, color: statusConfig.color, borderRadius: 'var(--radius-full)', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase' }}>{statusConfig.label}</span>
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: isMobile ? '0.5rem' : '1rem', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
@@ -126,24 +105,6 @@ function PermitCard({ permit, statusConfig, onStart, onComplete, onView, onDelet
 
 function EmptyState({ onAdd, isMobile }) {
     return (<div style={{ padding: isMobile ? '3rem 1rem' : '4rem 2rem', textAlign: 'center', background: 'var(--gradient-card)', borderRadius: 'var(--radius-2xl)', border: '2px dashed var(--color-border)' }}><div style={{ width: '80px', height: '80px', margin: '0 auto 1.5rem', background: 'var(--color-background)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Tent size={40} color="var(--color-text-muted)" /></div><h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem', fontWeight: 800 }}>Sin Permisos</h3><p style={{ margin: '0 0 1.5rem 0', color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>Creá permisos de espacio confinado según OSHA 1910.146</p><button onClick={onAdd} className="btn-primary" style={{ width: 'auto', margin: 0 }}><Plus size={20} style={{ marginRight: '0.5rem' }} />Primer Permiso</button></div>);
-}
-
-function AddPermitModal({ permit, setPermit, onSave, onClose, isMobile, SPACE_TYPES }) {
-    return (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent: 'center' }} onClick={onClose}>
-            <div className="card" style={{ width: isMobile ? '100%' : '100%', maxWidth: isMobile ? '100%' : '700px', maxHeight: isMobile ? '90vh' : '90vh', overflow: 'auto', margin: isMobile ? 0 : 'auto', borderRadius: isMobile ? '20px 20px 0 0' : 'var(--radius-2xl)' }} onClick={e => e.stopPropagation()}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)', position: 'sticky', top: 0, background: 'var(--color-surface)', zIndex: 10 }}><h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900 }}>Nuevo Permiso</h2><button onClick={onClose} style={{ padding: '0.5rem', background: 'var(--color-background)', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: 'var(--color-text)' }}><XCircle size={24} /></button></div>
-                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem' }}>
-                    <div style={isMobile ? { gridColumn: '1 / -1' } : {}}><label style={labelStyle}>Nombre del Espacio *</label><input type="text" value={permit.spaceName} onChange={(e) => setPermit({ ...permit, spaceName: e.target.value })} style={inputStyle} placeholder="Ej: Tanque T-101" /></div>
-                    <div><label style={labelStyle}>Tipo</label><select value={permit.spaceType} onChange={(e) => setPermit({ ...permit, spaceType: e.target.value })} style={inputStyle}>{SPACE_TYPES.map(t => <option key={t.id} value={t.id}>{t.icon} {t.name}</option>)}</select></div>
-                    <div><label style={labelStyle}>Ubicación</label><input type="text" value={permit.location} onChange={(e) => setPermit({ ...permit, location: e.target.value })} style={inputStyle} placeholder="Ej: Planta Norte" /></div>
-                    <div><label style={labelStyle}>Trabajador</label><input type="text" value={permit.worker} onChange={(e) => setPermit({ ...permit, worker: e.target.value })} style={inputStyle} placeholder="Nombre" /></div>
-                    <div><label style={labelStyle}>Vigía (Attendant)</label><input type="text" value={permit.attendant} onChange={(e) => setPermit({ ...permit, attendant: e.target.value })} style={inputStyle} placeholder="Nombre" /></div>
-                </div>
-                <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--color-border)' }}><button onClick={onClose} style={{ flex: 1, padding: '0.85rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', fontWeight: 700, cursor: 'pointer' }}>Cancelar</button><button onClick={onSave} className="btn-primary" style={{ flex: 1 }}>Crear Permiso</button></div>
-            </div>
-        </div>
-    );
 }
 
 function DetailModal({ permit, onClose, isMobile }) {

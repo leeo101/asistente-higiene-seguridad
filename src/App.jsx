@@ -128,6 +128,16 @@ const AuditHistory = lazyWithRetry(() => import('./pages/AuditHistory.jsx'));
 const EnvironmentalMonitor = lazyWithRetry(() => import('./pages/EnvironmentalMonitor.jsx'));
 const EnvironmentalPage = lazyWithRetry(() => import('./pages/EnvironmentalPage.jsx'));
 
+// NEW FORM PAGES
+const ChemicalSafetyForm = lazyWithRetry(() => import('./pages/ChemicalSafetyForm.jsx'));
+const NoiseAssessmentForm = lazyWithRetry(() => import('./pages/NoiseAssessmentForm.jsx'));
+const LOTOForm = lazyWithRetry(() => import('./pages/LOTOForm.jsx'));
+const ConfinedSpaceForm = lazyWithRetry(() => import('./pages/ConfinedSpaceForm.jsx'));
+const WorkingAtHeightForm = lazyWithRetry(() => import('./pages/WorkingAtHeightForm.jsx'));
+const AuditForm = lazyWithRetry(() => import('./pages/AuditForm.jsx'));
+const CAPAForm = lazyWithRetry(() => import('./pages/CAPAForm.jsx'));
+const EnvironmentalForm = lazyWithRetry(() => import('./pages/EnvironmentalForm.jsx'));
+
 import InstallBanner from './components/InstallBanner.jsx';
 import GlobalSearch from './components/GlobalSearch.jsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
@@ -478,6 +488,16 @@ function App() {
                 <Route path="/environmental" element={<EnvironmentalMonitor />} />
                 <Route path="/environmental-create" element={<EnvironmentalCreate />} />
                 <Route path="/environmental-page" element={<EnvironmentalPage />} />
+
+                {/* NEW FORM ROUTES */}
+                <Route path="/chemical-safety/new" element={<ChemicalSafetyForm />} />
+                <Route path="/noise-assessment/new" element={<NoiseAssessmentForm />} />
+                <Route path="/loto/new" element={<LOTOForm />} />
+                <Route path="/confined-space/new" element={<ConfinedSpaceForm />} />
+                <Route path="/working-height/new" element={<WorkingAtHeightForm />} />
+                <Route path="/audit/new" element={<AuditForm />} />
+                <Route path="/capa/new" element={<CAPAForm />} />
+                <Route path="/environmental/new" element={<EnvironmentalForm />} />
                 <Route path="/environmental-history" element={<EnvironmentalHistory />} />
                 <Route path="/loto" element={<LOTOManager />} />
                 <Route path="/loto-create" element={<LOTOCreate />} />

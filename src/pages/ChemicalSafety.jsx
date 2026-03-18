@@ -43,34 +43,9 @@ export default function ChemicalSafety() {
     const [chemicals, setChemicals] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterCategory, setFilterCategory] = useState('all');
-    const [showAddModal, setShowAddModal] = useState(false);
-    const [selectedChemical, setSelectedChemical] = useState(null);
     const [viewMode, setViewMode] = useState('grid'); // grid o list
 
-    const [newChemical, setNewChemical] = useState({
-        id: '',
-        name: '',
-        casNumber: '',
-        unNumber: '',
-        category: 'fisico',
-        hazards: [],
-        pictograms: [],
-        storage: '',
-        location: '',
-        quantity: '',
-        unit: 'L',
-        supplier: '',
-        sdsDate: '',
-        expiryDate: '',
-        riskPhrases: [],
-        safetyPhrases: [],
-        firstAid: {
-            inhalation: '',
-            skin: '',
-            eyes: '',
-            ingestion: ''
-        }
-    });
+    const [selectedChemical, setSelectedChemical] = useState(null);
 
     useEffect(() => {
         const loadChemicals = () => {
@@ -241,18 +216,7 @@ export default function ChemicalSafety() {
                 </div>
 
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                    <button
-                        onClick={() => navigate('/chemical-safety-create')}
-                        className="btn-primary"
-                        style={{
-                            width: 'auto',
-                            margin: 0,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            padding: '0.75rem 1.25rem'
-                        }}
-                    >
+                    <button onClick={() => navigate('/chemical-safety/new')} className="btn-primary" style={{ width: 'auto', margin: 0, padding: '0.75rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <Plus size={20} strokeWidth={2.5} />
                         Nuevo Producto
                     </button>
@@ -373,7 +337,7 @@ export default function ChemicalSafety() {
                 >
                     <option value="all">Todas las Categorías</option>
                     {HAZARD_CATEGORIES.map(cat => (
-                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>
                     ))}
                 </select>
 
@@ -426,7 +390,7 @@ export default function ChemicalSafety() {
 
             {/* Chemicals Grid/List */}
             {filteredChemicals.length === 0 ? (
-                <EmptyState onAdd={() => setShowAddModal(true)} />
+                <EmptyState onAdd={() => navigate('/chemical-safety/new')} />
             ) : viewMode === 'grid' ? (
                 <div style={{
                     display: 'grid',
@@ -439,10 +403,7 @@ export default function ChemicalSafety() {
                             chemical={chemical}
                             hazardLevel={getHazardLevel(chemical)}
                             onView={() => setSelectedChemical(chemical)}
-                            onEdit={() => {
-                                setNewChemical(chemical);
-                                setShowAddModal(true);
-                            }}
+                            onEdit={() => navigate('/chemical-safety/new')}
                             onDelete={() => handleDelete(chemical.id)}
                         />
                     ))}

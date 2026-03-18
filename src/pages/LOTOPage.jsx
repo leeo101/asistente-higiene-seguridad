@@ -2,26 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
     ArrowLeft, Plus, Search, CheckCircle2, XCircle,
-    Clock, User, Users, Calendar, AlertTriangle,
-    Lock, FileText, Eye, Trash2, Zap
+    Clock, Lock, FileText, Eye, Trash2
 } from 'lucide-react';
-
-const ENERGY_TYPES = [
-    { id: 'electrical', name: 'Eléctrica', icon: '⚡', color: '#fbbf24' },
-    { id: 'mechanical', name: 'Mecánica', icon: '🔧', color: '#6b7280' },
-    { id: 'hydraulic', name: 'Hidráulica', icon: '💧', color: '#3b82f6' },
-    { id: 'pneumatic', name: 'Neumática', icon: '💨', color: '#9ca3af' },
-    { id: 'chemical', name: 'Química', icon: '🧪', color: '#10b981' },
-    { id: 'thermal', name: 'Térmica', icon: '🔥', color: '#ef4444' }
-];
-
-const LOTO_DEVICES = [
-    { id: 'padlock', name: 'Candado', icon: '🔒' },
-    { id: 'hasp', name: 'Grampa Múltiple', icon: '📎' },
-    { id: 'breaker_lock', name: 'Bloqueo Interruptor', icon: '⚡' },
-    { id: 'valve_lock', name: 'Bloqueo Válvula', icon: '🔩' },
-    { id: 'tagout', name: 'Etiqueta', icon: '🏷️' }
-];
 
 const LOTO_STATUS = {
     draft: { label: 'BORRADOR', color: '#6b7280', bg: '#f3f4f6' },
@@ -34,19 +16,8 @@ export default function LOTOPage() {
     const navigate = useNavigate();
     const [procedures, setProcedures] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [showAddModal, setShowAddModal] = useState(false);
     const [selectedProcedure, setSelectedProcedure] = useState(null);
     const [isMobile, setIsMobile] = useState(false);
-
-    const [newProcedure, setNewProcedure] = useState({
-        equipmentName: '',
-        location: '',
-        department: '',
-        energyTypes: [],
-        lotoDevices: [],
-        supervisor: '',
-        observations: ''
-    });
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -62,33 +33,6 @@ export default function LOTOPage() {
     const saveProcedures = (data) => {
         localStorage.setItem('loto_procedures_db', JSON.stringify(data));
         setProcedures(data);
-    };
-
-    const handleCreateProcedure = () => {
-        if (!newProcedure.equipmentName) return;
-        
-        const procedure = {
-            ...newProcedure,
-            id: `LOTO-${Date.now()}`,
-            createdAt: new Date().toISOString(),
-            status: 'pending'
-        };
-
-        saveProcedures([procedure, ...procedures]);
-        setShowAddModal(false);
-        resetForm();
-    };
-
-    const resetForm = () => {
-        setNewProcedure({
-            equipmentName: '',
-            location: '',
-            department: '',
-            energyTypes: [],
-            lotoDevices: [],
-            supervisor: '',
-            observations: ''
-        });
     };
 
     const startLOTO = (id) => {
@@ -144,7 +88,7 @@ export default function LOTOPage() {
                             OSHA 1910.147 • {stats.active} activos
                         </p>
                     </div>
-                    <button onClick={() => setShowAddModal(true)} className="btn-primary" style={{ width: 'auto', margin: 0, padding: '0.75rem 1.25rem', display: isMobile ? 'none' : 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <button onClick={() => navigate('/loto/new')} className="btn-primary" style={{ width: 'auto', margin: 0, padding: '0.75rem 1.25rem', display: isMobile ? 'none' : 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <Plus size={20} strokeWidth={2.5} />
                         Nuevo Procedimiento
                     </button>
@@ -166,7 +110,7 @@ export default function LOTOPage() {
                         <Search size={18} color="var(--color-text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
                         <input type="text" placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 2.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)', background: 'var(--color-surface)', fontSize: '0.95rem' }} />
                     </div>
-                    <button onClick={() => setShowAddModal(true)} className="btn-primary" style={{ width: 'auto', margin: 0, padding: '0 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <button onClick={() => navigate('/loto/new')} className="btn-primary" style={{ width: 'auto', margin: 0, padding: '0 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Plus size={20} />
                     </button>
                 </div>
@@ -175,7 +119,7 @@ export default function LOTOPage() {
             {/* Procedures List */}
             <div style={{ padding: isMobile ? '0 1rem' : '0 1.5rem', maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {filteredProcedures.length === 0 ? (
-                    <EmptyState onAdd={() => setShowAddModal(true)} isMobile={isMobile} />
+                    <EmptyState onAdd={() => navigate('/loto/new')} isMobile={isMobile} />
                 ) : (
                     filteredProcedures.map(p => (
                         <ProcedureCard
@@ -191,18 +135,6 @@ export default function LOTOPage() {
                     ))
                 )}
             </div>
-
-            {showAddModal && (
-                <AddProcedureModal
-                    procedure={newProcedure}
-                    setProcedure={setNewProcedure}
-                    onSave={handleCreateProcedure}
-                    onClose={() => { setShowAddModal(false); resetForm(); }}
-                    isMobile={isMobile}
-                    ENERGY_TYPES={ENERGY_TYPES}
-                    LOTO_DEVICES={LOTO_DEVICES}
-                />
-            )}
 
             {selectedProcedure && (
                 <DetailModal
@@ -240,7 +172,6 @@ function ProcedureCard({ procedure, statusConfig, onStart, onComplete, onView, o
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: isMobile ? '0.5rem' : '1rem', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
                     <span>📍 {procedure.location || 'Sin ubicación'}</span>
-                    <span>⚡ {procedure.energyTypes?.length || 0} energías</span>
                     <span>👤 {procedure.supervisor || 'Sin supervisor'}</span>
                 </div>
             </div>
@@ -267,73 +198,6 @@ function EmptyState({ onAdd, isMobile }) {
     );
 }
 
-function AddProcedureModal({ procedure, setProcedure, onSave, onClose, isMobile, ENERGY_TYPES, LOTO_DEVICES }) {
-    const toggleEnergy = (id) => {
-        const updated = procedure.energyTypes.includes(id) ? procedure.energyTypes.filter(e => e !== id) : [...procedure.energyTypes, id];
-        setProcedure({ ...procedure, energyTypes: updated });
-    };
-
-    const toggleDevice = (id) => {
-        const updated = procedure.lotoDevices.includes(id) ? procedure.lotoDevices.filter(d => d !== id) : [...procedure.lotoDevices, id];
-        setProcedure({ ...procedure, lotoDevices: updated });
-    };
-
-    return (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent: 'center' }} onClick={onClose}>
-            <div className="card" style={{ width: isMobile ? '100%' : '100%', maxWidth: isMobile ? '100%' : '700px', maxHeight: isMobile ? '90vh' : '90vh', overflow: 'auto', margin: isMobile ? 0 : 'auto', borderRadius: isMobile ? '20px 20px 0 0' : 'var(--radius-2xl)' }} onClick={e => e.stopPropagation()}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)', position: 'sticky', top: 0, background: 'var(--color-surface)', zIndex: 10 }}>
-                    <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900 }}>Nuevo Procedimiento LOTO</h2>
-                    <button onClick={onClose} style={{ padding: '0.5rem', background: 'var(--color-background)', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: 'var(--color-text)' }}><XCircle size={24} /></button>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem' }}>
-                    <div style={isMobile ? { gridColumn: '1 / -1' } : {}}>
-                        <label style={labelStyle}>Nombre del Equipo *</label>
-                        <input type="text" value={procedure.equipmentName} onChange={(e) => setProcedure({ ...procedure, equipmentName: e.target.value })} style={inputStyle} placeholder="Ej: Compresor Principal" />
-                    </div>
-                    <div>
-                        <label style={labelStyle}>Ubicación</label>
-                        <input type="text" value={procedure.location} onChange={(e) => setProcedure({ ...procedure, location: e.target.value })} style={inputStyle} placeholder="Ej: Sala de Máquinas" />
-                    </div>
-                    <div>
-                        <label style={labelStyle}>Departamento</label>
-                        <input type="text" value={procedure.department} onChange={(e) => setProcedure({ ...procedure, department: e.target.value })} style={inputStyle} placeholder="Ej: Mantenimiento" />
-                    </div>
-                    <div>
-                        <label style={labelStyle}>Supervisor</label>
-                        <input type="text" value={procedure.supervisor} onChange={(e) => setProcedure({ ...procedure, supervisor: e.target.value })} style={inputStyle} placeholder="Nombre" />
-                    </div>
-                </div>
-                <div style={{ marginTop: '1.5rem' }}>
-                    <label style={labelStyle}>Tipos de Energía</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: '0.75rem' }}>
-                        {ENERGY_TYPES.map(type => (
-                            <button key={type.id} onClick={() => toggleEnergy(type.id)} style={{ padding: '0.75rem', background: procedure.energyTypes.includes(type.id) ? `${type.color}20` : 'var(--color-background)', border: `2px solid ${procedure.energyTypes.includes(type.id) ? type.color : 'var(--color-border)'}`, borderRadius: 'var(--radius-lg)', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-                                <span style={{ fontSize: '2rem' }}>{type.icon}</span>
-                                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: procedure.energyTypes.includes(type.id) ? type.color : 'var(--color-text-muted)' }}>{type.name}</span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-                <div style={{ marginTop: '1.5rem' }}>
-                    <label style={labelStyle}>Dispositivos LOTO</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: '0.75rem' }}>
-                        {LOTO_DEVICES.map(device => (
-                            <button key={device.id} onClick={() => toggleDevice(device.id)} style={{ padding: '0.75rem', background: procedure.lotoDevices.includes(device.id) ? 'var(--color-primary)' : 'var(--color-background)', color: procedure.lotoDevices.includes(device.id) ? '#fff' : 'var(--color-text)', border: `2px solid ${procedure.lotoDevices.includes(device.id) ? 'var(--color-primary)' : 'var(--color-border)'}`, borderRadius: 'var(--radius-lg)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600 }}>
-                                <span style={{ fontSize: '1.5rem' }}>{device.icon}</span>
-                                <span style={{ fontSize: '0.85rem' }}>{device.name}</span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-                <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--color-border)' }}>
-                    <button onClick={onClose} style={{ flex: 1, padding: '0.85rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', fontWeight: 700, cursor: 'pointer' }}>Cancelar</button>
-                    <button onClick={onSave} className="btn-primary" style={{ flex: 1 }}>Crear Procedimiento</button>
-                </div>
-            </div>
-        </div>
-    );
-}
-
 function DetailModal({ procedure, onClose, isMobile }) {
     return (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent: 'center' }} onClick={onClose}>
@@ -344,7 +208,7 @@ function DetailModal({ procedure, onClose, isMobile }) {
                 </div>
                 <div style={{ textAlign: 'center', padding: '1.5rem', background: '#f8fafc', borderRadius: 'var(--radius-xl)', marginBottom: '1.5rem' }}>
                     <Lock size={40} color="#8b5cf6" style={{ marginBottom: '0.5rem' }} />
-                    <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-text)' }}>{procedure.equipmentName}</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 100, color: 'var(--color-text)' }}>{procedure.equipmentName}</div>
                     <div style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>{procedure.location}</div>
                 </div>
                 <button onClick={onClose} className="btn-primary" style={{ width: '100%' }}>Cerrar</button>

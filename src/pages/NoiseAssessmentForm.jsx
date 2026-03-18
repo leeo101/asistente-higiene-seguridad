@@ -1,0 +1,226 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Volume2, Save } from 'lucide-react';
+
+const NOISE_LIMITS = {
+    actionLevel: 80,
+    actionLevelHigh: 85,
+    limitValue: 87,
+    peakAction: 135,
+    peakLimit: 140
+};
+
+const HEARING_PROTECTION = [
+    { id: 'earplugs', name: 'Tapones de espuma', nrr: 29 },
+    { id: 'earmuffs', name: 'Orejeras', nrr: 25 },
+    { id: 'dual', name: 'Protección dual', nrr: 35 }
+];
+
+export default function NoiseAssessmentForm() {
+    const navigate = useNavigate();
+    const [isMobile, setIsMobile] = useState(false);
+    const [measurement, setMeasurement] = useState({
+        workerName: '',
+        type: 'personal',
+        date: new Date().toISOString().split('T')[0],
+        location: '',
+        task: '',
+        duration: '',
+        levels: { lavg: '', lmax: '', lmin: '', lpeak: '', lex8h: '' },
+        hearingProtection: '',
+        observations: '',
+        technician: ''
+    });
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    const calculateRiskLevel = (level) => {
+        if (level >= NOISE_LIMITS.limitValue) return { level: 'critical', color: '#dc2626', label: 'CRÍTICO' };
+        if (level >= NOISE_LIMITS.actionLevelHigh) return { level: 'high', color: '#f59e0b', label: 'ALTO' };
+        if (level >= NOISE_LIMITS.actionLevel) return { level: 'medium', color: '#eab308', label: 'MEDIO' };
+        return { level: 'low', color: '#16a34a', label: 'BAJO' };
+    };
+
+    const handleSave = () => {
+        if (!measurement.workerName || !measurement.levels.lavg) {
+            alert('Por favor complete los campos obligatorios (*)');
+            return;
+        }
+
+        const newEntry = {
+            ...measurement,
+            id: `NA-${Date.now()}`,
+            createdAt: new Date().toISOString(),
+            status: calculateRiskLevel(parseFloat(measurement.levels.lavg) || 0)
+        };
+
+        const currentData = JSON.parse(localStorage.getItem('noise_assessment_db') || '[]');
+        localStorage.setItem('noise_assessment_db', JSON.stringify([newEntry, ...currentData]));
+        
+        navigate('/noise-assessment-page');
+    };
+
+    const handleLevelChange = (field, value) => {
+        setMeasurement({ ...measurement, levels: { ...measurement.levels, [field]: value } });
+    };
+
+    return (
+        <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem' }}>
+            <div style={{
+                background: 'var(--color-surface)',
+                borderBottom: '1px solid var(--color-border)',
+                padding: '1rem 1.5rem',
+                position: 'sticky',
+                top: 0,
+                zIndex: 100,
+                backdropFilter: 'blur(20px)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem'
+            }}>
+                <button
+                    onClick={() => navigate(-1)}
+                    style={{
+                        padding: '0.5rem',
+                        background: 'var(--color-background)',
+                        border: '1px solid var(--color-border)',
+                        borderRadius: 'var(--radius-lg)',
+                        cursor: 'pointer',
+                        color: 'var(--color-text)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}
+                >
+                    <ArrowLeft size={20} />
+                </button>
+                <div style={{ flex: 1 }}>
+                    <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.3rem', fontWeight: 900 }}>
+                        <Volume2 size={20} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />
+                        Nueva Medición
+                    </h1>
+                </div>
+                <button
+                    onClick={handleSave}
+                    className="btn-primary"
+                    style={{ width: 'auto', margin: 0, padding: '0.6rem 1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                >
+                    <Save size={18} />
+                    {!isMobile && 'Guardar'}
+                </button>
+            </div>
+
+            <main style={{ padding: '1.5rem', maxWidth: '800px', margin: '0 auto' }}>
+                <div className="card" style={{ padding: '2rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem' }}>
+                        <div style={isMobile ? {} : { gridColumn: 'span 2' }}>
+                            <label style={labelStyle}>Trabajador *</label>
+                            <input type="text" value={measurement.workerName} onChange={(e) => setMeasurement({ ...measurement, workerName: e.target.value })} style={inputStyle} placeholder="Nombre completo" />
+                        </div>
+                        <div>
+                            <label style={labelStyle}>Fecha</label>
+                            <input type="date" value={measurement.date} onChange={(e) => setMeasurement({ ...measurement, date: e.target.value })} style={inputStyle} />
+                        </div>
+                        <div>
+                            <label style={labelStyle}>Ubicación</label>
+                            <input type="text" value={measurement.location} onChange={(e) => setMeasurement({ ...measurement, location: e.target.value })} style={inputStyle} placeholder="Ej: Planta Principal" />
+                        </div>
+                        <div>
+                            <label style={labelStyle}>Tarea</label>
+                            <input type="text" value={measurement.task} onChange={(e) => setMeasurement({ ...measurement, task: e.target.value })} style={inputStyle} placeholder="Ej: Operación de sierra" />
+                        </div>
+                        <div>
+                            <label style={labelStyle}>Duración (horas)</label>
+                            <input type="number" step="0.5" value={measurement.duration} onChange={(e) => setMeasurement({ ...measurement, duration: e.target.value })} style={inputStyle} placeholder="8" />
+                        </div>
+                    </div>
+
+                    <div style={{ marginTop: '2.5rem' }}>
+                        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 800, color: 'var(--color-primary)' }}>Niveles de Ruido (dB)</h3>
+                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(3, 1fr)', gap: '1rem' }}>
+                            <LevelInput label="Lavg (Promedio) *" value={measurement.levels.lavg} onChange={(v) => handleLevelChange('lavg', v)} placeholder="85" />
+                            <LevelInput label="Lmax" value={measurement.levels.lmax} onChange={(v) => handleLevelChange('lmax', v)} placeholder="95" />
+                            <LevelInput label="Lmin" value={measurement.levels.lmin} onChange={(v) => handleLevelChange('lmin', v)} placeholder="70" />
+                            <LevelInput label="Lpeak" value={measurement.levels.lpeak} onChange={(v) => handleLevelChange('lpeak', v)} placeholder="130" />
+                            <LevelInput label="Lex 8h" value={measurement.levels.lex8h} onChange={(v) => handleLevelChange('lex8h', v)} placeholder="82" />
+                        </div>
+                    </div>
+
+                    <div style={{ marginTop: '2rem' }}>
+                        <label style={labelStyle}>Protección Auditiva</label>
+                        <select value={measurement.hearingProtection} onChange={(e) => setMeasurement({ ...measurement, hearingProtection: e.target.value })} style={inputStyle}>
+                            <option value="">Sin protección</option>
+                            {HEARING_PROTECTION.map(hp => (
+                                <option key={hp.id} value={hp.id}>{hp.name} (NRR: {hp.nrr})</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div style={{ marginTop: '2rem' }}>
+                        <label style={labelStyle}>Observaciones</label>
+                        <textarea 
+                            value={measurement.observations} 
+                            onChange={(e) => setMeasurement({ ...measurement, observations: e.target.value })} 
+                            style={{ ...inputStyle, minHeight: '100px', paddingTop: '0.75rem' }} 
+                            placeholder="Notas adicionales..."
+                        />
+                    </div>
+
+                    <div style={{ marginTop: '2rem' }}>
+                        <label style={labelStyle}>Responsable / Técnico</label>
+                        <input type="text" value={measurement.technician} onChange={(e) => setMeasurement({ ...measurement, technician: e.target.value })} style={inputStyle} placeholder="Nombre del técnico" />
+                    </div>
+                </div>
+
+                <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
+                    <button 
+                        onClick={() => navigate(-1)} 
+                        style={{ 
+                            flex: 1, 
+                            padding: '1rem', 
+                            background: 'var(--color-surface)', 
+                            border: '1px solid var(--color-border)', 
+                            borderRadius: 'var(--radius-lg)', 
+                            fontWeight: 700, 
+                            cursor: 'pointer',
+                            color: 'var(--color-text)'
+                        }}
+                    >
+                        Cancelar
+                    </button>
+                    <button 
+                        onClick={handleSave} 
+                        className="btn-primary" 
+                        style={{ flex: 2, margin: 0 }}
+                    >
+                        Guardar Medición
+                    </button>
+                </div>
+            </main>
+        </div>
+    );
+}
+
+function LevelInput({ label, value, onChange, placeholder }) {
+    return (
+        <div>
+            <label style={{ ...labelStyle, fontSize: '0.75rem' }}>{label}</label>
+            <input 
+                type="number" 
+                step="0.1" 
+                value={value} 
+                onChange={(e) => onChange(e.target.value)} 
+                style={{ ...inputStyle, padding: '0.6rem 0.75rem', fontSize: '0.9rem' }} 
+                placeholder={placeholder} 
+            />
+        </div>
+    );
+}
+
+const labelStyle = { display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.5rem' };
+const inputStyle = { width: '100%', padding: '0.75rem 1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-input-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontSize: '0.95rem', fontWeight: 500, outline: 'none', transition: 'all var(--transition-fast)', boxSizing: 'border-box' };
