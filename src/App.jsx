@@ -101,6 +101,7 @@ const ChemicalSafety = lazyWithRetry(() => import('./pages/ChemicalSafety.jsx'))
 const NoiseAssessment = lazyWithRetry(() => import('./pages/NoiseAssessment.jsx'));
 const NoiseAssessmentPage = lazyWithRetry(() => import('./pages/NoiseAssessmentPage.jsx'));
 const LOTOManager = lazyWithRetry(() => import('./pages/LOTOManager.jsx'));
+const LOTOPage = lazyWithRetry(() => import('./pages/LOTOPage.jsx'));
 const ConfinedSpace = lazyWithRetry(() => import('./pages/ConfinedSpace.jsx'));
 const WorkingAtHeight = lazyWithRetry(() => import('./pages/WorkingAtHeight.jsx'));
 const AuditManager = lazyWithRetry(() => import('./pages/AuditManager.jsx'));
@@ -434,6 +435,7 @@ function App() {
                 <Route path="/noise-assessment" element={<NoiseAssessment />} />
                 <Route path="/noise-assessment-page" element={<NoiseAssessmentPage />} />
                 <Route path="/loto" element={<LOTOManager />} />
+                <Route path="/loto-page" element={<LOTOPage />} />
                 <Route path="/confined-space" element={<ConfinedSpace />} />
                 <Route path="/working-height" element={<WorkingAtHeight />} />
                 <Route path="/audit" element={<AuditManager />} />
