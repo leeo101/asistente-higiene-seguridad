@@ -116,10 +116,32 @@ export default function ConfinedSpace() {
     });
 
     useEffect(() => {
-        const savedPermits = localStorage.getItem('confined_space_permits_db');
-        const savedActive = localStorage.getItem('confined_space_active_db');
-        if (savedPermits) setPermits(JSON.parse(savedPermits));
-        if (savedActive) setActivePermits(JSON.parse(savedActive));
+        const loadData = () => {
+            const savedPermits = localStorage.getItem('confined_space_permits_db');
+            const savedActive = localStorage.getItem('confined_space_active_db');
+            if (savedPermits) setPermits(JSON.parse(savedPermits));
+            if (savedActive) setActivePermits(JSON.parse(savedActive));
+        };
+
+        loadData();
+
+        const handleStorageChange = (e) => {
+            if (e.key === 'confined_space_permits_db' || e.key === 'confined_space_active_db') {
+                loadData();
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('created')) {
+            loadData();
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
     }, []);
 
     const savePermits = (data) => {

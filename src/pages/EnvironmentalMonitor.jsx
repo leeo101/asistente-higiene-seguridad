@@ -105,10 +105,30 @@ export default function EnvironmentalMonitor() {
     });
 
     useEffect(() => {
-        const savedMeasurements = localStorage.getItem('environmental_measurements_db');
-        const savedStations = localStorage.getItem('environmental_stations_db');
-        if (savedMeasurements) setMeasurements(JSON.parse(savedMeasurements));
-        if (savedStations) setStations(JSON.parse(savedStations));
+        const loadData = () => {
+            const saved = localStorage.getItem('environmental_measurements_db');
+            if (saved) setMeasurements(JSON.parse(saved));
+        };
+        
+        loadData();
+        
+        const handleStorageChange = (e) => {
+            if (e.key === 'environmental_measurements_db') {
+                loadData();
+            }
+        };
+        
+        window.addEventListener('storage', handleStorageChange);
+        
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('created')) {
+            loadData();
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+        
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
     }, []);
 
     const saveMeasurements = (data) => {

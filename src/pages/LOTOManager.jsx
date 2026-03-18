@@ -88,10 +88,32 @@ export default function LOTOManager() {
     });
 
     useEffect(() => {
-        const savedProcedures = localStorage.getItem('loto_procedures_db');
-        const savedActiveLOTOs = localStorage.getItem('loto_active_db');
-        if (savedProcedures) setProcedures(JSON.parse(savedProcedures));
-        if (savedActiveLOTOs) setActiveLOTOs(JSON.parse(savedActiveLOTOs));
+        const loadData = () => {
+            const savedProcedures = localStorage.getItem('loto_procedures_db');
+            const savedActiveLOTOs = localStorage.getItem('loto_active_db');
+            if (savedProcedures) setProcedures(JSON.parse(savedProcedures));
+            if (savedActiveLOTOs) setActiveLOTOs(JSON.parse(savedActiveLOTOs));
+        };
+
+        loadData();
+
+        const handleStorageChange = (e) => {
+            if (e.key === 'loto_procedures_db' || e.key === 'loto_active_db') {
+                loadData();
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('created')) {
+            loadData();
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
     }, []);
 
     const saveProcedures = (data) => {

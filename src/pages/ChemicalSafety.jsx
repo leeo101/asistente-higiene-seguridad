@@ -73,10 +73,35 @@ export default function ChemicalSafety() {
     });
 
     useEffect(() => {
-        const saved = localStorage.getItem('chemical_safety_db');
-        if (saved) {
-            setChemicals(JSON.parse(saved));
+        const loadChemicals = () => {
+            const saved = localStorage.getItem('chemical_safety_db');
+            if (saved) {
+                setChemicals(JSON.parse(saved));
+            }
+        };
+
+        loadChemicals();
+
+        // Escuchar cambios en localStorage desde otras páginas
+        const handleStorageChange = (e) => {
+            if (e.key === 'chemical_safety_db') {
+                loadChemicals();
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+
+        // También verificar si venimos de una creación exitosa
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('created')) {
+            loadChemicals();
+            // Limpiar la URL
+            window.history.replaceState({}, document.title, window.location.pathname);
         }
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
     }, []);
 
     const saveToStorage = (data) => {

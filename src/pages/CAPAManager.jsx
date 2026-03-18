@@ -106,8 +106,30 @@ export default function CAPAManager() {
     });
 
     useEffect(() => {
-        const savedCapas = localStorage.getItem('ehs_capa_db');
-        if (savedCapas) setCapas(JSON.parse(savedCapas));
+        const loadCapas = () => {
+            const savedCapas = localStorage.getItem('ehs_capa_db');
+            if (savedCapas) setCapas(JSON.parse(savedCapas));
+        };
+
+        loadCapas();
+
+        const handleStorageChange = (e) => {
+            if (e.key === 'ehs_capa_db') {
+                loadCapas();
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('created')) {
+            loadCapas();
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
     }, []);
 
     const saveCapas = (data) => {

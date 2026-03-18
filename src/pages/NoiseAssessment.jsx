@@ -82,10 +82,32 @@ export default function NoiseAssessment() {
     });
 
     useEffect(() => {
-        const savedMeasurements = localStorage.getItem('noise_assessment_db');
-        const savedWorkers = localStorage.getItem('noise_workers_db');
-        if (savedMeasurements) setMeasurements(JSON.parse(savedMeasurements));
-        if (savedWorkers) setWorkers(JSON.parse(savedWorkers));
+        const loadData = () => {
+            const savedMeasurements = localStorage.getItem('noise_assessment_db');
+            const savedWorkers = localStorage.getItem('noise_workers_db');
+            if (savedMeasurements) setMeasurements(JSON.parse(savedMeasurements));
+            if (savedWorkers) setWorkers(JSON.parse(savedWorkers));
+        };
+
+        loadData();
+
+        const handleStorageChange = (e) => {
+            if (e.key === 'noise_assessment_db' || e.key === 'noise_workers_db') {
+                loadData();
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('created')) {
+            loadData();
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
     }, []);
 
     const saveMeasurements = (data) => {
