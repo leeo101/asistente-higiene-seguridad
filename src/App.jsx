@@ -310,34 +310,47 @@ function App() {
                 alignItems: 'center',
                 gap: '1rem',
                 zIndex: 10,
-                padding: '0.8rem 1rem',
-                background: 'var(--color-header-bg)',
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
-                borderRadius: '14px',
+                padding: '0.75rem 1.25rem',
+                background: 'var(--glass-bg-header)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                borderRadius: 'var(--radius-2xl)',
                 border: '1px solid var(--glass-border)',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+                boxShadow: 'var(--glass-shadow)',
+                transition: 'all var(--transition-base)'
               }}>
               <button
                 onClick={() => setIsSidebarOpen(true)}
                 style={{
                   background: 'var(--color-background)',
                   border: '1px solid var(--color-border)',
-                  borderRadius: '10px',
-                  padding: '0.5rem',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: '0.6rem',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: 'var(--color-primary)',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+                  boxShadow: 'var(--shadow-sm)',
+                  transition: 'all var(--transition-base)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
                 }}
               >
-                <Menu size={22} />
+                <Menu size={22} strokeWidth={2.5} />
               </button>
-              <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', textDecoration: 'none', color: 'var(--color-text)', flex: 1 }}>
-                <img src="/logo.png" alt="Logo" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
-                <h1 className="header-title" style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text)', letterSpacing: '-0.3px' }}>Asistente HYS</h1>
+              <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', textDecoration: 'none', color: 'var(--color-text)', flex: 1, transition: 'opacity var(--transition-fast)' }}
+                onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
+                onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+              >
+                <img src="/logo.png" alt="Logo" style={{ width: '48px', height: '48px', objectFit: 'contain', filter: 'drop-shadow(0 2px 8px rgba(59, 130, 246, 0.2))' }} />
+                <h1 className="header-title" style={{ margin: 0, fontSize: '1.35rem', fontWeight: 900, color: 'var(--color-text)', letterSpacing: '-0.5px' }}>Asistente HYS</h1>
               </Link>
               {/* Global Search button */}
               <button
@@ -346,18 +359,29 @@ function App() {
                 style={{
                   background: 'var(--color-background)',
                   border: '1px solid var(--color-border)',
-                  borderRadius: '10px',
-                  padding: '0.5rem',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: '0.6rem',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: 'var(--color-text-muted)',
                   flexShrink: 0,
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+                  boxShadow: 'var(--shadow-sm)',
+                  transition: 'all var(--transition-base)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                  e.currentTarget.style.color = 'var(--color-primary)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                  e.currentTarget.style.color = 'var(--color-text-muted)';
                 }}
               >
-                <Search size={20} />
+                <Search size={20} strokeWidth={2.5} />
               </button>
               {/* Cloud sync status */}
               <CloudStatusIndicator />
