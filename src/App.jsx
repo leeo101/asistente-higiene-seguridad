@@ -109,7 +109,9 @@ const WorkingAtHeightPage = lazyWithRetry(() => import('./pages/WorkingAtHeightP
 const AuditManager = lazyWithRetry(() => import('./pages/AuditManager.jsx'));
 const AuditPage = lazyWithRetry(() => import('./pages/AuditPage.jsx'));
 const CAPAManager = lazyWithRetry(() => import('./pages/CAPAManager.jsx'));
+const CAPAPage = lazyWithRetry(() => import('./pages/CAPAPage.jsx'));
 const EnvironmentalMonitor = lazyWithRetry(() => import('./pages/EnvironmentalMonitor.jsx'));
+const EnvironmentalPage = lazyWithRetry(() => import('./pages/EnvironmentalPage.jsx'));
 
 import InstallBanner from './components/InstallBanner.jsx';
 import GlobalSearch from './components/GlobalSearch.jsx';
@@ -446,7 +448,9 @@ function App() {
                 <Route path="/audit" element={<AuditManager />} />
                 <Route path="/audit-page" element={<AuditPage />} />
                 <Route path="/capa" element={<CAPAManager />} />
+                <Route path="/capa-page" element={<CAPAPage />} />
                 <Route path="/environmental" element={<EnvironmentalMonitor />} />
+                <Route path="/environmental-page" element={<EnvironmentalPage />} />
                 <Route path="/calendar" element={<SafetyCalendar />} />
                 <Route path="/ai-camera-history" element={<AICameraHistory />} />
                 <Route path="/lighting" element={<LightingReport />} />
