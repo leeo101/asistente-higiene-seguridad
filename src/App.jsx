@@ -106,14 +106,22 @@ const ConfinedSpace = lazyWithRetry(() => import('./pages/ConfinedSpace.jsx'));
 const ConfinedSpacePage = lazyWithRetry(() => import('./pages/ConfinedSpacePage.jsx'));
 const WorkingAtHeight = lazyWithRetry(() => import('./pages/WorkingAtHeight.jsx'));
 const WorkingAtHeightPage = lazyWithRetry(() => import('./pages/WorkingAtHeightPage.jsx'));
+const WorkingAtHeightHistory = lazyWithRetry(() => import('./pages/WorkingAtHeightHistory.jsx'));
+const ConfinedSpaceHistory = lazyWithRetry(() => import('./pages/ConfinedSpaceHistory.jsx'));
+const ChemicalSafetyHistory = lazyWithRetry(() => import('./pages/ChemicalSafetyHistory.jsx'));
+const NoiseAssessmentHistory = lazyWithRetry(() => import('./pages/NoiseAssessmentHistory.jsx'));
+const LOTOHistory = lazyWithRetry(() => import('./pages/LOTOHistory.jsx'));
 const AuditManager = lazyWithRetry(() => import('./pages/AuditManager.jsx'));
 const AuditPage = lazyWithRetry(() => import('./pages/AuditPage.jsx'));
 const AuditCreate = lazyWithRetry(() => import('./pages/AuditCreate.jsx'));
 const AuditDetail = lazyWithRetry(() => import('./pages/AuditDetail.jsx'));
+const AuditHistory = lazyWithRetry(() => import('./pages/AuditHistory.jsx'));
 const CAPAManager = lazyWithRetry(() => import('./pages/CAPAManager.jsx'));
 const CAPAPage = lazyWithRetry(() => import('./pages/CAPAPage.jsx'));
+const CAPAHistory = lazyWithRetry(() => import('./pages/CAPAHistory.jsx'));
 const EnvironmentalMonitor = lazyWithRetry(() => import('./pages/EnvironmentalMonitor.jsx'));
 const EnvironmentalPage = lazyWithRetry(() => import('./pages/EnvironmentalPage.jsx'));
+const EnvironmentalHistory = lazyWithRetry(() => import('./pages/EnvironmentalHistory.jsx'));
 
 import InstallBanner from './components/InstallBanner.jsx';
 import GlobalSearch from './components/GlobalSearch.jsx';
@@ -439,22 +447,30 @@ function App() {
                 <Route path="/emergency-bot" element={<EmergencyBot />} />
                 <Route path="/extinguisher-ai" element={<ExtinguisherAI />} />
                 <Route path="/chemical-safety" element={<ChemicalSafety />} />
+                <Route path="/chemical-safety-history" element={<ChemicalSafetyHistory />} />
                 <Route path="/noise-assessment" element={<NoiseAssessment />} />
                 <Route path="/noise-assessment-page" element={<NoiseAssessmentPage />} />
-                <Route path="/loto" element={<LOTOManager />} />
-                <Route path="/loto-page" element={<LOTOPage />} />
+                <Route path="/noise-assessment-history" element={<NoiseAssessmentHistory />} />
                 <Route path="/confined-space" element={<ConfinedSpace />} />
                 <Route path="/confined-space-page" element={<ConfinedSpacePage />} />
+                <Route path="/confined-space-history" element={<ConfinedSpaceHistory />} />
                 <Route path="/working-height" element={<WorkingAtHeight />} />
                 <Route path="/working-height-page" element={<WorkingAtHeightPage />} />
+                <Route path="/working-height-history" element={<WorkingAtHeightHistory />} />
                 <Route path="/audit" element={<AuditManager />} />
                 <Route path="/audit-create" element={<AuditCreate />} />
                 <Route path="/audit/:id" element={<AuditDetail />} />
+                <Route path="/audit-history" element={<AuditHistory />} />
                 <Route path="/audit-page" element={<AuditPage />} />
                 <Route path="/capa" element={<CAPAManager />} />
                 <Route path="/capa-page" element={<CAPAPage />} />
+                <Route path="/capa-history" element={<CAPAHistory />} />
                 <Route path="/environmental" element={<EnvironmentalMonitor />} />
                 <Route path="/environmental-page" element={<EnvironmentalPage />} />
+                <Route path="/environmental-history" element={<EnvironmentalHistory />} />
+                <Route path="/loto" element={<LOTOManager />} />
+                <Route path="/loto-page" element={<LOTOPage />} />
+                <Route path="/loto-history" element={<LOTOHistory />} />
                 <Route path="/calendar" element={<SafetyCalendar />} />
                 <Route path="/ai-camera-history" element={<AICameraHistory />} />
                 <Route path="/lighting" element={<LightingReport />} />
