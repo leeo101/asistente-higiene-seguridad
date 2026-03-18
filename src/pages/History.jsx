@@ -84,6 +84,11 @@ export default function History() {
         try {
             const raw = localStorage.getItem(key);
             if (!raw || raw === 'null' || raw === 'undefined') return [];
+            // Basic sanitization: remove items that are null/invalid
+            if (typeof raw === 'string' && raw.includes('corrupted-')) {
+                console.warn(`[safeGetList] Corrupted data detected for key ${key}, ignoring.`);
+                return [];
+            }
             const parsed = JSON.parse(raw);
             if (!Array.isArray(parsed)) return [];
             // Basic sanitization: remove items that are null/invalid

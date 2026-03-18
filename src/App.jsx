@@ -8,6 +8,12 @@ import NetworkBadge from './components/NetworkBadge.jsx';
 import OfflineIndicator from './components/OfflineIndicator';
 import Home from './pages/Home.jsx';
 import Login from './pages/Login.jsx';
+import InstallBanner from './components/InstallBanner.jsx';
+import GlobalSearch from './components/GlobalSearch.jsx';
+import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
+import { SyncProvider, useSync } from './contexts/SyncContext.jsx';
+import { Toaster, toast } from 'react-hot-toast';
+import { usePaywall } from './hooks/usePaywall.js';
 
 // Custom lazy loader that catches chunk errors and reloads
 const lazyWithRetry = (componentImport) =>
@@ -139,13 +145,6 @@ const WorkingAtHeightForm = lazyWithRetry(() => import('./pages/WorkingAtHeightF
 const AuditForm = lazyWithRetry(() => import('./pages/AuditForm.jsx'));
 const CAPAForm = lazyWithRetry(() => import('./pages/CAPAForm.jsx'));
 const EnvironmentalForm = lazyWithRetry(() => import('./pages/EnvironmentalForm.jsx'));
-
-import InstallBanner from './components/InstallBanner.jsx';
-import GlobalSearch from './components/GlobalSearch.jsx';
-import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
-import { SyncProvider, useSync } from './contexts/SyncContext.jsx';
-import { Toaster, toast } from 'react-hot-toast';
-import { usePaywall } from './hooks/usePaywall.js';
 
 function SubscriptionGuard({ children }) {
   const status = typeof window !== 'undefined' ? localStorage.getItem('subscriptionStatus') : null;
