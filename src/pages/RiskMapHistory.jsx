@@ -145,7 +145,7 @@ export default function RiskMapHistory() {
                                     const url = `${window.location.origin}/v/${currentUser?.uid}/riskmap/${map.id}?print=true`;
                                     setQrTarget({ text: url, title: `Mapa de Riesgos — ${map.sector}` });
                                 }}
-                                style={{ padding: '0.5rem', borderRadius: '8px', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                style={{ padding: '0.5rem', borderRadius: '8px', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                 title="Generar QR"
                             >
                                 <QrCode size={16} />

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-    Tunnel, AlertTriangle, Plus, Search, 
+import {
+    Tent, AlertTriangle, Plus, Search, 
     FileText, Eye, Edit3, Trash2, CheckCircle2, 
     XCircle, Clock, User, Users, Calendar,
     Shield, Wind, Droplets, Thermometer, Activity,
@@ -314,7 +314,7 @@ export default function ConfinedSpace() {
                         justifyContent: 'center',
                         boxShadow: '0 4px 20px rgba(245, 158, 11, 0.3)'
                     }}>
-                        <Tunnel size={32} color="#ffffff" strokeWidth={2} />
+                        <Tent size={32} color="#ffffff" strokeWidth={2} />
                     </div>
                     <div>
                         <h1 style={{ 
@@ -705,7 +705,7 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
                 justifyContent: 'center',
                 flexShrink: 0
             }}>
-                <Tunnel size={28} color={isExpired ? '#9ca3af' : statusConfig.color} strokeWidth={2.5} />
+                <Tent size={28} color={isExpired ? '#9ca3af' : statusConfig.color} strokeWidth={2.5} />
             </div>
 
             {/* Información */}
@@ -744,7 +744,7 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
                     fontWeight: 500
                 }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <Tunnel size={14} />
+                        <Tent size={14} />
                         {permit.location || 'Sin ubicación'}
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
@@ -871,7 +871,7 @@ function EmptyState({ onAdd }) {
                 alignItems: 'center',
                 justifyContent: 'center'
             }}>
-                <Tunnel size={40} color="var(--color-text-muted)" />
+                <Tent size={40} color="var(--color-text-muted)" />
             </div>
             <h3 style={{ 
                 margin: '0 0 0.5rem 0', 
@@ -952,7 +952,7 @@ function ActivePermitsList({ activePermits, onComplete, onSuspend, onView, onAdd
                                 flexShrink: 0,
                                 animation: isExpired ? 'none' : 'pulse 2s infinite'
                             }}>
-                                <Tunnel size={32} strokeWidth={2.5} />
+                                <Tent size={32} strokeWidth={2.5} />
                                 <span style={{ fontSize: '0.65rem', fontWeight: 700, marginTop: '2px' }}>
                                     {timeRemaining}h
                                 </span>
@@ -1532,7 +1532,7 @@ function PermitDetailModal({ permit, statusConfig, onClose, CONFINED_SPACE_TYPES
                             justifyContent: 'center',
                             color: '#fff'
                         }}>
-                            <Tunnel size={32} strokeWidth={2.5} />
+                            <Tent size={32} strokeWidth={2.5} />
                         </div>
                         <div>
                             <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900 }}>
