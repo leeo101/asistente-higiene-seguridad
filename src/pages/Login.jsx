@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 
 export default function Login() {
     const navigate = useNavigate();
-    const { login, signup, currentUser } = useAuth();
+    const { login, signup, signInWithGoogle, currentUser } = useAuth();
     const location = useLocation();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -69,6 +69,24 @@ export default function Login() {
             navigate('/');
         } catch (error) {
             setStatus({ type: 'error', message: 'Correo o contraseña incorrectos.' });
+        }
+    };
+
+    const handleGoogleSignIn = async () => {
+        try {
+            toast.loading('Iniciando sesión con Google...', { duration: 1000 });
+            await signInWithGoogle();
+            toast.success('¡Bienvenido! 🎉');
+            navigate('/');
+        } catch (error) {
+            console.error('Google Sign-In Error:', error);
+            if (error.code === 'auth/popup-closed-by-user') {
+                toast.error('Inicio de sesión cancelado');
+            } else if (error.code === 'auth/account-exists-with-different-credential') {
+                toast.error('Este email ya está registrado. Usá tu contraseña habitual.');
+            } else {
+                toast.error('Error al iniciar con Google: ' + error.message);
+            }
         }
     };
 
@@ -357,6 +375,57 @@ export default function Login() {
                                 {status.type === 'loading' ? 'Cargando...' : 'Ingresar'}
                             </button>
                         </form>
+
+                        {/* Separador */}
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '1rem',
+                            margin: '1.5rem 0',
+                            color: 'var(--color-text-muted)',
+                            fontSize: '0.85rem'
+                        }}>
+                            <div style={{ flex: 1, height: '1px', background: 'var(--color-border, #e2e8f0)' }} />
+                            <span>o continuá con</span>
+                            <div style={{ flex: 1, height: '1px', background: 'var(--color-border, #e2e8f0)' }} />
+                        </div>
+
+                        {/* Google Sign-In Button */}
+                        <button
+                            onClick={handleGoogleSignIn}
+                            style={{
+                                width: '100%',
+                                padding: '0.9rem',
+                                background: '#ffffff',
+                                color: '#1e293b',
+                                border: '2px solid #e2e8f0',
+                                borderRadius: '12px',
+                                fontWeight: 700,
+                                fontSize: '0.95rem',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '0.8rem',
+                                transition: 'all 0.2s',
+                                marginBottom: '1rem'
+                            }}
+                            onMouseOver={(e) => {
+                                e.currentTarget.style.background = '#f8fafc';
+                                e.currentTarget.style.borderColor = '#cbd5e1';
+                                e.currentTarget.style.transform = 'translateY(-2px)';
+                            }}
+                            onMouseOut={(e) => {
+                                e.currentTarget.style.background = '#ffffff';
+                                e.currentTarget.style.borderColor = '#e2e8f0';
+                                e.currentTarget.style.transform = 'translateY(0)';
+                            }}
+                        >
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M18.125 8.125H10V11.875H14.6875C14.3125 13.875 12.875 15.5 10 15.5C6.6875 15.5 4.0625 12.8125 4.0625 10C4.0625 7.1875 6.6875 4.5 10 4.5C11.5625 4.5 12.875 5.0625 13.875 6.0625L16.5625 3.375C14.875 1.8125 12.5625 1 10 1C4.5625 1 0 5.5625 0 11C0 16.4375 4.5625 21 10 21C15.4375 21 19.375 17 19.375 12.5C19.375 11.6875 19.3125 10.9375 19.1875 10.1875H18.125V8.125Z" fill="#4285F4"/>
+                            </svg>
+                            Continuar con Google
+                        </button>
 
                         <div style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
                             <p style={{ marginBottom: '0.5rem' }}>
@@ -687,6 +756,57 @@ export default function Login() {
                                 )}
                             </button>
                         </form>
+
+                        {/* Separador */}
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '1rem',
+                            margin: '1.5rem 0',
+                            color: 'var(--color-text-muted)',
+                            fontSize: '0.85rem'
+                        }}>
+                            <div style={{ flex: 1, height: '1px', background: 'var(--color-border, #e2e8f0)' }} />
+                            <span>o registrate con</span>
+                            <div style={{ flex: 1, height: '1px', background: 'var(--color-border, #e2e8f0)' }} />
+                        </div>
+
+                        {/* Google Sign-In Button */}
+                        <button
+                            onClick={handleGoogleSignIn}
+                            style={{
+                                width: '100%',
+                                padding: '0.9rem',
+                                background: '#ffffff',
+                                color: '#1e293b',
+                                border: '2px solid #e2e8f0',
+                                borderRadius: '12px',
+                                fontWeight: 700,
+                                fontSize: '0.95rem',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '0.8rem',
+                                transition: 'all 0.2s',
+                                marginBottom: '1rem'
+                            }}
+                            onMouseOver={(e) => {
+                                e.currentTarget.style.background = '#f8fafc';
+                                e.currentTarget.style.borderColor = '#cbd5e1';
+                                e.currentTarget.style.transform = 'translateY(-2px)';
+                            }}
+                            onMouseOut={(e) => {
+                                e.currentTarget.style.background = '#ffffff';
+                                e.currentTarget.style.borderColor = '#e2e8f0';
+                                e.currentTarget.style.transform = 'translateY(0)';
+                            }}
+                        >
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M18.125 8.125H10V11.875H14.6875C14.3125 13.875 12.875 15.5 10 15.5C6.6875 15.5 4.0625 12.8125 4.0625 10C4.0625 7.1875 6.6875 4.5 10 4.5C11.5625 4.5 12.875 5.0625 13.875 6.0625L16.5625 3.375C14.875 1.8125 12.5625 1 10 1C4.5625 1 0 5.5625 0 11C0 16.4375 4.5625 21 10 21C15.4375 21 19.375 17 19.375 12.5C19.375 11.6875 19.3125 10.9375 19.1875 10.1875H18.125V8.125Z" fill="#4285F4"/>
+                            </svg>
+                            Continuar con Google
+                        </button>
 
                         <p style={{
                             marginTop: '1.5rem',

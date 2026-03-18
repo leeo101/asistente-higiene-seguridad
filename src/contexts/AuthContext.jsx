@@ -4,7 +4,9 @@ import {
     signInWithEmailAndPassword,
     signOut,
     onAuthStateChanged,
-    updateProfile
+    updateProfile,
+    GoogleAuthProvider,
+    signInWithPopup
 } from 'firebase/auth';
 import { auth } from '../firebase';
 
@@ -24,6 +26,35 @@ export const AuthProvider = ({ children }) => {
             displayName: name
         });
         return userCredential;
+    };
+
+    const signInWithGoogle = async () => {
+        const provider = new GoogleAuthProvider();
+        provider.addScope('email');
+        provider.addScope('profile');
+
+        // Forzar selección de cuenta siempre
+        provider.setCustomParameters({
+            prompt: 'select_account'
+        });
+
+        const result = await signInWithPopup(auth, provider);
+
+        // Guardar datos básicos del usuario de Google
+        const user = result.user;
+        if (user) {
+            const personalData = {
+                name: user.displayName || '',
+                email: user.email,
+                photo: user.photoURL || '',
+                country: 'argentina',
+                profileComplete: false,
+                googleAccount: true
+            };
+            localStorage.setItem('personalData', JSON.stringify(personalData));
+        }
+
+        return result;
     };
 
     const login = (email, password) => {
@@ -79,6 +110,7 @@ export const AuthProvider = ({ children }) => {
         currentUser,
         login,
         signup,
+        signInWithGoogle,
         logout,
         deleteAccount
     };
