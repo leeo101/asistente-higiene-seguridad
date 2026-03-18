@@ -369,38 +369,45 @@ export default function ChecklistManager() {
                     className="btn-floating-action"
                     style={{ background: '#FF8B00', color: '#ffffff' }}
                 >
-                    <Printer size={18} /> IMPRIMIR PDF
+                    <Printer size={18} /> IMPRIMIR
                 </button>
             </div>
+
+            {/* Header - Responsive */}
             <div className="no-print" style={{
-                marginBottom: '2rem',
-                padding: '2.5rem',
+                marginBottom: '1.5rem',
+                padding: '1.5rem',
                 background: 'var(--color-surface)',
-                borderRadius: '24px',
+                borderRadius: '20px',
                 border: '1px solid #EBECF0',
                 display: 'flex',
-                justifyContent: 'space-between',
-                gap: '2rem',
+                flexDirection: 'column',
+                gap: '1rem',
                 alignItems: 'center',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+                boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+                textAlign: 'center'
             }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                    <button onClick={() => navigate('/#tools')} style={{ padding: '0.6rem', background: 'var(--color-background)', borderRadius: '12px', border: 'none', cursor: 'pointer', color: 'var(--color-text)', display: 'flex' }}>
-                        <ArrowLeft size={22} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', width: '100%', justifyContent: 'center' }}>
+                    <button onClick={() => navigate('/#tools')} style={{ padding: '0.5rem', background: 'var(--color-background)', borderRadius: '10px', border: 'none', cursor: 'pointer', color: 'var(--color-text)', display: 'flex' }}>
+                        <ArrowLeft size={20} />
                     </button>
-                    <div>
-                        <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, color: 'var(--color-text)', letterSpacing: '-1px', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                            <ClipboardCheck className="text-blue-600" size={32} />
+                    <div style={{ flex: 1 }}>
+                        <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.5rem)', fontWeight: 900, color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                            <ClipboardCheck size={24} />
                             Generador de Checklist
                         </h1>
-                        <p style={{ margin: 0, color: 'var(--color-text-muted)', fontWeight: 600, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Control H&S</p>
+                        <p style={{ margin: '0.25rem 0 0 0', color: 'var(--color-text-muted)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Control H&S</p>
                     </div>
                 </div>
-
             </div>
 
-            {/* TEMPLATE SELECTOR - EXPLICITLY HIDDEN IN PRINT */}
-            <div className="pb-4 pt-1 no-print grid-4-cols gap-6 mb-10 max-w-5xl mx-auto" id="template-selector">
+            {/* TEMPLATE SELECTOR - Responsive Grid */}
+            <div className="no-print" style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
+                gap: '0.8rem',
+                marginBottom: '1.5rem'
+            }}>
                 {Object.entries(DEFAULT_TEMPLATES).map(([key, value]) => {
                     const active = activeSections.some(s => s.id === key);
                     return (
@@ -409,7 +416,7 @@ export default function ChecklistManager() {
                             onClick={() => toggleTemplate(key)}
                             className="card"
                             style={{
-                                padding: '1rem',
+                                padding: '0.8rem 0.5rem',
                                 margin: 0,
                                 border: active ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
                                 background: active ? 'var(--color-background)' : 'var(--color-surface)',
@@ -417,48 +424,49 @@ export default function ChecklistManager() {
                                 flexDirection: 'column',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                gap: '0.5rem',
-                                textAlign: 'center'
+                                gap: '0.4rem',
+                                textAlign: 'center',
+                                minHeight: '80px'
                             }}
                         >
                             <div style={{ color: active ? 'var(--color-primary)' : 'var(--color-text-muted)' }}>
-                                {React.cloneElement(value.icon, { size: 24 })}
+                                {React.cloneElement(value.icon, { size: 20 })}
                             </div>
-                            <span style={{ fontSize: '0.75rem', fontWeight: 800, lineHeight: 1.2 }}>{value.title}</span>
+                            <span style={{ fontSize: '0.65rem', fontWeight: 800, lineHeight: 1.1 }}>{value.title}</span>
                         </button>
                     );
                 })}
             </div>
 
-            {/* EDITABLE SECTIONS - VISTA PREVIA EDICIÓN (NO PRINT) */}
+            {/* EDITABLE SECTIONS - Responsive */}
             <div className="no-print" style={{ marginBottom: '2rem' }}>
                 {activeSections.map(section => {
                     const sectionFails = section.items.filter(i => i.status === 'FAIL');
                     return (
                         <div key={section.id} className="card" style={{ padding: 0, marginBottom: '1.5rem' }}>
-                            <div style={{ background: 'var(--color-background)', padding: '1rem', borderBottom: '2px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', minHeight: '4rem' }}>
+                            <div style={{ background: 'var(--color-background)', padding: '1rem', borderBottom: '2px solid var(--color-border)', display: 'flex', flexDirection: 'column', gap: '0.8rem', alignItems: 'center' }}>
                                 <input
                                     className="font-black text-xl uppercase tracking-tighter bg-transparent outline-none w-full border-none focus:ring-0 text-black text-center placeholder:text-slate-400"
-                                    style={{ textAlign: 'center', margin: 0 }}
+                                    style={{ textAlign: 'center', margin: 0, width: '100%' }}
                                     value={section.title}
                                     onChange={e => updateSectionTitle(section.id, e.target.value)}
                                 />
-                                <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0, marginLeft: '1rem' }}>
+                                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
                                     <button
                                         onClick={() => removeSection(section.id)}
-                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-danger)', color: '#ffffff', fontSize: '0.65rem', fontWeight: 900, border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-danger)', color: '#ffffff', fontSize: '0.65rem', fontWeight: 900, border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', whiteSpace: 'nowrap' }}
                                     >
                                         <X size={12} strokeWidth={4} /> QUITAR
                                     </button>
                                     <button
                                         onClick={() => checkAllOk(section.id)}
-                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-text)', color: '#ffffff', fontSize: '0.65rem', fontWeight: 900, border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-text)', color: '#ffffff', fontSize: '0.65rem', fontWeight: 900, border: 'none', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap' }}
                                     >
                                         TODO OK
                                     </button>
                                     <button
                                         onClick={() => addItem(section.id)}
-                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-primary)', color: '#ffffff', fontSize: '0.65rem', fontWeight: 900, border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-primary)', color: '#ffffff', fontSize: '0.65rem', fontWeight: 900, border: 'none', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap' }}
                                     >
                                         + ITEM
                                     </button>
@@ -468,13 +476,13 @@ export default function ChecklistManager() {
                             <div>
                                 {section.items.map((item, idx) => (
                                     <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '0', borderBottom: idx === section.items.length - 1 ? 'none' : '1px solid var(--color-border)' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', padding: '1rem', gap: '1rem' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', padding: '1rem', gap: '0.8rem', flexWrap: 'wrap' }}>
                                             <div style={{ minWidth: '24px', height: '24px', background: 'var(--color-background)', color: 'var(--color-text-muted)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 900, flexShrink: 0 }}>
                                                 {idx + 1}
                                             </div>
                                             <textarea
                                                 rows={1}
-                                                style={{ flex: 1, padding: '0.5rem', fontWeight: 700, fontSize: '0.9rem', outline: 'none', background: 'transparent', resize: 'none', border: 'none', color: 'var(--color-text)' }}
+                                                style={{ flex: 1, minWidth: '200px', padding: '0.5rem', fontWeight: 700, fontSize: '0.9rem', outline: 'none', background: 'transparent', resize: 'none', border: 'none', color: 'var(--color-text)' }}
                                                 value={item.text}
                                                 onInput={(e) => {
                                                     e.target.style.height = 'auto';
@@ -501,7 +509,7 @@ export default function ChecklistManager() {
                                                 <Trash2 size={15} />
                                             </button>
                                         </div>
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.5rem', padding: '0.5rem 1rem', background: 'var(--color-background)' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.5rem', padding: '0.5rem 1rem', background: 'var(--color-background)', flexWrap: 'wrap' }}>
                                             <div className="checklist-status-buttons" style={{ flexShrink: 0, display: 'flex', gap: '0.5rem' }}>
                                                 <StatusBtn active={item.status === 'OK'} type="OK" onClick={() => updateItem(section.id, idx, 'status', 'OK')} />
                                                 <StatusBtn active={item.status === 'FAIL'} type="FAIL" onClick={() => updateItem(section.id, idx, 'status', 'FAIL')} />
