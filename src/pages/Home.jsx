@@ -16,6 +16,7 @@ import { collection, query, where, getDocs, doc, getDoc, updateDoc } from 'fireb
 import AdBanner from '../components/AdBanner';
 import StarryBackground from '../components/StarryBackground';
 import OnboardingModal from '../components/OnboardingModal';
+import InteractiveTour from '../components/InteractiveTour';
 import StickyCtaBanner from '../components/StickyCtaBanner';
 import StatsBar from '../components/StatsBar';
 import NewsWidget from '../components/NewsWidget';
@@ -166,6 +167,7 @@ export default function Home() {
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [daysLeft, setDaysLeft] = useState(null);
     const [showOnboarding, setShowOnboarding] = useState(false);
+    const [showInteractiveTour, setShowInteractiveTour] = useState(false);
     const [stats, setStats] = useState([
         { label: 'Accidentes', value: 0, icon: <Siren />, color: '#ef4444', grad: 'linear-gradient(135deg,#ef4444,#b91c1c)', key: 'accident_history' },
         { label: 'ATS', value: 0, icon: <ShieldCheck />, color: '#10b981', grad: 'linear-gradient(135deg,#10b981,#059669)', key: 'ats_history' },
@@ -209,12 +211,14 @@ export default function Home() {
             setIsSubscribed(isPro());
             setDaysLeft(daysRemaining());
 
-            // Onboarding: show once per user account
+            // Onboarding: show interactive tour for new users
             if (currentUser) {
-                const onboardingKey = `onboarding_done_${currentUser.uid} `;
-                if (!localStorage.getItem(onboardingKey)) {
-                    setTimeout(() => setShowOnboarding(true), 1000);
-                    localStorage.setItem(onboardingKey, '1');
+                const tourKey = 'interactive_tour_completed';
+                const hasCompletedTour = localStorage.getItem(tourKey);
+
+                if (!hasCompletedTour) {
+                    // Mostrar tour interactivo después de un breve delay
+                    setTimeout(() => setShowInteractiveTour(true), 1500);
                 }
             }
         }
@@ -297,8 +301,10 @@ export default function Home() {
 
     return (
         <div className="page-transition" style={{ paddingBottom: '4rem' }}>
-            {/* Onboarding modal — solo una vez para usuarios nuevos */}
-            {showOnboarding && <OnboardingModal onClose={() => setShowOnboarding(false)} />}
+            {/* Tour Interactivo — solo para usuarios nuevos */}
+            {showInteractiveTour && (
+                <InteractiveTour onComplete={() => setShowInteractiveTour(false)} />
+            )}
 
             {/* Sticky CTA — solo para visitantes sin cuenta */}
             {!currentUser && <StickyCtaBanner />}
