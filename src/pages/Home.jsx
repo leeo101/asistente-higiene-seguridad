@@ -159,13 +159,13 @@ const quickLinks = [
     { to: '/stop-cards', icon: <TriangleAlert size={26} />, label: 'Tarjetas STOP', sub: 'Observaciones', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true },
     // Herramientas Profesionales Internacionales
     { to: '/chemical-safety', icon: <Flame size={26} />, label: 'Químicos', sub: 'GHS/SGA Internacional', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true },
-    { to: '/noise-assessment-page', icon: <Volume2 size={26} />, label: 'Ruido', sub: 'ISO 9612', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true },
-    { to: '/loto-page', icon: <Lock size={26} />, label: 'LOTO', sub: 'OSHA 1910.147', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true },
-    { to: '/confined-space-page', icon: <Tent size={26} />, label: 'Espacios', sub: 'OSHA 1910.146', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', premium: true },
-    { to: '/working-height-page', icon: <ArrowDown size={26} />, label: 'Altura', sub: 'OSHA 1926.501', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true },
-    { to: '/audit-page', icon: <ClipboardCheck size={26} />, label: 'Auditorías', sub: 'ISO 45001', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true },
-    { to: '/capa-page', icon: <RefreshCw size={26} />, label: 'CAPA', sub: 'Mejora Continua', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true },
-    { to: '/environmental-page', icon: <Leaf size={26} />, label: 'Ambiental', sub: 'ISO 14001', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true },
+    { to: '/noise-assessment-page', icon: <Volume2 size={26} />, label: 'Ruido', sub: 'ISO 9612 • Página Completa', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true },
+    { to: '/loto-page', icon: <Lock size={26} />, label: 'LOTO', sub: 'OSHA 1910.147 • Página Completa', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true },
+    { to: '/confined-space-page', icon: <Tent size={26} />, label: 'Espacios', sub: 'OSHA 1910.146 • Página Completa', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', premium: true },
+    { to: '/working-height-page', icon: <ArrowDown size={26} />, label: 'Altura', sub: 'OSHA 1926.501 • Página Completa', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true },
+    { to: '/audit-page', icon: <ClipboardCheck size={26} />, label: 'Auditorías', sub: 'ISO 45001 • Página Completa', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true },
+    { to: '/capa-page', icon: <RefreshCw size={26} />, label: 'CAPA', sub: 'Mejora Continua • Página Completa', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true },
+    { to: '/environmental-page', icon: <Leaf size={26} />, label: 'Ambiental', sub: 'ISO 14001 • Página Completa', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true },
 ];
 
 export default function Home() {
