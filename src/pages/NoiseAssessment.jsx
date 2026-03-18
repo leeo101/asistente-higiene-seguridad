@@ -83,7 +83,7 @@ export default function NoiseAssessment() {
 
     useEffect(() => {
         const loadData = () => {
-            const savedMeasurements = localStorage.getItem('noise_assessment_db');
+            const savedMeasurements = localStorage.getItem('noise_assessments_db');
             const savedWorkers = localStorage.getItem('noise_workers_db');
             if (savedMeasurements) setMeasurements(JSON.parse(savedMeasurements));
             if (savedWorkers) setWorkers(JSON.parse(savedWorkers));

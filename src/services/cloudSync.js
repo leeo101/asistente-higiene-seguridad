@@ -176,6 +176,14 @@ export const SYNC_COLLECTIONS = [
     'risk_assessments_history',
     'checklists_history',
     'ppe_items',
+    'chemical_safety_db',
+    'noise_assessments_db',
+    'loto_procedures_db',
+    'confined_space_permits',
+    'working_at_height_permits',
+    'ehs_audits_db',
+    'ehs_capa_db',
+    'environmental_measurements_db',
 ];
 
 export const SYNC_DOCUMENTS = [

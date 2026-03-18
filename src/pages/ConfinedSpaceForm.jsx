@@ -46,8 +46,8 @@ export default function ConfinedSpaceForm() {
             status: 'pending'
         };
 
-        const currentData = JSON.parse(localStorage.getItem('confined_space_permits_db') || '[]');
-        localStorage.setItem('confined_space_permits_db', JSON.stringify([newEntry, ...currentData]));
+        const currentData = JSON.parse(localStorage.getItem('confined_space_permits') || '[]');
+        localStorage.setItem('confined_space_permits', JSON.stringify([newEntry, ...currentData]));
         
         navigate('/confined-space');
     };

@@ -57,9 +57,8 @@ export default function WorkingAtHeightForm() {
             status: 'open'
         };
 
-        const saved = JSON.parse(localStorage.getItem('working_height_permits_db') || '[]');
-        const updated = [newPermit, ...saved];
-        localStorage.setItem('working_height_permits_db', JSON.stringify(updated));
+        const currentData = JSON.parse(localStorage.getItem('working_at_height_permits') || '[]');
+        localStorage.setItem('working_at_height_permits', JSON.stringify([newPermit, ...currentData]));
         
         navigate('/working-height-page');
     };

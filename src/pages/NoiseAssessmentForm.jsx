@@ -59,8 +59,8 @@ export default function NoiseAssessmentForm() {
             status: calculateRiskLevel(parseFloat(measurement.levels.lavg) || 0)
         };
 
-        const currentData = JSON.parse(localStorage.getItem('noise_assessment_db') || '[]');
-        localStorage.setItem('noise_assessment_db', JSON.stringify([newEntry, ...currentData]));
+        const currentData = JSON.parse(localStorage.getItem('noise_assessments_db') || '[]');
+        localStorage.setItem('noise_assessments_db', JSON.stringify([newEntry, ...currentData]));
         
         navigate('/noise-assessment-page');
     };

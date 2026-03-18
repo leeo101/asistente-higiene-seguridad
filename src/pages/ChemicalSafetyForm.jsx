@@ -69,9 +69,9 @@ export default function ChemicalSafetyForm() {
             status: 'active'
         };
 
-        const saved = JSON.parse(localStorage.getItem('chemical_safety_db') || '[]');
-        const updated = [newChemical, ...saved];
-        localStorage.setItem('chemical_safety_db', JSON.stringify(updated));
+        const currentData = JSON.parse(localStorage.getItem('chemical_safety_db') || '[]');
+        const updatedData = [newChemical, ...JSON.parse(localStorage.getItem('chemical_safety_db') || '[]')];
+        localStorage.setItem('chemical_safety_db', JSON.stringify(updatedData));
         
         navigate('/chemical-safety?created=' + newChemical.id);
     };

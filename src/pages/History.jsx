@@ -3,7 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
     ArrowLeft, Search, Calendar, ChevronRight,
     ClipboardList, Flame, BarChart3, ShieldAlert, Plus, Sparkles, Trash2, Camera, Lightbulb, HardHat, Share2,
-    ClipboardCheck, ScrollText, ShieldCheck, KeySquare, Bot, TriangleAlert, FileText, Shield, ThermometerSun, Siren, Map, BookOpen
+    ClipboardCheck, ScrollText, ShieldCheck, KeySquare, Bot, TriangleAlert, FileText, Shield, ThermometerSun, Siren, Map, BookOpen,
+    FlaskConical, Volume2, Lock, Tent, Droplets
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useSync } from '../contexts/SyncContext';
@@ -114,6 +115,14 @@ export default function History() {
             riskmaps: safeGetList('risk_map_history').length,
             stopCards: safeGetList('stop_cards_history').length,
             extinguishers: safeGetList('extinguishers_inventory').length,
+            chemicalSafety: safeGetList('chemical_safety_db').length,
+            noise: safeGetList('noise_assessments_db').length,
+            loto: safeGetList('loto_procedures_db').length,
+            confinedSpace: safeGetList('confined_space_permits').length,
+            workHeight: safeGetList('working_at_height_permits').length,
+            audits: safeGetList('ehs_audits_db').length,
+            capa: safeGetList('ehs_capa_db').length,
+            environmental: safeGetList('environmental_measurements_db').length,
         });
     };
 
@@ -204,6 +213,14 @@ export default function History() {
         { title: 'Permisos de Trabajo', icon: <KeySquare size={24} />, color: '#2563eb', bg: 'rgba(37,99,235,0.1)', path: '/work-permit-history', countKey: 'workPermits' },
         { title: 'Simulacros', icon: <Siren size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/drills-history', countKey: 'drills' },
         { title: 'Tarjetas STOP', icon: <TriangleAlert size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/stop-cards-history', countKey: 'stopCards' },
+        { title: 'Auditorías de Seguridad', icon: <ClipboardCheck size={24} />, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', path: '/audit-history', countKey: 'audits' },
+        { title: 'Gestión CAPA', icon: <CheckCircle2 size={24} />, color: '#10b981', bg: 'rgba(16,185,129,0.1)', path: '/capa-history', countKey: 'capa' },
+        { title: 'LOTO - Bloqueo/Etiquetado', icon: <Lock size={24} />, color: '#dc2626', bg: 'rgba(220,38,38,0.1)', path: '/loto-history', countKey: 'loto' },
+        { title: 'Mediciones de Ruido', icon: <Volume2 size={24} />, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', path: '/noise-assessment-history', countKey: 'noise' },
+        { title: 'Monitoreo Ambiental', icon: <Droplets size={24} />, color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', path: '/environmental-history', countKey: 'environmental' },
+        { title: 'Permisos de Espacios Confinados', icon: <Tent size={24} />, color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', path: '/confined-space-history', countKey: 'confinedSpace' },
+        { title: 'Permisos Trabajo en Altura', icon: <HardHat size={24} />, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', path: '/working-at-height-history', countKey: 'workHeight' },
+        { title: 'Seguridad Química (SGA)', icon: <FlaskConical size={24} />, color: '#ec4899', bg: 'rgba(236,72,153,0.1)', path: '/chemical-safety-history', countKey: 'chemicalSafety' },
     ];
 
     // ─── HUB ──────────────────────────────────────────────────────

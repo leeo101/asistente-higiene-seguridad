@@ -27,7 +27,7 @@ export default function NoiseAssessmentPage() {
         handleResize();
         window.addEventListener('resize', handleResize);
         
-        const saved = localStorage.getItem('noise_assessment_db');
+        const saved = localStorage.getItem('noise_assessments_db');
         if (saved) setMeasurements(JSON.parse(saved));
         
         return () => window.removeEventListener('resize', handleResize);
