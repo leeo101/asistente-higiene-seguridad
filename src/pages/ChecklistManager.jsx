@@ -608,19 +608,32 @@ export default function ChecklistManager() {
                 </div>
             </div>
 
-            <ChecklistPdfGenerator
-                checklistData={{
-                    companyInfo,
-                    inspectionInfo,
-                    activeSections,
-                    observations,
-                    actionPlan,
-                    nextReview,
-                    selectedNorms,
-                    showSignatures,
-                    availableNorms
+            {/* PDF Generator - Fuera de pantalla, solo visible al imprimir o generar PDF */}
+            <div
+                id="pdf-generator-container"
+                className="print-only"
+                style={{
+                    position: 'fixed',
+                    left: '-99999px',
+                    top: 0,
+                    width: '210mm',
+                    visibility: 'hidden'
                 }}
-            />
+            >
+                <ChecklistPdfGenerator
+                    checklistData={{
+                        companyInfo,
+                        inspectionInfo,
+                        activeSections,
+                        observations,
+                        actionPlan,
+                        nextReview,
+                        selectedNorms,
+                        showSignatures,
+                        availableNorms
+                    }}
+                />
+            </div>
         </div>
     );
 }

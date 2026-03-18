@@ -43,7 +43,6 @@ export default function ChecklistPdfGenerator({ checklistData }) {
                 style={{
                     width: '100%', maxWidth: '210mm', minHeight: '297mm',
                     padding: '15mm', background: '#ffffff', color: '#000000',
-                    boxShadow: '0 20px 40px rgba(0,0,0,0.1)', borderRadius: '8px',
                     boxSizing: 'border-box', margin: '0 auto', fontSize: '10pt',
                     fontFamily: 'system-ui, -apple-system, sans-serif'
                 }}
