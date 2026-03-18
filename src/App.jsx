@@ -5,6 +5,7 @@ import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
 import LoadingScreen from './components/LoadingScreen.jsx';
 import NetworkBadge from './components/NetworkBadge.jsx';
+import OfflineIndicator from './components/OfflineIndicator';
 import Home from './pages/Home.jsx';
 import Login from './pages/Login.jsx';
 
@@ -266,6 +267,7 @@ function App() {
         <ScrollToTop />
         <GlobalPrintGuard />
         <NetworkBadge />
+        <OfflineIndicator />
         <Toaster
           position="top-center"
           reverseOrder={false}
