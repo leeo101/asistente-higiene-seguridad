@@ -260,20 +260,58 @@ export default function NoiseAssessmentPage() {
                 )}
             </div>
 
-            {/* Modal de Agregar - Full Screen en Mobile */}
+            {/* Modal de Agregar - Full Screen */}
             {showAddModal && (
-                <AddMeasurementModal
-                    measurement={newMeasurement}
-                    setMeasurement={setNewMeasurement}
-                    onSave={handleAddMeasurement}
-                    onClose={() => {
-                        setShowAddModal(false);
-                        resetForm();
-                    }}
-                    isMobile={isMobile}
-                    MEASUREMENT_TYPES={MEASUREMENT_TYPES}
-                    HEARING_PROTECTION={HEARING_PROTECTION}
-                />
+                <div style={{
+                    position: 'fixed',
+                    inset: 0,
+                    background: 'var(--color-background)',
+                    zIndex: 9999,
+                    overflow: 'auto'
+                }}>
+                    <div style={{
+                        background: 'var(--color-surface)',
+                        borderBottom: '1px solid var(--color-border)',
+                        padding: '1rem',
+                        position: 'sticky',
+                        top: 0,
+                        zIndex: 100,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '1rem'
+                    }}>
+                        <button
+                            onClick={() => setShowAddModal(false)}
+                            style={{
+                                padding: '0.5rem',
+                                background: 'var(--color-background)',
+                                border: '1px solid var(--color-border)',
+                                borderRadius: 'var(--radius-lg)',
+                                cursor: 'pointer',
+                                color: 'var(--color-text)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}
+                        >
+                            <ArrowLeft size={20} />
+                        </button>
+                        <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900 }}>Nueva Medición de Ruido</h2>
+                    </div>
+                    <div style={{ padding: '1rem', maxWidth: '700px', margin: '0 auto' }}>
+                        <AddMeasurementForm
+                            measurement={newMeasurement}
+                            setMeasurement={setNewMeasurement}
+                            onSave={() => {
+                                handleAddMeasurement();
+                                setShowAddModal(false);
+                            }}
+                            onCancel={() => setShowAddModal(false)}
+                            MEASUREMENT_TYPES={MEASUREMENT_TYPES}
+                            HEARING_PROTECTION={HEARING_PROTECTION}
+                        />
+                    </div>
+                </div>
             )}
 
             {/* Modal de Detalle */}
@@ -415,106 +453,66 @@ function EmptyState({ onAdd, isMobile }) {
     );
 }
 
-function AddMeasurementModal({ measurement, setMeasurement, onSave, onClose, isMobile, MEASUREMENT_TYPES, HEARING_PROTECTION }) {
+function AddMeasurementForm({ measurement, setMeasurement, onSave, onCancel, MEASUREMENT_TYPES, HEARING_PROTECTION }) {
     const handleLevelChange = (field, value) => {
         setMeasurement({ ...measurement, levels: { ...measurement.levels, [field]: value } });
     };
 
     return (
-        <div style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.7)',
-            backdropFilter: 'blur(8px)',
-            zIndex: 9999,
-            display: 'flex',
-            alignItems: isMobile ? 'flex-end' : 'center',
-            justifyContent: 'center'
-        }} onClick={onClose}>
-            <div
-                className="card"
-                style={{
-                    width: isMobile ? '100%' : '100%',
-                    maxWidth: isMobile ? '100%' : '700px',
-                    maxHeight: isMobile ? '90vh' : '90vh',
-                    overflow: 'auto',
-                    margin: isMobile ? 0 : 'auto',
-                    borderRadius: isMobile ? '20px 20px 0 0' : 'var(--radius-2xl)'
-                }}
-                onClick={e => e.stopPropagation()}
-            >
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '1.5rem',
-                    paddingBottom: '1rem',
-                    borderBottom: '1px solid var(--color-border)',
-                    position: 'sticky',
-                    top: 0,
-                    background: 'var(--color-surface)',
-                    zIndex: 10
-                }}>
-                    <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900 }}>Nueva Medición de Ruido</h2>
-                    <button onClick={onClose} style={{ padding: '0.5rem', background: 'var(--color-background)', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: 'var(--color-text)' }}>
-                        <XCircle size={24} />
-                    </button>
+        <div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                    <label style={labelStyle}>Trabajador *</label>
+                    <input type="text" value={measurement.workerName} onChange={(e) => setMeasurement({ ...measurement, workerName: e.target.value })} style={inputStyle} placeholder="Nombre completo" />
                 </div>
+                <div>
+                    <label style={labelStyle}>Fecha</label>
+                    <input type="date" value={measurement.date} onChange={(e) => setMeasurement({ ...measurement, date: e.target.value })} style={inputStyle} />
+                </div>
+                <div>
+                    <label style={labelStyle}>Ubicación</label>
+                    <input type="text" value={measurement.location} onChange={(e) => setMeasurement({ ...measurement, location: e.target.value })} style={inputStyle} placeholder="Ej: Planta Principal" />
+                </div>
+                <div>
+                    <label style={labelStyle}>Tarea</label>
+                    <input type="text" value={measurement.task} onChange={(e) => setMeasurement({ ...measurement, task: e.target.value })} style={inputStyle} placeholder="Ej: Operación de sierra" />
+                </div>
+                <div>
+                    <label style={labelStyle}>Duración (horas)</label>
+                    <input type="number" step="0.5" value={measurement.duration} onChange={(e) => setMeasurement({ ...measurement, duration: e.target.value })} style={inputStyle} placeholder="4" />
+                </div>
+                <div>
+                    <label style={labelStyle}>Técnico</label>
+                    <input type="text" value={measurement.technician} onChange={(e) => setMeasurement({ ...measurement, technician: e.target.value })} style={inputStyle} placeholder="Nombre" />
+                </div>
+            </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem' }}>
-                    <div style={isMobile ? { gridColumn: '1 / -1' } : {}}>
-                        <label style={labelStyle}>Trabajador *</label>
-                        <input type="text" value={measurement.workerName} onChange={(e) => setMeasurement({ ...measurement, workerName: e.target.value })} style={inputStyle} placeholder="Nombre completo" />
-                    </div>
-                    <div>
-                        <label style={labelStyle}>Fecha</label>
-                        <input type="date" value={measurement.date} onChange={(e) => setMeasurement({ ...measurement, date: e.target.value })} style={inputStyle} />
-                    </div>
-                    <div style={isMobile ? { gridColumn: '1 / -1' } : {}}>
-                        <label style={labelStyle}>Ubicación</label>
-                        <input type="text" value={measurement.location} onChange={(e) => setMeasurement({ ...measurement, location: e.target.value })} style={inputStyle} placeholder="Ej: Planta Principal" />
-                    </div>
-                    <div style={isMobile ? { gridColumn: '1 / -1' } : {}}>
-                        <label style={labelStyle}>Tarea</label>
-                        <input type="text" value={measurement.task} onChange={(e) => setMeasurement({ ...measurement, task: e.target.value })} style={inputStyle} placeholder="Ej: Operación de sierra" />
-                    </div>
-                    <div>
-                        <label style={labelStyle}>Duración (horas)</label>
-                        <input type="number" step="0.5" value={measurement.duration} onChange={(e) => setMeasurement({ ...measurement, duration: e.target.value })} style={inputStyle} placeholder="4" />
-                    </div>
-                    <div>
-                        <label style={labelStyle}>Técnico</label>
-                        <input type="text" value={measurement.technician} onChange={(e) => setMeasurement({ ...measurement, technician: e.target.value })} style={inputStyle} placeholder="Nombre" />
-                    </div>
+            {/* Niveles */}
+            <div style={{ marginTop: '1.5rem' }}>
+                <label style={labelStyle}>Niveles de Ruido (dB)</label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
+                    <LevelInput label="Lavg (Promedio)" value={measurement.levels.lavg} onChange={(v) => handleLevelChange('lavg', v)} placeholder="85" />
+                    <LevelInput label="Lmax (Máximo)" value={measurement.levels.lmax} onChange={(v) => handleLevelChange('lmax', v)} placeholder="95" />
+                    <LevelInput label="Lmin (Mínimo)" value={measurement.levels.lmin} onChange={(v) => handleLevelChange('lmin', v)} placeholder="70" />
+                    <LevelInput label="Lpeak (Pico)" value={measurement.levels.lpeak} onChange={(v) => handleLevelChange('lpeak', v)} placeholder="130" />
+                    <LevelInput label="Lex 8h" value={measurement.levels.lex8h} onChange={(v) => handleLevelChange('lex8h', v)} placeholder="82" />
                 </div>
+            </div>
 
-                {/* Niveles */}
-                <div style={{ marginTop: '1.5rem' }}>
-                    <label style={labelStyle}>Niveles de Ruido (dB)</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: '0.75rem' }}>
-                        <LevelInput label="Lavg (Promedio)" value={measurement.levels.lavg} onChange={(v) => handleLevelChange('lavg', v)} placeholder="85" />
-                        <LevelInput label="Lmax (Máximo)" value={measurement.levels.lmax} onChange={(v) => handleLevelChange('lmax', v)} placeholder="95" />
-                        <LevelInput label="Lmin (Mínimo)" value={measurement.levels.lmin} onChange={(v) => handleLevelChange('lmin', v)} placeholder="70" />
-                        <LevelInput label="Lpeak (Pico)" value={measurement.levels.lpeak} onChange={(v) => handleLevelChange('lpeak', v)} placeholder="130" />
-                        <LevelInput label="Lex 8h" value={measurement.levels.lex8h} onChange={(v) => handleLevelChange('lex8h', v)} placeholder="82" />
-                    </div>
-                </div>
+            {/* Protección */}
+            <div style={{ marginTop: '1.5rem' }}>
+                <label style={labelStyle}>Protección Auditiva</label>
+                <select value={measurement.hearingProtection} onChange={(e) => setMeasurement({ ...measurement, hearingProtection: e.target.value })} style={inputStyle}>
+                    <option value="">Sin protección</option>
+                    {HEARING_PROTECTION.map(hp => (
+                        <option key={hp.id} value={hp.id}>{hp.name} (NRR: {hp.nrr})</option>
+                    ))}
+                </select>
+            </div>
 
-                {/* Protección */}
-                <div style={{ marginTop: '1.5rem' }}>
-                    <label style={labelStyle}>Protección Auditiva</label>
-                    <select value={measurement.hearingProtection} onChange={(e) => setMeasurement({ ...measurement, hearingProtection: e.target.value })} style={inputStyle}>
-                        <option value="">Sin protección</option>
-                        {HEARING_PROTECTION.map(hp => (
-                            <option key={hp.id} value={hp.id}>{hp.name} (NRR: {hp.nrr})</option>
-                        ))}
-                    </select>
-                </div>
-
-                <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--color-border)' }}>
-                    <button onClick={onClose} style={{ flex: 1, padding: '0.85rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', fontWeight: 700, cursor: 'pointer' }}>Cancelar</button>
-                    <button onClick={onSave} className="btn-primary" style={{ flex: 1 }}>Guardar Medición</button>
-                </div>
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--color-border)', paddingBottom: '2rem' }}>
+                <button onClick={onCancel} style={{ flex: 1, padding: '0.85rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', fontWeight: 700, cursor: 'pointer' }}>Cancelar</button>
+                <button onClick={onSave} className="btn-primary" style={{ flex: 1 }}>Guardar Medición</button>
             </div>
         </div>
     );
