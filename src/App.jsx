@@ -103,8 +103,11 @@ const NoiseAssessmentPage = lazyWithRetry(() => import('./pages/NoiseAssessmentP
 const LOTOManager = lazyWithRetry(() => import('./pages/LOTOManager.jsx'));
 const LOTOPage = lazyWithRetry(() => import('./pages/LOTOPage.jsx'));
 const ConfinedSpace = lazyWithRetry(() => import('./pages/ConfinedSpace.jsx'));
+const ConfinedSpacePage = lazyWithRetry(() => import('./pages/ConfinedSpacePage.jsx'));
 const WorkingAtHeight = lazyWithRetry(() => import('./pages/WorkingAtHeight.jsx'));
+const WorkingAtHeightPage = lazyWithRetry(() => import('./pages/WorkingAtHeightPage.jsx'));
 const AuditManager = lazyWithRetry(() => import('./pages/AuditManager.jsx'));
+const AuditPage = lazyWithRetry(() => import('./pages/AuditPage.jsx'));
 const CAPAManager = lazyWithRetry(() => import('./pages/CAPAManager.jsx'));
 const EnvironmentalMonitor = lazyWithRetry(() => import('./pages/EnvironmentalMonitor.jsx'));
 
@@ -437,8 +440,11 @@ function App() {
                 <Route path="/loto" element={<LOTOManager />} />
                 <Route path="/loto-page" element={<LOTOPage />} />
                 <Route path="/confined-space" element={<ConfinedSpace />} />
+                <Route path="/confined-space-page" element={<ConfinedSpacePage />} />
                 <Route path="/working-height" element={<WorkingAtHeight />} />
+                <Route path="/working-height-page" element={<WorkingAtHeightPage />} />
                 <Route path="/audit" element={<AuditManager />} />
+                <Route path="/audit-page" element={<AuditPage />} />
                 <Route path="/capa" element={<CAPAManager />} />
                 <Route path="/environmental" element={<EnvironmentalMonitor />} />
                 <Route path="/calendar" element={<SafetyCalendar />} />
