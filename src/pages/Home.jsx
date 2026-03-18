@@ -303,52 +303,95 @@ export default function Home() {
             {/* Sticky CTA — solo para visitantes sin cuenta */}
             {!currentUser && <StickyCtaBanner />}
 
-            {/* ── HERO BANNER ── */}
+            {/* ── HERO BANNER SIMPLIFICADO ── */}
             <div className="home-hero-banner" style={{
-                padding: 'clamp(7rem, 12vw, 8.5rem) 1.2rem 3rem',
+                padding: 'clamp(5rem, 10vw, 6rem) 1.2rem 2rem',
                 position: 'relative',
                 overflow: 'hidden',
                 marginBottom: '0',
                 borderBottom: '1px solid rgba(255,255,255,0.1)',
                 width: '100%',
                 boxSizing: 'border-box',
-                background: '#0f172a' // fallback background
+                background: '#0f172a'
             }}>
                 <StarryBackground />
 
-                <div style={{ position: 'relative', zIndex: 1, maxWidth: '700px', margin: '0 auto' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '2rem' }}>
-                        <div className="stagger-item" style={{ animationDelay: '0.1s' }}>
-                            <p style={{ color: 'var(--color-hero-accent)', fontSize: '0.9rem', fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase', margin: '0 0 0.5rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                                {currentUser ? 'Dashboard Profesional' : 'Inteligencia Artificial h&s'}
-                                {currentUser && !isPro() && JSON.parse(localStorage.getItem('subscriptionData') || '{}').status === 'active' && (
-                                    <span style={{ fontSize: '0.7rem', background: 'rgba(239,68,68,0.2)', color: '#ef4444', padding: '4px 12px', borderRadius: '20px', border: '1px solid rgba(239,68,68,0.3)', fontWeight: 900 }}>
-                                        Suscripción Vencida ⚠️
-                                    </span>
-                                )}
-                            </p>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', marginBottom: '1rem' }}>
-                                <img src="/logo.png" alt="Logo de Asistente HYS" style={{ width: '64px', height: '64px', objectFit: 'contain', filter: 'drop-shadow(0 0 20px rgba(59, 130, 246, 0.4))' }} />
-                                <h1 style={{ fontSize: 'clamp(2.5rem, 8vw, 4rem)', fontWeight: 900, color: 'var(--color-hero-text)', margin: 0, lineHeight: 0.9, letterSpacing: '-2px', fontFamily: 'var(--font-heading)' }}>
-                                    {currentUser ? <>{userName} {isSubscribed && <Sparkles size={28} color="#f59e0b" fill="#f59e0b" className="animate-pulse" />}</> : 'Asistente HYS'}
-                                </h1>
-                            </div>
-                            <p style={{ color: 'var(--color-hero-subtext)', fontSize: '1.2rem', marginTop: '1.5rem', fontWeight: 500, maxWidth: '550px', lineHeight: 1.6 }}>
-                                {currentUser
-                                    ? 'Gestión avanzada de riesgos y cumplimiento normativo potenciado por IA.'
-                                    : 'Cálculos técnicos, reportes con validez legal y asesoría inteligente para profesionales de Argentina, Chile, Bolivia, Paraguay y Uruguay.'}
-                            </p>
-                        </div>
+                <div style={{ position: 'relative', zIndex: 1, maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
+                    <div className="stagger-item" style={{ animationDelay: '0.1s' }}>
+                        {/* Logo más pequeño */}
+                        <img src="/logo.png" alt="Logo de Asistente HYS"
+                            style={{
+                                width: '56px',
+                                height: '56px',
+                                objectFit: 'contain',
+                                filter: 'drop-shadow(0 0 20px rgba(59, 130, 246, 0.4))',
+                                marginBottom: '1rem'
+                            }}
+                        />
+
+                        {/* Título principal */}
+                        <h1 style={{
+                            fontSize: 'clamp(2rem, 6vw, 3rem)',
+                            fontWeight: 900,
+                            color: 'var(--color-hero-text)',
+                            margin: 0,
+                            lineHeight: 1.1,
+                            letterSpacing: '-1px',
+                            fontFamily: 'var(--font-heading)'
+                        }}>
+                            {currentUser ? userName : 'Asistente H&S'}
+                        </h1>
+
+                        {/* Subtítulo simplificado */}
+                        <p style={{
+                            color: 'var(--color-hero-subtext)',
+                            fontSize: 'clamp(0.95rem, 3vw, 1.1rem)',
+                            marginTop: '1rem',
+                            fontWeight: 500,
+                            lineHeight: 1.5
+                        }}>
+                            {currentUser
+                                ? 'Gestioná riesgos y cumplimiento normativo con IA.'
+                                : 'Cálculos técnicos y reportes legales para profesionales de H&S.'}
+                        </p>
+
+                        {/* Botones - solo visitantes */}
                         {!currentUser && (
-                            <div className="hero-buttons stagger-item" style={{ animationDelay: '0.3s', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', width: '100%', maxWidth: '450px' }}>
+                            <div className="hero-buttons stagger-item" style={{
+                                animationDelay: '0.3s',
+                                display: 'flex',
+                                gap: '0.8rem',
+                                justifyContent: 'center',
+                                marginTop: '1.5rem'
+                            }}>
                                 <button onClick={() => navigate('/login', { state: { view: 'register' } })}
-                                    style={{ flex: 2, padding: '1.3rem 2rem', borderRadius: '20px', border: 'none', background: 'var(--color-primary)', color: 'white', fontWeight: 800, cursor: 'pointer', fontSize: '1.1rem', boxShadow: '0 20px 40px rgba(59, 130, 246, 0.4)', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}
-                                    onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-6px)'; e.currentTarget.style.boxShadow = '0 30px 60px rgba(59, 130, 246, 0.5)'; }}
-                                    onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(59, 130, 246, 0.4)'; }}>
-                                    Comenzar Ahora - Gratis
+                                    style={{
+                                        padding: '1rem 1.8rem',
+                                        borderRadius: '12px',
+                                        border: 'none',
+                                        background: 'var(--color-primary)',
+                                        color: 'white',
+                                        fontWeight: 700,
+                                        cursor: 'pointer',
+                                        fontSize: '1rem',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                                    onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; }}>
+                                    Comenzar Gratis
                                 </button>
                                 <button onClick={() => navigate('/login', { state: { view: 'login' } })}
-                                    style={{ flex: 1, padding: '1.3rem 2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', color: 'white', fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', fontSize: '1rem', transition: 'all 0.3s ease' }}
+                                    style={{
+                                        padding: '1rem 1.8rem',
+                                        borderRadius: '12px',
+                                        border: '1px solid rgba(255,255,255,0.2)',
+                                        background: 'rgba(255,255,255,0.05)',
+                                        color: 'white',
+                                        fontWeight: 700,
+                                        cursor: 'pointer',
+                                        fontSize: '1rem',
+                                        transition: 'all 0.2s'
+                                    }}
                                     onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
                                     onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}>
                                     Ingresar
@@ -356,229 +399,234 @@ export default function Home() {
                             </div>
                         )}
                     </div>
-
-                    {/* STATS ROW inside hero - solo para usuarios logueados */}
-                    {currentUser && (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '1rem', marginTop: '1.8rem' }}>
-                            {stats.map((stat, i) => (
-                                <div key={i}
-                                    onClick={() => {
-                                        if (stat.key === 'ats_history') navigate('/ats-history');
-                                        else if (stat.key === 'fireload_history') navigate('/fire-load-history');
-                                        else if (stat.key === 'reports_history') navigate('/history', { state: { view: 'reports' } });
-                                        else if (stat.key === 'risk_matrix_history') navigate('/history', { state: { view: 'matrices' } });
-                                        else if (stat.key === 'lighting_history') navigate('/lighting-history');
-                                        else if (stat.key === 'work_permits_history') navigate('/work-permit-history');
-                                        else if (stat.key === 'tool_checklists_history') navigate('/checklists-history');
-                                        else if (stat.key === 'risk_assessment_history') navigate('/risk-assessment-history');
-                                        else navigate('/history', { state: { view: 'inspections' } });
-                                    }}
-                                    className="glass-card stagger-item"
-                                    style={{
-                                        borderRadius: '24px',
-                                        padding: '1.2rem 0.6rem',
-                                        textAlign: 'center',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                                        background: 'rgba(255,255,255,0.05)',
-                                        border: '1px solid rgba(255,255,255,0.1)',
-                                        animationDelay: `${0.4 + (i * 0.05)}s`
-                                    }}
-                                    onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-6px)'; e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
-                                    onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
-                                >
-                                    <div style={{ color: 'var(--color-primary)', marginBottom: '0.6rem', opacity: 0.9, filter: 'drop-shadow(0 0 8px rgba(59, 130, 246, 0.5))' }}>
-                                        {React.cloneElement(stat.icon, { size: 24 })}
-                                    </div>
-                                    <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#ffffff', lineHeight: 1 }}>{stat.value}</div>
-                                    <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.6)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', marginTop: '0.4rem' }}>{stat.label}</div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                    {/* Social Proof Counter Strip */}
-                    {!currentUser && (
-                        <div style={{ display: 'flex', justifyContent: 'center', gap: '2.5rem', padding: '1.5rem 1rem 0', flexWrap: 'wrap' }}>
-                            <CounterItem value={1240} label="Profesionales registrados" suffix="+" />
-                            <CounterItem value={8500} label="Reportes generados" suffix="+" />
-                            <CounterItem value={11} label="Módulos disponibles" suffix="" />
-                        </div>
-                    )}
-
-                    {/* — DAILY INSIGHT — */}
-                    {currentUser && dailyInsight && (
-                        <div className="stagger-item" style={{
-                            marginTop: '2rem',
-                            padding: '1.2rem',
-                            borderRadius: '20px',
-                            background: 'rgba(59, 130, 246, 0.1)',
-                            border: '1px solid rgba(59,130,246,0.2)',
-                            display: 'flex',
-                            gap: '1rem',
-                            alignItems: 'center',
-                            animationDelay: '0.8s'
-                        }}>
-                            <div style={{ background: 'var(--color-primary)', color: 'white', padding: '0.8rem', borderRadius: '15px', display: 'flex' }}>
-                                <Sparkles size={20} />
-                            </div>
-                            <div style={{ flex: 1 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
-                                    <span style={{ fontSize: '0.7rem', color: 'var(--color-primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Consejo del día · {dailyInsight.category}</span>
-                                </div>
-                                <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#ffffff' }}>{dailyInsight.title}</h4>
-                                <p style={{ margin: '0.2rem 0 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.4 }}>{dailyInsight.content}</p>
-                            </div>
-                        </div>
-                    )}
-
                 </div>
             </div>
 
+            {/* ── ESTADÍSTICAS (solo usuarios logueados) ── */}
+            {currentUser && (
+                <div style={{
+                    padding: '2rem 1.2rem',
+                    maxWidth: '1200px',
+                    margin: '0 auto'
+                }}>
+                    <h2 style={{
+                        fontSize: 'clamp(1.1rem, 3vw, 1.3rem)',
+                        fontWeight: 800,
+                        textAlign: 'center',
+                        marginBottom: '1.5rem',
+                        color: 'var(--color-text)'
+                    }}>
+                        Tus Estadísticas
+                    </h2>
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
+                        gap: '0.8rem'
+                    }}>
+                        {stats.slice(0, 6).map((stat, i) => (
+                            <div key={i}
+                                onClick={() => {
+                                    if (stat.key === 'ats_history') navigate('/ats-history');
+                                    else if (stat.key === 'fireload_history') navigate('/fire-load-history');
+                                    else if (stat.key === 'reports_history') navigate('/history', { state: { view: 'reports' } });
+                                    else if (stat.key === 'risk_matrix_history') navigate('/history', { state: { view: 'matrices' } });
+                                    else if (stat.key === 'lighting_history') navigate('/lighting-history');
+                                    else if (stat.key === 'work_permits_history') navigate('/work-permit-history');
+                                    else if (stat.key === 'tool_checklists_history') navigate('/checklists-history');
+                                    else if (stat.key === 'risk_assessment_history') navigate('/risk-assessment-history');
+                                    else navigate('/history', { state: { view: 'inspections' } });
+                                }}
+                                className="glass-card"
+                                style={{
+                                    borderRadius: '16px',
+                                    padding: '1rem',
+                                    textAlign: 'center',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s',
+                                    background: 'var(--color-surface)',
+                                    border: '1px solid var(--color-border)'
+                                }}
+                                onMouseOver={e => {
+                                    e.currentTarget.style.transform = 'translateY(-4px)';
+                                    e.currentTarget.style.borderColor = 'var(--color-primary)';
+                                }}
+                                onMouseOut={e => {
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                    e.currentTarget.style.borderColor = 'var(--color-border)';
+                                }}
+                            >
+                                <div style={{ color: 'var(--color-primary)', marginBottom: '0.4rem' }}>
+                                    {React.cloneElement(stat.icon, { size: 20 })}
+                                </div>
+                                <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-text)', lineHeight: 1 }}>
+                                    {stat.value}
+                                </div>
+                                <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', marginTop: '0.25rem' }}>
+                                    {stat.label}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* ── LANDING COMPLETA (solo visitantes) ── */}
             {!currentUser && (
-                <div style={{ marginTop: '2.5rem' }}>
+                <div style={{ marginTop: '2.5rem', padding: '0 0.5rem' }}>
 
-                    {/* — FEATURES GRID — */}
+                    {/* — FEATURES PRINCIPALES (simplificado) — */}
                     <h2 style={{
                         fontSize: 'clamp(1.3rem, 4vw, 1.5rem)',
                         fontWeight: 900,
                         textAlign: 'center',
-                        marginBottom: '0.4rem',
+                        marginBottom: '0.5rem',
                         background: 'linear-gradient(135deg, #1e3a8a, #2563eb)',
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
                         backgroundClip: 'text'
                     }}>
-                        Todo lo que necesitás en una sola App
+                        Módulos Destacados
                     </h2>
                     <p style={{
                         textAlign: 'center',
                         color: 'var(--color-text-muted)',
                         fontSize: 'clamp(0.85rem, 2.5vw, 0.95rem)',
                         marginBottom: '2rem',
-                        maxWidth: '600px',
+                        maxWidth: '500px',
                         margin: '0 auto 2rem'
                     }}>
-                        11+ módulos profesionales con IA, gratis para usar
+                        11+ herramientas profesionales con IA
                     </p>
+
+                    {/* 4 Features principales */}
                     <div style={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
                         gap: '1rem',
-                        marginBottom: '3rem',
-                        padding: '0 0.5rem'
+                        marginBottom: '2rem'
                     }}>
                         {[
                             {
-                                icon: '✨',
+                                icon: '🤖',
                                 color: '#f59e0b',
-                                bg: 'rgba(245,158,11,0.08)',
-                                gradient: 'linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.02))',
-                                title: 'Asesoría Legal con IA',
-                                desc: userCountry === 'argentina'
-                                    ? 'Consultá normativas argentinas (Ley 19587, Dec 351/79) y recibí recomendaciones preventivas al instante.'
-                                    : `Consultá normativas de ${userCountry.charAt(0).toUpperCase() + userCountry.slice(1)} (${getCountryNormativa(userCountry).general}) y recibí recomendaciones preventivas ajustadas a la legislación local.`
+                                title: 'Asesor IA',
+                                desc: 'Consultas legales preventivas adaptadas a tu país.'
                             },
                             {
                                 icon: '📷',
                                 color: '#06b6d4',
-                                bg: 'rgba(6,182,212,0.08)',
-                                gradient: 'linear-gradient(135deg, rgba(6,182,212,0.1), rgba(6,182,212,0.02))',
-                                title: 'Cámara de Riesgos',
-                                desc: 'Detectá automáticamente la falta de casco, guantes o calzado de seguridad con la cámara de tu celular.'
+                                title: 'Cámara IA',
+                                desc: 'Detección automática de EPP con tu cámara.'
                             },
                             {
                                 icon: '🔥',
                                 color: '#f97316',
-                                bg: 'rgba(249,115,22,0.08)',
-                                gradient: 'linear-gradient(135deg, rgba(249,115,22,0.1), rgba(249,115,22,0.02))',
-                                title: 'Cálculo Carga de Fuego',
-                                desc: userCountry === 'argentina'
-                                    ? 'Calculá la carga de fuego según Dec 351/79. Genera el protocolo oficial listo para presentar.'
-                                    : `Calculá la carga de fuego según ${getCountryNormativa(userCountry).fire}. Genera reportes técnicos listos para presentar.`
-                            },
-                            {
-                                icon: '💡',
-                                color: '#eab308',
-                                bg: 'rgba(234,179,8,0.08)',
-                                gradient: 'linear-gradient(135deg, rgba(234,179,8,0.1), rgba(234,179,8,0.02))',
-                                title: 'Iluminación',
-                                desc: 'Medición y cálculo de niveles de iluminación con factor de mantenimiento y comparación normativa.'
-                            },
-                            {
-                                icon: '⚠️',
-                                color: '#8b5cf6',
-                                bg: 'rgba(139,92,246,0.08)',
-                                gradient: 'linear-gradient(135deg, rgba(139,92,246,0.1), rgba(139,92,246,0.02))',
-                                title: 'Matriz de Riesgo',
-                                desc: 'Evaluá peligros con matrices 5x5 personalizadas. Genera reportes PDF automáticamente.'
+                                title: 'Carga de Fuego',
+                                desc: 'Cálculo normativo con reporte oficial.'
                             },
                             {
                                 icon: '📋',
                                 color: '#10b981',
-                                bg: 'rgba(16,185,129,0.08)',
-                                gradient: 'linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.02))',
-                                title: 'ATS — Análisis de Trabajo Seguro',
-                                desc: 'Creá ATS por tarea con medidas de control. Listo para firma digital e impresión.'
+                                title: 'ATS',
+                                desc: 'Análisis de Trabajo Seguro listo para imprimir.'
                             },
                         ].map((f, i) => (
                             <div
                                 key={i}
-                                className="card feature-card"
+                                className="card"
                                 style={{
-                                    padding: 'clamp(1rem, 3vw, 1.4rem)',
-                                    borderLeft: `4px solid ${f.color}`,
-                                    background: 'var(--color-surface)',
-                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                    padding: '1.2rem',
                                     borderRadius: '16px',
-                                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                                    position: 'relative',
-                                    overflow: 'hidden'
+                                    background: 'var(--color-surface)',
+                                    border: '1px solid var(--color-border)',
+                                    transition: 'all 0.2s'
                                 }}
                                 onMouseOver={e => {
-                                    e.currentTarget.style.transform = 'translateY(-6px)';
-                                    e.currentTarget.style.background = f.gradient;
-                                    e.currentTarget.style.boxShadow = `0 12px 24px ${f.color}40`;
+                                    e.currentTarget.style.transform = 'translateY(-4px)';
+                                    e.currentTarget.style.borderColor = f.color;
                                 }}
                                 onMouseOut={e => {
                                     e.currentTarget.style.transform = 'translateY(0)';
-                                    e.currentTarget.style.background = 'var(--color-surface)';
-                                    e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+                                    e.currentTarget.style.borderColor = 'var(--color-border)';
                                 }}
                             >
-                                {/* Decorative gradient orb */}
-                                <div style={{
-                                    position: 'absolute',
-                                    top: '-20px',
-                                    right: '-20px',
-                                    width: '80px',
-                                    height: '80px',
-                                    borderRadius: '50%',
-                                    background: `radial-gradient(circle, ${f.color}20 0%, transparent 70%)`,
-                                    pointerEvents: 'none',
-                                    opacity: 0,
-                                    transition: 'opacity 0.3s ease'
-                                }} />
-                                <div style={{
-                                    fontSize: 'clamp(1.8rem, 5vw, 2.2rem)',
-                                    marginBottom: '0.7rem',
-                                    display: 'inline-block',
-                                    filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
-                                }}>{f.icon}</div>
-                                <h4 style={{
-                                    margin: '0 0 0.5rem',
-                                    fontWeight: 800,
-                                    fontSize: 'clamp(0.95rem, 3vw, 1.05rem)',
-                                    lineHeight: 1.3
-                                }}>{f.title}</h4>
-                                <p style={{
-                                    margin: 0,
-                                    fontSize: 'clamp(0.8rem, 2.5vw, 0.88rem)',
-                                    color: 'var(--color-text-muted)',
-                                    lineHeight: 1.6
-                                }}>{f.desc}</p>
+                                <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>{f.icon}</div>
+                                <h4 style={{ margin: '0 0 0.3rem', fontWeight: 800, fontSize: '1rem' }}>{f.title}</h4>
+                                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{f.desc}</p>
                             </div>
                         ))}
+                    </div>
+
+                    {/* Módulos agrupados por categoría */}
+                    <div style={{
+                        background: 'linear-gradient(135deg, rgba(37,99,235,0.05), rgba(14,165,233,0.03))',
+                        borderRadius: '20px',
+                        padding: '1.5rem',
+                        marginBottom: '3rem',
+                        border: '1px solid rgba(37,99,235,0.1)'
+                    }}>
+                        <h3 style={{
+                            fontSize: '1.05rem',
+                            fontWeight: 800,
+                            marginBottom: '1rem',
+                            color: 'var(--color-text)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem'
+                        }}>
+                            <BookOpen size={18} color="#2563eb" />
+                            Más herramientas disponibles
+                        </h3>
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+                            gap: '0.7rem'
+                        }}>
+                            {[
+                                { to: '/ergonomics', label: 'Ergonomía', icon: '🧘' },
+                                { to: '/thermal-stress', label: 'Estrés Térmico', icon: '🌡️' },
+                                { to: '/lighting', label: 'Iluminación', icon: '💡' },
+                                { to: '/risk-maps', label: 'Mapa de Riesgos', icon: '🗺️' },
+                                { to: '/extinguishers', label: 'Matafuegos', icon: '🧯' },
+                                { to: '/work-permit', label: 'Permisos', icon: '🎫' },
+                                { to: '/accident-investigation', label: 'Accidentes', icon: '🚨' },
+                                { to: '/drills', label: 'Simulacros', icon: '📢' },
+                                { to: '/stop-cards', label: 'Tarjetas STOP', icon: '🛑' },
+                                { to: '/ppe-tracker', label: 'Control EPP', icon: '⛑️' },
+                                { to: '/legislation', label: 'Legislación', icon: '⚖️' },
+                                { to: '/training-management', label: 'Capacitaciones', icon: '📚' },
+                            ].map((m, i) => (
+                                <a
+                                    key={i}
+                                    href={m.to}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem',
+                                        padding: '0.6rem 0.8rem',
+                                        background: 'rgba(255,255,255,0.03)',
+                                        borderRadius: '10px',
+                                        border: '1px solid rgba(255,255,255,0.05)',
+                                        color: 'var(--color-text)',
+                                        textDecoration: 'none',
+                                        fontSize: '0.8rem',
+                                        fontWeight: 600,
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onMouseOver={e => {
+                                        e.currentTarget.style.background = 'rgba(37,99,235,0.1)';
+                                        e.currentTarget.style.borderColor = 'rgba(37,99,235,0.3)';
+                                    }}
+                                    onMouseOut={e => {
+                                        e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)';
+                                    }}
+                                >
+                                    <span>{m.icon}</span>
+                                    <span>{m.label}</span>
+                                </a>
+                            ))}
+                        </div>
                     </div>
 
                     {/* — CÓMO FUNCIONA — */}
