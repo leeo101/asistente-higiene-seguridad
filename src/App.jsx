@@ -101,6 +101,7 @@ const ChemicalSafety = lazyWithRetry(() => import('./pages/ChemicalSafety.jsx'))
 const NoiseAssessment = lazyWithRetry(() => import('./pages/NoiseAssessment.jsx'));
 const LOTOManager = lazyWithRetry(() => import('./pages/LOTOManager.jsx'));
 const ConfinedSpace = lazyWithRetry(() => import('./pages/ConfinedSpace.jsx'));
+const WorkingAtHeight = lazyWithRetry(() => import('./pages/WorkingAtHeight.jsx'));
 
 import InstallBanner from './components/InstallBanner.jsx';
 import GlobalSearch from './components/GlobalSearch.jsx';
@@ -429,6 +430,7 @@ function App() {
                 <Route path="/noise-assessment" element={<NoiseAssessment />} />
                 <Route path="/loto" element={<LOTOManager />} />
                 <Route path="/confined-space" element={<ConfinedSpace />} />
+                <Route path="/working-height" element={<WorkingAtHeight />} />
                 <Route path="/calendar" element={<SafetyCalendar />} />
                 <Route path="/ai-camera-history" element={<AICameraHistory />} />
                 <Route path="/lighting" element={<LightingReport />} />
