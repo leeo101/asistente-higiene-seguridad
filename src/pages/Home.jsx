@@ -6,7 +6,8 @@ import {
     Accessibility, Lock, UserPlus, LogIn, Sparkles,
     Camera, CalendarCheck, Shield, Cpu, Lightbulb, ThermometerSun, Map,
     ShieldCheck, TriangleAlert, KeySquare, ScrollText, Bot, ClipboardCheck, FileText, HardHat, ShieldAlert, PenTool,
-    ArrowRight, Activity, BookOpen, Calendar as CalendarIcon, Search, TrendingUp
+    ArrowRight, Activity, BookOpen, Calendar as CalendarIcon, Search, TrendingUp,
+    Volume2, Tunnel, ArrowDown, RefreshCw, Leaf
 } from 'lucide-react';
 import { getCountryNormativa } from '../data/legislationData';
 import { useAuth } from '../contexts/AuthContext';
@@ -156,6 +157,15 @@ const quickLinks = [
     { to: '/ai-general-camera', icon: <ShieldAlert size={26} />, label: 'Riesgos IA', sub: 'Análisis de Entorno', color: '#f43f5e', bg: 'rgba(244, 63, 94, 0.1)' },
     { to: '/drills', icon: <Siren size={26} />, label: 'Simulacros', sub: 'Actas de Evacuación', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
     { to: '/stop-cards', icon: <TriangleAlert size={26} />, label: 'Tarjetas STOP', sub: 'Observaciones', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
+    // Herramientas Profesionales Internacionales
+    { to: '/chemical-safety', icon: <Flame size={26} />, label: 'Químicos', sub: 'GHS/SGA Internacional', color: '#10b981', bg: 'rgba(16,185,129,0.1)', pro: true },
+    { to: '/noise-assessment', icon: <Volume2 size={26} />, label: 'Ruido', sub: 'ISO 9612', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', pro: true },
+    { to: '/loto', icon: <Lock size={26} />, label: 'LOTO', sub: 'OSHA 1910.147', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', pro: true },
+    { to: '/confined-space', icon: <Tunnel size={26} />, label: 'Espacios', sub: 'OSHA 1910.146', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', pro: true },
+    { to: '/working-height', icon: <ArrowDown size={26} />, label: 'Altura', sub: 'OSHA 1926.501', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', pro: true },
+    { to: '/audit', icon: <ClipboardCheck size={26} />, label: 'Auditorías', sub: 'ISO 45001', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', pro: true },
+    { to: '/capa', icon: <RefreshCw size={26} />, label: 'CAPA', sub: 'Mejora Continua', color: '#10b981', bg: 'rgba(16,185,129,0.1)', pro: true },
+    { to: '/environmental', icon: <Leaf size={26} />, label: 'Ambiental', sub: 'ISO 14001', color: '#10b981', bg: 'rgba(16,185,129,0.1)', pro: true },
 ];
 
 export default function Home() {
@@ -945,7 +955,25 @@ export default function Home() {
                         padding: '0.5rem'
                     }}>
                         {quickLinks.map((item, i) => (
-                            <Link key={i} className="stagger-item" to={item.to} style={{ textDecoration: 'none', animationDelay: `${0.1 + (i * 0.03)}s` }}>
+                            <Link key={i} className="stagger-item" to={item.to} style={{ textDecoration: 'none', animationDelay: `${0.1 + (i * 0.03)}s`, position: 'relative' }}>
+                                {item.pro && (
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: '8px',
+                                        right: '8px',
+                                        background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                                        color: '#fff',
+                                        fontSize: '0.6rem',
+                                        fontWeight: 900,
+                                        padding: '0.2rem 0.4rem',
+                                        borderRadius: '6px',
+                                        textTransform: 'uppercase',
+                                        zIndex: 2,
+                                        boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
+                                    }}>
+                                        PRO
+                                    </div>
+                                )}
                                 <div className="card" style={{
                                     borderRadius: '24px',
                                     padding: '1.8rem 1rem',
@@ -954,20 +982,20 @@ export default function Home() {
                                     minHeight: '160px', justifyContent: 'center',
                                     transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
                                     background: 'var(--color-surface)',
-                                    border: '1px solid var(--color-border)',
-                                    boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+                                    border: item.pro ? '2px solid #f59e0b' : '1px solid var(--color-border)',
+                                    boxShadow: item.pro ? '0 4px 12px rgba(245, 158, 11, 0.1)' : '0 4px 12px rgba(0,0,0,0.03)'
                                 }}
                                     onMouseOver={e => {
                                         e.currentTarget.style.transform = 'translateY(-10px)';
                                         e.currentTarget.style.background = 'var(--color-surface-solid)';
                                         e.currentTarget.style.borderColor = item.color;
-                                        e.currentTarget.style.boxShadow = `0 20px 40px ${item.color}15`;
+                                        e.currentTarget.style.boxShadow = item.pro ? `0 20px 40px rgba(245, 158, 11, 0.2)` : `0 20px 40px ${item.color}15`;
                                     }}
                                     onMouseOut={e => {
                                         e.currentTarget.style.transform = 'translateY(0)';
                                         e.currentTarget.style.background = 'var(--color-surface)';
-                                        e.currentTarget.style.borderColor = 'var(--color-border)';
-                                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.03)';
+                                        e.currentTarget.style.borderColor = item.pro ? '#f59e0b' : 'var(--color-border)';
+                                        e.currentTarget.style.boxShadow = item.pro ? '0 4px 12px rgba(245, 158, 11, 0.1)' : '0 4px 12px rgba(0,0,0,0.03)';
                                     }}>
                                     <div style={{
                                         width: '60px', height: '60px', borderRadius: '18px',
@@ -976,9 +1004,30 @@ export default function Home() {
                                         color: item.color,
                                         marginBottom: '0.2rem',
                                         boxShadow: `0 8px 20px ${item.color}20`,
-                                        transition: 'all 0.3s ease'
+                                        transition: 'all 0.3s ease',
+                                        position: 'relative'
                                     }}>
                                         {React.cloneElement(item.icon, { size: 30 })}
+                                        {item.pro && (
+                                            <div style={{
+                                                position: 'absolute',
+                                                bottom: '-4px',
+                                                right: '-4px',
+                                                width: '20px',
+                                                height: '20px',
+                                                background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                                                borderRadius: '50%',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                fontSize: '0.6rem',
+                                                color: '#fff',
+                                                fontWeight: 900,
+                                                border: '2px solid var(--color-surface)'
+                                            }}>
+                                                ★
+                                            </div>
+                                        )}
                                     </div>
                                     <div>
                                         <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-text)', lineHeight: '1.2', marginBottom: '0.3rem' }}>{item.label}</div>
