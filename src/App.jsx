@@ -104,6 +104,7 @@ const ConfinedSpace = lazyWithRetry(() => import('./pages/ConfinedSpace.jsx'));
 const WorkingAtHeight = lazyWithRetry(() => import('./pages/WorkingAtHeight.jsx'));
 const AuditManager = lazyWithRetry(() => import('./pages/AuditManager.jsx'));
 const CAPAManager = lazyWithRetry(() => import('./pages/CAPAManager.jsx'));
+const EnvironmentalMonitor = lazyWithRetry(() => import('./pages/EnvironmentalMonitor.jsx'));
 
 import InstallBanner from './components/InstallBanner.jsx';
 import GlobalSearch from './components/GlobalSearch.jsx';
@@ -435,6 +436,7 @@ function App() {
                 <Route path="/working-height" element={<WorkingAtHeight />} />
                 <Route path="/audit" element={<AuditManager />} />
                 <Route path="/capa" element={<CAPAManager />} />
+                <Route path="/environmental" element={<EnvironmentalMonitor />} />
                 <Route path="/calendar" element={<SafetyCalendar />} />
                 <Route path="/ai-camera-history" element={<AICameraHistory />} />
                 <Route path="/lighting" element={<LightingReport />} />
