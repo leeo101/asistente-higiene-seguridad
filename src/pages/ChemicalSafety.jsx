@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-    FlaskConical, Plus, Search, Filter, Download, 
+import {
+    FlaskConical, Plus, Search, Filter, Download,
     AlertTriangle, CheckCircle2, XCircle, FileText,
     Eye, Edit3, Trash2, Upload, Shield, Droplets,
-    Flame, Skull, Zap, Radioactive, Wind, Thermometer
+    Flame, Skull, Zap, Wind, Thermometer, Radio
 } from 'lucide-react';
 import CompanyLogo from '../components/CompanyLogo';
 import LazyImage from '../components/LazyImage';
@@ -217,7 +217,7 @@ export default function ChemicalSafety() {
 
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                     <button
-                        onClick={() => setShowAddModal(true)}
+                        onClick={() => navigate('/chemical-safety-create')}
                         className="btn-primary"
                         style={{
                             width: 'auto',
