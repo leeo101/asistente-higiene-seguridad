@@ -9,10 +9,8 @@ import { useNavigate } from 'react-router-dom';
 export default function InteractiveTour({ onComplete }) {
     const navigate = useNavigate();
     const [currentStep, setCurrentStep] = useState(0);
-    const [highlightedElement, setHighlightedElement] = useState(null);
-    const tourContainerRef = useRef(null);
 
-    // Pasos del tour con referencias a elementos reales
+    // Pasos del tour - simplificados para no depender de elementos específicos
     const steps = [
         {
             id: 'welcome',
@@ -20,78 +18,69 @@ export default function InteractiveTour({ onComplete }) {
             description: 'Te voy a mostrar las funciones principales para que empieces a sacar provecho de la app.',
             icon: <Sparkles size={32} color="#f59e0b" />,
             position: 'center',
-            highlightSelector: null, // No resalta nada específico
             actionText: 'Comenzar tour',
             showNavButtons: true
         },
         {
             id: 'menu-principal',
             title: 'Menú Principal',
-            description: 'Desde acá podés acceder a todas las herramientas. Hacé click en el ícono de menú para explorar.',
+            description: 'Desde el menú lateral podés acceder a todas las herramientas: ATS, Carga de Fuego, Matrices, IA y más.',
             icon: <Sparkles size={32} color="#3b82f6" />,
-            position: 'bottom-right',
-            highlightSelector: '.sidebar-toggle, [aria-label="Abrir menú"], .glass-panel button:first-of-type',
-            actionText: 'Explorar menú',
-            showNavButtons: true,
-            onClick: () => {
-                const menuButton = document.querySelector('.sidebar-toggle, .glass-panel button:first-of-type');
-                if (menuButton) menuButton.click();
-            }
+            position: 'center',
+            actionText: 'Entendido',
+            showNavButtons: true
         },
         {
             id: 'ats',
             title: 'Análisis de Trabajo Seguro',
             description: 'Creá ATS por tarea con medidas de control. Listo para firma digital e impresión.',
             icon: <ClipboardCheck size={32} color="#10b981" />,
-            position: 'bottom',
-            highlightSelector: 'a[href="/ats"], .card:contains("ATS")',
+            position: 'center',
             actionText: 'Crear ATS',
-            showNavButtons: true,
-            onClick: () => navigate('/ats')
+            showNavButtons: false,
+            onClick: () => {
+                onComplete();
+                navigate('/ats');
+            }
         },
         {
             id: 'carga-fuego',
             title: 'Carga de Fuego',
             description: 'Calculá la carga de fuego según normativa. Genera el protocolo oficial automáticamente.',
             icon: <Flame size={32} color="#f97316" />,
-            position: 'bottom',
-            highlightSelector: 'a[href="/fire-load"], .card:contains("Carga")',
+            position: 'center',
             actionText: 'Calcular ahora',
-            showNavButtons: true,
-            onClick: () => navigate('/fire-load')
+            showNavButtons: false,
+            onClick: () => {
+                onComplete();
+                navigate('/fire-load');
+            }
         },
         {
             id: 'asesor-ia',
             title: 'Asesor IA',
             description: 'Consultá sobre normativa y recibí respuestas legales al instante con inteligencia artificial.',
             icon: <Bot size={32} color="#8b5cf6" />,
-            position: 'top',
-            highlightSelector: 'a[href="/ai-advisor"], .card:contains("Asesor")',
+            position: 'center',
             actionText: 'Consultar IA',
-            showNavButtons: true,
-            onClick: () => navigate('/ai-advisor')
+            showNavButtons: false,
+            onClick: () => {
+                onComplete();
+                navigate('/ai-advisor');
+            }
         },
         {
             id: 'camara-ia',
             title: 'Cámara IA',
             description: 'Detectá automáticamente falta de EPP usando la cámara de tu celular.',
             icon: <Camera size={32} color="#06b6d4" />,
-            position: 'top',
-            highlightSelector: 'a[href="/ai-camera"], .card:contains("Cámara")',
+            position: 'center',
             actionText: 'Probar cámara',
-            showNavButtons: true,
-            onClick: () => navigate('/ai-camera')
-        },
-        {
-            id: 'informes',
-            title: 'Informes Técnicos',
-            description: 'Generá reportes profesionales en PDF listos para presentar con tu firma digital.',
-            icon: <FileText size={32} color="#ec4899" />,
-            position: 'top',
-            highlightSelector: 'a[href="/reports"], .card:contains("Informes")',
-            actionText: 'Ver informes',
-            showNavButtons: true,
-            onClick: () => navigate('/reports')
+            showNavButtons: false,
+            onClick: () => {
+                onComplete();
+                navigate('/ai-camera');
+            }
         },
         {
             id: 'final',
@@ -99,35 +88,12 @@ export default function InteractiveTour({ onComplete }) {
             description: 'Ya conocés lo básico. Explorá la app y recordá que podés volver a este tour cuando quieras desde Configuración.',
             icon: <Sparkles size={32} color="#10b981" />,
             position: 'center',
-            highlightSelector: null,
             actionText: 'Comenzar a usar',
-            showNavButtons: false
+            showNavButtons: true
         }
     ];
 
     const currentStepData = steps[currentStep];
-
-    // Efecto para resaltar elemento cuando cambia el paso
-    useEffect(() => {
-        if (currentStepData.highlightSelector) {
-            // Buscar el elemento con múltiples selectores
-            const selectors = currentStepData.highlightSelector.split(',');
-            let element = null;
-            
-            for (const selector of selectors) {
-                element = document.querySelector(selector.trim());
-                if (element) break;
-            }
-            
-            if (element) {
-                setHighlightedElement(element);
-                // Scroll suave hacia el elemento
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        } else {
-            setHighlightedElement(null);
-        }
-    }, [currentStep, currentStepData]);
 
     const nextStep = () => {
         if (currentStep < steps.length - 1) {
@@ -153,50 +119,10 @@ export default function InteractiveTour({ onComplete }) {
         if (onComplete) onComplete();
     };
 
-    // Calcular posición del tooltip
-    const getTooltipPosition = () => {
-        if (!highlightedElement) return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
-        
-        const rect = highlightedElement.getBoundingClientRect();
-        const tooltipWidth = 380;
-        const tooltipHeight = 200;
-        
-        let top, left;
-        
-        switch (currentStepData.position) {
-            case 'bottom':
-                top = rect.bottom + 10;
-                left = rect.left + (rect.width / 2);
-                break;
-            case 'bottom-right':
-                top = rect.bottom + 10;
-                left = rect.right - tooltipWidth;
-                break;
-            case 'top':
-                top = rect.top - tooltipHeight - 10;
-                left = rect.left + (rect.width / 2);
-                break;
-            case 'left':
-                top = rect.top + (rect.height / 2);
-                left = rect.left - tooltipWidth - 10;
-                break;
-            default:
-                top = window.innerHeight / 2;
-                left = window.innerWidth / 2;
-        }
-        
-        return {
-            top: `${Math.max(20, Math.min(top, window.innerHeight - tooltipHeight - 20))}px`,
-            left: `${Math.max(20, Math.min(left, window.innerWidth - tooltipWidth - 20))}px`,
-            transform: 'translate(-50%, 0)'
-        };
-    };
-
     return (
         <>
-            {/* Overlay oscuro con agujero para el elemento resaltado */}
+            {/* Overlay oscuro */}
             <div
-                ref={tourContainerRef}
                 style={{
                     position: 'fixed',
                     top: 0,
@@ -204,9 +130,7 @@ export default function InteractiveTour({ onComplete }) {
                     right: 0,
                     bottom: 0,
                     zIndex: 99998,
-                    pointerEvents: highlightedElement ? 'none' : 'auto',
-                    background: highlightedElement ? createOverlayBackground(highlightedElement) : 'rgba(0,0,0,0.75)',
-                    transition: 'background 0.3s ease',
+                    background: 'rgba(0,0,0,0.75)',
                     animation: 'fadeIn 0.3s ease'
                 }}
             />
@@ -215,12 +139,16 @@ export default function InteractiveTour({ onComplete }) {
             <div
                 style={{
                     position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
                     zIndex: 99999,
-                    ...getTooltipPosition(),
-                    width: '380px',
-                    maxWidth: 'calc(100vw - 40px)',
-                    animation: 'slideUp 0.3s ease',
-                    transition: 'all 0.3s ease'
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '2rem',
+                    pointerEvents: 'none'
                 }}
             >
                 <div style={{
@@ -228,7 +156,12 @@ export default function InteractiveTour({ onComplete }) {
                     borderRadius: '16px',
                     padding: '1.5rem',
                     boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
-                    border: '2px solid var(--color-primary, #3b82f6)'
+                    border: '2px solid var(--color-primary, #3b82f6)',
+                    width: '100%',
+                    maxWidth: '420px',
+                    pointerEvents: 'auto',
+                    animation: 'slideUp 0.3s ease',
+                    position: 'relative'
                 }}>
                     {/* Header con icono y botón de cerrar */}
                     <div style={{
@@ -396,14 +329,4 @@ export default function InteractiveTour({ onComplete }) {
             `}</style>
         </>
     );
-}
-
-// Función auxiliar para crear overlay con agujero
-function createOverlayBackground(element) {
-    if (!element) return 'rgba(0,0,0,0.75)';
-    
-    const rect = element.getBoundingClientRect();
-    const padding = 10;
-    
-    return `radial-gradient(circle at ${rect.left + rect.width/2}px ${rect.top + rect.height/2}px, transparent ${Math.min(rect.width, rect.height)/2 + padding}px, rgba(0,0,0,0.75) ${Math.min(rect.width, rect.height)/2 + padding + 10}px)`;
 }
