@@ -430,6 +430,175 @@ export default function ChecklistManager() {
                 })}
             </div>
 
+            {/* EDITABLE SECTIONS - VISTA PREVIA EDICIÓN (NO PRINT) */}
+            <div className="no-print" style={{ marginBottom: '2rem' }}>
+                {activeSections.map(section => {
+                    const sectionFails = section.items.filter(i => i.status === 'FAIL');
+                    return (
+                        <div key={section.id} className="card" style={{ padding: 0, marginBottom: '1.5rem' }}>
+                            <div style={{ background: 'var(--color-background)', padding: '1rem', borderBottom: '2px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', minHeight: '4rem' }}>
+                                <input
+                                    className="font-black text-xl uppercase tracking-tighter bg-transparent outline-none w-full border-none focus:ring-0 text-black text-center placeholder:text-slate-400"
+                                    style={{ textAlign: 'center', margin: 0 }}
+                                    value={section.title}
+                                    onChange={e => updateSectionTitle(section.id, e.target.value)}
+                                />
+                                <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0, marginLeft: '1rem' }}>
+                                    <button
+                                        onClick={() => removeSection(section.id)}
+                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-danger)', color: '#ffffff', fontSize: '0.65rem', fontWeight: 900, border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                                    >
+                                        <X size={12} strokeWidth={4} /> QUITAR
+                                    </button>
+                                    <button
+                                        onClick={() => checkAllOk(section.id)}
+                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-text)', color: '#ffffff', fontSize: '0.65rem', fontWeight: 900, border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                    >
+                                        TODO OK
+                                    </button>
+                                    <button
+                                        onClick={() => addItem(section.id)}
+                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-primary)', color: '#ffffff', fontSize: '0.65rem', fontWeight: 900, border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                    >
+                                        + ITEM
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div>
+                                {section.items.map((item, idx) => (
+                                    <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '0', borderBottom: idx === section.items.length - 1 ? 'none' : '1px solid var(--color-border)' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', padding: '1rem', gap: '1rem' }}>
+                                            <div style={{ minWidth: '24px', height: '24px', background: 'var(--color-background)', color: 'var(--color-text-muted)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 900, flexShrink: 0 }}>
+                                                {idx + 1}
+                                            </div>
+                                            <textarea
+                                                rows={1}
+                                                style={{ flex: 1, padding: '0.5rem', fontWeight: 700, fontSize: '0.9rem', outline: 'none', background: 'transparent', resize: 'none', border: 'none', color: 'var(--color-text)' }}
+                                                value={item.text}
+                                                onInput={(e) => {
+                                                    e.target.style.height = 'auto';
+                                                    e.target.style.height = e.target.scrollHeight + 'px';
+                                                }}
+                                                onChange={e => updateItem(section.id, idx, 'text', e.target.value)}
+                                            />
+                                            <button
+                                                onClick={() => {
+                                                    const toastId = toast(
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                                                            <span style={{ fontSize: '0.9rem' }}>¿Eliminar este punto?</span>
+                                                            <button
+                                                                onClick={() => { removeItem(section.id, idx); toast.dismiss(toastId); }}
+                                                                style={{ background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem' }}
+                                                            >Sí</button>
+                                                        </div>,
+                                                        { duration: 4000, icon: '🗑️' }
+                                                    );
+                                                }}
+                                                style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', cursor: 'pointer', color: '#ef4444', padding: '0.3rem 0.45rem', display: 'flex', alignItems: 'center', flexShrink: 0 }}
+                                                title="Eliminar"
+                                            >
+                                                <Trash2 size={15} />
+                                            </button>
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.5rem', padding: '0.5rem 1rem', background: 'var(--color-background)' }}>
+                                            <div className="checklist-status-buttons" style={{ flexShrink: 0, display: 'flex', gap: '0.5rem' }}>
+                                                <StatusBtn active={item.status === 'OK'} type="OK" onClick={() => updateItem(section.id, idx, 'status', 'OK')} />
+                                                <StatusBtn active={item.status === 'FAIL'} type="FAIL" onClick={() => updateItem(section.id, idx, 'status', 'FAIL')} />
+                                                <StatusBtn active={item.status === 'NA'} type="NA" onClick={() => updateItem(section.id, idx, 'status', 'NA')} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+
+            {/* FORMULARIOS EDITABLES - NO PRINT */}
+            <div className="no-print" style={{ marginBottom: '2rem' }}>
+                {/* PLAN DE ACCIÓN - FORMULARIO */}
+                <div style={{ border: '2px solid #f59e0b', borderRadius: '12px', padding: '1.5rem', background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', position: 'relative' }}>
+                    <div style={{ position: 'absolute', top: '-12px', left: '20px', background: '#f59e0b', color: '#fff', padding: '4px 12px', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', borderRadius: '4px' }}>
+                        🎯 Plan de Acción
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.8rem', marginBottom: '1rem', marginTop: '0.5rem' }}>
+                        <input type="text" placeholder="Acción correctiva" value={newAction.action} onChange={(e) => setNewAction({ ...newAction, action: e.target.value })} style={{ padding: '0.6rem 0.8rem', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, outline: 'none' }} />
+                        <input type="text" placeholder="Responsable" value={newAction.responsible} onChange={(e) => setNewAction({ ...newAction, responsible: e.target.value })} style={{ padding: '0.6rem 0.8rem', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, outline: 'none' }} />
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <input type="date" value={newAction.dueDate} onChange={(e) => setNewAction({ ...newAction, dueDate: e.target.value })} style={{ flex: 1, padding: '0.6rem 0.8rem', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, outline: 'none' }} />
+                            <select value={newAction.priority} onChange={(e) => setNewAction({ ...newAction, priority: e.target.value })} style={{ padding: '0.6rem 0.8rem', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, outline: 'none', background: '#fff' }}>
+                                <option value="bajo">🟢 Bajo</option>
+                                <option value="medio">🟡 Medio</option>
+                                <option value="alto">🟠 Alto</option>
+                                <option value="critico">🔴 Crítico</option>
+                            </select>
+                        </div>
+                        <button onClick={() => { if (newAction.action.trim()) { setActionPlan([...actionPlan, { ...newAction, id: Date.now() }]); setNewAction({ action: '', responsible: '', dueDate: '', priority: 'medio' }); toast.success('Acción agregada ✅'); } }} style={{ padding: '0.6rem 1rem', background: '#f59e0b', color: '#fff', fontWeight: 900, fontSize: '0.85rem', borderRadius: '8px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                            <Plus size={16} /> AGREGAR
+                        </button>
+                    </div>
+                    {actionPlan.length > 0 && (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.8rem' }}>
+                            {actionPlan.map((action, idx) => (
+                                <div key={action.id} style={{ background: '#fff', border: '1px solid #fcd34d', borderRadius: '8px', padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
+                                        <div style={{ minWidth: '24px', height: '24px', background: '#f59e0b', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 900, flexShrink: 0 }}>{idx + 1}</div>
+                                        <div style={{ flex: 1 }}>
+                                            <p style={{ margin: 0, fontWeight: 700, fontSize: '0.85rem', color: '#1e293b' }}>{action.action}</p>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.3rem', fontSize: '0.75rem' }}>
+                                                {action.responsible && <span style={{ color: '#475569' }}>👤 {action.responsible}</span>}
+                                                {action.dueDate && <span style={{ color: '#dc2626' }}>📅 {new Date(action.dueDate).toLocaleDateString()}</span>}
+                                                <span style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', fontWeight: 700, fontSize: '0.7rem', background: action.priority === 'critico' ? '#fef2f2' : action.priority === 'alto' ? '#fff7ed' : action.priority === 'medio' ? '#fefce8' : '#f0fdf4', color: action.priority === 'critico' ? '#dc2626' : action.priority === 'alto' ? '#ea580c' : action.priority === 'medio' ? '#ca8a04' : '#16a34a' }}>
+                                                    {action.priority === 'critico' ? '🔴' : action.priority === 'alto' ? '🟠' : action.priority === 'medio' ? '🟡' : '🟢'} {action.priority.toUpperCase()}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <button onClick={() => { setActionPlan(actionPlan.filter(a => a.id !== action.id)); toast.success('Acción eliminada'); }} style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '6px', cursor: 'pointer', color: '#ef4444', padding: '0.3rem', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                                            <X size={14} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* PRÓXIMA REVISIÓN */}
+                <div style={{ marginTop: '1rem', padding: '1rem', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '12px', display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                        <Calendar size={24} color="#2563eb" />
+                        <div>
+                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.85rem', color: '#1e3a8a', textTransform: 'uppercase' }}>Próxima Revisión Programada</p>
+                            <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b' }}>Seleccioná la fecha para el próximo control</p>
+                        </div>
+                    </div>
+                    <input type="date" value={nextReview} onChange={(e) => setNextReview(e.target.value)} style={{ padding: '0.6rem 0.8rem', border: '1px solid #93c5fd', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, outline: 'none', background: '#fff' }} />
+                </div>
+
+                {/* NORMATIVA APLICABLE */}
+                <div style={{ marginTop: '1rem', border: '2px solid #c084fc', borderRadius: '12px', padding: '1.5rem', background: 'linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%)', position: 'relative' }}>
+                    <div style={{ position: 'absolute', top: '-12px', left: '20px', background: '#9333ea', color: '#fff', padding: '4px 12px', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', borderRadius: '4px' }}>
+                        📚 Normativa Aplicable
+                    </div>
+                    <p style={{ fontSize: '0.8rem', color: '#475569', marginBottom: '1rem', marginTop: '0.5rem' }}>Seleccioná las normativas que aplican a esta inspección:</p>
+                    {Array.from(new Set(availableNorms.map(norm => norm.category))).map(category => (
+                        <div key={category} style={{ marginBottom: '1rem' }}>
+                            <h4 style={{ fontSize: '0.75rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.5rem' }}>{category}</h4>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.5rem' }}>
+                                {availableNorms.filter(norm => norm.category === category).map(norm => (
+                                    <label key={norm.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 0.8rem', background: selectedNorms.includes(norm.id) ? '#f3e8ff' : '#fff', border: `1px solid ${selectedNorms.includes(norm.id) ? '#a855f7' : '#e2e8f0'}`, borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s' }}>
+                                        <input type="checkbox" checked={selectedNorms.includes(norm.id)} onChange={(e) => { if (e.target.checked) { setSelectedNorms([...selectedNorms, norm.id]); } else { setSelectedNorms(selectedNorms.filter(id => id !== norm.id)); } }} className="w-4 h-4" />
+                                        <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#1e293b' }}>{norm.name}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
             <div id="pdf-content" className="print-area" style={{ width: '100%', maxWidth: '850px', boxSizing: 'border-box', background: '#ffffff', color: '#000000', padding: '3rem', margin: '0 auto', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', alignItems: 'center', borderBottom: '4px solid #e2e8f0', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
@@ -544,264 +713,42 @@ export default function ChecklistManager() {
                     );
                 })()}
 
-                <div className="space-y-12">
-                    {activeSections.map(section => (
-                        <div key={section.id} className="card w-full mb-6" style={{ padding: 0, pageBreakInside: section.items.length < 10 ? 'avoid' : 'auto' }}>
-                            <div style={{ background: 'var(--color-background)', padding: '1rem', borderBottom: '2px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', minHeight: '4rem', pageBreakInside: 'avoid' }}>
-                                <input
-                                    className="font-black text-xl uppercase tracking-tighter bg-transparent outline-none w-full border-none focus:ring-0 text-black text-center placeholder:text-slate-400 print-text-center block"
-                                    style={{ textAlign: 'center', margin: 0 }}
-                                    value={section.title}
-                                    onChange={e => updateSectionTitle(section.id, e.target.value)}
-                                />
-                                <div className="flex gap-2 no-print shrink-0 ml-4">
-                                    <button
-                                        onClick={() => removeSection(section.id)}
-                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-danger)', color: '#ffffff', fontSize: '0.65rem', fontWeight: 900, border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
-                                    >
-                                        <X size={12} strokeWidth={4} /> QUITAR
-                                    </button>
-                                    <button
-                                        onClick={() => checkAllOk(section.id)}
-                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-text)', color: '#ffffff', fontSize: '0.65rem', fontWeight: 900, border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                                    >
-                                        TODO OK
-                                    </button>
-                                    <button
-                                        onClick={() => addItem(section.id)}
-                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-primary)', color: '#ffffff', fontSize: '0.65rem', fontWeight: 900, border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                                    >
-                                        + ITEM
-                                    </button>
-                                </div>
+                {/* SECCIONES DEL CHECKLIST - VERSIÓN PRINT (SOLO LECTURA) */}
+                {activeSections.map(section => {
+                    const sectionFails = section.items.filter(i => i.status === 'FAIL');
+                    return (
+                        <div key={section.id} style={{ border: '2px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden', marginBottom: '1.5rem', pageBreakInside: 'avoid' }}>
+                            <div style={{ background: '#f8fafc', padding: '1rem', borderBottom: '2px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <h3 style={{ margin: 0, fontWeight: 900, fontSize: '1.1rem', color: '#1e293b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                    {section.title}
+                                </h3>
+                                {sectionFails.length > 0 && (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.8rem', background: '#fef2f2', borderRadius: '20px', border: '1px solid #fecaca', color: '#dc2626', fontSize: '0.75rem', fontWeight: 800 }}>
+                                        <TriangleAlert size={14} color="#dc2626" />
+                                        {sectionFails.length} NO CONFORME{sectionFails.length > 1 ? 'S' : ''}
+                                    </div>
+                                )}
                             </div>
-
-                            <div className="w-full flex-col divide-y divide-slate-200">
+                            <div>
                                 {section.items.map((item, idx) => (
-                                    <div key={idx} className="group hover:bg-slate-50/20 transition-colors flex flex-col sm:flex-row print-flex items-stretch sm:items-center print-items-center" style={{ pageBreakInside: 'avoid' }}>
-                                        <div className="flex-1 flex flex-row items-start sm:items-center min-w-0 p-4 pb-0 sm:pb-4 print:pb-4 border-b border-transparent sm:pr-4 print:pr-4" style={{ pageBreakInside: 'avoid' }}>
-                                            <div className="text-center font-black text-[0.6rem] bg-slate-50/50 h-10 w-8 flex items-center justify-center rounded-md mr-3 text-slate-400 border border-slate-100 shrink-0">{idx + 1}</div>
-                                            <textarea
-                                                rows={1}
-                                                className="w-full px-1 py-2 font-bold text-slate-800 text-[0.85rem] outline-none bg-transparent resize-none leading-tight border-none focus:ring-0 placeholder:text-slate-300 min-h-[40px] no-print block"
-                                                value={item.text}
-                                                onInput={(e) => {
-                                                    e.target.style.height = 'auto';
-                                                    e.target.style.height = e.target.scrollHeight + 'px';
-                                                }}
-                                                onChange={e => updateItem(section.id, idx, 'text', e.target.value)}
-                                            />
-                                            <div className="print-only w-full px-1 py-2 font-bold text-slate-800 text-[0.85rem] leading-tight whitespace-pre-wrap break-words">
-                                                {item.text}
+                                    <div key={idx} style={{ display: 'grid', gridTemplateColumns: '40px 1fr 100px', borderBottom: idx === section.items.length - 1 ? 'none' : '1px solid #f1f5f9', alignItems: 'stretch', pageBreakInside: 'avoid', background: item.status === 'FAIL' ? '#fef2f2' : 'transparent' }}>
+                                        <div style={{ padding: '0.8rem', display: 'flex', justifyContent: 'center', alignItems: 'center', borderRight: '1px solid #f1f5f9' }}>
+                                            <div style={{ background: '#f8fafc', color: '#94a3b8', border: '1px solid #e2e8f0', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 900 }}>
+                                                {idx + 1}
                                             </div>
                                         </div>
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', padding: '0.5rem 1rem 0.75rem 1rem', flexWrap: 'nowrap' }}>
-                                            <div className="no-print checklist-status-buttons" style={{ flexShrink: 0 }}>
-                                                <StatusBtn active={item.status === 'OK'} type="OK" onClick={() => updateItem(section.id, idx, 'status', 'OK')} />
-                                                <StatusBtn active={item.status === 'FAIL'} type="FAIL" onClick={() => updateItem(section.id, idx, 'status', 'FAIL')} />
-                                                <StatusBtn active={item.status === 'NA'} type="NA" onClick={() => updateItem(section.id, idx, 'status', 'NA')} />
-                                            </div>
-                                            <div className="hidden print-flex items-center justify-center font-black text-black" style={{ minWidth: '40px', border: '2px solid #000', borderRadius: '4px', height: '32px' }}>
-                                                {item.status === 'OK' ? <Check size={20} strokeWidth={4} /> :
-                                                    item.status === 'FAIL' ? <X size={20} strokeWidth={4} /> :
-                                                        item.status === 'NA' ? <span className="text-[0.7rem] uppercase">N/A</span> : ''}
-                                            </div>
-                                            <button
-                                                onClick={() => {
-                                                    const toastId = toast(
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                                                            <span style={{ fontSize: '0.9rem' }}>¿Eliminar este punto?</span>
-                                                            <button
-                                                                onClick={() => { removeItem(section.id, idx); toast.dismiss(toastId); }}
-                                                                style={{ background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem' }}
-                                                            >Sí</button>
-                                                        </div>,
-                                                        { duration: 4000, icon: '🗑️' }
-                                                    );
-                                                }}
-                                                className="no-print"
-                                                style={{ flexShrink: 0, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', cursor: 'pointer', color: '#ef4444', padding: '0.3rem 0.45rem', display: 'flex', alignItems: 'center' }}
-                                                title="Eliminar"
-                                            >
-                                                <Trash2 size={15} />
-                                            </button>
+                                        <div style={{ padding: '0.8rem 1rem', display: 'flex', alignItems: 'center', fontWeight: 700, fontSize: '0.85rem', color: '#334155' }}>
+                                            {item.text}
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.8rem', borderLeft: '1px dotted #e2e8f0' }}>
+                                            {item.status === 'OK' ? (<Check size={20} color="#16a34a" strokeWidth={3} />) : item.status === 'FAIL' ? (<X size={20} color="#dc2626" strokeWidth={3} />) : item.status === 'NA' ? (<span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#94a3b8' }}>N/A</span>) : ''}
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
-                    ))}
-                </div>
-
-                {/* PLAN DE ACCIÓN - NUEVO */}
-                <div className="no-print mt-8 border-2 border-amber-400 rounded-xl p-6 bg-gradient-to-br from-amber-50 to-yellow-50 relative text-left">
-                    <div className="absolute -top-4 left-8 bg-amber-500 text-white px-5 py-0.5 font-black text-[0.65rem] uppercase italic tracking-[0.2em] shadow-sm z-10 rounded-b-md flex items-center gap-2">
-                        🎯 PLAN DE ACCIÓN
-                    </div>
-
-                    {/* Formulario para agregar acción */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.8rem', marginBottom: '1rem' }}>
-                        <input
-                            type="text"
-                            placeholder="Acción correctiva"
-                            value={newAction.action}
-                            onChange={(e) => setNewAction({ ...newAction, action: e.target.value })}
-                            className="px-3 py-2 border border-slate-300 rounded-lg text-sm font-semibold outline-none focus:ring-2 focus:ring-amber-400"
-                        />
-                        <input
-                            type="text"
-                            placeholder="Responsable"
-                            value={newAction.responsible}
-                            onChange={(e) => setNewAction({ ...newAction, responsible: e.target.value })}
-                            className="px-3 py-2 border border-slate-300 rounded-lg text-sm font-semibold outline-none focus:ring-2 focus:ring-amber-400"
-                        />
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                            <input
-                                type="date"
-                                value={newAction.dueDate}
-                                onChange={(e) => setNewAction({ ...newAction, dueDate: e.target.value })}
-                                className="px-3 py-2 border border-slate-300 rounded-lg text-sm font-semibold outline-none focus:ring-2 focus:ring-amber-400 flex-1"
-                            />
-                            <select
-                                value={newAction.priority}
-                                onChange={(e) => setNewAction({ ...newAction, priority: e.target.value })}
-                                className="px-3 py-2 border border-slate-300 rounded-lg text-sm font-semibold outline-none focus:ring-2 focus:ring-amber-400"
-                            >
-                                <option value="bajo">🟢 Bajo</option>
-                                <option value="medio">🟡 Medio</option>
-                                <option value="alto">🟠 Alto</option>
-                                <option value="critico">🔴 Crítico</option>
-                            </select>
-                        </div>
-                        <button
-                            onClick={() => {
-                                if (newAction.action.trim()) {
-                                    setActionPlan([...actionPlan, { ...newAction, id: Date.now() }]);
-                                    setNewAction({ action: '', responsible: '', dueDate: '', priority: 'medio' });
-                                    toast.success('Acción agregada al plan ✅');
-                                }
-                            }}
-                            className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-black text-sm rounded-lg cursor-pointer transition-colors flex items-center justify-center gap-2"
-                        >
-                            <Plus size={16} /> AGREGAR
-                        </button>
-                    </div>
-
-                    {/* Lista de acciones */}
-                    {actionPlan.length > 0 && (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.8rem' }}>
-                            {actionPlan.map((action, idx) => (
-                                <div key={action.id} style={{ background: '#ffffff', border: '1px solid #fcd34d', borderRadius: '8px', padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
-                                        <div style={{ minWidth: '24px', height: '24px', background: '#f59e0b', color: '#ffffff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 900, flexShrink: 0 }}>
-                                            {idx + 1}
-                                        </div>
-                                        <div style={{ flex: 1 }}>
-                                            <p style={{ margin: 0, fontWeight: 700, fontSize: '0.85rem', color: '#1e293b' }}>{action.action}</p>
-                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.3rem', fontSize: '0.75rem' }}>
-                                                {action.responsible && (
-                                                    <span style={{ color: '#475569' }}>👤 {action.responsible}</span>
-                                                )}
-                                                {action.dueDate && (
-                                                    <span style={{ color: '#dc2626' }}>📅 {new Date(action.dueDate).toLocaleDateString()}</span>
-                                                )}
-                                                <span style={{
-                                                    padding: '0.2rem 0.5rem',
-                                                    borderRadius: '4px',
-                                                    fontWeight: 700,
-                                                    fontSize: '0.7rem',
-                                                    background: action.priority === 'critico' ? '#fef2f2' : action.priority === 'alto' ? '#fff7ed' : action.priority === 'medio' ? '#fefce8' : '#f0fdf4',
-                                                    color: action.priority === 'critico' ? '#dc2626' : action.priority === 'alto' ? '#ea580c' : action.priority === 'medio' ? '#ca8a04' : '#16a34a'
-                                                }}>
-                                                    {action.priority === 'critico' ? '🔴' : action.priority === 'alto' ? '🟠' : action.priority === 'medio' ? '🟡' : '🟢'} {action.priority.toUpperCase()}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <button
-                                            onClick={() => {
-                                                setActionPlan(actionPlan.filter(a => a.id !== action.id));
-                                                toast.success('Acción eliminada');
-                                            }}
-                                            className="no-print"
-                                            style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '6px', cursor: 'pointer', color: '#ef4444', padding: '0.3rem', display: 'flex', alignItems: 'center', flexShrink: 0 }}
-                                        >
-                                            <X size={14} />
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                {/* PRÓXIMA REVISIÓN - NUEVO */}
-                <div className="no-print mt-6 p-6 bg-blue-50 border border-blue-200 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                        <Calendar size={24} color="#2563eb" />
-                        <div>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.85rem', color: '#1e3a8a', textTransform: 'uppercase' }}>Próxima Revisión Programada</p>
-                            <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b' }}>Seleccioná la fecha para el próximo control</p>
-                        </div>
-                    </div>
-                    <input
-                        type="date"
-                        value={nextReview}
-                        onChange={(e) => setNextReview(e.target.value)}
-                        className="px-4 py-2 border border-blue-300 rounded-lg text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-400 bg-white"
-                    />
-                </div>
-
-                {/* NORMATIVA APLICABLE - NUEVO */}
-                <div className="no-print mt-6 border-2 border-purple-300 rounded-xl p-6 bg-gradient-to-br from-purple-50 to-indigo-50 relative">
-                    <div className="absolute -top-4 left-8 bg-purple-600 text-white px-5 py-0.5 font-black text-[0.65rem] uppercase italic tracking-[0.2em] shadow-sm z-10 rounded-b-md flex items-center gap-2">
-                        📚 NORMATIVA APLICABLE
-                    </div>
-
-                    <p style={{ fontSize: '0.8rem', color: '#475569', marginBottom: '1rem', marginTop: '0.5rem' }}>
-                        Seleccioná las normativas que aplican a esta inspección:
-                    </p>
-
-                    {/* Grid de normativas agrupadas por categoría */}
-                    {Array.from(new Set(availableNorms.map(norm => norm.category))).map(category => (
-                        <div key={category} style={{ marginBottom: '1rem' }}>
-                            <h4 style={{ fontSize: '0.75rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
-                                {category}
-                            </h4>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.5rem' }}>
-                                {availableNorms.filter(norm => norm.category === category).map(norm => (
-                                    <label
-                                        key={norm.id}
-                                        style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '0.5rem',
-                                            padding: '0.6rem 0.8rem',
-                                            background: selectedNorms.includes(norm.id) ? '#f3e8ff' : '#ffffff',
-                                            border: `1px solid ${selectedNorms.includes(norm.id) ? '#a855f7' : '#e2e8f0'}`,
-                                            borderRadius: '8px',
-                                            cursor: 'pointer',
-                                            transition: 'all 0.2s'
-                                        }}
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedNorms.includes(norm.id)}
-                                            onChange={(e) => {
-                                                if (e.target.checked) {
-                                                    setSelectedNorms([...selectedNorms, norm.id]);
-                                                } else {
-                                                    setSelectedNorms(selectedNorms.filter(id => id !== norm.id));
-                                                }
-                                            }}
-                                            className="w-4 h-4 accent-purple-600"
-                                        />
-                                        <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#1e293b' }}>{norm.name}</span>
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                    );
+                })}
 
                 {/* PLAN DE ACCIÓN - PRINTABLE */}
                 {actionPlan.length > 0 && (
@@ -823,6 +770,19 @@ export default function ChecklistManager() {
                                     </div>
                                 </div>
                             ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* PRÓXIMA REVISIÓN - PRINTABLE */}
+                {nextReview && (
+                    <div style={{ border: '2px solid #3b82f6', borderRadius: '12px', padding: '1rem', marginBottom: '2rem', background: '#eff6ff', pageBreakInside: 'avoid' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                            <Calendar size={24} color="#2563eb" />
+                            <div>
+                                <p style={{ margin: 0, fontWeight: 900, fontSize: '0.85rem', color: '#1e3a8a', textTransform: 'uppercase' }}>Próxima Revisión Programada</p>
+                                <p style={{ margin: '0.25rem 0 0 0', fontSize: '1rem', fontWeight: 800, color: '#1e40af' }}>{new Date(nextReview).toLocaleDateString()}</p>
+                            </div>
                         </div>
                     </div>
                 )}
