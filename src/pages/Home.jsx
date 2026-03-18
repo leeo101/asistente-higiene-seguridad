@@ -335,8 +335,8 @@ export default function Home() {
                             </div>
                             <p style={{ color: 'var(--color-hero-subtext)', fontSize: '1.2rem', marginTop: '1.5rem', fontWeight: 500, maxWidth: '550px', lineHeight: 1.6 }}>
                                 {currentUser
-                                    ? 'Gestión avanzada de riesgos y cumplimiento normativo potenciado por IA.'
-                                    : 'Cálculos técnicos, reportes con validez legal y asesoría inteligente para profesionales de Argentina, Chile, Bolivia, Paraguay y Uruguay.'}
+                                    ? 'Gestioná riesgos, ATS y cumplimiento normativo con IA.'
+                                    : 'Creá ATS, Carga de Fuego e Informes Técnicos en minutos. Validado por normativa de Argentina, Chile, Bolivia, Paraguay y Uruguay.'}
                             </p>
                         </div>
                         {!currentUser && (
