@@ -1,5 +1,5 @@
 import React from 'react';
-import { ClipboardCheck, Check, X } from 'lucide-react';
+import { ClipboardCheck, Check, X, AlertTriangle, Calendar, Info } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 
 export default function ChecklistPdfGenerator({ checklistData }) {
@@ -10,6 +10,11 @@ export default function ChecklistPdfGenerator({ checklistData }) {
     const compInfo = fullData.companyInfo || {};
     const inspInfo = fullData.inspectionInfo || {};
     const obs = fullData.observations || '';
+    const actionPlan = fullData.actionPlan || [];
+    const nextReview = fullData.nextReview || '';
+    const selectedNorms = fullData.selectedNorms || [];
+    const showSignatures = fullData.showSignatures || {};
+    const availableNorms = fullData.availableNorms || [];
 
     // Calcular estadísticas
     let totalItems = 0;
@@ -290,55 +295,124 @@ export default function ChecklistPdfGenerator({ checklistData }) {
 
                 {/* Observations */}
                 {obs && (
-                    <div style={{ 
-                        position: 'relative', 
-                        border: '2px solid #cbd5e1', 
-                        borderRadius: '12px', 
-                        padding: '1.5rem', 
-                        background: '#f8fafc', 
+                    <div style={{
+                        position: 'relative',
+                        border: '2px solid #cbd5e1',
+                        borderRadius: '12px',
+                        padding: '1.5rem',
+                        background: '#f8fafc',
                         marginBottom: '2rem',
                         pageBreakInside: 'avoid'
                     }}>
-                        <div style={{ 
-                            position: 'absolute', 
-                            top: '-10px', 
-                            left: '1.5rem', 
-                            background: '#1e293b', 
-                            color: '#ffffff', 
-                            padding: '2px 10px', 
-                            fontSize: '0.65rem', 
-                            fontWeight: 900, 
-                            letterSpacing: '2px', 
+                        <div style={{
+                            position: 'absolute',
+                            top: '-10px',
+                            left: '1.5rem',
+                            background: '#1e293b',
+                            color: '#ffffff',
+                            padding: '2px 10px',
+                            fontSize: '0.65rem',
+                            fontWeight: 900,
+                            letterSpacing: '2px',
                             borderRadius: '4px',
                             textTransform: 'uppercase'
                         }}>OBSERVACIONES</div>
-                        <div style={{ 
-                            fontSize: '0.9rem', 
-                            color: '#334155', 
-                            fontWeight: 700, 
-                            whiteSpace: 'pre-wrap', 
-                            lineHeight: 1.5 
+                        <div style={{
+                            fontSize: '0.9rem',
+                            color: '#334155',
+                            fontWeight: 700,
+                            whiteSpace: 'pre-wrap',
+                            lineHeight: 1.5
                         }}>
                             {obs}
                         </div>
                     </div>
                 )}
 
-                {/* Signatures - Igual que ATS */}
-                <div style={{ marginTop: 'auto', paddingTop: '3rem', display: 'flex', justifyContent: 'space-between', pageBreakInside: 'avoid' }}>
-                    <div style={{ textAlign: 'center', width: '30%' }}>
-                        <div style={{ borderTop: '2px solid #1e293b', paddingTop: '8px' }}>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>OPERADOR / RESPONSABLE</p>
-                            <p style={{ margin: 0, fontSize: '0.65rem', color: '#64748b' }}>Firma y Aclaración</p>
+                {/* PLAN DE ACCIÓN - PRINTABLE */}
+                {actionPlan.length > 0 && (
+                    <div style={{ border: '2px solid #f59e0b', borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem', background: '#fffbeb', pageBreakInside: 'avoid' }}>
+                        <div style={{ background: '#f59e0b', padding: '0.8rem 1.2rem', color: '#fff', fontWeight: 900, fontSize: '0.9rem', textTransform: 'uppercase' }}>🎯 Plan de Acción Correctiva</div>
+                        <div style={{ padding: '1.2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+                            {actionPlan.map((action, idx) => (
+                                <div key={action.id} style={{ background: '#fff', border: '1px solid #fcd34d', borderRadius: '8px', padding: '1rem' }}>
+                                    <div style={{ display: 'flex', gap: '0.6rem' }}>
+                                        <span style={{ background: '#f59e0b', color: '#fff', width: '22px', height: '22px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 900, flexShrink: 0 }}>{idx + 1}</span>
+                                        <div style={{ flex: 1 }}>
+                                            <p style={{ margin: '0 0 0.4rem 0', fontWeight: 800, fontSize: '0.85rem', color: '#1e293b' }}>{action.action}</p>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', fontSize: '0.7rem', color: '#64748b', fontWeight: 700 }}>
+                                                {action.responsible && <span>👤 Resp: {action.responsible}</span>}
+                                                {action.dueDate && <span>📅 Vence: {new Date(action.dueDate).toLocaleDateString()}</span>}
+                                                <span style={{ color: action.priority === 'critico' ? '#dc2626' : action.priority === 'alto' ? '#ea580c' : '#ca8a04' }}>🔥 {action.priority.toUpperCase()}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
+                )}
 
-                    <div style={{ textAlign: 'center', width: '30%' }}>
-                        <div style={{ borderTop: '2px solid #1e293b', paddingTop: '8px' }}>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>SUPERVISOR H&S</p>
-                            <p style={{ margin: 0, fontSize: '0.65rem', color: '#64748b' }}>Aprobación</p>
+                {/* PRÓXIMA REVISIÓN - PRINTABLE */}
+                {nextReview && (
+                    <div style={{ border: '2px solid #3b82f6', borderRadius: '12px', padding: '1rem', marginBottom: '2rem', background: '#eff6ff', pageBreakInside: 'avoid' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                            <Calendar size={24} color="#2563eb" />
+                            <div>
+                                <p style={{ margin: 0, fontWeight: 900, fontSize: '0.85rem', color: '#1e3a8a', textTransform: 'uppercase' }}>Próxima Revisión Programada</p>
+                                <p style={{ margin: '0.25rem 0 0 0', fontSize: '1rem', fontWeight: 800, color: '#1e40af' }}>{new Date(nextReview).toLocaleDateString()}</p>
+                            </div>
                         </div>
                     </div>
+                )}
+
+                {/* NORMATIVA - PRINTABLE */}
+                {selectedNorms.length > 0 && (
+                    <div style={{ border: '2px solid #a855f7', borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem', background: '#faf5ff', pageBreakInside: 'avoid' }}>
+                        <div style={{ background: '#a855f7', padding: '0.8rem 1.2rem', color: '#fff', fontWeight: 900, fontSize: '0.9rem', textTransform: 'uppercase' }}>📚 Normativa Legal Aplicable</div>
+                        <div style={{ padding: '1.2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.6rem' }}>
+                            {selectedNorms.map(normId => {
+                                const norm = availableNorms.find(n => n.id === normId);
+                                if (!norm) return null;
+                                return (
+                                    <div key={normId} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', background: '#fff', padding: '0.6rem 0.8rem', borderRadius: '8px', border: '1px solid #e9d5ff' }}>
+                                        <div style={{ width: '18px', height: '18px', background: '#a855f7', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', fontWeight: 900 }}>✓</div>
+                                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1e293b' }}>{norm.name}</span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
+
+                {/* Signatures - Igual que ATS */}
+                <div style={{ marginTop: 'auto', paddingTop: '3rem', display: 'flex', justifyContent: 'space-between', pageBreakInside: 'avoid', gap: '2rem' }}>
+                    {showSignatures.operator && (
+                        <div style={{ flex: 1, textAlign: 'center' }}>
+                            <div style={{ borderTop: '2px solid #1e293b', paddingTop: '8px' }}>
+                                <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>OPERADOR / RESPONSABLE</p>
+                                <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b' }}>Firma y Aclaración</p>
+                            </div>
+                        </div>
+                    )}
+
+                    {showSignatures.supervisor && (
+                        <div style={{ flex: 1, textAlign: 'center' }}>
+                            <div style={{ borderTop: '2px solid #1e293b', paddingTop: '8px' }}>
+                                <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>SUPERVISOR H&S</p>
+                                <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b' }}>Aprobación</p>
+                            </div>
+                        </div>
+                    )}
+
+                    {showSignatures.professional && (
+                        <div style={{ flex: 1, textAlign: 'center' }}>
+                            <div style={{ borderTop: '2px solid #1e293b', paddingTop: '8px' }}>
+                                <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>PROFESIONAL ACTUANTE</p>
+                                <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b' }}>Sello y Firma</p>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 <div style={{ textAlign: 'center', marginTop: '3rem', fontSize: '0.65rem', fontWeight: 900, color: '#94a3b8', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
