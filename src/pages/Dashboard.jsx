@@ -285,21 +285,23 @@ export default function Dashboard() {
     }
 
     return (
-        <div className="page-transition" style={{ padding: '1rem', maxWidth: '1400px', margin: '0 auto' }}>
+        <div className="page-transition" style={{ padding: '1rem', paddingTop: '1.5rem', maxWidth: '1400px', margin: '0 auto' }}>
             {/* Header */}
-            <div style={{ 
-                marginBottom: '2rem', 
-                display: 'flex', 
-                justifyContent: 'space-between', 
+            <div style={{
+                marginBottom: '2rem',
+                marginTop: '1rem',
+                display: 'flex',
+                justifyContent: 'space-between',
                 alignItems: 'center',
                 flexWrap: 'wrap',
                 gap: '1rem'
             }}>
                 <div>
-                    <h1 style={{ 
-                        fontSize: 'clamp(1.5rem, 4vw, 2rem)', 
+                    <h1 style={{
+                        fontSize: 'clamp(1.5rem, 4vw, 2rem)',
                         fontWeight: 900,
                         margin: 0,
+                        marginTop: '0.5rem',
                         background: 'linear-gradient(135deg, #1e3a8a, #2563eb)',
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
