@@ -1158,6 +1158,14 @@ function DangerItem({ condition, consequence, color }) {
 
 // Modal de Crear Permiso
 function CreatePermitModal({ permit, setPermit, onSave, onClose, CONFINED_SPACE_TYPES, POTENTIAL_HAZARDS, EQUIPMENT_CHECKLIST, ROLES }) {
+    const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     const toggleHazard = (hazardId) => {
         const current = permit.hazards || [];
         const updated = current.includes(hazardId)
@@ -1197,14 +1205,14 @@ function CreatePermitModal({ permit, setPermit, onSave, onClose, CONFINED_SPACE_
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '1.5rem'
+            padding: isMobile ? '1rem' : '1.5rem'
         }} onClick={onClose}>
-            <div 
+            <div
                 className="card"
                 style={{
-                    width: '100%',
-                    maxWidth: '900px',
-                    maxHeight: '90vh',
+                    width: isMobile ? '100%' : '100%',
+                    maxWidth: isMobile ? '100%' : '900px',
+                    maxHeight: isMobile ? '95vh' : '90vh',
                     overflow: 'auto',
                     margin: 'auto'
                 }}
@@ -1236,9 +1244,9 @@ function CreatePermitModal({ permit, setPermit, onSave, onClose, CONFINED_SPACE_
                     </button>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem' }}>
                     {/* Nombre del Espacio */}
-                    <div>
+                    <div style={{ gridColumn: isMobile ? '1 / -1' : undefined }}>
                         <label style={labelStyle}>Nombre del Espacio *</label>
                         <input
                             type="text"
@@ -1303,7 +1311,7 @@ function CreatePermitModal({ permit, setPermit, onSave, onClose, CONFINED_SPACE_
                 {/* Peligros Potenciales */}
                 <div style={{ marginTop: '1.5rem' }}>
                     <label style={labelStyle}>Peligros Potenciales</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.5rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(5, 1fr)', gap: isMobile ? '0.4rem' : '0.5rem' }}>
                         {POTENTIAL_HAZARDS.map(hazard => (
                             <button
                                 key={hazard.id}
@@ -1339,7 +1347,7 @@ function CreatePermitModal({ permit, setPermit, onSave, onClose, CONFINED_SPACE_
                 {/* Equipo Requerido */}
                 <div style={{ marginTop: '1.5rem' }}>
                     <label style={labelStyle}>Equipamiento Requerido</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: isMobile ? '0.5rem' : '0.5rem' }}>
                         {permit.equipment.map(equip => (
                             <label 
                                 key={equip.id}
