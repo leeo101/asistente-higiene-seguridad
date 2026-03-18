@@ -8,18 +8,25 @@ import { WifiOff, Wifi, CloudOff, CheckCircle } from 'lucide-react';
  */
 export default function OfflineIndicator() {
     const isOffline = useOffline();
-    const [justCameBack, setJustCameBack] = React.useState(false);
+    const [wasOffline, setWasOffline] = React.useState(false);
+    const [showRestored, setShowRestored] = React.useState(false);
 
     React.useEffect(() => {
-        if (isOffline === false) {
-            setJustCameBack(true);
-            const timer = setTimeout(() => setJustCameBack(false), 3000);
+        if (isOffline) {
+            setWasOffline(true);
+        } else if (wasOffline) {
+            // Solo mostrar si realmente estuvo offline
+            setShowRestored(true);
+            const timer = setTimeout(() => {
+                setShowRestored(false);
+                setWasOffline(false);
+            }, 3000);
             return () => clearTimeout(timer);
         }
-    }, [isOffline]);
+    }, [isOffline, wasOffline]);
 
     // No mostrar nada si está online y no viene de estar offline
-    if (!isOffline && !justCameBack) {
+    if (!isOffline && !showRestored) {
         return null;
     }
 

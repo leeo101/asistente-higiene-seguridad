@@ -6,20 +6,22 @@ export default function NetworkBadge() {
     const isOnline = useNetworkStatus();
     const [showBadge, setShowBadge] = useState(false);
     const [statusText, setStatusText] = useState('');
+    const [wasOffline, setWasOffline] = useState(false);
 
     useEffect(() => {
         if (!isOnline) {
             setShowBadge(true);
             setStatusText('Sin conexión - Guardado local activo');
+            setWasOffline(true);
         } else {
-            if (showBadge) {
-                // If it just came back online, show the online badge briefly
-                setStatusText('Conexión restaurada');
+            if (wasOffline) {
+                // Solo mostrar "Conexión restaurada" si realmente estuvo offline
+                setStatusText('✅ Conexión restaurada');
                 const timer = setTimeout(() => setShowBadge(false), 3000);
                 return () => clearTimeout(timer);
             }
         }
-    }, [isOnline]);
+    }, [isOnline, wasOffline]);
 
     if (!showBadge) return null;
 
