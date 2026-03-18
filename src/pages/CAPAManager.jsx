@@ -914,8 +914,8 @@ function EmptyState({ onAdd }) {
 // Modal de Crear CAPA
 function CreateCapaModal({ capa, setCapa, onSave, onClose, CAPA_TYPES, CAPA_SOURCES, PRIORITY, ROOT_CAUSE_METHODS }) {
     return (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }} onClick={onClose}>
-            <div className="card" style={{ width: '100%', maxWidth: '900px', maxHeight: '90vh', overflow: 'auto', margin: 'auto' }} onClick={e => e.stopPropagation()}>
+        <div className="modal-fullscreen-overlay" onClick={onClose}>
+            <div className="modal-fullscreen-content" onClick={e => e.stopPropagation()}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}>
                     <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900 }}>Nueva CAPA</h2>
                     <button onClick={onClose} style={{ padding: '0.5rem', background: 'var(--color-background)', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: 'var(--color-text)' }}><XCircle size={24} /></button>
@@ -946,8 +946,8 @@ function CapaDetailModal({ capa, statusConfig, priorityConfig, capaType, onClose
     const isOverdue = capa.dueDate && new Date(capa.dueDate) < new Date() && capa.status !== 'closed';
 
     return (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }} onClick={onClose}>
-            <div className="card" style={{ width: '100%', maxWidth: '800px', maxHeight: '90vh', overflow: 'auto', margin: 'auto' }} onClick={e => e.stopPropagation()}>
+        <div className="modal-fullscreen-overlay" onClick={onClose}>
+            <div className="modal-fullscreen-content" onClick={e => e.stopPropagation()}>
                 {/* Header */}
                 <div style={{ padding: '1.5rem', background: `${statusConfig.bg}`, borderBottom: `2px solid ${statusConfig.color}`, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -1046,8 +1046,8 @@ function CreateActionModal({ capa, onSave, onClose, CONTROL_HIERARCHY }) {
     const [action, setAction] = useState({ description: '', responsible: '', dueDate: '', controlType: '', expectedResult: '' });
 
     return (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }} onClick={onClose}>
-            <div className="card" style={{ width: '100%', maxWidth: '600px', margin: 'auto' }} onClick={e => e.stopPropagation()}>
+        <div className="modal-fullscreen-overlay" onClick={onClose}>
+            <div className="modal-fullscreen-content" onClick={e => e.stopPropagation()}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}><h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900 }}><Plus size={20} style={{ display: 'inline', marginRight: '0.5rem' }} />Nueva Acción</h2><button onClick={onClose} style={{ padding: '0.5rem', background: 'var(--color-background)', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: 'var(--color-text)' }}><XCircle size={24} /></button></div>
                 <div style={{ marginBottom: '1rem' }}><label style={labelStyle}>Descripción de la Acción *</label><textarea value={action.description} onChange={(e) => setAction({ ...action, description: e.target.value })} style={{ ...inputStyle, minHeight: '80px' }} placeholder="Describí la acción a implementar..." /></div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}><div><label style={labelStyle}>Responsable</label><input type="text" value={action.responsible} onChange={(e) => setAction({ ...action, responsible: e.target.value })} style={inputStyle} /></div><div><label style={labelStyle}>Fecha Límite</label><input type="date" value={action.dueDate} onChange={(e) => setAction({ ...action, dueDate: e.target.value })} style={inputStyle} /></div></div>

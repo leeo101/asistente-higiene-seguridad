@@ -108,11 +108,7 @@ export default function AuditManager() {
     const [findings, setFindings] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
-    const [showAddModal, setShowAddModal] = useState(false);
-    const [selectedAudit, setSelectedAudit] = useState(null);
     const [activeTab, setActiveTab] = useState('audits');
-    const [showFindingModal, setShowFindingModal] = useState(false);
-    const [currentAuditForFinding, setCurrentAuditForFinding] = useState(null);
 
     const [newAudit, setNewAudit] = useState({
         id: '',
@@ -155,7 +151,7 @@ export default function AuditManager() {
 
     const handleCreateAudit = () => {
         if (!newAudit.title.trim()) return;
-        
+
         const audit = {
             ...newAudit,
             id: `AUD-${Date.now()}`,
@@ -166,7 +162,7 @@ export default function AuditManager() {
 
         const updated = [audit, ...audits];
         saveAudits(updated);
-        setShowAddModal(false);
+        navigate('/audit?created=' + audit.id);
         resetForm();
     };
 
@@ -329,7 +325,7 @@ export default function AuditManager() {
 
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                     <button
-                        onClick={() => setShowAddModal(true)}
+                        onClick={() => navigate('/audit-create')}
                         className="btn-primary"
                         style={{
                             width: 'auto',
@@ -522,21 +518,18 @@ export default function AuditManager() {
 
                     {/* Audits List */}
                     {filteredAudits.length === 0 ? (
-                        <EmptyState onAdd={() => setShowAddModal(true)} />
+                        <EmptyState onAdd={() => navigate('/audit-create')} />
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                             {filteredAudits.map(audit => (
-                                <AuditCard 
+                                <AuditCard
                                     key={audit.id}
                                     audit={audit}
                                     statusConfig={AUDIT_STATUS[audit.status] || AUDIT_STATUS.draft}
                                     onStart={() => startAudit(audit.id)}
                                     onComplete={() => completeAudit(audit.id)}
-                                    onView={() => setSelectedAudit(audit)}
-                                    onAddFinding={() => {
-                                        setCurrentAuditForFinding(audit);
-                                        setShowFindingModal(true);
-                                    }}
+                                    onView={() => navigate(`/audit/${audit.id}`)}
+                                    onAddFinding={() => navigate(`/audit/${audit.id}/finding`)}
                                     onDelete={() => deleteAudit(audit.id)}
                                 />
                             ))}
@@ -559,53 +552,6 @@ export default function AuditManager() {
                 <ISOChecklistPanel 
                     checklist={ISO_CHECKLIST}
                     areas={AUDIT_AREAS}
-                />
-            )}
-
-            {/* Modal de Crear Auditoría */}
-            {showAddModal && (
-                <CreateAuditModal 
-                    audit={newAudit}
-                    setAudit={setNewAudit}
-                    onSave={handleCreateAudit}
-                    onClose={() => {
-                        setShowAddModal(false);
-                        resetForm();
-                    }}
-                    AUDIT_TYPES={AUDIT_TYPES}
-                    AUDIT_AREAS={AUDIT_AREAS}
-                />
-            )}
-
-            {/* Modal de Detalle */}
-            {selectedAudit && (
-                <AuditDetailModal 
-                    audit={selectedAudit}
-                    statusConfig={AUDIT_STATUS[selectedAudit.status] || AUDIT_STATUS.draft}
-                    onClose={() => setSelectedAudit(null)}
-                    AUDIT_TYPES={AUDIT_TYPES}
-                    AUDIT_AREAS={AUDIT_AREAS}
-                    findings={findings.filter(f => f.auditId === selectedAudit.id)}
-                    onAddFinding={() => {
-                        setCurrentAuditForFinding(selectedAudit);
-                        setShowFindingModal(true);
-                    }}
-                />
-            )}
-
-            {/* Modal de Hallazgo */}
-            {showFindingModal && currentAuditForFinding && (
-                <CreateFindingModal 
-                    audit={currentAuditForFinding}
-                    onSave={(finding) => {
-                        addFinding(finding);
-                        setShowFindingModal(false);
-                    }}
-                    onClose={() => {
-                        setShowFindingModal(false);
-                        setCurrentAuditForFinding(null);
-                    }}
-                    severityConfig={FINDING_SEVERITY}
                 />
             )}
         </div>
@@ -1018,85 +964,6 @@ function FindingsList({ findings, audits, onUpdateStatus, severityConfig, status
                     </div>
                 );
             })}
-        </div>
-    );
-}
-
-function CreateAuditModal({ audit, setAudit, onSave, onClose, AUDIT_TYPES, AUDIT_AREAS }) {
-    const toggleArea = (areaId) => {
-        const current = audit.areas || [];
-        const updated = current.includes(areaId) ? current.filter(a => a !== areaId) : [...current, areaId];
-        setAudit({ ...audit, areas: updated });
-    };
-
-    return (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }} onClick={onClose}>
-            <div className="card" style={{ width: '100%', maxWidth: '900px', maxHeight: '90vh', overflow: 'auto', margin: 'auto' }} onClick={e => e.stopPropagation()}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}>
-                    <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900 }}>Nueva Auditoría EHS</h2>
-                    <button onClick={onClose} style={{ padding: '0.5rem', background: 'var(--color-background)', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: 'var(--color-text)' }}><XCircle size={24} /></button>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    <div><label style={labelStyle}>Título *</label><input type="text" value={audit.title} onChange={(e) => setAudit({ ...audit, title: e.target.value })} style={inputStyle} placeholder="Ej: Auditoría Interna 2024" /></div>
-                    <div><label style={labelStyle}>Tipo de Auditoría</label><select value={audit.auditType} onChange={(e) => setAudit({ ...audit, auditType: e.target.value })} style={inputStyle}>{AUDIT_TYPES.map(t => <option key={t.id} value={t.id}>{t.icon} {t.name}</option>)}</select></div>
-                    <div><label style={labelStyle}>Auditor Líder</label><input type="text" value={audit.leadAuditor} onChange={(e) => setAudit({ ...audit, leadAuditor: e.target.value })} style={inputStyle} placeholder="Nombre del auditor" /></div>
-                    <div><label style={labelStyle}>Ubicación</label><input type="text" value={audit.location} onChange={(e) => setAudit({ ...audit, location: e.target.value })} style={inputStyle} placeholder="Ej: Planta Principal" /></div>
-                    <div><label style={labelStyle}>Fecha Programada</label><input type="date" value={audit.scheduledDate} onChange={(e) => setAudit({ ...audit, scheduledDate: e.target.value })} style={inputStyle} /></div>
-                    <div><label style={labelStyle}>Duración (días)</label><input type="number" value={audit.duration} onChange={(e) => setAudit({ ...audit, duration: e.target.value })} style={inputStyle} placeholder="Ej: 2" /></div>
-                </div>
-                <div style={{ marginTop: '1.5rem' }}><label style={labelStyle}>Áreas ISO 45001 a Auditar</label><div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>{AUDIT_AREAS.map(area => (<label key={area.clause} style={{ padding: '0.75rem', background: audit.areas?.includes(area.id) ? '#eff6ff' : 'var(--color-background)', border: `2px solid ${audit.areas?.includes(area.id) ? '#3b82f6' : 'var(--color-border)'}`, borderRadius: 'var(--radius-lg)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.75rem' }}><input type="checkbox" checked={audit.areas?.includes(area.id)} onChange={() => toggleArea(area.id)} style={{ width: '18px', height: '18px' }} /><div><span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>Cláusula {area.clause}</span><div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{area.name}</div></div></label>))}</div></div>
-                <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--color-border)' }}>
-                    <button onClick={onClose} style={{ flex: 1, padding: '0.85rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', fontWeight: 700, cursor: 'pointer' }}>Cancelar</button>
-                    <button onClick={onSave} className="btn-primary" style={{ flex: 1 }}>Crear Auditoría</button>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function AuditDetailModal({ audit, statusConfig, onClose, AUDIT_TYPES, AUDIT_AREAS, findings, onAddFinding }) {
-    const auditType = AUDIT_TYPES.find(t => t.id === audit.auditType);
-    const completedChecklist = audit.checklist?.filter(c => c.status !== null).length || 0;
-    const totalChecklist = audit.checklist?.length || 0;
-    const progress = totalChecklist > 0 ? Math.round((completedChecklist / totalChecklist) * 100) : 0;
-
-    return (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }} onClick={onClose}>
-            <div className="card" style={{ width: '100%', maxWidth: '800px', maxHeight: '90vh', overflow: 'auto', margin: 'auto' }} onClick={e => e.stopPropagation()}>
-                <div style={{ padding: '1.5rem', background: `${statusConfig.bg}`, borderBottom: `2px solid ${statusConfig.color}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <div style={{ width: '64px', height: '64px', background: `linear-gradient(135deg, ${statusConfig.color}, ${statusConfig.color}cc)`, borderRadius: 'var(--radius-xl)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}><ClipboardCheck size={32} strokeWidth={2.5} /></div>
-                        <div><h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900 }}>{auditType?.icon} {audit.title}</h2><p style={{ margin: '0.25rem 0 0 0', color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>{audit.location || 'Sin ubicación'} • {statusConfig.label}</p></div>
-                    </div>
-                    <button onClick={onClose} style={{ padding: '0.5rem', background: 'var(--color-background)', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: 'var(--color-text)' }}><XCircle size={24} /></button>
-                </div>
-                <div style={{ marginBottom: '1.5rem' }}><h3 style={{ fontSize: '0.9rem', fontWeight: 800, marginBottom: '0.75rem', textTransform: 'uppercase' }}>Progreso de Auditoría</h3><div style={{ padding: '1rem', background: 'var(--color-background)', borderRadius: 'var(--radius-lg)' }}><div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}><span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Checklist: {completedChecklist}/{totalChecklist} items</span><span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-primary)' }}>{progress}%</span></div><div style={{ height: '10px', background: '#e2e8f0', borderRadius: '5px', overflow: 'hidden' }}><div style={{ width: `${progress}%`, height: '100%', background: 'linear-gradient(90deg, #3b82f6, #1d4ed8)', borderRadius: '5px' }} /></div></div></div>
-                {findings.length > 0 && (<div style={{ marginBottom: '1.5rem' }}><h3 style={{ fontSize: '0.9rem', fontWeight: 800, marginBottom: '0.75rem', textTransform: 'uppercase' }}>Hallazgos ({findings.length})</h3><div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>{findings.slice(0, 5).map((f, i) => (<div key={i} style={{ padding: '0.75rem', background: f.status === 'open' ? '#fef2f2' : '#f0fdf4', border: `1px solid ${f.status === 'open' ? '#fecaca' : '#16a34a'}`, borderRadius: 'var(--radius-lg)', fontSize: '0.85rem', fontWeight: 600 }}>{f.title}</div>))}</div></div>)}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
-                    <InfoDetail label="Tipo" value={auditType?.name || '-'} />
-                    <InfoDetail label="Norma" value={audit.standard || '-'} />
-                    <InfoDetail label="Auditor Líder" value={audit.leadAuditor || '-'} />
-                    <InfoDetail label="Fecha" value={audit.scheduledDate ? new Date(audit.scheduledDate).toLocaleDateString() : '-'} />
-                </div>
-                <button onClick={onClose} className="btn-primary" style={{ width: '100%' }}>Cerrar</button>
-            </div>
-        </div>
-    );
-}
-
-function CreateFindingModal({ audit, onSave, onClose, severityConfig }) {
-    const [finding, setFinding] = useState({ auditId: audit.id, title: '', description: '', severity: 'minor', recommendation: '', responsible: '', dueDate: '' });
-
-    return (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }} onClick={onClose}>
-            <div className="card" style={{ width: '100%', maxWidth: '600px', margin: 'auto' }} onClick={e => e.stopPropagation()}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}><h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900 }}><AlertTriangle size={20} style={{ display: 'inline', marginRight: '0.5rem' }} />Nuevo Hallazgo</h2><button onClick={onClose} style={{ padding: '0.5rem', background: 'var(--color-background)', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: 'var(--color-text)' }}><XCircle size={24} /></button></div>
-                <div style={{ marginBottom: '1rem' }}><label style={labelStyle}>Título *</label><input type="text" value={finding.title} onChange={(e) => setFinding({ ...finding, title: e.target.value })} style={inputStyle} placeholder="Descripción breve del hallazgo" /></div>
-                <div style={{ marginBottom: '1rem' }}><label style={labelStyle}>Descripción *</label><textarea value={finding.description} onChange={(e) => setFinding({ ...finding, description: e.target.value })} style={{ ...inputStyle, minHeight: '80px' }} placeholder="Descripción detallada del hallazgo" /></div>
-                <div style={{ marginBottom: '1rem' }}><label style={labelStyle}>Severidad</label><div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>{Object.entries(severityConfig).map(([key, config]) => (<button key={key} onClick={() => setFinding({ ...finding, severity: key })} style={{ padding: '0.6rem', background: finding.severity === key ? config.bg : 'var(--color-background)', border: `2px solid ${finding.severity === key ? config.color : 'var(--color-border)'}`, borderRadius: 'var(--radius-lg)', cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem', color: finding.severity === key ? config.color : 'var(--color-text)' }}>{config.icon} {config.label}</button>))}</div></div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}><div><label style={labelStyle}>Responsable</label><input type="text" value={finding.responsible} onChange={(e) => setFinding({ ...finding, responsible: e.target.value })} style={inputStyle} /></div><div><label style={labelStyle}>Fecha Límite</label><input type="date" value={finding.dueDate} onChange={(e) => setFinding({ ...finding, dueDate: e.target.value })} style={inputStyle} /></div></div>
-                <div style={{ display: 'flex', gap: '1rem' }}><button onClick={onClose} style={{ flex: 1, padding: '0.85rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', fontWeight: 700, cursor: 'pointer' }}>Cancelar</button><button onClick={() => onSave(finding)} className="btn-primary" style={{ flex: 1 }}>Guardar Hallazgo</button></div>
-            </div>
         </div>
     );
 }

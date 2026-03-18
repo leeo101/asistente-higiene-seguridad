@@ -945,15 +945,7 @@ function AddMeasurementModal({ measurement, setMeasurement, workers, onSave, onC
 
     return (
         <div style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.7)',
-            backdropFilter: 'blur(8px)',
-            zIndex: 9999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '1.5rem'
+            className: 'modal-fullscreen-overlay'
         }} onClick={onClose}>
             <div 
                 className="card"
@@ -1273,15 +1265,7 @@ function MeasurementDetailModal({ measurement, riskLevel, onClose, calculateAtte
 
     return (
         <div style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.7)',
-            backdropFilter: 'blur(8px)',
-            zIndex: 9999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '1.5rem'
+            className: 'modal-fullscreen-overlay'
         }} onClick={onClose}>
             <div 
                 className="card"

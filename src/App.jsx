@@ -108,6 +108,8 @@ const WorkingAtHeight = lazyWithRetry(() => import('./pages/WorkingAtHeight.jsx'
 const WorkingAtHeightPage = lazyWithRetry(() => import('./pages/WorkingAtHeightPage.jsx'));
 const AuditManager = lazyWithRetry(() => import('./pages/AuditManager.jsx'));
 const AuditPage = lazyWithRetry(() => import('./pages/AuditPage.jsx'));
+const AuditCreate = lazyWithRetry(() => import('./pages/AuditCreate.jsx'));
+const AuditDetail = lazyWithRetry(() => import('./pages/AuditDetail.jsx'));
 const CAPAManager = lazyWithRetry(() => import('./pages/CAPAManager.jsx'));
 const CAPAPage = lazyWithRetry(() => import('./pages/CAPAPage.jsx'));
 const EnvironmentalMonitor = lazyWithRetry(() => import('./pages/EnvironmentalMonitor.jsx'));
@@ -446,6 +448,8 @@ function App() {
                 <Route path="/working-height" element={<WorkingAtHeight />} />
                 <Route path="/working-height-page" element={<WorkingAtHeightPage />} />
                 <Route path="/audit" element={<AuditManager />} />
+                <Route path="/audit-create" element={<AuditCreate />} />
+                <Route path="/audit/:id" element={<AuditDetail />} />
                 <Route path="/audit-page" element={<AuditPage />} />
                 <Route path="/capa" element={<CAPAManager />} />
                 <Route path="/capa-page" element={<CAPAPage />} />

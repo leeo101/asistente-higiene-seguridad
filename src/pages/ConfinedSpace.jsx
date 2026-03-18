@@ -1498,15 +1498,7 @@ function PermitDetailModal({ permit, statusConfig, onClose, CONFINED_SPACE_TYPES
 
     return (
         <div style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.7)',
-            backdropFilter: 'blur(8px)',
-            zIndex: 9999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '1.5rem'
+            className: 'modal-fullscreen-overlay'
         }} onClick={onClose}>
             <div 
                 className="card"
@@ -1830,15 +1822,7 @@ function AtmosphericReadingModal({ permit, onSave, onClose, limits }) {
 
     return (
         <div style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.7)',
-            backdropFilter: 'blur(8px)',
-            zIndex: 9999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '1.5rem'
+            className: 'modal-fullscreen-overlay'
         }} onClick={onClose}>
             <div 
                 className="card"
