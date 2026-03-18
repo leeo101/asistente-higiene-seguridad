@@ -158,14 +158,14 @@ const quickLinks = [
     { to: '/drills', icon: <Siren size={26} />, label: 'Simulacros', sub: 'Actas de Evacuación', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
     { to: '/stop-cards', icon: <TriangleAlert size={26} />, label: 'Tarjetas STOP', sub: 'Observaciones', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
     // Herramientas Profesionales Internacionales
-    { to: '/chemical-safety', icon: <Flame size={26} />, label: 'Químicos', sub: 'GHS/SGA Internacional', color: '#10b981', bg: 'rgba(16,185,129,0.1)', pro: true },
-    { to: '/noise-assessment-page', icon: <Volume2 size={26} />, label: 'Ruido', sub: 'ISO 9612', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', pro: true },
-    { to: '/loto-page', icon: <Lock size={26} />, label: 'LOTO', sub: 'OSHA 1910.147', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', pro: true },
-    { to: '/confined-space-page', icon: <Tent size={26} />, label: 'Espacios', sub: 'OSHA 1910.146', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', pro: true },
-    { to: '/working-height-page', icon: <ArrowDown size={26} />, label: 'Altura', sub: 'OSHA 1926.501', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', pro: true },
-    { to: '/audit-page', icon: <ClipboardCheck size={26} />, label: 'Auditorías', sub: 'ISO 45001', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', pro: true },
-    { to: '/capa-page', icon: <RefreshCw size={26} />, label: 'CAPA', sub: 'Mejora Continua', color: '#10b981', bg: 'rgba(16,185,129,0.1)', pro: true },
-    { to: '/environmental-page', icon: <Leaf size={26} />, label: 'Ambiental', sub: 'ISO 14001', color: '#10b981', bg: 'rgba(16,185,129,0.1)', pro: true },
+    { to: '/chemical-safety', icon: <Flame size={26} />, label: 'Químicos', sub: 'GHS/SGA Internacional', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true },
+    { to: '/noise-assessment-page', icon: <Volume2 size={26} />, label: 'Ruido', sub: 'ISO 9612', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true },
+    { to: '/loto-page', icon: <Lock size={26} />, label: 'LOTO', sub: 'OSHA 1910.147', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true },
+    { to: '/confined-space-page', icon: <Tent size={26} />, label: 'Espacios', sub: 'OSHA 1910.146', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', premium: true },
+    { to: '/working-height-page', icon: <ArrowDown size={26} />, label: 'Altura', sub: 'OSHA 1926.501', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true },
+    { to: '/audit-page', icon: <ClipboardCheck size={26} />, label: 'Auditorías', sub: 'ISO 45001', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true },
+    { to: '/capa-page', icon: <RefreshCw size={26} />, label: 'CAPA', sub: 'Mejora Continua', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true },
+    { to: '/environmental-page', icon: <Leaf size={26} />, label: 'Ambiental', sub: 'ISO 14001', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true },
 ];
 
 export default function Home() {
@@ -956,22 +956,22 @@ export default function Home() {
                     }}>
                         {quickLinks.map((item, i) => (
                             <Link key={i} className="stagger-item" to={item.to} style={{ textDecoration: 'none', animationDelay: `${0.1 + (i * 0.03)}s`, position: 'relative' }}>
-                                {item.pro && (
+                                {item.premium && (
                                     <div style={{
                                         position: 'absolute',
                                         top: '8px',
                                         right: '8px',
-                                        background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                                        color: '#fff',
-                                        fontSize: '0.6rem',
-                                        fontWeight: 900,
-                                        padding: '0.2rem 0.4rem',
-                                        borderRadius: '6px',
-                                        textTransform: 'uppercase',
+                                        width: '24px',
+                                        height: '24px',
+                                        background: 'linear-gradient(135deg, #fbbf24, #d97706)',
+                                        borderRadius: '50%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
                                         zIndex: 2,
-                                        boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
+                                        boxShadow: '0 2px 8px rgba(251, 191, 36, 0.4)'
                                     }}>
-                                        PRO
+                                        <span style={{ fontSize: '0.7rem', color: '#fff', fontWeight: 900 }}>★</span>
                                     </div>
                                 )}
                                 <div className="card" style={{
@@ -982,20 +982,20 @@ export default function Home() {
                                     minHeight: '160px', justifyContent: 'center',
                                     transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
                                     background: 'var(--color-surface)',
-                                    border: item.pro ? '2px solid #f59e0b' : '1px solid var(--color-border)',
-                                    boxShadow: item.pro ? '0 4px 12px rgba(245, 158, 11, 0.1)' : '0 4px 12px rgba(0,0,0,0.03)'
+                                    border: item.premium ? '3px solid #fbbf24' : '1px solid var(--color-border)',
+                                    boxShadow: item.premium ? '0 4px 20px rgba(251, 191, 36, 0.2)' : '0 4px 12px rgba(0,0,0,0.03)'
                                 }}
                                     onMouseOver={e => {
                                         e.currentTarget.style.transform = 'translateY(-10px)';
                                         e.currentTarget.style.background = 'var(--color-surface-solid)';
                                         e.currentTarget.style.borderColor = item.color;
-                                        e.currentTarget.style.boxShadow = item.pro ? `0 20px 40px rgba(245, 158, 11, 0.2)` : `0 20px 40px ${item.color}15`;
+                                        e.currentTarget.style.boxShadow = item.premium ? `0 20px 40px rgba(251, 191, 36, 0.3)` : `0 20px 40px ${item.color}15`;
                                     }}
                                     onMouseOut={e => {
                                         e.currentTarget.style.transform = 'translateY(0)';
                                         e.currentTarget.style.background = 'var(--color-surface)';
-                                        e.currentTarget.style.borderColor = item.pro ? '#f59e0b' : 'var(--color-border)';
-                                        e.currentTarget.style.boxShadow = item.pro ? '0 4px 12px rgba(245, 158, 11, 0.1)' : '0 4px 12px rgba(0,0,0,0.03)';
+                                        e.currentTarget.style.borderColor = item.premium ? '#fbbf24' : 'var(--color-border)';
+                                        e.currentTarget.style.boxShadow = item.premium ? '0 4px 20px rgba(251, 191, 36, 0.2)' : '0 4px 12px rgba(0,0,0,0.03)';
                                     }}>
                                     <div style={{
                                         width: '60px', height: '60px', borderRadius: '18px',
@@ -1008,22 +1008,23 @@ export default function Home() {
                                         position: 'relative'
                                     }}>
                                         {React.cloneElement(item.icon, { size: 30 })}
-                                        {item.pro && (
+                                        {item.premium && (
                                             <div style={{
                                                 position: 'absolute',
                                                 bottom: '-4px',
                                                 right: '-4px',
-                                                width: '20px',
-                                                height: '20px',
-                                                background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                                                width: '22px',
+                                                height: '22px',
+                                                background: 'linear-gradient(135deg, #fbbf24, #d97706)',
                                                 borderRadius: '50%',
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
-                                                fontSize: '0.6rem',
+                                                fontSize: '0.65rem',
                                                 color: '#fff',
                                                 fontWeight: 900,
-                                                border: '2px solid var(--color-surface)'
+                                                border: '2px solid var(--color-surface)',
+                                                boxShadow: '0 2px 6px rgba(251, 191, 36, 0.4)'
                                             }}>
                                                 ★
                                             </div>
