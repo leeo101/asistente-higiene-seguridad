@@ -103,6 +103,7 @@ const LOTOManager = lazyWithRetry(() => import('./pages/LOTOManager.jsx'));
 const ConfinedSpace = lazyWithRetry(() => import('./pages/ConfinedSpace.jsx'));
 const WorkingAtHeight = lazyWithRetry(() => import('./pages/WorkingAtHeight.jsx'));
 const AuditManager = lazyWithRetry(() => import('./pages/AuditManager.jsx'));
+const CAPAManager = lazyWithRetry(() => import('./pages/CAPAManager.jsx'));
 
 import InstallBanner from './components/InstallBanner.jsx';
 import GlobalSearch from './components/GlobalSearch.jsx';
@@ -433,6 +434,7 @@ function App() {
                 <Route path="/confined-space" element={<ConfinedSpace />} />
                 <Route path="/working-height" element={<WorkingAtHeight />} />
                 <Route path="/audit" element={<AuditManager />} />
+                <Route path="/capa" element={<CAPAManager />} />
                 <Route path="/calendar" element={<SafetyCalendar />} />
                 <Route path="/ai-camera-history" element={<AICameraHistory />} />
                 <Route path="/lighting" element={<LightingReport />} />
