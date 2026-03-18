@@ -56,6 +56,9 @@ export default function Dashboard() {
 
     useEffect(() => {
         loadDashboardData();
+        // Timeout de seguridad para evitar loading infinito
+        const timeout = setTimeout(() => setLoading(false), 3000);
+        return () => clearTimeout(timeout);
     }, [syncPulse, selectedPeriod]);
 
     const loadDashboardData = () => {
