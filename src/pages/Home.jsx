@@ -159,7 +159,7 @@ const quickLinks = [
     { to: '/stop-cards', icon: <TriangleAlert size={26} />, label: 'Tarjetas STOP', sub: 'Observaciones', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
     // Herramientas Profesionales Internacionales
     { to: '/chemical-safety', icon: <Flame size={26} />, label: 'Químicos', sub: 'GHS/SGA Internacional', color: '#10b981', bg: 'rgba(16,185,129,0.1)', pro: true },
-    { to: '/noise-assessment', icon: <Volume2 size={26} />, label: 'Ruido', sub: 'ISO 9612', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', pro: true },
+    { to: '/noise-assessment-page', icon: <Volume2 size={26} />, label: 'Ruido', sub: 'ISO 9612', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', pro: true },
     { to: '/loto', icon: <Lock size={26} />, label: 'LOTO', sub: 'OSHA 1910.147', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', pro: true },
     { to: '/confined-space', icon: <Tent size={26} />, label: 'Espacios', sub: 'OSHA 1910.146', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', pro: true },
     { to: '/working-height', icon: <ArrowDown size={26} />, label: 'Altura', sub: 'OSHA 1926.501', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', pro: true },
