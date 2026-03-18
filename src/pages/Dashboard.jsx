@@ -10,6 +10,7 @@ import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Toolti
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import ProfileCompletionBanner from '../components/ProfileCompletionBanner';
+import Breadcrumbs from '../components/Breadcrumbs';
 import toast from 'react-hot-toast';
 
 // Colores modernos para gráficos
@@ -292,6 +293,9 @@ export default function Dashboard() {
         <div className="page-transition" style={{ padding: '1rem', paddingTop: '1.5rem', maxWidth: '1400px', margin: '0 auto' }}>
             {/* Banner de bienvenida para nuevos usuarios */}
             <ProfileCompletionBanner />
+
+            {/* Breadcrumbs de navegación */}
+            <Breadcrumbs />
 
             {/* Header */}
             <div style={{

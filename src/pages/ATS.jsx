@@ -10,6 +10,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
 import ATSPdfGenerator from '../components/ATSPdfGenerator';
+import Breadcrumbs from '../components/Breadcrumbs';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
@@ -304,6 +305,9 @@ export default function ATS() {
         <>
             <style>{printStyles}</style>
             <div className="container" style={{ maxWidth: '1200px', paddingBottom: '12rem' }}>
+                {/* Breadcrumbs de navegación */}
+                <Breadcrumbs />
+
                 <ShareModal
                     open={showShare}
                     onClose={() => setShowShare(false)}
