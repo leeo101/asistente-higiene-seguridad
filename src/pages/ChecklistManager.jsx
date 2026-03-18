@@ -4,7 +4,7 @@ import {
     ClipboardCheck, Printer, Plus,
     Settings, TriangleAlert, Building2, Calendar,
     Check, ShieldCheck, Trash2, Edit3, X,
-    Share2, Save, ArrowLeft
+    Share2, Save, ArrowLeft, Info
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../contexts/AuthContext';
@@ -599,67 +599,90 @@ export default function ChecklistManager() {
                 </div>
             </div>
 
-            <div id="pdf-content" className="print-area" style={{ width: '100%', maxWidth: '850px', boxSizing: 'border-box', background: '#ffffff', color: '#000000', padding: '3rem', margin: '0 auto', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
+            <div id="pdf-content" className="print-area" style={{ width: '100%', maxWidth: '210mm', minHeight: '297mm', padding: '15mm', background: '#ffffff', color: '#000000', boxSizing: 'border-box', margin: '0 auto', fontSize: '10pt', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+                <style type="text/css" media="print">
+                    {`
+                        @page { size: A4 portrait; margin: 10mm; }
+                        body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                        .no-print { display: none !important; }
+                        .print-area {
+                            box-shadow: none !important;
+                            margin: 0 !important;
+                            padding: 5mm !important;
+                            width: 100% !important;
+                            max-width: none !important;
+                            border: none !important;
+                            border-radius: 0 !important;
+                        }
+                        .company-logo {
+                            -webkit-print-color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                            color-adjust: exact !important;
+                        }
+                    `}
+                </style>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', alignItems: 'center', borderBottom: '4px solid #e2e8f0', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
-                    {/* Top Left Text */}
-                    <div style={{ textAlign: 'left' }}>
+                {/* Header - Estilo ATS */}
+                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottom: '4px solid #e2e8f0', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%' }}>
+                    <div style={{ flex: 1, textAlign: 'left' }}>
                         <p style={{ margin: 0, fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.05em' }}>Sistema de Gestión</p>
                         <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', color: '#1e293b' }}>Control H&S</p>
                     </div>
 
-                    {/* Center Main Title */}
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                        <h1 style={{ margin: 0, fontWeight: 900, fontSize: 'clamp(1.5rem, 5vw, 2.8rem)', letterSpacing: '-0.04em', textTransform: 'uppercase', lineHeight: 1, color: '#1e293b' }}>CHECK LIST</h1>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                        <h1 style={{ margin: 0, fontWeight: 900, fontSize: '2.5rem', letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1, color: '#1e293b' }}>CHECK LIST</h1>
                         <p style={{ margin: 0, color: '#64748b', fontWeight: 900, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.4em', marginTop: '0.25rem' }}>Higiene y Seguridad</p>
                     </div>
 
-                    {/* Right Document Counter + Logo */}
-                    <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.6rem' }}>
-                        <CompanyLogo 
-                            style={{ 
-                                height: '45px', 
-                                width: 'auto', 
-                                objectFit: 'contain', 
-                                maxWidth: '140px' 
-                            }} 
+                    <div style={{ flex: 1, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                        <CompanyLogo
+                            style={{
+                                height: '40px',
+                                width: 'auto',
+                                objectFit: 'contain',
+                                maxWidth: '120px'
+                            }}
                         />
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                            <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.1rem' }}>DOCUMENTO N°</div>
-                            <input
-                                style={{ textAlign: 'right', fontWeight: 900, fontSize: '1.6rem', border: 'none', borderBottom: '2px solid #e2e8f0', background: 'transparent', width: '140px', outline: 'none', padding: 0, margin: 0, color: '#1e293b' }}
-                                value={inspectionInfo.serial}
-                                placeholder="000-000"
-                                onChange={e => setInspectionInfo({ ...inspectionInfo, serial: e.target.value })}
-                            />
+                        <div>
+                            <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>PÁGINA</div>
+                            <div style={{ fontWeight: 900, fontSize: '1.5rem', color: '#1e293b' }}>01 / 01</div>
                         </div>
                     </div>
                 </div>
 
+                {/* Primary Info Box - Estilo ATS */}
                 <div style={{ border: '2px solid #e2e8f0', borderRadius: '12px', marginBottom: '2.5rem', width: '100%', overflow: 'hidden' }}>
-                    <div className="grid grid-cols-1 sm:grid-cols-4 print-grid" style={{ borderBottom: '2px solid #e2e8f0', width: '100%' }}>
-                        <div className="sm:col-span-2 print:col-span-2"><DocBox label="CLIENTE / EMPRESA" value={companyInfo.name} onChange={v => setCompanyInfo({ ...companyInfo, name: v })} large /></div>
-                        <div className="sm:col-span-1 print:col-span-1 border-t sm:border-t-0 border-[#e2e8f0] sm:border-l"><DocBox label="CUIT / CUIL" value={companyInfo.cuit} onChange={v => setCompanyInfo({ ...companyInfo, cuit: v })} /></div>
-                        <div className="sm:col-span-1 print:col-span-1 border-t sm:border-t-0 border-[#e2e8f0] sm:border-l"><DocBox label="UBICACIÓN / OBRA" value={companyInfo.location} onChange={v => setCompanyInfo({ ...companyInfo, location: v })} /></div>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-4 print-grid" style={{ width: '100%' }}>
-                        <div className="sm:col-span-2 print:col-span-2">
-                            <DocBox
-                                label="EQUIPO REVISADO"
-                                value={inspectionInfo.item}
-                                onChange={v => setInspectionInfo({ ...inspectionInfo, item: v })}
-                                large
-                                highlight
-                                list="equipment-examples"
-                                placeholder="Ej: Amoladora, Andamio..."
-                            />
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', borderBottom: '2px solid #e2e8f0', width: '100%' }}>
+                        <div style={{ padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>CLIENTE / EMPRESA</span>
+                            <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>{companyInfo.name || '-'}</span>
                         </div>
-                        <div className="sm:col-span-1 print:col-span-1 border-t sm:border-t-0 border-[#e2e8f0] sm:border-l"><DocBox label="FECHA REVISIÓN" value={inspectionInfo.date} onChange={v => setInspectionInfo({ ...inspectionInfo, date: v })} type="date" /></div>
-                        <div className="sm:col-span-1 print:col-span-1 border-t sm:border-t-0 border-[#e2e8f0] sm:border-l"><DocBox label="INSPECTOR" value={companyInfo.inspector} onChange={v => setCompanyInfo({ ...companyInfo, inspector: v })} /></div>
+                        <div style={{ padding: '0.8rem', borderLeft: '2px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>CUIT / CUIL</span>
+                            <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>{companyInfo.cuit || '-'}</span>
+                        </div>
+                        <div style={{ padding: '0.8rem', borderLeft: '2px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>UBICACIÓN / OBRA</span>
+                            <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>{companyInfo.location || '-'}</span>
+                        </div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', width: '100%' }}>
+                        <div style={{ padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '4px', background: '#f8fafc' }}>
+                            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>EQUIPO REVISADO</span>
+                            <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>{inspectionInfo.item || '-'}</span>
+                        </div>
+                        <div style={{ padding: '0.8rem', borderLeft: '2px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>FECHA REVISIÓN</span>
+                            <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>{inspectionInfo.date ? new Date(inspectionInfo.date + 'T12:00:00Z').toLocaleDateString() : '-'}</span>
+                        </div>
+                        <div style={{ padding: '0.8rem', borderLeft: '2px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>INSPECTOR</span>
+                            <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>{companyInfo.inspector || '-'}</span>
+                        </div>
                     </div>
                 </div>
 
-                {/* Dashboard de Estadísticas en vivo */}
+                {/* Dashboard de Estadísticas - Estilo ATS */}
                 {(() => {
                     let total = 0, ok = 0, fail = 0, na = 0;
                     activeSections.forEach(s => s.items.forEach(i => {
@@ -673,7 +696,7 @@ export default function ChecklistManager() {
                     const naP = total > 0 ? Math.round((na / total) * 100) : 0;
 
                     return (
-                        <div style={{ 
+                        <div style={{
                             background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
                             border: '2px solid #e2e8f0',
                             borderRadius: '12px',
@@ -683,65 +706,74 @@ export default function ChecklistManager() {
                             <h2 style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', fontWeight: 900, color: '#1e293b', textTransform: 'uppercase', letterSpacing: '1px', textAlign: 'left' }}>
                                 📊 RESUMEN DE ESTADO
                             </h2>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
-                                <div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                                        <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#16a34a' }}>CONFORMES: {ok} ({okP}%)</span>
-                                    </div>
-                                    <div style={{ height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
-                                        <div style={{ width: `${okP}%`, height: '100%', background: '#16a34a', transition: 'width 0.5s' }}></div>
-                                    </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+                                <div style={{ background: '#f0fdf4', border: '2px solid #16a34a', borderRadius: '8px', padding: '1rem', textAlign: 'center' }}>
+                                    <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#16a34a', textTransform: 'uppercase', marginBottom: '0.5rem' }}>CUMPLE</div>
+                                    <div style={{ fontSize: '2rem', fontWeight: 900, color: '#16a34a', lineHeight: 1 }}>{ok}</div>
+                                    <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#16a34a' }}>{okP}%</div>
                                 </div>
-                                <div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                                        <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#dc2626' }}>NO CONFORMES: {fail} ({failP}%)</span>
-                                    </div>
-                                    <div style={{ height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
-                                        <div style={{ width: `${failP}%`, height: '100%', background: '#dc2626', transition: 'width 0.5s' }}></div>
-                                    </div>
+                                <div style={{ background: '#fef2f2', border: '2px solid #dc2626', borderRadius: '8px', padding: '1rem', textAlign: 'center' }}>
+                                    <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#dc2626', textTransform: 'uppercase', marginBottom: '0.5rem' }}>NO CUMPLE</div>
+                                    <div style={{ fontSize: '2rem', fontWeight: 900, color: '#dc2626', lineHeight: 1 }}>{fail}</div>
+                                    <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#dc2626' }}>{failP}%</div>
                                 </div>
-                                <div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                                        <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#64748b' }}>N/A: {na} ({naP}%)</span>
-                                    </div>
-                                    <div style={{ height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
-                                        <div style={{ width: `${naP}%`, height: '100%', background: '#64748b', transition: 'width 0.5s' }}></div>
-                                    </div>
+                                <div style={{ background: '#f8fafc', border: '2px solid #64748b', borderRadius: '8px', padding: '1rem', textAlign: 'center' }}>
+                                    <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.5rem' }}>N/A</div>
+                                    <div style={{ fontSize: '2rem', fontWeight: 900, color: '#64748b', lineHeight: 1 }}>{na}</div>
+                                    <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#64748b' }}>{naP}%</div>
                                 </div>
                             </div>
                         </div>
                     );
                 })()}
 
-                {/* SECCIONES DEL CHECKLIST - VERSIÓN PRINT (SOLO LECTURA) */}
+                {/* SECCIONES DEL CHECKLIST - Estilo ATS */}
                 {activeSections.map(section => {
                     const sectionFails = section.items.filter(i => i.status === 'FAIL');
                     return (
                         <div key={section.id} style={{ border: '2px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden', marginBottom: '1.5rem', pageBreakInside: 'avoid' }}>
-                            <div style={{ background: '#f8fafc', padding: '1rem', borderBottom: '2px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <h3 style={{ margin: 0, fontWeight: 900, fontSize: '1.1rem', color: '#1e293b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                    {section.title}
-                                </h3>
-                                {sectionFails.length > 0 && (
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.8rem', background: '#fef2f2', borderRadius: '20px', border: '1px solid #fecaca', color: '#dc2626', fontSize: '0.75rem', fontWeight: 800 }}>
-                                        <TriangleAlert size={14} color="#dc2626" />
-                                        {sectionFails.length} NO CONFORME{sectionFails.length > 1 ? 'S' : ''}
-                                    </div>
-                                )}
+                            <div style={{ background: '#f8fafc', padding: '0.8rem 1.2rem', borderBottom: '2px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <Info size={16} color="#2563eb" />
+                                <span style={{ fontWeight: 900, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', color: '#1e293b' }}>{section.title}</span>
                             </div>
                             <div>
                                 {section.items.map((item, idx) => (
-                                    <div key={idx} style={{ display: 'grid', gridTemplateColumns: '40px 1fr 100px', borderBottom: idx === section.items.length - 1 ? 'none' : '1px solid #f1f5f9', alignItems: 'stretch', pageBreakInside: 'avoid', background: item.status === 'FAIL' ? '#fef2f2' : 'transparent' }}>
-                                        <div style={{ padding: '0.8rem', display: 'flex', justifyContent: 'center', alignItems: 'center', borderRight: '1px solid #f1f5f9' }}>
-                                            <div style={{ background: '#f8fafc', color: '#94a3b8', border: '1px solid #e2e8f0', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 900 }}>
-                                                {idx + 1}
-                                            </div>
+                                    <div key={idx} style={{ padding: '0.8rem 1.2rem', borderBottom: idx === section.items.length - 1 ? 'none' : '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', pageBreakInside: 'avoid', background: item.status === 'FAIL' ? '#fef2f2' : 'transparent' }}>
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#1e293b', marginBottom: '0.2rem' }}>{item.text}</div>
                                         </div>
-                                        <div style={{ padding: '0.8rem 1rem', display: 'flex', alignItems: 'center', fontWeight: 700, fontSize: '0.85rem', color: '#334155' }}>
-                                            {item.text}
-                                        </div>
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.8rem', borderLeft: '1px dotted #e2e8f0' }}>
-                                            {item.status === 'OK' ? (<Check size={20} color="#16a34a" strokeWidth={3} />) : item.status === 'FAIL' ? (<X size={20} color="#dc2626" strokeWidth={3} />) : item.status === 'NA' ? (<span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#94a3b8' }}>N/A</span>) : ''}
+                                        <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+                                            {['SI', 'NO', 'NA'].map((label) => {
+                                                const isSelected = (label === 'SI' && item.status === 'OK') ||
+                                                    (label === 'NO' && item.status === 'FAIL') ||
+                                                    (label === 'NA' && item.status === 'NA');
+
+                                                let icon = '';
+                                                if (isSelected) {
+                                                    if (label === 'SI') icon = '✔';
+                                                    else if (label === 'NO') icon = '✘';
+                                                    else icon = 'X';
+                                                }
+
+                                                return (
+                                                    <div key={label} style={{
+                                                        width: '35px',
+                                                        height: '24px',
+                                                        border: isSelected ? '2.5px solid #000000' : '1px solid #cbd5e1',
+                                                        borderRadius: '4px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        fontSize: '0.9rem',
+                                                        fontWeight: isSelected ? 900 : 400,
+                                                        color: isSelected ? (label === 'SI' ? '#16a34a' : label === 'NO' ? '#dc2626' : '#000000') : '#cbd5e1',
+                                                        background: isSelected ? (label === 'SI' ? '#f0fdf4' : label === 'NO' ? '#fef2f2' : 'transparent') : 'transparent'
+                                                    }}>
+                                                        {icon}
+                                                        <span style={{ fontSize: '0.55rem', marginLeft: '2px', opacity: isSelected ? 1 : 0.6, fontWeight: 900 }}>{label}</span>
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 ))}
@@ -806,71 +838,51 @@ export default function ChecklistManager() {
                     </div>
                 )}
 
-                <div className="mt-8 border-2 border-slate-300 rounded-xl p-8 bg-slate-50 relative text-left" style={{ pageBreakInside: 'avoid' }}>
-                    <div className="absolute -top-4 left-8 bg-slate-800 text-white px-5 py-0.5 font-black text-[0.65rem] uppercase italic tracking-[0.2em] shadow-sm z-10 rounded-b-md">OBSERVACIONES</div>
-                    <textarea
-                        className="w-full bg-transparent outline-none text-[1rem] font-bold leading-relaxed resize-none min-h-[140px] placeholder:text-slate-300 relative z-20 text-left no-print block"
-                        placeholder="Ingrese observaciones, hallazgos o medidas correctivas..."
-                        value={observations}
-                        onInput={(e) => {
-                            e.target.style.height = 'auto';
-                            e.target.style.height = e.target.scrollHeight + 'px';
-                        }}
-                        onChange={e => setObservations(e.target.value)}
-                    />
-                    <div className="print-only w-full text-[1rem] font-bold leading-relaxed whitespace-pre-wrap break-words relative z-20 text-left min-h-[140px]">
-                        {observations || 'Sin observaciones adicionales.'}
+                {/* OBSERVACIONES - Estilo ATS */}
+                {observations && (
+                    <div style={{ border: '2px solid #cbd5e1', borderRadius: '12px', padding: '1.5rem', background: '#f8fafc', marginBottom: '2rem', pageBreakInside: 'avoid' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem' }}>
+                            <Info size={18} color="#64748b" />
+                            <span style={{ fontWeight: 900, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', color: '#1e293b' }}>OBSERVACIONES</span>
+                        </div>
+                        <div style={{ fontSize: '0.9rem', color: '#334155', fontWeight: 700, whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
+                            {observations}
+                        </div>
                     </div>
-                </div>
+                )}
 
-                {/* SIGNATURE CONTROLS (NO PRINT) */}
-                <div className="no-print mt-10 p-6 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-sm font-bold text-slate-700">
-                    <div className="text-center">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                    <div className="flex gap-4 flex-wrap justify-center">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Operador
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Supervisor
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Profesional
-                        </label>
-                    </div>
-                </div>
-
-                <div className="mt-16 sm:px-4 signature-section">
-                    <div className="signature-container-row">
-                        {showSignatures.operator && (
-                            <div className="signature-item-box">
-                                <div className="signature-line"></div>
-                                <p className="text-[0.6rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
-                                <p className="text-[0.7rem] font-black uppercase text-black leading-none break-words min-h-[0.7rem]">{companyInfo.inspector || ' '}</p>
-                                <p className="text-[0.5rem] font-bold text-blue-600 uppercase tracking-tighter mt-1" style={{ color: 'var(--color-primary)' }}>Firma / Aclaración</p>
+                {/* FIRMAS - Estilo ATS */}
+                <div style={{ marginTop: '3rem', paddingTop: '2rem', display: 'flex', justifyContent: 'space-between', pageBreakInside: 'avoid', gap: '2rem' }}>
+                    {showSignatures.operator && (
+                        <div style={{ flex: 1, textAlign: 'center' }}>
+                            <div style={{ borderTop: '2px solid #1e293b', paddingTop: '8px' }}>
+                                <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>OPERADOR / RESPONSABLE</p>
+                                <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b' }}>Firma y Aclaración</p>
                             </div>
-                        )}
-
-                        {showSignatures.supervisor && (
-                            <div className="signature-item-box">
-                                <div className="signature-line"></div>
-                                <p className="text-[0.6rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR</p>
-                                <p className="text-[0.7rem] font-black uppercase text-black leading-none">DNI / ACLARACIÓN</p>
-                                <p className="text-[0.5rem] font-bold text-blue-600 uppercase tracking-tighter mt-1" style={{ color: 'var(--color-primary)' }}>Firma del Supervisor</p>
-                            </div>
-                        )}
-
-                        {showSignatures.professional && (
-                            <div className="signature-item-box">
-                                <div className="signature-line"></div>
-                                <p className="text-[0.6rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL ACTUANTE</p>
-                                <p className="text-[0.7rem] font-black uppercase text-black leading-none">SELLO Y FIRMA</p>
-                                <p className="text-[0.5rem] font-bold text-blue-600 uppercase tracking-tighter mt-1" style={{ color: 'var(--color-primary)' }}>Matrícula</p>
-                            </div>
-                        )}
-                    </div>
-                    {(showSignatures.operator || showSignatures.supervisor || showSignatures.professional) && (
-                        <p className="text-center mt-12 text-slate-400 font-black text-[0.6rem] uppercase tracking-[0.5em] leading-none opacity-50 italic">Documento certificado según normativas de seguridad industrial.</p>
+                        </div>
                     )}
+
+                    {showSignatures.supervisor && (
+                        <div style={{ flex: 1, textAlign: 'center' }}>
+                            <div style={{ borderTop: '2px solid #1e293b', paddingTop: '8px' }}>
+                                <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>SUPERVISOR H&S</p>
+                                <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b' }}>Aprobación</p>
+                            </div>
+                        </div>
+                    )}
+
+                    {showSignatures.professional && (
+                        <div style={{ flex: 1, textAlign: 'center' }}>
+                            <div style={{ borderTop: '2px solid #1e293b', paddingTop: '8px' }}>
+                                <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>PROFESIONAL ACTUANTE</p>
+                                <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b' }}>Sello y Firma</p>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                <div style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.65rem', fontWeight: 900, color: '#94a3b8', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+                    Documento certificado según normativas de seguridad industrial.
                 </div>
             </div>
         </div>
