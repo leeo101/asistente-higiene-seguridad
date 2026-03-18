@@ -75,9 +75,9 @@ export default function Login() {
     const handleRegister = async (e) => {
         e.preventDefault();
 
-        // Basic Validations
-        if (!name || !email || !password || !confirmPassword || !dni || !license || !profession || !phone || !address || !country) {
-            return setStatus({ type: 'error', message: 'Todos los campos son obligatorios.' });
+        // Validations - Solo campos básicos requeridos
+        if (!name || !email || !password || !confirmPassword) {
+            return setStatus({ type: 'error', message: 'Nombre, email y contraseña son obligatorios.' });
         }
         if (!acceptedTerms) {
             return setStatus({ type: 'error', message: 'Debes aceptar las Políticas de Privacidad para registrarte.' });
@@ -118,19 +118,22 @@ export default function Login() {
                 console.warn('Welcome email call failed', e);
             }
 
-            // Save professional data to localStorage
+            // Save minimal professional data - Solo nombre y email
             const personalData = {
                 name,
                 email,
-                dni,
-                license,
-                profession,
-                phone,
-                address,
-                country,
-                photo: null
+                dni: dni || '',
+                license: license || '',
+                profession: profession || '',
+                phone: phone || '',
+                address: address || '',
+                country: country || 'argentina',
+                photo: null,
+                profileComplete: false // Flag para indicar que falta completar perfil
             };
             localStorage.setItem('personalData', JSON.stringify(personalData));
+
+            toast.success('¡Cuenta creada! Te damos la bienvenida 🎉');
             navigate('/');
         } catch (error) {
             console.error(error);
@@ -367,9 +370,10 @@ export default function Login() {
                 ) : view === 'register' ? (
                     <>
                         <h1 style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Crear Cuenta</h1>
-                        <p style={{ color: 'var(--color-text-muted)', marginBottom: '2rem' }}>Regístrate para comenzar</p>
+                        <p style={{ color: 'var(--color-text-muted)', marginBottom: '2rem' }}>Comienza gratis - Solo 3 pasos</p>
 
                         <form onSubmit={handleRegister} style={{ textAlign: 'left' }}>
+                            {/* Paso 1: Datos básicos */}
                             <div style={{ marginBottom: '1.5rem' }}>
                                 <label htmlFor="name">Nombre Completo</label>
                                 <div style={{ position: 'relative' }}>
@@ -510,104 +514,131 @@ export default function Login() {
                                 </div>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-                                <div>
-                                    <label htmlFor="dni">DNI</label>
-                                    <div style={{ position: 'relative' }}>
-                                        <CreditCard size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
-                                        <input
-                                            type="text"
-                                            id="dni"
-                                            placeholder="DNI"
-                                            style={{ paddingLeft: '40px' }}
-                                            value={dni}
-                                            onChange={(e) => setDni(e.target.value)}
-                                        />
+                            {/* Datos profesionales - Opcionales (se completan después) */}
+                            <div style={{
+                                padding: '1rem',
+                                background: 'rgba(59, 130, 246, 0.08)',
+                                border: '1px solid rgba(59, 130, 246, 0.2)',
+                                borderRadius: '12px',
+                                marginBottom: '1.5rem'
+                            }}>
+                                <p style={{
+                                    margin: '0 0 1rem 0',
+                                    fontSize: '0.85rem',
+                                    fontWeight: '700',
+                                    color: '#2563eb',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem'
+                                }}>
+                                    <ShieldCheck size={16} />
+                                    Datos profesionales (opcional)
+                                </p>
+                                <p style={{
+                                    margin: '0 0 1rem 0',
+                                    fontSize: '0.75rem',
+                                    color: 'var(--color-text-muted)',
+                                    lineHeight: 1.5
+                                }}>
+                                    Podés completar estos datos después en tu perfil.
+                                </p>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+                                    <div>
+                                        <label htmlFor="dni" style={{ fontSize: '0.8rem' }}>DNI</label>
+                                        <div style={{ position: 'relative' }}>
+                                            <CreditCard size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                                            <input
+                                                type="text"
+                                                id="dni"
+                                                placeholder="DNI"
+                                                style={{ paddingLeft: '36px', fontSize: '0.9rem' }}
+                                                value={dni}
+                                                onChange={(e) => setDni(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label htmlFor="license" style={{ fontSize: '0.8rem' }}>Matrícula</label>
+                                        <div style={{ position: 'relative' }}>
+                                            <Award size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                                            <input
+                                                type="text"
+                                                id="license"
+                                                placeholder="Matrícula"
+                                                style={{ paddingLeft: '36px', fontSize: '0.9rem' }}
+                                                value={license}
+                                                onChange={(e) => setLicense(e.target.value)}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
-                                <div>
-                                    <label htmlFor="license">Matrícula</label>
+
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <label htmlFor="profession" style={{ fontSize: '0.8rem' }}>Profesión</label>
                                     <div style={{ position: 'relative' }}>
-                                        <Award size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
-                                        <input
-                                            type="text"
-                                            id="license"
-                                            placeholder="Matrícula"
-                                            style={{ paddingLeft: '40px' }}
-                                            value={license}
-                                            onChange={(e) => setLicense(e.target.value)}
-                                            required
-                                        />
+                                        <GraduationCap size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)', zIndex: 1 }} />
+                                        <select
+                                            id="profession"
+                                            value={profession}
+                                            onChange={(e) => setProfession(e.target.value)}
+                                            style={{ paddingLeft: '36px', fontSize: '0.9rem' }}
+                                        >
+                                            <option value="">Seleccione profesión</option>
+                                            <option value="Técnico">Técnico</option>
+                                            <option value="Ingeniero">Ingeniero</option>
+                                            <option value="Licenciado">Licenciado</option>
+                                            <option value="Otro">Otro</option>
+                                        </select>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div style={{ marginBottom: '1.5rem' }}>
-                                <label htmlFor="profession">Profesión</label>
-                                <div style={{ position: 'relative' }}>
-                                    <GraduationCap size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)', zIndex: 1 }} />
-                                    <select
-                                        id="profession"
-                                        value={profession}
-                                        onChange={(e) => setProfession(e.target.value)}
-                                        style={{ paddingLeft: '40px' }}
-                                        required
-                                    >
-                                        <option value="">Seleccione profesión</option>
-                                        <option value="Técnico">Técnico</option>
-                                        <option value="Ingeniero">Ingeniero</option>
-                                        <option value="Licenciado">Licenciado</option>
-                                    </select>
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <label htmlFor="country" style={{ fontSize: '0.8rem' }}>País / Región</label>
+                                    <div style={{ position: 'relative' }}>
+                                        <MapPin size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)', zIndex: 1 }} />
+                                        <select
+                                            id="country"
+                                            value={country}
+                                            onChange={(e) => setCountry(e.target.value)}
+                                            style={{ paddingLeft: '36px', fontSize: '0.9rem' }}
+                                        >
+                                            {countryList.map(c => (
+                                                <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div style={{ marginBottom: '1.5rem' }}>
-                                <label htmlFor="country">País / Región</label>
-                                <div style={{ position: 'relative' }}>
-                                    <MapPin size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)', zIndex: 1 }} />
-                                    <select
-                                        id="country"
-                                        value={country}
-                                        onChange={(e) => setCountry(e.target.value)}
-                                        style={{ paddingLeft: '40px' }}
-                                        required
-                                    >
-                                        {countryList.map(c => (
-                                            <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div style={{ marginBottom: '1.5rem' }}>
-                                <label htmlFor="phone">Teléfono</label>
-                                <div style={{ position: 'relative' }}>
-                                    <Phone size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
-                                    <input
-                                        type="text"
-                                        id="phone"
-                                        placeholder="Teléfono"
-                                        style={{ paddingLeft: '40px' }}
-                                        value={phone}
-                                        onChange={(e) => setPhone(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div style={{ marginBottom: '2rem' }}>
-                                <label htmlFor="address">Dirección</label>
-                                <div style={{ position: 'relative' }}>
-                                    <MapPin size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
-                                    <input
-                                        type="text"
-                                        id="address"
-                                        placeholder="Dirección"
-                                        style={{ paddingLeft: '40px' }}
-                                        value={address}
-                                        onChange={(e) => setAddress(e.target.value)}
-                                        required
-                                    />
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                    <div>
+                                        <label htmlFor="phone" style={{ fontSize: '0.8rem' }}>Teléfono</label>
+                                        <div style={{ position: 'relative' }}>
+                                            <Phone size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                                            <input
+                                                type="text"
+                                                id="phone"
+                                                placeholder="Teléfono"
+                                                style={{ paddingLeft: '36px', fontSize: '0.9rem' }}
+                                                value={phone}
+                                                onChange={(e) => setPhone(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label htmlFor="address" style={{ fontSize: '0.8rem' }}>Dirección</label>
+                                        <div style={{ position: 'relative' }}>
+                                            <MapPin size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                                            <input
+                                                type="text"
+                                                id="address"
+                                                placeholder="Dirección"
+                                                style={{ paddingLeft: '36px', fontSize: '0.9rem' }}
+                                                value={address}
+                                                onChange={(e) => setAddress(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -645,12 +676,32 @@ export default function Login() {
                                 </div>
                             )}
 
-                            <button type="submit" className="btn-primary" disabled={status.type === 'loading'} style={{ marginTop: '0' }}>
-                                {status.type === 'loading' ? 'Registrando...' : 'Registrarse'}
+                            <button type="submit" className="btn-primary" disabled={status.type === 'loading'} style={{ marginTop: '0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', width: '100%' }}>
+                                {status.type === 'loading' ? (
+                                    'Creando cuenta...'
+                                ) : (
+                                    <>
+                                        <CheckCircle2 size={18} />
+                                        Crear cuenta gratis
+                                    </>
+                                )}
                             </button>
                         </form>
 
-                        <p style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
+                        <p style={{
+                            marginTop: '1.5rem',
+                            fontSize: '0.85rem',
+                            color: 'var(--color-text-muted)',
+                            textAlign: 'center',
+                            padding: '1rem',
+                            background: 'rgba(34, 197, 94, 0.08)',
+                            borderRadius: '8px',
+                            border: '1px solid rgba(34, 197, 94, 0.2)'
+                        }}>
+                            ✅ Sin tarjeta de crédito • Configuración rápida en 2 minutos
+                        </p>
+
+                        <p style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'var(--color-text-muted)', textAlign: 'center' }}>
                             ¿Ya tienes cuenta? <a href="#" onClick={(e) => { e.preventDefault(); setView('login'); setStatus({ type: '', message: '' }); }} style={{ color: 'var(--color-primary)', fontWeight: 'bold' }}>Ingresa aquí</a>
                         </p>
                     </>

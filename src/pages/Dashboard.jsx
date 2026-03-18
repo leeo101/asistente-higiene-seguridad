@@ -9,6 +9,7 @@ import {
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, AreaChart, Area } from 'recharts';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
+import ProfileCompletionBanner from '../components/ProfileCompletionBanner';
 import toast from 'react-hot-toast';
 
 // Colores modernos para gráficos
@@ -289,6 +290,9 @@ export default function Dashboard() {
 
     return (
         <div className="page-transition" style={{ padding: '1rem', paddingTop: '1.5rem', maxWidth: '1400px', margin: '0 auto' }}>
+            {/* Banner de bienvenida para nuevos usuarios */}
+            <ProfileCompletionBanner />
+
             {/* Header */}
             <div style={{
                 marginBottom: '2rem',
