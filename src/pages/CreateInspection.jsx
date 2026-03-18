@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Building2, MapPin, ClipboardList, Play } from 'lucide-react';
+import LocationPicker from '../components/LocationPicker';
 import toast from 'react-hot-toast';
 
 export default function CreateInspection() {
@@ -8,7 +9,8 @@ export default function CreateInspection() {
     const [project, setProject] = useState({
         name: '',
         location: '',
-        type: 'Seguridad'
+        type: 'Seguridad',
+        gpsLocation: null
     });
 
     const handleStart = () => {
@@ -19,7 +21,12 @@ export default function CreateInspection() {
             ...project,
             id: Date.now().toString(),
             date: new Date().toISOString(),
-            status: 'Iniciada'
+            status: 'Iniciada',
+            // Geolocalización
+            latitude: project.gpsLocation?.latitude || null,
+            longitude: project.gpsLocation?.longitude || null,
+            locationAccuracy: project.gpsLocation?.accuracy || null,
+            locationAddress: project.gpsLocation?.address || null
         };
         localStorage.setItem('current_inspection', JSON.stringify(inspectionSession));
 
@@ -81,6 +88,13 @@ export default function CreateInspection() {
                         <option value="Control de EPP" />
                     </datalist>
                 </div>
+
+                {/* Geolocalización */}
+                <LocationPicker
+                    onLocationSelect={(location) => {
+                        setProject({ ...project, gpsLocation: location });
+                    }}
+                />
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <button
