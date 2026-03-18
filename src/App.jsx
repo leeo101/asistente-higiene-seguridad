@@ -120,6 +120,8 @@ const EnvironmentalHistory = lazyWithRetry(() => import('./pages/EnvironmentalHi
 const EnvironmentalCreate = lazyWithRetry(() => import('./pages/EnvironmentalCreate.jsx'));
 const CAPAHistory = lazyWithRetry(() => import('./pages/CAPAHistory.jsx'));
 const CAPACreate = lazyWithRetry(() => import('./pages/CAPACreate.jsx'));
+const CAPAManager = lazyWithRetry(() => import('./pages/CAPAManager.jsx'));
+const CAPAPage = lazyWithRetry(() => import('./pages/CAPAPage.jsx'));
 const AuditManager = lazyWithRetry(() => import('./pages/AuditManager.jsx'));
 const AuditPage = lazyWithRetry(() => import('./pages/AuditPage.jsx'));
 const AuditCreate = lazyWithRetry(() => import('./pages/AuditCreate.jsx'));
