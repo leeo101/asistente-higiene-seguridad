@@ -966,20 +966,8 @@ function AddMeasurementModal({ measurement, setMeasurement, workers, onSave, onC
     };
 
     return (
-        <div style={{
-            className: 'modal-fullscreen-overlay'
-        }} onClick={onClose}>
-            <div 
-                className="card"
-                style={{
-                    width: '100%',
-                    maxWidth: '900px',
-                    maxHeight: '90vh',
-                    overflow: 'auto',
-                    margin: 'auto'
-                }}
-                onClick={e => e.stopPropagation()}
-            >
+        <div className="modal-fullscreen-overlay" onClick={onClose}>
+            <div className="modal-fullscreen-content" onClick={e => e.stopPropagation()}>
                 <div style={{
                     display: 'flex',
                     justifyContent: 'space-between',
@@ -1286,20 +1274,8 @@ function MeasurementDetailModal({ measurement, riskLevel, onClose, calculateAtte
         : null;
 
     return (
-        <div style={{
-            className: 'modal-fullscreen-overlay'
-        }} onClick={onClose}>
-            <div 
-                className="card"
-                style={{
-                    width: '100%',
-                    maxWidth: '700px',
-                    maxHeight: '90vh',
-                    overflow: 'auto',
-                    margin: 'auto'
-                }}
-                onClick={e => e.stopPropagation()}
-            >
+        <div className="modal-fullscreen-overlay" onClick={onClose}>
+            <div className="modal-fullscreen-content" onClick={e => e.stopPropagation()}>
                 {/* Header */}
                 <div style={{
                     padding: '1.5rem',

@@ -1218,17 +1218,7 @@ function CreatePermitModal({ permit, setPermit, onSave, onClose, CONFINED_SPACE_
     };
 
     return (
-        <div style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.7)',
-            backdropFilter: 'blur(8px)',
-            zIndex: 9999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: isMobile ? '1rem' : '1.5rem'
-        }} onClick={onClose}>
+        <div className="modal-fullscreen-overlay" onClick={onClose}>
             <div
                 className="card"
                 style={{
