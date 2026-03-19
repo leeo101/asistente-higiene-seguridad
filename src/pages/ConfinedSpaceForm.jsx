@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, Tent, ClipboardCheck } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { ArrowLeft, Save, Tent, ClipboardCheck, CheckCircle2 } from 'lucide-react';
 
 const SPACE_TYPES = [
     { id: 'tank', name: 'Tanque', icon: '🛢️' },
@@ -14,6 +14,7 @@ const SPACE_TYPES = [
 
 export default function ConfinedSpaceForm() {
     const navigate = useNavigate();
+    const location = useLocation();
     const [isMobile, setIsMobile] = useState(false);
     const [permit, setPermit] = useState({
         spaceName: '',
@@ -42,8 +43,13 @@ export default function ConfinedSpaceForm() {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         handleResize();
         window.addEventListener('resize', handleResize);
+        
+        if (location.state?.editData) {
+            setPermit(location.state.editData);
+        }
+        
         return () => window.removeEventListener('resize', handleResize);
-    }, []);
+    }, [location.state]);
 
     const handleSave = () => {
         if (!permit.spaceName || !permit.worker || !permit.attendant) {
@@ -53,14 +59,18 @@ export default function ConfinedSpaceForm() {
 
         const newEntry = {
             ...permit,
-            id: `CS-${Date.now()}`,
-            createdAt: new Date().toISOString(),
-            status: 'pending'
+            id: permit.id || `CS-${Date.now()}`,
+            updatedAt: new Date().toISOString(),
+            createdAt: permit.createdAt || new Date().toISOString(),
+            status: permit.status || 'pending'
         };
 
-        const currentData = JSON.parse(localStorage.getItem('confined_space_permits') || '[]');
-        localStorage.setItem('confined_space_permits', JSON.stringify([newEntry, ...currentData]));
-        
+        const currentData = JSON.parse(localStorage.getItem('confined_space_permits_db') || '[]');
+        const updatedData = permit.id 
+            ? currentData.map(item => item.id === permit.id ? newEntry : item)
+            : [newEntry, ...currentData];
+            
+        localStorage.setItem('confined_space_permits_db', JSON.stringify(updatedData));
         navigate('/confined-space-history');
     };
 

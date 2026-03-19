@@ -20,7 +20,6 @@ export default function AuditForm() {
         location: '',
         objective: '',
         scope: '',
-        scope: '',
         checklist: [
             { id: 1, question: '¿Cuenta con Seguro de Vida Obligatorio?', legal: 'Ley 16.600', status: 'na', observation: '' },
             { id: 2, question: '¿Se exhibe el Afiche de la ART?', legal: 'Res. SRT 70/97', status: 'na', observation: '' },

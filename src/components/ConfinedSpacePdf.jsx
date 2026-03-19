@@ -97,7 +97,14 @@ export default function ConfinedSpacePdf({ data }) {
                             <Wind size={18} />
                             <span style={{ fontWeight: 900, fontSize: '0.85rem' }}>VENTILACIÓN</span>
                         </div>
-                        <div style={{ fontSize: '0.9rem', fontWeight: 700, textTransform: 'capitalize' }}>{data.ventilation || 'No especificada'}</div>
+                        <div style={{ fontSize: '0.9rem', fontWeight: 700, textTransform: 'capitalize' }}>
+                            {typeof data.ventilation === 'object' 
+                                ? Object.entries(data.ventilation)
+                                    .filter(([_, value]) => value)
+                                    .map(([key]) => key === 'forced' ? 'Forzada' : key === 'natural' ? 'Natural' : 'Extractiva')
+                                    .join(', ') || 'No especificada'
+                                : data.ventilation || 'No especificada'}
+                        </div>
                     </div>
                     <div style={{ border: '1px solid #ddd', borderRadius: '6px', padding: '0.8rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#b91c1c' }}>

@@ -27,7 +27,7 @@ export default function EnvironmentalPage() {
                         <h1 style={{ margin: 0, fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: 900 }}><Leaf size={isMobile ? 20 : 24} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />Monitoreo Ambiental</h1>
                         <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>ISO 14001 • {measurements.length} mediciones</p>
                     </div>
-                    <button onClick={() => navigate('/environmental/new')} className="btn-primary" style={{ width: 'auto', margin: 0, padding: '0.75rem 1.25rem', display: isMobile ? 'none' : 'flex', alignItems: 'center', gap: '0.5rem' }}><Plus size={20} strokeWidth={2.5} />Nueva Medición</button>
+                    <button onClick={() => navigate('/environmental/new')} className="btn-primary" style={{ width: 'auto', margin: 0, padding: '0.75rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Plus size={20} strokeWidth={2.5} />{!isMobile && 'Nueva Medición'}</button>
                 </div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: '1rem', padding: isMobile ? '1rem' : '1.5rem', maxWidth: '1400px', margin: '0 auto' }}>
