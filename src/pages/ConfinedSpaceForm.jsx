@@ -22,6 +22,18 @@ export default function ConfinedSpaceForm() {
         worker: '',
         attendant: '',
         observations: '',
+        gasMonitoring: {
+            o2: '',
+            lel: '',
+            co: '',
+            h2s: '',
+            time: ''
+        },
+        ventilation: {
+            forced: false,
+            natural: true,
+            exhaust: false
+        },
         hazards: [],
         ppe: []
     });
@@ -49,7 +61,7 @@ export default function ConfinedSpaceForm() {
         const currentData = JSON.parse(localStorage.getItem('confined_space_permits') || '[]');
         localStorage.setItem('confined_space_permits', JSON.stringify([newEntry, ...currentData]));
         
-        navigate('/confined-space');
+        navigate('/confined-space-history');
     };
 
     return (
@@ -136,13 +148,69 @@ export default function ConfinedSpaceForm() {
                         </div>
                     </div>
 
+                    <div style={{ marginTop: '2.5rem', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '2rem' }}>
+                        <div>
+                            <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-primary)' }}>Monitoreo Atmosférico (Res. SRT 95/20)</h3>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={labelStyle}>Oxígeno (O2) %</label>
+                                    <input type="number" step="0.1" value={permit.gasMonitoring.o2} onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, o2: e.target.value } })} style={inputStyle} placeholder="19.5 - 23.5" />
+                                </div>
+                                <div>
+                                    <label style={labelStyle}>Explosividad (LEL) %</label>
+                                    <input type="number" step="1" value={permit.gasMonitoring.lel} onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, lel: e.target.value } })} style={inputStyle} placeholder="< 10%" />
+                                </div>
+                                <div>
+                                    <label style={labelStyle}>Monóxido (CO) ppm</label>
+                                    <input type="number" step="1" value={permit.gasMonitoring.co} onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, co: e.target.value } })} style={inputStyle} placeholder="< 25 ppm" />
+                                </div>
+                                <div>
+                                    <label style={labelStyle}>Hora de Medición</label>
+                                    <input type="time" value={permit.gasMonitoring.time} onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, time: e.target.value } })} style={inputStyle} />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-primary)' }}>Ventilación</h3>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                {Object.entries(permit.ventilation).map(([key, value]) => (
+                                    <button
+                                        key={key}
+                                        onClick={() => setPermit({ ...permit, ventilation: { ...permit.ventilation, [key]: !value } })}
+                                        style={{
+                                            padding: '0.75rem 1rem',
+                                            background: value ? 'rgba(59, 130, 246, 0.1)' : 'var(--color-surface)',
+                                            border: `2px solid ${value ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                                            borderRadius: 'var(--radius-md)',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.75rem',
+                                            transition: 'all 0.2s'
+                                        }}
+                                    >
+                                        <div style={{ width: '18px', height: '18px', borderRadius: '4px', border: '2px solid var(--color-primary)', background: value ? 'var(--color-primary)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            {value && <CheckCircle2 size={12} color="#fff" />}
+                                        </div>
+                                        <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>
+                                            {key === 'forced' && 'Ventilación Forzada'}
+                                            {key === 'natural' && 'Ventilación Natural'}
+                                            {key === 'exhaust' && 'Extracción Localizada'}
+                                        </span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
                     <div style={{ marginTop: '2.5rem' }}>
-                        <label style={labelStyle}>Observaciones y Medidas Preventivas</label>
+                        <label style={labelStyle}>Observaciones y Medidas de Seguridad</label>
                         <textarea 
                             value={permit.observations} 
                             onChange={(e) => setPermit({ ...permit, observations: e.target.value })} 
-                            style={{ ...inputStyle, minHeight: '120px', paddingTop: '0.75rem' }} 
-                            placeholder="Describa riesgos específicos, niveles de gases detectados, etc..."
+                            style={{ ...inputStyle, minHeight: '100px', paddingTop: '0.75rem' }} 
+                            placeholder="Describa riesgos específicos, procedimiento de rescate, etc..."
                         />
                     </div>
                 </div>

@@ -29,6 +29,13 @@ export default function WorkingAtHeightForm() {
         priority: 'medium',
         supervisor: '',
         observations: '',
+        medicalFitness: false,
+        rescuePlan: '',
+        equipmentCheck: {
+            harness: 'good',
+            lanyard: 'good',
+            anchor: 'good'
+        },
         ppe: {
             harness: true,
             lanyard: true,
@@ -60,7 +67,7 @@ export default function WorkingAtHeightForm() {
         const currentData = JSON.parse(localStorage.getItem('working_at_height_permits') || '[]');
         localStorage.setItem('working_at_height_permits', JSON.stringify([newPermit, ...currentData]));
         
-        navigate('/working-height-page');
+        navigate('/working-at-height-history');
     };
 
     return (
@@ -145,9 +152,76 @@ export default function WorkingAtHeightForm() {
                         </div>
                     </div>
 
+                    <div style={{ marginTop: '2.5rem', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '2rem' }}>
+                        <div>
+                            <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Validación Legal (Res. SRT 61/23)</h3>
+                            
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                <button
+                                    onClick={() => setPermit({ ...permit, medicalFitness: !permit.medicalFitness })}
+                                    style={{
+                                        padding: '1rem',
+                                        background: permit.medicalFitness ? 'rgba(16, 185, 129, 0.1)' : 'var(--color-background)',
+                                        border: `2px solid ${permit.medicalFitness ? 'var(--color-success)' : 'var(--color-border)'}`,
+                                        borderRadius: 'var(--radius-lg)',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.75rem'
+                                    }}
+                                >
+                                    <div style={{ width: '20px', height: '20px', borderRadius: '4px', border: '2px solid var(--color-success)', background: permit.medicalFitness ? 'var(--color-success)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        {permit.medicalFitness && <CheckCircle2 size={14} color="#fff" />}
+                                    </div>
+                                    <span style={{ fontSize: '0.9rem', fontWeight: 700 }}>Apto Médico Vigente</span>
+                                </button>
+
+                                <div>
+                                    <label style={labelStyle}>Plan de Rescate (Resumen)</label>
+                                    <textarea 
+                                        value={permit.rescuePlan} 
+                                        onChange={(e) => setPermit({ ...permit, rescuePlan: e.target.value })} 
+                                        style={{ ...inputStyle, minHeight: '80px' }} 
+                                        placeholder="Describa brevemente el método de rescate previsto..."
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Inspección de Equipos</h3>
+                            {Object.entries(permit.equipmentCheck).map(([key, value]) => (
+                                <div key={key} style={{ marginBottom: '1rem' }}>
+                                    <label style={labelStyle}>{key === 'harness' ? 'Arnés' : key === 'lanyard' ? 'Cola de Amarre' : 'Punto de Anclaje'}</label>
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        {['good', 'bad', 'na'].map(status => (
+                                            <button
+                                                key={status}
+                                                onClick={() => setPermit({ ...permit, equipmentCheck: { ...permit.equipmentCheck, [key]: status } })}
+                                                style={{
+                                                    flex: 1,
+                                                    padding: '0.5rem',
+                                                    fontSize: '0.8rem',
+                                                    fontWeight: 700,
+                                                    borderRadius: 'var(--radius-md)',
+                                                    border: '1px solid var(--color-border)',
+                                                    background: value === status ? 'var(--color-primary)' : 'var(--color-surface)',
+                                                    color: value === status ? 'white' : 'var(--color-text)',
+                                                    cursor: 'pointer'
+                                                }}
+                                            >
+                                                {status === 'good' ? 'B' : status === 'bad' ? 'M' : 'N/A'}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
                     <div style={{ marginTop: '2.5rem' }}>
-                        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 800, color: 'var(--color-primary)' }}>Equipos de Protección Personal (EPP)</h3>
-                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
+                        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Equipos de Protección Personal (EPP)</h3>
+                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem' }}>
                             {Object.entries(permit.ppe).map(([key, value]) => (
                                 <button
                                     key={key}
@@ -183,7 +257,7 @@ export default function WorkingAtHeightForm() {
                         <textarea 
                             value={permit.observations} 
                             onChange={(e) => setPermit({ ...permit, observations: e.target.value })} 
-                            style={{ ...inputStyle, minHeight: '100px', paddingTop: '0.75rem' }} 
+                            style={{ ...inputStyle, minHeight: '80px', paddingTop: '0.75rem' }} 
                             placeholder="Describa cualquier detalle relevante del trabajo o riesgos específicos..."
                         />
                     </div>

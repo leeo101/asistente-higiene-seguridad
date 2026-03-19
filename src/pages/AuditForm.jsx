@@ -20,11 +20,19 @@ export default function AuditForm() {
         location: '',
         objective: '',
         scope: '',
-        sections: [
-            { id: 1, title: 'Documentación', status: 'pending' },
-            { id: 2, title: 'Instalaciones', status: 'pending' },
-            { id: 3, title: 'Entrevistas', status: 'pending' }
-        ]
+        scope: '',
+        checklist: [
+            { id: 1, question: '¿Cuenta con Seguro de Vida Obligatorio?', legal: 'Ley 16.600', status: 'na', observation: '' },
+            { id: 2, question: '¿Se exhibe el Afiche de la ART?', legal: 'Res. SRT 70/97', status: 'na', observation: '' },
+            { id: 3, question: '¿Cuenta con Registro de Entrega de EPP?', legal: 'Res. SRT 299/11', status: 'na', observation: '' },
+            { id: 4, question: '¿Están señalizadas las salidas de emergencia?', legal: 'Ley 19.587 Cap 18', status: 'na', observation: '' },
+            { id: 5, question: '¿Extintores con carga vigente?', legal: 'DPS 351/79', status: 'na', observation: '' }
+        ],
+        closingMeeting: {
+            date: '',
+            participants: '',
+            conclusions: ''
+        }
     });
 
     useEffect(() => {
@@ -51,7 +59,7 @@ export default function AuditForm() {
         const updated = [newAudit, ...saved];
         localStorage.setItem('ehs_audits_db', JSON.stringify(updated));
         
-        navigate('/audit');
+        navigate('/audit-history');
     };
 
     return (
@@ -138,30 +146,77 @@ export default function AuditForm() {
                     </div>
 
                     <div style={{ marginTop: '2.5rem' }}>
-                        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 800, color: 'var(--color-primary)' }}>Secciones / Checklist a Evaluar</h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                            {audit.sections.map((section) => (
-                                <div
-                                    key={section.id}
-                                    style={{
-                                        padding: '1rem',
-                                        background: 'var(--color-background)',
-                                        border: '1px solid var(--color-border)',
-                                        borderRadius: 'var(--radius-lg)',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between'
-                                    }}
-                                >
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                        <FileText size={18} color="var(--color-text-muted)" />
-                                        <span style={{ fontWeight: 700 }}>{section.title}</span>
+                        <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Checklist de Cumplimiento Legal</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            {audit.checklist.map((item, idx) => (
+                                <div key={item.id} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: '1.25rem' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', marginBottom: '1rem', flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--color-primary)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>{item.legal}</div>
+                                            <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{item.question}</div>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '0.5rem', height: 'fit-content' }}>
+                                            {['si', 'no', 'na'].map(status => (
+                                                <button
+                                                    key={status}
+                                                    onClick={() => {
+                                                        const newChecklist = [...audit.checklist];
+                                                        newChecklist[idx].status = status;
+                                                        setAudit({ ...audit, checklist: newChecklist });
+                                                    }}
+                                                    style={{
+                                                        padding: '0.4rem 0.8rem',
+                                                        fontSize: '0.75rem',
+                                                        fontWeight: 800,
+                                                        borderRadius: 'var(--radius-md)',
+                                                        border: '1px solid var(--color-border)',
+                                                        background: item.status === status ? 'var(--color-primary)' : 'transparent',
+                                                        color: item.status === status ? 'white' : 'var(--color-text)',
+                                                        cursor: 'pointer',
+                                                        textTransform: 'uppercase'
+                                                    }}
+                                                >
+                                                    {status}
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
-                                    <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', padding: '0.25rem 0.5rem', background: 'var(--color-surface)', borderRadius: 'var(--radius-sm)' }}>
-                                        {section.status}
-                                    </span>
+                                    <input 
+                                        type="text" 
+                                        value={item.observation} 
+                                        onChange={(e) => {
+                                            const newChecklist = [...audit.checklist];
+                                            newChecklist[idx].observation = e.target.value;
+                                            setAudit({ ...audit, checklist: newChecklist });
+                                        }} 
+                                        style={{ ...inputStyle, padding: '0.5rem 0.75rem', fontSize: '0.85rem' }} 
+                                        placeholder="Observaciones de hallazgo..." 
+                                    />
                                 </div>
                             ))}
+                        </div>
+                    </div>
+
+                    <div style={{ marginTop: '2.5rem', background: 'var(--color-surface)', padding: '2rem', borderRadius: 'var(--radius-xl)', border: '2px dashed var(--color-border)' }}>
+                        <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Reunión de Cierre</h3>
+                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem' }}>
+                            <div>
+                                <label style={labelStyle}>Participantes</label>
+                                <input type="text" value={audit.closingMeeting.participants} onChange={(e) => setAudit({ ...audit, closingMeeting: { ...audit.closingMeeting, participants: e.target.value } })} style={inputStyle} placeholder="Nombres de los presentes" />
+                            </div>
+                            <div>
+                                <label style={labelStyle}>Fecha de Cierre</label>
+                                <input type="date" value={audit.closingMeeting.date} onChange={(e) => setAudit({ ...audit, closingMeeting: { ...audit.closingMeeting, date: e.target.value } })} style={inputStyle} />
+                            </div>
+                            <div style={{ gridColumn: 'span 2' }}>
+                                <label style={labelStyle}>Conclusiones Generales</label>
+                                <textarea 
+                                    value={audit.closingMeeting.conclusions} 
+                                    onChange={(e) => setAudit({ ...audit, closingMeeting: { ...audit.closingMeeting, conclusions: e.target.value } })} 
+                                    style={{ ...inputStyle, minHeight: '80px' }} 
+                                    placeholder="Resumen de hallazgos críticos y cumplimiento general..." 
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>

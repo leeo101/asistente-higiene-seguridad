@@ -46,6 +46,31 @@ export default function ChemicalSafety() {
     const [viewMode, setViewMode] = useState('grid'); // grid o list
 
     const [selectedChemical, setSelectedChemical] = useState(null);
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [newChemical, setNewChemical] = useState({
+        id: '',
+        name: '',
+        casNumber: '',
+        unNumber: '',
+        category: 'fisico',
+        hazards: [],
+        pictograms: [],
+        storage: '',
+        location: '',
+        quantity: '',
+        unit: 'L',
+        supplier: '',
+        sdsDate: '',
+        expiryDate: '',
+        riskPhrases: [],
+        safetyPhrases: [],
+        firstAid: {
+            inhalation: '',
+            skin: '',
+            eyes: '',
+            ingestion: ''
+        }
+    });
 
     useEffect(() => {
         const loadChemicals = () => {

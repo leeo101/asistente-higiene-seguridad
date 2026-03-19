@@ -26,8 +26,20 @@ export default function CAPAForm() {
         responsible: '',
         dueDate: '',
         description: '',
-        rootCause: '',
+        rootCause: {
+            why1: '',
+            why2: '',
+            why3: '',
+            why4: '',
+            why5: '',
+            finalCause: ''
+        },
         actionPlan: '',
+        verification: {
+            implemented: false,
+            effective: false,
+            comments: ''
+        },
         tags: []
     });
 
@@ -55,7 +67,7 @@ export default function CAPAForm() {
         const updated = [newCapa, ...saved];
         localStorage.setItem('ehs_capa_db', JSON.stringify(updated));
         
-        navigate('/capa');
+        navigate('/capa-history');
     };
 
     return (
@@ -143,24 +155,95 @@ export default function CAPAForm() {
                         />
                     </div>
 
-                    <div style={{ marginTop: '1.5rem' }}>
-                        <label style={labelStyle}>Análisis de Causa Raíz (Opcional)</label>
-                        <textarea 
-                            value={capa.rootCause} 
-                            onChange={(e) => setCapa({ ...capa, rootCause: e.target.value })} 
-                            style={{ ...inputStyle, minHeight: '80px', paddingTop: '0.75rem' }} 
-                            placeholder="¿Por qué ocurrió el problema? (5 porqués, Ishikawa, etc.)"
-                        />
+                    <div style={{ marginTop: '2.5rem' }}>
+                        <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Análisis de Causa Raíz (5 Porqués)</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                            {[1, 2, 3, 4, 5].map(num => (
+                                <div key={num} style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '0.8rem', fontWeight: 900, color: 'var(--color-primary)', width: '80px' }}>{num}° Porqué:</span>
+                                    <input 
+                                        type="text" 
+                                        value={capa.rootCause[`why${num}`]} 
+                                        onChange={(e) => setCapa({ ...capa, rootCause: { ...capa.rootCause, [`why${num}`]: e.target.value } })} 
+                                        style={{ ...inputStyle, padding: '0.5rem 0.75rem' }} 
+                                        placeholder={`Pregunta ${num}...`} 
+                                    />
+                                </div>
+                            ))}
+                            <div style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(59, 130, 246, 0.05)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-primary)' }}>
+                                <label style={labelStyle}>Causa Raíz Final Identificada</label>
+                                <input 
+                                    type="text" 
+                                    value={capa.rootCause.finalCause} 
+                                    onChange={(e) => setCapa({ ...capa, rootCause: { ...capa.rootCause, finalCause: e.target.value } })} 
+                                    style={inputStyle} 
+                                    placeholder="La causa fundamental es..." 
+                                />
+                            </div>
+                        </div>
                     </div>
 
-                    <div style={{ marginTop: '1.5rem' }}>
-                        <label style={labelStyle}>Plan de Acción Inmediato</label>
-                        <textarea 
-                            value={capa.actionPlan} 
-                            onChange={(e) => setCapa({ ...capa, actionPlan: e.target.value })} 
-                            style={{ ...inputStyle, minHeight: '100px', paddingTop: '0.75rem' }} 
-                            placeholder="Pasos a seguir para resolver o mitigar la situación..."
-                        />
+                    <div style={{ marginTop: '2.5rem' }}>
+                        <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Plan de Acción y Verificación</h3>
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <label style={labelStyle}>Acciones Correctivas / Preventivas Detalladas</label>
+                            <textarea 
+                                value={capa.actionPlan} 
+                                onChange={(e) => setCapa({ ...capa, actionPlan: e.target.value })} 
+                                style={{ ...inputStyle, minHeight: '100px' }} 
+                                placeholder="1. Reparar... 2. Capacitar... 3. Modificar procedimiento..." 
+                            />
+                        </div>
+                        
+                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem', background: 'var(--color-surface)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                <button
+                                    onClick={() => setCapa({ ...capa, verification: { ...capa.verification, implemented: !capa.verification.implemented } })}
+                                    style={{
+                                        padding: '0.75rem',
+                                        background: capa.verification.implemented ? 'rgba(16, 185, 129, 0.1)' : 'var(--color-background)',
+                                        border: `2px solid ${capa.verification.implemented ? 'var(--color-success)' : 'var(--color-border)'}`,
+                                        borderRadius: 'var(--radius-md)',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.75rem'
+                                    }}
+                                >
+                                    <div style={{ width: '18px', height: '18px', borderRadius: '4px', border: '2px solid var(--color-success)', background: capa.verification.implemented ? 'var(--color-success)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        {capa.verification.implemented && <CheckCircle2 size={12} color="#fff" />}
+                                    </div>
+                                    <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>Implementación Verificada</span>
+                                </button>
+                                <button
+                                    onClick={() => setCapa({ ...capa, verification: { ...capa.verification, effective: !capa.verification.effective } })}
+                                    style={{
+                                        padding: '0.75rem',
+                                        background: capa.verification.effective ? 'rgba(59, 130, 246, 0.1)' : 'var(--color-background)',
+                                        border: `2px solid ${capa.verification.effective ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                                        borderRadius: 'var(--radius-md)',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.75rem'
+                                    }}
+                                >
+                                    <div style={{ width: '18px', height: '18px', borderRadius: '4px', border: '2px solid var(--color-primary)', background: capa.verification.effective ? 'var(--color-primary)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        {capa.verification.effective && <CheckCircle2 size={12} color="#fff" />}
+                                    </div>
+                                    <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>Eficacia Comprobada</span>
+                                </button>
+                            </div>
+                            <div>
+                                <label style={labelStyle}>Comentarios de Verificación</label>
+                                <textarea 
+                                    value={capa.verification.comments} 
+                                    onChange={(e) => setCapa({ ...capa, verification: { ...capa.verification, comments: e.target.value } })} 
+                                    style={{ ...inputStyle, minHeight: '80px', fontSize: '0.85rem' }} 
+                                    placeholder="Resultados de la verificación de eficacia..." 
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
 

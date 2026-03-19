@@ -29,7 +29,13 @@ export default function LOTOForm() {
         energyTypes: [],
         lotoDevices: [],
         supervisor: '',
-        observations: ''
+        observations: '',
+        isolationPoints: '',
+        zeroEnergyVerification: {
+            tested: false,
+            method: 'try_start',
+            result: 'safe'
+        }
     });
 
     useEffect(() => {
@@ -69,7 +75,7 @@ export default function LOTOForm() {
         const currentData = JSON.parse(localStorage.getItem('loto_procedures_db') || '[]');
         localStorage.setItem('loto_procedures_db', JSON.stringify([newEntry, ...currentData]));
         
-        navigate('/loto-page');
+        navigate('/loto-history');
     };
 
     return (
@@ -194,13 +200,64 @@ export default function LOTOForm() {
                         </div>
                     </div>
 
+                    <div style={{ marginTop: '2.5rem' }}>
+                        <label style={labelStyle}>Puntos de Aislamiento Específicos</label>
+                        <input 
+                            type="text" 
+                            value={procedure.isolationPoints} 
+                            onChange={(e) => setProcedure({ ...procedure, isolationPoints: e.target.value })} 
+                            style={inputStyle} 
+                            placeholder="Ej: Interruptor Principal Q1, Válvula Entrada Vapor V-01" 
+                        />
+                    </div>
+
+                    <div style={{ marginTop: '2.5rem' }}>
+                        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Verificación de Energía Cero</h3>
+                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem', background: 'var(--color-surface)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <button
+                                    onClick={() => setProcedure({ ...procedure, zeroEnergyVerification: { ...procedure.zeroEnergyVerification, tested: !procedure.zeroEnergyVerification.tested } })}
+                                    style={{
+                                        padding: '0.75rem 1rem',
+                                        background: procedure.zeroEnergyVerification.tested ? 'rgba(16, 185, 129, 0.1)' : 'var(--color-background)',
+                                        border: `2px solid ${procedure.zeroEnergyVerification.tested ? 'var(--color-success)' : 'var(--color-border)'}`,
+                                        borderRadius: 'var(--radius-md)',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.75rem',
+                                        flex: 1
+                                    }}
+                                >
+                                    <div style={{ width: '18px', height: '18px', borderRadius: '4px', border: '2px solid var(--color-success)', background: procedure.zeroEnergyVerification.tested ? 'var(--color-success)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        {procedure.zeroEnergyVerification.tested && <CheckCircle2 size={12} color="#fff" />}
+                                    </div>
+                                    <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>Energía Cero Verificada</span>
+                                </button>
+                            </div>
+                            <div>
+                                <label style={labelStyle}>Método de Verificación</label>
+                                <select 
+                                    value={procedure.zeroEnergyVerification.method} 
+                                    onChange={(e) => setProcedure({ ...procedure, zeroEnergyVerification: { ...procedure.zeroEnergyVerification, method: e.target.value } })} 
+                                    style={inputStyle}
+                                >
+                                    <option value="try_start">Intento de Arranque Local</option>
+                                    <option value="tester">Medición con Instrumento (Tester)</option>
+                                    <option value="gauge">Verificación de Manómetro</option>
+                                    <option value="visual">Inspección Visual de Desconexión</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                     <div style={{ marginTop: '2rem' }}>
-                        <label style={labelStyle}>Instrucciones / Observaciones</label>
+                        <label style={labelStyle}>Instrucciones Paso a Paso / Observaciones</label>
                         <textarea 
                             value={procedure.observations} 
                             onChange={(e) => setProcedure({ ...procedure, observations: e.target.value })} 
-                            style={{ ...inputStyle, minHeight: '120px', paddingTop: '0.75rem' }} 
-                            placeholder="Describa los pasos de bloqueo..."
+                            style={{ ...inputStyle, minHeight: '100px', paddingTop: '0.75rem' }} 
+                            placeholder="1. Detener equipo... 2. Bloquear interruptor Q1... 3. Verificar energía cero..."
                         />
                     </div>
                 </div>

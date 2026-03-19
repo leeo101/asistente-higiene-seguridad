@@ -39,8 +39,14 @@ export default function ChemicalSafetyForm() {
         supplier: '',
         sdsDate: '',
         expiryDate: '',
-        riskPhrases: [],
-        safetyPhrases: [],
+        hazardStatements: [], // H-phrases
+        precautionaryStatements: [], // P-phrases
+        ppe: {
+            gloves: false,
+            mask: false,
+            goggles: false,
+            apron: false
+        },
         firstAid: {
             inhalation: '',
             skin: '',
@@ -73,7 +79,7 @@ export default function ChemicalSafetyForm() {
         const updatedData = [newChemical, ...JSON.parse(localStorage.getItem('chemical_safety_db') || '[]')];
         localStorage.setItem('chemical_safety_db', JSON.stringify(updatedData));
         
-        navigate('/chemical-safety?created=' + newChemical.id);
+        navigate('/chemical-safety-history');
     };
 
     const togglePictogram = (pictoId) => {
@@ -199,13 +205,71 @@ export default function ChemicalSafetyForm() {
                         </div>
                     </div>
 
+                    <div style={{ marginTop: '2.5rem', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '2rem' }}>
+                        <div>
+                            <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Frases H y P (Res. 801/15)</h3>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                <div>
+                                    <label style={labelStyle}>Indicaciones de Peligro (H)</label>
+                                    <textarea 
+                                        value={chemical.hazardStatements.join('\n')} 
+                                        onChange={(e) => setChemical({ ...chemical, hazardStatements: e.target.value.split('\n') })} 
+                                        style={{ ...inputStyle, minHeight: '80px' }} 
+                                        placeholder="Ej: H225 Líquido y vapores muy inflamables" 
+                                    />
+                                </div>
+                                <div>
+                                    <label style={labelStyle}>Consejos de Prudencia (P)</label>
+                                    <textarea 
+                                        value={chemical.precautionaryStatements.join('\n')} 
+                                        onChange={(e) => setChemical({ ...chemical, precautionaryStatements: e.target.value.split('\n') })} 
+                                        style={{ ...inputStyle, minHeight: '80px' }} 
+                                        placeholder="Ej: P210 Mantener alejado del calor..." 
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>EPP Requerido</h3>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                                {Object.entries(chemical.ppe).map(([key, value]) => (
+                                    <button
+                                        key={key}
+                                        onClick={() => setChemical({ ...chemical, ppe: { ...chemical.ppe, [key]: !value } })}
+                                        style={{
+                                            padding: '0.75rem',
+                                            background: value ? 'rgba(59, 130, 246, 0.1)' : 'var(--color-surface)',
+                                            border: `2px solid ${value ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                                            borderRadius: 'var(--radius-lg)',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.50rem'
+                                        }}
+                                    >
+                                        <div style={{ width: '16px', height: '16px', borderRadius: '4px', border: '2px solid var(--color-primary)', background: value ? 'var(--color-primary)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            {value && <CheckCircle2 size={12} color="#fff" />}
+                                        </div>
+                                        <span style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'capitalize' }}>
+                                            {key === 'gloves' && 'Guantes Químicos'}
+                                            {key === 'mask' && 'Máscara p/ Vapores'}
+                                            {key === 'goggles' && 'Antiparras'}
+                                            {key === 'apron' && 'Delantal Impermeable'}
+                                        </span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
                     <div style={{ marginTop: '2.5rem' }}>
-                        <label style={labelStyle}>Condiciones de Almacenamiento y Compatibilidad</label>
+                        <label style={labelStyle}>Almacenamiento, Compatibilidad y Primeros Auxilios</label>
                         <textarea 
                             value={chemical.storage} 
                             onChange={(e) => setChemical({ ...chemical, storage: e.target.value })} 
                             style={{ ...inputStyle, minHeight: '100px', paddingTop: '0.75rem' }} 
-                            placeholder="Describa condiciones especiales, incompatibilidades, etc..."
+                            placeholder="Describa condiciones especiales, incompatibilidades y medidas urgentes de primeros auxilios..."
                         />
                     </div>
                 </div>

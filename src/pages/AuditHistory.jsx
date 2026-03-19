@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Search, ClipboardCheck, Calendar, User,
-    AlertTriangle, CheckCircle2, Clock
+    AlertTriangle, CheckCircle2, Clock, Share2, Printer, Trash2
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import ShareModal from '../components/ShareModal';
+import AuditPdf from '../components/AuditPdf';
 
 const AUDIT_TYPES = [
     { id: 'internal', name: 'Auditoría Interna', icon: '📋' },
@@ -30,6 +32,7 @@ export default function AuditHistory() {
     const [audits, setAudits] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
+    const [shareItem, setShareItem] = useState(null);
 
     useEffect(() => {
         const stored = JSON.parse(localStorage.getItem('ehs_audits_db') || '[]');
@@ -53,6 +56,18 @@ export default function AuditHistory() {
 
     return (
         <div className="container" style={{ paddingBottom: '6rem' }}>
+            <ShareModal
+                open={!!shareItem}
+                onClose={() => setShareItem(null)}
+                title={`Informe Auditoría - ${shareItem?.auditTitle || shareItem?.title || ''}`}
+                text={shareItem ? `📋 Informe de Auditoría EHS\n📌 Título: ${shareItem.auditTitle || shareItem.title}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${shareItem.date || shareItem.scheduledDate}` : ''}
+                elementIdToPrint="pdf-content"
+            />
+
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                <AuditPdf data={shareItem} />
+            </div>
+
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -64,7 +79,7 @@ export default function AuditHistory() {
                         <p style={{ margin: '0.25rem 0 0 0', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>{stats.total} registros • {stats.completed} completadas</p>
                     </div>
                 </div>
-                <button onClick={() => navigate('/audit-create')} className="btn-primary" style={{ margin: 0, padding: '0.75rem 1.25rem' }}>
+                <button onClick={() => navigate('/audit/new')} className="btn-primary" style={{ margin: 0, padding: '0.75rem 1.25rem' }}>
                     Nueva Auditoría
                 </button>
             </div>
@@ -106,14 +121,19 @@ export default function AuditHistory() {
                 <div className="card" style={{ padding: '3rem', textAlign: 'center' }}>
                     <ClipboardCheck size={48} color="var(--color-text-muted)" style={{ opacity: 0.3, marginBottom: '1rem' }} />
                     <p style={{ color: 'var(--color-text-muted)', fontSize: '1rem' }}>No hay auditorías registradas</p>
-                    <button onClick={() => navigate('/audit-create')} className="btn-primary" style={{ marginTop: '1rem' }}>
+                    <button onClick={() => navigate('/audit/new')} className="btn-primary" style={{ marginTop: '1rem' }}>
                         Crear Primera Auditoría
                     </button>
                 </div>
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                     {filteredAudits.map(audit => (
-                        <AuditCard key={audit.id} audit={audit} onClick={() => navigate(`/audit/${audit.id}`)} />
+                        <AuditCard 
+                            key={audit.id} 
+                            audit={audit} 
+                            onEdit={() => navigate(`/audit/new`, { state: { editData: audit } })}
+                            onShare={() => setShareItem(audit)}
+                        />
                     ))}
                 </div>
             )}
@@ -133,29 +153,34 @@ function StatCard({ label, value, color, icon }) {
     );
 }
 
-function AuditCard({ audit, onClick }) {
+function AuditCard({ audit, onEdit, onShare }) {
     const statusConfig = AUDIT_STATUS[audit.status] || AUDIT_STATUS.draft;
-    const auditType = AUDIT_TYPES.find(t => t.id === audit.auditType);
+    const auditType = AUDIT_TYPES.find(t => t.id === (audit.auditType || audit.type));
 
     return (
-        <div onClick={onClick} className="card" style={{ padding: '1.25rem', cursor: 'pointer', transition: 'all var(--transition-fast)', ':hover': { transform: 'translateY(-2px)' } }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="card" style={{ padding: '1.25rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1 }}>
                     <div style={{ width: '48px', height: '48px', background: `${statusConfig.color}20`, borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: statusConfig.color, fontSize: '1.5rem' }}>
                         {auditType?.icon || '📋'}
                     </div>
                     <div style={{ flex: 1 }}>
-                        <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem', fontWeight: 700 }}>{audit.title}</h3>
+                        <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem', fontWeight: 700 }}>{audit.auditTitle || audit.title}</h3>
                         <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-                            {audit.location || 'Sin ubicación'} • {audit.leadAuditor || 'Sin auditor'} • {audit.scheduledDate ? new Date(audit.scheduledDate).toLocaleDateString() : 'Sin fecha'}
+                            {audit.location || 'Sin ubicación'} • {audit.leadAuditor || 'Sin auditor'} • {audit.date || (audit.scheduledDate ? new Date(audit.scheduledDate).toLocaleDateString() : 'Sin fecha')}
                         </p>
                     </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <span style={{ padding: '0.35rem 0.75rem', background: `${statusConfig.color}20`, color: statusConfig.color, borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontWeight: 800, whiteSpace: 'nowrap' }}>
-                        {statusConfig.label}
-                    </span>
-                </div>
+                <span style={{ padding: '0.35rem 0.75rem', background: `${statusConfig.color}20`, color: statusConfig.color, borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontWeight: 800, whiteSpace: 'nowrap' }}>
+                    {statusConfig.label}
+                </span>
+            </div>
+            <div style={{ display: 'flex', gap: '0.75rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
+                <button onClick={onEdit} className="btn-secondary" style={{ flex: 1, padding: '0.6rem', fontSize: '0.85rem' }}>Ver / Editar</button>
+                <button onClick={onShare} style={{ padding: '0.6rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                    <Share2 size={16} />
+                    <span style={{ fontWeight: 700, fontSize: '0.8rem' }}>PDF</span>
+                </button>
             </div>
         </div>
     );

@@ -17,12 +17,12 @@ export default function WorkingAtHeightPage() {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         handleResize();
         window.addEventListener('resize', handleResize);
-        const saved = localStorage.getItem('working_height_permits_db');
+        const saved = localStorage.getItem('working_at_height_permits');
         if (saved) setPermits(JSON.parse(saved));
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const save = (data) => { localStorage.setItem('working_height_permits_db', JSON.stringify(data)); setPermits(data); };
+    const save = (data) => { localStorage.setItem('working_at_height_permits', JSON.stringify(data)); setPermits(data); };
     const updateStatus = (id, s) => save(permits.map(p => p.id === id ? { ...p, status: s } : p));
     const del = (id) => { if (confirm('¿Eliminar?')) save(permits.filter(p => p.id !== id)); };
     const filtered = permits.filter(p => p.workerName.toLowerCase().includes(searchTerm.toLowerCase()));

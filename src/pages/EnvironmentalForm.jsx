@@ -29,6 +29,12 @@ export default function EnvironmentalForm() {
             co2: '',
             pm25: ''
         },
+        instrument: {
+            model: '',
+            serial: '',
+            lastCalibration: ''
+        },
+        regulatoryLimit: '', // VLE (Valor Límite de Exposición)
         observations: ''
     });
 
@@ -56,7 +62,7 @@ export default function EnvironmentalForm() {
         const updated = [newMeasurement, ...saved];
         localStorage.setItem('environmental_measurements_db', JSON.stringify(updated));
         
-        navigate('/environmental');
+        navigate('/environmental-history');
     };
 
     return (
@@ -175,13 +181,48 @@ export default function EnvironmentalForm() {
                         </div>
                     </div>
 
+                    <div style={{ marginTop: '2.5rem', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '2rem' }}>
+                        <div>
+                            <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Equipo de Medición (Res. 295/03)</h3>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={labelStyle}>Marca / Modelo del Instrumento</label>
+                                    <input type="text" value={measurement.instrument.model} onChange={(e) => setMeasurement({ ...measurement, instrument: { ...measurement.instrument, model: e.target.value } })} style={inputStyle} placeholder="Ej: Anemómetro / Luxómetro / Monitor Térmico" />
+                                </div>
+                                <div>
+                                    <label style={labelStyle}>Número de Serie</label>
+                                    <input type="text" value={measurement.instrument.serial} onChange={(e) => setMeasurement({ ...measurement, instrument: { ...measurement.instrument, serial: e.target.value } })} style={inputStyle} placeholder="S/N" />
+                                </div>
+                                <div>
+                                    <label style={labelStyle}>Última Calibración</label>
+                                    <input type="date" value={measurement.instrument.lastCalibration} onChange={(e) => setMeasurement({ ...measurement, instrument: { ...measurement.instrument, lastCalibration: e.target.value } })} style={inputStyle} />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Límites Normativos</h3>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                <div>
+                                    <label style={labelStyle}>Valor Límite de Exposición (VLE)</label>
+                                    <input type="text" value={measurement.regulatoryLimit} onChange={(e) => setMeasurement({ ...measurement, regulatoryLimit: e.target.value })} style={inputStyle} placeholder="Ej: 500 Lux / 28°C WBGT" />
+                                </div>
+                                <div style={{ background: 'var(--color-surface)', padding: '1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)' }}>
+                                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
+                                        Referencia: Res. SRT 295/03 y Anexos. Asegúrese de comparar el promedio medido con el límite correspondiente a la jornada.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div style={{ marginTop: '2.5rem' }}>
-                        <label style={labelStyle}>Observaciones de Campo</label>
+                        <label style={labelStyle}>Observaciones y Conclusiones del Monitoreo</label>
                         <textarea 
                             value={measurement.observations} 
                             onChange={(e) => setMeasurement({ ...measurement, observations: e.target.value })} 
                             style={{ ...inputStyle, minHeight: '100px', paddingTop: '0.75rem' }} 
-                            placeholder="Detalle cualquier anomalía o condición especial del entorno..."
+                            placeholder="Describa el estado de las instalaciones, fuentes emisoras detectadas y si se cumple con el VLE..."
                         />
                     </div>
                 </div>

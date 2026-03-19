@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, HardHat, AlertTriangle, CheckCircle2, Clock } from 'lucide-react';
+import { ArrowLeft, Search, HardHat, AlertTriangle, CheckCircle2, Clock, Share2, Printer, Trash2 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import ShareModal from '../components/ShareModal';
+import WorkingAtHeightPdf from '../components/WorkingAtHeightPdf';
 
 const PERMIT_STATUS = {
     active: { label: 'ACTIVO', color: '#16a34a' },
@@ -17,15 +19,16 @@ export default function WorkingAtHeightHistory() {
     const [permits, setPermits] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
+    const [shareItem, setShareItem] = useState(null);
 
     useEffect(() => {
-        const stored = JSON.parse(localStorage.getItem('working_at_height_permits') || '[]');
+        const stored = JSON.parse(localStorage.getItem('working_height_permits_db') || '[]');
         setPermits(stored);
     }, []);
 
     const filteredPermits = permits.filter(permit => {
         const matchesSearch = permit.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            permit.worker?.toLowerCase().includes(searchTerm.toLowerCase());
+                            permit.workerName?.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = filterStatus === 'all' || permit.status === filterStatus;
         return matchesSearch && matchesStatus;
     });
@@ -38,9 +41,21 @@ export default function WorkingAtHeightHistory() {
 
     return (
         <div className="container" style={{ paddingBottom: '6rem' }}>
+            <ShareModal
+                open={!!shareItem}
+                onClose={() => setShareItem(null)}
+                title={`Permiso Altura - ${shareItem?.location || ''}`}
+                text={shareItem ? `🧗 Permiso de Trabajo en Altura\n📍 Ubicación: ${shareItem.location}\n👷 Trabajador: ${shareItem.workerName}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString()}` : ''}
+                elementIdToPrint="pdf-content"
+            />
+
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                <WorkingAtHeightPdf data={shareItem} />
+            </div>
+
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <button onClick={() => navigate('/working-height')} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: 'var(--radius-full)', color: 'var(--color-text)' }}>
+                    <button onClick={() => navigate('/working-at-height')} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: 'var(--radius-full)', color: 'var(--color-text)' }}>
                         <ArrowLeft size={20} />
                     </button>
                     <div>
@@ -48,7 +63,7 @@ export default function WorkingAtHeightHistory() {
                         <p style={{ margin: '0.25rem 0 0 0', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>{stats.total} permisos • {stats.active} activos</p>
                     </div>
                 </div>
-                <button onClick={() => navigate('/working-height')} className="btn-primary" style={{ margin: 0, padding: '0.75rem 1.25rem' }}>
+                <button onClick={() => navigate('/working-at-height/new')} className="btn-primary" style={{ margin: 0, padding: '0.75rem 1.25rem' }}>
                     Nuevo Permiso
                 </button>
             </div>
@@ -74,11 +89,18 @@ export default function WorkingAtHeightHistory() {
                 <div className="card" style={{ padding: '3rem', textAlign: 'center' }}>
                     <HardHat size={48} color="var(--color-text-muted)" style={{ opacity: 0.3, marginBottom: '1rem' }} />
                     <p style={{ color: 'var(--color-text-muted)', fontSize: '1rem' }}>No hay permisos registrados</p>
-                    <button onClick={() => navigate('/working-height')} className="btn-primary" style={{ marginTop: '1rem' }}>Crear Primer Permiso</button>
+                    <button onClick={() => navigate('/working-at-height/new')} className="btn-primary" style={{ marginTop: '1rem' }}>Crear Primer Permiso</button>
                 </div>
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    {filteredPermits.map(permit => (<PermitCard key={permit.id} permit={permit} onClick={() => navigate(`/working-height/${permit.id}`)} />))}
+                    {filteredPermits.map(permit => (
+                        <PermitCard 
+                            key={permit.id} 
+                            permit={permit} 
+                            onEdit={() => navigate(`/working-at-height/new`, { state: { editData: permit } })}
+                            onShare={() => setShareItem(permit)}
+                        />
+                    ))}
                 </div>
             )}
         </div>
@@ -89,19 +111,26 @@ function StatCard({ label, value, color, icon }) {
     return (<div className="card" style={{ padding: '1.25rem', background: 'var(--gradient-card)' }}><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}><span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>{label}</span><div style={{ color }}>{icon}</div></div><div style={{ fontSize: '2rem', fontWeight: 900, color }}>{value}</div></div>);
 }
 
-function PermitCard({ permit, onClick }) {
+function PermitCard({ permit, onEdit, onShare }) {
     const statusConfig = PERMIT_STATUS[permit.status] || PERMIT_STATUS.pending;
     return (
-        <div onClick={onClick} className="card" style={{ padding: '1.25rem', cursor: 'pointer' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="card" style={{ padding: '1.25rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1 }}>
                     <div style={{ width: '48px', height: '48px', background: `${statusConfig.color}20`, borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: statusConfig.color }}><HardHat size={24} /></div>
                     <div style={{ flex: 1 }}>
                         <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem', fontWeight: 700 }}>{permit.location || 'Sin ubicación'}</h3>
-                        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{permit.worker || 'Sin trabajador'} • Altura: {permit.height || '-'}m</p>
+                        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{permit.workerName || 'Sin trabajador'} • Altura: {permit.height || '-'}m</p>
                     </div>
                 </div>
                 <span style={{ padding: '0.35rem 0.75rem', background: `${statusConfig.color}20`, color: statusConfig.color, borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontWeight: 800 }}>{statusConfig.label}</span>
+            </div>
+            <div style={{ display: 'flex', gap: '0.75rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
+                <button onClick={onEdit} className="btn-secondary" style={{ flex: 1, padding: '0.6rem', fontSize: '0.85rem' }}>Ver / Editar</button>
+                <button onClick={onShare} style={{ padding: '0.6rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                    <Share2 size={16} />
+                    <span style={{ fontWeight: 700, fontSize: '0.8rem' }}>PDF</span>
+                </button>
             </div>
         </div>
     );

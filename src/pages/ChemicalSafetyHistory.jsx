@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    ArrowLeft, Search, FlaskConical, AlertTriangle, CheckCircle2
+    ArrowLeft, Search, FlaskConical, AlertTriangle, CheckCircle2, Share2, Printer, Trash2
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import ShareModal from '../components/ShareModal';
+import ChemicalSafetyPdf from '../components/ChemicalSafetyPdf';
 
 const GHS_PICTOGRAMS = {
     explosive: { icon: '🧨', name: 'Explosivo', color: '#dc2626' },
@@ -22,6 +24,7 @@ export default function ChemicalSafetyHistory() {
     const [chemicals, setChemicals] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterCategory, setFilterCategory] = useState('all');
+    const [shareItem, setShareItem] = useState(null);
 
     useEffect(() => {
         const stored = JSON.parse(localStorage.getItem('chemical_safety_db') || '[]');
@@ -51,6 +54,18 @@ export default function ChemicalSafetyHistory() {
 
     return (
         <div className="container" style={{ paddingBottom: '6rem' }}>
+            <ShareModal
+                open={!!shareItem}
+                onClose={() => setShareItem(null)}
+                title={`Ficha SGA - ${shareItem?.name || ''}`}
+                text={shareItem ? `🧪 Ficha Técnica de Seguridad (SGA)\n🏷️ Producto: ${shareItem.name}\n🆔 CAS: ${shareItem.casNumber || '-'}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString()}` : ''}
+                elementIdToPrint="pdf-content"
+            />
+
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                <ChemicalSafetyPdf data={shareItem} />
+            </div>
+
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -62,7 +77,7 @@ export default function ChemicalSafetyHistory() {
                         <p style={{ margin: '0.25rem 0 0 0', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>{stats.total} productos • {stats.criticos} críticos</p>
                     </div>
                 </div>
-                <button onClick={() => navigate('/chemical-safety')} className="btn-primary" style={{ margin: 0, padding: '0.75rem 1.25rem' }}>
+                <button onClick={() => navigate('/chemical-safety/new')} className="btn-primary" style={{ margin: 0, padding: '0.75rem 1.25rem' }}>
                     Nuevo Producto
                 </button>
             </div>
@@ -109,7 +124,12 @@ export default function ChemicalSafetyHistory() {
             ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
                     {filteredChemicals.map(chem => (
-                        <ChemicalCard key={chem.id} chemical={chem} onClick={() => navigate(`/chemical-safety/${chem.id}`)} />
+                        <ChemicalCard 
+                            key={chem.id} 
+                            chemical={chem} 
+                            onEdit={() => navigate(`/chemical-safety/new`, { state: { editData: chem } })}
+                            onShare={() => setShareItem(chem)}
+                        />
                     ))}
                 </div>
             )}
@@ -129,7 +149,7 @@ function StatCard({ label, value, color, icon }) {
     );
 }
 
-function ChemicalCard({ chemical, onClick }) {
+function ChemicalCard({ chemical, onEdit, onShare }) {
     const primaryPicto = chemical.pictograms?.[0];
     const pictoConfig = primaryPicto ? GHS_PICTOGRAMS[primaryPicto] : null;
     const hazardLevel = chemical.pictograms?.some(p => ['toxic', 'corrosive', 'explosive'].includes(p)) 
@@ -139,7 +159,7 @@ function ChemicalCard({ chemical, onClick }) {
         : { color: '#16a34a', label: 'Bajo' };
 
     return (
-        <div onClick={onClick} className="card" style={{ padding: '1.25rem', cursor: 'pointer', transition: 'all var(--transition-fast)' }}>
+        <div className="card" style={{ padding: '1.25rem', transition: 'all var(--transition-fast)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                 <div style={{ width: '56px', height: '56px', background: `${hazardLevel.color}20`, borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>
                     {pictoConfig?.icon || '⚗️'}
@@ -153,15 +173,22 @@ function ChemicalCard({ chemical, onClick }) {
                 CAS: {chemical.casNumber || 'N/A'}
             </p>
             <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-                {chemical.location || 'Sin ubicación'} • {chemical.quantity || '0'} {chemical.unit || ''}
+                {chemical.location || chemical.area || 'Sin ubicación'} • {chemical.quantity || '0'} {chemical.unit || ''}
             </p>
-            {chemical.pictograms?.length > 0 && (
-                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
-                    {chemical.pictograms.slice(0, 4).map((p, i) => (
-                        <span key={i} style={{ fontSize: '1.25rem' }}>{GHS_PICTOGRAMS[p]?.icon || '⚠️'}</span>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    {chemical.pictograms?.slice(0, 3).map((p, i) => (
+                        <span key={i} style={{ fontSize: '1.2rem' }}>{GHS_PICTOGRAMS[p]?.icon || '⚠️'}</span>
                     ))}
                 </div>
-            )}
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button onClick={onEdit} className="btn-secondary" style={{ padding: '0.5rem 0.75rem', fontSize: '0.8rem' }}>Editar</button>
+                    <button onClick={onShare} style={{ padding: '0.5rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Share2 size={16} />
+                    </button>
+                </div>
+            </div>
         </div>
     );
 }

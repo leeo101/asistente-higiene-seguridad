@@ -341,7 +341,7 @@ export default function WorkingAtHeight() {
                         Nuevo Permiso
                     </button>
                     <button
-                        onClick={() => navigate('/working-height-history')}
+                        onClick={() => navigate('/working-at-height-history')}
                         className="btn-outline"
                         style={{
                             padding: '0.75rem 1rem'

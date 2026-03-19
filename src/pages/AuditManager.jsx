@@ -325,7 +325,7 @@ export default function AuditManager() {
 
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                     <button
-                        onClick={() => navigate('/audit-create')}
+                        onClick={() => navigate('/audit/new')}
                         className="btn-primary"
                         style={{
                             width: 'auto',
@@ -518,7 +518,7 @@ export default function AuditManager() {
 
                     {/* Audits List */}
                     {filteredAudits.length === 0 ? (
-                        <EmptyState onAdd={() => navigate('/audit-create')} />
+                        <EmptyState onAdd={() => navigate('/audit/new')} />
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                             {filteredAudits.map(audit => (

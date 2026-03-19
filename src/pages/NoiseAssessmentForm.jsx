@@ -29,7 +29,13 @@ export default function NoiseAssessmentForm() {
         levels: { lavg: '', lmax: '', lmin: '', lpeak: '', lex8h: '' },
         hearingProtection: '',
         observations: '',
-        technician: ''
+        technician: '',
+        instrument: {
+            model: '',
+            serial: '',
+            lastCalibration: ''
+        },
+        backgroundNoise: ''
     });
 
     useEffect(() => {
@@ -62,7 +68,7 @@ export default function NoiseAssessmentForm() {
         const currentData = JSON.parse(localStorage.getItem('noise_assessments_db') || '[]');
         localStorage.setItem('noise_assessments_db', JSON.stringify([newEntry, ...currentData]));
         
-        navigate('/noise-assessment-page');
+        navigate('/noise-assessment-history');
     };
 
     const handleLevelChange = (field, value) => {
@@ -161,19 +167,54 @@ export default function NoiseAssessmentForm() {
                         </select>
                     </div>
 
+                    <div style={{ marginTop: '2.5rem', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '2rem' }}>
+                        <div>
+                            <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Detalle del Equipo (Res. SRT 85/12)</h3>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={labelStyle}>Marca y Modelo del Decibelímetro</label>
+                                    <input type="text" value={measurement.instrument.model} onChange={(e) => setMeasurement({ ...measurement, instrument: { ...measurement.instrument, model: e.target.value } })} style={inputStyle} placeholder="Ej: Casella 63x / Quest" />
+                                </div>
+                                <div>
+                                    <label style={labelStyle}>Número de Serie</label>
+                                    <input type="text" value={measurement.instrument.serial} onChange={(e) => setMeasurement({ ...measurement, instrument: { ...measurement.instrument, serial: e.target.value } })} style={inputStyle} placeholder="Ej: S/N 123456" />
+                                </div>
+                                <div>
+                                    <label style={labelStyle}>Última Calibración</label>
+                                    <input type="date" value={measurement.instrument.lastCalibration} onChange={(e) => setMeasurement({ ...measurement, instrument: { ...measurement.instrument, lastCalibration: e.target.value } })} style={inputStyle} />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Condiciones de Medición</h3>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                <div>
+                                    <label style={labelStyle}>Ruido de Fondo (dB)</label>
+                                    <input type="number" step="0.1" value={measurement.backgroundNoise} onChange={(e) => setMeasurement({ ...measurement, backgroundNoise: e.target.value })} style={inputStyle} placeholder="dB(A)" />
+                                </div>
+                                <div style={{ background: 'var(--color-surface)', padding: '1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)' }}>
+                                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
+                                        Nota: Según Res. 85/12, si la diferencia entre el ruido total y el de fondo es menor a 3dB, la medición no es válida para el puesto.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div style={{ marginTop: '2rem' }}>
-                        <label style={labelStyle}>Observaciones</label>
+                        <label style={labelStyle}>Observaciones / Conclusiones del Técnico</label>
                         <textarea 
                             value={measurement.observations} 
                             onChange={(e) => setMeasurement({ ...measurement, observations: e.target.value })} 
-                            style={{ ...inputStyle, minHeight: '100px', paddingTop: '0.75rem' }} 
-                            placeholder="Notas adicionales..."
+                            style={{ ...inputStyle, minHeight: '80px', paddingTop: '0.75rem' }} 
+                            placeholder="Describa condiciones ambientales, anomalías o recomendaciones..."
                         />
                     </div>
 
                     <div style={{ marginTop: '2rem' }}>
-                        <label style={labelStyle}>Responsable / Técnico</label>
-                        <input type="text" value={measurement.technician} onChange={(e) => setMeasurement({ ...measurement, technician: e.target.value })} style={inputStyle} placeholder="Nombre del técnico" />
+                        <label style={labelStyle}>Profesional / Técnico Responsable</label>
+                        <input type="text" value={measurement.technician} onChange={(e) => setMeasurement({ ...measurement, technician: e.target.value })} style={inputStyle} placeholder="Nombre y Apellido del Técnico" />
                     </div>
                 </div>
 

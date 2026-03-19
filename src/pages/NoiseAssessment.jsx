@@ -92,7 +92,7 @@ export default function NoiseAssessment() {
         loadData();
 
         const handleStorageChange = (e) => {
-            if (e.key === 'noise_assessment_db' || e.key === 'noise_workers_db') {
+            if (e.key === 'noise_assessments_db' || e.key === 'noise_workers_db') {
                 loadData();
             }
         };
@@ -111,7 +111,7 @@ export default function NoiseAssessment() {
     }, []);
 
     const saveMeasurements = (data) => {
-        localStorage.setItem('noise_assessment_db', JSON.stringify(data));
+        localStorage.setItem('noise_assessments_db', JSON.stringify(data));
         setMeasurements(data);
     };
 

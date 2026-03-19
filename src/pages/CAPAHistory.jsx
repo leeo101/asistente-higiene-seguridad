@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Search, ClipboardCheck, Calendar, User,
-    AlertTriangle, CheckCircle2, Clock, Target
+    AlertTriangle, CheckCircle2, Clock, Target, Share2, Printer, Trash2
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import ShareModal from '../components/ShareModal';
+import CAPAPdf from '../components/CAPAPdf';
 
 const CAPA_TYPES = [
     { id: 'corrective', name: 'Acción Correctiva', icon: '🔧' },
@@ -37,6 +39,7 @@ export default function CAPAHistory() {
     const [capas, setCapas] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
+    const [shareItem, setShareItem] = useState(null);
 
     useEffect(() => {
         const stored = JSON.parse(localStorage.getItem('ehs_capa_db') || '[]');
@@ -59,6 +62,18 @@ export default function CAPAHistory() {
 
     return (
         <div className="container" style={{ paddingBottom: '6rem' }}>
+            <ShareModal
+                open={!!shareItem}
+                onClose={() => setShareItem(null)}
+                title={`Acción CAPA - ${shareItem?.title || shareItem?.description?.slice(0, 20) || ''}...`}
+                text={shareItem ? `🛡️ Acción Correctiva / Preventiva (CAPA)\n📝 Hallazgo: ${shareItem.title || shareItem.description}\n📍 Origen: ${shareItem.source}\n📅 Fecha: ${shareItem.date}` : ''}
+                elementIdToPrint="pdf-content"
+            />
+
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                <CAPAPdf data={shareItem} />
+            </div>
+
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -70,7 +85,7 @@ export default function CAPAHistory() {
                         <p style={{ margin: '0.25rem 0 0 0', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>{stats.total} registros • {stats.open} abiertas</p>
                     </div>
                 </div>
-                <button onClick={() => navigate('/capa')} className="btn-primary" style={{ margin: 0, padding: '0.75rem 1.25rem' }}>
+                <button onClick={() => navigate('/capa/new')} className="btn-primary" style={{ margin: 0, padding: '0.75rem 1.25rem' }}>
                     Nueva CAPA
                 </button>
             </div>
@@ -112,14 +127,19 @@ export default function CAPAHistory() {
                 <div className="card" style={{ padding: '3rem', textAlign: 'center' }}>
                     <ClipboardCheck size={48} color="var(--color-text-muted)" style={{ opacity: 0.3, marginBottom: '1rem' }} />
                     <p style={{ color: 'var(--color-text-muted)', fontSize: '1rem' }}>No hay CAPA registradas</p>
-                    <button onClick={() => navigate('/capa')} className="btn-primary" style={{ marginTop: '1rem' }}>
+                    <button onClick={() => navigate('/capa/new')} className="btn-primary" style={{ marginTop: '1rem' }}>
                         Crear Primera CAPA
                     </button>
                 </div>
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                     {filteredCapas.map(capa => (
-                        <CapaCard key={capa.id} capa={capa} onClick={() => navigate(`/capa/${capa.id}`)} />
+                        <CapaCard 
+                            key={capa.id} 
+                            capa={capa} 
+                            onEdit={() => navigate(`/capa/new`, { state: { editData: capa } })}
+                            onShare={() => setShareItem(capa)}
+                        />
                     ))}
                 </div>
             )}
@@ -139,31 +159,36 @@ function StatCard({ label, value, color, icon }) {
     );
 }
 
-function CapaCard({ capa, onClick }) {
+function CapaCard({ capa, onEdit, onShare }) {
     const statusConfig = CAPA_STATUS[capa.status] || CAPA_STATUS.draft;
-    const capaType = CAPA_TYPES.find(t => t.id === capa.capaType);
+    const capaType = CAPA_TYPES.find(t => t.id === (capa.capaType || capa.type));
     const priorityConfig = PRIORITY[capa.priority] || PRIORITY.medium;
     const isOverdue = capa.dueDate && new Date(capa.dueDate) < new Date() && capa.status !== 'closed';
 
     return (
-        <div onClick={onClick} className="card" style={{ padding: '1.25rem', cursor: 'pointer', transition: 'all var(--transition-fast)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="card" style={{ padding: '1.25rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1 }}>
                     <div style={{ width: '48px', height: '48px', background: `${priorityConfig.color}20`, borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>
                         {priorityConfig.icon}
                     </div>
                     <div style={{ flex: 1 }}>
-                        <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem', fontWeight: 700 }}>{capaType?.icon} {capa.title}</h3>
+                        <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem', fontWeight: 700 }}>{capaType?.icon} {capa.title || capa.description}</h3>
                         <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
                             {capaType?.name} • {capa.responsible || 'Sin responsable'} {isOverdue && <span style={{ color: '#dc2626', fontWeight: 700 }}> • ⚠️ Vencida</span>}
                         </p>
                     </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <span style={{ padding: '0.35rem 0.75rem', background: `${statusConfig.color}20`, color: statusConfig.color, borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontWeight: 800, whiteSpace: 'nowrap' }}>
-                        {statusConfig.label}
-                    </span>
-                </div>
+                <span style={{ padding: '0.35rem 0.75rem', background: `${statusConfig.color}20`, color: statusConfig.color, borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontWeight: 800, whiteSpace: 'nowrap' }}>
+                    {statusConfig.label}
+                </span>
+            </div>
+            <div style={{ display: 'flex', gap: '0.75rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
+                <button onClick={onEdit} className="btn-secondary" style={{ flex: 1, padding: '0.6rem', fontSize: '0.85rem' }}>Ver / Editar</button>
+                <button onClick={onShare} style={{ padding: '0.6rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                    <Share2 size={16} />
+                    <span style={{ fontWeight: 700, fontSize: '0.8rem' }}>PDF</span>
+                </button>
             </div>
         </div>
     );

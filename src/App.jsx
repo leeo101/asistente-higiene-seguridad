@@ -473,10 +473,10 @@ function App() {
                 <Route path="/confined-space-create" element={<ConfinedSpaceCreate />} />
                 <Route path="/confined-space-page" element={<ConfinedSpacePage />} />
                 <Route path="/confined-space-history" element={<ConfinedSpaceHistory />} />
-                <Route path="/working-height" element={<WorkingAtHeight />} />
-                <Route path="/working-height-create" element={<WorkingAtHeightCreate />} />
-                <Route path="/working-height-page" element={<WorkingAtHeightPage />} />
-                <Route path="/working-height-history" element={<WorkingAtHeightHistory />} />
+                <Route path="/working-at-height" element={<WorkingAtHeight />} />
+                <Route path="/working-at-height-create" element={<WorkingAtHeightCreate />} />
+                <Route path="/working-at-height-page" element={<WorkingAtHeightPage />} />
+                <Route path="/working-at-height-history" element={<WorkingAtHeightHistory />} />
                 <Route path="/audit" element={<AuditManager />} />
                 <Route path="/audit-create" element={<AuditCreate />} />
                 <Route path="/audit/:id" element={<AuditDetail />} />
@@ -495,7 +495,7 @@ function App() {
                 <Route path="/noise-assessment/new" element={<NoiseAssessmentForm />} />
                 <Route path="/loto/new" element={<LOTOForm />} />
                 <Route path="/confined-space/new" element={<ConfinedSpaceForm />} />
-                <Route path="/working-height/new" element={<WorkingAtHeightForm />} />
+                <Route path="/working-at-height/new" element={<WorkingAtHeightForm />} />
                 <Route path="/audit/new" element={<AuditForm />} />
                 <Route path="/capa/new" element={<CAPAForm />} />
                 <Route path="/environmental/new" element={<EnvironmentalForm />} />
