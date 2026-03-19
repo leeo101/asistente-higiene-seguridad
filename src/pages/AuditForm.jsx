@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, ClipboardCheck, Shield, AlertTriangle, Clock, CheckCircle2, User, MapPin, Calendar, FileText } from 'lucide-react';
+import { ArrowLeft, Save, ClipboardCheck, Shield, AlertTriangle, Clock, CheckCircle2, User, MapPin, Calendar, FileText, Eye } from 'lucide-react';
+import ShareModal from '../components/ShareModal';
+import AuditPdf from '../components/AuditPdf';
 
 const AUDIT_TYPES = [
     { id: 'internal', name: 'Interna', icon: '📋' },
@@ -12,6 +14,7 @@ const AUDIT_TYPES = [
 export default function AuditForm() {
     const navigate = useNavigate();
     const [isMobile, setIsMobile] = useState(false);
+    const [showShareModal, setShowShareModal] = useState(false);
     const [audit, setAudit] = useState({
         title: '',
         auditType: 'internal',
@@ -68,7 +71,7 @@ export default function AuditForm() {
                 borderBottom: '1px solid var(--color-border)',
                 padding: '1rem 1.5rem',
                 position: 'sticky',
-                top: 0,
+                top: '5.5rem',
                 zIndex: 100,
                 backdropFilter: 'blur(20px)',
                 display: 'flex',
@@ -97,6 +100,24 @@ export default function AuditForm() {
                         Nueva Auditoría EHS
                     </h1>
                 </div>
+                <button
+                    onClick={() => setShowShareModal(true)}
+                    style={{
+                        padding: '0.6rem 1rem',
+                        background: 'var(--color-surface)',
+                        border: '1px solid var(--color-primary)',
+                        borderRadius: 'var(--radius-lg)',
+                        cursor: 'pointer',
+                        color: 'var(--color-primary)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        fontWeight: 700
+                    }}
+                >
+                    <Eye size={18} />
+                    {!isMobile && 'Vista Previa'}
+                </button>
                 <button
                     onClick={handleSave}
                     className="btn-primary"
@@ -245,6 +266,18 @@ export default function AuditForm() {
                     </button>
                 </div>
             </main>
+
+            <ShareModal
+                isOpen={showShareModal}
+                onClose={() => setShowShareModal(false)}
+                elementIdToPrint="pdf-content"
+                title="Reporte de Auditoría"
+                fileName={`Auditoria_${audit.title || 'Sin_Nombre'}.pdf`}
+            />
+
+            <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+                <AuditPdf data={{ ...audit, createdAt: audit.createdAt || new Date().toISOString() }} />
+            </div>
         </div>
     );
 }

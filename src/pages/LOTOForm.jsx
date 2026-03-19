@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Lock, Save } from 'lucide-react';
+import { ArrowLeft, Lock, Save, Eye } from 'lucide-react';
+import ShareModal from '../components/ShareModal';
+import LOTOPdf from '../components/LOTOPdf';
 
 const ENERGY_TYPES = [
     { id: 'electrical', name: 'Eléctrica', icon: '⚡', color: '#fbbf24' },
@@ -22,6 +24,7 @@ const LOTO_DEVICES = [
 export default function LOTOForm() {
     const navigate = useNavigate();
     const [isMobile, setIsMobile] = useState(false);
+    const [showShareModal, setShowShareModal] = useState(false);
     const [procedure, setProcedure] = useState({
         equipmentName: '',
         location: '',
@@ -85,7 +88,7 @@ export default function LOTOForm() {
                 borderBottom: '1px solid var(--color-border)',
                 padding: '1rem 1.5rem',
                 position: 'sticky',
-                top: 0,
+                top: '5.5rem',
                 zIndex: 100,
                 backdropFilter: 'blur(20px)',
                 display: 'flex',
@@ -114,6 +117,24 @@ export default function LOTOForm() {
                         Nuevo Procedimiento LOTO
                     </h1>
                 </div>
+                <button
+                    onClick={() => setShowShareModal(true)}
+                    style={{
+                        padding: '0.6rem 1rem',
+                        background: 'var(--color-surface)',
+                        border: '1px solid var(--color-primary)',
+                        borderRadius: 'var(--radius-lg)',
+                        cursor: 'pointer',
+                        color: 'var(--color-primary)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        fontWeight: 700
+                    }}
+                >
+                    <Eye size={18} />
+                    {!isMobile && 'Vista Previa'}
+                </button>
                 <button
                     onClick={handleSave}
                     className="btn-primary"
@@ -287,6 +308,18 @@ export default function LOTOForm() {
                     </button>
                 </div>
             </main>
+
+            <ShareModal
+                isOpen={showShareModal}
+                onClose={() => setShowShareModal(false)}
+                elementIdToPrint="pdf-content"
+                title="Procedimiento LOTO"
+                fileName={`LOTO_${procedure.equipmentName || 'Sin_Nombre'}.pdf`}
+            />
+
+            <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+                <LOTOPdf data={{ ...procedure, createdAt: procedure.createdAt || new Date().toISOString() }} />
+            </div>
         </div>
     );
 }

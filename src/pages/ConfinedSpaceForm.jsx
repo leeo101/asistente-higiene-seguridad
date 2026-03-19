@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, Tent, ClipboardCheck, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Save, Tent, ClipboardCheck, CheckCircle2, Eye } from 'lucide-react';
+import ShareModal from '../components/ShareModal';
+import ConfinedSpacePdf from '../components/ConfinedSpacePdf';
 
 const SPACE_TYPES = [
     { id: 'tank', name: 'Tanque', icon: '🛢️' },
@@ -16,6 +18,7 @@ export default function ConfinedSpaceForm() {
     const navigate = useNavigate();
     const location = useLocation();
     const [isMobile, setIsMobile] = useState(false);
+    const [showShareModal, setShowShareModal] = useState(false);
     const [permit, setPermit] = useState({
         spaceName: '',
         spaceType: 'tank',
@@ -81,7 +84,7 @@ export default function ConfinedSpaceForm() {
                 borderBottom: '1px solid var(--color-border)',
                 padding: '1rem 1.5rem',
                 position: 'sticky',
-                top: 0,
+                top: '5.5rem',
                 zIndex: 100,
                 backdropFilter: 'blur(20px)',
                 display: 'flex',
@@ -111,6 +114,24 @@ export default function ConfinedSpaceForm() {
                     </h1>
                 </div>
                 <button
+                    onClick={() => setShowShareModal(true)}
+                    style={{
+                        padding: '0.6rem 1rem',
+                        background: 'var(--color-surface)',
+                        border: '1px solid var(--color-primary)',
+                        borderRadius: 'var(--radius-lg)',
+                        cursor: 'pointer',
+                        color: 'var(--color-primary)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        fontWeight: 700
+                    }}
+                >
+                    <Eye size={18} />
+                    {!isMobile && 'Vista Previa'}
+                </button>
+                <button
                     onClick={handleSave}
                     className="btn-primary"
                     style={{ width: 'auto', margin: 0, padding: '0.6rem 1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
@@ -120,7 +141,7 @@ export default function ConfinedSpaceForm() {
                 </button>
             </div>
 
-            <main style={{ padding: '1.5rem', maxWidth: '800px', margin: '0 auto' }}>
+            <main style={{ padding: '1.5rem', maxWidth: '800px', margin: '0 auto', paddingTop: '1rem' }}>
                 <div className="card" style={{ padding: '2rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem', padding: '1rem', background: 'var(--color-primary)10', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-primary)20' }}>
                         <ClipboardCheck size={24} color="var(--color-primary)" />
@@ -250,6 +271,18 @@ export default function ConfinedSpaceForm() {
                     </button>
                 </div>
             </main>
+
+            <ShareModal
+                isOpen={showShareModal}
+                onClose={() => setShowShareModal(false)}
+                elementIdToPrint="pdf-content"
+                title="Permiso de Ingreso"
+                fileName={`Permiso_${permit.spaceName || 'Sin_Nombre'}.pdf`}
+            />
+
+            <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+                <ConfinedSpacePdf data={{ ...permit, createdAt: permit.createdAt || new Date().toISOString() }} />
+            </div>
         </div>
     );
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, MessageCircle, Mail, Copy, Check, Share2, Loader2 } from 'lucide-react';
+import { X, MessageCircle, Mail, Copy, Check, Share2, Loader2, Printer } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { createPortal } from 'react-dom';
 import { generatePdfBlob } from '../utils/pdfHelper';
@@ -36,6 +36,52 @@ const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdT
         setCopied(true);
         toast.success('Resumen copiado');
         setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handlePrint = () => {
+        if (!elementIdToPrint) {
+            toast.error("No se ha especificado el contenido a imprimir.");
+            return;
+        }
+
+        const element = document.getElementById(elementIdToPrint);
+        if (!element) return;
+
+        // Store original styles
+        const originalStyles = {
+            position: element.style.position,
+            left: element.style.left,
+            top: element.style.top,
+            zIndex: element.style.zIndex,
+            opacity: element.style.opacity,
+            visibility: element.style.visibility,
+            display: element.style.display
+        };
+
+        // Prepare for print
+        element.style.position = 'fixed';
+        element.style.left = '0';
+        element.style.top = '0';
+        element.style.width = '100vw';
+        element.style.height = '100vh';
+        element.style.zIndex = '9999999';
+        element.style.opacity = '1';
+        element.style.visibility = 'visible';
+        element.style.display = 'block';
+        element.style.backgroundColor = 'white';
+
+        setTimeout(() => {
+            window.print();
+            
+            // Restore styles
+            element.style.position = originalStyles.position;
+            element.style.left = originalStyles.left;
+            element.style.top = originalStyles.top;
+            element.style.zIndex = originalStyles.zIndex;
+            element.style.opacity = originalStyles.opacity;
+            element.style.visibility = originalStyles.visibility;
+            element.style.display = originalStyles.display;
+        }, 300);
     };
 
     const handleNativeShare = async (optLabel) => {
@@ -114,6 +160,13 @@ const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdT
             bg: '#3b82f6',
             color: '#ffffff',
             hijack: true
+        },
+        {
+            label: 'Imprimir',
+            icon: <Printer size={22} />,
+            onClick: handlePrint,
+            bg: '#1e293b',
+            color: '#ffffff'
         }
     ];
 
@@ -243,11 +296,14 @@ const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdT
                                 return (
                                     <a
                                         key={opt.label}
-                                        href={isHijacked ? '#' : opt.url}
+                                        href={opt.onClick ? '#' : (isHijacked ? '#' : opt.url)}
                                         target={isHijacked ? '_self' : '_blank'}
                                         rel="noreferrer"
                                         onClick={async (e) => {
-                                            if (isHijacked) {
+                                            if (opt.onClick) {
+                                                e.preventDefault();
+                                                opt.onClick();
+                                            } else if (isHijacked) {
                                                 e.preventDefault();
                                                 if (isGenerating) return;
                                                 await handleNativeShare(opt.label);

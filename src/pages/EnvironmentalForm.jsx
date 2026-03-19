@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, Leaf, Shield, AlertTriangle, Clock, CheckCircle2, User, MapPin, Activity, Droplets, Wind, Thermometer, Sun } from 'lucide-react';
+import { ArrowLeft, Save, Leaf, Shield, AlertTriangle, Clock, CheckCircle2, User, MapPin, Activity, Droplets, Wind, Thermometer, Sun, Eye } from 'lucide-react';
+import ShareModal from '../components/ShareModal';
+import EnvironmentalPdf from '../components/EnvironmentalPdf';
 
 const MONITORING_TYPES = [
     { id: 'air', name: 'Calidad de Aire', icon: '💨' },
@@ -14,6 +16,7 @@ const MONITORING_TYPES = [
 export default function EnvironmentalForm() {
     const navigate = useNavigate();
     const [isMobile, setIsMobile] = useState(false);
+    const [showShareModal, setShowShareModal] = useState(false);
     const [measurement, setMeasurement] = useState({
         stationName: '',
         monitoringType: 'air',
@@ -72,7 +75,7 @@ export default function EnvironmentalForm() {
                 borderBottom: '1px solid var(--color-border)',
                 padding: '1rem 1.5rem',
                 position: 'sticky',
-                top: 0,
+                top: '5.5rem',
                 zIndex: 100,
                 backdropFilter: 'blur(20px)',
                 display: 'flex',
@@ -101,6 +104,24 @@ export default function EnvironmentalForm() {
                         Nuevo Monitoreo Ambiental
                     </h1>
                 </div>
+                <button
+                    onClick={() => setShowShareModal(true)}
+                    style={{
+                        padding: '0.6rem 1rem',
+                        background: 'var(--color-surface)',
+                        border: '1px solid var(--color-primary)',
+                        borderRadius: 'var(--radius-lg)',
+                        cursor: 'pointer',
+                        color: 'var(--color-primary)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        fontWeight: 700
+                    }}
+                >
+                    <Eye size={18} />
+                    {!isMobile && 'Vista Previa'}
+                </button>
                 <button
                     onClick={handleSave}
                     className="btn-primary"
@@ -252,6 +273,18 @@ export default function EnvironmentalForm() {
                     </button>
                 </div>
             </main>
+
+            <ShareModal
+                isOpen={showShareModal}
+                onClose={() => setShowShareModal(false)}
+                elementIdToPrint="pdf-content"
+                title="Monitoreo Ambiental"
+                fileName={`Ambiente_${measurement.stationName || 'Sin_Nombre'}.pdf`}
+            />
+
+            <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+                <EnvironmentalPdf data={{ ...measurement, createdAt: measurement.createdAt || new Date().toISOString() }} />
+            </div>
         </div>
     );
 }
