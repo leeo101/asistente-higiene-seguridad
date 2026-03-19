@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, User, Settings, PenTool, Database, Shield, LogOut, ChevronRight, Trash2, AlertCircle, Share2, Copy, Check, CreditCard, Upload, CheckCircle, Image as ImageIcon, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
@@ -8,8 +8,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { getCountryNormativa } from '../data/legislationData';
 
 export default function Profile() {
-    const navigate = useNavigate();
-    const { isPro } = usePaywall();
+        const { isPro } = usePaywall();
     useDocumentTitle('Mi Perfil');
     const [linkCopied, setLinkCopied] = useState(false);
     const [userData, setUserData] = useState({

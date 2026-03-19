@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X, MessageCircle, Mail, Copy, Check, Share2, Loader2, Printer } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { createPortal } from 'react-dom';
@@ -91,8 +91,7 @@ const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdT
         }
 
         setIsGenerating(true);
-        const toastId = toast.loading(`Preparando PDF para ${optLabel}...`, { id: 'pdf-gen' });
-
+        
         try {
             // Safety delay to ensure hidden generator has rendered
             await new Promise(resolve => setTimeout(resolve, 150));

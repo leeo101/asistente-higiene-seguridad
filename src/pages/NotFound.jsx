@@ -1,5 +1,6 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import React from 'react';
+
 import { Home, ArrowLeft, Search, ShieldAlert } from 'lucide-react';
 
 export default function NotFound() {

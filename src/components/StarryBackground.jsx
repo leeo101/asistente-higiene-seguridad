@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 
+
 /**
  * Generates a parallax 3D starry night background.
  */

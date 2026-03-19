@@ -77,8 +77,7 @@ export async function generatePdfBlob(elementId, filename = 'reporte.pdf', isLan
         } else {
             let heightLeft = contentHeightMM;
             let positionY = marginY;
-            let pageNum = 1;
-
+            
             pdf.addImage(imgData, 'JPEG', marginX, marginY, contentWidthMM, contentHeightMM);
             heightLeft -= (pdfHeight - marginY * 2);
 

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ExternalLink, ShieldCheck, Tag } from 'lucide-react';
 import { usePaywall } from '../hooks/usePaywall';

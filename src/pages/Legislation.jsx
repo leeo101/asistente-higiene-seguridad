@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+
 import {
     ArrowLeft, FileText, Download, Search,
     ExternalLink, BookOpen, Shield, Gavel, Sparkles, Loader2, Info, AlertCircle,
@@ -20,7 +22,8 @@ export default function Legislation() {
             try {
                 const parsed = JSON.parse(savedData);
                 if (parsed.country) setUserCountry(parsed.country);
-            } catch (e) {
+            } catch {
+
                 console.error('Error loading country from personalData:', e);
             }
         }

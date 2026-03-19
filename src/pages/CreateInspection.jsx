@@ -1,12 +1,11 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import { ArrowLeft, Building2, MapPin, ClipboardList, Play } from 'lucide-react';
 import LocationPicker from '../components/LocationPicker';
 import toast from 'react-hot-toast';
 
 export default function CreateInspection() {
-    const navigate = useNavigate();
-    const [project, setProject] = useState({
+        const [project, setProject] = useState({
         name: '',
         location: '',
         type: 'Seguridad',

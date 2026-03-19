@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Plus, Search, CheckCircle2, XCircle, Clock, User, Calendar, AlertTriangle, Tent, Eye, Trash2, Wind, Droplets, Printer } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import ConfinedSpacePdf from '../components/ConfinedSpacePdf';
@@ -12,8 +12,7 @@ const PERMIT_STATUS = {
 };
 
 export default function ConfinedSpacePage() {
-    const navigate = useNavigate();
-    const [permits, setPermits] = useState([]);
+        const [permits, setPermits] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedPermit, setSelectedPermit] = useState(null);
     const [showShareModal, setShowShareModal] = useState(false);
@@ -169,5 +168,3 @@ function DetailModal({ permit, onClose, isMobile, onPrint }) {
     );
 }
 
-const labelStyle = { display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.5rem' };
-const inputStyle = { width: '100%', padding: '0.75rem 1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-input-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontSize: '0.95rem', fontWeight: 500, outline: 'none', boxSizing: 'border-box' };

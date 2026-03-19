@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Flame, Sparkles, Camera, X, ChevronRight } from 'lucide-react';
+
 import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Flame, Sparkles, Camera, X, ChevronRight } from 'lucide-react';
+
 import { getCountryNormativa } from '../data/legislationData';
 
 const savedData = localStorage.getItem('personalData');

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import {
     ArrowLeft, Search, ClipboardCheck, Calendar, User,
     AlertTriangle, CheckCircle2, Clock, Share2, Printer, Trash2
@@ -27,8 +27,7 @@ const AUDIT_STATUS = {
 
 export default function AuditHistory() {
     useDocumentTitle('Historial de Auditorías');
-    const navigate = useNavigate();
-
+    
     const [audits, setAudits] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');

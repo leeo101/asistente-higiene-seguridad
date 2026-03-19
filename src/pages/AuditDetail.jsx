@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { XCircle, ClipboardCheck, AlertTriangle, Clock, CheckCircle2, Shield } from 'lucide-react';
 
 const AUDIT_TYPES = [
@@ -28,8 +28,7 @@ const FINDING_SEVERITY = {
 };
 
 export default function AuditDetail() {
-    const navigate = useNavigate();
-    const { id } = useParams();
+        const { id } = useParams();
     const [audit, setAudit] = useState(null);
     const [findings, setFindings] = useState([]);
     const [showFindingForm, setShowFindingForm] = useState(false);
@@ -230,8 +229,6 @@ export default function AuditDetail() {
     );
 }
 
-const labelStyle = { display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.5rem' };
-const inputStyle = { width: '100%', padding: '0.75rem 1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-input-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontSize: '0.95rem', fontWeight: 500, outline: 'none', transition: 'all var(--transition-fast)', boxSizing: 'border-box' };
 
 function InfoDetail({ label, value }) {
     return (

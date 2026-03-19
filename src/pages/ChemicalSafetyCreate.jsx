@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import { XCircle, FlaskConical } from 'lucide-react';
 
 const GHS_PICTOGRAMS = {
@@ -22,12 +22,9 @@ const HAZARD_CATEGORIES = [
     { id: 'ambiental', name: 'Peligro Ambiental', icon: '🌍' }
 ];
 
-const labelStyle = { display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.5rem' };
-const inputStyle = { width: '100%', padding: '0.75rem 1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-input-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontSize: '0.95rem', fontWeight: 500, outline: 'none', transition: 'all var(--transition-fast)', boxSizing: 'border-box' };
 
 export default function ChemicalSafetyCreate() {
-    const navigate = useNavigate();
-    const [chemical, setChemical] = useState({
+        const [chemical, setChemical] = useState({
         name: '',
         casNumber: '',
         unNumber: '',

@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+
 import {
     ArrowLeft, Send, ShieldAlert, HardHat,
     Lightbulb, Gavel, ClipboardList, Copy,
@@ -26,7 +28,8 @@ function HistoryPanel({ onLoad }) {
                 history = parsed.filter(item => item && item.id && item.task).slice(0, 5);
             }
         }
-    } catch (e) {
+    } catch {
+
         console.error("Error loading ai_advisor_history:", e);
     }
 
@@ -113,7 +116,8 @@ export default function AIChatAdvisor() {
             try {
                 const parsed = JSON.parse(savedData);
                 if (parsed.country) setUserCountry(parsed.country);
-            } catch (e) { console.error(e); }
+            } catch {
+ console.error(e); }
         }
     }, []);
     const [isListening, setIsListening] = useState(false);
@@ -155,7 +159,8 @@ export default function AIChatAdvisor() {
                 if (!raw || raw === 'undefined') return [];
                 const parsed = JSON.parse(raw);
                 return Array.isArray(parsed) ? parsed : [];
-            } catch (e) {
+            } catch {
+
                 console.error(`[Advisor IA] Error parsing ${key}:`, e);
                 return [];
             }
@@ -182,7 +187,8 @@ export default function AIChatAdvisor() {
             if (insp.length) ctx.push("ÚLTIMAS INSPECCIONES REALIZADAS:\n" + insp.join("\n"));
             if (risk.length) ctx.push("ÚLTIMAS EVALUACIONES DE RIESGO:\n" + risk.join("\n"));
             return ctx.join("\n\n");
-        } catch (e) {
+        } catch {
+
             console.error("[Advisor IA] Error getting context:", e);
             return "";
         }
@@ -347,7 +353,8 @@ export default function AIChatAdvisor() {
                     const parsed = JSON.parse(raw);
                     history = Array.isArray(parsed) ? parsed : [];
                 }
-            } catch (e) {
+            } catch {
+
                 console.error("[Advisor IA] Error parsing history for save:", e);
                 history = [];
             }
@@ -359,7 +366,8 @@ export default function AIChatAdvisor() {
             };
             try {
                 localStorage.setItem('ai_advisor_history', JSON.stringify([newRecord, ...history].slice(0, 20)));
-            } catch (e) {
+            } catch {
+
                 console.error("[Advisor IA] Error saving to history:", e);
             }
         } catch (error) {

@@ -1,5 +1,6 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
+import React from 'react';
+
 import { ShieldCheck, Mail, Home, ExternalLink } from 'lucide-react';
 
 export default function Footer() {

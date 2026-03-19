@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+
 import { ShieldCheck, CreditCard, Sparkles, CheckCircle2, Lock, ArrowRight, ArrowLeft, Calendar, TriangleAlert } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { usePaywall } from '../hooks/usePaywall';

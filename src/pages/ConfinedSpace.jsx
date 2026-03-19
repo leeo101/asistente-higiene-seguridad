@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import {
     Tent, AlertTriangle, Plus, Search, 
     FileText, Eye, Edit3, Trash2, CheckCircle2, 
@@ -76,8 +76,7 @@ const POTENTIAL_HAZARDS = [
 ];
 
 export default function ConfinedSpace() {
-    const navigate = useNavigate();
-    const [permits, setPermits] = useState([]);
+        const [permits, setPermits] = useState([]);
     const [activePermits, setActivePermits] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
@@ -201,8 +200,7 @@ export default function ConfinedSpace() {
     };
 
     const authorizePermit = (permitId) => {
-        const permit = permits.find(p => p.id === permitId);
-        if (!permit) return;
+                if (!permit) return;
 
         const now = new Date().toISOString();
         const validUntil = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(); // 8 horas

@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Camera, RefreshCw, CheckCircle, AlertTriangle, Flame, Loader2, Zap, FlipHorizontal, Info } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { usePaywall } from '../hooks/usePaywall';
@@ -48,8 +48,7 @@ const EXTINTOR_INFO = {
 
 export default function ExtinguisherAI() {
     useDocumentTitle('Reconocimiento de Extintores IA');
-    const navigate = useNavigate();
-    const { requirePro } = usePaywall();
+        const { requirePro } = usePaywall();
     const { syncCollection } = useSync();
     
     const videoRef = useRef(null);

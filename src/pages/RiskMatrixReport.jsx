@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+
 import { ArrowLeft, Printer, Share2, TriangleAlert, X, Copy, Check, Mail, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';

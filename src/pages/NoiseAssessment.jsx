@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import {
     Volume2, Plus, Search, Filter, Download,
     AlertTriangle, CheckCircle2, XCircle, FileText,
@@ -48,8 +48,7 @@ const HEARING_PROTECTION = [
 ];
 
 export default function NoiseAssessment() {
-    const navigate = useNavigate();
-    const [measurements, setMeasurements] = useState([]);
+        const [measurements, setMeasurements] = useState([]);
     const [workers, setWorkers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all');

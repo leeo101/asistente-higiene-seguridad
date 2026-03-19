@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+
 import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+
 import { ArrowLeft, Shield, Key, Fingerprint, Smartphone, ChevronRight, Lock, Eye, EyeOff, CheckCircle2, Moon, Sun, Check, ExternalLink } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { useAuth } from '../contexts/AuthContext';

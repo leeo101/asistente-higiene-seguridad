@@ -1,5 +1,5 @@
-import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import {
     X, User, History, LogOut, Home, Settings,
     Calendar, MessageSquare, Sun, Moon, Sparkles, Star, ShieldCheck, HardHat, BarChart3, Users, TriangleAlert, CreditCard, Crown, ImageIcon, Upload, X as CloseIcon, CheckCircle, AlertCircle
@@ -21,8 +21,7 @@ const navItems = [
 ];
 
 export default function Sidebar({ isOpen, onClose }) {
-    const navigate = useNavigate();
-    const location = useLocation();
+        const location = useLocation();
     const { currentUser, logout } = useAuth();
     const { isPro, daysRemaining } = usePaywall();
     const [userInfo, setUserInfo] = React.useState({

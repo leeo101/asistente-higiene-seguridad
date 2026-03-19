@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { ClipboardList, ShieldCheck, ScrollText, Camera, HardHat, TriangleAlert } from 'lucide-react';
 
 const STATS_CONFIG = [

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import {
     ArrowLeft, Search, FlaskConical, AlertTriangle, CheckCircle2, Share2, Printer, Trash2
 } from 'lucide-react';
@@ -19,8 +19,7 @@ const GHS_PICTOGRAMS = {
 
 export default function ChemicalSafetyHistory() {
     useDocumentTitle('Productos Químicos');
-    const navigate = useNavigate();
-
+    
     const [chemicals, setChemicals] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterCategory, setFilterCategory] = useState('all');

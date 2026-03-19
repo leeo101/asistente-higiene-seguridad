@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+
 import { Lock, Eye, EyeOff, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { auth } from '../firebase';
@@ -48,7 +50,7 @@ export default function ResetPassword() {
             setStatus({ type: 'error', message: 'La contraseña debe incluir al menos un número.' });
             return;
         }
-        if (!/[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\;'`~]/.test(passwords.new)) {
+        if (!/[!@#$%^&*(),.?":{}|<>_\-+=[\]\\;'`~]/.test(passwords.new)) {
             setStatus({ type: 'error', message: 'La contraseña debe incluir al menos un carácter especial (!@#$%^&*...).' });
             return;
         }

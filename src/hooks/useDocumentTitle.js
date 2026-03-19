@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+
 
 /**
  * Updates document.title dynamically on each page.

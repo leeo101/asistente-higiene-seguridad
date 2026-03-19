@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import {
     ClipboardList, PlusCircle, History, User, Users, Settings,
     Flame, BarChart3, ChevronRight, Plus, Gavel, Siren,
@@ -24,8 +24,7 @@ import NewsWidget from '../components/NewsWidget';
 function FaqSection() {
     const [open, setOpen] = React.useState(null);
     const savedData = localStorage.getItem('personalData');
-    const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
-
+    
     const items = [
         { q: '¿Qué países están soportados?', a: 'Asistente HYS está totalmente legalizado para Argentina, Chile, Bolivia, Paraguay y Uruguay. Los cálculos y el Asesor IA se adaptan automáticamente a la normativa de tu país seleccionado al registrarte.' },
         { q: '¿Es realmente gratis?', a: 'Sí. Podés usar todos los módulos de cálculo, ATS, matrices, asesor IA y cámara sin pagar nada. El plan PRO agrega la impresión/PDF y el historial en nube.' },
@@ -103,7 +102,6 @@ const typeColors = {
 };
 
 const savedData = localStorage.getItem('personalData');
-const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
 
 const getRegSub = (module) => {
     if (userCountry === 'argentina') {
@@ -169,8 +167,7 @@ const quickLinks = [
 ];
 
 export default function Home() {
-    const navigate = useNavigate();
-    const { currentUser } = useAuth();
+        const { currentUser } = useAuth();
     const { syncPulse } = useSync();
     const { isPro, daysRemaining } = usePaywall();
     const [isSubscribed, setIsSubscribed] = useState(false);

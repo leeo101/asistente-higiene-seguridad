@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 /**
  * Hook personalizado para detectar estado de conexión offline/online

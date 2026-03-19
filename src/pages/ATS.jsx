@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     ArrowLeft, Save, Plus, Trash2, Printer,
     ShieldCheck, Building2, User, Calendar,
@@ -57,8 +57,7 @@ const defaultChecklist = [
 ];
 
 export default function ATS() {
-    const navigate = useNavigate();
-    const location = useLocation();
+        const location = useLocation();
     const { requirePro } = usePaywall();
     const { syncCollection } = useSync();
     useDocumentTitle('Análisis de Trabajo Seguro (ATS)');
@@ -295,9 +294,7 @@ export default function ATS() {
         });
     };
 
-    const handlePrint = () => requirePro(() => window.print());
-    const handleShare = () => requirePro(() => setShowShare(true));
-
+        
     // Grouping checklist by category
     const categories = [...new Set(formData.checklist.map(i => i.categoria))];
 

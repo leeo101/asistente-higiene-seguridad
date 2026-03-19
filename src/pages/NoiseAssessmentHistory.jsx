@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, Volume2, AlertTriangle, CheckCircle2, Share2, Printer, Trash2 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import ShareModal from '../components/ShareModal';
@@ -7,8 +7,7 @@ import NoiseAssessmentPdf from '../components/NoiseAssessmentPdf';
 
 export default function NoiseAssessmentHistory() {
     useDocumentTitle('Evaluación de Ruido');
-    const navigate = useNavigate();
-
+    
     const [measurements, setMeasurements] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [shareItem, setShareItem] = useState(null);

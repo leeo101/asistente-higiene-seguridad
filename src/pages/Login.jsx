@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import { User, Lock, LogIn, Mail, ArrowLeft, CheckCircle2, AlertCircle, ShieldCheck, CreditCard, Award, GraduationCap, Phone, MapPin, Smartphone, ExternalLink, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { API_BASE_URL } from '../config';
@@ -7,8 +7,7 @@ import { countryList } from '../data/legislationData';
 import toast from 'react-hot-toast';
 
 export default function Login() {
-    const navigate = useNavigate();
-    const { login, signup, signInWithGoogle, currentUser } = useAuth();
+        const { login, signup, signInWithGoogle, currentUser } = useAuth();
     const location = useLocation();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -39,7 +38,7 @@ export default function Login() {
             uppercase: /[A-Z]/.test(pwd),
             lowercase: /[a-z]/.test(pwd),
             number: /[0-9]/.test(pwd),
-            special: /[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\;'`~]/.test(pwd)
+            special: /[!@#$%^&*(),.?":{}|<>_\-+=[\]\\;'`~]/.test(pwd)
         };
     };
 
@@ -114,7 +113,7 @@ export default function Login() {
         if (!/[0-9]/.test(password)) {
             return setStatus({ type: 'error', message: 'La contraseña debe incluir al menos un número.' });
         }
-        if (!/[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\;'`~]/.test(password)) {
+        if (!/[!@#$%^&*(),.?":{}|<>_\-+=[\]\\;'`~]/.test(password)) {
             return setStatus({ type: 'error', message: 'La contraseña debe incluir al menos un carácter especial (!@#$%^&*...).' });
         }
         if (password !== confirmPassword) {
@@ -132,7 +131,8 @@ export default function Login() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, name })
                 }).catch(err => console.error('[WELCOME EMAIL ERR]', err));
-            } catch (e) {
+            } catch {
+
                 console.warn('Welcome email call failed', e);
             }
 

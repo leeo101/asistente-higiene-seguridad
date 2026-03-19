@@ -8,9 +8,7 @@ export default function TrainingPdfGenerator({ training, onBack }) {
 // logo code removed
 
 
-    const safeTema = (training?.tema || 'Capacitacion').replace(/\s+/g, '_');
-    const safeFecha = training?.fecha || new Date().toISOString().split('T')[0];
-
+        
     const handlePrint = () => {
         window.print();
     };

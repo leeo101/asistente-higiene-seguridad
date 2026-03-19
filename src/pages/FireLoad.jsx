@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import {
     ArrowLeft, Save, Plus, Trash2, Flame, Calculator,
     FileText, Printer, Building2, Layout, Maximize2,
@@ -18,8 +18,7 @@ import { API_BASE_URL } from '../config';
 import { getCountryNormativa } from '../data/legislationData';
 
 export default function FireLoad() {
-    const navigate = useNavigate();
-    const location = useLocation();
+        const location = useLocation();
     const { currentUser } = useAuth();
     const { syncCollection } = useSync();
     const { requirePro } = usePaywall();
@@ -55,8 +54,7 @@ export default function FireLoad() {
     const [showShare, setShowShare] = useState(false);
 
     const savedData = localStorage.getItem('personalData');
-    const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
-    const countryNorms = getCountryNormativa(userCountry);
+        const countryNorms = getCountryNormativa(userCountry);
 
     useEffect(() => {
         try {

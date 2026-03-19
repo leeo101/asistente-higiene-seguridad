@@ -7,9 +7,7 @@ export default function AccidentPdfGenerator({ report, onBack }) {
 
     const componentRef = useRef();
 
-    const safeNombre = (report?.victimaNombre || 'Sin_Nombre').replace(/\s+/g, '_');
-    const safeFecha = report?.fecha || new Date().toISOString().split('T')[0];
-
+        
     const handlePrint = () => {
         window.print();
     };

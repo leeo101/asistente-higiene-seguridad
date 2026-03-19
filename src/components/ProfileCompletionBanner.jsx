@@ -1,11 +1,10 @@
+import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { X, AlertCircle, User } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 export default function ProfileCompletionBanner({ onComplete }) {
     const [visible, setVisible] = useState(false);
-    const navigate = useNavigate();
-
+    
     useEffect(() => {
         const personalData = localStorage.getItem('personalData');
         if (personalData) {

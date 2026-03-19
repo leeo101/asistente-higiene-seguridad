@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import {
     ArrowLeft, Search, ClipboardCheck, Calendar, User,
     AlertTriangle, CheckCircle2, Clock, Target, Share2, Printer, Trash2
@@ -34,8 +34,7 @@ const PRIORITY = {
 
 export default function CAPAHistory() {
     useDocumentTitle('Historial CAPA');
-    const navigate = useNavigate();
-
+    
     const [capas, setCapas] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import {
     Clock, Building2, Timer, CheckCircle2, TriangleAlert, Edit2, Trash2, Share2,
     ArrowLeft, Search, Siren, Calendar, ChevronRight, QrCode
@@ -13,8 +13,7 @@ import QRModal from '../components/QRModal';
 
 export default function DrillsHistory() {
     useDocumentTitle('Historial de Simulacros');
-    const navigate = useNavigate();
-    const { currentUser } = useAuth();
+        const { currentUser } = useAuth();
     const { syncing, syncCollection } = useSync();
 
     const [history, setHistory] = useState([]);

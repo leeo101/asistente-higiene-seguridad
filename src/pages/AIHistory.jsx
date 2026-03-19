@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import {
     ArrowLeft, Search, Calendar, ChevronRight,
     Trash2, Sparkles, Download, FileText, HardHat,
@@ -11,8 +11,7 @@ import AiAdvisorPdfGenerator from '../components/AiAdvisorPdfGenerator';
 import toast from 'react-hot-toast';
 
 export default function AIHistory() {
-    const navigate = useNavigate();
-    const { syncCollection, syncPulse } = useSync();
+        const { syncCollection, syncPulse } = useSync();
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedItem, setSelectedItem] = useState(null);
@@ -30,7 +29,8 @@ export default function AIHistory() {
             } else {
                 setHistory([]);
             }
-        } catch (e) {
+        } catch {
+
             console.error("Error parsing AI history:", e);
             setHistory([]);
         }

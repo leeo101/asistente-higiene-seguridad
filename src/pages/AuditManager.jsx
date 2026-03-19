@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { 
     ClipboardCheck, Plus, Search, 
     FileText, Eye, Edit3, Trash2, CheckCircle2, 
@@ -103,8 +103,7 @@ const ISO_CHECKLIST = {
 };
 
 export default function AuditManager() {
-    const navigate = useNavigate();
-    const [audits, setAudits] = useState([]);
+        const [audits, setAudits] = useState([]);
     const [findings, setFindings] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');

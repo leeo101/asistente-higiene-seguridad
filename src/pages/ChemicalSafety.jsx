@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import {
     FlaskConical, Plus, Search, Filter, Download,
     AlertTriangle, CheckCircle2, XCircle, FileText,
@@ -41,8 +41,7 @@ const STORAGE_COMPATIBILITY = {
 };
 
 export default function ChemicalSafety() {
-    const navigate = useNavigate();
-    const [chemicals, setChemicals] = useState([]);
+        const [chemicals, setChemicals] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterCategory, setFilterCategory] = useState('all');
     const [viewMode, setViewMode] = useState('grid'); // grid o list

@@ -13,8 +13,7 @@ export default function ChecklistPdfGenerator({ checklistData }) {
     const actionPlan = fullData.actionPlan || [];
     const nextReview = fullData.nextReview || '';
     const selectedNorms = fullData.selectedNorms || [];
-    const showSignatures = fullData.showSignatures || {};
-    const availableNorms = fullData.availableNorms || [];
+        const availableNorms = fullData.availableNorms || [];
 
     // Calcular estadísticas
     let totalItems = 0;
@@ -175,8 +174,7 @@ export default function ChecklistPdfGenerator({ checklistData }) {
 
                 {/* Sections - Checklist Items */}
                 {sections.map((section, sectionIdx) => {
-                    const sectionFails = section.items.filter(i => i.status === 'FAIL');
-                    
+                                        
                     return (
                         <div key={section.id} style={{ 
                             border: '2px solid #e2e8f0', 

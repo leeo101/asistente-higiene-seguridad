@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useOffline } from '../hooks/useOffline';
 import { WifiOff, Wifi, CloudOff, CheckCircle } from 'lucide-react';
 

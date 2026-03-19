@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Upload, X, CheckCircle, AlertCircle, Image as ImageIcon, Sparkles, ShieldCheck, Info } from 'lucide-react';
 import { usePaywall } from '../hooks/usePaywall';
 import { useAuth } from '../contexts/AuthContext';
@@ -8,8 +8,7 @@ import toast from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function LogoSettings() {
-    const navigate = useNavigate();
-    const { isPro } = usePaywall();
+        const { isPro } = usePaywall();
     const { currentUser } = useAuth();
     useDocumentTitle('Logo de Empresa');
     

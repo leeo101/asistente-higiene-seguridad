@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, HardHat, AlertTriangle, CheckCircle2, Clock, Share2, Printer, Trash2 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import ShareModal from '../components/ShareModal';
@@ -14,8 +14,7 @@ const PERMIT_STATUS = {
 
 export default function WorkingAtHeightHistory() {
     useDocumentTitle('Trabajo en Altura');
-    const navigate = useNavigate();
-
+    
     const [permits, setPermits] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');

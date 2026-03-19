@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+
 import { ArrowLeft, Download, FileText, Calendar, TrendingUp, TriangleAlert, CheckCircle, Shield, FileSignature, ChevronRight } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import toast from 'react-hot-toast';
@@ -122,7 +124,8 @@ export default function ManagementReport() {
                     // Try to add the logo if it's base64 or a valid image URL
                     // Note: If it's a cross-origin URL, jsPDF might fail, but base64 works perfectly.
                     doc.addImage(companyLogo, 'PNG', pageWidth - 45, 10, 30, 20);
-                } catch (e) {
+                } catch {
+
                     console.error('Error adding logo to PDF:', e);
                 }
             }

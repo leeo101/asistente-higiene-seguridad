@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import {
     ClipboardCheck, Printer, Plus,
     Settings, TriangleAlert, Building2, Calendar,
@@ -154,8 +154,7 @@ const getNormsForCountry = (country) => {
 };
 
 export default function ChecklistManager() {
-    const navigate = useNavigate();
-    const { currentUser } = useAuth();
+        const { currentUser } = useAuth();
     const { syncCollection } = useSync();
     const { requirePro } = usePaywall();
     const [searchParams] = useSearchParams();
@@ -260,8 +259,7 @@ export default function ChecklistManager() {
         toast.success('Checklist guardado con éxito y registrado en el historial ✅');
     };
 
-    const handleShare = () => requirePro(() => setShowShare(true));
-
+    
     useEffect(() => {
         const initial = MANDATORY_SECTIONS.map(s => ({
             id: s.id,
@@ -442,8 +440,7 @@ export default function ChecklistManager() {
             {/* EDITABLE SECTIONS - Responsive */}
             <div className="no-print" style={{ marginBottom: '2rem' }}>
                 {activeSections.map(section => {
-                    const sectionFails = section.items.filter(i => i.status === 'FAIL');
-                    return (
+                                        return (
                         <div key={section.id} className="card" style={{ padding: 0, marginBottom: '1.5rem' }}>
                             <div style={{ background: 'var(--color-background)', padding: '1rem', borderBottom: '2px solid var(--color-border)', display: 'flex', flexDirection: 'column', gap: '0.8rem', alignItems: 'center' }}>
                                 <input

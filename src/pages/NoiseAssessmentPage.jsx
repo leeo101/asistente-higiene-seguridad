@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { 
     ArrowLeft, Plus, Search, Filter, Download, CheckCircle2,
     XCircle, Clock, User, Users, Calendar, AlertTriangle,
@@ -18,8 +18,7 @@ const NOISE_LIMITS = {
 };
 
 export default function NoiseAssessmentPage() {
-    const navigate = useNavigate();
-    const [measurements, setMeasurements] = useState([]);
+        const [measurements, setMeasurements] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedMeasurement, setSelectedMeasurement] = useState(null);
     const [showShareModal, setShowShareModal] = useState(false);
@@ -428,5 +427,3 @@ function EmptyState({ onAdd, isMobile }) {
     );
 }
 
-const labelStyle = { display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.5rem' };
-const inputStyle = { width: '100%', padding: '0.75rem 1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-input-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontSize: '0.95rem', fontWeight: 500, outline: 'none', transition: 'all var(--transition-fast)', boxSizing: 'border-box' };

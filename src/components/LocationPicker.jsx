@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { MapPin, Navigation, Loader2, AlertCircle, Crosshair } from 'lucide-react';
 import { useGeolocation } from '../hooks/useGeolocation';
 import toast from 'react-hot-toast';

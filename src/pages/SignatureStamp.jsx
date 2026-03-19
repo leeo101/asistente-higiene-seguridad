@@ -1,5 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+
 import { ArrowLeft, Save, Trash2, Upload, PenTool } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';

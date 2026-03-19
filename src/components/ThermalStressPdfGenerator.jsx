@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Printer, MapPin, Calendar, ThermometerSun, Info, Droplets, Wind, Sun, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { getCountryNormativa } from '../data/legislationData';
 
@@ -15,9 +15,7 @@ export default function ThermalStressPdfGenerator({ report, onBack }) {
 
     const componentRef = useRef();
 
-    const safePuesto = (report?.puesto || 'Puesto').replace(/\s+/g, '_');
-    const safeFecha = report?.fecha || new Date().toISOString().split('T')[0];
-
+        
     const handlePrint = () => {
         window.print();
     };
@@ -25,8 +23,7 @@ export default function ThermalStressPdfGenerator({ report, onBack }) {
     const isAdmisible = report?.resultados?.admisible;
 
     const savedData = localStorage.getItem('personalData');
-    const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
-    const countryNorms = getCountryNormativa(userCountry);
+        const countryNorms = getCountryNormativa(userCountry);
 
     // Formatting helpers
     const getRitmoName = (rtm) => {

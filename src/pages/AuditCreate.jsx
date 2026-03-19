@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
 import { XCircle, CheckCircle2 } from 'lucide-react';
 
 // Tipos de auditoría según ISO 45001
@@ -23,12 +23,9 @@ const AUDIT_AREAS = [
     { id: 'improvement', name: 'Mejora', clause: '10' }
 ];
 
-const labelStyle = { display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.5rem' };
-const inputStyle = { width: '100%', padding: '0.75rem 1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-input-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontSize: '0.95rem', fontWeight: 500, outline: 'none', transition: 'all var(--transition-fast)', boxSizing: 'border-box' };
 
 export default function AuditCreate() {
-    const navigate = useNavigate();
-    const location = useLocation();
+        const location = useLocation();
     const [audit, setAudit] = useState({
         title: '',
         auditType: '',
@@ -47,8 +44,7 @@ export default function AuditCreate() {
         conclusion: ''
     });
 
-    const queryParams = new URLSearchParams(location.search);
-    const auditsDb = localStorage.getItem('ehs_audits_db');
+        const auditsDb = localStorage.getItem('ehs_audits_db');
     const audits = auditsDb ? JSON.parse(auditsDb) : [];
 
     const handleCreateAudit = () => {

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { fetchPublicDoc, fetchPublicLogo } from '../services/cloudSync';
 import { FileText, ArrowLeft, Loader2, AlertTriangle, Printer, Download } from 'lucide-react';
 import LoadingScreen from '../components/LoadingScreen';
@@ -22,8 +22,7 @@ import RiskAssessmentPdfGenerator from '../components/RiskAssessmentPdfGenerator
 
 export default function PublicView() {
     const { uid, cat, id } = useParams();
-    const navigate = useNavigate();
-    const [docData, setDocData] = useState(null);
+        const [docData, setDocData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isPrintMode, setIsPrintMode] = useState(false);

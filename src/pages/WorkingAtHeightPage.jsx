@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Plus, Search, CheckCircle2, XCircle, Clock, User, Calendar, AlertTriangle, ArrowDown, Eye, Trash2, Printer } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import WorkingAtHeightPdf from '../components/WorkingAtHeightPdf';
@@ -9,8 +9,7 @@ const PRIORITY = { critical: { label: 'CRÍTICA', color: '#dc2626', days: 3 }, h
 const STATUS = { draft: { label: 'BORRADOR', color: '#6b7280', bg: '#f3f4f6' }, open: { label: 'ABIERTA', color: '#dc2626', bg: '#fef2f2' }, in_progress: { label: 'EN PROGRESO', color: '#3b82f6', bg: '#eff6ff' }, completed: { label: 'COMPLETADA', color: '#16a34a', bg: '#f0fdf4' } };
 
 export default function WorkingAtHeightPage() {
-    const navigate = useNavigate();
-    const [permits, setPermits] = useState([]);
+        const [permits, setPermits] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selected, setSelected] = useState(null);
     const [showShareModal, setShowShareModal] = useState(false);
@@ -117,5 +116,3 @@ function DetailModal({ permit, onClose, isMobile, onPrint }) {
         </div>
     );
 }
-const labelStyle = { display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.5rem' };
-const inputStyle = { width: '100%', padding: '0.75rem 1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-input-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontSize: '0.95rem', fontWeight: 500, outline: 'none', boxSizing: 'border-box' };

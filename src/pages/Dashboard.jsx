@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import {
     TrendingUp, TrendingDown, Shield, ShieldAlert, CheckCircle,
     AlertTriangle, Calendar, Users, FileText, HardHat, Flame,
@@ -34,8 +34,7 @@ const CARD_GRADIENTS = {
 };
 
 export default function Dashboard() {
-    const navigate = useNavigate();
-    const { currentUser } = useAuth();
+        const { currentUser } = useAuth();
     const { syncPulse } = useSync();
 
     const [kpis, setKpis] = useState({
@@ -204,8 +203,7 @@ export default function Dashboard() {
             // Alerta: Permisos por vencer
             const expiringPermits = permits.filter(p => {
                 const endDate = new Date(p.endDate);
-                const daysLeft = Math.floor((endDate - new Date()) / (1000 * 60 * 60 * 24));
-                return daysLeft >= 0 && daysLeft <= 7;
+                                return daysLeft >= 0 && daysLeft <= 7;
             }).length;
 
             if (expiringPermits > 0) {

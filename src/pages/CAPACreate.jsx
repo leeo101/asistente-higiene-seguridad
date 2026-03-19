@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import { XCircle, ClipboardCheck } from 'lucide-react';
 
-const labelStyle = { display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.5rem' };
-const inputStyle = { width: '100%', padding: '0.75rem 1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-input-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontSize: '0.95rem', fontWeight: 500, outline: 'none', boxSizing: 'border-box' };
 
 const CAPA_TYPES = [
     { id: 'corrective', name: 'Acción Correctiva', icon: '🔧' },
@@ -20,8 +18,7 @@ const PRIORITY = [
 ];
 
 export default function CAPACreate() {
-    const navigate = useNavigate();
-    const [capa, setCapa] = useState({
+        const [capa, setCapa] = useState({
         title: '',
         description: '',
         capaType: '',

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { ArrowLeft, Printer, Map as MapIcon } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import { SAFETY_ICONS } from '../data/mapIcons';
@@ -9,9 +9,7 @@ export default function RiskMapPdfGenerator({ mapData, onBack, onShare }) {
 
     const componentRef = useRef();
 
-    const safeEmpresa = (mapData?.empresa || 'Empresa').replace(/\s+/g, '_');
-    const safeFecha = mapData?.fecha || new Date().toISOString().split('T')[0];
-
+        
     const handlePrint = () => {
         window.print();
     };

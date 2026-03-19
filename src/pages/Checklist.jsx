@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
+
 import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+
 import CompanyLogo from '../components/CompanyLogo';
 import { ArrowLeft, CheckCircle2, Circle, AlertCircle, ChevronRight } from 'lucide-react';
 
@@ -57,7 +59,8 @@ export default function Checklist() {
         if (current) {
             try {
                 inspection = JSON.parse(current);
-            } catch (e) {
+            } catch {
+
                 console.error('[Checklist] Error parsing current_inspection from localStorage:', e);
                 // If parsing fails, start with an empty inspection object
                 inspection = {};

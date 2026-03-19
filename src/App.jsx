@@ -1,5 +1,5 @@
-import { useState, useEffect, Suspense, lazy } from 'react';
 import { Routes, Route, useLocation, Navigate, Link } from 'react-router-dom';
+import React, { useEffect, useState, Suspense, lazy } from 'react';
 import { Menu, Search, Cloud, CloudOff } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';

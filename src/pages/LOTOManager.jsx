@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import {
     Lock, Key, AlertTriangle, Plus, Search,
     FileText, Eye, Edit3, Trash2, CheckCircle2,
@@ -59,8 +59,7 @@ const REACTIVATION_STEPS = [
 ];
 
 export default function LOTOManager() {
-    const navigate = useNavigate();
-    const [procedures, setProcedures] = useState([]);
+        const [procedures, setProcedures] = useState([]);
     const [activeLOTOs, setActiveLOTOs] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');

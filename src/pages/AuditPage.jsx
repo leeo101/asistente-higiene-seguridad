@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Plus, Search, CheckCircle2, XCircle, Clock, User, Calendar, AlertTriangle, ClipboardCheck, Eye, Trash2, Printer } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import AuditPdf from '../components/AuditPdf';
@@ -8,8 +8,7 @@ const AUDIT_TYPES = [{ id: 'internal', name: 'Interna', icon: '📋' }, { id: 'e
 const STATUS = { draft: { label: 'BORRADOR', color: '#6b7280', bg: '#f3f4f6' }, planned: { label: 'PLANIFICADA', color: '#3b82f6', bg: '#eff6ff' }, in_progress: { label: 'EN CURSO', color: '#f59e0b', bg: '#fffbeb' }, completed: { label: 'COMPLETADA', color: '#16a34a', bg: '#f0fdf4' } };
 
 export default function AuditPage() {
-    const navigate = useNavigate();
-    const [audits, setAudits] = useState([]);
+        const [audits, setAudits] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selected, setSelected] = useState(null);
     const [showShareModal, setShowShareModal] = useState(false);
@@ -108,5 +107,3 @@ function DetailModal({ audit, onClose, isMobile, onPrint }) {
         </div>
     );
 }
-const labelStyle = { display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.5rem' };
-const inputStyle = { width: '100%', padding: '0.75rem 1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-input-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontSize: '0.95rem', fontWeight: 500, outline: 'none', boxSizing: 'border-box' };

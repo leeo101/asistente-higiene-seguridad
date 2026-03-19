@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import {
     ArrowLeft, Search, Package, AlertTriangle, CheckCircle2, Clock, Thermometer, Droplets, Share2, Printer, Trash2
 } from 'lucide-react';
@@ -16,8 +16,7 @@ const PERMIT_STATUS = {
 
 export default function ConfinedSpaceHistory() {
     useDocumentTitle('Espacios Confinados');
-    const navigate = useNavigate();
-
+    
     const [permits, setPermits] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');

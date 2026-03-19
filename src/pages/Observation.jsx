@@ -1,5 +1,7 @@
-import { useState } from 'react';
+
 import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+
 import { ArrowLeft, Camera, Shield, Save, Clock, User } from 'lucide-react';
 
 export default function Observation() {

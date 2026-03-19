@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import {
     Clock, MapPin, Printer, FileText, Users, Download, Trash2, Share2, Edit2,
     BookOpen, ArrowLeft, Calendar, ChevronRight, Search, QrCode
@@ -13,8 +13,7 @@ import QRModal from '../components/QRModal';
 
 export default function TrainingHistory() {
     useDocumentTitle('Historial de Capacitaciones');
-    const navigate = useNavigate();
-    const { currentUser } = useAuth();
+        const { currentUser } = useAuth();
     const { syncing, syncCollection } = useSync();
 
     const [history, setHistory] = useState([]);
@@ -33,7 +32,8 @@ export default function TrainingHistory() {
             } else {
                 setHistory([]);
             }
-        } catch (e) {
+        } catch {
+
             console.error('[TrainingHistory] Error loading history:', e);
             setHistory([]);
         }

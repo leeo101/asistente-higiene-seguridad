@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+
 import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+
 import { ArrowLeft, Save, Activity, ShieldAlert, AlertCircle } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import { usePaywall } from '../hooks/usePaywall';

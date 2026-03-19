@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, ClipboardCheck, Shield, AlertTriangle, Clock, CheckCircle2, User, MapPin, Calendar, FileText, Eye, Printer, Share2 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import AuditPdf from '../components/AuditPdf';
@@ -12,8 +12,7 @@ const AUDIT_TYPES = [
 ];
 
 export default function AuditForm() {
-    const navigate = useNavigate();
-    const [isMobile, setIsMobile] = useState(false);
+        const [isMobile, setIsMobile] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [audit, setAudit] = useState({
         title: '',
@@ -103,7 +102,7 @@ export default function AuditForm() {
                 {/* Header Buttons Removed as they are now in the floating bar */}
             </div>
 
-            <main style={{ padding: '1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
+            <main style={{ padding: '3.5rem 1.5rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
                 <div className="card" style={{ padding: '2rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem' }}>
                         <div style={isMobile ? {} : { gridColumn: 'span 2' }}>
@@ -216,45 +215,31 @@ export default function AuditForm() {
                     </div>
                 </div>
 
-                {/* Botones de acción flotantes */}
-                <div className="no-print" style={{
-                    marginTop: '2rem',
-                    display: 'flex',
-                    gap: '1rem',
-                    justifyContent: 'center',
-                    flexWrap: 'wrap',
-                    padding: '1rem',
-                    background: 'var(--color-surface)',
-                    borderRadius: 'var(--radius-xl)',
-                    border: '1px solid var(--color-border)',
-                    boxShadow: 'var(--shadow-lg)',
-                    position: 'sticky',
-                    bottom: '1rem',
-                    zIndex: 100
-                }}>
-                    <button
-                        onClick={() => setShowShareModal(true)}
-                        className="btn-floating-action"
-                        style={{ background: 'var(--color-surface)', color: 'var(--color-primary)', border: '1px solid var(--color-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                    >
-                        <Share2 size={18} /> COMPARTIR
-                    </button>
-                    <button
-                        onClick={() => window.print()}
-                        className="btn-floating-action"
-                        style={{ background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                    >
-                        <Printer size={18} /> IMPRIMIR PDF
-                    </button>
-                    <button
-                        onClick={handleSave}
-                        className="btn-floating-action"
-                        style={{ background: '#36B37E', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                    >
-                        <Save size={18} /> GUARDAR AUDITORÍA
-                    </button>
-                </div>
             </main>
+
+            <div className="no-print floating-action-bar">
+                <button
+                    onClick={() => setShowShareModal(true)}
+                    className="btn-floating-action"
+                    style={{ background: '#0052CC', color: '#ffffff' }}
+                >
+                    <Share2 size={18} /> COMPARTIR
+                </button>
+                <button
+                    onClick={() => window.print()}
+                    className="btn-floating-action"
+                    style={{ background: '#FF8B00', color: '#ffffff' }}
+                >
+                    <Printer size={18} /> IMPRIMIR PDF
+                </button>
+                <button
+                    onClick={handleSave}
+                    className="btn-floating-action"
+                    style={{ background: '#36B37E', color: '#ffffff' }}
+                >
+                    <Save size={18} /> GUARDAR AUDITORÍA
+                </button>
+            </div>
 
             <ShareModal
                 isOpen={showShareModal}
@@ -271,5 +256,3 @@ export default function AuditForm() {
     );
 }
 
-const labelStyle = { display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.5rem' };
-const inputStyle = { width: '100%', padding: '0.75rem 1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-input-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontSize: '0.95rem', fontWeight: 500, outline: 'none', transition: 'all var(--transition-fast)', boxSizing: 'border-box' };

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import {
     ArrowLeft, Plus, Search, CheckCircle2, XCircle,
     Clock, Lock, FileText, Eye, Trash2, Printer
@@ -15,8 +15,7 @@ const LOTO_STATUS = {
 };
 
 export default function LOTOPage() {
-    const navigate = useNavigate();
-    const [procedures, setProcedures] = useState([]);
+        const [procedures, setProcedures] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedProcedure, setSelectedProcedure] = useState(null);
     const [showShareModal, setShowShareModal] = useState(false);
@@ -259,5 +258,3 @@ function DetailModal({ procedure, onClose, isMobile, onPrint }) {
     );
 }
 
-const labelStyle = { display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.5rem' };
-const inputStyle = { width: '100%', padding: '0.75rem 1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-input-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontSize: '0.95rem', fontWeight: 500, outline: 'none', boxSizing: 'border-box' };

@@ -48,7 +48,8 @@ export async function saveCollection(uid, key, items) {
     if (!uid) return;
     try {
         await setDoc(userDocRef(uid, key), { items, updatedAt: Date.now() }, { merge: true });
-    } catch (e) {
+    } catch {
+
         console.warn(`[Sync] Error saving ${key}:`, e.message);
     }
 }
@@ -60,7 +61,8 @@ export async function saveCollection(uid, key, items) {
      if (!uid) return;
      try {
          await setDoc(userDocRef(uid, key), { value, updatedAt: Date.now() }, { merge: true });
-     } catch (e) {
+     } catch {
+
          console.warn(`[Sync] Error saving value ${key}:`, e.message);
      }
  }
@@ -74,7 +76,8 @@ export async function loadCollection(uid, key) {
     try {
         const snap = await getDoc(userDocRef(uid, key));
         if (snap.exists()) return snap.data().items || [];
-    } catch (e) {
+    } catch {
+
         console.warn(`[Sync] Error loading ${key}:`, e.message);
     }
     return [];
@@ -87,7 +90,8 @@ export async function saveDocument(uid, key, data) {
     if (!uid) return;
     try {
         await setDoc(userDocRef(uid, key), { ...data, updatedAt: Date.now() }, { merge: true });
-    } catch (e) {
+    } catch {
+
         console.warn(`[Sync] Error saving doc ${key}:`, e.message);
     }
 }
@@ -103,7 +107,8 @@ export async function loadDocument(uid, key) {
             const { updatedAt, ...rest } = snap.data();
             return rest;
         }
-    } catch (e) {
+    } catch {
+
         console.warn(`[Sync] Error loading doc ${key}:`, e.message);
     }
     return null;
@@ -135,7 +140,8 @@ export async function fetchPublicDoc(uid, category, docId) {
             const items = snap.data().items || [];
             return items.find(i => String(i.id) === String(docId));
         }
-    } catch (e) {
+    } catch {
+
         console.error(`[Sync] Error fetching public doc ${category}/${docId}:`, e.message);
     }
     return null;
@@ -154,7 +160,8 @@ export async function fetchPublicDoc(uid, category, docId) {
              logo: logoSnap.exists() ? logoSnap.data().value : null,
              show: showSnap.exists() ? showSnap.data().value : true
          };
-     } catch (e) {
+     } catch {
+
          console.error(`[Sync] Error fetching public logo for ${uid}:`, e.message);
      }
      return null;

@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { pullAllFromCloud, mergeLocalToCloud, saveCollection, saveDocument, SYNC_COLLECTIONS, SYNC_DOCUMENTS, listenToCollection, listenToDocument } from '../services/cloudSync';
@@ -35,7 +36,8 @@ export const SyncProvider = ({ children }) => {
                 await mergeLocalToCloud(currentUser.uid);
                 setLastSync(new Date());
                 setSyncPulse(p => p + 1);
-            } catch (e) {
+            } catch {
+
                 console.warn('[SyncContext] sync error:', e.message);
             } finally {
                 setSyncing(false);
@@ -90,7 +92,8 @@ export const SyncProvider = ({ children }) => {
         if (currentUser) {
             try {
                 await saveCollection(currentUser.uid, key, items);
-            } catch (e) {
+            } catch {
+
                 console.warn(`[Sync] Error syncing ${key}:`, e.message);
             }
         }
@@ -105,7 +108,8 @@ export const SyncProvider = ({ children }) => {
         if (currentUser) {
             try {
                 await saveDocument(currentUser.uid, key, data);
-            } catch (e) {
+            } catch {
+
                 console.warn(`[Sync] Error syncing doc ${key}:`, e.message);
             }
         }

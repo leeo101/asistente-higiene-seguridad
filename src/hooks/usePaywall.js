@@ -1,3 +1,4 @@
+
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { ADMIN_EMAILS } from '../config';
@@ -26,7 +27,8 @@ export function usePaywall() {
                 return false;
             }
             return true;
-        } catch (e) {
+        } catch {
+
             return false;
         }
     };
@@ -59,7 +61,8 @@ export function usePaywall() {
             const expiry = parseInt(subData.expiry || '0', 10);
             if (!expiry) return 0;
             return Math.max(0, Math.ceil((expiry - Date.now()) / (1000 * 60 * 60 * 24)));
-        } catch (e) {
+        } catch {
+
             return 0;
         }
     };
@@ -78,7 +81,8 @@ export function usePaywall() {
             if (!expiry) return 'active'; // Assume active if status is active but no expiry set
             if (Date.now() > expiry) return 'expired';
             return 'active';
-        } catch (e) {
+        } catch {
+
             return 'none';
         }
     };

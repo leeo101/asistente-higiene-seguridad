@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { 
     Leaf, Plus, Search, 
     FileText, Eye, Edit3, Trash2, CheckCircle2, 
@@ -71,8 +71,7 @@ const ENVIRONMENTAL_REGULATIONS = [
 ];
 
 export default function EnvironmentalMonitor() {
-    const navigate = useNavigate();
-    const [measurements, setMeasurements] = useState([]);
+        const [measurements, setMeasurements] = useState([]);
     const [stations, setStations] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all');

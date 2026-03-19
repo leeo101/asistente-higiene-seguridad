@@ -1,4 +1,3 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
@@ -8,6 +7,7 @@ import {
     GoogleAuthProvider,
     signInWithPopup
 } from 'firebase/auth';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { auth } from '../firebase';
 
 const AuthContext = createContext();

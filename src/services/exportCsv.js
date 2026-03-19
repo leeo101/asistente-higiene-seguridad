@@ -241,7 +241,8 @@ export async function exportAllDataToExcel() {
                     column.width = Math.min(max + 4, 60);
                 });
             }
-        } catch (e) {
+        } catch {
+
             console.error(`Error procesando colección Excel ${coll.key}`, e);
         }
     }
@@ -263,7 +264,8 @@ export async function exportAllDataToExcel() {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-    } catch (e) {
+    } catch {
+
         console.error("Error descargando Excel global", e);
     }
 }

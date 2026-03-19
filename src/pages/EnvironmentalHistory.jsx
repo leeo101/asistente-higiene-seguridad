@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 export default function EnvironmentalHistory() {
     useDocumentTitle('Monitoreo Ambiental');
-    const navigate = useNavigate();
-
+    
     const [measurements, setMeasurements] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all');

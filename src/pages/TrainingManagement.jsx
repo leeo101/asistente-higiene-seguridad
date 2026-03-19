@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+
 import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+
 import {
     ArrowLeft, Save, Users, Calendar, Clock, BookOpen,
     UserPlus, Trash2, CheckCircle2, FileText, Briefcase,
@@ -96,7 +98,8 @@ export default function TrainingManagement() {
                 const parsed = JSON.parse(raw);
                 history = Array.isArray(parsed) ? parsed : [];
             }
-        } catch (e) {
+        } catch {
+
             console.error('[TrainingManagement] Error parsing history:', e);
             history = [];
         }

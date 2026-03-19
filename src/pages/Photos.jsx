@@ -1,5 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+
 import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+
 import { ArrowLeft, Camera, Trash2, CheckCircle2, RefreshCw, Upload } from 'lucide-react';
 
 export default function Photos() {

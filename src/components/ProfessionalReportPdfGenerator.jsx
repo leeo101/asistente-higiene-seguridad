@@ -1,6 +1,5 @@
 import { Building2, MapPin, Calendar } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
-import { useEffect } from 'react';
 import { getCountryNormativa } from '../data/legislationData';
 
 export default function ProfessionalReportPdfGenerator({ currentReport }) {
@@ -12,8 +11,7 @@ export default function ProfessionalReportPdfGenerator({ currentReport }) {
     const report = currentReport;
 
     const savedData = localStorage.getItem('personalData');
-    const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
-    const countryNorms = getCountryNormativa(userCountry);
+        const countryNorms = getCountryNormativa(userCountry);
 
     return (
         <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>

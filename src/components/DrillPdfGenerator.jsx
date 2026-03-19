@@ -7,9 +7,7 @@ export default function DrillPdfGenerator({ report, onBack }) {
 
     const componentRef = useRef();
 
-    const safeEmpresa = (report?.empresa || 'Empresa').replace(/\s+/g, '_');
-    const safeFecha = report?.fecha || new Date().toISOString().split('T')[0];
-
+        
     const handlePrint = () => {
         window.print();
     };
