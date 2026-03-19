@@ -9,7 +9,8 @@ export default function StopCardPdfGenerator({ card }) {
     if (!card) return null;
 
     const savedData = localStorage.getItem('personalData');
-        const countryNorms = getCountryNormativa(userCountry);
+    const userCountry = savedData ? (JSON.parse(savedData).country || 'argentina') : 'argentina';
+    const countryNorms = getCountryNormativa(userCountry);
 
     const getTypeConfig = (type) => {
         switch (type) {

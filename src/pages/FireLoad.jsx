@@ -53,8 +53,17 @@ export default function FireLoad() {
 
     const [showShare, setShowShare] = useState(false);
 
-    const savedData = localStorage.getItem('personalData');
-        const countryNorms = getCountryNormativa(userCountry);
+    let userCountry = 'argentina';
+    try {
+        const savedData = localStorage.getItem('personalData');
+        if (savedData) {
+            const parsed = JSON.parse(savedData);
+            userCountry = parsed.country?.toLowerCase() || 'argentina';
+        }
+    } catch (error) {
+        console.error('[FireLoad] Error parsing personalData:', error);
+    }
+    const countryNorms = getCountryNormativa(userCountry);
 
     useEffect(() => {
         try {

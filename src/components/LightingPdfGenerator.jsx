@@ -6,7 +6,8 @@ export default function LightingPdfGenerator({ data }) {
     if (!data) return null;
 
     const savedData = localStorage.getItem('personalData');
-        const countryNorms = getCountryNormativa(userCountry);
+    const userCountry = savedData ? (JSON.parse(savedData).country || 'argentina') : 'argentina';
+    const countryNorms = getCountryNormativa(userCountry);
 
 // logo code removed
 

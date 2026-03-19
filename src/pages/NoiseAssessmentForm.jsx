@@ -19,7 +19,8 @@ const HEARING_PROTECTION = [
 ];
 
 export default function NoiseAssessmentForm() {
-        const [isMobile, setIsMobile] = useState(false);
+    const navigate = useNavigate();
+    const [isMobile, setIsMobile] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [measurement, setMeasurement] = useState({
         workerName: '',
@@ -67,7 +68,8 @@ export default function NoiseAssessmentForm() {
             status: calculateRiskLevel(parseFloat(measurement.levels.lavg) || 0)
         };
 
-                localStorage.setItem('noise_assessments_db', JSON.stringify([newEntry, ...currentData]));
+                const currentData = JSON.parse(localStorage.getItem('noise_assessments_db') || '[]');
+        localStorage.setItem('noise_assessments_db', JSON.stringify([newEntry, ...currentData]));
         
         navigate('/noise-assessment-history');
     };

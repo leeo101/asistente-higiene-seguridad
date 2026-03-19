@@ -92,19 +92,30 @@ export default function LightingReport() {
 
     const [showShare, setShowShare] = useState(false);
 
-    const savedData = localStorage.getItem('personalData');
-    const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+    let userCountry = 'argentina';
+    try {
+        const savedData = localStorage.getItem('personalData');
+        if (savedData) {
+            const parsed = JSON.parse(savedData);
+            userCountry = parsed.country || 'argentina';
+        }
+    } catch (error) {
+        console.error('[LightingReport] Error parsing personalData:', error);
+    }
     const countryNorms = getCountryNormativa(userCountry);
 
     useEffect(() => {
         try {
+            const savedData = localStorage.getItem('personalData');
             const savedSigData = localStorage.getItem('signatureStampData');
             const legacySignature = localStorage.getItem('capturedSignature');
 
             let signature = legacySignature || null;
             if (savedSigData) {
-                const parsed = JSON.parse(savedSigData);
-                signature = parsed.signature || signature;
+                try {
+                    const parsed = JSON.parse(savedSigData);
+                    signature = parsed.signature || signature;
+                } catch (e) {}
             }
 
             let profData = {
@@ -114,9 +125,11 @@ export default function LightingReport() {
             };
 
             if (savedData) {
-                const data = JSON.parse(savedData);
-                profData.name = data.name || 'Profesional';
-                profData.license = data.license || '';
+                try {
+                    const data = JSON.parse(savedData);
+                    profData.name = data.name || 'Profesional';
+                    profData.license = data.license || '';
+                } catch (e) {}
             }
 
             setProfessional(profData);
@@ -206,12 +219,19 @@ export default function LightingReport() {
                     date: new Date().toISOString(),
                     empresa: formData.empresa || 'Empresa Sin Nombre',
                     sector: formData.sector || 'Sin Sector',
-                    resultados: results,
+                    results: results,
                     datos: formData,
                     profesionalResponsable: professional?.name || 'Profesional no registrado'
                 };
 
-                const existingHistory = JSON.parse(localStorage.getItem('lighting_history') || '[]');
+                let existingHistory = [];
+                try {
+                    const savedHistory = localStorage.getItem('lighting_history');
+                    if (savedHistory) {
+                        existingHistory = JSON.parse(savedHistory);
+                    }
+                } catch (e) {}
+
                 existingHistory.push(reportData);
                 localStorage.setItem('lighting_history', JSON.stringify(existingHistory));
 
@@ -521,7 +541,7 @@ export default function LightingReport() {
                     </h3>
 
                     <div className="no-print mb-8 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 justify-between items-center text-xs font-bold text-slate-700">
-                        <div>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                        <div>INCLUIR FIRMAS INCLUYENDO LOGO:</div>
                         <div className="flex gap-4">
                             <label className="flex items-center gap-2 cursor-pointer">
                                 <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-4 h-4 accent-orange-600" /> Operador

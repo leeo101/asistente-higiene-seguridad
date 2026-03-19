@@ -14,7 +14,8 @@ const MONITORING_TYPES = [
 ];
 
 export default function EnvironmentalForm() {
-        const [isMobile, setIsMobile] = useState(false);
+    const navigate = useNavigate();
+    const [isMobile, setIsMobile] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [measurement, setMeasurement] = useState({
         stationName: '',
@@ -262,5 +263,25 @@ export default function EnvironmentalForm() {
         </div>
     );
 }
+
+const inputStyle = {
+    width: '100%',
+    padding: '0.8rem 1rem',
+    background: 'var(--color-surface)',
+    border: '1px solid var(--color-border)',
+    borderRadius: 'var(--radius-lg)',
+    color: 'var(--color-text)',
+    fontSize: '0.95rem',
+    transition: 'all 0.2s',
+    outline: 'none',
+    marginTop: '0.5rem'
+};
+
+const labelStyle = {
+    fontSize: '0.85rem',
+    fontWeight: 700,
+    color: 'var(--color-text-muted)',
+    display: 'block'
+};
 
 const labelSubStyle = { display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text)', marginBottom: '0.4rem' };

@@ -19,7 +19,8 @@ const PRIORITY = {
 };
 
 export default function CAPAForm() {
-        const [isMobile, setIsMobile] = useState(false);
+    const navigate = useNavigate();
+    const [isMobile, setIsMobile] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [capa, setCapa] = useState({
         title: '',

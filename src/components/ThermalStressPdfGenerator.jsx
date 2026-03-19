@@ -23,7 +23,8 @@ export default function ThermalStressPdfGenerator({ report, onBack }) {
     const isAdmisible = report?.resultados?.admisible;
 
     const savedData = localStorage.getItem('personalData');
-        const countryNorms = getCountryNormativa(userCountry);
+    const userCountry = savedData ? (JSON.parse(savedData).country || 'argentina') : 'argentina';
+    const countryNorms = getCountryNormativa(userCountry);
 
     // Formatting helpers
     const getRitmoName = (rtm) => {

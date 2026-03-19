@@ -59,10 +59,16 @@ export default function ThermalStress() {
     const [showShareModal, setShowShareModal] = useState(false);
     const [viewMode, setViewMode] = useState('edit'); // 'edit' or 'report'
 
-
-
-    const savedData = localStorage.getItem('personalData');
-    const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+    let userCountry = 'argentina';
+    try {
+        const savedData = localStorage.getItem('personalData');
+        if (savedData) {
+            const parsed = JSON.parse(savedData);
+            userCountry = parsed.country || 'argentina';
+        }
+    } catch (error) {
+        console.error('[ThermalStress] Error parsing personalData:', error);
+    }
     const countryNorms = getCountryNormativa(userCountry);
 
     const handleInput = (field, value) => {
@@ -116,7 +122,15 @@ export default function ThermalStress() {
             resultados
         };
 
-        let history = JSON.parse(localStorage.getItem('thermal_history') || '[]');
+        let history = [];
+        try {
+            const savedHistory = localStorage.getItem('thermal_history');
+            if (savedHistory) {
+                history = JSON.parse(savedHistory);
+            }
+        } catch (error) {
+            console.error('[ThermalStress] Error parsing thermal_history:', error);
+        }
 
         if (editData) {
             history = history.map(item => item.id === editData.id ? report : item);

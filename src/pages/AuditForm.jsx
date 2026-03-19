@@ -12,7 +12,8 @@ const AUDIT_TYPES = [
 ];
 
 export default function AuditForm() {
-        const [isMobile, setIsMobile] = useState(false);
+    const navigate = useNavigate();
+    const [isMobile, setIsMobile] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [audit, setAudit] = useState({
         title: '',

@@ -15,7 +15,8 @@ const SPACE_TYPES = [
 ];
 
 export default function ConfinedSpaceForm() {
-        const location = useLocation();
+    const navigate = useNavigate();
+    const location = useLocation();
     const [isMobile, setIsMobile] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [permit, setPermit] = useState({
@@ -67,7 +68,8 @@ export default function ConfinedSpaceForm() {
             status: permit.status || 'pending'
         };
 
-                const updatedData = permit.id 
+        const currentData = JSON.parse(localStorage.getItem('confined_space_permits_db') || '[]');
+        const updatedData = permit.id 
             ? currentData.map(item => item.id === permit.id ? newEntry : item)
             : [newEntry, ...currentData];
             

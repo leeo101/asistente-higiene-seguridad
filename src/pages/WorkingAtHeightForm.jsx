@@ -21,7 +21,8 @@ const PRIORITY = {
 };
 
 export default function WorkingAtHeightForm() {
-        const [isMobile, setIsMobile] = useState(false);
+    const navigate = useNavigate();
+    const [isMobile, setIsMobile] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [permit, setPermit] = useState({
         workerName: '',
@@ -65,10 +66,34 @@ export default function WorkingAtHeightForm() {
             createdAt: new Date().toISOString(),
             status: 'open'
         };
-
-                localStorage.setItem('working_at_height_permits', JSON.stringify([newPermit, ...currentData]));
+        const currentData = JSON.parse(localStorage.getItem('working_at_height_db') || '[]');
+        const updatedData = [newPermit, ...currentData];
+        localStorage.setItem('working_at_height_db', JSON.stringify(updatedData));
         
         navigate('/working-at-height-history');
+    };
+
+    const labelStyle = {
+        display: 'block',
+        marginBottom: '0.5rem',
+        fontSize: '0.9rem',
+        fontWeight: 600,
+        color: 'var(--color-text-muted)'
+    };
+
+    const inputStyle = {
+        width: '100%',
+        padding: '0.75rem 1rem',
+        borderRadius: 'var(--radius-lg)',
+        border: '1px solid var(--color-border)',
+        background: 'var(--color-background)',
+        color: 'var(--color-text)',
+        fontSize: '1rem',
+        boxSizing: 'border-box',
+        transition: 'border-color 0.2s',
+        WebkitAppearance: 'none', // Remove default styling for Safari
+        MozAppearance: 'none',    // Remove default styling for Firefox
+        appearance: 'none'        // Remove default styling for other browsers
     };
 
     return (

@@ -22,6 +22,9 @@
     "allowJs": true,
     "checkJs": false,
 
+    /* Types */
+    "types": ["vitest/globals", "node"],
+
     /* Path aliases */
     "baseUrl": ".",
     "paths": {

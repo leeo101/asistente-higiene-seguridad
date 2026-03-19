@@ -101,7 +101,16 @@ const typeColors = {
     'Eval. Riesgo': { bg: 'rgba(239, 68, 68, 0.12)', text: '#ef4444', icon: <Shield size={18} /> },
 };
 
-const savedData = localStorage.getItem('personalData');
+let userCountry = 'argentina';
+try {
+    const savedData = localStorage.getItem('personalData');
+    if (savedData) {
+        const parsed = JSON.parse(savedData);
+        userCountry = parsed.country?.toLowerCase() || 'argentina';
+    }
+} catch (error) {
+    console.error('[HOME] Error parsing personalData:', error);
+}
 
 const getRegSub = (module) => {
     if (userCountry === 'argentina') {
@@ -219,36 +228,54 @@ export default function Home() {
 
         const loadStats = () => {
             const newStats = stats.map(stat => {
-                const history = localStorage.getItem(stat.key);
-                const count = history ? JSON.parse(history).length : 0;
-                return { ...stat, value: count };
+                try {
+                    const history = localStorage.getItem(stat.key);
+                    const count = history ? JSON.parse(history).length : 0;
+                    return { ...stat, value: count };
+                } catch (e) {
+                    console.error(`[HOME] Error parsing ${stat.key}:`, e);
+                    return { ...stat, value: 0 };
+                }
             });
             setStats(newStats);
         };
 
         const loadRecent = () => {
-            const ats = JSON.parse(localStorage.getItem('ats_history') || '[]');
-            const fire = JSON.parse(localStorage.getItem('fireload_history') || '[]');
-            const insp = JSON.parse(localStorage.getItem('inspections_history') || '[]');
-            const matrix = JSON.parse(localStorage.getItem('risk_matrix_history') || '[]');
-            const reports = JSON.parse(localStorage.getItem('reports_history') || '[]');
-            const tools = JSON.parse(localStorage.getItem('tool_checklists_history') || '[]');
-            const lighting = JSON.parse(localStorage.getItem('lighting_history') || '[]');
-            const accidents = JSON.parse(localStorage.getItem('accident_history') || '[]');
+            try {
+                const ats = JSON.parse(localStorage.getItem('ats_history') || '[]');
+                const fire = JSON.parse(localStorage.getItem('fireload_history') || '[]');
+                const insp = JSON.parse(localStorage.getItem('inspections_history') || '[]');
+                const matrix = JSON.parse(localStorage.getItem('risk_matrix_history') || '[]');
+                const reports = JSON.parse(localStorage.getItem('reports_history') || '[]');
+                const tools = JSON.parse(localStorage.getItem('tool_checklists_history') || '[]');
+                const lighting = JSON.parse(localStorage.getItem('lighting_history') || '[]');
+                const accidents = JSON.parse(localStorage.getItem('accident_history') || '[]');
 
-            const combined = [
-                ...ats.map(a => ({ id: a.id, title: a.empresa, subtitle: a.obra, date: a.fecha, type: 'ATS' })),
-                ...fire.map(f => ({ id: f.id, title: f.empresa, subtitle: f.sector, date: f.createdAt, type: 'Carga Fuego' })),
-                ...insp.map(i => ({ id: i.id, title: i.name, subtitle: i.location, date: i.date, type: 'Inspección' })),
-                ...matrix.map(m => ({ id: m.id, title: m.name, subtitle: m.location, date: m.createdAt, type: 'Matriz' })),
-                ...reports.map(r => ({ id: r.id, title: r.title, subtitle: r.company, date: r.createdAt, type: 'Informe' })),
-                ...tools.map(t => ({ id: t.id, title: t.equipo, subtitle: t.empresa, date: t.fecha, type: 'Checklist' })),
-                ...lighting.map(l => ({ id: l.id, title: l.empresa, subtitle: l.sector, date: l.date, type: 'Iluminación' })),
-                ...JSON.parse(localStorage.getItem('work_permits_history') || '[]').map(p => ({ id: p.id, title: p.empresa, subtitle: p.obra, date: p.createdAt, type: 'Permiso' })),
-                ...JSON.parse(localStorage.getItem('risk_assessment_history') || '[]').map(r => ({ id: r.id, title: r.name, subtitle: r.location, date: r.date || r.createdAt, type: 'Eval. Riesgo' })),
-                ...accidents.map(acc => ({ id: acc.id, title: acc.victimaNombre, subtitle: acc.empresa, date: acc.date, type: 'Accidente' })),
-            ].sort((a, b) => new Date(b.date || b.fecha || b.createdAt) - new Date(a.date || a.fecha || a.createdAt)).slice(0, 4);
-            setRecentWorks(combined);
+                const combined = [
+                    ...ats.map(a => ({ id: a.id, title: a.empresa, subtitle: a.obra, date: a.fecha, type: 'ATS' })),
+                    ...fire.map(f => ({ id: f.id, title: f.empresa, subtitle: f.sector, date: f.createdAt, type: 'Carga Fuego' })),
+                    ...insp.map(i => ({ id: i.id, title: i.name, subtitle: i.location, date: i.date, type: 'Inspección' })),
+                    ...matrix.map(m => ({ id: m.id, title: m.name, subtitle: m.location, date: m.createdAt, type: 'Matriz' })),
+                    ...reports.map(r => ({ id: r.id, title: r.title, subtitle: r.company, date: r.createdAt, type: 'Informe' })),
+                    ...tools.map(t => ({ id: t.id, title: t.equipo, subtitle: t.empresa, date: t.fecha, type: 'Checklist' })),
+                    ...lighting.map(l => ({ id: l.id, title: l.empresa, subtitle: l.sector, date: l.date, type: 'Iluminación' })),
+                    ...(() => {
+                        try {
+                            return JSON.parse(localStorage.getItem('work_permits_history') || '[]');
+                        } catch (e) { return []; }
+                    })().map(p => ({ id: p.id, title: p.empresa, subtitle: p.obra, date: p.createdAt, type: 'Permiso' })),
+                    ...(() => {
+                        try {
+                            return JSON.parse(localStorage.getItem('risk_assessment_history') || '[]');
+                        } catch (e) { return []; }
+                    })().map(r => ({ id: r.id, title: r.name, subtitle: r.location, date: r.date || r.createdAt, type: 'Eval. Riesgo' })),
+                    ...accidents.map(acc => ({ id: acc.id, title: acc.victimaNombre, subtitle: acc.empresa, date: acc.date, type: 'Accidente' })),
+                ].sort((a, b) => new Date(b.date || b.fecha || b.createdAt) - new Date(a.date || a.fecha || a.createdAt)).slice(0, 4);
+                setRecentWorks(combined);
+            } catch (error) {
+                console.error('[HOME] Error loading recent works:', error);
+                setRecentWorks([]);
+            }
         };
 
         const loadDailyInsight = async () => {
@@ -316,7 +343,11 @@ export default function Home() {
                         <div className="stagger-item" style={{ animationDelay: '0.1s' }}>
                             <p style={{ color: 'var(--color-hero-accent)', fontSize: '0.9rem', fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase', margin: '0 0 0.5rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                                 {currentUser ? 'Dashboard Profesional' : 'Inteligencia Artificial h&s'}
-                                {currentUser && !isPro() && JSON.parse(localStorage.getItem('subscriptionData') || '{}').status === 'active' && (
+                                {currentUser && !isPro() && (() => {
+                                    try {
+                                        return JSON.parse(localStorage.getItem('subscriptionData') || '{}').status === 'active';
+                                    } catch (e) { return false; }
+                                })() && (
                                     <span style={{ fontSize: '0.7rem', background: 'rgba(239,68,68,0.2)', color: '#ef4444', padding: '4px 12px', borderRadius: '20px', border: '1px solid rgba(239,68,68,0.3)', fontWeight: 900 }}>
                                         Suscripción Vencida ⚠️
                                     </span>

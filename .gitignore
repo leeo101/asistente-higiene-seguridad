@@ -28,8 +28,18 @@ dist-ssr
 *.sln
 *.sw?
 
+
+# Firebase
+.firebase/
+.firebaserc
+firebase-debug.log*
+ui-debug.log*
+
+# Misc
 .vercel
 .env*.local
 vercel-env-string.txt
 inject-firebase.cjs
 push-log.txt
+.antigravity/
+.antigravityignore

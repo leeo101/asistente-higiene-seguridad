@@ -25,7 +25,8 @@ const HAZARD_CATEGORIES = [
 ];
 
 export default function ChemicalSafetyForm() {
-        const [isMobile, setIsMobile] = useState(false);
+    const navigate = useNavigate();
+    const [isMobile, setIsMobile] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [chemical, setChemical] = useState({
         name: '',

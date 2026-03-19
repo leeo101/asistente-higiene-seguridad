@@ -11,7 +11,8 @@ export default function ProfessionalReportPdfGenerator({ currentReport }) {
     const report = currentReport;
 
     const savedData = localStorage.getItem('personalData');
-        const countryNorms = getCountryNormativa(userCountry);
+    const userCountry = savedData ? (JSON.parse(savedData).country || 'argentina') : 'argentina';
+    const countryNorms = getCountryNormativa(userCountry);
 
     return (
         <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>

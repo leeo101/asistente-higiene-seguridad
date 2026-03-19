@@ -22,7 +22,8 @@ const LOTO_DEVICES = [
 ];
 
 export default function LOTOForm() {
-        const [isMobile, setIsMobile] = useState(false);
+    const navigate = useNavigate();
+    const [isMobile, setIsMobile] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [procedure, setProcedure] = useState({
         equipmentName: '',
@@ -74,7 +75,8 @@ export default function LOTOForm() {
             status: 'pending'
         };
 
-                localStorage.setItem('loto_procedures_db', JSON.stringify([newEntry, ...currentData]));
+        const currentData = JSON.parse(localStorage.getItem('loto_procedures_db') || '[]');
+        localStorage.setItem('loto_procedures_db', JSON.stringify([newEntry, ...currentData]));
         
         navigate('/loto-history');
     };
