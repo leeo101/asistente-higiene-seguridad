@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, ClipboardCheck, Shield, AlertTriangle, Clock, CheckCircle2, User, MapPin, Calendar, FileText, Eye } from 'lucide-react';
+import { ArrowLeft, Save, ClipboardCheck, Shield, AlertTriangle, Clock, CheckCircle2, User, MapPin, Calendar, FileText, Eye, Printer, Share2 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import AuditPdf from '../components/AuditPdf';
 
@@ -100,32 +100,7 @@ export default function AuditForm() {
                         Nueva Auditoría EHS
                     </h1>
                 </div>
-                <button
-                    onClick={() => setShowShareModal(true)}
-                    style={{
-                        padding: '0.6rem 1rem',
-                        background: 'var(--color-surface)',
-                        border: '1px solid var(--color-primary)',
-                        borderRadius: 'var(--radius-lg)',
-                        cursor: 'pointer',
-                        color: 'var(--color-primary)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        fontWeight: 700
-                    }}
-                >
-                    <Eye size={18} />
-                    {!isMobile && 'Vista Previa'}
-                </button>
-                <button
-                    onClick={handleSave}
-                    className="btn-primary"
-                    style={{ width: 'auto', margin: 0, padding: '0.6rem 1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                >
-                    <Save size={18} />
-                    {!isMobile && 'Planificar Auditoría'}
-                </button>
+                {/* Header Buttons Removed as they are now in the floating bar */}
             </div>
 
             <main style={{ padding: '1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
@@ -241,28 +216,42 @@ export default function AuditForm() {
                     </div>
                 </div>
 
-                <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
-                    <button 
-                        onClick={() => navigate(-1)} 
-                        style={{ 
-                            flex: 1, 
-                            padding: '1rem', 
-                            background: 'var(--color-surface)', 
-                            border: '1px solid var(--color-border)', 
-                            borderRadius: 'var(--radius-lg)', 
-                            fontWeight: 700, 
-                            cursor: 'pointer',
-                            color: 'var(--color-text)'
-                        }}
+                {/* Botones de acción flotantes */}
+                <div className="no-print" style={{
+                    marginTop: '2rem',
+                    display: 'flex',
+                    gap: '1rem',
+                    justifyContent: 'center',
+                    flexWrap: 'wrap',
+                    padding: '1rem',
+                    background: 'var(--color-surface)',
+                    borderRadius: 'var(--radius-xl)',
+                    border: '1px solid var(--color-border)',
+                    boxShadow: 'var(--shadow-lg)',
+                    position: 'sticky',
+                    bottom: '1rem',
+                    zIndex: 100
+                }}>
+                    <button
+                        onClick={() => setShowShareModal(true)}
+                        className="btn-floating-action"
+                        style={{ background: 'var(--color-surface)', color: 'var(--color-primary)', border: '1px solid var(--color-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
                     >
-                        Cancelar
+                        <Share2 size={18} /> COMPARTIR
                     </button>
-                    <button 
-                        onClick={handleSave} 
-                        className="btn-primary" 
-                        style={{ flex: 2, margin: 0 }}
+                    <button
+                        onClick={() => window.print()}
+                        className="btn-floating-action"
+                        style={{ background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
                     >
-                        Planificar Auditoría
+                        <Printer size={18} /> IMPRIMIR PDF
+                    </button>
+                    <button
+                        onClick={handleSave}
+                        className="btn-floating-action"
+                        style={{ background: '#36B37E', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                    >
+                        <Save size={18} /> GUARDAR AUDITORÍA
                     </button>
                 </div>
             </main>

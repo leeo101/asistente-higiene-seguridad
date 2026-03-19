@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, Tent, ClipboardCheck, CheckCircle2, Eye, Printer } from 'lucide-react';
+import { ArrowLeft, Save, Tent, ClipboardCheck, CheckCircle2, Eye, Printer, Share2 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import ConfinedSpacePdf from '../components/ConfinedSpacePdf';
 
@@ -113,32 +113,7 @@ export default function ConfinedSpaceForm() {
                         Nuevo Permiso de Ingreso
                     </h1>
                 </div>
-                <button
-                    onClick={() => setShowShareModal(true)}
-                    style={{
-                        padding: '0.6rem 1rem',
-                        background: 'var(--color-surface)',
-                        border: '1px solid var(--color-primary)',
-                        borderRadius: 'var(--radius-lg)',
-                        cursor: 'pointer',
-                        color: 'var(--color-primary)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        fontWeight: 700
-                    }}
-                >
-                    <Printer size={18} />
-                    {!isMobile && 'Imprimir / PDF'}
-                </button>
-                <button
-                    onClick={handleSave}
-                    className="btn-primary"
-                    style={{ width: 'auto', margin: 0, padding: '0.6rem 1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                >
-                    <Save size={18} />
-                    {!isMobile && 'Emitir Permiso'}
-                </button>
+                {/* Header Buttons Removed as they are now in the floating bar */}
             </div>
 
             <main style={{ padding: '1.5rem', maxWidth: '800px', margin: '0 auto', paddingTop: '1rem' }}>
@@ -246,28 +221,42 @@ export default function ConfinedSpaceForm() {
                     </div>
                 </div>
 
-                <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
-                    <button 
-                        onClick={() => navigate(-1)} 
-                        style={{ 
-                            flex: 1, 
-                            padding: '1rem', 
-                            background: 'var(--color-surface)', 
-                            border: '1px solid var(--color-border)', 
-                            borderRadius: 'var(--radius-lg)', 
-                            fontWeight: 700, 
-                            cursor: 'pointer',
-                            color: 'var(--color-text)'
-                        }}
+                {/* Botones de acción flotantes */}
+                <div className="no-print" style={{
+                    marginTop: '2rem',
+                    display: 'flex',
+                    gap: '1rem',
+                    justifyContent: 'center',
+                    flexWrap: 'wrap',
+                    padding: '1rem',
+                    background: 'var(--color-surface)',
+                    borderRadius: 'var(--radius-xl)',
+                    border: '1px solid var(--color-border)',
+                    boxShadow: 'var(--shadow-lg)',
+                    position: 'sticky',
+                    bottom: '1rem',
+                    zIndex: 100
+                }}>
+                    <button
+                        onClick={() => setShowShareModal(true)}
+                        className="btn-floating-action"
+                        style={{ background: 'var(--color-surface)', color: 'var(--color-primary)', border: '1px solid var(--color-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
                     >
-                        Cancelar
+                        <Share2 size={18} /> COMPARTIR
                     </button>
-                    <button 
-                        onClick={handleSave} 
-                        className="btn-primary" 
-                        style={{ flex: 2, margin: 0 }}
+                    <button
+                        onClick={() => window.print()}
+                        className="btn-floating-action"
+                        style={{ background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
                     >
-                        Emitir Permiso de Trabajo
+                        <Printer size={18} /> IMPRIMIR PDF
+                    </button>
+                    <button
+                        onClick={handleSave}
+                        className="btn-floating-action"
+                        style={{ background: '#36B37E', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                    >
+                        <Save size={18} /> GUARDAR PERMISO
                     </button>
                 </div>
             </main>
