@@ -30,16 +30,16 @@ export default function EnvironmentalCreate() {
     };
 
     return (
-        <div className="container" style={{ paddingBottom: '6rem', maxWidth: '900px' }}>
-            <div style={{ marginBottom: '2rem', padding: '1.5rem', background: 'var(--gradient-card)', borderRadius: 'var(--radius-2xl)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="container" style={{ paddingBottom: '6rem', maxWidth: '900px', paddingTop: '2rem' }}>
+            <div style={{ marginBottom: '2.5rem', padding: '1.75rem', background: 'var(--gradient-card)', borderRadius: 'var(--radius-2xl)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <div style={{ width: '56px', height: '56px', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <XCircle size={32} color="#ffffff" onClick={() => navigate('/environmental')} style={{ cursor: 'pointer' }} />
                     </div>
-                    <div><h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900 }}>Nueva Medición Ambiental</h1><p style={{ margin: '0.25rem 0 0 0', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>Completá los datos de la medición</p></div>
+                    <div><h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900, lineHeight: 1.2 }}>Nueva Medición Ambiental</h1><p style={{ margin: '0.5rem 0 0 0', color: 'var(--color-text-muted)', fontSize: '0.85rem', lineHeight: 1.4 }}>Completá los datos de la medición</p></div>
                 </div>
             </div>
-            <div className="card" style={{ padding: '2rem' }}>
+            <div className="card" style={{ padding: '2.5rem', paddingTop: '2rem' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
                     <div style={{ gridColumn: '1 / -1' }}><label style={labelStyle}>Ubicación *</label><input type="text" value={measurement.location} onChange={(e) => setMeasurement({ ...measurement, location: e.target.value })} style={inputStyle} /></div>
                     <div><label style={labelStyle}>Área/Departamento</label><input type="text" value={measurement.area} onChange={(e) => setMeasurement({ ...measurement, area: e.target.value })} style={inputStyle} /></div>

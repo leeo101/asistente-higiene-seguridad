@@ -944,15 +944,16 @@ export default function Home() {
 
             {/* ── QUICK ACCESS GRID — solo usuarios logueados ── */}
             {currentUser && (
-                <div id="tools" style={{ marginTop: '2rem', marginBottom: '2rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', padding: '0 0.5rem' }}>
+                <div id="tools" style={{ marginTop: '3rem', marginBottom: '2rem', paddingTop: '1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', padding: '0 0.5rem' }}>
                         <h3 style={{ fontSize: '1.1rem', fontWeight: 900, margin: 0, letterSpacing: '-0.5px', fontFamily: 'var(--font-heading)' }}>Herramientas Profesionales</h3>
                     </div>
                     <div style={{
                         display: 'grid',
                         gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
                         gap: '1rem',
-                        padding: '0.5rem'
+                        padding: '0.5rem',
+                        marginTop: '0.5rem'
                     }}>
                         {quickLinks.map((item, i) => (
                             <Link key={i} className="stagger-item" to={item.to} style={{ textDecoration: 'none', animationDelay: `${0.1 + (i * 0.03)}s`, position: 'relative' }}>

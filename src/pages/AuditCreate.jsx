@@ -139,11 +139,11 @@ export default function AuditCreate() {
     };
 
     return (
-        <div className="container" style={{ paddingBottom: '6rem', maxWidth: '900px' }}>
+        <div className="container" style={{ paddingBottom: '6rem', maxWidth: '900px', paddingTop: '2rem' }}>
             {/* Header */}
             <div style={{
-                marginBottom: '2rem',
-                padding: '1.5rem',
+                marginBottom: '2.5rem',
+                padding: '1.75rem',
                 background: 'var(--gradient-card)',
                 borderRadius: 'var(--radius-2xl)',
                 border: '1px solid var(--glass-border)',
@@ -167,14 +167,14 @@ export default function AuditCreate() {
                         <XCircle size={32} color="#ffffff" strokeWidth={2} onClick={() => navigate('/audit')} style={{ cursor: 'pointer' }} />
                     </div>
                     <div>
-                        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900 }}>Nueva Auditoría EHS</h1>
-                        <p style={{ margin: '0.25rem 0 0 0', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>Completá los datos para crear una auditoría</p>
+                        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900, lineHeight: 1.2 }}>Nueva Auditoría EHS</h1>
+                        <p style={{ margin: '0.5rem 0 0 0', color: 'var(--color-text-muted)', fontSize: '0.85rem', lineHeight: 1.4 }}>Completá los datos para crear una auditoría</p>
                     </div>
                 </div>
             </div>
 
             {/* Form */}
-            <div className="card" style={{ padding: '2rem' }}>
+            <div className="card" style={{ padding: '2.5rem', paddingTop: '2rem' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
                     <div><label style={labelStyle}>Título *</label><input type="text" value={audit.title} onChange={(e) => setAudit({ ...audit, title: e.target.value })} style={inputStyle} placeholder="Ej: Auditoría Interna 2024" /></div>
                     <div><label style={labelStyle}>Tipo de Auditoría</label><select value={audit.auditType} onChange={(e) => setAudit({ ...audit, auditType: e.target.value })} style={inputStyle}>{AUDIT_TYPES.map(t => <option key={t.id} value={t.id}>{t.icon} {t.name}</option>)}</select></div>

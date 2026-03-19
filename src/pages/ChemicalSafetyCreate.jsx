@@ -77,11 +77,11 @@ export default function ChemicalSafetyCreate() {
     };
 
     return (
-        <div className="container" style={{ paddingBottom: '6rem', maxWidth: '1000px' }}>
+        <div className="container" style={{ paddingBottom: '6rem', maxWidth: '1000px', paddingTop: '2rem' }}>
             {/* Header */}
             <div style={{
-                marginBottom: '2rem',
-                padding: '1.5rem',
+                marginBottom: '2.5rem',
+                padding: '1.75rem',
                 background: 'var(--gradient-card)',
                 borderRadius: 'var(--radius-2xl)',
                 border: '1px solid var(--glass-border)',
@@ -105,14 +105,14 @@ export default function ChemicalSafetyCreate() {
                         <XCircle size={32} color="#ffffff" strokeWidth={2} onClick={() => navigate('/chemical-safety')} style={{ cursor: 'pointer' }} />
                     </div>
                     <div>
-                        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900 }}>Nuevo Producto Químico</h1>
-                        <p style={{ margin: '0.25rem 0 0 0', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>Completá los datos del producto</p>
+                        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900, lineHeight: 1.2 }}>Nuevo Producto Químico</h1>
+                        <p style={{ margin: '0.5rem 0 0 0', color: 'var(--color-text-muted)', fontSize: '0.85rem', lineHeight: 1.4 }}>Completá los datos del producto</p>
                     </div>
                 </div>
             </div>
 
             {/* Form */}
-            <div className="card" style={{ padding: '2rem' }}>
+            <div className="card" style={{ padding: '2.5rem', paddingTop: '2rem' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
                     <div style={{ gridColumn: '1 / -1' }}><label style={labelStyle}>Nombre del Producto *</label><input type="text" value={chemical.name} onChange={(e) => setChemical({ ...chemical, name: e.target.value })} style={inputStyle} placeholder="Ej: Acetona" /></div>
                     <div><label style={labelStyle}>Número CAS</label><input type="text" value={chemical.casNumber} onChange={(e) => setChemical({ ...chemical, casNumber: e.target.value })} style={inputStyle} placeholder="Ej: 67-64-1" /></div>

@@ -39,20 +39,20 @@ export default function ConfinedSpaceCreate() {
     };
 
     return (
-        <div className="container" style={{ paddingBottom: '6rem', maxWidth: '900px' }}>
-            <div style={{ marginBottom: '2rem', padding: '1.5rem', background: 'var(--gradient-card)', borderRadius: 'var(--radius-2xl)', border: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="container" style={{ paddingBottom: '6rem', maxWidth: '900px', paddingTop: '2rem' }}>
+            <div style={{ marginBottom: '2.5rem', padding: '1.75rem', background: 'var(--gradient-card)', borderRadius: 'var(--radius-2xl)', border: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <div style={{ width: '56px', height: '56px', background: 'linear-gradient(135deg, #f59e0b, #d97706)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <XCircle size={32} color="#ffffff" onClick={() => navigate('/confined-space')} style={{ cursor: 'pointer' }} />
                     </div>
                     <div>
-                        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900 }}>Nuevo Permiso - Espacio Confinado</h1>
-                        <p style={{ margin: '0.25rem 0 0 0', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>Completá los datos del permiso</p>
+                        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900, lineHeight: 1.2 }}>Nuevo Permiso - Espacio Confinado</h1>
+                        <p style={{ margin: '0.5rem 0 0 0', color: 'var(--color-text-muted)', fontSize: '0.85rem', lineHeight: 1.4 }}>Completá los datos del permiso</p>
                     </div>
                 </div>
             </div>
 
-            <div className="card" style={{ padding: '2rem' }}>
+            <div className="card" style={{ padding: '2.5rem', paddingTop: '2rem' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
                     <div style={{ gridColumn: '1 / -1' }}><label style={labelStyle}>Ubicación *</label><input type="text" value={permit.location} onChange={(e) => setPermit({ ...permit, location: e.target.value })} style={inputStyle} placeholder="Ej: Tanque de Agua #3" /></div>
                     <div><label style={labelStyle}>Supervisor</label><input type="text" value={permit.supervisor} onChange={(e) => setPermit({ ...permit, supervisor: e.target.value })} style={inputStyle} /></div>
