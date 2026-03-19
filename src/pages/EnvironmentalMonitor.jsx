@@ -6,8 +6,10 @@ import {
     XCircle, Clock, User, Calendar,
     Droplets, Wind, Thermometer, Activity,
     AlertTriangle, BarChart3, TrendingUp, Target,
-    AlertCircle, Recycle, Factory, Cloud
+    AlertCircle, Recycle, Factory, Cloud, Printer
 } from 'lucide-react';
+import ShareModal from '../components/ShareModal';
+import EnvironmentalPdf from '../components/EnvironmentalPdf';
 
 // Tipos de monitoreo ambiental
 const MONITORING_TYPES = [
@@ -76,6 +78,7 @@ export default function EnvironmentalMonitor() {
     const [filterType, setFilterType] = useState('all');
     const [filterStatus, setFilterStatus] = useState('all');
     const [showAddModal, setShowAddModal] = useState(false);
+    const [showShareModal, setShowShareModal] = useState(false);
     const [selectedMeasurement, setSelectedMeasurement] = useState(null);
     const [activeTab, setActiveTab] = useState('measurements');
 
@@ -513,6 +516,20 @@ export default function EnvironmentalMonitor() {
                             ))}
                         </div>
                     )}
+                    
+                    {/* Botón Nueva Medición (siempre visible) */}
+                    {measurements.length > 0 && (
+                        <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center', paddingBottom: '2rem' }}>
+                            <button 
+                                onClick={() => setShowAddModal(true)} 
+                                className="btn-primary"
+                                style={{ width: 'auto', padding: '1rem 2rem', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', borderRadius: 'var(--radius-xl)', boxShadow: '0 10px 25px var(--color-primary)40' }}
+                            >
+                                <Plus size={24} strokeWidth={2.5} />
+                                Nueva Medición
+                            </button>
+                        </div>
+                    )}
                 </>
             )}
 
@@ -537,6 +554,7 @@ export default function EnvironmentalMonitor() {
                     MONITORING_TYPES={MONITORING_TYPES}
                     PARAMETERS={PARAMETERS}
                     ENVIRONMENTAL_REGULATIONS={ENVIRONMENTAL_REGULATIONS}
+                    onPrint={() => setShowShareModal(true)}
                 />
             )}
 
@@ -550,6 +568,18 @@ export default function EnvironmentalMonitor() {
                     PARAMETERS={PARAMETERS}
                 />
             )}
+
+            <ShareModal 
+                isOpen={showShareModal}
+                onClose={() => setShowShareModal(false)}
+                elementIdToPrint="pdf-content"
+                title={selectedMeasurement ? "Protocolo de Monitoreo" : "Borrador de Monitoreo"}
+                fileName={`Monitoreo_${(selectedMeasurement || newMeasurement)?.stationName || 'Ambiental'}.pdf`}
+            />
+
+            <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+                <EnvironmentalPdf data={selectedMeasurement || newMeasurement} />
+            </div>
         </div>
     );
 }
@@ -883,7 +913,7 @@ function LimitsPanel({ parameters }) {
 }
 
 // Modal de Agregar Medición
-function AddMeasurementModal({ measurement, setMeasurement, onSave, onClose, MONITORING_TYPES, PARAMETERS, ENVIRONMENTAL_REGULATIONS }) {
+function AddMeasurementModal({ measurement, setMeasurement, onSave, onClose, MONITORING_TYPES, PARAMETERS, ENVIRONMENTAL_REGULATIONS, onPrint }) {
     const addParameter = () => {
         setMeasurement({
             ...measurement,
@@ -938,19 +968,39 @@ function AddMeasurementModal({ measurement, setMeasurement, onSave, onClose, MON
                         <Leaf size={24} style={{ display: 'inline', marginRight: '0.5rem' }} />
                         Nueva Medición Ambiental
                     </h2>
-                    <button
-                        onClick={onClose}
-                        style={{
-                            padding: '0.5rem',
-                            background: 'var(--color-background)',
-                            border: 'none',
-                            borderRadius: 'var(--radius-md)',
-                            cursor: 'pointer',
-                            color: 'var(--color-text)'
-                        }}
-                    >
-                        <XCircle size={24} />
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <button
+                            onClick={onPrint}
+                            style={{
+                                padding: '0.5rem 1rem',
+                                background: 'var(--color-surface)',
+                                border: '1px solid var(--color-primary)',
+                                borderRadius: 'var(--radius-md)',
+                                cursor: 'pointer',
+                                color: 'var(--color-primary)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                fontWeight: 700
+                            }}
+                        >
+                            <Printer size={18} />
+                            Imprimir
+                        </button>
+                        <button
+                            onClick={onClose}
+                            style={{
+                                padding: '0.5rem',
+                                background: 'var(--color-background)',
+                                border: 'none',
+                                borderRadius: 'var(--radius-md)',
+                                cursor: 'pointer',
+                                color: 'var(--color-text)'
+                            }}
+                        >
+                            <XCircle size={24} />
+                        </button>
+                    </div>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -1361,13 +1411,37 @@ function MeasurementDetailModal({ measurement, statusConfig, monitoringType, onC
                     </div>
                 )}
 
-                <button
-                    onClick={onClose}
-                    className="btn-primary"
-                    style={{ width: '100%' }}
-                >
-                    Cerrar
-                </button>
+                <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                    <button
+                        onClick={() => {
+                            setShowShareModal(true);
+                        }}
+                        style={{
+                            flex: 1,
+                            padding: '1rem',
+                            background: 'var(--color-surface)',
+                            border: '1px solid var(--color-primary)',
+                            borderRadius: 'var(--radius-lg)',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            color: 'var(--color-primary)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.5rem'
+                        }}
+                    >
+                        <Printer size={18} />
+                        Imprimir / PDF
+                    </button>
+                    <button
+                        onClick={onClose}
+                        className="btn-primary"
+                        style={{ flex: 1, margin: 0 }}
+                    >
+                        Cerrar
+                    </button>
+                </div>
             </div>
         </div>
     );

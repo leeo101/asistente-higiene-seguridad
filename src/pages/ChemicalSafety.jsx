@@ -4,8 +4,10 @@ import {
     FlaskConical, Plus, Search, Filter, Download,
     AlertTriangle, CheckCircle2, XCircle, FileText,
     Eye, Edit3, Trash2, Upload, Shield, Droplets,
-    Flame, Skull, Zap, Wind, Thermometer, Radio
+    Flame, Skull, Zap, Wind, Thermometer, Radio, Printer
 } from 'lucide-react';
+import ShareModal from '../components/ShareModal';
+import ChemicalSafetyPdf from '../components/ChemicalSafetyPdf';
 import CompanyLogo from '../components/CompanyLogo';
 import LazyImage from '../components/LazyImage';
 
@@ -46,6 +48,7 @@ export default function ChemicalSafety() {
     const [viewMode, setViewMode] = useState('grid'); // grid o list
 
     const [selectedChemical, setSelectedChemical] = useState(null);
+    const [showShareModal, setShowShareModal] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
     const [newChemical, setNewChemical] = useState({
         id: '',
@@ -468,8 +471,21 @@ export default function ChemicalSafety() {
                     hazardLevel={getHazardLevel(selectedChemical)}
                     onClose={() => setSelectedChemical(null)}
                     GHS_PICTOGRAMS={GHS_PICTOGRAMS}
+                    onPrint={() => setShowShareModal(true)}
                 />
             )}
+
+            <ShareModal 
+                isOpen={showShareModal}
+                onClose={() => setShowShareModal(false)}
+                elementIdToPrint="pdf-content"
+                title="Ficha de Seguridad (SDS)"
+                fileName={`SDS_${selectedChemical?.name || 'Quimico'}.pdf`}
+            />
+
+            <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+                <ChemicalSafetyPdf data={selectedChemical} />
+            </div>
         </div>
     );
 }
@@ -1226,13 +1242,35 @@ function ChemicalDetailModal({ chemical, hazardLevel, onClose, GHS_PICTOGRAMS })
                     </div>
                 </div>
 
-                <button
-                    onClick={onClose}
-                    className="btn-primary"
-                    style={{ width: '100%' }}
-                >
-                    Cerrar
-                </button>
+                <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                    <button
+                        onClick={onPrint}
+                        style={{
+                            flex: 1,
+                            padding: '1rem',
+                            background: 'var(--color-surface)',
+                            border: '1px solid var(--color-primary)',
+                            borderRadius: 'var(--radius-lg)',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            color: 'var(--color-primary)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.5rem'
+                        }}
+                    >
+                        <Printer size={18} />
+                        Imprimir SDS
+                    </button>
+                    <button
+                        onClick={onClose}
+                        className="btn-primary"
+                        style={{ flex: 1, margin: 0 }}
+                    >
+                        Cerrar
+                    </button>
+                </div>
             </div>
         </div>
     );

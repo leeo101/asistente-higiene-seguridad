@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { 
     ArrowLeft, Plus, Search, Filter, Download, CheckCircle2,
     XCircle, Clock, User, Users, Calendar, AlertTriangle,
-    Volume2, Activity, BarChart3, Eye, Trash2, Edit3
+    Volume2, Activity, BarChart3, Eye, Trash2, Edit3, Printer
 } from 'lucide-react';
+import ShareModal from '../components/ShareModal';
+import NoiseAssessmentPdf from '../components/NoiseAssessmentPdf';
 import CompanyLogo from '../components/CompanyLogo';
 
 const NOISE_LIMITS = {
@@ -20,6 +22,7 @@ export default function NoiseAssessmentPage() {
     const [measurements, setMeasurements] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedMeasurement, setSelectedMeasurement] = useState(null);
+    const [showShareModal, setShowShareModal] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
@@ -127,6 +130,7 @@ export default function NoiseAssessmentPage() {
             </div>
 
             {/* Stats Cards */}
+            <div style={{ marginTop: isMobile ? '1rem' : '1.5rem' }}>
             <div style={{
                 display: 'grid',
                 gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
@@ -202,14 +206,29 @@ export default function NoiseAssessmentPage() {
                 )}
             </div>
 
-            {/* Modal de Detalle */}
+            </div>
+
             {selectedMeasurement && (
                 <DetailModal
                     measurement={selectedMeasurement}
                     onClose={() => setSelectedMeasurement(null)}
                     isMobile={isMobile}
+                    onPrint={() => setShowShareModal(true)}
+                    calculateRiskLevel={calculateRiskLevel}
                 />
             )}
+
+            <ShareModal 
+                isOpen={showShareModal}
+                onClose={() => setShowShareModal(false)}
+                elementIdToPrint="pdf-content"
+                title="Evaluación de Ruido"
+                fileName={`Ruido_${selectedMeasurement?.workerName || 'Evaluacion'}.pdf`}
+            />
+
+            <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+                <NoiseAssessmentPdf data={selectedMeasurement} />
+            </div>
         </div>
     );
 }
@@ -241,6 +260,74 @@ function StatCard({ label, value, color, icon }) {
                 <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>{label}</div>
                 <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--color-text)', lineHeight: 1 }}>{value}</div>
             </div>
+        </div>
+    );
+}
+
+function DetailModal({ measurement, onClose, isMobile, onPrint, calculateRiskLevel }) {
+    const riskLevel = calculateRiskLevel(parseFloat(measurement.levels.lavg) || 0);
+
+    return (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent: 'center' }} onClick={onClose}>
+            <div className="card" style={{ width: isMobile ? '100%' : '100%', maxWidth: isMobile ? '100%' : '700px', maxHeight: isMobile ? '90vh' : '90vh', overflow: 'auto', margin: isMobile ? 0 : 'auto', borderRadius: isMobile ? '20px 20px 0 0' : 'var(--radius-2xl)' }} onClick={e => e.stopPropagation()}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)', padding: '1.5rem 1.5rem 0' }}>
+                    <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900 }}>Detalle de Evaluación</h2>
+                    <button onClick={onClose} style={{ padding: '0.5rem', background: 'var(--color-background)', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: 'var(--color-text)' }}>
+                        <XCircle size={24} />
+                    </button>
+                </div>
+                
+                <div style={{ padding: '0 1.5rem 1.5rem' }}>
+                    <div style={{ textAlign: 'center', padding: '1.5rem', background: `${riskLevel.color}10`, borderRadius: 'var(--radius-xl)', marginBottom: '1.5rem', border: `1px solid ${riskLevel.color}30` }}>
+                        <Volume2 size={40} color={riskLevel.color} style={{ marginBottom: '0.5rem' }} />
+                        <div style={{ fontSize: '3rem', fontWeight: 900, color: 'var(--color-text)', lineHeight: 1 }}>{measurement.levels.lavg}<span style={{ fontSize: '1.5rem' }}>dB</span></div>
+                        <div style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>{measurement.workerName}</div>
+                        <div style={{ marginTop: '0.75rem' }}>
+                            <span style={{ padding: '0.35rem 0.85rem', background: riskLevel.color, color: '#fff', borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontWeight: 800 }}>{riskLevel.label}</span>
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                        <StatItem label="Ubicación" value={measurement.location} />
+                        <StatItem label="Fecha" value={new Date(measurement.date).toLocaleDateString()} />
+                        <StatItem label="Duración" value={`${measurement.duration} hs`} />
+                        <StatItem label="Turno" value={measurement.shift} />
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                        <button 
+                            onClick={onPrint} 
+                            style={{ 
+                                flex: 1, 
+                                padding: '1rem', 
+                                background: 'var(--color-surface)', 
+                                border: '1px solid var(--color-primary)', 
+                                borderRadius: 'var(--radius-lg)', 
+                                fontWeight: 700, 
+                                cursor: 'pointer',
+                                color: 'var(--color-primary)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '0.5rem'
+                            }}
+                        >
+                            <Printer size={18} />
+                            Imprimir / PDF
+                        </button>
+                        <button onClick={onClose} className="btn-primary" style={{ flex: 1, margin: 0 }}>Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function StatItem({ label, value }) {
+    return (
+        <div style={{ padding: '1rem', background: 'var(--color-background)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)' }}>
+            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>{label}</div>
+            <div style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--color-text)' }}>{value || '-'}</div>
         </div>
     );
 }

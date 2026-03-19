@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Search, CheckCircle2, XCircle, Clock, User, Calendar, AlertTriangle, Tent, Eye, Trash2, Wind, Droplets } from 'lucide-react';
+import { ArrowLeft, Plus, Search, CheckCircle2, XCircle, Clock, User, Calendar, AlertTriangle, Tent, Eye, Trash2, Wind, Droplets, Printer } from 'lucide-react';
+import ShareModal from '../components/ShareModal';
+import ConfinedSpacePdf from '../components/ConfinedSpacePdf';
 
 const PERMIT_STATUS = {
     draft: { label: 'BORRADOR', color: '#6b7280', bg: '#f3f4f6' },
@@ -14,6 +16,7 @@ export default function ConfinedSpacePage() {
     const [permits, setPermits] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedPermit, setSelectedPermit] = useState(null);
+    const [showShareModal, setShowShareModal] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
@@ -46,6 +49,7 @@ export default function ConfinedSpacePage() {
                 </div>
             </div>
 
+            <div style={{ marginTop: isMobile ? '1rem' : '1.5rem' }}>
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: '1rem', padding: isMobile ? '1rem' : '1.5rem', maxWidth: '1400px', margin: '0 auto' }}>
                 <StatCard label="Total" value={stats.total} color="#3B82F6" icon={<Tent size={20} />} />
                 <StatCard label="Activos" value={stats.active} color="#16a34a" icon={<CheckCircle2 size={20} />} />
@@ -69,7 +73,21 @@ export default function ConfinedSpacePage() {
                 ))}
             </div>
 
-            {selectedPermit && <DetailModal permit={selectedPermit} onClose={() => setSelectedPermit(null)} isMobile={isMobile} />}
+            </div>
+
+            {selectedPermit && <DetailModal permit={selectedPermit} onClose={() => setSelectedPermit(null)} isMobile={isMobile} onPrint={() => setShowShareModal(true)} />}
+
+            <ShareModal 
+                isOpen={showShareModal}
+                onClose={() => setShowShareModal(false)}
+                elementIdToPrint="pdf-content"
+                title="Permiso de Ingreso"
+                fileName={`Permiso_${selectedPermit?.spaceName || 'Sin_Nombre'}.pdf`}
+            />
+
+            <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+                <ConfinedSpacePdf data={selectedPermit} />
+            </div>
         </div>
     );
 }
@@ -107,8 +125,48 @@ function EmptyState({ onAdd, isMobile }) {
     return (<div style={{ padding: isMobile ? '3rem 1rem' : '4rem 2rem', textAlign: 'center', background: 'var(--gradient-card)', borderRadius: 'var(--radius-2xl)', border: '2px dashed var(--color-border)' }}><div style={{ width: '80px', height: '80px', margin: '0 auto 1.5rem', background: 'var(--color-background)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Tent size={40} color="var(--color-text-muted)" /></div><h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem', fontWeight: 800 }}>Sin Permisos</h3><p style={{ margin: '0 0 1.5rem 0', color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>Creá permisos de espacio confinado según OSHA 1910.146</p><button onClick={onAdd} className="btn-primary" style={{ width: 'auto', margin: 0 }}><Plus size={20} style={{ marginRight: '0.5rem' }} />Primer Permiso</button></div>);
 }
 
-function DetailModal({ permit, onClose, isMobile }) {
-    return (<div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent: 'center' }} onClick={onClose}><div className="card" style={{ width: isMobile ? '100%' : '100%', maxWidth: isMobile ? '100%' : '600px', maxHeight: isMobile ? '90vh' : '90vh', overflow: 'auto', margin: isMobile ? 0 : 'auto', borderRadius: isMobile ? '20px 20px 0 0' : 'var(--radius-2xl)' }} onClick={e => e.stopPropagation()}><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}><h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900 }}>Detalle</h2><button onClick={onClose} style={{ padding: '0.5rem', background: 'var(--color-background)', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: 'var(--color-text)' }}><XCircle size={24} /></button></div><div style={{ textAlign: 'center', padding: '1.5rem', background: '#f8fafc', borderRadius: 'var(--radius-xl)', marginBottom: '1.5rem' }}><Tent size={40} color="#f59e0b" style={{ marginBottom: '0.5rem' }} /><div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-text)' }}>{permit.spaceName}</div><div style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>{permit.location}</div></div><button onClick={onClose} className="btn-primary" style={{ width: '100%' }}>Cerrar</button></div></div>);
+function DetailModal({ permit, onClose, isMobile, onPrint }) {
+    return (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent: 'center' }} onClick={onClose}>
+            <div className="card" style={{ width: isMobile ? '100%' : '100%', maxWidth: isMobile ? '100%' : '600px', maxHeight: isMobile ? '90vh' : '90vh', overflow: 'auto', margin: isMobile ? 0 : 'auto', borderRadius: isMobile ? '20px 20px 0 0' : 'var(--radius-2xl)' }} onClick={e => e.stopPropagation()}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}>
+                    <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900 }}>Detalle del Permiso</h2>
+                    <button onClick={onClose} style={{ padding: '0.5rem', background: 'var(--color-background)', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: 'var(--color-text)' }}>
+                        <XCircle size={24} />
+                    </button>
+                </div>
+                <div style={{ textAlign: 'center', padding: '1.5rem', background: 'var(--color-background)', borderRadius: 'var(--radius-xl)', marginBottom: '1.5rem', border: '1px solid var(--color-border)' }}>
+                    <Tent size={40} color="#f59e0b" style={{ marginBottom: '0.5rem' }} />
+                    <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-text)' }}>{permit.spaceName}</div>
+                    <div style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>{permit.location}</div>
+                </div>
+                
+                <div style={{ display: 'flex', gap: '1rem', padding: '1rem 0' }}>
+                    <button 
+                        onClick={onPrint} 
+                        style={{ 
+                            flex: 1, 
+                            padding: '1rem', 
+                            background: 'var(--color-surface)', 
+                            border: '1px solid var(--color-primary)', 
+                            borderRadius: 'var(--radius-lg)', 
+                            fontWeight: 700, 
+                            cursor: 'pointer',
+                            color: 'var(--color-primary)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.5rem'
+                        }}
+                    >
+                        <Printer size={18} />
+                        Imprimir / PDF
+                    </button>
+                    <button onClick={onClose} className="btn-primary" style={{ flex: 1, margin: 0 }}>Cerrar</button>
+                </div>
+            </div>
+        </div>
+    );
 }
 
 const labelStyle = { display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.5rem' };

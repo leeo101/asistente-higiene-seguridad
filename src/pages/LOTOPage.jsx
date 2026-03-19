@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
+import {
     ArrowLeft, Plus, Search, CheckCircle2, XCircle,
-    Clock, Lock, FileText, Eye, Trash2
+    Clock, Lock, FileText, Eye, Trash2, Printer
 } from 'lucide-react';
+import ShareModal from '../components/ShareModal';
+import LOTOPdf from '../components/LOTOPdf';
 
 const LOTO_STATUS = {
     draft: { label: 'BORRADOR', color: '#6b7280', bg: '#f3f4f6' },
@@ -17,6 +19,7 @@ export default function LOTOPage() {
     const [procedures, setProcedures] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedProcedure, setSelectedProcedure] = useState(null);
+    const [showShareModal, setShowShareModal] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
@@ -96,6 +99,7 @@ export default function LOTOPage() {
             </div>
 
             {/* Stats Cards */}
+            <div style={{ marginTop: isMobile ? '1rem' : '1.5rem' }}>
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: '1rem', padding: isMobile ? '1rem' : '1.5rem', maxWidth: '1400px', margin: '0 auto' }}>
                 <StatCard label="Total" value={stats.total} color="#3B82F6" icon={<FileText size={20} />} />
                 <StatCard label="Activos" value={stats.active} color="#16a34a" icon={<Lock size={20} />} />
@@ -136,13 +140,28 @@ export default function LOTOPage() {
                 )}
             </div>
 
+            </div>
+
             {selectedProcedure && (
                 <DetailModal
                     procedure={selectedProcedure}
                     onClose={() => setSelectedProcedure(null)}
                     isMobile={isMobile}
+                    onPrint={() => setShowShareModal(true)}
                 />
             )}
+
+            <ShareModal 
+                isOpen={showShareModal}
+                onClose={() => setShowShareModal(false)}
+                elementIdToPrint="pdf-content"
+                title="Procedimiento LOTO"
+                fileName={`LOTO_${selectedProcedure?.equipmentName || 'Procedimiento'}.pdf`}
+            />
+
+            <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+                <LOTOPdf data={selectedProcedure} />
+            </div>
         </div>
     );
 }
@@ -198,7 +217,7 @@ function EmptyState({ onAdd, isMobile }) {
     );
 }
 
-function DetailModal({ procedure, onClose, isMobile }) {
+function DetailModal({ procedure, onClose, isMobile, onPrint }) {
     return (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent: 'center' }} onClick={onClose}>
             <div className="card" style={{ width: isMobile ? '100%' : '100%', maxWidth: isMobile ? '100%' : '600px', maxHeight: isMobile ? '90vh' : '90vh', overflow: 'auto', margin: isMobile ? 0 : 'auto', borderRadius: isMobile ? '20px 20px 0 0' : 'var(--radius-2xl)' }} onClick={e => e.stopPropagation()}>
@@ -206,12 +225,35 @@ function DetailModal({ procedure, onClose, isMobile }) {
                     <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900 }}>Detalle LOTO</h2>
                     <button onClick={onClose} style={{ padding: '0.5rem', background: 'var(--color-background)', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: 'var(--color-text)' }}><XCircle size={24} /></button>
                 </div>
-                <div style={{ textAlign: 'center', padding: '1.5rem', background: '#f8fafc', borderRadius: 'var(--radius-xl)', marginBottom: '1.5rem' }}>
+                <div style={{ textAlign: 'center', padding: '1.5rem', background: 'var(--color-background)', borderRadius: 'var(--radius-xl)', marginBottom: '1.5rem', border: '1px solid var(--color-border)' }}>
                     <Lock size={40} color="#8b5cf6" style={{ marginBottom: '0.5rem' }} />
                     <div style={{ fontSize: '1.5rem', fontWeight: 100, color: 'var(--color-text)' }}>{procedure.equipmentName}</div>
                     <div style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>{procedure.location}</div>
                 </div>
-                <button onClick={onClose} className="btn-primary" style={{ width: '100%' }}>Cerrar</button>
+
+                <div style={{ display: 'flex', gap: '1rem', padding: '1rem 0' }}>
+                    <button 
+                        onClick={onPrint} 
+                        style={{ 
+                            flex: 1, 
+                            padding: '1rem', 
+                            background: 'var(--color-surface)', 
+                            border: '1px solid var(--color-primary)', 
+                            borderRadius: 'var(--radius-lg)', 
+                            fontWeight: 700, 
+                            cursor: 'pointer',
+                            color: 'var(--color-primary)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.5rem'
+                        }}
+                    >
+                        <Printer size={18} />
+                        Imprimir / PDF
+                    </button>
+                    <button onClick={onClose} className="btn-primary" style={{ flex: 1, margin: 0 }}>Cerrar</button>
+                </div>
             </div>
         </div>
     );

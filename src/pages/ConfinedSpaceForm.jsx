@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, Tent, ClipboardCheck, CheckCircle2, Eye } from 'lucide-react';
+import { ArrowLeft, Save, Tent, ClipboardCheck, CheckCircle2, Eye, Printer } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import ConfinedSpacePdf from '../components/ConfinedSpacePdf';
 
@@ -128,8 +128,8 @@ export default function ConfinedSpaceForm() {
                         fontWeight: 700
                     }}
                 >
-                    <Eye size={18} />
-                    {!isMobile && 'Vista Previa'}
+                    <Printer size={18} />
+                    {!isMobile && 'Imprimir / PDF'}
                 </button>
                 <button
                     onClick={handleSave}

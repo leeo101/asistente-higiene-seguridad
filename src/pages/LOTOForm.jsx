@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Lock, Save, Eye } from 'lucide-react';
+import { ArrowLeft, Lock, Save, Eye, CheckCircle2, Printer } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import LOTOPdf from '../components/LOTOPdf';
 
@@ -132,8 +132,8 @@ export default function LOTOForm() {
                         fontWeight: 700
                     }}
                 >
-                    <Eye size={18} />
-                    {!isMobile && 'Vista Previa'}
+                    <Printer size={18} />
+                    {!isMobile && 'Imprimir / PDF'}
                 </button>
                 <button
                     onClick={handleSave}

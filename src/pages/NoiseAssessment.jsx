@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-    Volume2, Plus, Search, Filter, Download, 
+import {
+    Volume2, Plus, Search, Filter, Download,
     AlertTriangle, CheckCircle2, XCircle, FileText,
     Eye, Edit3, Trash2, TrendingUp, Activity,
-    Headphones, Ear, Waveform, Gauge, Clock, Calendar,
+    Headphones, Ear, Gauge, Clock, Calendar,
     User, Users, BarChart3, Shield, AlertCircle
 } from 'lucide-react';
 import CompanyLogo from '../components/CompanyLogo';

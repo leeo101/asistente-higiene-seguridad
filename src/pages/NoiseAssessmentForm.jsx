@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Volume2, Save, Eye } from 'lucide-react';
+import { ArrowLeft, Volume2, Save, Eye, Printer } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import NoiseAssessmentPdf from '../components/NoiseAssessmentPdf';
 
@@ -129,8 +129,8 @@ export default function NoiseAssessmentForm() {
                         fontWeight: 700
                     }}
                 >
-                    <Eye size={18} />
-                    {!isMobile && 'Vista Previa'}
+                    <Printer size={18} />
+                    {!isMobile && 'Imprimir / PDF'}
                 </button>
                 <button
                     onClick={handleSave}

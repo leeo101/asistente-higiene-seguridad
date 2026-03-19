@@ -30,6 +30,7 @@ export default function EnvironmentalPage() {
                     <button onClick={() => navigate('/environmental/new')} className="btn-primary" style={{ width: 'auto', margin: 0, padding: '0.75rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Plus size={20} strokeWidth={2.5} />{!isMobile && 'Nueva Medición'}</button>
                 </div>
             </div>
+            <div style={{ marginTop: isMobile ? '1rem' : '1.5rem' }}>
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: '1rem', padding: isMobile ? '1rem' : '1.5rem', maxWidth: '1400px', margin: '0 auto' }}>
                 <StatCard label="Total" value={stats.total} color="#3B82F6" icon={<Activity size={20} />} />
                 <StatCard label="Normales" value={stats.normal} color="#16a34a" icon={<CheckCircle2 size={20} />} />
@@ -39,6 +40,7 @@ export default function EnvironmentalPage() {
             {isMobile && (<div style={{ padding: '0 1rem 1rem', display: 'flex', gap: '0.75rem' }}><div style={{ flex: 1, position: 'relative' }}><Search size={18} color="var(--color-text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} /><input type="text" placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 2.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)', background: 'var(--color-surface)', fontSize: '0.95rem' }} /></div><button onClick={() => navigate('/environmental/new')} className="btn-primary" style={{ width: 'auto', margin: 0, padding: '0 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Plus size={20} /></button></div>)}
             <div style={{ padding: isMobile ? '0 1rem' : '0 1.5rem', maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {filtered.length === 0 ? <EmptyState onAdd={() => navigate('/environmental/new')} isMobile={isMobile} /> : filtered.map(m => (<MeasurementCard key={m.id} measurement={m} statusConfig={STATUS[m.status] || STATUS.normal} onView={() => setSelected(m)} onDelete={() => del(m.id)} isMobile={isMobile} />))}
+            </div>
             </div>
             {selected && <DetailModal measurement={selected} onClose={() => setSelected(null)} isMobile={isMobile} />}
         </div>
