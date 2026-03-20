@@ -1,13 +1,12 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
     Leaf, Plus, Search, 
     FileText, Eye, Edit3, Trash2, CheckCircle2, 
     XCircle, Clock, User, Calendar,
     Droplets, Wind, Thermometer, Activity,
     AlertTriangle, BarChart3, TrendingUp, Target,
-    AlertCircle, Recycle, Factory, Cloud, Printer
+    AlertCircle, Recycle, Factory, Cloud, Printer, Share2
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import EnvironmentalPdf from '../components/EnvironmentalPdf';
@@ -72,8 +71,9 @@ const ENVIRONMENTAL_REGULATIONS = [
 ];
 
 export default function EnvironmentalMonitor(): React.ReactElement | null {
-        const [measurements, setMeasurements] = useState([]);
-    const [stations, setStations] = useState([]);
+    const navigate = useNavigate();
+    const [measurements, setMeasurements] = useState<any[]>([]);
+    const [stations, setStations] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all');
     const [filterStatus, setFilterStatus] = useState('all');
@@ -81,6 +81,7 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
     const [showShareModal, setShowShareModal] = useState(false);
     const [selectedMeasurement, setSelectedMeasurement] = useState(null);
     const [activeTab, setActiveTab] = useState('measurements');
+    const [shareItem, setShareItem] = useState(null);
 
     const [newMeasurement, setNewMeasurement] = useState({
         id: '',
@@ -252,6 +253,18 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
 
     return (
         <div className="container" style={{ paddingBottom: '6rem' }}>
+            <ShareModal
+                isOpen={!!shareItem}
+                onClose={() => setShareItem(null)}
+                title={`Monitoreo Ambiental - ${shareItem?.stationName || ''}`}
+                text={shareItem ? `🌿 Monitoreo Ambiental (Ley 19.587)\n📍 Estación: ${shareItem.stationName}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString()}\n👷 Responsable: ${shareItem.technician || '-'}` : ''}
+                elementIdToPrint="pdf-content"
+                fileName={`Monitoreo_${shareItem?.stationName || 'Sin_Nombre'}.pdf`}
+            />
+
+            <div style={{ position: 'fixed', left: '-9999px', top: 0, pointerEvents: 'none' }}>
+                {shareItem && <EnvironmentalPdf data={shareItem} />}
+            </div>
             {/* Header Premium */}
             <div style={{
                 marginBottom: '2rem',
@@ -303,7 +316,7 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
 
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                     <button
-                        onClick={() => setShowAddModal(true)}
+                        onClick={() => navigate('/environmental/new')}
                         className="btn-primary"
                         style={{
                             width: 'auto',
@@ -318,7 +331,7 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
                         Nueva Medición
                     </button>
                     <button
-                        onClick={() => navigate('/environmental-reports')}
+                        onClick={() => navigate('/environmental/history')}
                         className="btn-outline"
                         style={{
                             padding: '0.75rem 1rem'
@@ -511,6 +524,7 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
                                     statusConfig={MEASUREMENT_STATUS[measurement.status] || MEASUREMENT_STATUS.normal}
                                     monitoringType={MONITORING_TYPES.find(t => t.id === measurement.monitoringType)}
                                     onView={() => setSelectedMeasurement(measurement)}
+                                    onShare={() => setShareItem(measurement)}
                                     onDelete={() => deleteMeasurement(measurement.id)}
                                 />
                             ))}
@@ -665,7 +679,7 @@ function TabButton({ active, onClick, icon, label, count }) {
     );
 }
 
-function MeasurementCard({ measurement, statusConfig, monitoringType, onView, onDelete }) {
+function MeasurementCard({ measurement, statusConfig, monitoringType, onView, onShare, onDelete }) {
     return (
         <div className="card" style={{
             padding: '1.25rem',
@@ -756,6 +770,21 @@ function MeasurementCard({ measurement, statusConfig, monitoringType, onView, on
                     title="Ver detalle"
                 >
                     <Eye size={18} />
+                </button>
+                <button
+                    onClick={onShare}
+                    style={{
+                        padding: '0.6rem 0.75rem',
+                        background: '#dcfce7',
+                        border: '1px solid #86efac',
+                        borderRadius: 'var(--radius-md)',
+                        cursor: 'pointer',
+                        color: '#16a34a',
+                        transition: 'all var(--transition-fast)'
+                    }}
+                    title="Compartir PDF"
+                >
+                    <Share2 size={18} />
                 </button>
                 <button
                     onClick={onDelete}

@@ -1,14 +1,15 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
     ClipboardCheck, Plus, Search, 
     FileText, Eye, Edit3, Trash2, CheckCircle2, 
-    XCircle, Clock, User, Users, Calendar,
+    XCircle, Clock, User, Calendar,
     Shield, TrendingUp, AlertTriangle, BarChart3,
     Activity, CheckSquare, Target, Layers,
-    Zap, AlertCircle, RefreshCw, ThumbsUp
+    Zap, AlertCircle, RefreshCw, ThumbsUp, Share2
 } from 'lucide-react';
+import ShareModal from '../components/ShareModal';
+import CAPAPdf from '../components/CAPAPdf';
 
 // Tipos de acción CAPA
 const CAPA_TYPES = [
@@ -68,7 +69,8 @@ const CONTROL_HIERARCHY = [
 ];
 
 export default function CAPAManager(): React.ReactElement | null {
-        const [capas, setCapas] = useState([]);
+    const navigate = useNavigate();
+    const [capas, setCapas] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
     const [filterType, setFilterType] = useState('all');
@@ -77,6 +79,7 @@ export default function CAPAManager(): React.ReactElement | null {
     const [activeTab, setActiveTab] = useState('all');
     const [showActionModal, setShowActionModal] = useState(false);
     const [currentCapaForAction, setCurrentCapaForAction] = useState(null);
+    const [shareItem, setShareItem] = useState(null);
 
     const [newCapa, setNewCapa] = useState({
         id: '',
@@ -229,7 +232,7 @@ export default function CAPAManager(): React.ReactElement | null {
             }
             return c;
         });
-        saveCapdas(updated);
+        saveCapas(updated);
     };
 
     const updateActionStatus = (capaId, actionId, status) => {
@@ -281,6 +284,18 @@ export default function CAPAManager(): React.ReactElement | null {
 
     return (
         <div className="container" style={{ paddingBottom: '6rem' }}>
+            <ShareModal
+                isOpen={!!shareItem}
+                onClose={() => setShareItem(null)}
+                title={`Acción CAPA - ${shareItem?.title || ''}`}
+                text={shareItem ? `🛡️ Acción CAPA\n📝 Hallazgo: ${shareItem.title}\n📍 Origen: ${shareItem.source}\n📅 Fecha: ${shareItem.originDate}` : ''}
+                elementIdToPrint="pdf-content"
+                fileName={`CAPA_${shareItem?.title || 'Accion'}.pdf`}
+            />
+
+            <div style={{ position: 'fixed', left: '-9999px', top: 0, pointerEvents: 'none' }}>
+                {shareItem && <CAPAPdf data={shareItem} />}
+            </div>
             {/* Header Premium */}
             <div style={{
                 marginBottom: '2rem',
@@ -332,7 +347,7 @@ export default function CAPAManager(): React.ReactElement | null {
 
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                     <button
-                        onClick={() => setShowAddModal(true)}
+                        onClick={() => navigate('/capa/new')}
                         className="btn-primary"
                         style={{
                             width: 'auto',
@@ -347,7 +362,7 @@ export default function CAPAManager(): React.ReactElement | null {
                         Nueva CAPA
                     </button>
                     <button
-                        onClick={() => navigate('/capa-reports')}
+                        onClick={() => navigate('/capa-history')}
                         className="btn-outline"
                         style={{
                             padding: '0.75rem 1rem'
@@ -568,6 +583,7 @@ export default function CAPAManager(): React.ReactElement | null {
                             capaType={CAPA_TYPES.find(t => t.id === capa.capaType)}
                             onUpdateStatus={updateCapaStatus}
                             onView={() => setSelectedCapa(capa)}
+                            onShare={() => setShareItem(capa)}
                             onAddAction={() => {
                                 setCurrentCapaForAction(capa);
                                 setShowActionModal(true);
@@ -583,7 +599,7 @@ export default function CAPAManager(): React.ReactElement | null {
                 <CreateCapaModal 
                     capa={newCapa}
                     setCapa={setNewCapa}
-                    onSave={handleCreateCapa}
+                    onSave={saveCapas}
                     onClose={() => {
                         setShowAddModal(false);
                         resetForm();
@@ -710,7 +726,7 @@ function TabButton({ active, onClick, icon, label, count }) {
     );
 }
 
-function CapaCard({ capa, statusConfig, priorityConfig, capaType, onUpdateStatus, onView, onAddAction, onDelete }) {
+function CapaCard({ capa, statusConfig, priorityConfig, capaType, onUpdateStatus, onView, onShare, onAddAction, onDelete }) {
     const isOverdue = capa.dueDate && new Date(capa.dueDate) < new Date() && capa.status !== 'closed';
     const daysUntilDue = capa.dueDate ? Math.ceil((new Date(capa.dueDate) - new Date()) / (1000 * 60 * 60 * 24)) : null;
 
@@ -864,6 +880,21 @@ function CapaCard({ capa, statusConfig, priorityConfig, capaType, onUpdateStatus
                     title="Ver detalle"
                 >
                     <Eye size={18} />
+                </button>
+                <button
+                    onClick={onShare}
+                    style={{
+                        padding: '0.6rem 0.75rem',
+                        background: '#dcfce7',
+                        border: '1px solid #86efac',
+                        borderRadius: 'var(--radius-md)',
+                        cursor: 'pointer',
+                        color: '#16a34a',
+                        transition: 'all var(--transition-fast)'
+                    }}
+                    title="Compartir PDF"
+                >
+                    <Share2 size={18} />
                 </button>
                 <button
                     onClick={onDelete}

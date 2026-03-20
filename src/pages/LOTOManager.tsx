@@ -1,13 +1,14 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Lock, Key, AlertTriangle, Plus, Search,
     FileText, Eye, Edit3, Trash2, CheckCircle2,
-    XCircle, Clock, User, Users, Calendar,
+    XCircle, Clock, User, Calendar,
     Shield, Zap, Settings, AlertCircle,
-    TrendingUp, BarChart3, Activity
+    TrendingUp, BarChart3, Activity, Share2
 } from 'lucide-react';
+import ShareModal from '../components/ShareModal';
+import LOTOPdf from '../components/LOTOPdf';
 
 // Tipos de energía según OSHA 1910.147
 const ENERGY_TYPES = [
@@ -60,13 +61,15 @@ const REACTIVATION_STEPS = [
 ];
 
 export default function LOTOManager(): React.ReactElement | null {
-        const [procedures, setProcedures] = useState([]);
-    const [activeLOTOs, setActiveLOTOs] = useState([]);
+    const navigate = useNavigate();
+    const [procedures, setProcedures] = useState<any[]>([]);
+    const [activeLOTOs, setActiveLOTOs] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
     const [showAddModal, setShowAddModal] = useState(false);
     const [selectedProcedure, setSelectedProcedure] = useState(null);
     const [activeTab, setActiveTab] = useState('procedures');
+    const [shareItem, setShareItem] = useState(null);
 
     const [newProcedure, setNewProcedure] = useState({
         id: '',
@@ -227,6 +230,18 @@ export default function LOTOManager(): React.ReactElement | null {
 
     return (
         <div className="container" style={{ paddingBottom: '6rem' }}>
+            <ShareModal
+                isOpen={!!shareItem}
+                onClose={() => setShareItem(null)}
+                title={`Procedimiento LOTO - ${shareItem?.equipmentName || ''}`}
+                text={shareItem ? `🔒 Procedimiento LOTO\n⚙️ Equipo: ${shareItem.equipmentName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString()}` : ''}
+                elementIdToPrint="pdf-content"
+                fileName={`LOTO_${shareItem?.equipmentName || 'Procedimiento'}.pdf`}
+            />
+
+            <div style={{ position: 'fixed', left: '-9999px', top: 0, pointerEvents: 'none' }}>
+                {shareItem && <LOTOPdf data={shareItem} />}
+            </div>
             {/* Header Premium */}
             <div style={{
                 marginBottom: '2rem',
@@ -278,7 +293,7 @@ export default function LOTOManager(): React.ReactElement | null {
 
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                     <button
-                        onClick={() => setShowAddModal(true)}
+                        onClick={() => navigate('/loto/new')}
                         className="btn-primary"
                         style={{
                             width: 'auto',
@@ -293,7 +308,7 @@ export default function LOTOManager(): React.ReactElement | null {
                         Nuevo Procedimiento
                     </button>
                     <button
-                        onClick={() => navigate('/loto-history')}
+                        onClick={() => navigate('/loto/history')}
                         className="btn-outline"
                         style={{
                             padding: '0.75rem 1rem'
@@ -448,6 +463,7 @@ export default function LOTOManager(): React.ReactElement | null {
                                     onStart={() => startLOTO(procedure.id)}
                                     onComplete={() => completeLOTO(procedure.id)}
                                     onView={() => setSelectedProcedure(procedure)}
+                                    onShare={() => setShareItem(procedure)}
                                     onDelete={() => deleteProcedure(procedure.id)}
                                 />
                             ))}
@@ -598,7 +614,7 @@ function TabButton({ active, onClick, icon, label, count, badge }) {
     );
 }
 
-function ProcedureCard({ procedure, statusConfig, onStart, onComplete, onView, onDelete }) {
+function ProcedureCard({ procedure, statusConfig, onStart, onComplete, onView, onShare, onDelete }) {
     return (
         <div className="card" style={{
             padding: '1.25rem',
@@ -726,6 +742,21 @@ function ProcedureCard({ procedure, statusConfig, onStart, onComplete, onView, o
                     title="Ver detalle"
                 >
                     <Eye size={18} />
+                </button>
+                <button
+                    onClick={onShare}
+                    style={{
+                        padding: '0.6rem 0.75rem',
+                        background: '#dcfce7',
+                        border: '1px solid #86efac',
+                        borderRadius: 'var(--radius-md)',
+                        cursor: 'pointer',
+                        color: '#16a34a',
+                        transition: 'all var(--transition-fast)'
+                    }}
+                    title="Compartir PDF"
+                >
+                    <Share2 size={18} />
                 </button>
                 <button
                     onClick={onDelete}

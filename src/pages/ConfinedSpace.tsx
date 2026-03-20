@@ -6,8 +6,10 @@ import {
     FileText, Eye, Edit3, Trash2, CheckCircle2, 
     XCircle, Clock, User, Users, Calendar,
     Shield, Wind, Droplets, Thermometer, Activity,
-    BarChart3, AlertCircle, CheckSquare, XSquare
+    BarChart3, AlertCircle, CheckSquare, XSquare, Share2
 } from 'lucide-react';
+import ShareModal from '../components/ShareModal';
+import ConfinedSpacePdf from '../components/ConfinedSpacePdf';
 
 // Límites atmosféricos según OSHA 1910.146
 const ATMOSPHERIC_LIMITS = {
@@ -86,6 +88,7 @@ export default function ConfinedSpace(): React.ReactElement | null {
     const [activeTab, setActiveTab] = useState('permits');
     const [showAtmosphericModal, setShowAtmosphericModal] = useState(false);
     const [currentPermitForReading, setCurrentPermitForReading] = useState(null);
+    const [shareItem, setShareItem] = useState(null);
 
     const [newPermit, setNewPermit] = useState({
         id: '',
@@ -309,6 +312,18 @@ export default function ConfinedSpace(): React.ReactElement | null {
 
     return (
         <div className="container" style={{ paddingBottom: '6rem' }}>
+            <ShareModal
+                isOpen={!!shareItem}
+                onClose={() => setShareItem(null)}
+                title={`Espacio Confinado - ${shareItem?.spaceName || ''}`}
+                text={shareItem ? `🕳️ Permiso Ingreso Espacio Confinado\n🆔 Espacio: ${shareItem.spaceName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString()}` : ''}
+                elementIdToPrint="pdf-content"
+                fileName={`Espacio_Confinado_${shareItem?.spaceName || 'Sin_Nombre'}.pdf`}
+            />
+
+            <div style={{ position: 'fixed', left: '-9999px', top: 0, pointerEvents: 'none' }}>
+                {shareItem && <ConfinedSpacePdf data={shareItem} />}
+            </div>
             {/* Header Premium */}
             <div style={{
                 marginBottom: '2rem',
@@ -360,7 +375,7 @@ export default function ConfinedSpace(): React.ReactElement | null {
 
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                     <button
-                        onClick={() => setShowAddModal(true)}
+                        onClick={() => navigate('/confined-space-form')}
                         className="btn-primary"
                         style={{
                             width: 'auto',
@@ -531,6 +546,7 @@ export default function ConfinedSpace(): React.ReactElement | null {
                                     onSuspend={() => suspendPermit(permit.id)}
                                     onComplete={() => completePermit(permit.id)}
                                     onView={() => setSelectedPermit(permit)}
+                                    onShare={() => setShareItem(permit)}
                                     onDelete={() => deletePermit(permit.id)}
                                 />
                             ))}
@@ -545,6 +561,7 @@ export default function ConfinedSpace(): React.ReactElement | null {
                     onComplete={completePermit}
                     onSuspend={suspendPermit}
                     onView={setSelectedPermit}
+                    onShare={(permit) => setShareItem(permit)}
                     onAddReading={(permit) => {
                         setCurrentPermitForReading(permit);
                         setShowAtmosphericModal(true);
@@ -702,7 +719,7 @@ function TabButton({ active, onClick, icon, label, count, badge }) {
     );
 }
 
-function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, onView, onDelete }) {
+function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, onView, onShare, onDelete }) {
     const spaceType = CONFINED_SPACE_TYPES.find(t => t.id === permit.spaceType);
     const isExpired = permit.validUntil && new Date(permit.validUntil) < new Date();
 
@@ -854,6 +871,21 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
                     <Eye size={18} />
                 </button>
                 <button
+                    onClick={onShare}
+                    style={{
+                        padding: '0.6rem 0.75rem',
+                        background: '#dcfce7',
+                        border: '1px solid #86efac',
+                        borderRadius: 'var(--radius-md)',
+                        cursor: 'pointer',
+                        color: '#16a34a',
+                        transition: 'all var(--transition-fast)'
+                    }}
+                    title="Compartir PDF"
+                >
+                    <Share2 size={18} />
+                </button>
+                <button
                     onClick={onDelete}
                     style={{
                         padding: '0.6rem 0.75rem',
@@ -921,7 +953,7 @@ function EmptyState({ onAdd }) {
     );
 }
 
-function ActivePermitsList({ activePermits, onComplete, onSuspend, onView, onAddReading }) {
+function ActivePermitsList({ activePermits, onComplete, onSuspend, onView, onShare, onAddReading }) {
     if (activePermits.length === 0) {
         return (
             <div style={{
@@ -1054,6 +1086,18 @@ function ActivePermitsList({ activePermits, onComplete, onSuspend, onView, onAdd
                                     style={{ padding: '0.6rem 0.75rem' }}
                                 >
                                     <Eye size={18} />
+                                </button>
+                                <button
+                                    onClick={() => onShare(permit)}
+                                    className="btn-outline"
+                                    style={{ 
+                                        padding: '0.6rem 0.75rem',
+                                        background: '#dcfce7',
+                                        borderColor: '#86efac',
+                                        color: '#16a34a'
+                                    }}
+                                >
+                                    <Share2 size={18} />
                                 </button>
                                 <button
                                     onClick={() => onComplete(permit.id)}

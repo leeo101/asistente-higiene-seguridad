@@ -95,7 +95,7 @@ export default function NoiseAssessment(): React.ReactElement | null {
 
         loadData();
 
-        const handleStorageChange = (e: any) => {
+        const handleStorageChange = (e) => {
             if (e.key === 'noise_assessments_db' || e.key === 'noise_workers_db') {
                 loadData();
             }
@@ -114,12 +114,12 @@ export default function NoiseAssessment(): React.ReactElement | null {
         };
     }, []);
 
-    const saveMeasurements = (data: any[]) => {
+    const saveMeasurements = (data) => {
         localStorage.setItem('noise_assessments_db', JSON.stringify(data));
         setMeasurements(data);
     };
 
-    const saveWorkers = (data: any[]) => {
+    const saveWorkers = (data) => {
         localStorage.setItem('noise_workers_db', JSON.stringify(data));
         setWorkers(data);
     };
@@ -138,13 +138,6 @@ export default function NoiseAssessment(): React.ReactElement | null {
         saveMeasurements(updated);
         setShowAddModal(false);
         resetForm();
-    };
-
-    const getLevelColor = (level: number) => {
-        if (level >= NOISE_LIMITS.limitValue) return { level: 'critical', color: '#dc2626', label: 'CRÍTICO' };
-        if (level >= NOISE_LIMITS.actionLevelHigh) return { level: 'high', color: '#f59e0b', label: 'ALTO' };
-        if (level >= NOISE_LIMITS.actionLevel) return { level: 'medium', color: '#eab308', label: 'MEDIO' };
-        return { level: 'low', color: '#16a34a', label: 'BAJO' };
     };
 
     const resetForm = () => {
@@ -173,21 +166,21 @@ export default function NoiseAssessment(): React.ReactElement | null {
         });
     };
 
-    const calculateRiskLevel = (level: number) => {
+    const calculateRiskLevel = (level) => {
         if (level >= NOISE_LIMITS.limitValue) return { level: 'critical', color: '#dc2626', label: 'CRÍTICO' };
         if (level >= NOISE_LIMITS.actionLevelHigh) return { level: 'high', color: '#f59e0b', label: 'ALTO' };
         if (level >= NOISE_LIMITS.actionLevel) return { level: 'medium', color: '#eab308', label: 'MEDIO' };
         return { level: 'low', color: '#16a34a', label: 'BAJO' };
     };
 
-    const calculateTose = (level: number, duration: number) => {
+    const calculateDose = (level, duration) => {
         // Fórmula de dosis de ruido según OSHA/ISO
         const referenceDuration = 8 * Math.pow(2, (85 - level) / 3);
         const dose = (duration / referenceDuration) * 100;
         return Math.min(dose, 100).toFixed(1);
     };
 
-    const calculateAttenuatedLevel = (level: number, protectionId: string) => {
+    const calculateAttenuatedLevel = (level, protectionId) => {
         const protection = HEARING_PROTECTION.find(p => p.id === protectionId);
         if (!protection) return level;
         // Método NRR (Noise Reduction Rating) simplificado
@@ -206,17 +199,12 @@ export default function NoiseAssessment(): React.ReactElement | null {
     // Estadísticas
     const stats = {
         total: measurements.length,
-        critical: measurements.filter((m: any) => calculateRiskLevel(parseFloat(m.levels.lavg) || 0).level === 'critical').length,
-        high: measurements.filter((m: any) => calculateRiskLevel(parseFloat(m.levels.lavg) || 0).level === 'high').length,
-        medium: measurements.filter((m: any) => calculateRiskLevel(parseFloat(m.levels.lavg) || 0).level === 'medium').length,
-        low: measurements.filter((m: any) => calculateRiskLevel(parseFloat(m.levels.lavg) || 0).level === 'low').length,
-        complianceRate: measurements.length > 0 
-            ? Math.round((measurements.filter((m: any) => calculateRiskLevel(parseFloat(m.levels.lavg) || 0).level !== 'critical').length / measurements.length) * 100)
-            : 100,
+        critical: measurements.filter(m => calculateRiskLevel(parseFloat(m.levels.lavg) || 0).level === 'critical').length,
+        high: measurements.filter(m => calculateRiskLevel(parseFloat(m.levels.lavg) || 0).level === 'high').length,
         avgLevel: measurements.length > 0 
-            ? (measurements.reduce((sum, m: any) => sum + (parseFloat(m.levels.lavg) || 0), 0) / measurements.length).toFixed(1)
+            ? (measurements.reduce((sum, m) => sum + (parseFloat(m.levels.lavg) || 0), 0) / measurements.length).toFixed(1)
             : 0,
-        workersExposed: new Set(measurements.map((m: any) => m.workerId)).size
+        workersExposed: new Set(measurements.map(m => m.workerId)).size
     };
 
     return (
@@ -412,8 +400,7 @@ export default function NoiseAssessment(): React.ReactElement | null {
                                     color: 'var(--color-text)',
                                     fontSize: '0.95rem',
                                     fontWeight: 500,
-                                    outline: 'none',
-                                    boxSizing: 'border-box' as const
+                                    outline: 'none'
                                 }}
                             />
                         </div>
@@ -465,7 +452,7 @@ export default function NoiseAssessment(): React.ReactElement | null {
             )}
 
             {activeTab === 'workers' && (
-                <WorkerDetails 
+                <WorkersList 
                     workers={workers}
                     measurements={measurements}
                     calculateRiskLevel={calculateRiskLevel}
@@ -473,7 +460,7 @@ export default function NoiseAssessment(): React.ReactElement | null {
             )}
 
             {activeTab === 'statistics' && (
-                <Statistics 
+                <StatisticsPanel 
                     measurements={measurements}
                     calculateRiskLevel={calculateRiskLevel}
                     NOISE_LIMITS={NOISE_LIMITS}
@@ -482,7 +469,7 @@ export default function NoiseAssessment(): React.ReactElement | null {
 
             {/* Modal de Agregar Medición */}
             {showAddModal && (
-                <MeasurementForm 
+                <AddMeasurementModal 
                     measurement={newMeasurement}
                     setMeasurement={setNewMeasurement}
                     workers={workers}
@@ -513,7 +500,7 @@ export default function NoiseAssessment(): React.ReactElement | null {
 }
 
 // Componentes Auxiliares
-function StatCard({ icon, label, value, color, gradient }: { icon: React.ReactElement; label: string; value: string | number; color: string; gradient: string }) {
+function StatCard({ icon, label, value, color, gradient }) {
     return (
         <div className="card" style={{
             padding: '1.25rem',
@@ -543,7 +530,7 @@ function StatCard({ icon, label, value, color, gradient }: { icon: React.ReactEl
                     justifyContent: 'center',
                     boxShadow: `0 4px 15px ${color}40`
                 }}>
-                    {React.cloneElement(icon as any, { color: '#ffffff', size: 24 } as any)}
+                    {React.cloneElement(icon, { color: '#ffffff', size: 24 })}
                 </div>
             </div>
             <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--color-text)', lineHeight: 1 }}>
@@ -556,7 +543,7 @@ function StatCard({ icon, label, value, color, gradient }: { icon: React.ReactEl
     );
 }
 
-function TabButton({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: React.ReactElement; label: string }) {
+function TabButton({ active, onClick, icon, label }) {
     return (
         <button
             onClick={onClick}
@@ -581,7 +568,7 @@ function TabButton({ active, onClick, icon, label }: { active: boolean; onClick:
     );
 }
 
-function MeasurementCard({ measurement, riskLevel, onView, onShare, onDelete }: { measurement: any; riskLevel: { level: string; color: string; label: string }; onView: () => void; onShare: () => void; onDelete: () => void }) {
+function MeasurementCard({ measurement, riskLevel, onView, onShare, onDelete }) {
     return (
         <div className="card" style={{
             padding: '1.25rem',
@@ -713,7 +700,7 @@ function MeasurementCard({ measurement, riskLevel, onView, onShare, onDelete }: 
     );
 }
 
-function EmptyState({ onAdd }: { onAdd: () => void }) {
+function EmptyState({ onAdd }) {
     return (
         <div style={{
             padding: '4rem 2rem',
@@ -761,7 +748,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
     );
 }
 
-function WorkerDetails({ workers, measurements, calculateRiskLevel }: { workers: any[]; measurements: any[]; calculateRiskLevel: (level: number) => any }) {
+function WorkersList({ workers, measurements, calculateRiskLevel }) {
     const workerStats = workers.map(worker => {
         const workerMeasurements = measurements.filter(m => m.workerId === worker.id);
         const avgLevel = workerMeasurements.length > 0
@@ -774,7 +761,7 @@ function WorkerDetails({ workers, measurements, calculateRiskLevel }: { workers:
             measurementCount: workerMeasurements.length,
             avgLevel,
             lastMeasurement,
-            riskLevel: calculateRiskLevel(parseFloat(avgLevel as string) || 0)
+            riskLevel: calculateRiskLevel(parseFloat(avgLevel) || 0)
         };
     });
 
@@ -844,23 +831,16 @@ function WorkerDetails({ workers, measurements, calculateRiskLevel }: { workers:
     );
 }
 
-function Statistics({ measurements, calculateRiskLevel, NOISE_LIMITS }: { measurements: any[]; calculateRiskLevel: (level: number) => any; NOISE_LIMITS: any }) {
+function StatisticsPanel({ measurements, calculateRiskLevel, NOISE_LIMITS }) {
     // Distribución por niveles
     const distribution = {
-        low: measurements.filter((m: any) => calculateRiskLevel(parseFloat(m.levels.lavg) || 0).level === 'low').length,
-        medium: measurements.filter((m: any) => calculateRiskLevel(parseFloat(m.levels.lavg) || 0).level === 'medium').length,
-        high: measurements.filter((m: any) => calculateRiskLevel(parseFloat(m.levels.lavg) || 0).level === 'high').length,
-        critical: measurements.filter((m: any) => calculateRiskLevel(parseFloat(m.levels.lavg) || 0).level === 'critical').length
+        low: measurements.filter(m => calculateRiskLevel(parseFloat(m.levels.lavg) || 0).level === 'low').length,
+        medium: measurements.filter(m => calculateRiskLevel(parseFloat(m.levels.lavg) || 0).level === 'medium').length,
+        high: measurements.filter(m => calculateRiskLevel(parseFloat(m.levels.lavg) || 0).level === 'high').length,
+        critical: measurements.filter(m => calculateRiskLevel(parseFloat(m.levels.lavg) || 0).level === 'critical').length
     };
 
     const maxCount = Math.max(...Object.values(distribution), 1);
-
-    const RISK_LEVELS_CONFIG: { [key: string]: { color: string; label: string } } = {
-        low: { color: '#16a34a', label: 'Bajo' },
-        medium: { color: '#eab308', label: 'Medio' },
-        high: { color: '#f59e0b', label: 'Alto' },
-        critical: { color: '#dc2626', label: 'Crítico' }
-    };
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -870,10 +850,13 @@ function Statistics({ measurements, calculateRiskLevel, NOISE_LIMITS }: { measur
                     Distribución por Nivel de Riesgo
                 </h3>
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1rem', height: '200px' }}>
-                    {Object.entries(distribution).map(([level, count]: [string, number]) => {
-                        const config = RISK_LEVELS_CONFIG[level];
-                        if (!config) return null; // Should not happen if distribution keys match RISK_LEVELS_CONFIG keys
-                        
+                    {Object.entries(distribution).map(([level, count]) => {
+                        const config = {
+                            low: { color: '#16a34a', label: 'Bajo' },
+                            medium: { color: '#eab308', label: 'Medio' },
+                            high: { color: '#f59e0b', label: 'Alto' },
+                            critical: { color: '#dc2626', label: 'Crítico' }
+                        };
                         const height = (count / maxCount) * 100;
                         
                         return (
@@ -881,17 +864,17 @@ function Statistics({ measurements, calculateRiskLevel, NOISE_LIMITS }: { measur
                                 <div style={{
                                     width: '100%',
                                     height: `${height}%`,
-                                    background: config.color,
+                                    background: config[level].color,
                                     borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0',
                                     transition: 'height var(--transition-base)',
                                     minHeight: count > 0 ? '20px' : '0'
                                 }} />
                                 <div style={{ marginTop: '0.75rem', textAlign: 'center' }}>
-                                    <div style={{ fontSize: '1.5rem', fontWeight: 900, color: config.color }}>
+                                    <div style={{ fontSize: '1.5rem', fontWeight: 900, color: config[level].color }}>
                                         {count}
                                     </div>
                                     <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>
-                                        {config.label}
+                                        {config[level].label}
                                     </div>
                                 </div>
                             </div>
@@ -906,25 +889,25 @@ function Statistics({ measurements, calculateRiskLevel, NOISE_LIMITS }: { measur
                     Límites de Referencia (ISO 9612)
                 </h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                    <RiskDetailRow 
+                    <LimitItem 
                         label="Nivel de Acción Inferior"
                         value={`${NOISE_LIMITS.actionLevel} dB(A)`}
                         description="Inicio de programa de conservación auditiva"
                         color="#eab308"
                     />
-                    <RiskDetailRow 
+                    <LimitItem 
                         label="Nivel de Acción Superior"
                         value={`${NOISE_LIMITS.actionLevelHigh} dB(A)`}
                         description="EPP obligatorio"
                         color="#f59e0b"
                     />
-                    <RiskDetailRow 
+                    <LimitItem 
                         label="Valor Límite"
                         value={`${NOISE_LIMITS.limitValue} dB(A)`}
                         description="Exposición máxima permitida"
                         color="#dc2626"
                     />
-                    <RiskDetailRow 
+                    <LimitItem 
                         label="Pico Límite"
                         value={`${NOISE_LIMITS.peakLimit} dB`}
                         description="Nivel de pico máximo"
@@ -985,61 +968,34 @@ function Statistics({ measurements, calculateRiskLevel, NOISE_LIMITS }: { measur
     );
 }
 
-const RiskDetailRow = ({ label, value, description, color }: { label: string; value: string; description: string; color: string }) => (
-    <div style={{
-        padding: '1rem',
-        background: `${color}15`,
-        border: `1px solid ${color}`,
-        borderRadius: 'var(--radius-lg)'
-    }}>
-        <div style={{ fontSize: '0.7rem', fontWeight: 700, color, textTransform: 'uppercase', marginBottom: '0.5rem' }}>
-            {label}
+function LimitItem({ label, value, description, color }) {
+    return (
+        <div style={{
+            padding: '1rem',
+            background: `${color}15`,
+            border: `1px solid ${color}`,
+            borderRadius: 'var(--radius-lg)'
+        }}>
+            <div style={{ fontSize: '0.7rem', fontWeight: 700, color, textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+                {label}
+            </div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-text)', marginBottom: '0.25rem' }}>
+                {value}
+            </div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', lineHeight: 1.4 }}>
+                {description}
+            </div>
         </div>
-        <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-text)', marginBottom: '0.25rem' }}>
-            {value}
-        </div>
-        <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', lineHeight: 1.4 }}>
-            {description}
-        </div>
-    </div>
-);
+    );
+}
 
 // Modal de Agregar Medición
-function MeasurementForm({ measurement, setMeasurement, workers, onSave, onClose, MEASUREMENT_TYPES, HEARING_PROTECTION, NOISE_REFERENCES }: { measurement: any; setMeasurement: React.Dispatch<React.SetStateAction<any>>; workers: any[]; onSave: () => void; onClose: () => void; MEASUREMENT_TYPES: { id: string; name: string; icon: string }[]; HEARING_PROTECTION: { id: string; name: string; nrr: number }[]; NOISE_REFERENCES: { level: number; description: string; icon: string }[] }) {
-    const handleLevelChange = (field: string, value: string) => {
+function AddMeasurementModal({ measurement, setMeasurement, workers, onSave, onClose, MEASUREMENT_TYPES, HEARING_PROTECTION, NOISE_REFERENCES }) {
+    const handleLevelChange = (field, value) => {
         setMeasurement({
             ...measurement,
             levels: { ...measurement.levels, [field]: value }
         });
-    };
-
-    const labelStyle: React.CSSProperties = {
-        display: 'block',
-        marginBottom: '0.5rem',
-        fontSize: '0.85rem',
-        fontWeight: 700,
-        color: 'var(--color-text-muted)'
-    };
-
-    const inputStyle: React.CSSProperties = {
-        width: '100%',
-        padding: '0.75rem 1rem',
-        borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--color-input-border)',
-        background: 'var(--color-surface)',
-        color: 'var(--color-text)',
-        fontSize: '0.95rem',
-        fontWeight: 500,
-        outline: 'none',
-        boxSizing: 'border-box' as const
-    };
-
-    const getColorForLevel = (level: number) => {
-        if (level >= 130) return '#dc2626'; // Umbral del dolor
-        if (level >= 85) return '#f59e0b'; // Umbral de riesgo
-        if (level >= 80) return '#eab308'; // Tráfico intenso
-        if (level >= 60) return '#10b981'; // Conversación normal
-        return '#16a34a'; // Susurro
     };
 
     return (
@@ -1076,7 +1032,7 @@ function MeasurementForm({ measurement, setMeasurement, workers, onSave, onClose
                     <div style={{ gridColumn: '1 / -1' }}>
                         <label style={labelStyle}>Tipo de Medición</label>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
-                            {MEASUREMENT_TYPES.map((type: { id: string; name: string; icon: string }) => (
+                            {MEASUREMENT_TYPES.map(type => (
                                 <button
                                     key={type.id}
                                     onClick={() => setMeasurement({ ...measurement, type: type.id })}
@@ -1182,37 +1138,37 @@ function MeasurementForm({ measurement, setMeasurement, workers, onSave, onClose
                             <LevelInput 
                                 label="Lavg (Promedio)"
                                 value={measurement.levels.lavg}
-                                onChange={(v: string) => handleLevelChange('lavg', v)}
+                                onChange={(v) => handleLevelChange('lavg', v)}
                                 placeholder="Ej: 85"
                             />
                             <LevelInput 
                                 label="Lmax (Máximo)"
                                 value={measurement.levels.lmax}
-                                onChange={(v: string) => handleLevelChange('lmax', v)}
+                                onChange={(v) => handleLevelChange('lmax', v)}
                                 placeholder="Ej: 95"
                             />
                             <LevelInput 
                                 label="Lmin (Mínimo)"
                                 value={measurement.levels.lmin}
-                                onChange={(v: string) => handleLevelChange('lmin', v)}
+                                onChange={(v) => handleLevelChange('lmin', v)}
                                 placeholder="Ej: 70"
                             />
                             <LevelInput 
                                 label="Lpeak (Pico)"
                                 value={measurement.levels.lpeak}
-                                onChange={(v: string) => handleLevelChange('lpeak', v)}
+                                onChange={(v) => handleLevelChange('lpeak', v)}
                                 placeholder="Ej: 130"
                             />
                             <LevelInput 
                                 label="Lex 8h"
                                 value={measurement.levels.lex8h}
-                                onChange={(v: string) => handleLevelChange('lex8h', v)}
+                                onChange={(v) => handleLevelChange('lex8h', v)}
                                 placeholder="Ej: 82"
                             />
                             <LevelInput 
                                 label="Equipo"
                                 value={measurement.equipment}
-                                onChange={(v: string) => setMeasurement({ ...measurement, equipment: v })}
+                                onChange={(e) => setMeasurement({ ...measurement, equipment: e.target.value })}
                                 placeholder="Sonómetro"
                             />
                         </div>
@@ -1223,11 +1179,11 @@ function MeasurementForm({ measurement, setMeasurement, workers, onSave, onClose
                         <label style={labelStyle}>Protección Auditiva</label>
                         <select
                             value={measurement.hearingProtection}
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setMeasurement({ ...measurement, hearingProtection: e.target.value })}
+                            onChange={(e) => setMeasurement({ ...measurement, hearingProtection: e.target.value })}
                             style={inputStyle}
                         >
                             <option value="">Sin protección</option>
-                            {HEARING_PROTECTION.map((hp: { id: string; name: string; nrr: number }) => (
+                            {HEARING_PROTECTION.map(hp => (
                                 <option key={hp.id} value={hp.id}>
                                     {hp.name} (NRR: {hp.nrr})
                                 </option>
@@ -1273,7 +1229,7 @@ function MeasurementForm({ measurement, setMeasurement, workers, onSave, onClose
                         Referencia de Niveles
                     </h4>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '0.5rem' }}>
-                        {NOISE_REFERENCES.slice(0, 6).map((ref: { level: number; description: string; icon: string }) => (
+                        {NOISE_REFERENCES.slice(0, 6).map(ref => (
                             <div key={ref.level} style={{
                                 fontSize: '0.75rem',
                                 padding: '0.5rem',
@@ -1323,7 +1279,7 @@ function MeasurementForm({ measurement, setMeasurement, workers, onSave, onClose
     );
 }
 
-function LevelInput({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (value: string) => void; placeholder: string }) {
+function LevelInput({ label, value, onChange, placeholder }) {
     return (
         <div>
             <label style={{ ...labelStyle, fontSize: '0.75rem' }}>{label}</label>
@@ -1344,8 +1300,8 @@ function LevelInput({ label, value, onChange, placeholder }: { label: string; va
 }
 
 // Modal de Detalle
-function MeasurementDetailModal({ measurement, riskLevel, onClose, calculateAttenuatedLevel, HEARING_PROTECTION, NOISE_LIMITS }: { measurement: any; riskLevel: { level: string; color: string; label: string }; onClose: () => void; calculateAttenuatedLevel: (level: number, protectionId: string) => string | number; HEARING_PROTECTION: { id: string; name: string; nrr: number }[]; NOISE_LIMITS: any }) {
-    const protection = HEARING_PROTECTION.find((p: { id: string; name: string; nrr: number }) => p.id === measurement.hearingProtection);
+function MeasurementDetailModal({ measurement, riskLevel, onClose, calculateAttenuatedLevel, HEARING_PROTECTION, NOISE_LIMITS }) {
+    const protection = HEARING_PROTECTION.find(p => p.id === measurement.hearingProtection);
     const attenuatedLevel = protection 
         ? calculateAttenuatedLevel(parseFloat(measurement.levels.lavg) || 0, measurement.hearingProtection)
         : null;
@@ -1540,7 +1496,7 @@ function MeasurementDetailModal({ measurement, riskLevel, onClose, calculateAtte
     );
 }
 
-function LevelDetail({ label, value }: { label: string; value: string }) {
+function LevelDetail({ label, value }) {
     return (
         <div style={{
             padding: '0.75rem',

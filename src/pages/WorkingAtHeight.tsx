@@ -1,13 +1,14 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
     HardHat, AlertTriangle, Plus, Search, 
     FileText, Eye, Edit3, Trash2, CheckCircle2, 
     XCircle, Clock, User, Users, Calendar,
     Shield, ArrowDown, Ruler, Anchor, CheckSquare,
-    BarChart3, AlertCircle, Activity, Layers
+    BarChart3, AlertCircle, Activity, Layers, Share2
 } from 'lucide-react';
+import ShareModal from '../components/ShareModal';
+import WorkingAtHeightPdf from '../components/WorkingAtHeightPdf';
 
 // Límites según OSHA 1926.501 y normas internacionales
 const HEIGHT_LIMITS = {
@@ -68,13 +69,15 @@ const PERMIT_STATUS = {
 };
 
 export default function WorkingAtHeight(): React.ReactElement | null {
-        const [permits, setPermits] = useState([]);
+    const navigate = useNavigate();
+    const [permits, setPermits] = useState([]);
     const [activePermits, setActivePermits] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
     const [showAddModal, setShowAddModal] = useState(false);
     const [selectedPermit, setSelectedPermit] = useState(null);
     const [activeTab, setActiveTab] = useState('permits');
+    const [shareItem, setShareItem] = useState(null);
 
     const [newPermit, setNewPermit] = useState({
         id: '',
@@ -201,13 +204,14 @@ export default function WorkingAtHeight(): React.ReactElement | null {
     };
 
     const authorizePermit = (permitId) => {
-                if (!permit) return;
+        const p = permits.find(p => p.id === permitId);
+        if (!p) return;
 
         const now = new Date().toISOString();
         const validUntil = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString();
 
         const authorizedPermit = {
-            ...permit,
+            ...p,
             status: 'active',
             authorizedAt: now,
             validFrom: now,
@@ -274,6 +278,18 @@ export default function WorkingAtHeight(): React.ReactElement | null {
 
     return (
         <div className="container" style={{ paddingBottom: '6rem' }}>
+            <ShareModal
+                isOpen={!!shareItem}
+                onClose={() => setShareItem(null)}
+                title={`Permiso Altura - ${shareItem?.location || ''}`}
+                text={shareItem ? `🧗 Permiso de Trabajo en Altura\n📍 Ubicación: ${shareItem.location}\n👷 Trabajador: ${shareItem.workerName}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString()}` : ''}
+                elementIdToPrint="pdf-content"
+                fileName={`Altura_${shareItem?.location || 'Sin_Nombre'}.pdf`}
+            />
+
+            <div style={{ position: 'fixed', left: '-9999px', top: 0, pointerEvents: 'none' }}>
+                {shareItem && <WorkingAtHeightPdf data={shareItem} />}
+            </div>
             {/* Header Premium */}
             <div style={{
                 marginBottom: '2rem',
@@ -325,7 +341,7 @@ export default function WorkingAtHeight(): React.ReactElement | null {
 
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                     <button
-                        onClick={() => setShowAddModal(true)}
+                        onClick={() => navigate('/working-at-height/new')}
                         className="btn-primary"
                         style={{
                             width: 'auto',
@@ -340,7 +356,7 @@ export default function WorkingAtHeight(): React.ReactElement | null {
                         Nuevo Permiso
                     </button>
                     <button
-                        onClick={() => navigate('/working-at-height-history')}
+                        onClick={() => navigate('/working-at-height/history')}
                         className="btn-outline"
                         style={{
                             padding: '0.75rem 1rem'
@@ -496,6 +512,7 @@ export default function WorkingAtHeight(): React.ReactElement | null {
                                     onSuspend={() => suspendPermit(permit.id)}
                                     onComplete={() => completePermit(permit.id)}
                                     onView={() => setSelectedPermit(permit)}
+                                    onShare={() => setShareItem(permit)}
                                     onDelete={() => deletePermit(permit.id)}
                                 />
                             ))}
@@ -510,6 +527,7 @@ export default function WorkingAtHeight(): React.ReactElement | null {
                     onComplete={completePermit}
                     onSuspend={suspendPermit}
                     onView={setSelectedPermit}
+                    onShare={(permit) => setShareItem(permit)}
                 />
             )}
 
@@ -649,7 +667,7 @@ function TabButton({ active, onClick, icon, label, count, badge }) {
     );
 }
 
-function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, onView, onDelete }) {
+function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, onView, onShare, onDelete }) {
     const workType = WORK_TYPES.find(t => t.id === permit.workType);
     const isExpired = permit.validUntil && new Date(permit.validUntil) < new Date();
     const heightRisk = parseFloat(permit.height) >= 6 ? 'high' : parseFloat(permit.height) >= 3 ? 'medium' : 'low';
@@ -808,6 +826,21 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
                     <Eye size={18} />
                 </button>
                 <button
+                    onClick={onShare}
+                    style={{
+                        padding: '0.6rem 0.75rem',
+                        background: '#dcfce7',
+                        border: '1px solid #86efac',
+                        borderRadius: 'var(--radius-md)',
+                        cursor: 'pointer',
+                        color: '#16a34a',
+                        transition: 'all var(--transition-fast)'
+                    }}
+                    title="Compartir PDF"
+                >
+                    <Share2 size={18} />
+                </button>
+                <button
                     onClick={onDelete}
                     style={{
                         padding: '0.6rem 0.75rem',
@@ -875,7 +908,7 @@ function EmptyState({ onAdd }) {
     );
 }
 
-function ActivePermitsList({ activePermits, onComplete, onSuspend, onView }) {
+function ActivePermitsList({ activePermits, onComplete, onSuspend, onView, onShare }) {
     if (activePermits.length === 0) {
         return (
             <div style={{
@@ -1002,6 +1035,18 @@ function ActivePermitsList({ activePermits, onComplete, onSuspend, onView }) {
                                     style={{ padding: '0.6rem 0.75rem' }}
                                 >
                                     <Eye size={18} />
+                                </button>
+                                <button
+                                    onClick={() => onShare(permit)}
+                                    className="btn-outline"
+                                    style={{ 
+                                        padding: '0.6rem 0.75rem',
+                                        background: '#dcfce7',
+                                        borderColor: '#86efac',
+                                        color: '#16a34a'
+                                    }}
+                                >
+                                    <Share2 size={18} />
                                 </button>
                                 <button
                                     onClick={() => onComplete(permit.id)}

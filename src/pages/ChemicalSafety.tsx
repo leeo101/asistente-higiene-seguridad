@@ -1,11 +1,10 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     FlaskConical, Plus, Search, Filter, Download,
     AlertTriangle, CheckCircle2, XCircle, FileText,
     Eye, Edit3, Trash2, Upload, Shield, Droplets,
-    Flame, Skull, Zap, Wind, Thermometer, Radio, Printer
+    Flame, Skull, Zap, Wind, Thermometer, Printer, Share2
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import ChemicalSafetyPdf from '../components/ChemicalSafetyPdf';
@@ -42,10 +41,12 @@ const STORAGE_COMPATIBILITY = {
 };
 
 export default function ChemicalSafety(): React.ReactElement | null {
-        const [chemicals, setChemicals] = useState([]);
+    const navigate = useNavigate();
+    const [chemicals, setChemicals] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterCategory, setFilterCategory] = useState('all');
     const [viewMode, setViewMode] = useState('grid'); // grid o list
+    const [shareItem, setShareItem] = useState(null);
 
     const [selectedChemical, setSelectedChemical] = useState(null);
     const [showShareModal, setShowShareModal] = useState(false);
@@ -86,7 +87,7 @@ export default function ChemicalSafety(): React.ReactElement | null {
         loadChemicals();
 
         // Escuchar cambios en localStorage desde otras páginas
-        const handleStorageChange = (e) => {
+        const handleStorageChange = (e: any) => {
             if (e.key === 'chemical_safety_db') {
                 loadChemicals();
             }
@@ -107,7 +108,7 @@ export default function ChemicalSafety(): React.ReactElement | null {
         };
     }, []);
 
-    const saveToStorage = (data) => {
+    const saveToStorage = (data: any[]) => {
         localStorage.setItem('chemical_safety_db', JSON.stringify(data));
         setChemicals(data);
     };
@@ -155,7 +156,7 @@ export default function ChemicalSafety(): React.ReactElement | null {
         });
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = (id: string) => {
         if (confirm('¿Eliminar este producto químico?')) {
             const updated = chemicals.filter(c => c.id !== id);
             saveToStorage(updated);
@@ -170,19 +171,19 @@ export default function ChemicalSafety(): React.ReactElement | null {
         return matchesSearch && matchesCategory;
     });
 
-    const getHazardLevel = (chemical) => {
+    const getHazardLevel = (chemical: any) => {
         const criticalPictograms = ['toxic', 'carcinogenic', 'explosive', 'corrosive'];
         const warningPictograms = ['flammable', 'oxidizing', 'harmful', 'irritant'];
         
-        const hasCritical = chemical.pictograms?.some(p => criticalPictograms.includes(p));
-        const hasWarning = chemical.pictograms?.some(p => warningPictograms.includes(p));
+        const hasCritical = chemical.pictograms?.some((p: any) => criticalPictograms.includes(p));
+        const hasWarning = chemical.pictograms?.some((p: any) => warningPictograms.includes(p));
         
         if (hasCritical) return { level: 'critical', color: '#dc2626', label: 'Crítico' };
         if (hasWarning) return { level: 'warning', color: '#f59e0b', label: 'Precaución' };
         return { level: 'low', color: '#16a34a', label: 'Bajo' };
     };
 
-    const checkCompatibility = (chemical1, chemical2) => {
+    const checkCompatibility = (chemical1: any, chemical2: any) => {
         // Lógica simple de compatibilidad
         const incompatible = {
             'inflamables': ['oxidantes'],
@@ -194,6 +195,19 @@ export default function ChemicalSafety(): React.ReactElement | null {
 
     return (
         <div className="container" style={{ paddingBottom: '6rem' }}>
+            <ShareModal
+                isOpen={!!shareItem}
+                open={!!shareItem}
+                onClose={() => setShareItem(null)}
+                title={`Ficha SGA - ${(shareItem as any)?.name || ''}`}
+                text={shareItem ? `🧪 Ficha Técnica de Seguridad (SGA)\n🏷️ Producto: ${(shareItem as any).name}\n🆔 CAS: ${(shareItem as any).casNumber || '-'}\n📅 Fecha: ${new Date((shareItem as any).createdAt || Date.now()).toLocaleDateString()}` : ''}
+                rawMessage={shareItem ? `🧪 Ficha Técnica de Seguridad (SGA)\n🏷️ Producto: ${(shareItem as any).name}\n🆔 CAS: ${(shareItem as any).casNumber || '-'}\n📅 Fecha: ${new Date((shareItem as any).createdAt || Date.now()).toLocaleDateString()}` : ''}
+                elementIdToPrint="pdf-content"
+            />
+
+            <div style={{ position: 'fixed', left: '-9999px', top: 0, pointerEvents: 'none' }}>
+                {shareItem && <ChemicalSafetyPdf data={shareItem} />}
+            </div>
             {/* Header Premium */}
             <div style={{
                 marginBottom: '2rem',
@@ -244,7 +258,18 @@ export default function ChemicalSafety(): React.ReactElement | null {
                 </div>
 
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                    <button onClick={() => navigate('/chemical-safety/new')} className="btn-primary" style={{ width: 'auto', margin: 0, padding: '0.75rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <button
+                        onClick={() => navigate('/chemical-safety-form')}
+                        className="btn-primary"
+                        style={{
+                            width: 'auto',
+                            margin: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '0.75rem 1.25rem'
+                        }}
+                    >
                         <Plus size={20} strokeWidth={2.5} />
                         Nuevo Producto
                     </button>
@@ -431,7 +456,11 @@ export default function ChemicalSafety(): React.ReactElement | null {
                             chemical={chemical}
                             hazardLevel={getHazardLevel(chemical)}
                             onView={() => setSelectedChemical(chemical)}
-                            onEdit={() => navigate('/chemical-safety/new')}
+                            onShare={() => setShareItem(chemical)}
+                            onEdit={() => {
+                                setNewChemical(chemical);
+                                setShowAddModal(true);
+                            }}
                             onDelete={() => handleDelete(chemical.id)}
                         />
                     ))}
@@ -444,6 +473,7 @@ export default function ChemicalSafety(): React.ReactElement | null {
                             chemical={chemical}
                             hazardLevel={getHazardLevel(chemical)}
                             onView={() => setSelectedChemical(chemical)}
+                            onShare={() => setShareItem(chemical)}
                             onDelete={() => handleDelete(chemical.id)}
                         />
                     ))}
@@ -477,10 +507,12 @@ export default function ChemicalSafety(): React.ReactElement | null {
 
             <ShareModal 
                 isOpen={showShareModal}
+                open={showShareModal}
                 onClose={() => setShowShareModal(false)}
                 elementIdToPrint="pdf-content"
                 title="Ficha de Seguridad (SDS)"
-                fileName={`SDS_${selectedChemical?.name || 'Quimico'}.pdf`}
+                text={`📄 SDS: ${(selectedChemical as any)?.name || 'Químico'}`}
+                rawMessage={`📄 SDS: ${(selectedChemical as any)?.name || 'Químico'}`}
             />
 
             <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
@@ -491,7 +523,7 @@ export default function ChemicalSafety(): React.ReactElement | null {
 }
 
 // Componentes Auxiliares
-function StatCard({ icon, label, value, color, gradient }) {
+function StatCard({ icon, label, value, color, gradient }: any) {
     return (
         <div className="card" style={{
             padding: '1.25rem',
@@ -534,7 +566,7 @@ function StatCard({ icon, label, value, color, gradient }) {
     );
 }
 
-function ChemicalCard({ chemical, hazardLevel, onView, onEdit, onDelete }) {
+function ChemicalCard({ chemical, hazardLevel, onView, onShare, onEdit, onDelete }: any) {
     return (
         <div className="card" style={{
             padding: 0,
@@ -563,7 +595,7 @@ function ChemicalCard({ chemical, hazardLevel, onView, onEdit, onDelete }) {
                         fontSize: '1.25rem',
                         fontWeight: 900
                     }}>
-                        {chemical.pictograms?.[0] ? GHS_PICTOGRAMS[chemical.pictograms[0]]?.icon : '⚗️'}
+                        {chemical.pictograms?.[0] ? (GHS_PICTOGRAMS as any)[chemical.pictograms[0]]?.icon : '⚗️'}
                     </div>
                     <div>
                         <h3 style={{ 
@@ -605,18 +637,18 @@ function ChemicalCard({ chemical, hazardLevel, onView, onEdit, onDelete }) {
                     gap: '0.5rem', 
                     marginBottom: '1rem' 
                 }}>
-                    {chemical.pictograms?.map((picto, idx) => (
+                    {chemical.pictograms?.map((picto: any, idx: number) => (
                         <span 
                             key={idx}
-                            title={GHS_PICTOGRAMS[picto]?.name}
+                            title={(GHS_PICTOGRAMS as any)[picto]?.name}
                             style={{
                                 fontSize: '1.5rem',
                                 padding: '0.25rem',
-                                background: `${GHS_PICTOGRAMS[picto]?.color}15`,
+                                background: `${(GHS_PICTOGRAMS as any)[picto]?.color}15`,
                                 borderRadius: 'var(--radius-sm)'
                             }}
                         >
-                            {GHS_PICTOGRAMS[picto]?.icon}
+                            {(GHS_PICTOGRAMS as any)[picto]?.icon}
                         </span>
                     ))}
                 </div>
@@ -646,6 +678,19 @@ function ChemicalCard({ chemical, hazardLevel, onView, onEdit, onDelete }) {
                     >
                         <Eye size={16} style={{ marginRight: '0.25rem' }} />
                         Ver SDS
+                    </button>
+                    <button
+                        onClick={onShare}
+                        style={{
+                            padding: '0.6rem 0.75rem',
+                            background: '#dcfce7',
+                            border: '1px solid #86efac',
+                            borderRadius: 'var(--radius-md)',
+                            cursor: 'pointer',
+                            color: '#16a34a'
+                        }}
+                    >
+                        <Share2 size={16} />
                     </button>
                     <button
                         onClick={onEdit}
@@ -679,7 +724,7 @@ function ChemicalCard({ chemical, hazardLevel, onView, onEdit, onDelete }) {
     );
 }
 
-function ChemicalListItem({ chemical, hazardLevel, onView, onDelete }) {
+function ChemicalListItem({ chemical, hazardLevel, onView, onShare, onDelete }: any) {
     return (
         <div className="card" style={{
             padding: '1rem 1.25rem',
@@ -754,6 +799,19 @@ function ChemicalListItem({ chemical, hazardLevel, onView, onDelete }) {
                     <Eye size={18} />
                 </button>
                 <button
+                    onClick={onShare}
+                    style={{
+                        padding: '0.5rem',
+                        background: '#dcfce7',
+                        border: '1px solid #86efac',
+                        borderRadius: 'var(--radius-md)',
+                        cursor: 'pointer',
+                        color: '#16a34a'
+                    }}
+                >
+                    <Share2 size={18} />
+                </button>
+                <button
                     onClick={onDelete}
                     style={{
                         padding: '0.5rem',
@@ -771,20 +829,18 @@ function ChemicalListItem({ chemical, hazardLevel, onView, onDelete }) {
     );
 }
 
-function InfoField({ label, value }) {
-    return (
-        <div>
-            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>
-                {label}
-            </div>
-            <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-text)' }}>
-                {value}
-            </div>
+const InfoField = ({ label, value }: any) => (
+    <div>
+        <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>
+            {label}
         </div>
-    );
-}
+        <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-text)' }}>
+            {value}
+        </div>
+    </div>
+);
 
-function EmptyState({ onAdd }) {
+function EmptyState({ onAdd }: any) {
     return (
         <div style={{
             padding: '4rem 2rem',
@@ -833,19 +889,27 @@ function EmptyState({ onAdd }) {
 }
 
 // Modal de Agregar Producto Químico
-function AddChemicalModal({ chemical, setChemical, onSave, onClose, GHS_PICTOGRAMS }) {
-    const handlePictoToggle = (picto) => {
+function AddChemicalModal({ chemical, setChemical, onSave, onClose, GHS_PICTOGRAMS }: any) {
+    const handleHazardChange = (field: string, value: any) => {
+        setChemical({ ...chemical, [field]: value });
+    };
+
+    const handleLevelChange = (field: string, value: any) => {
+        setChemical({
+            ...chemical,
+            [field]: value
+        });
+    };
+    const handlePictoToggle = (picto: any) => {
         const current = chemical.pictograms || [];
         const updated = current.includes(picto)
-            ? current.filter(p => p !== picto)
+            ? current.filter((p: any) => p !== picto)
             : [...current, picto];
         setChemical({ ...chemical, pictograms: updated });
     };
 
     return (
-        <div style={{
-            className: 'modal-fullscreen-overlay'
-        }} onClick={onClose}>
+        <div className="modal-fullscreen-overlay" onClick={onClose}>
             <div 
                 className="card"
                 style={{
@@ -980,7 +1044,7 @@ function AddChemicalModal({ chemical, setChemical, onSave, onClose, GHS_PICTOGRA
                         gap: '0.75rem',
                         marginTop: '0.5rem'
                     }}>
-                        {Object.entries(GHS_PICTOGRAMS).map(([key, data]) => (
+                        {Object.entries(GHS_PICTOGRAMS).map(([key, data]: [string, any]) => (
                             <button
                                 key={key}
                                 onClick={() => handlePictoToggle(key)}
@@ -1103,11 +1167,9 @@ function AddChemicalModal({ chemical, setChemical, onSave, onClose, GHS_PICTOGRA
 }
 
 // Modal de Detalle del Producto
-function ChemicalDetailModal({ chemical, hazardLevel, onClose, GHS_PICTOGRAMS }) {
+function ChemicalDetailModal({ chemical, hazardLevel, onClose, GHS_PICTOGRAMS, onPrint }: any) {
     return (
-        <div style={{
-            className: 'modal-fullscreen-overlay'
-        }} onClick={onClose}>
+        <div className="modal-fullscreen-overlay" onClick={onClose}>
             <div 
                 className="card"
                 style={{
@@ -1141,7 +1203,7 @@ function ChemicalDetailModal({ chemical, hazardLevel, onClose, GHS_PICTOGRAMS })
                             color: '#fff',
                             fontSize: '2rem'
                         }}>
-                            {chemical.pictograms?.[0] ? GHS_PICTOGRAMS[chemical.pictograms[0]]?.icon : '⚗️'}
+                            {chemical.pictograms?.[0] ? (GHS_PICTOGRAMS as any)[chemical.pictograms[0]]?.icon : '⚗️'}
                         </div>
                         <div>
                             <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900 }}>
@@ -1173,26 +1235,26 @@ function ChemicalDetailModal({ chemical, hazardLevel, onClose, GHS_PICTOGRAMS })
                         Pictogramas de Peligro
                     </h3>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-                        {chemical.pictograms?.map((picto, idx) => (
+                        {chemical.pictograms?.map((picto: any, idx: any) => (
                             <div 
                                 key={idx}
                                 style={{
                                     padding: '0.75rem 1rem',
-                                    background: `${GHS_PICTOGRAMS[picto]?.color}15`,
-                                    border: `1px solid ${GHS_PICTOGRAMS[picto]?.color}`,
+                                    background: `${(GHS_PICTOGRAMS as any)[picto]?.color}15`,
+                                    border: `1px solid ${(GHS_PICTOGRAMS as any)[picto]?.color}`,
                                     borderRadius: 'var(--radius-lg)',
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '0.5rem'
                                 }}
                             >
-                                <span style={{ fontSize: '1.75rem' }}>{GHS_PICTOGRAMS[picto]?.icon}</span>
+                                <span style={{ fontSize: '1.75rem' }}>{(GHS_PICTOGRAMS as any)[picto]?.icon}</span>
                                 <span style={{ 
                                     fontSize: '0.8rem', 
                                     fontWeight: 700,
-                                    color: GHS_PICTOGRAMS[picto]?.color
+                                    color: (GHS_PICTOGRAMS as any)[picto]?.color
                                 }}>
-                                    {GHS_PICTOGRAMS[picto]?.name}
+                                    {(GHS_PICTOGRAMS as any)[picto]?.name}
                                 </span>
                             </div>
                         ))}
@@ -1206,12 +1268,12 @@ function ChemicalDetailModal({ chemical, hazardLevel, onClose, GHS_PICTOGRAMS })
                     gap: '1rem',
                     marginBottom: '1.5rem'
                 }}>
-                    <InfoDetail label="Ubicación" value={chemical.location || '-'} />
-                    <InfoDetail label="Cantidad" value={`${chemical.quantity || '-'} ${chemical.unit}`} />
-                    <InfoDetail label="Proveedor" value={chemical.supplier || '-'} />
-                    <InfoDetail label="Vencimiento" value={chemical.expiryDate ? new Date(chemical.expiryDate).toLocaleDateString() : '-'} />
-                    <InfoDetail label="Fecha SDS" value={chemical.sdsDate ? new Date(chemical.sdsDate).toLocaleDateString() : '-'} />
-                    <InfoDetail label="Categoría" value={HAZARD_CATEGORIES.find(c => c.id === chemical.category)?.name || '-'} />
+                    <DetailRow label="Ubicación" value={chemical.location || '-'} />
+                    <DetailRow label="Cantidad" value={`${chemical.quantity || '-'} ${chemical.unit}`} />
+                    <DetailRow label="Proveedor" value={chemical.supplier || '-'} />
+                    <DetailRow label="Vencimiento" value={chemical.expiryDate ? new Date(chemical.expiryDate).toLocaleDateString() : '-'} />
+                    <DetailRow label="Fecha SDS" value={chemical.sdsDate ? new Date(chemical.sdsDate).toLocaleDateString() : '-'} />
+                    <DetailRow label="Categoría" value={HAZARD_CATEGORIES.find(c => c.id === chemical.category)?.name || '-'} />
                 </div>
 
                 {/* Primeros Auxilios */}
@@ -1235,10 +1297,10 @@ function ChemicalDetailModal({ chemical, hazardLevel, onClose, GHS_PICTOGRAMS })
                         PRIMEROS AUXILIOS
                     </h3>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                        <FirstAidItem icon="🫁" label="Inhalación" value={chemical.firstAid?.inhalation} />
-                        <FirstAidItem icon="🖐️" label="Piel" value={chemical.firstAid?.skin} />
-                        <FirstAidItem icon="👁️" label="Ojos" value={chemical.firstAid?.eyes} />
-                        <FirstAidItem icon="👄" label="Ingestión" value={chemical.firstAid?.ingestion} />
+                        <StatBox icon="🫁" label="Inhalación" value={chemical.firstAid?.inhalation} />
+                        <StatBox icon="🖐️" label="Piel" value={chemical.firstAid?.skin} />
+                        <StatBox icon="👁️" label="Ojos" value={chemical.firstAid?.eyes} />
+                        <StatBox icon="👄" label="Ingestión" value={chemical.firstAid?.ingestion} />
                     </div>
                 </div>
 
@@ -1276,45 +1338,46 @@ function ChemicalDetailModal({ chemical, hazardLevel, onClose, GHS_PICTOGRAMS })
     );
 }
 
-function InfoDetail({ label, value }) {
-    return (
-        <div>
-            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>
-                {label}
-            </div>
-            <div style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--color-text)' }}>
-                {value}
-            </div>
+const DetailRow = ({ label, value }: any) => (
+    <div>
+        <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>
+            {label}
         </div>
-    );
-}
+        <div style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--color-text)' }}>
+            {value}
+        </div>
+    </div>
+);
 
-function FirstAidItem({ icon, label, value }) {
-    return (
-        <div>
-            <div style={{ 
-                fontSize: '0.7rem', 
-                fontWeight: 700, 
-                color: '#dc2626',
-                textTransform: 'uppercase',
-                marginBottom: '0.25rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.35rem'
-            }}>
-                <span>{icon}</span>
-                {label}
-            </div>
-            <div style={{ 
-                fontSize: '0.85rem', 
-                color: '#991b1b',
-                lineHeight: 1.5
-            }}>
-                {value || 'No especificado'}
-            </div>
+const StatBox = ({ icon, label, value }: any) => (
+    <div style={{
+        padding: '0.75rem',
+        background: '#fff',
+        borderRadius: 'var(--radius-lg)',
+        border: '1px solid #fecaca'
+    }}>
+        <div style={{ 
+            fontSize: '0.7rem', 
+            fontWeight: 700, 
+            color: '#dc2626',
+            textTransform: 'uppercase',
+            marginBottom: '0.25rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.35rem'
+        }}>
+            <span>{icon}</span>
+            {label}
         </div>
-    );
-}
+        <div style={{ 
+            fontSize: '0.85rem', 
+            color: '#991b1b',
+            lineHeight: 1.5
+        }}>
+            {value || 'No especificado'}
+        </div>
+    </div>
+);
 
 const labelStyle = {
     display: 'block',
@@ -1325,7 +1388,7 @@ const labelStyle = {
     marginBottom: '0.5rem'
 };
 
-const inputStyle = {
+const inputStyle: React.CSSProperties = {
     width: '100%',
     padding: '0.75rem 1rem',
     borderRadius: 'var(--radius-lg)',

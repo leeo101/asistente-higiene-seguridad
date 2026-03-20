@@ -11,6 +11,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import toast from 'react-hot-toast';
+import ShareModal from '../components/ShareModal';
+import { usePaywall } from '../hooks/usePaywall';
 import ExtinguisherPdfGenerator from '../components/ExtinguisherPdfGenerator';
 
 // Utility for calculating dates
@@ -46,6 +48,8 @@ export default function Extinguishers(): React.ReactElement | null {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [companyFilter, setCompanyFilter] = useState('');
+    const [showShareModal, setShowShareModal] = useState(false);
+    const { requirePro } = usePaywall();
 
     const [formData, setFormData] = useState({
         chapa: '',
@@ -129,6 +133,18 @@ export default function Extinguishers(): React.ReactElement | null {
 
     return (
         <div className="container" style={{ paddingBottom: '3rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+            <ShareModal
+                open={showShareModal}
+                onClose={() => setShowShareModal(false)}
+                title="Inventario de Extintores"
+                text={`🧯 Reporte de Extintores\n🏢 Empresa: ${companyFilter || 'Todas'}\n📊 Total: ${stats.total}\n⚠️ Cargas Vencidas: ${stats.cargaVencida}\n🛠️ PH Vencidas: ${stats.phVencida}`}
+                elementIdToPrint="pdf-content"
+            />
+
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                <ExtinguisherPdfGenerator extinguishers={filteredList} />
+            </div>
+
             <div className="no-print" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10, flexWrap: 'wrap', gap: '1rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -138,11 +154,14 @@ export default function Extinguishers(): React.ReactElement | null {
                         <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Control de Extintores</h1>
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <button onClick={() => window.print()} className="btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-                            <Printer size={18} /> Exportar
+                        <button onClick={() => requirePro(() => setShowShareModal(true))} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, background: '#0052CC', color: '#white', borderColor: '#0052CC' }}>
+                            <Share2 size={18} /> <span className="hidden sm:inline">Compartir</span>
+                        </button>
+                        <button onClick={() => requirePro(() => window.print())} className="btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+                            <Printer size={18} /> <span className="hidden sm:inline">Exportar</span>
                         </button>
                         <button onClick={() => openModal()} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-                            <Plus size={18} /> Nuevo
+                            <Plus size={18} /> <span className="hidden sm:inline">Nuevo</span>
                         </button>
                     </div>
                 </div>

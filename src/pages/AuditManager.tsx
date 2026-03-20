@@ -1,13 +1,14 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
     ClipboardCheck, Plus, Search, 
     FileText, Eye, Edit3, Trash2, CheckCircle2, 
-    XCircle, Clock, User, Users, Calendar,
+    XCircle, Clock, User, Calendar,
     Shield, TrendingUp, AlertTriangle, BarChart3,
-    Activity, CheckSquare, XSquare, Star, Target
+    Activity, CheckSquare, XSquare, Star, Target, Share2
 } from 'lucide-react';
+import ShareModal from '../components/ShareModal';
+import AuditPdf from '../components/AuditPdf';
 
 // Tipos de auditoría según ISO 45001
 const AUDIT_TYPES = [
@@ -104,11 +105,15 @@ const ISO_CHECKLIST = {
 };
 
 export default function AuditManager(): React.ReactElement | null {
-        const [audits, setAudits] = useState([]);
-    const [findings, setFindings] = useState([]);
+    const navigate = useNavigate();
+    const [audits, setAudits] = useState<any[]>([]);
+    const [findings, setFindings] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
     const [activeTab, setActiveTab] = useState('audits');
+    const [showFindingModal, setShowFindingModal] = useState(false);
+    const [currentAuditForFinding, setCurrentAuditForFinding] = useState(null);
+    const [shareItem, setShareItem] = useState<any>(null);
 
     const [newAudit, setNewAudit] = useState({
         id: '',
@@ -139,12 +144,12 @@ export default function AuditManager(): React.ReactElement | null {
         if (savedFindings) setFindings(JSON.parse(savedFindings));
     }, []);
 
-    const saveAudits = (data) => {
+    const saveAudits = (data: any) => {
         localStorage.setItem('ehs_audits_db', JSON.stringify(data));
         setAudits(data);
     };
 
-    const saveFindings = (data) => {
+    const saveFindings = (data: any) => {
         localStorage.setItem('ehs_audit_findings_db', JSON.stringify(data));
         setFindings(data);
     };
@@ -166,11 +171,11 @@ export default function AuditManager(): React.ReactElement | null {
         resetForm();
     };
 
-    const buildChecklist = (selectedAreas) => {
-        const checklist = [];
-        selectedAreas.forEach(areaId => {
+    const buildChecklist = (selectedAreas: any) => {
+        const checklist: any[] = [];
+        selectedAreas.forEach((areaId: any) => {
             const areaChecklist = ISO_CHECKLIST[areaId] || [];
-            areaChecklist.forEach(item => {
+            areaChecklist.forEach((item: any) => {
                 checklist.push({
                     ...item,
                     area: areaId,
@@ -207,15 +212,15 @@ export default function AuditManager(): React.ReactElement | null {
         });
     };
 
-    const startAudit = (auditId) => {
-        const updated = audits.map(a => 
+    const startAudit = (auditId: any) => {
+        const updated = audits.map((a: any) => 
             a.id === auditId ? { ...a, status: 'in_progress' } : a
         );
         saveAudits(updated);
     };
 
-    const completeAudit = (auditId) => {
-        const updated = audits.map(a => 
+    const completeAudit = (auditId: any) => {
+        const updated = audits.map((a: any) => 
             a.id === auditId ? { 
                 ...a, 
                 status: 'completed',
@@ -225,14 +230,14 @@ export default function AuditManager(): React.ReactElement | null {
         saveAudits(updated);
     };
 
-    const deleteAudit = (id) => {
+    const deleteAudit = (id: any) => {
         if (confirm('¿Eliminar esta auditoría?')) {
             saveAudits(audits.filter(a => a.id !== id));
             saveFindings(findings.filter(f => f.auditId !== id));
         }
     };
 
-    const addFinding = (finding) => {
+    const addFinding = (finding: any) => {
         const newFinding = {
             ...finding,
             id: `FIND-${Date.now()}`,
@@ -244,14 +249,14 @@ export default function AuditManager(): React.ReactElement | null {
         return newFinding;
     };
 
-    const updateFindingStatus = (findingId, status) => {
-        const updated = findings.map(f => 
+    const updateFindingStatus = (findingId: any, status: any) => {
+        const updated = findings.map((f: any) => 
             f.id === findingId ? { ...f, status } : f
         );
         saveFindings(updated);
     };
 
-    const filteredAudits = audits.filter(a => {
+    const filteredAudits = audits.filter((a: any) => {
         const matchesSearch = a.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             a.leadAuditor?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             a.location?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -262,18 +267,32 @@ export default function AuditManager(): React.ReactElement | null {
     // Estadísticas
     const stats = {
         total: audits.length,
-        inProgress: audits.filter(a => a.status === 'in_progress').length,
-        completed: audits.filter(a => a.status === 'completed').length,
+        inProgress: audits.filter((a: any) => a.status === 'in_progress').length,
+        completed: audits.filter((a: any) => a.status === 'completed').length,
         findings: findings.length,
-        openFindings: findings.filter(f => f.status === 'open').length,
-        criticalFindings: findings.filter(f => f.severity === 'critical').length,
+        openFindings: findings.filter((f: any) => f.status === 'open').length,
+        criticalFindings: findings.filter((f: any) => f.severity === 'critical').length,
         complianceRate: audits.length > 0 
-            ? Math.round((audits.filter(a => a.status === 'completed').length / audits.length) * 100)
+            ? Math.round((audits.filter((a: any) => a.status === 'completed').length / audits.length) * 100)
             : 0
     };
 
     return (
         <div className="container" style={{ paddingBottom: '6rem' }}>
+            <ShareModal
+                isOpen={!!shareItem}
+                open={!!shareItem}
+                onClose={() => setShareItem(null)}
+                title={`Informe Auditoría - ${shareItem?.auditTitle || shareItem?.title || ''}`}
+                text={shareItem ? `📋 Informe de Auditoría EHS\n📌 Título: ${shareItem.auditTitle || shareItem.title}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${shareItem.date || shareItem.scheduledDate}` : ''}
+                rawMessage={shareItem ? `📋 Informe de Auditoría EHS\n📌 Título: ${shareItem.auditTitle || shareItem.title}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${shareItem.date || shareItem.scheduledDate}` : ''}
+                elementIdToPrint="pdf-content"
+            />
+
+            <div style={{ position: 'fixed', left: '-9999px', top: 0, pointerEvents: 'none' }}>
+                {shareItem && <AuditPdf data={shareItem} />}
+            </div>
+
             {/* Header Premium */}
             <div style={{
                 marginBottom: '2rem',
@@ -307,8 +326,7 @@ export default function AuditManager(): React.ReactElement | null {
                             margin: 0, 
                             fontSize: '1.5rem', 
                             fontWeight: 900,
-                            color: 'var(--color-text)',
-                            letterSpacing: '-0.5px'
+                            color: 'var(--color-text)'
                         }}>
                             Auditorías EHS
                         </h1>
@@ -340,7 +358,7 @@ export default function AuditManager(): React.ReactElement | null {
                         Nueva Auditoría
                     </button>
                     <button
-                        onClick={() => navigate('/audit-reports')}
+                        onClick={() => navigate('/audit-history')}
                         className="btn-outline"
                         style={{
                             padding: '0.75rem 1rem'
@@ -479,7 +497,7 @@ export default function AuditManager(): React.ReactElement | null {
                                 type="text"
                                 placeholder="Buscar por título, auditor, ubicación..."
                                 value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
+                                onChange={(e: any) => setSearchTerm(e.target.value)}
                                 style={{
                                     width: '100%',
                                     padding: '0.85rem 1rem 0.85rem 3rem',
@@ -496,7 +514,7 @@ export default function AuditManager(): React.ReactElement | null {
 
                         <select
                             value={filterStatus}
-                            onChange={(e) => setFilterStatus(e.target.value)}
+                            onChange={(e: any) => setFilterStatus(e.target.value)}
                             style={{
                                 padding: '0.85rem 1.25rem',
                                 borderRadius: 'var(--radius-lg)',
@@ -510,7 +528,7 @@ export default function AuditManager(): React.ReactElement | null {
                             }}
                         >
                             <option value="all">Todos los Estados</option>
-                            {Object.entries(AUDIT_STATUS).map(([key, value]) => (
+                            {Object.entries(AUDIT_STATUS).map(([key, value]: any) => (
                                 <option key={key} value={key}>{value.label}</option>
                             ))}
                         </select>
@@ -521,15 +539,21 @@ export default function AuditManager(): React.ReactElement | null {
                         <EmptyState onAdd={() => navigate('/audit/new')} />
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                            {filteredAudits.map(audit => (
+                            {filteredAudits.map((audit: any) => (
                                 <AuditCard
                                     key={audit.id}
                                     audit={audit}
+                                    findings={findings}
+                                    AUDIT_TYPES={AUDIT_TYPES}
                                     statusConfig={AUDIT_STATUS[audit.status] || AUDIT_STATUS.draft}
                                     onStart={() => startAudit(audit.id)}
                                     onComplete={() => completeAudit(audit.id)}
                                     onView={() => navigate(`/audit/${audit.id}`)}
-                                    onAddFinding={() => navigate(`/audit/${audit.id}/finding`)}
+                                    onShare={() => setShareItem(audit)}
+                                    onAddFinding={() => {
+                                        setCurrentAuditForFinding(audit);
+                                        setShowFindingModal(true);
+                                    }}
                                     onDelete={() => deleteAudit(audit.id)}
                                 />
                             ))}
@@ -559,7 +583,7 @@ export default function AuditManager(): React.ReactElement | null {
 }
 
 // Componentes Auxiliares
-function StatCard({ icon, label, value, color, gradient }) {
+function StatCard({ icon, label, value, color, gradient }: any) {
     return (
         <div className="card" style={{
             padding: '1.25rem',
@@ -602,7 +626,7 @@ function StatCard({ icon, label, value, color, gradient }) {
     );
 }
 
-function TabButton({ active, onClick, icon, label, count, badge }) {
+function TabButton({ active, onClick, icon, label, count, badge }: any) {
     return (
         <button
             onClick={onClick}
@@ -658,10 +682,10 @@ function TabButton({ active, onClick, icon, label, count, badge }) {
     );
 }
 
-function AuditCard({ audit, statusConfig, onStart, onComplete, onView, onAddFinding, onDelete }) {
-    const auditType = AUDIT_TYPES.find(t => t.id === audit.auditType);
-    const auditFindings = findings.filter(f => f.auditId === audit.id);
-    const openFindings = auditFindings.filter(f => f.status === 'open').length;
+function AuditCard({ audit, findings, statusConfig, onStart, onComplete, onView, onShare, onAddFinding, onDelete }: any) {
+    const auditType = AUDIT_TYPES.find((t: any) => t.id === audit.auditType);
+    const auditFindings = findings.filter((f: any) => f.auditId === audit.id);
+    const openFindings = auditFindings.filter((f: any) => f.status === 'open').length;
 
     return (
         <div className="card" style={{
@@ -824,6 +848,21 @@ function AuditCard({ audit, statusConfig, onStart, onComplete, onView, onAddFind
                     <Eye size={18} />
                 </button>
                 <button
+                    onClick={onShare}
+                    style={{
+                        padding: '0.6rem 0.75rem',
+                        background: '#dcfce7',
+                        border: '1px solid #86efac',
+                        borderRadius: 'var(--radius-md)',
+                        cursor: 'pointer',
+                        color: '#16a34a',
+                        transition: 'all var(--transition-fast)'
+                    }}
+                    title="Compartir PDF"
+                >
+                    <Share2 size={18} />
+                </button>
+                <button
                     onClick={onDelete}
                     style={{
                         padding: '0.6rem 0.75rem',
@@ -843,7 +882,7 @@ function AuditCard({ audit, statusConfig, onStart, onComplete, onView, onAddFind
     );
 }
 
-function EmptyState({ onAdd }) {
+function EmptyState({ onAdd }: any) {
     return (
         <div style={{
             padding: '4rem 2rem',
@@ -917,7 +956,7 @@ const inputStyle = {
 };
 
 // Componentes restantes simplificados por espacio
-function FindingsList({ findings, audits, onUpdateStatus, severityConfig, statusConfig }) {
+function FindingsList({ findings, audits, onUpdateStatus, severityConfig, statusConfig }: any) {
     if (findings.length === 0) {
         return (
             <div style={{ padding: '3rem 2rem', textAlign: 'center', background: 'var(--gradient-card)', borderRadius: 'var(--radius-2xl)', border: '2px dashed var(--color-border)' }}>
@@ -930,8 +969,8 @@ function FindingsList({ findings, audits, onUpdateStatus, severityConfig, status
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {findings.map(finding => {
-                const audit = audits.find(a => a.id === finding.auditId);
+            {findings.map((finding: any) => {
+                const audit = audits.find((a: any) => a.id === finding.auditId);
                 const severity = severityConfig[finding.severity] || severityConfig.observation;
                 const status = statusConfig[finding.status] || statusConfig.open;
                 
@@ -953,10 +992,10 @@ function FindingsList({ findings, audits, onUpdateStatus, severityConfig, status
                             </div>
                             <select 
                                 value={finding.status} 
-                                onChange={(e) => onUpdateStatus(finding.id, e.target.value)}
+                                onChange={(e: any) => onUpdateStatus(finding.id, e.target.value)}
                                 style={{ padding: '0.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', fontSize: '0.8rem', fontWeight: 600 }}
                             >
-                                {Object.entries(statusConfig).map(([key, value]) => (
+                                {Object.entries(statusConfig).map(([key, value]: any) => (
                                     <option key={key} value={key}>{value.label}</option>
                                 ))}
                             </select>
@@ -968,14 +1007,14 @@ function FindingsList({ findings, audits, onUpdateStatus, severityConfig, status
     );
 }
 
-function ISOChecklistPanel({ checklist, areas }) {
+function ISOChecklistPanel({ checklist, areas }: any) {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            {AUDIT_AREAS.map(area => (
+            {AUDIT_AREAS.map((area: any) => (
                 <div key={area.id} className="card" style={{ padding: '1.5rem' }}>
                     <h3 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Shield size={18} color="#8b5cf6" />Cláusula {area.clause}: {area.name}</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                        {checklist[area.id]?.map(item => (
+                        {checklist[area.id]?.map((item: any) => (
                             <div key={item.id} style={{ padding: '0.75rem', background: item.required ? '#f8fafc' : 'var(--color-background)', border: `1px solid ${item.required ? '#e2e8f0' : 'var(--color-border)'}`, borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                 <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text-muted)', minWidth: '30px' }}>{item.id}</span>
                                 <span style={{ flex: 1, fontSize: '0.9rem', fontWeight: 500 }}>{item.question}</span>
@@ -989,7 +1028,7 @@ function ISOChecklistPanel({ checklist, areas }) {
     );
 }
 
-function InfoDetail({ label, value }) {
+function InfoDetail({ label, value }: any) {
     return (
         <div>
             <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>{label}</div>

@@ -1,15 +1,14 @@
-import React from 'react';
-
-import { useNavigate, useLocation } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
-
-import { ArrowLeft, Save, Activity, ShieldAlert, AlertCircle } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { ArrowLeft, Save, Activity, ShieldAlert, AlertCircle, Printer, Share2 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import { usePaywall } from '../hooks/usePaywall';
+import ShareModal from '../components/ShareModal';
+import RiskAssessmentPdfGenerator from '../components/RiskAssessmentPdfGenerator';
 import toast from 'react-hot-toast';
 
 // SVG Animated Gauge
-const Gauge = ({ score, color }) => {
+const Gauge = ({ score, color }: any) => {
     const maxScore = 9;
     const percentage = Math.min(100, Math.max(0, (score / maxScore) * 100));
 
@@ -89,6 +88,7 @@ export default function RiskAssessment(): React.ReactElement | null {
     const [probability, setProbability] = useState(1);
     const [severity, setSeverity] = useState(1);
     const [riskLevel, setRiskLevel] = useState({ label: 'Bajo', color: '#10b981', action: 'Riesgo aceptable. No requiere medidas adicionales.', bg: '#d1fae5' });
+    const [showShareModal, setShowShareModal] = useState(false);
 
     useEffect(() => {
         // Init from editData
@@ -143,7 +143,7 @@ export default function RiskAssessment(): React.ReactElement | null {
             let updated;
             if (projectData.id) {
                 // Update existing
-                updated = history.map(h => h.id === entryId ? { ...h, ...entry } : h);
+                updated = history.map((h: any) => h.id === entryId ? { ...h, ...entry } : h);
             } else {
                 // Add new
                 updated = [entry, ...history];
@@ -152,6 +152,11 @@ export default function RiskAssessment(): React.ReactElement | null {
             await syncCollection('risk_assessment_history', updated);
             localStorage.setItem('risk_assessment_history', JSON.stringify(updated));
             toast.success('Evaluación de riesgo guardada con éxito');
+
+            // Actualizar projectData con el nuevo ID si es necesario para el PDF
+            if (!projectData.id) {
+                setProjectData(prev => ({ ...prev, id: entryId }));
+            }
 
             // Si viene de una inspección, volver atrás para no perder el flujo
             if (location.state?.fromInspection) {
@@ -162,6 +167,8 @@ export default function RiskAssessment(): React.ReactElement | null {
             }
         });
     };
+
+    const handlePrint = () => requirePro(() => window.print());
 
     const probabilityOptions = [
         { value: 1, label: 'Remota', desc: 'Poco probable' },
@@ -178,7 +185,52 @@ export default function RiskAssessment(): React.ReactElement | null {
 
 
     return (
-        <div className="container" style={{ maxWidth: '850px' }}>
+        <div className="container" style={{ maxWidth: '850px', paddingBottom: '8rem' }}>
+            <ShareModal
+                isOpen={showShareModal}
+                open={showShareModal}
+                onClose={() => setShowShareModal(false)}
+                title={`IPER - ${projectData.name || ''}`}
+                text={`🛡️ Evaluación de Riesgo (IPER)\n📝 Tarea: ${projectData.name}\n📍 Ubicación: ${projectData.location || '-'}\n📅 Fecha: ${projectData.date}\n⚠️ Resultado: ${probability * severity} (${riskLevel.label})`}
+                rawMessage={`🛡️ Evaluación de Riesgo (IPER)\n📝 Tarea: ${projectData.name}\n📍 Ubicación: ${projectData.location || '-'}\n📅 Fecha: ${projectData.date}\n⚠️ Resultado: ${probability * severity} (${riskLevel.label})`}
+                elementIdToPrint="pdf-content"
+            />
+
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                <RiskAssessmentPdfGenerator assessmentData={{
+                    ...projectData,
+                    probability,
+                    severity,
+                    score: probability * severity,
+                    riskLabel: riskLevel.label
+                }} />
+            </div>
+
+            {/* Floating Action Bar */}
+            <div className="no-print floating-action-bar">
+                <button
+                    onClick={handleSave}
+                    className="btn-floating-action"
+                    style={{ background: '#36B37E', color: '#ffffff' }}
+                >
+                    <Save size={18} /> GUARDAR
+                </button>
+                <button
+                    onClick={() => requirePro(() => setShowShareModal(true))}
+                    className="btn-floating-action"
+                    style={{ background: '#0052CC', color: '#ffffff' }}
+                >
+                    <Share2 size={18} /> COMPARTIR
+                </button>
+                <button
+                    onClick={handlePrint}
+                    className="btn-floating-action"
+                    style={{ background: '#FF8B00', color: '#ffffff' }}
+                >
+                    <Printer size={18} /> IMPRIMIR PDF
+                </button>
+            </div>
+
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
                 <button onClick={() => navigate(-1)} style={{ padding: '0.6rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '12px', cursor: 'pointer', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
@@ -207,7 +259,7 @@ export default function RiskAssessment(): React.ReactElement | null {
                             {f.label}
                         </label>
                         <input
-                            type="text" value={projectData[f.key]}
+                            type="text" value={(projectData as any)[f.key]}
                             onChange={e => setProjectData({ ...projectData, [f.key]: e.target.value })}
                             placeholder={f.placeholder}
                             style={{ margin: 0, border: 'none', background: 'transparent', fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-text)', outline: 'none', width: '100%' }}
