@@ -74,10 +74,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Guardar datos básicos del usuario de Google
     const user = result.user;
     if (user) {
+      const photoURL: string = user.photoURL || '';
       const personalData: PersonalData = {
         name: user.displayName || '',
         email: user.email,
-        photo: user.photoURL ?? '',
+        photo: photoURL,
         country: 'argentina',
         profileComplete: false,
         googleAccount: true

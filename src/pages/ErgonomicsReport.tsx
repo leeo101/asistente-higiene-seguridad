@@ -1,0 +1,243 @@
+import React from 'react';
+
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+
+import { ArrowLeft, Printer, Share2, Download, CheckCircle2, TriangleAlert, Info } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import ShareModal from '../components/ShareModal';
+import CompanyLogo from '../components/CompanyLogo';
+import { usePaywall } from '../hooks/usePaywall';
+import { toast } from 'react-hot-toast';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
+
+export default function ErgonomicsReport(): React.ReactElement | null {
+    const navigate = useNavigate();
+    const { currentUser } = useAuth();
+    const { requirePro } = usePaywall();
+    const [searchParams] = useSearchParams();
+    const [data, setData] = useState(null);
+    const [profile, setProfile] = useState(null);
+    const [signature, setSignature] = useState(null);
+    const [showShare, setShowShare] = useState(false);
+    const [showSignatures, setShowSignatures] = useState({
+        operator: true,
+        supervisor: true,
+        professional: true
+    });
+
+    useEffect(() => {
+        const id = searchParams.get('id');
+        const history = JSON.parse(localStorage.getItem('ergonomics_history') || '[]');
+        const found = history.find(item => item.id === id);
+        if (found) setData(found);
+
+        const savedProfile = localStorage.getItem('personalData');
+        if (savedProfile) setProfile(JSON.parse(savedProfile));
+
+        const sig = localStorage.getItem('signatureStampData');
+        if (sig) setSignature(JSON.parse(sig));
+    }, [searchParams]);
+
+    if (!data) return <div className="container">Estudio no encontrado</div>;
+
+    const handlePrint = () => requirePro(() => window.print());
+
+    return (
+        <div className="container" style={{ paddingBottom: '3rem' }}>
+            <ShareModal
+                open={showShare}
+                onClose={() => setShowShare(false)}
+                title={`Protocolo Ergonómico – ${data.empresa}`}
+                text={`📋 Protocolo de Ergonomía\n🏗️ Empresa: ${data.empresa}\n🪑 Puesto: ${data.puesto}\n📍 Sector: ${data.sector}\n⚠️ Nivel de Riesgo: ${data.riesgo || 'N/A'}\n\nGenerado con Asistente H&S`}
+                elementIdToPrint="pdf-content"
+            />
+            <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', marginTop: '1rem' }}>
+                <button
+                    onClick={() => navigate('/ergonomics')}
+                    style={{ background: 'none', border: 'none', padding: 0, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                >
+                    <ArrowLeft size={24} /> Volver
+                </button>
+            </div>
+
+            <div id="pdf-content" className="report-print print:p-0 print:m-0 print:border-none print:shadow-none print:min-h-0" style={{
+                background: 'white',
+                color: '#1a1a1a',
+                padding: '40px',
+                borderRadius: '8px',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                minHeight: '29.7cm',
+                height: 'auto',
+                fontFamily: 'Arial, sans-serif'
+            }}>
+                {/* Header Legal */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', alignItems: 'center', borderBottom: '4px solid #3b82f6', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
+                    <div style={{ textAlign: 'left' }}>
+                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.05em' }}>Sistema de Gestión</p>
+                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', color: '#1e293b' }}>Control H&S</p>
+                    </div>
+
+                    <div style={{ textAlign: 'center' }}>
+                        <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: '#1d4ed8', textTransform: 'uppercase', letterSpacing: '1px', lineHeight: 1.2 }}>
+                            Protocolo de Ergonomía
+                        </h2>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b', fontWeight: 600 }}>Resolución SRT N° 886/15</p>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <CompanyLogo style={{ height: '45px', width: 'auto', maxWidth: '140px', objectFit: 'contain' }} />
+                    </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', fontSize: '0.8rem', color: '#64748b' }} className="no-print">
+                    <span>Fecha: {new Date(parseInt(data.id)).toLocaleDateString()}</span>
+                    {profile && <span>Profesional: {profile.name}</span>}
+                </div>
+
+                {/* Datos Empresa */}
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{ background: '#f5f5f5', padding: '10px 15px', fontWeight: 'bold', marginBottom: '15px', borderLeft: '4px solid #3b82f6' }}>
+                        I - DATOS DEL ESTABLECIMIENTO
+                    </div>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                        <tbody>
+                            <tr>
+                                <td style={{ padding: '8px', border: '1px solid #ddd', width: '30%', fontWeight: 'bold' }}>Empresa / Razón Social:</td>
+                                <td style={{ padding: '8px', border: '1px solid #ddd' }}>{data.empresa}</td>
+                            </tr>
+                            <tr>
+                                <td style={{ padding: '8px', border: '1px solid #ddd', fontWeight: 'bold' }}>Sector:</td>
+                                <td style={{ padding: '8px', border: '1px solid #ddd' }}>{data.sector}</td>
+                            </tr>
+                            <tr>
+                                <td style={{ padding: '8px', border: '1px solid #ddd', fontWeight: 'bold' }}>Puesto de Trabajo:</td>
+                                <td style={{ padding: '8px', border: '1px solid #ddd' }}>{data.puesto}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Planilla 1 */}
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{ background: '#f5f5f5', padding: '10px 15px', fontWeight: 'bold', marginBottom: '15px', borderLeft: '4px solid #3b82f6' }}>
+                        II - PLANILLA 1: IDENTIFICACIÓN DE FACTORES DE RIESGO
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-[12px]">
+                        {Object.entries(data.planilla1).map(([key, val]) => (
+                            <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '5px' }}>
+                                <div style={{
+                                    width: '18px', height: '18px', border: '2px solid #333', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                                }}>
+                                    {val ? 'X' : ''}
+                                </div>
+                                <span style={{ textTransform: 'capitalize' }}>{key.replace(/([A-Z])/g, ' $1')}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Planilla 2.A (Si existe) */}
+                {data.planilla1.levantamientoCarga && (
+                    <div style={{ marginBottom: '30px' }}>
+                        <div style={{ background: '#f5f5f5', padding: '10px 15px', fontWeight: 'bold', marginBottom: '15px', borderLeft: '4px solid #3b82f6' }}>
+                            III - PLANILLA 2.A: EVALUACIÓN DE LEVANTAMIENTO DE CARGAS
+                        </div>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                            <tbody>
+                                <tr>
+                                    <td style={{ padding: '8px', border: '1px solid #ddd', width: '40%' }}>Peso Efectivo Manipulado:</td>
+                                    <td style={{ padding: '8px', border: '1px solid #ddd', fontWeight: 'bold' }}>{data.calculoLevantamiento.peso} kg</td>
+                                </tr>
+                                <tr>
+                                    <td style={{ padding: '8px', border: '1px solid #ddd' }}>Nivel de Riesgo Determinado:</td>
+                                    <td style={{ padding: '8px', border: '1px solid #ddd', color: data.riesgo === 'Moderado' ? '#e11d48' : '#16a34a', fontWeight: 'bold' }}>
+                                        {data.riesgo}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+
+                {/* Recomendaciones */}
+                <div style={{ marginBottom: '50px' }}>
+                    <div style={{ background: '#f5f5f5', padding: '10px 15px', fontWeight: 'bold', marginBottom: '15px', borderLeft: '4px solid #3b82f6' }}>
+                        IV - RECOMENDACIONES DE ACCIÓN
+                    </div>
+                    <div style={{ minHeight: '100px', border: '1px solid #ddd', padding: '15px', fontSize: '13px' }}>
+                        {data.recomendaciones || 'No se registran recomendaciones específicas.'}
+                    </div>
+                </div>
+
+                {/* Firmas */}
+                <div className="no-print mt-10 mb-8 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-xs font-bold text-slate-700">
+                    <div className="text-center">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                    <div className="flex gap-4 flex-wrap justify-center">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-4 h-4 accent-blue-600" /> Operador
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-4 h-4 accent-blue-600" /> Supervisor
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-4 h-4 accent-blue-600" /> Profesional
+                        </label>
+                    </div>
+                </div>
+
+                <div className="signature-container-row mt-10">
+                    {showSignatures.operator && (
+                        <div className="signature-item-box">
+                            <div className="signature-line" />
+                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
+                            <p className="text-[0.8rem] font-black uppercase text-black leading-none min-h-[0.8rem]">Aclaración y Firma</p>
+                        </div>
+                    )}
+
+                    {showSignatures.supervisor && (
+                        <div className="signature-item-box">
+                            <div className="signature-line" />
+                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR / EMPLEADOR</p>
+                            <p className="text-[0.8rem] font-black uppercase text-black leading-none min-h-[0.8rem]">Firma Autorizada</p>
+                        </div>
+                    )}
+
+                    {showSignatures.professional && (
+                        <div className="signature-item-box">
+                            {signature?.signature && (
+                                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>
+                                    <img src={signature.signature} alt="Firma" style={{ maxHeight: '50px', maxWidth: '100%', objectFit: 'contain' }} />
+                                </div>
+                            )}
+                            <div className="signature-line" />
+                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL ACTUANTE</p>
+                            <p style={{ margin: 0, fontWeight: 700, fontSize: '0.8rem' }}>{profile?.name}</p>
+                            <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Mat: {profile?.license}</p>
+                        </div>
+                    )}
+                </div>
+
+                {/* Stamp if available */}
+                {showSignatures.professional && signature?.stamp && (
+                    <div style={{ position: 'absolute', bottom: '60px', left: '60px', opacity: 0.8 }}>
+                        <img src={signature.stamp} alt="Sello" style={{ maxWidth: '90px' }} />
+                    </div>
+                )}
+                <PdfBrandingFooter />
+            </div>
+            {/* Floating Action Buttons */}
+            <div className="no-print floating-action-bar">
+                <button onClick={() => toast.success('Este reporte ya se encuentra guardado en tu historial.')} className="btn-floating-action" style={{ background: '#36B37E', color: 'white' }}>
+                    <CheckCircle2 size={18} /> GUARDADO
+                </button>
+                <button onClick={() => requirePro(() => setShowShare(true))} className="btn-floating-action" style={{ background: '#0052CC', color: 'white' }}>
+                    <Share2 size={18} /> COMPARTIR
+                </button>
+                <button onClick={handlePrint} className="btn-floating-action" style={{ background: '#FF8B00', color: 'white' }}>
+                    <Printer size={18} /> IMPRIMIR PDF
+                </button>
+            </div>
+        </div>
+    );
+}
