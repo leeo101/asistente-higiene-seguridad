@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
     ArrowLeft, Plus, Search, Filter, Download, CheckCircle2,
     XCircle, Clock, User, Users, Calendar, AlertTriangle,
@@ -19,9 +18,10 @@ const NOISE_LIMITS = {
 };
 
 export default function NoiseAssessmentPage(): React.ReactElement | null {
-        const [measurements, setMeasurements] = useState([]);
+    const navigate = useNavigate();
+    const [measurements, setMeasurements] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedMeasurement, setSelectedMeasurement] = useState(null);
+    const [selectedMeasurement, setSelectedMeasurement] = useState<any>(null);
     const [showShareModal, setShowShareModal] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
 
@@ -36,19 +36,19 @@ export default function NoiseAssessmentPage(): React.ReactElement | null {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const saveMeasurements = (data) => {
+    const saveMeasurements = (data: any[]) => {
         localStorage.setItem('noise_assessment_db', JSON.stringify(data));
         setMeasurements(data);
     };
 
-    const calculateRiskLevel = (level) => {
+    const calculateRiskLevel = (level: number) => {
         if (level >= NOISE_LIMITS.limitValue) return { level: 'critical', color: '#dc2626', label: 'CRÍTICO' };
         if (level >= NOISE_LIMITS.actionLevelHigh) return { level: 'high', color: '#f59e0b', label: 'ALTO' };
         if (level >= NOISE_LIMITS.actionLevel) return { level: 'medium', color: '#eab308', label: 'MEDIO' };
         return { level: 'low', color: '#16a34a', label: 'BAJO' };
     };
 
-    const deleteMeasurement = (id) => {
+    const deleteMeasurement = (id: string) => {
         if (confirm('¿Eliminar esta medición?')) {
             saveMeasurements(measurements.filter(m => m.id !== id));
         }
@@ -218,6 +218,7 @@ export default function NoiseAssessmentPage(): React.ReactElement | null {
                 />
             )}
 
+            {/* @ts-ignore */}
             <ShareModal 
                 isOpen={showShareModal}
                 onClose={() => setShowShareModal(false)}
@@ -234,7 +235,7 @@ export default function NoiseAssessmentPage(): React.ReactElement | null {
 }
 
 // Componentes
-function StatCard({ label, value, color, icon }) {
+function StatCard({ label, value, color, icon }: any) {
     return (
         <div className="card" style={{
             padding: '1.25rem',
@@ -264,7 +265,7 @@ function StatCard({ label, value, color, icon }) {
     );
 }
 
-function DetailModal({ measurement, onClose, isMobile, onPrint, calculateRiskLevel }) {
+function DetailModal({ measurement, onClose, isMobile, onPrint, calculateRiskLevel }: any) {
     const riskLevel = calculateRiskLevel(parseFloat(measurement.levels.lavg) || 0);
 
     return (
@@ -323,7 +324,7 @@ function DetailModal({ measurement, onClose, isMobile, onPrint, calculateRiskLev
     );
 }
 
-function StatItem({ label, value }) {
+function StatItem({ label, value }: { label: string; value: any }) {
     return (
         <div style={{ padding: '1rem', background: 'var(--color-background)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)' }}>
             <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>{label}</div>
@@ -332,7 +333,7 @@ function StatItem({ label, value }) {
     );
 }
 
-function MeasurementCard({ measurement, riskLevel, onView, onDelete, isMobile }) {
+function MeasurementCard({ measurement, riskLevel, onView, onDelete, isMobile }: any) {
     return (
         <div className="card" style={{
             padding: isMobile ? '1rem' : '1.25rem',
@@ -395,7 +396,7 @@ function MeasurementCard({ measurement, riskLevel, onView, onDelete, isMobile })
     );
 }
 
-function EmptyState({ onAdd, isMobile }) {
+function EmptyState({ onAdd, isMobile }: any) {
     return (
         <div style={{
             padding: isMobile ? '3rem 1rem' : '4rem 2rem',

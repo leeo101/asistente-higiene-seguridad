@@ -32,9 +32,12 @@ const lazyWithRetry = (componentImport) =>
       window.sessionStorage.setItem('page-has-been-force-refreshed', 'false');
       return component;
     } catch (error) {
+      console.error('[LAZY] CRITICAL: Failed to load module!', error);
       if (!pageHasAlreadyBeenForceRefreshed) {
+        console.warn('[LAZY] Attempting force refresh to recover from chunk failure...');
         window.sessionStorage.setItem('page-has-been-force-refreshed', 'true');
-        return window.location.reload();
+        window.location.reload();
+        return { default: () => null }; // Return dummy to satisfy lazy
       }
       throw error;
     }
@@ -138,6 +141,15 @@ const CAPAHistory = lazyWithRetry(() => import('./pages/CAPAHistory'));
 const EnvironmentalHistory = lazyWithRetry(() => import('./pages/EnvironmentalHistory'));
 const LOTOHistory = lazyWithRetry(() => import('./pages/LOTOHistory'));
 const NoiseAssessmentHistory = lazyWithRetry(() => import('./pages/NoiseAssessmentHistory'));
+const ChemicalSafetyCreate = lazyWithRetry(() => import('./pages/ChemicalSafetyCreate'));
+const NoiseAssessmentCreate = lazyWithRetry(() => import('./pages/NoiseAssessmentCreate'));
+const ConfinedSpaceCreate = lazyWithRetry(() => import('./pages/ConfinedSpaceCreate'));
+const WorkingAtHeightCreate = lazyWithRetry(() => import('./pages/WorkingAtHeightCreate'));
+const AuditCreate = lazyWithRetry(() => import('./pages/AuditCreate'));
+const AuditDetail = lazyWithRetry(() => import('./pages/AuditDetail'));
+const CAPACreate = lazyWithRetry(() => import('./pages/CAPACreate'));
+const EnvironmentalCreate = lazyWithRetry(() => import('./pages/EnvironmentalCreate'));
+const LOTOCreate = lazyWithRetry(() => import('./pages/LOTOCreate'));
 const WorkingAtHeightHistory = lazyWithRetry(() => import('./pages/WorkingAtHeightHistory'));
 const ConfinedSpaceHistory = lazyWithRetry(() => import('./pages/ConfinedSpaceHistory'));
 const ChemicalSafetyHistory = lazyWithRetry(() => import('./pages/ChemicalSafetyHistory'));
@@ -440,6 +452,9 @@ function App() {
                 <Route path="/environmental" element={<EnvironmentalMonitor />} />
                 <Route path="/environmental-create" element={<EnvironmentalCreate />} />
                 <Route path="/environmental-page" element={<EnvironmentalPage />} />
+                <Route path="/loto" element={<LOTOManager />} />
+                <Route path="/loto-create" element={<LOTOCreate />} />
+                <Route path="/loto-page" element={<LOTOPage />} />
 
                 {/* Safety Module Forms (NEW structure) */}
                 <Route path="/audit/new" element={<AuditForm />} />

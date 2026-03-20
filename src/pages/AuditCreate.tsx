@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { XCircle, CheckCircle2 } from 'lucide-react';
 
 // Tipos de auditoría según ISO 45001
@@ -26,8 +25,9 @@ const AUDIT_AREAS = [
 
 
 export default function AuditCreate(): React.ReactElement | null {
+    const navigate = useNavigate();
         const location = useLocation();
-    const [audit, setAudit] = useState({
+    const [audit, setAudit] = useState<any>({
         title: '',
         auditType: '',
         scope: '',
@@ -66,11 +66,11 @@ export default function AuditCreate(): React.ReactElement | null {
         navigate('/audit?created=' + newAudit.id);
     };
 
-    const buildChecklist = (selectedAreas) => {
-        const checklist = [];
-        selectedAreas.forEach(areaId => {
-            const areaChecklist = ISO_CHECKLIST[areaId] || [];
-            areaChecklist.forEach(item => {
+    const buildChecklist = (selectedAreas: string[]) => {
+        const checklist: any[] = [];
+        selectedAreas.forEach((areaId: string) => {
+            const areaChecklist = (ISO_CHECKLIST as any)[areaId] || [];
+            areaChecklist.forEach((item: any) => {
                 checklist.push({
                     ...item,
                     area: areaId,
@@ -83,9 +83,9 @@ export default function AuditCreate(): React.ReactElement | null {
         return checklist;
     };
 
-    const toggleArea = (areaId) => {
+    const toggleArea = (areaId: string) => {
         const current = audit.areas || [];
-        const updated = current.includes(areaId) ? current.filter(a => a !== areaId) : [...current, areaId];
+        const updated = current.includes(areaId) ? current.filter((a: string) => a !== areaId) : [...current, areaId];
         setAudit({ ...audit, areas: updated });
     };
 
@@ -214,3 +214,26 @@ export default function AuditCreate(): React.ReactElement | null {
         </div>
     );
 }
+
+const labelStyle = {
+    display: 'block',
+    fontSize: '0.8rem',
+    fontWeight: 700,
+    color: 'var(--color-text-muted)',
+    textTransform: 'uppercase',
+    marginBottom: '0.5rem'
+};
+
+const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '0.75rem 1rem',
+    borderRadius: 'var(--radius-lg)',
+    border: '1px solid var(--color-input-border)',
+    background: 'var(--color-surface)',
+    color: 'var(--color-text)',
+    fontSize: '0.95rem',
+    fontWeight: 500,
+    outline: 'none',
+    transition: 'all var(--transition-fast)',
+    boxSizing: 'border-box'
+};

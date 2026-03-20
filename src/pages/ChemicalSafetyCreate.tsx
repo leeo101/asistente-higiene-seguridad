@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { XCircle, FlaskConical } from 'lucide-react';
 
 const GHS_PICTOGRAMS = {
@@ -25,7 +24,8 @@ const HAZARD_CATEGORIES = [
 
 
 export default function ChemicalSafetyCreate(): React.ReactElement | null {
-        const [chemical, setChemical] = useState({
+    const navigate = useNavigate();
+    const [chemical, setChemical] = useState<any>({
         name: '',
         casNumber: '',
         unNumber: '',
@@ -66,10 +66,10 @@ export default function ChemicalSafetyCreate(): React.ReactElement | null {
         navigate('/chemical-safety?created=' + newChemical.id);
     };
 
-    const togglePictogram = (pictoId) => {
+    const togglePictogram = (pictoId: string) => {
         const current = chemical.pictograms || [];
         const updated = current.includes(pictoId) 
-            ? current.filter(p => p !== pictoId) 
+            ? current.filter((p: string) => p !== pictoId) 
             : [...current, pictoId];
         setChemical({ ...chemical, pictograms: updated });
     };
@@ -166,3 +166,26 @@ export default function ChemicalSafetyCreate(): React.ReactElement | null {
         </div>
     );
 }
+
+const labelStyle = {
+    display: 'block',
+    fontSize: '0.8rem',
+    fontWeight: 700,
+    color: 'var(--color-text-muted)',
+    textTransform: 'uppercase',
+    marginBottom: '0.5rem'
+};
+
+const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '0.75rem 1rem',
+    borderRadius: 'var(--radius-lg)',
+    border: '1px solid var(--color-input-border)',
+    background: 'var(--color-surface)',
+    color: 'var(--color-text)',
+    fontSize: '0.95rem',
+    fontWeight: 500,
+    outline: 'none',
+    transition: 'all var(--transition-fast)',
+    boxSizing: 'border-box'
+};

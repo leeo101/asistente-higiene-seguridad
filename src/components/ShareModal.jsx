@@ -4,7 +4,7 @@ import { toast } from 'react-hot-toast';
 import { createPortal } from 'react-dom';
 import { generatePdfBlob } from '../utils/pdfHelper';
 
-const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdToPrint }) => {
+const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdToPrint, fileName: propFileName }) => {
     const displayOpen = isOpen !== undefined ? isOpen : open;
     const message = rawMessage !== undefined ? rawMessage : text;
 
@@ -97,7 +97,7 @@ const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdT
             await new Promise(resolve => setTimeout(resolve, 150));
             
             const pdfBlob = await generatePdfBlob(elementIdToPrint);
-            const fileName = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'reporte'}.pdf`;
+            const fileName = propFileName || `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'reporte'}.pdf`;
 
             const triggerDownload = () => {
                 const url = window.URL.createObjectURL(pdfBlob);

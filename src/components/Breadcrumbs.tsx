@@ -44,7 +44,7 @@ export default function Breadcrumbs(): React.ReactElement | null {
     '/drills-history': 'Historial Simulacros',
     '/stop-cards': 'Tarjetas STOP',
     '/stop-cards-history': 'Historial STOP',
-    '/risk-assessment': 'Evaluación de Riesgos',
+    '/risk': 'Evaluación de Riesgos',
     '/risk-assessment-history': 'Historial Evaluaciones',
     '/risk-matrix': 'Matriz de Riesgos',
     '/risk-matrix-history': 'Historial Matrices',

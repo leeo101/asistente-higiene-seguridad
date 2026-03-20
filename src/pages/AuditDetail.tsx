@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { XCircle, ClipboardCheck, AlertTriangle, Clock, CheckCircle2, Shield } from 'lucide-react';
 
 const AUDIT_TYPES = [
@@ -29,9 +28,10 @@ const FINDING_SEVERITY = {
 };
 
 export default function AuditDetail(): React.ReactElement | null {
-        const { id } = useParams();
-    const [audit, setAudit] = useState(null);
-    const [findings, setFindings] = useState([]);
+    const navigate = useNavigate();
+    const { id } = useParams();
+    const [audit, setAudit] = useState<any>(null);
+    const [findings, setFindings] = useState<any[]>([]);
     const [showFindingForm, setShowFindingForm] = useState(false);
     const [newFinding, setNewFinding] = useState({ title: '', description: '', severity: 'minor', responsible: '', dueDate: '' });
 
@@ -41,13 +41,13 @@ export default function AuditDetail(): React.ReactElement | null {
         
         if (auditsDb) {
             const audits = JSON.parse(auditsDb);
-            const found = audits.find(a => a.id === id);
+            const found = audits.find((a: any) => a.id === id);
             if (found) setAudit(found);
         }
         
         if (findingsDb) {
             const allFindings = JSON.parse(findingsDb);
-            const auditFindings = allFindings.filter(f => f.auditId === id);
+            const auditFindings = allFindings.filter((f: any) => f.auditId === id);
             setFindings(auditFindings);
         }
     }, [id]);
@@ -70,12 +70,12 @@ export default function AuditDetail(): React.ReactElement | null {
         setNewFinding({ title: '', description: '', severity: 'minor', responsible: '', dueDate: '' });
     };
 
-    const updateAuditStatus = (status) => {
+    const updateAuditStatus = (status: string) => {
         const auditsDb = localStorage.getItem('ehs_audits_db');
         if (!auditsDb || !audit) return;
         
         const audits = JSON.parse(auditsDb);
-        const updated = audits.map(a => 
+        const updated = audits.map((a: any) => 
             a.id === id ? { ...a, status } : a
         );
         localStorage.setItem('ehs_audits_db', JSON.stringify(updated));
@@ -91,8 +91,8 @@ export default function AuditDetail(): React.ReactElement | null {
     }
 
     const auditType = AUDIT_TYPES.find(t => t.id === audit.auditType);
-    const statusConfig = AUDIT_STATUS[audit.status] || AUDIT_STATUS.draft;
-    const completedChecklist = audit.checklist?.filter(c => c.status !== null).length || 0;
+    const statusConfig = (AUDIT_STATUS as any)[audit.status] || AUDIT_STATUS.draft;
+    const completedChecklist = audit.checklist?.filter((c: any) => c.status !== null).length || 0;
     const totalChecklist = audit.checklist?.length || 0;
     const progress = totalChecklist > 0 ? Math.round((completedChecklist / totalChecklist) * 100) : 0;
 
@@ -205,7 +205,7 @@ export default function AuditDetail(): React.ReactElement | null {
                         findings.map((f, i) => (
                             <div key={i} style={{ padding: '1rem', background: f.status === 'open' ? '#fef2f2' : '#f0fdf4', border: `1px solid ${f.status === 'open' ? '#fecaca' : '#16a34a'}`, borderRadius: 'var(--radius-lg)' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                                    <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>{FINDING_SEVERITY[f.severity]?.icon} {f.title}</span>
+                                    <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>{(FINDING_SEVERITY as any)[f.severity]?.icon} {f.title}</span>
                                     <span style={{ padding: '0.25rem 0.75rem', background: f.status === 'open' ? '#dc2626' : '#16a34a', color: '#fff', borderRadius: 'var(--radius-full)', fontSize: '0.7rem', fontWeight: 800 }}>{f.status.toUpperCase()}</span>
                                 </div>
                                 <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{f.description}</p>
@@ -230,8 +230,30 @@ export default function AuditDetail(): React.ReactElement | null {
     );
 }
 
+const labelStyle = {
+    display: 'block',
+    fontSize: '0.8rem',
+    fontWeight: 700,
+    color: 'var(--color-text-muted)',
+    textTransform: 'uppercase',
+    marginBottom: '0.5rem'
+};
 
-function InfoDetail({ label, value }) {
+const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '0.75rem 1rem',
+    borderRadius: 'var(--radius-lg)',
+    border: '1px solid var(--color-input-border)',
+    background: 'var(--color-surface)',
+    color: 'var(--color-text)',
+    fontSize: '0.95rem',
+    fontWeight: 500,
+    outline: 'none',
+    transition: 'all var(--transition-fast)',
+    boxSizing: 'border-box'
+};
+
+function InfoDetail({ label, value }: { label: string; value: string }) {
     return (
         <div>
             <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>{label}</div>

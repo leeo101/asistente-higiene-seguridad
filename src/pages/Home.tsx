@@ -7,7 +7,8 @@ import {
   Camera, CalendarCheck, Shield, Cpu, Lightbulb, ThermometerSun, Map,
   ShieldCheck, TriangleAlert, KeySquare, ScrollText, Bot, ClipboardCheck, FileText, HardHat, ShieldAlert, PenTool,
   ArrowRight, Activity, BookOpen, Calendar as CalendarIcon, Search, TrendingUp,
-  Volume2, ArrowDown, RefreshCw, Leaf, Tent, LucideIcon
+  Volume2, ArrowDown, RefreshCw, Leaf, Tent, LucideIcon,
+  FlaskConical, CheckCircle2, Droplets
 } from 'lucide-react';
 import { User as FirebaseUser } from 'firebase/auth';
 import { getCountryNormativa } from '../data/legislationData';
@@ -121,6 +122,14 @@ const quickLinks: QuickLink[] = [
   { to: '/ai-general-camera', icon: <ShieldAlert size={26} />, label: 'Riesgos IA', sub: 'Análisis de Entorno', color: '#f43f5e', bg: 'rgba(244, 63, 94, 0.1)', premium: true },
   { to: '/drills', icon: <Siren size={26} />, label: 'Simulacros', sub: 'Actas de Evacuación', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true },
   { to: '/stop-cards', icon: <TriangleAlert size={26} />, label: 'Tarjetas STOP', sub: 'Observaciones', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true },
+  { to: '/audit', icon: <ClipboardCheck size={26} />, label: 'Auditorías', sub: 'Control Interno y EHS', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true },
+  { to: '/capa', icon: <CheckCircle2 size={26} />, label: 'CAPA', sub: 'Acciones Correctivas', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true },
+  { to: '/chemical-safety', icon: <FlaskConical size={26} />, label: 'Seguridad Química', sub: 'Gestión de Sustancias y SGA', color: '#ec4899', bg: 'rgba(236,72,153,0.1)', premium: true },
+  { to: '/noise-assessment', icon: <Volume2 size={26} />, label: 'Ruido', sub: 'Evaluación de Niveles Sonoros', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true },
+  { to: '/environmental', icon: <Droplets size={26} />, label: 'Medio Ambiente', sub: 'Monitoreo y Control', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', premium: true },
+  { to: '/confined-space', icon: <Tent size={26} />, label: 'Espacios Confinados', sub: 'Permisos y Control', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', premium: true },
+  { to: '/working-at-height', icon: <HardHat size={26} />, label: 'Trabajo en Altura', sub: 'Permisos y EPP Crítico', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true },
+  { to: '/loto', icon: <Lock size={26} />, label: 'LOTO', sub: 'Bloqueo y Etiquetado', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true },
 ];
 
 // Counter hook
@@ -246,16 +255,16 @@ export default function Home(): React.ReactElement {
         const riskAssessments = safeParse('risk_assessment_history');
 
         const combined: WorkItem[] = [
-          ...ats.map(a => ({ id: a.id, title: a.empresa, subtitle: a.obra, date: a.fecha, type: 'ATS' })),
-          ...fire.map(f => ({ id: f.id, title: f.empresa, subtitle: f.sector, date: f.createdAt, type: 'Carga Fuego' })),
-          ...insp.map(i => ({ id: i.id, title: i.name, subtitle: i.location, date: i.date, type: 'Inspección' })),
-          ...matrix.map(m => ({ id: m.id, title: m.name, subtitle: m.location, date: m.createdAt, type: 'Matriz' })),
-          ...reports.map(r => ({ id: r.id, title: r.title, subtitle: r.company, date: r.createdAt, type: 'Informe' })),
-          ...tools.map(t => ({ id: t.id, title: t.equipo, subtitle: t.empresa, date: t.fecha, type: 'Checklist' })),
-          ...lighting.map(l => ({ id: l.id, title: l.empresa, subtitle: l.sector, date: l.date, type: 'Iluminación' })),
-          ...permits.map(p => ({ id: p.id, title: p.empresa, subtitle: p.obra, date: p.createdAt, type: 'Permiso' })),
-          ...riskAssessments.map(r => ({ id: r.id, title: r.name, subtitle: r.location, date: r.date || r.createdAt, type: 'Eval. Riesgo' })),
-          ...accidents.map(acc => ({ id: acc.id, title: acc.victimaNombre, subtitle: acc.empresa, date: acc.date, type: 'Accidente' })),
+          ...ats.map((a: any) => ({ id: a.id, title: a.empresa, subtitle: a.obra, date: a.fecha, type: 'ATS' })),
+          ...fire.map((f: any) => ({ id: f.id, title: f.empresa, subtitle: f.sector, date: f.createdAt, type: 'Carga Fuego' })),
+          ...insp.map((i: any) => ({ id: i.id, title: i.name, subtitle: i.location, date: i.date, type: 'Inspección' })),
+          ...matrix.map((m: any) => ({ id: m.id, title: m.name, subtitle: m.location, date: m.createdAt, type: 'Matriz' })),
+          ...reports.map((r: any) => ({ id: r.id, title: r.title, subtitle: r.company, date: r.createdAt, type: 'Informe' })),
+          ...tools.map((t: any) => ({ id: t.id, title: t.equipo, subtitle: t.empresa, date: t.fecha, type: 'Checklist' })),
+          ...lighting.map((l: any) => ({ id: l.id, title: l.empresa, subtitle: l.sector, date: l.date, type: 'Iluminación' })),
+          ...permits.map((p: any) => ({ id: p.id, title: p.empresa, subtitle: p.obra, date: p.createdAt, type: 'Permiso' })),
+          ...riskAssessments.map((r: any) => ({ id: r.id, title: r.name, subtitle: r.location, date: r.date || r.createdAt, type: 'Eval. Riesgo' })),
+          ...accidents.map((acc: any) => ({ id: acc.id, title: acc.victimaNombre, subtitle: acc.empresa, date: acc.date, type: 'Accidente' })),
         ]
         .filter(item => item.date || item.fecha || item.createdAt)
         .sort((a, b) => new Date(b.date || b.fecha || b.createdAt || 0).getTime() - new Date(a.date || a.fecha || a.createdAt || 0).getTime())
@@ -385,6 +394,7 @@ export default function Home(): React.ReactElement {
                   onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
                 >
                   <div style={{ color: 'var(--color-primary)', marginBottom: '0.6rem', opacity: 0.9 }}>
+                    {/* @ts-ignore */}
                     {React.cloneElement(stat.icon, { size: 24 })}
                   </div>
                   <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#ffffff', lineHeight: 1 }}>{stat.value}</div>

@@ -1,11 +1,11 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { XCircle, HardHat } from 'lucide-react';
 
 
 export default function WorkingAtHeightCreate(): React.ReactElement | null {
-        const [permit, setPermit] = useState({
+    const navigate = useNavigate();
+    const [permit, setPermit] = useState<any>({
         location: '',
         worker: '',
         supervisor: '',
@@ -49,8 +49,8 @@ export default function WorkingAtHeightCreate(): React.ReactElement | null {
                     <label style={labelStyle}>Equipos de Protección</label>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                         {['hasHarness', 'hasAnchor', 'hasLifeline'].map((key, i) => (
-                            <label key={key} style={{ padding: '1rem', background: permit[key] ? '#16a34a20' : 'var(--color-background)', border: `2px solid ${permit[key] ? '#16a34a' : 'var(--color-border)'}`, borderRadius: 'var(--radius-lg)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                <input type="checkbox" checked={permit[key]} onChange={(e) => setPermit({ ...permit, [key]: e.target.checked })} style={{ width: '20px', height: '20px' }} />
+                            <label key={key} style={{ padding: '1rem', background: (permit as any)[key] ? '#16a34a20' : 'var(--color-background)', border: `2px solid ${(permit as any)[key] ? '#16a34a' : 'var(--color-border)'}`, borderRadius: 'var(--radius-lg)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <input type="checkbox" checked={(permit as any)[key]} onChange={(e) => setPermit({ ...permit, [key]: e.target.checked })} style={{ width: '20px', height: '20px' }} />
                                 <span style={{ fontWeight: 600 }}>{['Arnés', 'Anclaje', 'Línea de Vida'][i]}</span>
                             </label>
                         ))}
@@ -65,3 +65,26 @@ export default function WorkingAtHeightCreate(): React.ReactElement | null {
         </div>
     );
 }
+
+const labelStyle = {
+    display: 'block',
+    fontSize: '0.8rem',
+    fontWeight: 700,
+    color: 'var(--color-text-muted)',
+    textTransform: 'uppercase',
+    marginBottom: '0.5rem'
+};
+
+const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '0.75rem 1rem',
+    borderRadius: 'var(--radius-lg)',
+    border: '1px solid var(--color-input-border)',
+    background: 'var(--color-surface)',
+    color: 'var(--color-text)',
+    fontSize: '0.95rem',
+    fontWeight: 500,
+    outline: 'none',
+    transition: 'all var(--transition-fast)',
+    boxSizing: 'border-box'
+};

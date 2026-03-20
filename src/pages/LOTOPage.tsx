@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Plus, Search, CheckCircle2, XCircle,
     Clock, Lock, FileText, Eye, Trash2, Printer
@@ -16,9 +15,10 @@ const LOTO_STATUS = {
 };
 
 export default function LOTOPage(): React.ReactElement | null {
-        const [procedures, setProcedures] = useState([]);
+    const navigate = useNavigate();
+    const [procedures, setProcedures] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedProcedure, setSelectedProcedure] = useState(null);
+    const [selectedProcedure, setSelectedProcedure] = useState<any>(null);
     const [showShareModal, setShowShareModal] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
 
@@ -33,22 +33,22 @@ export default function LOTOPage(): React.ReactElement | null {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const saveProcedures = (data) => {
+    const saveProcedures = (data: any[]) => {
         localStorage.setItem('loto_procedures_db', JSON.stringify(data));
         setProcedures(data);
     };
 
-    const startLOTO = (id) => {
-        const updated = procedures.map(p => p.id === id ? { ...p, status: 'active' } : p);
+    const startLOTO = (id: string) => {
+        const updated = procedures.map((p: any) => p.id === id ? { ...p, status: 'active' } : p);
         saveProcedures(updated);
     };
 
-    const completeLOTO = (id) => {
-        const updated = procedures.map(p => p.id === id ? { ...p, status: 'completed', completedAt: new Date().toISOString() } : p);
+    const completeLOTO = (id: string) => {
+        const updated = procedures.map((p: any) => p.id === id ? { ...p, status: 'completed', completedAt: new Date().toISOString() } : p);
         saveProcedures(updated);
     };
 
-    const deleteProcedure = (id) => {
+    const deleteProcedure = (id: string) => {
         if (confirm('¿Eliminar este procedimiento LOTO?')) {
             saveProcedures(procedures.filter(p => p.id !== id));
         }
@@ -129,7 +129,7 @@ export default function LOTOPage(): React.ReactElement | null {
                         <ProcedureCard
                             key={p.id}
                             procedure={p}
-                            statusConfig={LOTO_STATUS[p.status] || LOTO_STATUS.pending}
+                            statusConfig={(LOTO_STATUS as any)[p.status] || LOTO_STATUS.pending}
                             onStart={() => startLOTO(p.id)}
                             onComplete={() => completeLOTO(p.id)}
                             onView={() => setSelectedProcedure(p)}
@@ -151,6 +151,7 @@ export default function LOTOPage(): React.ReactElement | null {
                 />
             )}
 
+            {/* @ts-ignore */}
             <ShareModal 
                 isOpen={showShareModal}
                 onClose={() => setShowShareModal(false)}
@@ -166,7 +167,7 @@ export default function LOTOPage(): React.ReactElement | null {
     );
 }
 
-function StatCard({ label, value, color, icon }) {
+function StatCard({ label, value, color, icon }: any) {
     return (
         <div className="card" style={{ padding: '1.25rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border-subtle)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <div style={{ width: '48px', height: '48px', background: `linear-gradient(135deg, ${color}, ${color}cc)`, borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>{icon}</div>
@@ -178,7 +179,7 @@ function StatCard({ label, value, color, icon }) {
     );
 }
 
-function ProcedureCard({ procedure, statusConfig, onStart, onComplete, onView, onDelete, isMobile }) {
+function ProcedureCard({ procedure, statusConfig, onStart, onComplete, onView, onDelete, isMobile }: any) {
     return (
         <div className="card" style={{ padding: isMobile ? '1rem' : '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', borderLeft: `4px solid ${statusConfig.color}` }}>
             <div style={{ width: isMobile ? '56px' : '64px', height: isMobile ? '56px' : '64px', background: `${statusConfig.color}15`, borderRadius: 'var(--radius-xl)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: `2px solid ${statusConfig.color}`, flexShrink: 0 }}>
@@ -204,7 +205,7 @@ function ProcedureCard({ procedure, statusConfig, onStart, onComplete, onView, o
     );
 }
 
-function EmptyState({ onAdd, isMobile }) {
+function EmptyState({ onAdd, isMobile }: any) {
     return (
         <div style={{ padding: isMobile ? '3rem 1rem' : '4rem 2rem', textAlign: 'center', background: 'var(--gradient-card)', borderRadius: 'var(--radius-2xl)', border: '2px dashed var(--color-border)' }}>
             <div style={{ width: '80px', height: '80px', margin: '0 auto 1.5rem', background: 'var(--color-background)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -217,7 +218,7 @@ function EmptyState({ onAdd, isMobile }) {
     );
 }
 
-function DetailModal({ procedure, onClose, isMobile, onPrint }) {
+function DetailModal({ procedure, onClose, isMobile, onPrint }: any) {
     return (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent: 'center' }} onClick={onClose}>
             <div className="card" style={{ width: isMobile ? '100%' : '100%', maxWidth: isMobile ? '100%' : '600px', maxHeight: isMobile ? '90vh' : '90vh', overflow: 'auto', margin: isMobile ? 0 : 'auto', borderRadius: isMobile ? '20px 20px 0 0' : 'var(--radius-2xl)' }} onClick={e => e.stopPropagation()}>

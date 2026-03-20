@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Search, CheckCircle2, XCircle, Clock, User, Calendar, AlertTriangle, Tent, Eye, Trash2, Wind, Droplets, Printer } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import ConfinedSpacePdf from '../components/ConfinedSpacePdf';
@@ -13,9 +12,10 @@ const PERMIT_STATUS = {
 };
 
 export default function ConfinedSpacePage(): React.ReactElement | null {
-        const [permits, setPermits] = useState([]);
+    const navigate = useNavigate();
+    const [permits, setPermits] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedPermit, setSelectedPermit] = useState(null);
+    const [selectedPermit, setSelectedPermit] = useState<any>(null);
     const [showShareModal, setShowShareModal] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
 
@@ -28,10 +28,10 @@ export default function ConfinedSpacePage(): React.ReactElement | null {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const savePermits = (data) => { localStorage.setItem('confined_space_permits_db', JSON.stringify(data)); setPermits(data); };
+    const savePermits = (data: any[]) => { localStorage.setItem('confined_space_permits_db', JSON.stringify(data)); setPermits(data); };
 
-    const updateStatus = (id, status) => { savePermits(permits.map(p => p.id === id ? { ...p, status } : p)); };
-    const deletePermit = (id) => { if (confirm('¿Eliminar este permiso?')) savePermits(permits.filter(p => p.id !== id)); };
+    const updateStatus = (id: string, status: string) => { savePermits(permits.map((p: any) => p.id === id ? { ...p, status } : p)); };
+    const deletePermit = (id: string) => { if (confirm('¿Eliminar este permiso?')) savePermits(permits.filter((p: any) => p.id !== id)); };
 
     const filtered = permits.filter(p => p.spaceName.toLowerCase().includes(searchTerm.toLowerCase()) || p.location?.toLowerCase().includes(searchTerm.toLowerCase()));
     const stats = { total: permits.length, active: permits.filter(p => p.status === 'active').length, pending: permits.filter(p => p.status === 'pending').length, completed: permits.filter(p => p.status === 'completed').length };
@@ -69,7 +69,7 @@ export default function ConfinedSpacePage(): React.ReactElement | null {
 
             <div style={{ padding: isMobile ? '0 1rem' : '0 1.5rem', maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {filtered.length === 0 ? <EmptyState onAdd={() => navigate('/confined-space/new')} isMobile={isMobile} /> : filtered.map(p => (
-                    <PermitCard key={p.id} permit={p} statusConfig={PERMIT_STATUS[p.status] || PERMIT_STATUS.pending} onStart={() => updateStatus(p.id, 'active')} onComplete={() => updateStatus(p.id, 'completed')} onView={() => setSelectedPermit(p)} onDelete={() => deletePermit(p.id)} isMobile={isMobile} />
+                    <PermitCard key={p.id} permit={p} statusConfig={(PERMIT_STATUS as any)[p.status] || PERMIT_STATUS.pending} onStart={() => updateStatus(p.id, 'active')} onComplete={() => updateStatus(p.id, 'completed')} onView={() => setSelectedPermit(p)} onDelete={() => deletePermit(p.id)} isMobile={isMobile} />
                 ))}
             </div>
 
@@ -77,6 +77,7 @@ export default function ConfinedSpacePage(): React.ReactElement | null {
 
             {selectedPermit && <DetailModal permit={selectedPermit} onClose={() => setSelectedPermit(null)} isMobile={isMobile} onPrint={() => setShowShareModal(true)} />}
 
+            {/* @ts-ignore */}
             <ShareModal 
                 isOpen={showShareModal}
                 onClose={() => setShowShareModal(false)}
@@ -92,11 +93,11 @@ export default function ConfinedSpacePage(): React.ReactElement | null {
     );
 }
 
-function StatCard({ label, value, color, icon }) {
+function StatCard({ label, value, color, icon }: any) {
     return (<div className="card" style={{ padding: '1.25rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border-subtle)', display: 'flex', alignItems: 'center', gap: '1rem' }}><div style={{ width: '48px', height: '48px', background: `linear-gradient(135deg, ${color}, ${color}cc)`, borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>{icon}</div><div><div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>{label}</div><div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--color-text)', lineHeight: 1 }}>{value}</div></div></div>);
 }
 
-function PermitCard({ permit, statusConfig, onStart, onComplete, onView, onDelete, isMobile }) {
+function PermitCard({ permit, statusConfig, onStart, onComplete, onView, onDelete, isMobile }: any) {
     return (
         <div className="card" style={{ padding: isMobile ? '1rem' : '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', borderLeft: `4px solid ${statusConfig.color}` }}>
             <div style={{ width: isMobile ? '56px' : '64px', height: isMobile ? '56px' : '64px', background: `${statusConfig.color}15`, borderRadius: 'var(--radius-xl)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: `2px solid ${statusConfig.color}`, flexShrink: 0 }}><Tent size={isMobile ? 20 : 24} color={statusConfig.color} /></div>
@@ -121,11 +122,11 @@ function PermitCard({ permit, statusConfig, onStart, onComplete, onView, onDelet
     );
 }
 
-function EmptyState({ onAdd, isMobile }) {
+function EmptyState({ onAdd, isMobile }: any) {
     return (<div style={{ padding: isMobile ? '3rem 1rem' : '4rem 2rem', textAlign: 'center', background: 'var(--gradient-card)', borderRadius: 'var(--radius-2xl)', border: '2px dashed var(--color-border)' }}><div style={{ width: '80px', height: '80px', margin: '0 auto 1.5rem', background: 'var(--color-background)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Tent size={40} color="var(--color-text-muted)" /></div><h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem', fontWeight: 800 }}>Sin Permisos</h3><p style={{ margin: '0 0 1.5rem 0', color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>Creá permisos de espacio confinado según OSHA 1910.146</p><button onClick={onAdd} className="btn-primary" style={{ width: 'auto', margin: 0 }}><Plus size={20} style={{ marginRight: '0.5rem' }} />Primer Permiso</button></div>);
 }
 
-function DetailModal({ permit, onClose, isMobile, onPrint }) {
+function DetailModal({ permit, onClose, isMobile, onPrint }: any) {
     return (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent: 'center' }} onClick={onClose}>
             <div className="card" style={{ width: isMobile ? '100%' : '100%', maxWidth: isMobile ? '100%' : '600px', maxHeight: isMobile ? '90vh' : '90vh', overflow: 'auto', margin: isMobile ? 0 : 'auto', borderRadius: isMobile ? '20px 20px 0 0' : 'var(--radius-2xl)' }} onClick={e => e.stopPropagation()}>
