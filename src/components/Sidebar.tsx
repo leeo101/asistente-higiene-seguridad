@@ -2,8 +2,9 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import React, { useEffect, useState, ChangeEvent } from 'react';
 import {
   X, User, History, LogOut, Home, Settings,
-  Calendar, MessageSquare, Sun, Moon, Sparkles, Star, ShieldCheck, HardHat, BarChart3, Users, TriangleAlert, CreditCard, Crown, ImageIcon, Upload, X as CloseIcon, CheckCircle, AlertCircle, LucideIcon
+  Calendar, MessageSquare, Sun, Moon, Sparkles, Star, ShieldCheck, HardHat, BarChart3, Users, TriangleAlert, CreditCard, Crown, ImageIcon, Upload, X as CloseIcon, CheckCircle, AlertCircle, LucideIcon, FileText
 } from 'lucide-react';
+
 import { User as FirebaseUser } from 'firebase/auth';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
@@ -313,34 +314,32 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
           scrollbarWidth: 'thin',
           paddingBottom: '2rem',
         }}>
-          {visibleItems.map((item, i) => {
-            const active = isActive(item.to);
-            return (
-              <Link key={i} className="stagger-item" to={item.to} onClick={onClose} style={{ textDecoration: 'none', animationDelay: `${0.1 + (i * 0.03)}s` }}>
-                <div style={{
-                  display: 'flex', alignItems: 'center', gap: '0.9rem',
-                  padding: '0.8rem 1rem', borderRadius: '14px',
-                  color: active ? '#ffffff' : 'var(--color-text)',
-                  background: active ? 'var(--gradient-premium)' : 'transparent',
-                  fontWeight: active ? 800 : 500,
-                  fontSize: '0.9rem',
-                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                  boxShadow: active ? '0 10px 20px rgba(59, 130, 246, 0.3)' : 'none',
-                  border: active ? '1px solid rgba(255,255,255,0.1)' : '1px solid transparent',
-                }}
-                  onMouseOver={e => { if (!active) { e.currentTarget.style.background = 'var(--color-surface-hover)'; e.currentTarget.style.transform = 'translateX(4px)'; } }}
-                  onMouseOut={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.transform = 'translateX(0)'; } }}
-                >
-                  <span style={{ color: active ? 'white' : 'var(--color-primary)', flexShrink: 0, transition: 'transform 0.3s ease' }} className={active ? 'scale-110' : ''}>
-                    {item.icon}
-                  </span>
-                  <span style={{ letterSpacing: active ? '0.2px' : '0' }}>{item.label}</span>
-                </div>
-              </Link>
-            );
-          })}
-
-          <div style={{ height: '1px', background: 'var(--color-border)', margin: '0.8rem 0.5rem' }} />
+              {visibleItems.map((item, i) => {
+                const active = isActive(item.to);
+                return (
+                  <Link key={i} className="stagger-item" to={item.to} onClick={onClose} style={{ textDecoration: 'none', animationDelay: `${0.1 + (i * 0.03)}s` }}>
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: '0.9rem',
+                      padding: '0.8rem 1rem', borderRadius: '14px',
+                      color: active ? '#ffffff' : 'var(--color-text)',
+                      background: active ? 'var(--gradient-premium)' : 'transparent',
+                      fontWeight: active ? 800 : 500,
+                      fontSize: '0.9rem',
+                      transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                      boxShadow: active ? '0 10px 20px rgba(59, 130, 246, 0.3)' : 'none',
+                      border: active ? '1px solid rgba(255,255,255,0.1)' : '1px solid transparent',
+                    }}
+                      onMouseOver={e => { if (!active) { e.currentTarget.style.background = 'var(--color-surface-hover)'; e.currentTarget.style.transform = 'translateX(4px)'; } }}
+                      onMouseOut={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.transform = 'translateX(0)'; } }}
+                    >
+                      <span style={{ color: active ? 'white' : 'var(--color-primary)', flexShrink: 0, transition: 'transform 0.3s ease' }} className={active ? 'scale-110' : ''}>
+                        {item.icon}
+                      </span>
+                      <span style={{ letterSpacing: active ? '0.2px' : '0' }}>{item.label}</span>
+                    </div>
+                  </Link>
+                );
+              })}
 
           <div style={{ height: '1px', background: 'var(--color-border)', margin: '0.8rem 0.5rem' }} />
 

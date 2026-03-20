@@ -1,5 +1,4 @@
-import React from 'react';
-import React, { useRef } from 'react';
+﻿import React, { useRef } from 'react';
 import { ArrowLeft, Printer, Users, Calendar, MapPin, Clock, BookOpen, Briefcase } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 
@@ -24,7 +23,7 @@ export default function TrainingPdfGenerator({ data }: { data: any }): React.Rea
                     <button onClick={onBack} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)' }}>
                         <ArrowLeft size={20} />
                     </button>
-                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Previsualización de Planilla</h1>
+                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>PrevisualizaciÃ³n de Planilla</h1>
                 </div>
                 <div style={{ display: 'flex', gap: '0.8rem' }}>
                     <button onClick={handlePrint} className="btn-primary" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -76,10 +75,10 @@ export default function TrainingPdfGenerator({ data }: { data: any }): React.Rea
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #1e293b', paddingBottom: '10px', marginBottom: '20px' }}>
                         <div style={{ flex: 1, textAlign: 'center' }}>
                             <h1 style={{ margin: '0 0 5px 0', fontSize: '18pt', color: '#1e293b', fontWeight: 900, textTransform: 'uppercase' }}>
-                                Planilla de Asistencia a Capacitación
+                                Planilla de Asistencia a CapacitaciÃ³n
                             </h1>
                             <p style={{ margin: 0, fontSize: '10pt', color: '#475569' }}>
-                                Registro obligatorio de inducción y entrenamiento en Higiene y Seguridad
+                                Registro obligatorio de inducciÃ³n y entrenamiento en Higiene y Seguridad
                             </p>
                         </div>
                         <CompanyLogo
@@ -107,21 +106,21 @@ export default function TrainingPdfGenerator({ data }: { data: any }): React.Rea
                             <tr>
                                 <td style={{ border: '1px solid #cbd5e1', padding: '8px', background: '#f8fafc', fontWeight: 'bold' }}>Expositor / Instructor:</td>
                                 <td style={{ border: '1px solid #cbd5e1', padding: '8px' }}>{training.expositor}</td>
-                                <td style={{ border: '1px solid #cbd5e1', padding: '8px', background: '#f8fafc', fontWeight: 'bold' }}>Duración (Hs):</td>
+                                <td style={{ border: '1px solid #cbd5e1', padding: '8px', background: '#f8fafc', fontWeight: 'bold' }}>DuraciÃ³n (Hs):</td>
                                 <td style={{ border: '1px solid #cbd5e1', padding: '8px' }}>{training.duracion}</td>
                             </tr>
                             <tr>
                                 <td style={{ border: '1px solid #cbd5e1', padding: '8px', background: '#f8fafc', fontWeight: 'bold' }}>Lugar / Sector:</td>
                                 <td style={{ border: '1px solid #cbd5e1', padding: '8px' }}>{training.ubicacion || 'No especificado'}</td>
-                                <td style={{ border: '1px solid #cbd5e1', padding: '8px', background: '#f8fafc', fontWeight: 'bold' }}>Razón Social:</td>
+                                <td style={{ border: '1px solid #cbd5e1', padding: '8px', background: '#f8fafc', fontWeight: 'bold' }}>RazÃ³n Social:</td>
                                 <td style={{ border: '1px solid #cbd5e1', padding: '8px' }}>{training.empresa || 'Aplicable'}</td>
                             </tr>
                         </tbody>
                     </table>
 
                     <p style={{ fontSize: '9pt', color: '#334155', textAlign: 'justify', marginBottom: '15px' }}>
-                        Los abajo firmantes declaran haber recibido, comprendido e internalizado la capacitación en materia de Higiene y Seguridad Laboral
-                        sobre el tema detallado arriba, recibiendo respuesta satisfactoria a las consultas realizadas y comprometiéndose a aplicar
+                        Los abajo firmantes declaran haber recibido, comprendido e internalizado la capacitaciÃ³n en materia de Higiene y Seguridad Laboral
+                        sobre el tema detallado arriba, recibiendo respuesta satisfactoria a las consultas realizadas y comprometiÃ©ndose a aplicar
                         las normativas y procedimientos en sus labores diarias.
                     </p>
 
@@ -129,7 +128,7 @@ export default function TrainingPdfGenerator({ data }: { data: any }): React.Rea
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10pt', marginBottom: '30px' }}>
                         <thead>
                             <tr style={{ background: '#e2e8f0' }}>
-                                <th style={{ border: '1px solid #94a3b8', padding: '8px 4px', width: '5%', textAlign: 'center' }}>N°</th>
+                                <th style={{ border: '1px solid #94a3b8', padding: '8px 4px', width: '5%', textAlign: 'center' }}>NÂ°</th>
                                 <th style={{ border: '1px solid #94a3b8', padding: '8px', width: '35%', textAlign: 'left' }}>Apellido y Nombres</th>
                                 <th style={{ border: '1px solid #94a3b8', padding: '8px', width: '15%', textAlign: 'center' }}>DNI / CUIL</th>
                                 <th style={{ border: '1px solid #94a3b8', padding: '8px', width: '25%', textAlign: 'left' }}>Puesto de Trabajo</th>
@@ -165,7 +164,7 @@ export default function TrainingPdfGenerator({ data }: { data: any }): React.Rea
                         <div style={{ width: '250px', textAlign: 'center' }}>
                             <div style={{ borderBottom: '1px solid #64748b', height: '40px', marginBottom: '5px' }}></div>
                             <div style={{ fontSize: '9pt', color: '#1e293b', fontWeight: 'bold' }}>{training?.expositor || '-'}</div>
-                            <div style={{ fontSize: '8pt', color: '#64748b' }}>Firma y Aclaración Instructor</div>
+                            <div style={{ fontSize: '8pt', color: '#64748b' }}>Firma y AclaraciÃ³n Instructor</div>
                         </div>
                     </div>
 

@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 
@@ -79,11 +77,14 @@ export default function ATSHistory(): React.ReactElement | null {
             {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
 
             <ShareModal
+                isOpen={!!shareItem}
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`ATS - ${shareItem?.obra || ''}`}
+                rawMessage={shareItem ? `📋 Análisis de Trabajo Seguro (ATS)\n🏗️ Empresa: ${shareItem.empresa}\n🚧 Obra: ${shareItem.obra}\n📅 Fecha: ${shareItem.fecha}\n👷 Responsable: ${shareItem.capatazNombre || '-'}` : ''}
                 text={shareItem ? `📋 Análisis de Trabajo Seguro (ATS)\n🏗️ Empresa: ${shareItem.empresa}\n🚧 Obra: ${shareItem.obra}\n📅 Fecha: ${shareItem.fecha}\n👷 Responsable: ${shareItem.capatazNombre || '-'}` : ''}
                 elementIdToPrint="pdf-content"
+                fileName={`ATS_${shareItem?.empresa.replace(/\s+/g, '_') || 'Reporte'}.pdf`}
             />
 
             <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>

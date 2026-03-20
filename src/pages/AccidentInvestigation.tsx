@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate, useLocation } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
     ArrowLeft, Save, FileText, UserPlus, FileSpreadsheet,
@@ -150,11 +148,14 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                 </div>
 
                 <ShareModal
+                    isOpen={showShare}
                     open={showShare}
                     onClose={() => setShowShare(false)}
                     title={`Investigación de Accidente - ${formData.victimaNombre}`}
                     text={`⚠️ Informe de Investigación de Accidente\n👤 Accidentado: ${formData.victimaNombre}\n🏢 Empresa: ${formData.empresa}\n📅 Fecha: ${formData.fecha}\n⚠️ Gravedad: ${formData.gravedad}\n\nGenerado con Asistente HYS`}
+                    rawMessage={`⚠️ Informe de Investigación de Accidente\n👤 Accidentado: ${formData.victimaNombre}\n🏢 Empresa: ${formData.empresa}\n📅 Fecha: ${formData.fecha}\n⚠️ Gravedad: ${formData.gravedad}\n\nGenerado con Asistente HYS`}
                     elementIdToPrint="pdf-content"
+                    fileName={`Accidente_${formData.victimaNombre || 'Sin_Nombre'}.pdf`}
                 />
 
                 {/* Floating Action Buttons */}

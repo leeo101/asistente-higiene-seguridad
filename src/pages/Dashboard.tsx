@@ -4,7 +4,8 @@ import {
   TrendingUp, TrendingDown, Shield, ShieldAlert, CheckCircle,
   AlertTriangle, Calendar, Users, FileText, HardHat, Flame,
   ClipboardList, Eye, Activity, Award, Clock, Target, Zap,
-  BarChart3, PieChart as PieChartIcon, RefreshCw, Download, Filter, LucideIcon
+  BarChart3, PieChart as PieChartIcon, RefreshCw, Download, Filter, LucideIcon,
+  AlertCircle
 } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, AreaChart, Area } from 'recharts';
 import { User } from 'firebase/auth';
@@ -239,7 +240,7 @@ export default function Dashboard(): React.ReactElement {
 
       // Permisos activos
       const activePermits = permits.filter(p => {
-        const endDate = new Date(p.endDate || 0);
+        const endDate = new Date((p.endDate as string | number) || 0);
         return endDate > new Date();
       }).length;
 
@@ -248,6 +249,47 @@ export default function Dashboard(): React.ReactElement {
         const d = new Date(i.date || 0);
         return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
       }).length;
+
+      // Recuperar riesgos críticos de matrices
+      const topRisks = riskMatrices
+        .filter(m => m.riskLevel === 'high' || m.riskLevel === 'alto' || m.riskLevel === 'critical' || m.riskLevel === 'crítico')
+        .slice(0, 5)
+        .map(m => ({
+          name: (m.process || m.task || 'Riesgo sin nombre') as string,
+          level: (m.riskLevel || 'Alto') as string,
+          category: (m.category || 'General') as string
+        }));
+
+      // Generar alertas
+      const alerts: AlertItem[] = [];
+      
+      // Alertas de permisos por vencer (próximos 3 días)
+      const now = new Date();
+      const threeDaysLater = new Date(now.getTime() + (3 * 24 * 60 * 60 * 1000));
+      permits.forEach(p => {
+        const endDate = new Date(p.endDate as string || 0);
+        if (endDate > now && endDate < threeDaysLater) {
+          alerts.push({
+            id: `permit-${p.id}`,
+            type: 'warning',
+            message: `Permiso de trabajo #${p.id} vence pronto`,
+            date: endDate.toLocaleDateString()
+          });
+        }
+      });
+
+      // Alertas de capacitaciones pendientes
+      trainings.filter(t => t.status === 'pending' || !t.completed).forEach(t => {
+        alerts.push({
+          id: `training-${t.id}`,
+          type: 'info',
+          message: `Capacitación pendiente: ${t.title || t.name}`,
+          date: new Date(t.date as string || 0).toLocaleDateString()
+        });
+      });
+
+      // Tasa de cumplimiento real (Promedio de capacitaciones y EPP)
+      const complianceRate = Math.round((trainingCompletion + ppeCompliance) / 2);
 
       // Estado de matriz de riesgos
       const riskMatrixStatus = {
@@ -291,7 +333,7 @@ export default function Dashboard(): React.ReactElement {
       setKpis({
         accidentRate,
         accidentTrend,
-        complianceRate: 0,
+        complianceRate,
         trainingCompletion,
         ppeCompliance,
         activePermits,
@@ -299,8 +341,8 @@ export default function Dashboard(): React.ReactElement {
         inspectionsCompleted,
         riskMatrixStatus,
         monthlyStats,
-        topRisks: [],
-        alerts: []
+        topRisks,
+        alerts
       });
     } catch (error) {
       console.error('[DASHBOARD] Error loading data:', error);
@@ -388,7 +430,7 @@ export default function Dashboard(): React.ReactElement {
       </div>
 
       {/* Profile Completion Banner */}
-      <ProfileCompletionBanner />
+      <ProfileCompletionBanner onComplete={() => loadDashboardData()} />
 
       {/* KPI Cards */}
       <div style={{
@@ -398,12 +440,19 @@ export default function Dashboard(): React.ReactElement {
         marginBottom: '2rem'
       }}>
         <KPICard
-          icon={ShieldAlert}
-          title="Tasa de Accidentes"
-          value={kpis.accidentRate.toFixed(1)}
+          icon={Activity}
+          title="Incidentes este Mes"
+          value={kpis.accidentRate}
           trend={kpis.accidentTrend}
           gradient={CARD_GRADIENTS.red}
           delay="0.1s"
+        />
+        <KPICard
+          icon={Target}
+          title="Tasa de Cumplimiento"
+          value={`${kpis.complianceRate}%`}
+          gradient={CARD_GRADIENTS.cyan}
+          delay="0.2s"
         />
         <KPICard
           icon={CheckCircle}
@@ -508,10 +557,66 @@ export default function Dashboard(): React.ReactElement {
         </div>
       </div>
 
+      {/* Top Risks & Alerts */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+        gap: '1.5rem',
+        marginBottom: '2rem'
+      }}>
+        {/* Top Risks */}
+        <div className="card" style={{ padding: '1.5rem' }}>
+          <h3 style={{ margin: '0 0 1.5rem', fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <AlertTriangle size={20} color="var(--color-danger)" /> Principales Riesgos
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+            {kpis.topRisks.length > 0 ? (
+              kpis.topRisks.map((risk, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.8rem', background: 'rgba(239, 68, 68, 0.05)', borderRadius: '10px', border: '1px solid rgba(239, 68, 68, 0.1)' }}>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{risk.name}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{risk.category}</div>
+                  </div>
+                  <div style={{ padding: '0.2rem 0.6rem', borderRadius: '6px', background: '#ef4444', color: '#fff', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase' }}>
+                    {risk.level}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p style={{ textAlign: 'center', padding: '1rem', color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>No se detectan riesgos críticos</p>
+            )}
+          </div>
+        </div>
+
+        {/* Alerts */}
+        <div className="card" style={{ padding: '1.5rem' }}>
+          <h3 style={{ margin: '0 0 1.5rem', fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <Zap size={20} color="var(--color-warning)" /> Alertas y Notificaciones
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+            {kpis.alerts.length > 0 ? (
+              kpis.alerts.map((alert) => (
+                <div key={alert.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.8rem', padding: '0.8rem', background: alert.type === 'warning' ? 'rgba(245, 158, 11, 0.05)' : 'rgba(59, 130, 246, 0.05)', borderRadius: '10px', border: `1px solid ${alert.type === 'warning' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(59, 130, 246, 0.1)'}` }}>
+                  <div style={{ color: alert.type === 'warning' ? '#f59e0b' : '#3b82f6', marginTop: '0.2rem' }}>
+                    <AlertCircle size={18} />
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>{alert.message}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Para el: {alert.date}</div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p style={{ textAlign: 'center', padding: '1rem', color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>Sin alertas pendientes</p>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Recent Activity */}
       <div className="card" style={{ padding: '1.5rem' }}>
         <h3 style={{ margin: '0 0 1.5rem', fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text)' }}>
-          Actividad Reciente
+          Resumen de Actividad
         </h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {kpis.monthlyStats.length > 0 ? (

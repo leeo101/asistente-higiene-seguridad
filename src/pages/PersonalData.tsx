@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 
@@ -66,7 +64,7 @@ export default function PersonalData(): React.ReactElement | null {
                 const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
                 setFormData(prev => ({ ...prev, photo: compressedDataUrl }));
             };
-            img.src = reader.result;
+            img.src = reader.result as string;
         };
         reader.readAsDataURL(file);
     };

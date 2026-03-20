@@ -122,7 +122,7 @@ export default function EnvironmentalPdf({ data }) {
                                 </tr>
                             )) : (
                                 <tr>
-                                    <td colSpan="3" style={{ border: '1px solid #ddd', padding: '1rem', textAlign: 'center', color: '#666' }}>No se registraron parámetros específicos</td>
+                                    <td colSpan={3} style={{ border: '1px solid #ddd', padding: '1rem', textAlign: 'center', color: '#666' }}>No se registraron parámetros específicos</td>
                                 </tr>
                             )}
                         </tbody>

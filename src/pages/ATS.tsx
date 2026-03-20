@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import React, { useState, useEffect, useRef } from 'react';
 import {
@@ -58,7 +57,8 @@ const defaultChecklist = [
 ];
 
 export default function ATS(): React.ReactElement | null {
-        const location = useLocation();
+    const navigate = useNavigate();
+    const location = useLocation();
     const { requirePro } = usePaywall();
     const { syncCollection } = useSync();
     useDocumentTitle('Análisis de Trabajo Seguro (ATS)');
@@ -67,6 +67,7 @@ export default function ATS(): React.ReactElement | null {
 
     // State
     const [formData, setFormData] = useState({
+        id: '',
         empresa: '',
         cuit: '',
         obra: '',
@@ -295,6 +296,13 @@ export default function ATS(): React.ReactElement | null {
         });
     };
 
+    const handleShare = () => setShowShare(true);
+    const handlePrint = () => {
+        requirePro(() => {
+            window.print();
+        });
+    };
+
         
     // Grouping checklist by category
     const categories = [...new Set(formData.checklist.map(i => i.categoria))];
@@ -307,11 +315,14 @@ export default function ATS(): React.ReactElement | null {
                 <Breadcrumbs />
 
                 <ShareModal
+                    isOpen={showShare}
                     open={showShare}
                     onClose={() => setShowShare(false)}
                     title={`ATS – ${formData.empresa}`}
+                    rawMessage={`📋 Análisis de Trabajo Seguro\n🏗️ Empresa: ${formData.empresa}\n🚧 Obra: ${formData.obra}\n📅 Fecha: ${formData.fecha}\n👷 Responsable: ${formData.capatazNombre}\n\nGenerado con Asistente HYS`}
                     text={`📋 Análisis de Trabajo Seguro\n🏗️ Empresa: ${formData.empresa}\n🚧 Obra: ${formData.obra}\n📅 Fecha: ${formData.fecha}\n👷 Responsable: ${formData.capatazNombre}\n\nGenerado con Asistente HYS`}
                     elementIdToPrint="pdf-content"
+                    fileName={`ATS_${formData.empresa.replace(/\s+/g, '_')}_${formData.fecha}.pdf`}
                 />
 
                 <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
@@ -370,7 +381,7 @@ export default function ATS(): React.ReactElement | null {
                     </div>
                 </div>
 
-                <div id="pdf-content" className="card print-area" style={{ width: '100%', maxWidth: '950px', boxSizing: 'border-box', padding: '1rem', smPadding: '3rem', margin: '0 auto' }}>
+                <div id="pdf-content" className="card print-area" style={{ width: '100%', maxWidth: '950px', boxSizing: 'border-box', padding: '1rem', margin: '0 auto' }}>
 
                     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottom: '4px solid var(--color-border)', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
                         {/* Top Left Text */}
@@ -455,7 +466,11 @@ export default function ATS(): React.ReactElement | null {
                                                 rows={1}
                                                 value={t.paso}
                                                 onChange={(e) => updateTask(t.id, 'paso', e.target.value)}
-                                                onInput={(e) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
+                                                onInput={(e) => { 
+                                                    const target = e.target as HTMLTextAreaElement;
+                                                    target.style.height = 'auto'; 
+                                                    target.style.height = target.scrollHeight + 'px'; 
+                                                }}
                                                 className="no-print"
                                                 style={{ width: '100%', border: 'none', background: 'transparent', outline: 'none', resize: 'none', fontWeight: 700, overflow: 'hidden', fontSize: '0.9rem' }}
                                                 placeholder="Ej: Preparación de área..."
@@ -472,7 +487,11 @@ export default function ATS(): React.ReactElement | null {
                                                 rows={1}
                                                 value={t.riesgo}
                                                 onChange={(e) => updateTask(t.id, 'riesgo', e.target.value)}
-                                                onInput={(e) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
+                                                onInput={(e) => { 
+                                                    const target = e.target as HTMLTextAreaElement;
+                                                    target.style.height = 'auto'; 
+                                                    target.style.height = target.scrollHeight + 'px'; 
+                                                }}
                                                 className="no-print"
                                                 style={{ width: '100%', border: 'none', background: 'transparent', outline: 'none', resize: 'none', overflow: 'hidden', fontSize: '0.85rem' }}
                                                 placeholder="Ej: Caídas, Golpes..."
@@ -489,7 +508,11 @@ export default function ATS(): React.ReactElement | null {
                                                 rows={1}
                                                 value={t.control}
                                                 onChange={(e) => updateTask(t.id, 'control', e.target.value)}
-                                                onInput={(e) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
+                                                onInput={(e) => { 
+                                                    const target = e.target as HTMLTextAreaElement;
+                                                    target.style.height = 'auto'; 
+                                                    target.style.height = target.scrollHeight + 'px'; 
+                                                }}
                                                 className="no-print"
                                                 style={{ width: '100%', border: 'none', background: 'transparent', outline: 'none', resize: 'none', overflow: 'hidden', fontSize: '0.85rem' }}
                                                 placeholder="Ej: Delimitación, Uso EPP..."
@@ -575,8 +598,9 @@ export default function ATS(): React.ReactElement | null {
                                                 value={item.observaciones}
                                                 className="no-print block overflow-hidden"
                                                 onInput={(e) => {
-                                                    e.target.style.height = 'auto';
-                                                    e.target.style.height = e.target.scrollHeight + 'px';
+                                                    const target = e.target as HTMLTextAreaElement;
+                                                    target.style.height = 'auto';
+                                                    target.style.height = target.scrollHeight + 'px';
                                                 }}
                                                 onChange={(e) => updateChecklist(item.id, 'observaciones', e.target.value)}
                                                 style={{ margin: '0 0 0.6rem 0', padding: '0.4rem', fontSize: '0.7rem', background: 'transparent', border: '1px solid #efefef', borderRadius: '4px', width: '100%', boxSizing: 'border-box', color: 'var(--color-text-muted)', resize: 'none', minHeight: '30px' }}

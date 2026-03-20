@@ -1,19 +1,18 @@
-import React from 'react';
 import React, { useRef } from 'react';
 import { ArrowLeft, Printer, Download, MapPin, Calendar, Clock, TriangleAlert, User, FileText, CheckCircle2 } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 
-export default function AccidentPdfGenerator({ data }: { data: any }): React.ReactElement | null {
+export default function AccidentPdfGenerator({ report, onBack, isHeadless = false }: { report: any, onBack?: any, isHeadless?: boolean }): React.ReactElement | null {
 
 
-    const componentRef = useRef();
+    const componentRef = useRef<HTMLDivElement>(null);
 
         
     const handlePrint = () => {
         window.print();
     };
 
-    const getSeverityLabel = (sev) => {
+    const getSeverityLabel = (sev: any) => {
         if (sev === 'Leve') return { color: '#3b82f6', text: 'Leve (Sin baja)' };
         if (sev === 'Moderado') return { color: '#fbbf24', text: 'Moderado (Con baja)' };
         if (sev === 'Grave') return { color: '#f97316', text: 'Grave' };
@@ -21,12 +20,13 @@ export default function AccidentPdfGenerator({ data }: { data: any }): React.Rea
         return { color: '#64748b', text: sev };
     };
 
-    const sev = getSeverityLabel(report.gravedad);
+    const sev = getSeverityLabel(report?.gravedad);
 
     return (
         <div className="container" style={{ paddingBottom: '3rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             {/* Header controls (not printed) */}
-            <div className="no-print" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10, flexWrap: 'wrap', gap: '1rem' }}>
+            {!isHeadless && (
+                <div className="no-print" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10, flexWrap: 'wrap', gap: '1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <button onClick={onBack} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)' }}>
                         <ArrowLeft size={20} />
@@ -39,6 +39,7 @@ export default function AccidentPdfGenerator({ data }: { data: any }): React.Rea
                     </button>
                 </div>
             </div>
+            )}
 
             {/* Printable Document Area */}
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
@@ -212,7 +213,7 @@ export default function AccidentPdfGenerator({ data }: { data: any }): React.Rea
                                         </tr>
                                     ))
                                 ) : (
-                                    <tr><td colSpan="3" style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8' }}>No se definieron medidas correctivas.</td></tr>
+                                    <tr><td colSpan={3} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8' }}>No se definieron medidas correctivas.</td></tr>
                                 )}
                             </tbody>
                         </table>

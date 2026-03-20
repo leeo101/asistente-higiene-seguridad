@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { ArrowLeft, Printer, Share2, Download, CheckCircle2, TriangleAlert, ShieldCheck, Info } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -48,11 +46,14 @@ export default function AIReport(): React.ReactElement | null {
     return (
         <div className="container" style={{ maxWidth: '1000px' }}>
             <ShareModal
+                isOpen={showShare}
                 open={showShare}
                 onClose={() => setShowShare(false)}
                 title={`Informe IA – ${company}`}
                 text={`🤖 INFORME DE INSPECCIÓN IA\n\n🏗️ Empresa: ${company}\n📍 Ubicación: ${location}\n📅 Fecha: ${data ? new Date(data.date).toLocaleString() : ''}\n⚠️ Estado: ${data?.analysis?.ppeComplete ? '✅ EPP Completo' : '⚠️ Falta EPP / Peligro'}\n\nGenerado con Asistente HYS`}
+                rawMessage={`🤖 INFORME DE INSPECCIÓN IA\n\n🏗️ Empresa: ${company}\n📍 Ubicación: ${location}\n📅 Fecha: ${data ? new Date(data.date).toLocaleString() : ''}\n⚠️ Estado: ${data?.analysis?.ppeComplete ? '✅ EPP Completo' : '⚠️ Falta EPP / Peligro'}\n\nGenerado con Asistente HYS`}
                 elementIdToPrint="pdf-content"
+                fileName={`Informe_IA_${company?.replace(/\s+/g, '_') || 'Sin_Nombre'}.pdf`}
             />
             <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                 <button onClick={() => navigate('/ai-camera')} style={{ background: 'transparent', border: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--color-text)' }}>

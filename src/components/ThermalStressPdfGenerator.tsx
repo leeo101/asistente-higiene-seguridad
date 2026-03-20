@@ -1,5 +1,4 @@
-import React from 'react';
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Printer, MapPin, Calendar, ThermometerSun, Info, Droplets, Wind, Sun, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { getCountryNormativa } from '../data/legislationData';
 
@@ -29,10 +28,10 @@ export default function ThermalStressPdfGenerator({ data }: { data: any }): Reac
 
     // Formatting helpers
     const getRitmoName = (rtm) => {
-        if (rtm === 'liviano') return { name: 'Liviana', desc: 'Trabajo en banco, sentado', icon: '🪑' };
-        if (rtm === 'moderado') return { name: 'Moderada', desc: 'Trabajo de pie, caminar con peso', icon: '🚶' };
-        if (rtm === 'pesado') return { name: 'Pesada', desc: 'Trabajo intenso con pico/pala', icon: '⛏️' };
-        return { name: rtm, desc: '', icon: '❓' };
+        if (rtm === 'liviano') return { name: 'Liviana', desc: 'Trabajo en banco, sentado', icon: 'ðŸª‘' };
+        if (rtm === 'moderado') return { name: 'Moderada', desc: 'Trabajo de pie, caminar con peso', icon: 'ðŸš¶' };
+        if (rtm === 'pesado') return { name: 'Pesada', desc: 'Trabajo intenso con pico/pala', icon: 'â›ï¸' };
+        return { name: rtm, desc: '', icon: 'â“' };
     };
 
     const getCicloName = (ccl) => {
@@ -101,11 +100,11 @@ export default function ThermalStressPdfGenerator({ data }: { data: any }): Reac
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                             <ThermometerSun size={24} color="#fbbf24" />
                             <h1 style={{ margin: 0, fontSize: '18pt', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
-                                Informe de Estrés Térmico
+                                Informe de EstrÃ©s TÃ©rmico
                             </h1>
                         </div>
                         <p style={{ margin: '0 0 1rem 0', fontSize: '9pt', color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                            Índice TGBH (Temperatura Globo Bulbo Húmedo)
+                            Ãndice TGBH (Temperatura Globo Bulbo HÃºmedo)
                         </p>
                         <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
                             <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '9pt' }}>
@@ -151,9 +150,9 @@ export default function ThermalStressPdfGenerator({ data }: { data: any }): Reac
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.8rem' }}>
                         <Info size={20} color="#2563eb" style={{ flexShrink: 0, marginTop: '2px' }} />
                         <p style={{ margin: 0, fontSize: '9.5pt', color: '#1e3a8a', lineHeight: '1.5', textAlign: 'justify' }}>
-                            El presente documento certifica la evaluación de las condiciones de carga térmica en el puesto de trabajo detallado,
-                            realizada conforme a la estimación del <strong>TGBH (Índice de Temperatura Globo Bulbo Húmedo)</strong> y contrastado 
-                            con los límites permisibles establecidos en <strong>{countryNorms.thermal}</strong> ({countryNorms.general}).
+                            El presente documento certifica la evaluaciÃ³n de las condiciones de carga tÃ©rmica en el puesto de trabajo detallado,
+                            realizada conforme a la estimaciÃ³n del <strong>TGBH (Ãndice de Temperatura Globo Bulbo HÃºmedo)</strong> y contrastado 
+                            con los lÃ­mites permisibles establecidos en <strong>{countryNorms.thermal}</strong> ({countryNorms.general}).
                         </p>
                     </div>
                 </div>
@@ -172,21 +171,21 @@ export default function ThermalStressPdfGenerator({ data }: { data: any }): Reac
                         gap: '0.5rem'
                     }}>
                         <span style={{ background: '#fbbf24', color: '#1e293b', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9pt', fontWeight: 900 }}>1</span>
-                        IDENTIFICACIÓN DEL PUESTO
+                        IDENTIFICACIÃ“N DEL PUESTO
                     </div>
                     <div style={{ border: '1px solid #e2e8f0', borderTop: 'none', borderRadius: '0 0 8px 8px', overflow: 'hidden' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10pt' }}>
                             <tbody>
                                 <tr>
-                                    <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', background: '#f8fafc', fontWeight: '700', width: '30%', color: '#475569' }}>🏭 Puesto Evaluado:</td>
+                                    <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', background: '#f8fafc', fontWeight: '700', width: '30%', color: '#475569' }}>ðŸ­ Puesto Evaluado:</td>
                                     <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', fontWeight: '800', color: '#1e293b' }}>{report?.puesto || 'N/A'}</td>
                                 </tr>
                                 <tr>
-                                    <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', background: '#f8fafc', fontWeight: '700', color: '#475569' }}>📍 Sector / Área:</td>
+                                    <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', background: '#f8fafc', fontWeight: '700', color: '#475569' }}>ðŸ“ Sector / Ãrea:</td>
                                     <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', color: '#334155' }}>{report.sector || 'No especificado'}</td>
                                 </tr>
                                 <tr>
-                                    <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', background: '#f8fafc', fontWeight: '700', color: '#475569' }}>📋 Tarea Principal:</td>
+                                    <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', background: '#f8fafc', fontWeight: '700', color: '#475569' }}>ðŸ“‹ Tarea Principal:</td>
                                     <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', color: '#334155' }}>{report.tarea || 'No especificada'}</td>
                                 </tr>
                             </tbody>
@@ -215,25 +214,25 @@ export default function ThermalStressPdfGenerator({ data }: { data: any }): Reac
                             <div className="metric-card" style={{ border: '2px solid #3b82f6', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem', marginBottom: '6px' }}>
                                     <Droplets size={16} color="#3b82f6" />
-                                    <div style={{ fontSize: '7.5pt', color: '#475569', fontWeight: '800', textTransform: 'uppercase' }}>T° Bulbo Húmedo</div>
+                                    <div style={{ fontSize: '7.5pt', color: '#475569', fontWeight: '800', textTransform: 'uppercase' }}>TÂ° Bulbo HÃºmedo</div>
                                 </div>
-                                <div style={{ fontSize: '28pt', fontWeight: 900, color: '#1e40af', lineHeight: 1 }}>{report?.tbh || '0'}°C</div>
+                                <div style={{ fontSize: '28pt', fontWeight: 900, color: '#1e40af', lineHeight: 1 }}>{report?.tbh || '0'}Â°C</div>
                                 <div style={{ fontSize: '7pt', color: '#64748b', marginTop: '4px', fontWeight: '600' }}>(Tbh)</div>
                             </div>
                             <div className="metric-card" style={{ border: '2px solid #f97316', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem', marginBottom: '6px' }}>
                                     <ThermometerSun size={16} color="#f97316" />
-                                    <div style={{ fontSize: '7.5pt', color: '#475569', fontWeight: '800', textTransform: 'uppercase' }}>T° Globo Térmico</div>
+                                    <div style={{ fontSize: '7.5pt', color: '#475569', fontWeight: '800', textTransform: 'uppercase' }}>TÂ° Globo TÃ©rmico</div>
                                 </div>
-                                <div style={{ fontSize: '28pt', fontWeight: 900, color: '#c2410c', lineHeight: 1 }}>{report?.tg || '0'}°C</div>
+                                <div style={{ fontSize: '28pt', fontWeight: 900, color: '#c2410c', lineHeight: 1 }}>{report?.tg || '0'}Â°C</div>
                                 <div style={{ fontSize: '7pt', color: '#64748b', marginTop: '4px', fontWeight: '600' }}>(Tg)</div>
                             </div>
                             <div className="metric-card" style={{ border: `2px solid ${report?.cargaSolar ? '#ef4444' : '#cbd5e1'}`, borderRadius: '10px', padding: '12px', textAlign: 'center', opacity: report?.cargaSolar ? 1 : 0.5 }}>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem', marginBottom: '6px' }}>
                                     <Sun size={16} color={report?.cargaSolar ? '#ef4444' : '#94a3b8'} />
-                                    <div style={{ fontSize: '7.5pt', color: '#475569', fontWeight: '800', textTransform: 'uppercase' }}>T° Bulbo Seco</div>
+                                    <div style={{ fontSize: '7.5pt', color: '#475569', fontWeight: '800', textTransform: 'uppercase' }}>TÂ° Bulbo Seco</div>
                                 </div>
-                                <div style={{ fontSize: '28pt', fontWeight: 900, color: '#991b1b', lineHeight: 1 }}>{report?.cargaSolar ? `${report?.tbs || '0'}°C` : 'N/A'}</div>
+                                <div style={{ fontSize: '28pt', fontWeight: 900, color: '#991b1b', lineHeight: 1 }}>{report?.cargaSolar ? `${report?.tbs || '0'}Â°C` : 'N/A'}</div>
                                 <div style={{ fontSize: '7pt', color: '#64748b', marginTop: '4px', fontWeight: '600' }}>(Tbs)</div>
                             </div>
                         </div>
@@ -249,7 +248,7 @@ export default function ThermalStressPdfGenerator({ data }: { data: any }): Reac
                             border: `1px solid ${report.cargaSolar ? '#fecaca' : '#bfdbfe'}`
                         }}>
                             {report.cargaSolar ? <Sun size={16} color="#dc2626" /> : <Droplets size={16} color="#2563eb" />}
-                            <strong>Exposición Solar:</strong> {report.cargaSolar ? 'SÍ (Condición al aire libre con carga solar)' : 'NO (Condición interior o sin carga solar)'}
+                            <strong>ExposiciÃ³n Solar:</strong> {report.cargaSolar ? 'SÃ (CondiciÃ³n al aire libre con carga solar)' : 'NO (CondiciÃ³n interior o sin carga solar)'}
                         </div>
                     </div>
                 </div>
@@ -268,14 +267,14 @@ export default function ThermalStressPdfGenerator({ data }: { data: any }): Reac
                         gap: '0.5rem'
                     }}>
                         <span style={{ background: '#ffffff', color: '#8b5cf6', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9pt', fontWeight: 900 }}>3</span>
-                        CARGA DE TRABAJO Y LÍMITES
+                        CARGA DE TRABAJO Y LÃMITES
                     </div>
                     <div style={{ border: '1px solid #c4b5fd', borderTop: 'none', borderRadius: '0 0 8px 8px', overflow: 'hidden' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10pt' }}>
                             <tbody>
                                 <tr>
                                     <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', background: '#faf5ff', fontWeight: '700', width: '40%', color: '#475569' }}>
-                                        {ritmoInfo.icon} Nivel Metabólico:
+                                        {ritmoInfo.icon} Nivel MetabÃ³lico:
                                     </td>
                                     <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px' }}>
                                         <div style={{ fontWeight: '800', color: '#1e293b', marginBottom: '2px' }}>{ritmoInfo.name}</div>
@@ -284,15 +283,15 @@ export default function ThermalStressPdfGenerator({ data }: { data: any }): Reac
                                 </tr>
                                 <tr>
                                     <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', background: '#faf5ff', fontWeight: '700', color: '#475569' }}>
-                                        🔄 Régimen Trabajo/Descanso:
+                                        ðŸ”„ RÃ©gimen Trabajo/Descanso:
                                     </td>
                                     <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', fontWeight: '700', color: '#1e293b' }}>{getCicloName(report?.ciclo)}</td>
                                 </tr>
                                 <tr>
                                     <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', background: '#faf5ff', fontWeight: '700', color: '#475569' }}>
-                                        📊 Límite Máximo Permitido:
+                                        ðŸ“Š LÃ­mite MÃ¡ximo Permitido:
                                     </td>
-                                    <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', fontWeight: '900', color: '#7c3aed', fontSize: '14pt' }}>{report?.resultados?.limite || '--'}°C</td>
+                                    <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', fontWeight: '900', color: '#7c3aed', fontSize: '14pt' }}>{report?.resultados?.limite || '--'}Â°C</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -328,10 +327,10 @@ export default function ThermalStressPdfGenerator({ data }: { data: any }): Reac
                                 textAlign: 'center'
                             }}>
                                 <div style={{ fontSize: '8.5pt', color: '#475569', fontWeight: '800', textTransform: 'uppercase', marginBottom: '8px' }}>
-                                    📈 TGBH OBTENIDO
+                                    ðŸ“ˆ TGBH OBTENIDO
                                 </div>
                                 <div style={{ fontSize: '36pt', fontWeight: 900, color: '#1e293b', lineHeight: 1, marginBottom: '4px' }}>
-                                    {report?.resultados?.tgbh || '--'}°C
+                                    {report?.resultados?.tgbh || '--'}Â°C
                                 </div>
                                 <div style={{ 
                                     fontSize: '8.5pt', 
@@ -342,7 +341,7 @@ export default function ThermalStressPdfGenerator({ data }: { data: any }): Reac
                                     borderRadius: '4px',
                                     display: 'inline-block'
                                 }}>
-                                    Límite: {report?.resultados?.limite || '--'}°C
+                                    LÃ­mite: {report?.resultados?.limite || '--'}Â°C
                                 </div>
                             </div>
 
@@ -370,7 +369,7 @@ export default function ThermalStressPdfGenerator({ data }: { data: any }): Reac
                                         textTransform: 'uppercase',
                                         lineHeight: 1.2
                                     }}>
-                                        {isAdmisible ? 'SITUACIÓN ADMISIBLE' : 'RIESGO POR ESTRÉS TÉRMICO'}
+                                        {isAdmisible ? 'SITUACIÃ“N ADMISIBLE' : 'RIESGO POR ESTRÃ‰S TÃ‰RMICO'}
                                     </div>
                                 </div>
                                 <div style={{ 
@@ -379,8 +378,8 @@ export default function ThermalStressPdfGenerator({ data }: { data: any }): Reac
                                     lineHeight: 1.5
                                 }}>
                                     {isAdmisible
-                                        ? '✅ El puesto de trabajo cumple con los valores límite umbral de estrés térmico vigentes. No se requiere rotación obligatoria especial, pero se recomienda continuar con hidratación adecuada.'
-                                        : '⚠️ El índice TGBH ha superado el límite admisible. SE REQUIEREN MEDIDAS INMEDIATAS: Reducir intensidad física, aumentar descansos en zonas frescas, implementar métodos de refrigeración, y garantizar hidratación constante.'}
+                                        ? 'âœ… El puesto de trabajo cumple con los valores lÃ­mite umbral de estrÃ©s tÃ©rmico vigentes. No se requiere rotaciÃ³n obligatoria especial, pero se recomienda continuar con hidrataciÃ³n adecuada.'
+                                        : 'âš ï¸ El Ã­ndice TGBH ha superado el lÃ­mite admisible. SE REQUIEREN MEDIDAS INMEDIATAS: Reducir intensidad fÃ­sica, aumentar descansos en zonas frescas, implementar mÃ©todos de refrigeraciÃ³n, y garantizar hidrataciÃ³n constante.'}
                                 </div>
                             </div>
                         </div>
@@ -394,7 +393,7 @@ export default function ThermalStressPdfGenerator({ data }: { data: any }): Reac
                             borderRadius: '6px',
                             border: '1px dashed #cbd5e1'
                         }}>
-                            <strong>📐 Fórmula aplicada:</strong> {report.cargaSolar ? 'TGBH = 0.7(Tbh) + 0.2(Tg) + 0.1(Tbs)' : 'TGBH = 0.7(Tbh) + 0.3(Tg)'}
+                            <strong>ðŸ“ FÃ³rmula aplicada:</strong> {report.cargaSolar ? 'TGBH = 0.7(Tbh) + 0.2(Tg) + 0.1(Tbs)' : 'TGBH = 0.7(Tbh) + 0.3(Tg)'}
                         </div>
                     </div>
                 </div>
@@ -434,11 +433,11 @@ export default function ThermalStressPdfGenerator({ data }: { data: any }): Reac
                     lineHeight: '1.6'
                 }}>
                     <div style={{ fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>
-                        Informe generado electrónicamente
+                        Informe generado electrÃ³nicamente
                     </div>
                     <div>
                         {new Date().toLocaleDateString()} a las {new Date().toLocaleTimeString()} | 
-                        Asistente H&S - Sistema de Gestión
+                        Asistente H&S - Sistema de GestiÃ³n
                     </div>
                 </div>
 

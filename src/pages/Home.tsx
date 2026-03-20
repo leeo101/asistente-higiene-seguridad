@@ -6,7 +6,7 @@ import {
   Accessibility, Lock, UserPlus, LogIn, Sparkles,
   Camera, CalendarCheck, Shield, Cpu, Lightbulb, ThermometerSun, Map,
   ShieldCheck, TriangleAlert, KeySquare, ScrollText, Bot, ClipboardCheck, FileText, HardHat, ShieldAlert, PenTool,
-  ArrowRight, Activity, BookOpen, Calendar as CalendarIcon, Search, TrendingUp,
+  ArrowRight, Activity, BookOpen, Calendar as CalendarIcon, Search, TrendingUp, Star,
   Volume2, ArrowDown, RefreshCw, Leaf, Tent, LucideIcon,
   FlaskConical, CheckCircle2, Droplets
 } from 'lucide-react';
@@ -171,6 +171,19 @@ export default function Home(): React.ReactElement {
   const { currentUser } = useAuth() as { currentUser: FirebaseUser | null };
   const { syncPulse } = useSync();
   const { isPro, daysRemaining } = usePaywall();
+
+  const typeColors: Record<string, { bg: string, text: string, icon: React.ReactElement }> = {
+    'ATS': { bg: 'rgba(16, 185, 129, 0.1)', text: '#059669', icon: <ShieldCheck size={20} /> },
+    'Carga Fuego': { bg: 'rgba(249, 115, 22, 0.1)', text: '#ea580c', icon: <Flame size={20} /> },
+    'Inspección': { bg: 'rgba(59, 130, 246, 0.1)', text: '#2563eb', icon: <ClipboardCheck size={20} /> },
+    'Matriz': { bg: 'rgba(139, 92, 246, 0.1)', text: '#7c3aed', icon: <TriangleAlert size={20} /> },
+    'Informe': { bg: 'rgba(236, 72, 153, 0.1)', text: '#db2777', icon: <ScrollText size={20} /> },
+    'Checklist': { bg: 'rgba(20, 184, 166, 0.1)', text: '#0d9488', icon: <ClipboardList size={20} /> },
+    'Iluminación': { bg: 'rgba(234, 179, 8, 0.1)', text: '#ca8a04', icon: <Lightbulb size={20} /> },
+    'Permiso': { bg: 'rgba(37, 99, 235, 0.1)', text: '#1d4ed8', icon: <KeySquare size={20} /> },
+    'Eval. Riesgo': { bg: 'rgba(139, 92, 246, 0.1)', text: '#7c3aed', icon: <TriangleAlert size={20} /> },
+    'Accidente': { bg: 'rgba(239, 68, 68, 0.1)', text: '#dc2626', icon: <Siren size={20} /> },
+  };
   
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
   const [daysLeft, setDaysLeft] = useState<number | typeof Infinity | null>(null);
@@ -441,9 +454,10 @@ export default function Home(): React.ReactElement {
         </div>
       </div>
 
-      {/* Features Grid - Visitors only */}
+
+      {/* Features Grid - Visible to visitors */}
       {!currentUser && (
-        <div style={{ marginTop: '2.5rem' }}>
+        <div id="tools" style={{ marginTop: '2.5rem' }}>
           <h2 style={{
             fontSize: 'clamp(1.3rem, 4vw, 1.5rem)',
             fontWeight: 900,
@@ -544,7 +558,6 @@ export default function Home(): React.ReactElement {
             ))}
           </div>
 
-          {/* FAQ Section */}
           <div style={{ marginTop: '4rem', maxWidth: '800px', margin: '4rem auto 0' }}>
             <h2 style={{
               fontSize: 'clamp(1.3rem, 4vw, 1.5rem)',
@@ -560,17 +573,100 @@ export default function Home(): React.ReactElement {
         </div>
       )}
 
-      {/* Recent Works - Logged users */}
-      {currentUser && recentWorks.length > 0 && (
-        <div style={{ marginTop: '3rem', maxWidth: '900px', margin: '3rem auto 0' }}>
-          <h2 style={{
-            fontSize: 'clamp(1.3rem, 4vw, 1.5rem)',
-            fontWeight: 900,
-            marginBottom: '1.5rem',
-            color: 'var(--color-text)'
-          }}>
-            Trabajos Recientes
-          </h2>
+
+      {/* Dashboard for Logged Users */}
+      {currentUser && (
+        <div style={{ marginTop: '2.5rem', maxWidth: '1200px', margin: '2.5rem auto 0', padding: '0 1rem' }}>
+          
+          {/* Professional Tools Grid */}
+          <div style={{ marginBottom: '3rem' }}>
+            <h2 style={{
+              fontSize: 'clamp(1.3rem, 4vw, 1.5rem)',
+              fontWeight: 900,
+              marginBottom: '1.5rem',
+              color: 'var(--color-text)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.6rem'
+            }}>
+              <Star size={24} fill="#f59e0b" color="#f59e0b" />
+              Herramientas Profesionales
+            </h2>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
+              gap: '1rem'
+            }}>
+              {quickLinks.map((link, i) => (
+                <Link
+                  key={i}
+                  to={link.to}
+                  className="card stagger-item"
+                  style={{
+                    textDecoration: 'none',
+                    padding: '1.2rem',
+                    borderRadius: '20px',
+                    background: 'var(--color-surface)',
+                    border: '1px solid var(--color-border)',
+                    transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                    animationDelay: `${0.1 + (i * 0.03)}s`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1rem'
+                  }}
+                  onMouseOver={e => {
+                    e.currentTarget.style.transform = 'translateY(-4px)';
+                    e.currentTarget.style.borderColor = link.color;
+                    e.currentTarget.style.boxShadow = `0 10px 20px ${link.color}15`;
+                  }}
+                  onMouseOut={e => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.borderColor = 'var(--color-border)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  <div style={{
+                    width: '44px',
+                    height: '44px',
+                    borderRadius: '12px',
+                    background: link.color + '15',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: link.color,
+                    flexShrink: 0
+                  }}>
+                    {link.icon}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {link.label}
+                    </h3>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {link.sub}
+                    </p>
+                  </div>
+                  <ChevronRight size={18} color="var(--color-text-muted)" />
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Recent Works */}
+          {recentWorks.length > 0 && (
+            <div style={{ marginBottom: '3rem' }}>
+              <h2 style={{
+                fontSize: 'clamp(1.3rem, 4vw, 1.5rem)',
+                fontWeight: 900,
+                marginBottom: '1.5rem',
+                color: 'var(--color-text)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.6rem'
+              }}>
+                <History size={24} color="var(--color-primary)" />
+                Trabajos Recientes
+              </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {recentWorks.map((work, i) => (
               <div
@@ -638,7 +734,8 @@ export default function Home(): React.ReactElement {
           </div>
         </div>
       )}
-
+        </div>
+      )}
       {showOnboarding && <OnboardingModal onClose={() => setShowOnboarding(false)} />}
     </div>
   );

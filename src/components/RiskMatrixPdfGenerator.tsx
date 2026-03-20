@@ -10,8 +10,8 @@ const getRiskLevel = (p, s) => {
 };
 
 export default function RiskMatrixPdfGenerator({ data }: { data: any }): React.ReactElement | null {
-    const finalData = data || initialData;
-    if (!finalData) return null;
+    if (!data) return null;
+    const finalData = data;
 
 // logo code removed
 
@@ -128,7 +128,7 @@ export default function RiskMatrixPdfGenerator({ data }: { data: any }): React.R
                         <tbody>
                             {rows.length === 0 ? (
                                 <tr>
-                                    <td colSpan="6" style={{ padding: '2rem', textAlign: 'center', color: '#64748b', fontStyle: 'italic', fontWeight: 600 }}>Sin datos evaluados.</td>
+                                    <td colSpan={6} style={{ padding: '2rem', textAlign: 'center', color: '#64748b', fontStyle: 'italic', fontWeight: 600 }}>Sin datos evaluados.</td>
                                 </tr>
                             ) : rows.map((row, idx) => {
                                 const level = getRiskLevel(row.probability || 1, row.severity || 1);

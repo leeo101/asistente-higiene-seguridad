@@ -1,5 +1,4 @@
-import React from 'react';
-import React, { useRef, useMemo } from 'react';
+﻿import React, { useRef, useMemo } from 'react';
 import { ArrowLeft, Printer, Map as MapIcon } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import { SAFETY_ICONS } from '../data/mapIcons';
@@ -61,7 +60,7 @@ export default function RiskMapPdfGenerator({ data }: { data: any }): React.Reac
                     <button onClick={onBack} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)' }}>
                         <ArrowLeft size={20} />
                     </button>
-                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Previsualización del Mapa de Riesgos</h1>
+                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>PrevisualizaciÃ³n del Mapa de Riesgos</h1>
                 </div>
                 <div style={{ display: 'flex', gap: '0.8rem' }}>
                     <button onClick={onShare} className="btn-secondary" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -123,7 +122,7 @@ export default function RiskMapPdfGenerator({ data }: { data: any }): React.Reac
                             transform: `scale(${autoScale})`
                         }}>
                             {mapData?.backgroundImage && (
-                                <img src={mapData.backgroundImage} alt="Plano Guía" style={{ position: 'absolute', top: '100px', left: '100px', opacity: 0.8, maxWidth: '2000px', maxHeight: 'none' }} />
+                                <img src={mapData.backgroundImage} alt="Plano GuÃ­a" style={{ position: 'absolute', top: '100px', left: '100px', opacity: 0.8, maxWidth: '2000px', maxHeight: 'none' }} />
                             )}
 
                             {/* Emulate SVG Layers as HTML Divs to PREVENT Chrome SVG Print Culling bugs */}
@@ -233,7 +232,7 @@ export default function RiskMapPdfGenerator({ data }: { data: any }): React.Reac
                             </div>
                         </div>
 
-                        {/* Rótulo Oficial */}
+                        {/* RÃ³tulo Oficial */}
                         <div style={{ border: '2px solid #1e293b', display: 'flex', flexDirection: 'column', fontSize: '8pt', background: '#f8fafc', overflow: 'hidden' }}>
                             <div style={{
                                 padding: '4px 6px',
@@ -243,7 +242,7 @@ export default function RiskMapPdfGenerator({ data }: { data: any }): React.Reac
                                 borderBottom: '1px solid #1e293b'
                             }}>
                                 <MapIcon size={14} color={isEvacuation ? '#ffffff' : 'currentColor'} />
-                                {isEvacuation ? 'DIAGRAMA DE EVACUACIÓN' : 'MAPA DE RIESGOS INTEGRAL'}
+                                {isEvacuation ? 'DIAGRAMA DE EVACUACIÃ“N' : 'MAPA DE RIESGOS INTEGRAL'}
                             </div>
                             <div style={{ flex: 1, padding: '4px 6px', display: 'grid', gridTemplateColumns: '1fr', gap: '2px' }}>
                                 <div><strong>Empresa:</strong> {mapData?.empresa || 'N/A'}</div>

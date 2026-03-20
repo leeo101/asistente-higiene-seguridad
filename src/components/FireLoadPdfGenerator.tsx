@@ -1,5 +1,4 @@
-import React from 'react';
-import React, { useRef } from 'react';
+﻿import React, { useRef } from 'react';
 import { Flame, ShieldCheck, Info, FileText } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import { getCountryNormativa } from '../data/legislationData';
@@ -49,7 +48,7 @@ export default function FireLoadPdfGenerator({ data }: { data: any }): React.Rea
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '3px solid #e2e8f0', paddingBottom: '1rem', marginBottom: '2rem' }}>
                     <div style={{ flex: 1 }}>
                         <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, color: '#1e293b', letterSpacing: '-0.5px' }}>ESTUDIO DE CARGA DE FUEGO</h1>
-                        <p style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#f97316' }}>CÁLCULO Y RESULTADOS</p>
+                        <p style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#f97316' }}>CÃLCULO Y RESULTADOS</p>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
                         <CompanyLogo
@@ -61,7 +60,7 @@ export default function FireLoadPdfGenerator({ data }: { data: any }): React.Rea
                             }}
                         />
                         <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b' }}>SISTEMA DE GESTIÓN HYS</div>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b' }}>SISTEMA DE GESTIÃ“N HYS</div>
                             <div style={{ fontWeight: 800, color: '#1e293b' }}>{countryNorms.fire}</div>
                         </div>
                     </div>
@@ -74,7 +73,7 @@ export default function FireLoadPdfGenerator({ data }: { data: any }): React.Rea
                             <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>{empresa || '-'}</span>
                         </div>
                         <div style={{ padding: '0.8rem', borderLeft: '2px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>OBRA / UBICACIÓN</span>
+                            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>OBRA / UBICACIÃ“N</span>
                             <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>{obra || '-'}</span>
                         </div>
                     </div>
@@ -89,7 +88,7 @@ export default function FireLoadPdfGenerator({ data }: { data: any }): React.Rea
                         </div>
                         <div style={{ padding: '0.8rem', borderLeft: '2px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                             <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>SUPERFICIE</span>
-                            <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>{superficie || 0} m²</span>
+                            <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>{superficie || 0} mÂ²</span>
                         </div>
                     </div>
                 </div>
@@ -122,13 +121,13 @@ export default function FireLoadPdfGenerator({ data }: { data: any }): React.Rea
 
                 <div style={{ pageBreakInside: 'avoid', breakInside: 'avoid', marginBottom: '2rem' }}>
                     <h3 style={{ fontSize: '1.1rem', fontWeight: 900, margin: '0 0 1rem 0', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <ShieldCheck size={20} color="#2563eb" /> Resultados Finales del Cálculo
+                        <ShieldCheck size={20} color="#2563eb" /> Resultados Finales del CÃ¡lculo
                     </h3>
                     <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
                         <div style={{ flex: 1, background: '#2563eb', color: '#ffffff', borderRadius: '10px', padding: '1.5rem', textAlign: 'center' }}>
                             <div style={{ fontSize: '0.8rem', opacity: 0.9, marginBottom: '0.5rem', fontWeight: 700, textTransform: 'uppercase' }}>Carga de Fuego (Qf)</div>
                             <div style={{ fontSize: '2.5rem', fontWeight: 900 }}>{(results?.cargaDeFuego || 0).toFixed(2)}</div>
-                            <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>Kg de Madera Eq. / m²</div>
+                            <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>Kg de Madera Eq. / mÂ²</div>
                         </div>
                         <div style={{ flex: 1, border: '2px solid #e2e8f0', borderRadius: '10px', padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.8rem', paddingBottom: '0.8rem', borderBottom: '1px dotted #cbd5e1' }}>
@@ -145,10 +144,10 @@ export default function FireLoadPdfGenerator({ data }: { data: any }): React.Rea
                     <div style={{ display: 'flex', gap: '1rem' }}>
                         <div style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: '8px', padding: '1rem', background: '#f8fafc' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem', color: '#1e293b', fontWeight: 800, fontSize: '0.85rem' }}>
-                                <Info size={16} /> Data Técnica
+                                <Info size={16} /> Data TÃ©cnica
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '0.4rem', color: '#475569' }}>
-                                <span>Poder Calorífico Total:</span>
+                                <span>Poder CalorÃ­fico Total:</span>
                                 <span style={{ fontWeight: 700 }}>{Math.round(results?.cargaTermicaTotal || 0).toLocaleString()} Kcal</span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#475569' }}>
@@ -158,14 +157,14 @@ export default function FireLoadPdfGenerator({ data }: { data: any }): React.Rea
                         </div>
                         <div style={{ flex: 1, border: '2px solid #bfdbfe', borderRadius: '8px', padding: '1rem', background: '#eff6ff' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem', color: '#1d4ed8', fontWeight: 800, fontSize: '0.85rem' }}>
-                                <ShieldCheck size={16} /> Requisitos Extinción
+                                <ShieldCheck size={16} /> Requisitos ExtinciÃ³n
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#1e40af', pageBreakInside: 'avoid' }}>
                                 <span>Min. Matafuegos:</span>
                                 <span style={{ fontWeight: 900 }}>{results?.minMatafuegos || 0} u. (ABC)</span>
                             </div>
                             <div style={{ fontSize: '0.65rem', marginTop: '0.5rem', opacity: 0.8, fontStyle: 'italic', color: '#1e3a8a' }}>
-                                * Cálculo base 1 unidad c/200m², mín. 2
+                                * CÃ¡lculo base 1 unidad c/200mÂ², mÃ­n. 2
                             </div>
                         </div>
                     </div>
@@ -174,7 +173,7 @@ export default function FireLoadPdfGenerator({ data }: { data: any }): React.Rea
                 {conclusion && (
                     <div style={{ pageBreakInside: 'avoid', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '1.2rem', background: '#fafafa', marginBottom: '2rem' }}>
                         <h3 style={{ margin: '0 0 0.8rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem', color: '#1e293b', fontWeight: 800 }}>
-                            <FileText size={18} color="#2563eb" /> Conclusión Profesional
+                            <FileText size={18} color="#2563eb" /> ConclusiÃ³n Profesional
                         </h3>
                         <div style={{ fontSize: '0.85rem', color: '#334155', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere', lineHeight: 1.5 }}>
                             {conclusion}

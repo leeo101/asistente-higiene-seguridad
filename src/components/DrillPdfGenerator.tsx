@@ -1,12 +1,11 @@
-import React from 'react';
 import React, { useRef } from 'react';
 import { ArrowLeft, Printer, Calendar, MapPin, CheckSquare, Clock, Users, Flame } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 
-export default function DrillPdfGenerator({ data }: { data: any }): React.ReactElement | null {
+export default function DrillPdfGenerator({ report, onBack }: { report: any, onBack?: any }): React.ReactElement | null {
 
 
-    const componentRef = useRef();
+    const componentRef = useRef<HTMLDivElement>(null);
 
         
     const handlePrint = () => {

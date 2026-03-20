@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Search, Calendar, ChevronRight,
     Trash2, Sparkles, Download, FileText, HardHat,
@@ -12,7 +11,8 @@ import AiAdvisorPdfGenerator from '../components/AiAdvisorPdfGenerator';
 import toast from 'react-hot-toast';
 
 export default function AIHistory(): React.ReactElement | null {
-        const { syncCollection, syncPulse } = useSync();
+    const navigate = useNavigate();
+    const { syncCollection, syncPulse } = useSync();
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedItem, setSelectedItem] = useState(null);
@@ -30,9 +30,8 @@ export default function AIHistory(): React.ReactElement | null {
             } else {
                 setHistory([]);
             }
-        } catch {
-
-            console.error("Error parsing AI history:", e);
+        } catch (err) {
+            console.error("Error parsing AI history:", err);
             setHistory([]);
         }
     }, [syncPulse]);
@@ -93,11 +92,14 @@ export default function AIHistory(): React.ReactElement | null {
                     </div>
 
                     <ShareModal
+                        isOpen={!!shareItem}
                         open={!!shareItem}
                         onClose={() => setShareItem(null)}
                         title={`Análisis IA - ${shareItem?.task || ''}`}
                         text={shareItem ? `✨ Análisis de Seguridad (IA)\n📋 Tarea: ${shareItem.task}\n🚨 Riesgos: ${(shareItem.riesgos || []).slice(0, 2).join(', ')}...\n🛡️ EPP: ${(shareItem.epp || []).slice(0, 2).join(', ')}...\n📚 Normativa: ${(shareItem.normativa || []).join(', ')}` : ''}
+                        rawMessage={shareItem ? `✨ Análisis de Seguridad (IA)\n📋 Tarea: ${shareItem.task}\n🚨 Riesgos: ${(shareItem.riesgos || []).slice(0, 2).join(', ')}...\n🛡️ EPP: ${(shareItem.epp || []).slice(0, 2).join(', ')}...\n📚 Normativa: ${(shareItem.normativa || []).join(', ')}` : ''}
                         elementIdToPrint="pdf-content"
+                        fileName={`Analisis_IA_${shareItem?.task?.replace(/\s+/g, '_') || 'Sin_Nombre'}.pdf`}
                     />
 
                     <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
@@ -150,11 +152,14 @@ export default function AIHistory(): React.ReactElement | null {
     return (
         <div className="container" style={{ paddingBottom: '3rem' }}>
             <ShareModal
+                isOpen={!!shareItem}
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Análisis IA - ${shareItem?.task || ''}`}
                 text={shareItem ? `✨ Análisis de Seguridad (IA)\n📋 Tarea: ${shareItem.task}\n🚨 Riesgos: ${(shareItem.riesgos || []).slice(0, 2).join(', ')}...\n🛡️ EPP: ${(shareItem.epp || []).slice(0, 2).join(', ')}...\n📚 Normativa: ${(shareItem.normativa || []).join(', ')}` : ''}
+                rawMessage={shareItem ? `✨ Análisis de Seguridad (IA)\n📋 Tarea: ${shareItem.task}\n🚨 Riesgos: ${(shareItem.riesgos || []).slice(0, 2).join(', ')}...\n🛡️ EPP: ${(shareItem.epp || []).slice(0, 2).join(', ')}...\n📚 Normativa: ${(shareItem.normativa || []).join(', ')}` : ''}
                 elementIdToPrint="pdf-content"
+                fileName={`Analisis_IA_${shareItem?.task?.replace(/\s+/g, '_') || 'Sin_Nombre'}.pdf`}
             />
 
             <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>

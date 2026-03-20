@@ -11,6 +11,29 @@ import {
 import ShareModal from '../components/ShareModal';
 import CAPAPdf from '../components/CAPAPdf';
 
+// Form styles
+const labelStyle = { 
+    display: 'block', 
+    fontSize: '0.8rem', 
+    fontWeight: 700, 
+    marginBottom: '0.4rem', 
+    color: 'var(--color-text-muted)',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.05em'
+};
+
+const inputStyle = { 
+    width: '100%', 
+    padding: '0.75rem', 
+    borderRadius: 'var(--radius-lg)', 
+    border: '1px solid var(--color-border)', 
+    background: 'var(--color-background)', 
+    color: 'var(--color-text)', 
+    fontSize: '0.9rem', 
+    outline: 'none',
+    boxSizing: 'border-box' as const
+};
+
 // Tipos de acción CAPA
 const CAPA_TYPES = [
     { id: 'corrective', name: 'Acción Correctiva', icon: '🔧', color: '#dc2626', description: 'Eliminar causa de no conformidad detectada' },
@@ -286,11 +309,13 @@ export default function CAPAManager(): React.ReactElement | null {
         <div className="container" style={{ paddingBottom: '6rem' }}>
             <ShareModal
                 isOpen={!!shareItem}
+                open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Acción CAPA - ${shareItem?.title || ''}`}
                 text={shareItem ? `🛡️ Acción CAPA\n📝 Hallazgo: ${shareItem.title}\n📍 Origen: ${shareItem.source}\n📅 Fecha: ${shareItem.originDate}` : ''}
+                rawMessage={shareItem ? `🛡️ Acción CAPA\n📝 Hallazgo: ${shareItem.title}\n📍 Origen: ${shareItem.source}\n📅 Fecha: ${shareItem.originDate}` : ''}
                 elementIdToPrint="pdf-content"
-                fileName={`CAPA_${shareItem?.title || 'Accion'}.pdf`}
+                fileName={`CAPA_${shareItem?.title.replace(/\s+/g, '_') || 'Accion'}.pdf`}
             />
 
             <div style={{ position: 'fixed', left: '-9999px', top: 0, pointerEvents: 'none' }}>
@@ -728,7 +753,7 @@ function TabButton({ active, onClick, icon, label, count }) {
 
 function CapaCard({ capa, statusConfig, priorityConfig, capaType, onUpdateStatus, onView, onShare, onAddAction, onDelete }) {
     const isOverdue = capa.dueDate && new Date(capa.dueDate) < new Date() && capa.status !== 'closed';
-    const daysUntilDue = capa.dueDate ? Math.ceil((new Date(capa.dueDate) - new Date()) / (1000 * 60 * 60 * 24)) : null;
+    const daysUntilDue = capa.dueDate ? Math.ceil((new Date(capa.dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : null;
 
     return (
         <div className="card" style={{
@@ -977,7 +1002,7 @@ function CreateCapaModal({ capa, setCapa, onSave, onClose, CAPA_TYPES, CAPA_SOUR
                     <div style={{ gridColumn: '1 / -1' }}><label style={labelStyle}>Título *</label><input type="text" value={capa.title} onChange={(e) => setCapa({ ...capa, title: e.target.value })} style={inputStyle} placeholder="Ej: No conformidad en auditoría interna" /></div>
                     <div><label style={labelStyle}>Tipo de Acción *</label><select value={capa.capaType} onChange={(e) => setCapa({ ...capa, capaType: e.target.value })} style={inputStyle}>{CAPA_TYPES.map(t => <option key={t.id} value={t.id}>{t.icon} {t.name}</option>)}</select></div>
                     <div><label style={labelStyle}>Origen</label><select value={capa.source} onChange={(e) => setCapa({ ...capa, source: e.target.value })} style={inputStyle}>{CAPA_SOURCES.map(s => <option key={s.id} value={s.id}>{s.icon} {s.name}</option>)}</select></div>
-                    <div><label style={labelStyle}>Prioridad</label><select value={capa.priority} onChange={(e) => setCapa({ ...capa, priority: e.target.value })} style={inputStyle}>{Object.entries(PRIORITY).map(([k, v]) => <option key={k} value={k}>{v.icon} {v.label} ({v.days} días)</option>)}</select></div>
+                    <div><label style={labelStyle}>Prioridad</label><select value={capa.priority} onChange={(e) => setCapa({ ...capa, priority: e.target.value })} style={inputStyle}>{Object.entries(PRIORITY).map(([k, v]: [string, any]) => <option key={k} value={k}>{v.icon} {v.label} ({v.days} días)</option>)}</select></div>
                     <div><label style={labelStyle}>Fecha Límite</label><input type="date" value={capa.dueDate} onChange={(e) => setCapa({ ...capa, dueDate: e.target.value })} style={inputStyle} /></div>
                     <div><label style={labelStyle}>Responsable</label><input type="text" value={capa.responsible} onChange={(e) => setCapa({ ...capa, responsible: e.target.value })} style={inputStyle} placeholder="Nombre del responsable" /></div>
                     <div><label style={labelStyle}>Proceso Relacionado</label><input type="text" value={capa.relatedProcess} onChange={(e) => setCapa({ ...capa, relatedProcess: e.target.value })} style={inputStyle} placeholder="Ej: Gestión de Compras" /></div>

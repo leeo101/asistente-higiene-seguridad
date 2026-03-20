@@ -575,9 +575,80 @@ export default function Login(): React.ReactElement {
                     required
                   >
                     {countryList.map((c) => (
-                      <option key={c.value} value={c.value}>{c.label}</option>
+                      <option key={c.code} value={c.code}>{c.name}</option>
                     ))}
                   </select>
+                </div>
+              </div>
+
+              {/* Optional Professional Info Section */}
+              <div style={{ margin: '2.5rem 0 1.5rem', padding: '1.5rem', border: '1px solid var(--color-border)', borderRadius: '16px', background: 'rgba(59, 130, 246, 0.03)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.2rem', color: 'var(--color-primary)' }}>
+                  <Award size={20} />
+                  <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800 }}>Información Profesional (Opcional)</h3>
+                </div>
+
+                <div style={{ marginBottom: '1.2rem' }}>
+                  <label htmlFor="profession">Profesión / Título</label>
+                  <div style={{ position: 'relative' }}>
+                    <GraduationCap size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                    <select
+                      id="profession"
+                      value={profession}
+                      onChange={(e) => setProfession(e.target.value)}
+                      style={{ paddingLeft: '40px', width: '100%' }}
+                    >
+                      <option value="">Seleccione su título</option>
+                      <option value="Técnico">Técnico</option>
+                      <option value="Licenciado">Licenciado</option>
+                      <option value="Ingeniero">Ingeniero</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: '1.2rem' }}>
+                  <label htmlFor="license">Matrícula Profesional</label>
+                  <div style={{ position: 'relative' }}>
+                    <Award size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                    <input
+                      type="text"
+                      id="license"
+                      placeholder="Ej: MP 1234"
+                      style={{ paddingLeft: '40px' }}
+                      value={license}
+                      onChange={(e) => setLicense(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: '1.2rem' }}>
+                  <label htmlFor="dni">DNI / Cédula</label>
+                  <div style={{ position: 'relative' }}>
+                    <CreditCard size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                    <input
+                      type="text"
+                      id="dni"
+                      placeholder="Identificación"
+                      style={{ paddingLeft: '40px' }}
+                      value={dni}
+                      onChange={(e) => setDni(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: '0' }}>
+                  <label htmlFor="phone">Teléfono de Contacto</label>
+                  <div style={{ position: 'relative' }}>
+                    <Phone size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                    <input
+                      type="tel"
+                      id="phone"
+                      placeholder="+54 9..."
+                      style={{ paddingLeft: '40px' }}
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                    />
+                  </div>
                 </div>
               </div>
 

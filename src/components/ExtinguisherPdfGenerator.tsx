@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Printer, Flame, MapPin, Calendar, Building, CheckCircle2 } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -23,11 +22,11 @@ const getStatus = (lastDate, monthsValid) => {
     return { text: 'Vigente', color: '#166534', vto: new Date(dueDate).toLocaleDateString() };
 };
 
-export default function ExtinguisherPdfGenerator({ data }: { data: any }): React.ReactElement | null {
+export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguishers: any[] }): React.ReactElement | null {
 
 
-    const componentRef = useRef();
-    const isLandscape = extinguishers.length > 15; // Auto rotate if many
+    const componentRef = useRef<HTMLDivElement>(null);
+    const isLandscape = (extinguishers || []).length > 15; // Auto rotate if many
 
     const stats = {
         total: extinguishers.length,
@@ -136,7 +135,7 @@ export default function ExtinguisherPdfGenerator({ data }: { data: any }): React
 
                             {extinguishers.length === 0 && (
                                 <tr>
-                                    <td colSpan="5" style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>
+                                    <td colSpan={5} style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>
                                         No hay extintores registrados.
                                     </td>
                                 </tr>

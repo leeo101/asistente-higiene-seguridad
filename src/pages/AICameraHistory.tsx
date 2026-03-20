@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { ArrowLeft, Search, Trash2, Camera, Calendar, Building2, ShieldCheck, TriangleAlert, Share2, Info, FileText, QrCode, Download, BarChart2 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
@@ -145,11 +143,14 @@ export default function AICameraHistory(): React.ReactElement | null {
             {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
 
             <ShareModal
+                isOpen={!!shareItem}
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Inspección IA - ${shareItem?.company || ''}`}
                 text={shareItem ? `📸 Inspección Visual con IA\n🏗️ Empresa: ${shareItem.company || 'Local'}\n📍 Tipo: ${shareItem.type === 'general_risks' ? 'Riesgos Generales' : 'Verificación EPP'}\n🛡️ Resultado: ${shareItem.type === 'general_risks' ? 'Análisis de entorno' : (shareItem.ppeComplete ? '✅ EPP OK' : '⚠️ Falta EPP')}` : ''}
+                rawMessage={shareItem ? `📸 Inspección Visual con IA\n🏗️ Empresa: ${shareItem.company || 'Local'}\n📍 Tipo: ${shareItem.type === 'general_risks' ? 'Riesgos Generales' : 'Verificación EPP'}\n🛡️ Resultado: ${shareItem.type === 'general_risks' ? 'Análisis de entorno' : (shareItem.ppeComplete ? '✅ EPP OK' : '⚠️ Falta EPP')}` : ''}
                 elementIdToPrint="pdf-content"
+                fileName={`Inspeccion_IA_${shareItem?.company || 'Sin_Nombre'}.pdf`}
             />
 
             <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>

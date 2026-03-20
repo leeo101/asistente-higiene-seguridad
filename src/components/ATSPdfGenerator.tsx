@@ -7,8 +7,17 @@ interface ChecklistItem {
   id: string | number;
   categoria: string;
   pregunta: string;
-  cumple: boolean;
+  estado: string; // 'Cumple', 'No Cumple', 'N/A'
+  cumple?: boolean; // Keep for backward compatibility if needed
   observaciones?: string;
+}
+
+interface TareaItem {
+  id: number;
+  paso: string;
+  riesgo: string;
+  control: string;
+  realizado: boolean;
 }
 
 interface ATSData {
@@ -17,7 +26,7 @@ interface ATSData {
   obra?: string;
   fecha?: string;
   supervisor?: string;
-  tareas?: string[];
+  tareas?: any[]; // Handle both string[] and TareaItem[]
   checklist?: ChecklistItem[];
   [key: string]: unknown;
 }
@@ -131,35 +140,29 @@ export default function ATSPdfGenerator({ atsData }: ATSPdfGeneratorProps): Reac
               TAREAS A REALIZAR
             </h2>
             <div style={{ border: '2px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
-              {tareas.map((tarea: string, i: number) => (
-                <div
-                  key={i}
-                  style={{
-                    padding: '0.8rem',
-                    borderBottom: i < tareas.length - 1 ? '1px solid #e2e8f0' : 'none',
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: '0.8rem'
-                  }}
-                >
-                  <div style={{
-                    width: '24px',
-                    height: '24px',
-                    borderRadius: '50%',
-                    background: '#3b82f6',
-                    color: '#ffffff',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 900,
-                    fontSize: '0.85rem',
-                    flexShrink: 0
-                  }}>
-                    {i + 1}
-                  </div>
-                  <span style={{ fontWeight: 600, fontSize: '0.95rem', color: '#1e293b' }}>{tarea}</span>
-                </div>
-              ))}
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                <thead>
+                  <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                    <th style={{ padding: '0.8rem', textAlign: 'left', fontWeight: 900, color: '#64748b' }}>#</th>
+                    <th style={{ padding: '0.8rem', textAlign: 'left', fontWeight: 900, color: '#64748b' }}>PASO / TAREA</th>
+                    <th style={{ padding: '0.8rem', textAlign: 'left', fontWeight: 900, color: '#64748b' }}>RIESGO</th>
+                    <th style={{ padding: '0.8rem', textAlign: 'left', fontWeight: 900, color: '#64748b' }}>CONTROL</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tareas.map((tarea: any, i: number) => {
+                    const isObject = typeof tarea === 'object' && tarea !== null;
+                    return (
+                      <tr key={i} style={{ borderBottom: i < tareas.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
+                        <td style={{ padding: '0.8rem', fontWeight: 800 }}>{i + 1}</td>
+                        <td style={{ padding: '0.8rem', fontWeight: 700 }}>{isObject ? tarea.paso : tarea}</td>
+                        <td style={{ padding: '0.8rem' }}>{isObject ? tarea.riesgo : '-'}</td>
+                        <td style={{ padding: '0.8rem' }}>{isObject ? tarea.control : '-'}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
@@ -200,7 +203,7 @@ export default function ATSPdfGenerator({ atsData }: ATSPdfGeneratorProps): Reac
                       width: '20px',
                       height: '20px',
                       borderRadius: '4px',
-                      background: item.cumple ? '#10b981' : '#ef4444',
+                      background: (item.estado === 'Cumple' || item.cumple) ? '#10b981' : (item.estado === 'N/A' ? '#94a3b8' : '#ef4444'),
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',

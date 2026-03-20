@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
     Search, TriangleAlert, ChevronRight, Activity, Trash2, Share2, Edit2, ArrowLeft, Calendar, FileText, MapPin, QrCode
@@ -28,7 +26,7 @@ export default function AccidentHistory(): React.ReactElement | null {
 
     useEffect(() => {
         const h = JSON.parse(localStorage.getItem('accident_history') || '[]');
-        setHistory(h.sort((a, b) => new Date(b.date) - new Date(a.date)));
+        setHistory(h.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     }, [syncing]);
 
     const handleDelete = (id, e) => {
@@ -78,11 +76,14 @@ export default function AccidentHistory(): React.ReactElement | null {
             )}
 
             <ShareModal
+                isOpen={!!shareItem}
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Investigación de Accidente - ${shareItem?.victimaNombre || ''}`}
                 text={shareItem ? `⚠️ Informe de Investigación de Accidente\n👤 Accidentado: ${shareItem.victimaNombre}\n🏢 Empresa: ${shareItem.empresa}\n📅 Fecha: ${shareItem.fecha}\n⚠️ Gravedad: ${shareItem.gravedad}` : ''}
+                rawMessage={shareItem ? `⚠️ Informe de Investigación de Accidente\n👤 Accidentado: ${shareItem.victimaNombre}\n🏢 Empresa: ${shareItem.empresa}\n📅 Fecha: ${shareItem.fecha}\n⚠️ Gravedad: ${shareItem.gravedad}` : ''}
                 elementIdToPrint="pdf-content"
+                fileName={`Accidente_${shareItem?.victimaNombre || 'Sin_Nombre'}.pdf`}
             />
 
             <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>

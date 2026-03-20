@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { X, AlertCircle, User } from 'lucide-react';
 
 export default function ProfileCompletionBanner({ onComplete }) {
+    const navigate = useNavigate();
     const [visible, setVisible] = useState(false);
     
     useEffect(() => {
