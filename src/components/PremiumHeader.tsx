@@ -5,16 +5,12 @@ interface PremiumHeaderProps {
   title: string;
   subtitle: string;
   icon?: React.ReactNode;
-  isPro?: boolean;
-  daysRemaining?: number | typeof Infinity;
 }
 
 export default function PremiumHeader({
   title,
   subtitle,
-  icon,
-  isPro = false,
-  daysRemaining
+  icon
 }: PremiumHeaderProps): React.ReactElement {
   return (
     <div style={{
@@ -37,35 +33,7 @@ export default function PremiumHeader({
         animation: 'shimmer 3s infinite linear',
         pointerEvents: 'none'
       }} />
-      
-      {/* Premium badge */}
-      {isPro && (
-        <div style={{
-          position: 'absolute',
-          top: '1rem',
-          right: '1rem',
-          background: 'rgba(255,255,255,0.2)',
-          backdropFilter: 'blur(10px)',
-          padding: '0.5rem 1rem',
-          borderRadius: '20px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          border: '1px solid rgba(255,255,255,0.3)'
-        }}>
-          <Crown size={16} fill="#ffffff" color="#ffffff" />
-          <span style={{
-            color: '#ffffff',
-            fontWeight: 900,
-            fontSize: '0.75rem',
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px'
-          }}>
-            {daysRemaining === Infinity ? 'Admin' : `PRO ${daysRemaining}d`}
-          </span>
-        </div>
-      )}
-      
+
       {/* Content */}
       <div style={{
         position: 'relative',

@@ -320,8 +320,6 @@ export default function ATS(): React.ReactElement | null {
                     title="Análisis de Trabajo Seguro"
                     subtitle="ATS - Metodología profesional para tareas críticas"
                     icon={<ShieldCheck size={36} />}
-                    isPro={isPro()}
-                    daysRemaining={daysRemaining()}
                 />
 
                 <ShareModal
