@@ -11,6 +11,7 @@ import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
 import ATSPdfGenerator from '../components/ATSPdfGenerator';
 import Breadcrumbs from '../components/Breadcrumbs';
+import PremiumHeader from '../components/PremiumHeader';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
@@ -59,7 +60,7 @@ const defaultChecklist = [
 export default function ATS(): React.ReactElement | null {
     const navigate = useNavigate();
     const location = useLocation();
-    const { requirePro } = usePaywall();
+    const { requirePro, isPro, daysRemaining } = usePaywall();
     const { syncCollection } = useSync();
     useDocumentTitle('Análisis de Trabajo Seguro (ATS)');
     const capatazCanvasRef = useRef(null);
@@ -313,6 +314,15 @@ export default function ATS(): React.ReactElement | null {
             <div className="container" style={{ maxWidth: '1200px', paddingBottom: '12rem' }}>
                 {/* Breadcrumbs de navegación */}
                 <Breadcrumbs />
+
+                {/* Premium Header */}
+                <PremiumHeader
+                    title="Análisis de Trabajo Seguro"
+                    subtitle="ATS - Metodología profesional para tareas críticas"
+                    icon={<ShieldCheck size={36} />}
+                    isPro={isPro()}
+                    daysRemaining={daysRemaining()}
+                />
 
                 <ShareModal
                     isOpen={showShare}
