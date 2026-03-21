@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Tent, AlertTriangle, Plus, Search, 
     FileText, Eye, Edit3, Trash2, CheckCircle2, 
@@ -79,44 +78,16 @@ const POTENTIAL_HAZARDS = [
 ];
 
 export default function ConfinedSpace(): React.ReactElement | null {
-        const [permits, setPermits] = useState([]);
+    const navigate = useNavigate();
+    const [permits, setPermits] = useState([]);
     const [activePermits, setActivePermits] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
-    const [showAddModal, setShowAddModal] = useState(false);
-    const [selectedPermit, setSelectedPermit] = useState(null);
     const [activeTab, setActiveTab] = useState('permits');
     const [showAtmosphericModal, setShowAtmosphericModal] = useState(false);
     const [currentPermitForReading, setCurrentPermitForReading] = useState(null);
     const [shareItem, setShareItem] = useState(null);
-
-    const [newPermit, setNewPermit] = useState({
-        id: '',
-        spaceName: '',
-        spaceType: '',
-        location: '',
-        department: '',
-        description: '',
-        hazards: [],
-        team: {
-            entrants: [],
-            attendant: '',
-            supervisor: '',
-            rescue: ''
-        },
-        equipment: EQUIPMENT_CHECKLIST.map(e => ({ ...e, checked: false })),
-        atmosphericReadings: [],
-        isolationPoints: [],
-        rescueProcedure: '',
-        communicationMethod: '',
-        status: 'draft',
-        validFrom: '',
-        validUntil: '',
-        createdAt: '',
-        authorizedAt: '',
-        completedAt: '',
-        observations: ''
-    });
+    const [selectedPermit, setSelectedPermit] = useState(null);
 
     useEffect(() => {
         const loadData = () => {
@@ -157,54 +128,10 @@ export default function ConfinedSpace(): React.ReactElement | null {
         setActivePermits(data);
     };
 
-    const handleCreatePermit = () => {
-        if (!newPermit.spaceName.trim()) return;
-        
-        const permit = {
-            ...newPermit,
-            id: `CS-${Date.now()}`,
-            createdAt: new Date().toISOString(),
-            status: 'pending'
-        };
-
-        const updated = [permit, ...permits];
-        savePermits(updated);
-        setShowAddModal(false);
-        resetForm();
-    };
-
-    const resetForm = () => {
-        setNewPermit({
-            id: '',
-            spaceName: '',
-            spaceType: '',
-            location: '',
-            department: '',
-            description: '',
-            hazards: [],
-            team: {
-                entrants: [],
-                attendant: '',
-                supervisor: '',
-                rescue: ''
-            },
-            equipment: EQUIPMENT_CHECKLIST.map(e => ({ ...e, checked: false })),
-            atmosphericReadings: [],
-            isolationPoints: [],
-            rescueProcedure: '',
-            communicationMethod: '',
-            status: 'draft',
-            validFrom: '',
-            validUntil: '',
-            createdAt: '',
-            authorizedAt: '',
-            completedAt: '',
-            observations: ''
-        });
-    };
 
     const authorizePermit = (permitId) => {
-                if (!permit) return;
+        const permit = permits.find(p => p.id === permitId);
+        if (!permit) return;
 
         const now = new Date().toISOString();
         const validUntil = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(); // 8 horas
@@ -314,9 +241,11 @@ export default function ConfinedSpace(): React.ReactElement | null {
         <div className="container" style={{ paddingBottom: '6rem' }}>
             <ShareModal
                 isOpen={!!shareItem}
+                open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Espacio Confinado - ${shareItem?.spaceName || ''}`}
                 text={shareItem ? `🕳️ Permiso Ingreso Espacio Confinado\n🆔 Espacio: ${shareItem.spaceName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString()}` : ''}
+                rawMessage={shareItem ? `🕳️ Permiso Ingreso Espacio Confinado\n🆔 Espacio: ${shareItem.spaceName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString()}` : ''}
                 elementIdToPrint="pdf-content"
                 fileName={`Espacio_Confinado_${shareItem?.spaceName || 'Sin_Nombre'}.pdf`}
             />
@@ -389,15 +318,6 @@ export default function ConfinedSpace(): React.ReactElement | null {
                         <Plus size={20} strokeWidth={2.5} />
                         Nuevo Permiso
                     </button>
-                    <button
-                        onClick={() => navigate('/confined-space-history')}
-                        className="btn-outline"
-                        style={{
-                            padding: '0.75rem 1rem'
-                        }}
-                    >
-                        <FileText size={20} />
-                    </button>
                 </div>
             </div>
 
@@ -452,6 +372,7 @@ export default function ConfinedSpace(): React.ReactElement | null {
                     icon={<FileText size={18} />}
                     label="Permisos"
                     count={permits.length}
+                    badge={0}
                 />
                 <TabButton 
                     active={activeTab === 'active'}
@@ -466,6 +387,8 @@ export default function ConfinedSpace(): React.ReactElement | null {
                     onClick={() => setActiveTab('limits')}
                     icon={<Activity size={18} />}
                     label="Límites"
+                    count={0}
+                    badge={0}
                 />
             </div>
 
@@ -534,7 +457,7 @@ export default function ConfinedSpace(): React.ReactElement | null {
 
                     {/* Permits List */}
                     {filteredPermits.length === 0 ? (
-                        <EmptyState onAdd={() => setShowAddModal(true)} />
+                        <EmptyState onAdd={() => navigate('/confined-space-form')} />
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                             {filteredPermits.map(permit => (
@@ -573,22 +496,6 @@ export default function ConfinedSpace(): React.ReactElement | null {
                 <AtmosphericLimitsPanel limits={ATMOSPHERIC_LIMITS} />
             )}
 
-            {/* Modal de Crear Permiso */}
-            {showAddModal && (
-                <CreatePermitModal 
-                    permit={newPermit}
-                    setPermit={setNewPermit}
-                    onSave={handleCreatePermit}
-                    onClose={() => {
-                        setShowAddModal(false);
-                        resetForm();
-                    }}
-                    CONFINED_SPACE_TYPES={CONFINED_SPACE_TYPES}
-                    POTENTIAL_HAZARDS={POTENTIAL_HAZARDS}
-                    EQUIPMENT_CHECKLIST={EQUIPMENT_CHECKLIST}
-                    ROLES={ROLES}
-                />
-            )}
 
             {/* Modal de Detalle */}
             {selectedPermit && (
@@ -619,7 +526,7 @@ export default function ConfinedSpace(): React.ReactElement | null {
     );
 }
 
-// Componentes Auxiliares
+
 function StatCard({ icon, label, value, color, gradient }) {
     return (
         <div className="card" style={{
@@ -980,7 +887,7 @@ function ActivePermitsList({ activePermits, onComplete, onSuspend, onView, onSha
                 const spaceType = CONFINED_SPACE_TYPES.find(t => t.id === permit.spaceType);
                 const isExpired = permit.validUntil && new Date(permit.validUntil) < new Date();
                 const timeRemaining = permit.validUntil 
-                    ? Math.max(0, Math.floor((new Date(permit.validUntil) - new Date()) / (1000 * 60 * 60)))
+                    ? Math.max(0, Math.floor((new Date(permit.validUntil).getTime() - new Date().getTime()) / (1000 * 60 * 60)))
                     : 0;
 
                 return (
@@ -1131,7 +1038,7 @@ function AtmosphericLimitsPanel({ limits }) {
                     Límites Atmosféricos (OSHA 1910.146)
                 </h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
-                    {Object.entries(limits).map(([key, limit]) => (
+                    {Object.entries(limits).map(([key, limitVal]: [string, any]) => (
                         <div key={key} style={{
                             padding: '1.25rem',
                             background: key === 'oxygen' ? '#eff6ff' : '#f0fdf4',
@@ -1140,18 +1047,18 @@ function AtmosphericLimitsPanel({ limits }) {
                         }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
                                 <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>
-                                    {limit.name}
+                                    {limitVal.name}
                                 </span>
                                 <span style={{ fontSize: '0.7rem', fontWeight: 700, color: key === 'oxygen' ? '#3b82f6' : '#16a34a' }}>
-                                    {limit.unit}
+                                    {limitVal.unit}
                                 </span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
                                 <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--color-text)' }}>
-                                    {limit.min}
+                                    {limitVal.min}
                                 </span>
                                 <span style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>
-                                    - {limit.max}
+                                    - {limitVal.max}
                                 </span>
                             </div>
                             {key === 'oxygen' && (
@@ -1221,330 +1128,7 @@ function DangerItem({ condition, consequence, color }) {
     );
 }
 
-// Modal de Crear Permiso
-function CreatePermitModal({ permit, setPermit, onSave, onClose, CONFINED_SPACE_TYPES, POTENTIAL_HAZARDS, EQUIPMENT_CHECKLIST, ROLES }) {
-    const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
 
-    useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth < 768);
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    const toggleHazard = (hazardId) => {
-        const current = permit.hazards || [];
-        const updated = current.includes(hazardId)
-            ? current.filter(h => h !== hazardId)
-            : [...current, hazardId];
-        setPermit({ ...permit, hazards: updated });
-    };
-
-    const toggleEquipment = (equipId) => {
-        const updated = permit.equipment.map(e => 
-            e.id === equipId ? { ...e, checked: !e.checked } : e
-        );
-        setPermit({ ...permit, equipment: updated });
-    };
-
-    const addTeamMember = (role, name) => {
-        if (role === 'entrant') {
-            setPermit({ 
-                ...permit, 
-                team: { ...permit.team, entrants: [...permit.team.entrants, name] }
-            });
-        } else {
-            setPermit({ 
-                ...permit, 
-                team: { ...permit.team, [role]: name }
-            });
-        }
-    };
-
-    return (
-        <div className="modal-fullscreen-overlay" onClick={onClose}>
-            <div
-                className="card"
-                style={{
-                    width: isMobile ? '100%' : '100%',
-                    maxWidth: isMobile ? '100%' : '900px',
-                    maxHeight: isMobile ? '95vh' : '90vh',
-                    overflow: 'auto',
-                    margin: 'auto'
-                }}
-                onClick={e => e.stopPropagation()}
-            >
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '1.5rem',
-                    paddingBottom: '1rem',
-                    borderBottom: '1px solid var(--color-border)'
-                }}>
-                    <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900 }}>
-                        Nuevo Permiso de Espacio Confinado
-                    </h2>
-                    <button
-                        onClick={onClose}
-                        style={{
-                            padding: '0.5rem',
-                            background: 'var(--color-background)',
-                            border: 'none',
-                            borderRadius: 'var(--radius-md)',
-                            cursor: 'pointer',
-                            color: 'var(--color-text)'
-                        }}
-                    >
-                        <XCircle size={24} />
-                    </button>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem' }}>
-                    {/* Nombre del Espacio */}
-                    <div style={{ gridColumn: isMobile ? '1 / -1' : undefined }}>
-                        <label style={labelStyle}>Nombre del Espacio *</label>
-                        <input
-                            type="text"
-                            value={permit.spaceName}
-                            onChange={(e) => setPermit({ ...permit, spaceName: e.target.value })}
-                            style={inputStyle}
-                            placeholder="Ej: Tanque de Almacenamiento T-101"
-                        />
-                    </div>
-
-                    {/* Tipo de Espacio */}
-                    <div>
-                        <label style={labelStyle}>Tipo de Espacio</label>
-                        <select
-                            value={permit.spaceType}
-                            onChange={(e) => setPermit({ ...permit, spaceType: e.target.value })}
-                            style={inputStyle}
-                        >
-                            <option value="">Seleccionar tipo</option>
-                            {CONFINED_SPACE_TYPES.map(type => (
-                                <option key={type.id} value={type.id}>{type.icon} {type.name}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Ubicación */}
-                    <div>
-                        <label style={labelStyle}>Ubicación</label>
-                        <input
-                            type="text"
-                            value={permit.location}
-                            onChange={(e) => setPermit({ ...permit, location: e.target.value })}
-                            style={inputStyle}
-                            placeholder="Ej: Planta Norte, Sector B"
-                        />
-                    </div>
-
-                    {/* Departamento */}
-                    <div>
-                        <label style={labelStyle}>Departamento</label>
-                        <input
-                            type="text"
-                            value={permit.department}
-                            onChange={(e) => setPermit({ ...permit, department: e.target.value })}
-                            style={inputStyle}
-                            placeholder="Ej: Mantenimiento"
-                        />
-                    </div>
-                </div>
-
-                {/* Descripción */}
-                <div style={{ marginTop: '1rem' }}>
-                    <label style={labelStyle}>Descripción del Trabajo</label>
-                    <textarea
-                        value={permit.description}
-                        onChange={(e) => setPermit({ ...permit, description: e.target.value })}
-                        style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' }}
-                        placeholder="Describí el trabajo a realizar..."
-                    />
-                </div>
-
-                {/* Peligros Potenciales */}
-                <div style={{ marginTop: '1.5rem' }}>
-                    <label style={labelStyle}>Peligros Potenciales</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(5, 1fr)', gap: isMobile ? '0.4rem' : '0.5rem' }}>
-                        {POTENTIAL_HAZARDS.map(hazard => (
-                            <button
-                                key={hazard.id}
-                                onClick={() => toggleHazard(hazard.id)}
-                                style={{
-                                    padding: '0.75rem',
-                                    background: permit.hazards?.includes(hazard.id) 
-                                        ? '#fef2f2' 
-                                        : 'var(--color-background)',
-                                    border: `2px solid ${permit.hazards?.includes(hazard.id) ? '#dc2626' : 'var(--color-border)'}`,
-                                    borderRadius: 'var(--radius-lg)',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    gap: '0.35rem',
-                                    transition: 'all var(--transition-fast)'
-                                }}
-                            >
-                                <span style={{ fontSize: '1.5rem' }}>{hazard.icon}</span>
-                                <span style={{ 
-                                    fontSize: '0.7rem', 
-                                    fontWeight: 700,
-                                    color: permit.hazards?.includes(hazard.id) ? '#dc2626' : 'var(--color-text-muted)'
-                                }}>
-                                    {hazard.name}
-                                </span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Equipo Requerido */}
-                <div style={{ marginTop: '1.5rem' }}>
-                    <label style={labelStyle}>Equipamiento Requerido</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: isMobile ? '0.5rem' : '0.5rem' }}>
-                        {permit.equipment.map(equip => (
-                            <label 
-                                key={equip.id}
-                                style={{
-                                    padding: '0.75rem',
-                                    background: equip.checked ? '#f0fdf4' : 'var(--color-background)',
-                                    border: `2px solid ${equip.checked ? '#16a34a' : 'var(--color-border)'}`,
-                                    borderRadius: 'var(--radius-lg)',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '0.5rem',
-                                    transition: 'all var(--transition-fast)'
-                                }}
-                            >
-                                <input
-                                    type="checkbox"
-                                    checked={equip.checked}
-                                    onChange={() => toggleEquipment(equip.id)}
-                                    style={{ width: '18px', height: '18px' }}
-                                />
-                                <span style={{ fontSize: '1.25rem' }}>{equip.icon}</span>
-                                <span style={{ 
-                                    fontSize: '0.8rem', 
-                                    fontWeight: 600,
-                                    color: equip.checked ? '#16a34a' : 'var(--color-text)'
-                                }}>
-                                    {equip.name}
-                                    {equip.required && <span style={{ color: '#dc2626', marginLeft: '4px' }}>*</span>}
-                                </span>
-                            </label>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Equipo de Trabajo */}
-                <div style={{ marginTop: '1.5rem' }}>
-                    <label style={labelStyle}>Equipo de Trabajo</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                        <div>
-                            <label style={{ ...labelStyle, fontSize: '0.75rem' }}>Entrante(s)</label>
-                            <input
-                                type="text"
-                                placeholder="Nombre del entrante"
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && e.target.value.trim()) {
-                                        addTeamMember('entrant', e.target.value);
-                                        e.target.value = '';
-                                    }
-                                }}
-                                style={inputStyle}
-                            />
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.5rem' }}>
-                                {permit.team.entrants.map((entrant, idx) => (
-                                    <span key={idx} style={{
-                                        padding: '0.35rem 0.65rem',
-                                        background: '#3b82f6',
-                                        color: '#fff',
-                                        borderRadius: 'var(--radius-full)',
-                                        fontSize: '0.8rem',
-                                        fontWeight: 600
-                                    }}>
-                                        {entrant}
-                                        <button
-                                            onClick={() => {
-                                                const updated = permit.team.entrants.filter((_, i) => i !== idx);
-                                                setPermit({ ...permit, team: { ...permit.team, entrants: updated } });
-                                            }}
-                                            style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', marginLeft: '4px', padding: 0 }}
-                                        >
-                                            ×
-                                        </button>
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-                        <div>
-                            <label style={{ ...labelStyle, fontSize: '0.75rem' }}>Vigía (Attendant)</label>
-                            <input
-                                type="text"
-                                value={permit.team.attendant}
-                                onChange={(e) => addTeamMember('attendant', e.target.value)}
-                                style={inputStyle}
-                                placeholder="Nombre del vigía"
-                            />
-                        </div>
-                        <div>
-                            <label style={{ ...labelStyle, fontSize: '0.75rem' }}>Supervisor</label>
-                            <input
-                                type="text"
-                                value={permit.team.supervisor}
-                                onChange={(e) => addTeamMember('supervisor', e.target.value)}
-                                style={inputStyle}
-                                placeholder="Nombre del supervisor"
-                            />
-                        </div>
-                        <div>
-                            <label style={{ ...labelStyle, fontSize: '0.75rem' }}>Equipo de Rescate</label>
-                            <input
-                                type="text"
-                                value={permit.team.rescue}
-                                onChange={(e) => addTeamMember('rescue', e.target.value)}
-                                style={inputStyle}
-                                placeholder="Empresa/Equipo de rescate"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                <div style={{
-                    display: 'flex',
-                    gap: '1rem',
-                    marginTop: '2rem',
-                    paddingTop: '1.5rem',
-                    borderTop: '1px solid var(--color-border)'
-                }}>
-                    <button
-                        onClick={onClose}
-                        style={{
-                            flex: 1,
-                            padding: '0.85rem',
-                            background: 'var(--color-background)',
-                            border: '1px solid var(--color-border)',
-                            borderRadius: 'var(--radius-lg)',
-                            fontWeight: 700,
-                            cursor: 'pointer'
-                        }}
-                    >
-                        Cancelar
-                    </button>
-                    <button
-                        onClick={onSave}
-                        className="btn-primary"
-                        style={{ flex: 1 }}
-                    >
-                        Crear Permiso
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-}
 
 // Modal de Detalle
 function PermitDetailModal({ permit, statusConfig, onClose, CONFINED_SPACE_TYPES, POTENTIAL_HAZARDS, EQUIPMENT_CHECKLIST, ROLES }) {
@@ -1552,9 +1136,7 @@ function PermitDetailModal({ permit, statusConfig, onClose, CONFINED_SPACE_TYPES
     const isExpired = permit.validUntil && new Date(permit.validUntil) < new Date();
 
     return (
-        <div style={{
-            className: 'modal-fullscreen-overlay'
-        }} onClick={onClose}>
+        <div className="modal-fullscreen-overlay" onClick={onClose}>
             <div 
                 className="card"
                 style={{
@@ -1862,13 +1444,18 @@ function AtmosphericReadingModal({ permit, onSave, onClose, limits }) {
     };
 
     const getStatus = () => {
-        if (reading.oxygen && (reading.oxygen < limits.oxygen.min || reading.oxygen > limits.oxygen.max)) return { status: 'danger', text: 'PELIGRO - OXÍGENO' };
-        if (reading.lel && reading.lel > limits.lel.max) return { status: 'danger', text: 'PELIGRO - LEL' };
-        if (reading.h2s && reading.h2s > limits.h2s.max) return { status: 'danger', text: 'PELIGRO - H2S' };
-        if (reading.co && reading.co > limits.co.max) return { status: 'danger', text: 'PELIGRO - CO' };
+        const o2 = parseFloat(reading.oxygen);
+        const l = parseFloat(reading.lel);
+        const h = parseFloat(reading.h2s);
+        const c = parseFloat(reading.co);
+
+        if (!isNaN(o2) && (o2 < limits.oxygen.min || o2 > limits.oxygen.max)) return { status: 'danger', text: 'PELIGRO - OXÍGENO' };
+        if (!isNaN(l) && l > limits.lel.max) return { status: 'danger', text: 'PELIGRO - LEL' };
+        if (!isNaN(h) && h > limits.h2s.max) return { status: 'danger', text: 'PELIGRO - H2S' };
+        if (!isNaN(c) && c > limits.co.max) return { status: 'danger', text: 'PELIGRO - CO' };
         
-        if (reading.oxygen && reading.oxygen < 20.9) return { status: 'warning', text: 'PRECAUCIÓN' };
-        if (reading.lel && reading.lel > 0) return { status: 'warning', text: 'PRECAUCIÓN' };
+        if (!isNaN(o2) && o2 < 20.9) return { status: 'warning', text: 'PRECAUCIÓN' };
+        if (!isNaN(l) && l > 0) return { status: 'warning', text: 'PRECAUCIÓN' };
         
         return { status: 'safe', text: 'SEGURO' };
     };
@@ -1876,9 +1463,7 @@ function AtmosphericReadingModal({ permit, onSave, onClose, limits }) {
     const currentStatus = getStatus();
 
     return (
-        <div style={{
-            className: 'modal-fullscreen-overlay'
-        }} onClick={onClose}>
+        <div className="modal-fullscreen-overlay" onClick={onClose}>
             <div 
                 className="card"
                 style={{
@@ -2058,5 +1643,5 @@ const inputStyle = {
     fontWeight: 500,
     outline: 'none',
     transition: 'all var(--transition-fast)',
-    boxSizing: 'border-box'
+    boxSizing: 'border-box' as const
 };

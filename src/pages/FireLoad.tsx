@@ -15,6 +15,7 @@ import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
 import CompanyLogo from '../components/CompanyLogo';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import PremiumHeader from '../components/PremiumHeader';
 import { API_BASE_URL } from '../config';
 import { getCountryNormativa } from '../data/legislationData';
 
@@ -286,7 +287,17 @@ export default function FireLoad(): React.ReactElement | null {
     };
 
     return (
-        <div className="container" style={{ maxWidth: '900px', paddingBottom: '8rem', paddingTop: '8rem' }}>
+        <div className="container" style={{ maxWidth: '900px', paddingBottom: '8rem' }}>
+            {/* Premium Header */}
+            <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100 }}>
+                <PremiumHeader
+                    title="Carga de Fuego"
+                    subtitle="Cálculo según Dec. 351/79"
+                    icon={<Flame size={36} />}
+                />
+            </div>
+
+            <div style={{ paddingTop: '8rem' }}>
             <ShareModal
                 open={showShare}
                 onClose={() => setShowShare(false)}
@@ -718,6 +729,7 @@ export default function FireLoad(): React.ReactElement | null {
                     </div>
                     <PdfBrandingFooter />
                 </div>
+            </div>
             </div>
         </div>
     );
