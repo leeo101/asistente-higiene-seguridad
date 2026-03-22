@@ -113,19 +113,12 @@ const EmergencyBot = lazyWithRetry(() => import('./pages/EmergencyBot.jsx'));
 const ExtinguisherAI = lazyWithRetry(() => import('./pages/ExtinguisherAI.jsx'));
 const ChemicalSafety = lazyWithRetry(() => import('./pages/ChemicalSafety.jsx'));
 const NoiseAssessment = lazyWithRetry(() => import('./pages/NoiseAssessment.jsx'));
-const NoiseAssessmentPage = lazyWithRetry(() => import('./pages/NoiseAssessmentPage.jsx'));
 const LOTOManager = lazyWithRetry(() => import('./pages/LOTOManager.jsx'));
-const LOTOPage = lazyWithRetry(() => import('./pages/LOTOPage.jsx'));
 const ConfinedSpace = lazyWithRetry(() => import('./pages/ConfinedSpace.jsx'));
-const ConfinedSpacePage = lazyWithRetry(() => import('./pages/ConfinedSpacePage.jsx'));
 const WorkingAtHeight = lazyWithRetry(() => import('./pages/WorkingAtHeight.jsx'));
-const WorkingAtHeightPage = lazyWithRetry(() => import('./pages/WorkingAtHeightPage.jsx'));
 const AuditManager = lazyWithRetry(() => import('./pages/AuditManager.jsx'));
-const AuditPage = lazyWithRetry(() => import('./pages/AuditPage.jsx'));
 const CAPAManager = lazyWithRetry(() => import('./pages/CAPAManager.jsx'));
-const CAPAPage = lazyWithRetry(() => import('./pages/CAPAPage.jsx'));
 const EnvironmentalMonitor = lazyWithRetry(() => import('./pages/EnvironmentalMonitor.jsx'));
-const EnvironmentalPage = lazyWithRetry(() => import('./pages/EnvironmentalPage.jsx'));
 
 // SAFETY MODULE FORMS
 const AuditForm = lazyWithRetry(() => import('./pages/AuditForm'));
@@ -143,15 +136,6 @@ const CAPAHistory = lazyWithRetry(() => import('./pages/CAPAHistory'));
 const EnvironmentalHistory = lazyWithRetry(() => import('./pages/EnvironmentalHistory'));
 const LOTOHistory = lazyWithRetry(() => import('./pages/LOTOHistory'));
 const NoiseAssessmentHistory = lazyWithRetry(() => import('./pages/NoiseAssessmentHistory'));
-const ChemicalSafetyCreate = lazyWithRetry(() => import('./pages/ChemicalSafetyCreate'));
-const NoiseAssessmentCreate = lazyWithRetry(() => import('./pages/NoiseAssessmentCreate'));
-const ConfinedSpaceCreate = lazyWithRetry(() => import('./pages/ConfinedSpaceCreate'));
-const WorkingAtHeightCreate = lazyWithRetry(() => import('./pages/WorkingAtHeightCreate'));
-const AuditCreate = lazyWithRetry(() => import('./pages/AuditCreate'));
-const AuditDetail = lazyWithRetry(() => import('./pages/AuditDetail'));
-const CAPACreate = lazyWithRetry(() => import('./pages/CAPACreate'));
-const EnvironmentalCreate = lazyWithRetry(() => import('./pages/EnvironmentalCreate'));
-const LOTOCreate = lazyWithRetry(() => import('./pages/LOTOCreate'));
 const WorkingAtHeightHistory = lazyWithRetry(() => import('./pages/WorkingAtHeightHistory'));
 const ConfinedSpaceHistory = lazyWithRetry(() => import('./pages/ConfinedSpaceHistory'));
 const ChemicalSafetyHistory = lazyWithRetry(() => import('./pages/ChemicalSafetyHistory'));
@@ -436,29 +420,22 @@ function App() {
 
                 {/* Safety Module Pages */}
                 <Route path="/chemical-safety" element={<ModuleGuard><ChemicalSafety /></ModuleGuard>} />
-                <Route path="/chemical-safety-create" element={<ModuleGuard><ChemicalSafetyCreate /></ModuleGuard>} />
+                <Route path="/chemical-safety-create" element={<ModuleGuard><ChemicalSafetyForm /></ModuleGuard>} />
                 <Route path="/noise-assessment" element={<ModuleGuard><NoiseAssessment /></ModuleGuard>} />
-                <Route path="/noise-assessment-create" element={<ModuleGuard><NoiseAssessmentCreate /></ModuleGuard>} />
-                <Route path="/noise-assessment-page" element={<ModuleGuard><NoiseAssessmentPage /></ModuleGuard>} />
+                <Route path="/noise-assessment-create" element={<ModuleGuard><NoiseAssessmentForm /></ModuleGuard>} />
                 <Route path="/confined-space" element={<ModuleGuard><ConfinedSpace /></ModuleGuard>} />
-                <Route path="/confined-space-create" element={<ModuleGuard><ConfinedSpaceCreate /></ModuleGuard>} />
-                <Route path="/confined-space-page" element={<ModuleGuard><ConfinedSpacePage /></ModuleGuard>} />
+                <Route path="/confined-space-create" element={<ModuleGuard><ConfinedSpaceForm /></ModuleGuard>} />
                 <Route path="/working-at-height" element={<ModuleGuard><WorkingAtHeight /></ModuleGuard>} />
-                <Route path="/working-at-height-create" element={<ModuleGuard><WorkingAtHeightCreate /></ModuleGuard>} />
-                <Route path="/working-at-height-page" element={<ModuleGuard><WorkingAtHeightPage /></ModuleGuard>} />
+                <Route path="/working-at-height-create" element={<ModuleGuard><WorkingAtHeightForm /></ModuleGuard>} />
                 <Route path="/audit" element={<ModuleGuard><AuditManager /></ModuleGuard>} />
-                <Route path="/audit-create" element={<ModuleGuard><AuditCreate /></ModuleGuard>} />
+                <Route path="/audit-create" element={<ModuleGuard><AuditForm /></ModuleGuard>} />
                 <Route path="/audit/:id" element={<ModuleGuard><AuditDetail /></ModuleGuard>} />
-                <Route path="/audit-page" element={<ModuleGuard><AuditPage /></ModuleGuard>} />
                 <Route path="/capa" element={<ModuleGuard><CAPAManager /></ModuleGuard>} />
-                <Route path="/capa-create" element={<ModuleGuard><CAPACreate /></ModuleGuard>} />
-                <Route path="/capa-page" element={<ModuleGuard><CAPAPage /></ModuleGuard>} />
+                <Route path="/capa-create" element={<ModuleGuard><CAPAForm /></ModuleGuard>} />
                 <Route path="/environmental" element={<ModuleGuard><EnvironmentalMonitor /></ModuleGuard>} />
-                <Route path="/environmental-create" element={<ModuleGuard><EnvironmentalCreate /></ModuleGuard>} />
-                <Route path="/environmental-page" element={<ModuleGuard><EnvironmentalPage /></ModuleGuard>} />
+                <Route path="/environmental-create" element={<ModuleGuard><EnvironmentalForm /></ModuleGuard>} />
                 <Route path="/loto" element={<ModuleGuard><LOTOManager /></ModuleGuard>} />
-                <Route path="/loto-create" element={<ModuleGuard><LOTOCreate /></ModuleGuard>} />
-                <Route path="/loto-page" element={<ModuleGuard><LOTOPage /></ModuleGuard>} />
+                <Route path="/loto-create" element={<ModuleGuard><LOTOForm /></ModuleGuard>} />
 
 
                 {/* Safety Module Forms (NEW structure) */}

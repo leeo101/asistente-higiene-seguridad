@@ -1,0 +1,192 @@
+
+> asistente-de-higiene-y-seguridad@0.0.0 build
+> vite build
+
+[36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+[33msrc/pages/ChemicalSafetyForm.jsx (7:23): "Radioactive" is not exported by "node_modules/lucide-react/dist/esm/lucide-react.js", imported by "src/pages/ChemicalSafetyForm.jsx".[39m
+[32m✓[39m 2851 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32mregisterSW.js                                  [39m[1m[2m  0.13 kB[22m[1m[22m
+[2mdist/[22m[32mmanifest.webmanifest                           [39m[1m[2m  0.41 kB[22m[1m[22m
+[2mdist/[22m[32mindex.html                                     [39m[1m[2m  4.03 kB[22m[1m[22m[2m │ gzip:   1.64 kB[22m
+[2mdist/[22m[35massets/index-ZwE10xDA.css                      [39m[1m[2m 32.00 kB[22m[1m[22m[2m │ gzip:   7.33 kB[22m
+[2mdist/[22m[36massets/check-DeWKMYIC.js                       [39m[1m[2m  0.12 kB[22m[1m[22m[2m │ gzip:   0.14 kB[22m
+[2mdist/[22m[36massets/chevron-left-DRZ8M72s.js                [39m[1m[2m  0.13 kB[22m[1m[22m[2m │ gzip:   0.14 kB[22m
+[2mdist/[22m[36massets/loader-circle-CywIPBb8.js               [39m[1m[2m  0.14 kB[22m[1m[22m[2m │ gzip:   0.15 kB[22m
+[2mdist/[22m[36massets/plus-Ctj0hXO0.js                        [39m[1m[2m  0.15 kB[22m[1m[22m[2m │ gzip:   0.15 kB[22m
+[2mdist/[22m[36massets/clock-CHCC4rNL.js                       [39m[1m[2m  0.17 kB[22m[1m[22m[2m │ gzip:   0.16 kB[22m
+[2mdist/[22m[36massets/arrow-down-D1ZpRfFh.js                  [39m[1m[2m  0.17 kB[22m[1m[22m[2m │ gzip:   0.16 kB[22m
+[2mdist/[22m[36massets/trending-up-B3vmCtj_.js                 [39m[1m[2m  0.18 kB[22m[1m[22m[2m │ gzip:   0.17 kB[22m
+[2mdist/[22m[36massets/useDocumentTitle-Xi3emfkJ.js            [39m[1m[2m  0.18 kB[22m[1m[22m[2m │ gzip:   0.17 kB[22m
+[2mdist/[22m[36massets/play-DYA-QLtq.js                        [39m[1m[2m  0.19 kB[22m[1m[22m[2m │ gzip:   0.18 kB[22m
+[2mdist/[22m[36massets/info-BTF7a28J.js                        [39m[1m[2m  0.20 kB[22m[1m[22m[2m │ gzip:   0.18 kB[22m
+[2mdist/[22m[36massets/circle-x-C7VRUm8r.js                    [39m[1m[2m  0.20 kB[22m[1m[22m[2m │ gzip:   0.18 kB[22m
+[2mdist/[22m[36massets/briefcase-BjZXpIdQ.js                   [39m[1m[2m  0.22 kB[22m[1m[22m[2m │ gzip:   0.20 kB[22m
+[2mdist/[22m[36massets/target-BEgewN7V.js                      [39m[1m[2m  0.22 kB[22m[1m[22m[2m │ gzip:   0.16 kB[22m
+[2mdist/[22m[36massets/panels-top-left-D6QTFzZ4.js             [39m[1m[2m  0.23 kB[22m[1m[22m[2m │ gzip:   0.20 kB[22m
+[2mdist/[22m[36massets/square-check-big-CJfmefY-.js            [39m[1m[2m  0.23 kB[22m[1m[22m[2m │ gzip:   0.20 kB[22m
+[2mdist/[22m[36massets/upload-Bh1e8_Mh.js                      [39m[1m[2m  0.23 kB[22m[1m[22m[2m │ gzip:   0.19 kB[22m
+[2mdist/[22m[36massets/copy-u91CRtFb.js                        [39m[1m[2m  0.23 kB[22m[1m[22m[2m │ gzip:   0.21 kB[22m
+[2mdist/[22m[36massets/download-DXMS2lI6.js                    [39m[1m[2m  0.23 kB[22m[1m[22m[2m │ gzip:   0.19 kB[22m
+[2mdist/[22m[36massets/activity-BbRc76X2.js                    [39m[1m[2m  0.24 kB[22m[1m[22m[2m │ gzip:   0.20 kB[22m
+[2mdist/[22m[36massets/pen-BO2L6C_3.js                         [39m[1m[2m  0.24 kB[22m[1m[22m[2m │ gzip:   0.20 kB[22m
+[2mdist/[22m[36massets/wind-fcsBcJxA.js                        [39m[1m[2m  0.25 kB[22m[1m[22m[2m │ gzip:   0.20 kB[22m
+[2mdist/[22m[36massets/key-DjGo-r1M.js                         [39m[1m[2m  0.26 kB[22m[1m[22m[2m │ gzip:   0.22 kB[22m
+[2mdist/[22m[36massets/leaf-CNa6Cejl.js                        [39m[1m[2m  0.27 kB[22m[1m[22m[2m │ gzip:   0.23 kB[22m
+[2mdist/[22m[36massets/book-open-DIce2X6c.js                   [39m[1m[2m  0.28 kB[22m[1m[22m[2m │ gzip:   0.21 kB[22m
+[2mdist/[22m[36massets/bell-C_Mpr-BQ.js                        [39m[1m[2m  0.29 kB[22m[1m[22m[2m │ gzip:   0.24 kB[22m
+[2mdist/[22m[36massets/send-7AigX4Te.js                        [39m[1m[2m  0.29 kB[22m[1m[22m[2m │ gzip:   0.23 kB[22m
+[2mdist/[22m[36massets/zoom-in-D56eWvV2.js                     [39m[1m[2m  0.30 kB[22m[1m[22m[2m │ gzip:   0.21 kB[22m
+[2mdist/[22m[36massets/printer-d4dnmAP6.js                     [39m[1m[2m  0.32 kB[22m[1m[22m[2m │ gzip:   0.24 kB[22m
+[2mdist/[22m[36massets/refresh-cw-C4MZCf4P.js                  [39m[1m[2m  0.32 kB[22m[1m[22m[2m │ gzip:   0.23 kB[22m
+[2mdist/[22m[36massets/save-PWG61E2u.js                        [39m[1m[2m  0.33 kB[22m[1m[22m[2m │ gzip:   0.23 kB[22m
+[2mdist/[22m[36massets/trash-2-9NRnyJqk.js                     [39m[1m[2m  0.33 kB[22m[1m[22m[2m │ gzip:   0.22 kB[22m
+[2mdist/[22m[36massets/share-2-yR9yjxPt.js                     [39m[1m[2m  0.35 kB[22m[1m[22m[2m │ gzip:   0.23 kB[22m
+[2mdist/[22m[36massets/package-ezAYpDQn.js                     [39m[1m[2m  0.37 kB[22m[1m[22m[2m │ gzip:   0.26 kB[22m
+[2mdist/[22m[36massets/flip-horizontal-BCriw-8f.js             [39m[1m[2m  0.38 kB[22m[1m[22m[2m │ gzip:   0.24 kB[22m
+[2mdist/[22m[36massets/building-2-Bk-8ZHLO.js                  [39m[1m[2m  0.38 kB[22m[1m[22m[2m │ gzip:   0.24 kB[22m
+[2mdist/[22m[36massets/zap-off-DL1i9Cje.js                     [39m[1m[2m  0.41 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
+[2mdist/[22m[36massets/construction-C_7KTwja.js                [39m[1m[2m  0.42 kB[22m[1m[22m[2m │ gzip:   0.26 kB[22m
+[2mdist/[22m[36massets/pen-tool-Be3khCfk.js                    [39m[1m[2m  0.47 kB[22m[1m[22m[2m │ gzip:   0.30 kB[22m
+[2mdist/[22m[36massets/calculator-D6f-GoH-.js                  [39m[1m[2m  0.53 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
+[2mdist/[22m[36massets/SkeletonLoader-Dabr4zBB.js              [39m[1m[2m  0.81 kB[22m[1m[22m[2m │ gzip:   0.46 kB[22m
+[2mdist/[22m[36massets/CompanyLogo--QUEZmy2.js                 [39m[1m[2m  0.85 kB[22m[1m[22m[2m │ gzip:   0.45 kB[22m
+[2mdist/[22m[36massets/PdfBrandingFooter-PHAfjFzV.js           [39m[1m[2m  1.46 kB[22m[1m[22m[2m │ gzip:   0.56 kB[22m
+[2mdist/[22m[36massets/workPermits-BNAEZVCt.js                 [39m[1m[2m  1.60 kB[22m[1m[22m[2m │ gzip:   0.76 kB[22m
+[2mdist/[22m[36massets/PremiumHeader-KF9YM-PX.js               [39m[1m[2m  2.31 kB[22m[1m[22m[2m │ gzip:   1.01 kB[22m
+[2mdist/[22m[36massets/NotFound-BhcLtZqh.js                    [39m[1m[2m  2.94 kB[22m[1m[22m[2m │ gzip:   1.15 kB[22m
+[2mdist/[22m[36massets/Breadcrumbs-BhFncuid.js                 [39m[1m[2m  3.07 kB[22m[1m[22m[2m │ gzip:   1.23 kB[22m
+[2mdist/[22m[36massets/PrivacyPolicy-CehosE1z.js               [39m[1m[2m  4.07 kB[22m[1m[22m[2m │ gzip:   1.48 kB[22m
+[2mdist/[22m[36massets/Photos-DXxweuzM.js                      [39m[1m[2m  4.29 kB[22m[1m[22m[2m │ gzip:   1.76 kB[22m
+[2mdist/[22m[36massets/Observation-BxAqq7Oc.js                 [39m[1m[2m  4.63 kB[22m[1m[22m[2m │ gzip:   1.59 kB[22m
+[2mdist/[22m[36massets/AdminRequests-BVCxE5Gy.js               [39m[1m[2m  4.75 kB[22m[1m[22m[2m │ gzip:   1.68 kB[22m
+[2mdist/[22m[36massets/StopCards-Cw9lwL47.js                   [39m[1m[2m  5.01 kB[22m[1m[22m[2m │ gzip:   1.71 kB[22m
+[2mdist/[22m[36massets/SignatureStamp-BEKmbN1K.js              [39m[1m[2m  5.23 kB[22m[1m[22m[2m │ gzip:   2.06 kB[22m
+[2mdist/[22m[36massets/Checklist-CsweVtO3.js                   [39m[1m[2m  5.49 kB[22m[1m[22m[2m │ gzip:   2.03 kB[22m
+[2mdist/[22m[36massets/ResetPassword-CAKIFPR1.js               [39m[1m[2m  5.85 kB[22m[1m[22m[2m │ gzip:   2.06 kB[22m
+[2mdist/[22m[36massets/Ergonomics-By75ipPk.js                  [39m[1m[2m  5.90 kB[22m[1m[22m[2m │ gzip:   2.05 kB[22m
+[2mdist/[22m[36massets/ExtinguisherPdfGenerator-DKT9gLPP.js    [39m[1m[2m  5.96 kB[22m[1m[22m[2m │ gzip:   1.86 kB[22m
+[2mdist/[22m[36massets/CAPAPdf-gNrHG0Ey.js                     [39m[1m[2m  6.23 kB[22m[1m[22m[2m │ gzip:   1.82 kB[22m
+[2mdist/[22m[36massets/NoiseAssessmentPdf--QRt0MZf.js          [39m[1m[2m  6.27 kB[22m[1m[22m[2m │ gzip:   2.00 kB[22m
+[2mdist/[22m[36massets/PersonalData-bqDWYh1a.js                [39m[1m[2m  6.28 kB[22m[1m[22m[2m │ gzip:   2.00 kB[22m
+[2mdist/[22m[36massets/NoiseAssessmentHistory-DUIHwDNf.js      [39m[1m[2m  6.54 kB[22m[1m[22m[2m │ gzip:   2.26 kB[22m
+[2mdist/[22m[36massets/AuditPdf-DjkhrBJC.js                    [39m[1m[2m  6.56 kB[22m[1m[22m[2m │ gzip:   2.02 kB[22m
+[2mdist/[22m[36massets/LOTOHistory-8WVRm-Qu.js                 [39m[1m[2m  6.91 kB[22m[1m[22m[2m │ gzip:   2.39 kB[22m
+[2mdist/[22m[36massets/WorkingAtHeightHistory-Cj4vdNzq.js      [39m[1m[2m  6.97 kB[22m[1m[22m[2m │ gzip:   2.41 kB[22m
+[2mdist/[22m[36massets/ChemicalSafetyPdf-1mdPJOzT.js           [39m[1m[2m  7.08 kB[22m[1m[22m[2m │ gzip:   2.27 kB[22m
+[2mdist/[22m[36massets/ConfinedSpaceHistory-DtDS4B6F.js        [39m[1m[2m  7.11 kB[22m[1m[22m[2m │ gzip:   2.43 kB[22m
+[2mdist/[22m[36massets/LOTOPdf-BCbSiLAF.js                     [39m[1m[2m  7.29 kB[22m[1m[22m[2m │ gzip:   2.14 kB[22m
+[2mdist/[22m[36massets/AiReportPdfGenerator-BW2ibQm2.js        [39m[1m[2m  7.31 kB[22m[1m[22m[2m │ gzip:   2.15 kB[22m
+[2mdist/[22m[36massets/PublicView-BpyHiq0w.js                  [39m[1m[2m  7.40 kB[22m[1m[22m[2m │ gzip:   2.79 kB[22m
+[2mdist/[22m[36massets/EnvironmentalHistory-3MVltSSp.js        [39m[1m[2m  7.42 kB[22m[1m[22m[2m │ gzip:   2.56 kB[22m
+[2mdist/[22m[36massets/RiskMapHistory-C0eeuNnr.js              [39m[1m[2m  7.61 kB[22m[1m[22m[2m │ gzip:   2.70 kB[22m
+[2mdist/[22m[36massets/AuditHistory-l5S7cDz6.js                [39m[1m[2m  7.66 kB[22m[1m[22m[2m │ gzip:   2.66 kB[22m
+[2mdist/[22m[36massets/WorkingAtHeightPdf-Cc5z9BWl.js          [39m[1m[2m  7.69 kB[22m[1m[22m[2m │ gzip:   2.60 kB[22m
+[2mdist/[22m[36massets/ExtinguishersHistory-BHuROjvn.js        [39m[1m[2m  7.74 kB[22m[1m[22m[2m │ gzip:   2.71 kB[22m
+[2mdist/[22m[36massets/AIGeneralCamera-BMQ7QMdP.js             [39m[1m[2m  7.77 kB[22m[1m[22m[2m │ gzip:   3.00 kB[22m
+[2mdist/[22m[36massets/ChemicalSafetyHistory-OLkceKtQ.js       [39m[1m[2m  7.83 kB[22m[1m[22m[2m │ gzip:   2.72 kB[22m
+[2mdist/[22m[36massets/CAPAHistory-C4SblZXH.js                 [39m[1m[2m  7.83 kB[22m[1m[22m[2m │ gzip:   2.78 kB[22m
+[2mdist/[22m[36massets/WorkPermitHistory-Da-wFG2c.js           [39m[1m[2m  7.91 kB[22m[1m[22m[2m │ gzip:   2.78 kB[22m
+[2mdist/[22m[36massets/LightingHistory-CoIcEkvE.js             [39m[1m[2m  7.95 kB[22m[1m[22m[2m │ gzip:   2.70 kB[22m
+[2mdist/[22m[36massets/AccidentHistory-DupwbjKb.js             [39m[1m[2m  8.00 kB[22m[1m[22m[2m │ gzip:   2.81 kB[22m
+[2mdist/[22m[36massets/RiskAssessmentHistory-D61TFjjB.js       [39m[1m[2m  8.01 kB[22m[1m[22m[2m │ gzip:   2.78 kB[22m
+[2mdist/[22m[36massets/TrainingPdfGenerator-BknulaXX.js        [39m[1m[2m  8.08 kB[22m[1m[22m[2m │ gzip:   2.20 kB[22m
+[2mdist/[22m[36massets/Security-BuPY1hcK.js                    [39m[1m[2m  8.10 kB[22m[1m[22m[2m │ gzip:   2.49 kB[22m
+[2mdist/[22m[36massets/DrillsHistory-BvWMlm0d.js               [39m[1m[2m  8.11 kB[22m[1m[22m[2m │ gzip:   2.87 kB[22m
+[2mdist/[22m[36massets/ATSHistory-BMESqAEn.js                  [39m[1m[2m  8.13 kB[22m[1m[22m[2m │ gzip:   2.84 kB[22m
+[2mdist/[22m[36massets/ConfinedSpacePdf-SoWalsWv.js            [39m[1m[2m  8.18 kB[22m[1m[22m[2m │ gzip:   2.13 kB[22m
+[2mdist/[22m[36massets/TrainingHistory-qShCyLEx.js             [39m[1m[2m  8.21 kB[22m[1m[22m[2m │ gzip:   2.90 kB[22m
+[2mdist/[22m[36massets/ThermalStressHistory-Duhn3I7I.js        [39m[1m[2m  8.24 kB[22m[1m[22m[2m │ gzip:   2.87 kB[22m
+[2mdist/[22m[36massets/Profile-BS9kauUC.js                     [39m[1m[2m  8.35 kB[22m[1m[22m[2m │ gzip:   3.13 kB[22m
+[2mdist/[22m[36massets/StopCardsHistory-BxayMSXW.js            [39m[1m[2m  8.39 kB[22m[1m[22m[2m │ gzip:   2.98 kB[22m
+[2mdist/[22m[36massets/FireLoadHistory-4kbe8liz.js             [39m[1m[2m  8.44 kB[22m[1m[22m[2m │ gzip:   2.80 kB[22m
+[2mdist/[22m[36massets/RiskAssessmentPdfGenerator-Cvqh3fyV.js  [39m[1m[2m  8.47 kB[22m[1m[22m[2m │ gzip:   2.19 kB[22m
+[2mdist/[22m[36massets/Legislation-BLsHA1vG.js                 [39m[1m[2m  8.62 kB[22m[1m[22m[2m │ gzip:   2.94 kB[22m
+[2mdist/[22m[36massets/AICamera-C_pCbVxG.js                    [39m[1m[2m  8.74 kB[22m[1m[22m[2m │ gzip:   3.38 kB[22m
+[2mdist/[22m[36massets/AuditForm-7W94y_jN.js                   [39m[1m[2m  8.76 kB[22m[1m[22m[2m │ gzip:   2.90 kB[22m
+[2mdist/[22m[36massets/TrainingManagement-CH5sjOWA.js          [39m[1m[2m  8.80 kB[22m[1m[22m[2m │ gzip:   2.98 kB[22m
+[2mdist/[22m[36massets/PPETracker-CojLElxH.js                  [39m[1m[2m  8.97 kB[22m[1m[22m[2m │ gzip:   2.92 kB[22m
+[2mdist/[22m[36massets/ChemicalSafetyForm-CaiOB1dM.js          [39m[1m[2m  9.38 kB[22m[1m[22m[2m │ gzip:   3.12 kB[22m
+[2mdist/[22m[36massets/DrillPdfGenerator-D1TC5tX-.js           [39m[1m[2m  9.47 kB[22m[1m[22m[2m │ gzip:   2.68 kB[22m
+[2mdist/[22m[36massets/NoiseAssessmentForm-DkrQaTii.js         [39m[1m[2m  9.60 kB[22m[1m[22m[2m │ gzip:   3.10 kB[22m
+[2mdist/[22m[36massets/EnvironmentalPdf-DW16-jcQ.js            [39m[1m[2m  9.70 kB[22m[1m[22m[2m │ gzip:   3.05 kB[22m
+[2mdist/[22m[36massets/CAPAForm-BIR57qeB.js                    [39m[1m[2m  9.73 kB[22m[1m[22m[2m │ gzip:   3.05 kB[22m
+[2mdist/[22m[36massets/WorkingAtHeightForm-T6nmRvNW.js         [39m[1m[2m  9.78 kB[22m[1m[22m[2m │ gzip:   3.22 kB[22m
+[2mdist/[22m[36massets/ChecklistsHistory-CzaZAF-5.js           [39m[1m[2m  9.78 kB[22m[1m[22m[2m │ gzip:   3.39 kB[22m
+[2mdist/[22m[36massets/AppSettings-UU3Aa8QF.js                 [39m[1m[2m  9.80 kB[22m[1m[22m[2m │ gzip:   3.13 kB[22m
+[2mdist/[22m[36massets/EmergencyBot-do8DiVds.js                [39m[1m[2m  9.88 kB[22m[1m[22m[2m │ gzip:   4.14 kB[22m
+[2mdist/[22m[36massets/LOTOForm-YYydlQ39.js                    [39m[1m[2m  9.94 kB[22m[1m[22m[2m │ gzip:   3.08 kB[22m
+[2mdist/[22m[36massets/EnvironmentalForm-CHzhWGIO.js           [39m[1m[2m 10.05 kB[22m[1m[22m[2m │ gzip:   3.15 kB[22m
+[2mdist/[22m[36massets/WorkPermitPdfGenerator-Bcpo8K7U.js      [39m[1m[2m 10.17 kB[22m[1m[22m[2m │ gzip:   2.46 kB[22m
+[2mdist/[22m[36massets/ErgonomicsReport-DZS321CI.js            [39m[1m[2m 10.21 kB[22m[1m[22m[2m │ gzip:   3.16 kB[22m
+[2mdist/[22m[36massets/LogoSettings-DCBznB8f.js                [39m[1m[2m 10.23 kB[22m[1m[22m[2m │ gzip:   3.21 kB[22m
+[2mdist/[22m[36massets/Subscription-_T5c9A7V.js                [39m[1m[2m 10.26 kB[22m[1m[22m[2m │ gzip:   3.51 kB[22m
+[2mdist/[22m[36massets/RiskMatrixPdfGenerator-CDFmC0sp.js      [39m[1m[2m 10.32 kB[22m[1m[22m[2m │ gzip:   2.56 kB[22m
+[2mdist/[22m[36massets/ShareModal-C4iBpPDU.js                  [39m[1m[2m 10.62 kB[22m[1m[22m[2m │ gzip:   4.41 kB[22m
+[2mdist/[22m[36massets/ReportsReport-CG1zzew6.js               [39m[1m[2m 10.64 kB[22m[1m[22m[2m │ gzip:   3.24 kB[22m
+[2mdist/[22m[36massets/ConfinedSpaceForm-BCCOUK6g.js           [39m[1m[2m 10.86 kB[22m[1m[22m[2m │ gzip:   3.58 kB[22m
+[2mdist/[22m[36massets/CreateInspection-CUEb5g2G.js            [39m[1m[2m 10.87 kB[22m[1m[22m[2m │ gzip:   3.64 kB[22m
+[2mdist/[22m[36massets/ErgonomicsForm-M9JZvuS7.js              [39m[1m[2m 10.88 kB[22m[1m[22m[2m │ gzip:   3.50 kB[22m
+[2mdist/[22m[36massets/FireLoadPdfGenerator-Mn9Joypq.js        [39m[1m[2m 10.88 kB[22m[1m[22m[2m │ gzip:   2.63 kB[22m
+[2mdist/[22m[36massets/ATSPdfGenerator--p9D4Gd1.js             [39m[1m[2m 11.03 kB[22m[1m[22m[2m │ gzip:   2.60 kB[22m
+[2mdist/[22m[36massets/LightingPdfGenerator-CWNjhgPs.js        [39m[1m[2m 11.06 kB[22m[1m[22m[2m │ gzip:   2.64 kB[22m
+[2mdist/[22m[36massets/ManagementReport-S21NTr36.js            [39m[1m[2m 11.06 kB[22m[1m[22m[2m │ gzip:   3.53 kB[22m
+[2mdist/[22m[36massets/StopCardPdfGenerator-C3sR7Z7u.js        [39m[1m[2m 11.15 kB[22m[1m[22m[2m │ gzip:   2.83 kB[22m
+[2mdist/[22m[36massets/ExtinguisherAI-CbFiMWLQ.js              [39m[1m[2m 11.32 kB[22m[1m[22m[2m │ gzip:   3.76 kB[22m
+[2mdist/[22m[36massets/AccidentPdfGenerator-CCermqUz.js        [39m[1m[2m 11.42 kB[22m[1m[22m[2m │ gzip:   2.92 kB[22m
+[2mdist/[22m[36massets/RiskAssessment-Bo1_dRAp.js              [39m[1m[2m 12.24 kB[22m[1m[22m[2m │ gzip:   3.76 kB[22m
+[2mdist/[22m[36massets/Drills-B-fCsYdo.js                      [39m[1m[2m 13.10 kB[22m[1m[22m[2m │ gzip:   4.01 kB[22m
+[2mdist/[22m[36massets/ThermalStress-DnDZlkH7.js               [39m[1m[2m 13.13 kB[22m[1m[22m[2m │ gzip:   4.20 kB[22m
+[2mdist/[22m[36massets/RiskMatrixReport-CAIu8ivw.js            [39m[1m[2m 13.26 kB[22m[1m[22m[2m │ gzip:   3.89 kB[22m
+[2mdist/[22m[36massets/AccidentInvestigation-yWfhVYNN.js       [39m[1m[2m 13.74 kB[22m[1m[22m[2m │ gzip:   4.35 kB[22m
+[2mdist/[22m[36massets/AICameraHistory-DUKMhiHb.js             [39m[1m[2m 13.74 kB[22m[1m[22m[2m │ gzip:   4.15 kB[22m
+[2mdist/[22m[36massets/AIReport-BaM1cLVv.js                    [39m[1m[2m 14.16 kB[22m[1m[22m[2m │ gzip:   4.25 kB[22m
+[2mdist/[22m[36massets/ChecklistPdfGenerator-DmFVsQ_e.js       [39m[1m[2m 14.75 kB[22m[1m[22m[2m │ gzip:   3.32 kB[22m
+[2mdist/[22m[36massets/RiskMapPdfGenerator-Cdd8Iq2_.js         [39m[1m[2m 15.94 kB[22m[1m[22m[2m │ gzip:   4.53 kB[22m
+[2mdist/[22m[36massets/WorkPermit-DcPCrJsf.js                  [39m[1m[2m 15.95 kB[22m[1m[22m[2m │ gzip:   4.46 kB[22m
+[2mdist/[22m[36massets/Reports-BM3t66Lj.js                     [39m[1m[2m 16.03 kB[22m[1m[22m[2m │ gzip:   4.38 kB[22m
+[2mdist/[22m[36massets/Extinguishers-BlY1fZGF.js               [39m[1m[2m 16.34 kB[22m[1m[22m[2m │ gzip:   4.29 kB[22m
+[2mdist/[22m[36massets/RiskMatrix-V9GjGZwn.js                  [39m[1m[2m 16.39 kB[22m[1m[22m[2m │ gzip:   4.86 kB[22m
+[2mdist/[22m[36massets/AIChatAdvisor-Boe8AGMM.js               [39m[1m[2m 16.56 kB[22m[1m[22m[2m │ gzip:   5.76 kB[22m
+[2mdist/[22m[36massets/ThermalStressPdfGenerator-Q-rJ4HaN.js   [39m[1m[2m 16.75 kB[22m[1m[22m[2m │ gzip:   4.26 kB[22m
+[2mdist/[22m[36massets/AIHistory-C9NOH3x5.js                   [39m[1m[2m 16.88 kB[22m[1m[22m[2m │ gzip:   4.12 kB[22m
+[2mdist/[22m[36massets/Report-Cpb1fhJj.js                      [39m[1m[2m 19.41 kB[22m[1m[22m[2m │ gzip:   5.05 kB[22m
+[2mdist/[22m[36massets/SafetyCalendar-B8vHPyc-.js              [39m[1m[2m 20.34 kB[22m[1m[22m[2m │ gzip:   5.58 kB[22m
+[2mdist/[22m[36massets/LightingReport-YYQeWw7u.js              [39m[1m[2m 20.94 kB[22m[1m[22m[2m │ gzip:   5.79 kB[22m
+[2mdist/[22m[36massets/ChecklistManager-BHSnNYlf.js            [39m[1m[2m 22.36 kB[22m[1m[22m[2m │ gzip:   6.89 kB[22m
+[2mdist/[22m[36massets/purify.es-Bzr520pe.js                   [39m[1m[2m 22.45 kB[22m[1m[22m[2m │ gzip:   8.63 kB[22m
+[2mdist/[22m[36massets/AuditManager-CXTFZVdA.js                [39m[1m[2m 23.00 kB[22m[1m[22m[2m │ gzip:   6.22 kB[22m
+[2mdist/[22m[36massets/QRModal-BzQXl4OA.js                     [39m[1m[2m 28.03 kB[22m[1m[22m[2m │ gzip:  11.09 kB[22m
+[2mdist/[22m[36massets/FireLoad-BTN9xKhb.js                    [39m[1m[2m 28.12 kB[22m[1m[22m[2m │ gzip:   7.24 kB[22m
+[2mdist/[22m[36massets/ChemicalSafety-CRMRx-UR.js              [39m[1m[2m 28.21 kB[22m[1m[22m[2m │ gzip:   6.53 kB[22m
+[2mdist/[22m[36massets/jspdf.plugin.autotable-BuWfgWgK.js      [39m[1m[2m 30.80 kB[22m[1m[22m[2m │ gzip:   9.81 kB[22m
+[2mdist/[22m[36massets/ATS-MXk3Phpz.js                         [39m[1m[2m 31.26 kB[22m[1m[22m[2m │ gzip:   8.40 kB[22m
+[2mdist/[22m[36massets/LOTOManager-BhrHoYvQ.js                 [39m[1m[2m 32.25 kB[22m[1m[22m[2m │ gzip:   7.20 kB[22m
+[2mdist/[22m[36massets/CAPAManager-Dvo0hXHF.js                 [39m[1m[2m 34.55 kB[22m[1m[22m[2m │ gzip:   8.17 kB[22m
+[2mdist/[22m[36massets/NoiseAssessment-zbVey3nV.js             [39m[1m[2m 34.55 kB[22m[1m[22m[2m │ gzip:   7.98 kB[22m
+[2mdist/[22m[36massets/EnvironmentalMonitor-DKm9UAJf.js        [39m[1m[2m 35.02 kB[22m[1m[22m[2m │ gzip:   8.26 kB[22m
+[2mdist/[22m[36massets/ConfinedSpace-dS4VM7qB.js               [39m[1m[2m 36.15 kB[22m[1m[22m[2m │ gzip:   8.51 kB[22m
+[2mdist/[22m[36massets/RiskMapGenerator-D2zRWNqA.js            [39m[1m[2m 39.15 kB[22m[1m[22m[2m │ gzip:  11.77 kB[22m
+[2mdist/[22m[36massets/History-DqAbud9u.js                     [39m[1m[2m 40.64 kB[22m[1m[22m[2m │ gzip:   8.72 kB[22m
+[2mdist/[22m[36massets/WorkingAtHeight-BPlRhLXT.js             [39m[1m[2m 41.81 kB[22m[1m[22m[2m │ gzip:   9.23 kB[22m
+[2mdist/[22m[36massets/index.es-Dsfgay-T.js                    [39m[1m[2m158.62 kB[22m[1m[22m[2m │ gzip:  52.95 kB[22m
+[2mdist/[22m[36massets/html2canvas.esm-DXEQVQnt.js             [39m[1m[2m201.04 kB[22m[1m[22m[2m │ gzip:  47.43 kB[22m
+[2mdist/[22m[36massets/jspdf.es.min-DAhbqo2J.js                [39m[1m[2m385.47 kB[22m[1m[22m[2m │ gzip: 125.93 kB[22m
+[2mdist/[22m[36massets/Dashboard-DX-k_Fny.js                   [39m[1m[2m395.71 kB[22m[1m[22m[2m │ gzip: 116.00 kB[22m
+[2mdist/[22m[36massets/index-Bv6OikDz.js                       [39m[1m[33m760.54 kB[39m[22m[2m │ gzip: 232.62 kB[22m
+[2mdist/[22m[36massets/exportCsv-BCOiPhru.js                   [39m[1m[33m943.52 kB[39m[22m[2m │ gzip: 273.21 kB[22m
+[33m
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[32m✓ built in 11.05s[39m
+
+PWA v1.2.0
+mode      generateSW
+precache  182 entries (4861.17 KiB)
+files generated
+  dist/sw.js
+  dist/workbox-f171de04.js

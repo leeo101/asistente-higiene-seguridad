@@ -1,0 +1,726 @@
+
+> asistente-de-higiene-y-seguridad@0.0.0 lint
+> eslint src
+
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\ATSPdfGenerator.tsx
+  6:1  error  Parsing error: The keyword 'interface' is reserved
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\AccidentPdfGenerator.tsx
+  5:84  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\AdBanner.jsx
+  37:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  35 |         // Pick a random ad
+  36 |         const randomAd = MOCK_ADS[Math.floor(Math.random() * MOCK_ADS.length)];
+> 37 |         setCurrentAd(randomAd);
+     |         ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  38 |     }, []);
+  39 |
+  40 |     if (isPro() || !currentAd) return null;  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\AiAdvisorPdfGenerator.tsx
+  5:55  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\AiReportPdfGenerator.tsx
+  5:54  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\AuditPdf.tsx
+  5:42  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\Breadcrumbs.tsx
+  6:1  error  Parsing error: The keyword 'interface' is reserved
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\CAPAPdf.tsx
+  5:41  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\ChecklistPdfGenerator.tsx
+  9:2  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\ChemicalSafetyPdf.tsx
+  19:51  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\CompanyLogo.tsx
+  4:1  error  Parsing error: The keyword 'interface' is reserved
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\ConfinedSpacePdf.jsx
+  103:47  error  '_' is defined but never used  no-unused-vars
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\ConfinedSpacePdf.tsx
+  5:50  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\DrillPdfGenerator.tsx
+  5:81  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\EnvironmentalPdf.jsx
+  1:17  error  'useMemo' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\EnvironmentalPdf.tsx
+  30:50  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\ErrorBoundary.tsx
+  4:1  error  Parsing error: The keyword 'interface' is reserved
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\ExtinguisherPdfGenerator.tsx
+  25:67  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\FireLoadPdfGenerator.tsx
+  6:54  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\Footer.tsx
+  5:33  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\GlobalSearch.tsx
+  11:1  error  Parsing error: The keyword 'interface' is reserved
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\LOTOPdf.tsx
+  23:41  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\LazyImage.jsx
+  21:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  19 |
+  20 |   useEffect(() => {
+> 21 |     setIsLoading(true);
+     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  22 |     setImageSrc(src);
+  23 |     setError(false);
+  24 |   }, [src]);  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\LightingPdfGenerator.tsx
+  6:54  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\LocationPicker.jsx
+  15:12  error  'showMap' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u     no-unused-vars
+  15:21  error  'setShowMap' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\NetworkBadge.jsx
+  13:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  11 |     useEffect(() => {
+  12 |         if (!isOnline) {
+> 13 |             setShowBadge(true);
+     |             ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  14 |             setStatusText('Sin conexión - Guardado local activo');
+  15 |             setWasOffline(true);
+  16 |         } else {  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\NoiseAssessmentPdf.tsx
+  12:52  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\OfflineIndicator.jsx
+  1:17  error  'useEffect' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  1:28  error  'useState' is defined but never used. Allowed unused vars must match /^[A-Z_]/u   no-unused-vars
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\PremiumHeader.tsx
+  4:1  error  Parsing error: The keyword 'interface' is reserved
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\ProfessionalReportPdfGenerator.tsx
+  6:73  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\ProfileCompletionBanner.jsx
+   5:51  error  'onComplete' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          no-unused-vars
+  24:17  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  22 |             
+  23 |             if (hasIncompleteProfile && !hasSeenBanner) {
+> 24 |                 setVisible(true);
+     |                 ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  25 |             }
+  26 |         }
+  27 |     }, []);  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\RiskAssessmentPdfGenerator.tsx
+  5:70  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\RiskMapPdfGenerator.tsx
+  11:2  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\RiskMatrixPdfGenerator.tsx
+  12:56  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\ShareModal.tsx
+  7:1  error  Parsing error: The keyword 'interface' is reserved
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\Sidebar.tsx
+  14:1  error  Parsing error: The keyword 'interface' is reserved
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\StarryBackground.jsx
+  1:17  error  'useMemo' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\StatsBar.jsx
+  97:9  error  Error: Cannot access variable before it is declared
+
+`setSafetyScore` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+   95 |             score = Math.floor((score + currentCompliance) / 2);
+   96 |         }
+>  97 |         setSafetyScore(Math.max(0, Math.min(100, score)));
+      |         ^^^^^^^^^^^^^^ `setSafetyScore` accessed before it is declared
+   98 |
+   99 |     }, []);
+  100 |
+
+   99 |     }, []);
+  100 |
+> 101 |     const [safetyScore, setSafetyScore] = useState(100);
+      |                         ^^^^^^^^^^^^^^ `setSafetyScore` is declared here
+  102 |
+  103 |     const hasAnyData = stats.some(s => s.total > 0);
+  104 |     if (!hasAnyData && eppAlert === 0) return null;  react-hooks/immutability
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\StopCardPdfGenerator.tsx
+  6:54  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\ThermalStressPdfGenerator.tsx
+  5:117  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\TrainingPdfGenerator.tsx
+  5:112  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\WorkPermitPdfGenerator.tsx
+  6:56  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\WorkingAtHeightPdf.tsx
+  25:52  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\__tests__\ErrorBoundary.test.tsx
+   7:13  error  'container' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  18:29  error  'vi' is not defined                                                                        no-undef
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\config.ts
+  2:8  error  Parsing error: Unexpected token interface
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\contexts\AuthContext.tsx
+  16:1  error  Parsing error: The keyword 'interface' is reserved
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\contexts\SyncContext.tsx
+  15:1  error  Parsing error: The keyword 'interface' is reserved
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\firebase.ts
+  11:1  error  Parsing error: The keyword 'interface' is reserved
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\hooks\useDocumentTitle.ts
+  8:39  error  Parsing error: Unexpected token ?
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\hooks\useGeolocation.ts
+  4:1  error  Parsing error: The keyword 'interface' is reserved
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\hooks\usePaywall.jsx
+  25:11  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  23 |       const expiry = parseInt(subData.expiry || '0', 10);
+  24 |       if (!expiry) return 'active';
+> 25 |       if (Date.now() > expiry) return 'expired';
+     |           ^^^^^^^^^^ Cannot call impure function
+  26 |       return 'active';
+  27 |     } catch {
+  28 |       return 'none';                                           react-hooks/purity
+  48:46  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  46 |       const expiry = parseInt(subData.expiry || '0', 10);
+  47 |       if (!expiry) return 0;
+> 48 |       return Math.max(0, Math.ceil((expiry - Date.now()) / (1000 * 60 * 60 * 24)));
+     |                                              ^^^^^^^^^^ Cannot call impure function
+  49 |     } catch {
+  50 |       return 0;
+  51 |     }  react-hooks/purity
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\AICamera.tsx
+  11:35  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\AICameraHistory.tsx
+  37:42  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\AIChatAdvisor.tsx
+  102:40  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\AIGeneralCamera.tsx
+  11:42  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\AIHistory.tsx
+  13:36  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\AIReport.tsx
+  11:35  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ATS.tsx
+  60:30  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ATSHistory.tsx
+  36:37  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\AccidentHistory.tsx
+  14:42  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\AccidentInvestigation.tsx
+  19:48  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\AdminRequests.tsx
+  7:40  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\AppSettings.tsx
+  16:38  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\AuditCreate.tsx
+  27:38  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\AuditDetail.tsx
+  30:38  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\AuditForm.tsx
+  34:29  error  Parsing error: Unexpected token as
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\AuditHistory.jsx
+  38:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  36 |     useEffect(() => {
+  37 |         const stored = JSON.parse(localStorage.getItem('ehs_audits_db') || '[]');
+> 38 |         setAudits(stored);
+     |         ^^^^^^^^^ Avoid calling setState() directly within an effect
+  39 |     }, []);
+  40 |
+  41 |     const filteredAudits = audits.filter(audit => {  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\AuditHistory.tsx
+  28:39  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\AuditManager.tsx
+  107:39  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\AuditPage.tsx
+  10:36  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\CAPACreate.tsx
+  20:37  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\CAPAForm.tsx
+  41:29  error  Parsing error: Unexpected token as
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\CAPAHistory.jsx
+  45:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  43 |     useEffect(() => {
+  44 |         const stored = JSON.parse(localStorage.getItem('ehs_capa_db') || '[]');
+> 45 |         setCapas(stored);
+     |         ^^^^^^^^ Avoid calling setState() directly within an effect
+  46 |     }, []);
+  47 |
+  48 |     const filteredCapas = capas.filter(capa => {  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\CAPAHistory.tsx
+  35:38  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\CAPAManager.tsx
+  21:32  error  Parsing error: Unexpected token as
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\CAPAPage.tsx
+  11:35  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\Checklist.tsx
+  7:36  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ChecklistManager.tsx
+  156:43  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ChecklistsHistory.tsx
+  36:44  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ChemicalSafety.tsx
+  43:41  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ChemicalSafetyCreate.tsx
+  26:47  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ChemicalSafetyForm.tsx
+  27:17  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ChemicalSafetyHistory.jsx
+  54:23  error  'useMemo' is not defined                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    no-undef
+  56:57  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  54 |     const shareText = useMemo(() => {
+  55 |         if (!shareItem) return '';
+> 56 |         const dateStr = new Date(shareItem.createdAt || Date.now()).toLocaleDateString();
+     |                                                         ^^^^^^^^^^ Cannot call impure function
+  57 |         return `🧪 Ficha Técnica de Seguridad (SGA)\n🏷️ Producto: ${shareItem.name}\n🆔 CAS: ${shareItem.casNumber || '-'}\n📅 Fecha: ${dateStr}`;
+  58 |     }, [shareItem]);
+  59 |  react-hooks/purity
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ChemicalSafetyHistory.tsx
+  20:48  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ConfinedSpace.tsx
+  80:40  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ConfinedSpaceForm.tsx
+  57:44  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ConfinedSpaceHistory.jsx
+  27:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  25 |     useEffect(() => {
+  26 |         const stored = JSON.parse(localStorage.getItem('confined_space_permits_db') || '[]');
+> 27 |         setPermits(stored);
+     |         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  28 |     }, []);
+  29 |
+  30 |     const filteredPermits = permits.filter(permit => {  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ConfinedSpaceHistory.tsx
+  17:47  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ConfinedSpacePage.tsx
+  14:44  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\CreateInspection.tsx
+  7:43  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\Dashboard.tsx
+  19:1  error  Parsing error: The keyword 'interface' is reserved
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\Drills.tsx
+  18:33  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\DrillsHistory.tsx
+  14:40  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\EmergencyBot.tsx
+  84:39  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\EnvironmentalCreate.tsx
+  6:46  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\EnvironmentalForm.tsx
+  7:17  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\EnvironmentalHistory.jsx
+   54:23   error  'useMemo' is not defined                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         no-undef
+   56:57   error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  54 |     const shareText = useMemo(() => {
+  55 |         if (!shareItem) return '';
+> 56 |         const dateStr = new Date(shareItem.createdAt || Date.now()).toLocaleDateString();
+     |                                                         ^^^^^^^^^^ Cannot call impure function
+  57 |         return `🌿 Monitoreo Ambiental (Ley 19.587)\n📍 Estación: ${shareItem.stationName}\n📅 Fecha: ${dateStr}\n👷 Responsable: ${shareItem.technician || '-'}`;
+  58 |     }, [shareItem]);
+  59 |                                                                                                                                                                        react-hooks/purity
+  146:108  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  144 |                         <h3 style={{ margin: '0:0 0.25rem 0', fontSize: '1rem', fontWeight: 700 }}>{measurement.stationName}</h3>
+  145 |                         <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+> 146 |                             {measurement.location || 'Sin ubicación'} • {new Date(measurement.createdAt || Date.now()).toLocaleDateString()}
+      |                                                                                                            ^^^^^^^^^^ Cannot call impure function
+  147 |                         </p>
+  148 |                     </div>
+  149 |                 </div>  react-hooks/purity
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\EnvironmentalHistory.tsx
+  19:47  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\EnvironmentalMonitor.tsx
+  73:47  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\EnvironmentalPage.tsx
+  8:44  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\Ergonomics.tsx
+  35:37  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ErgonomicsForm.tsx
+  13:41  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ErgonomicsReport.tsx
+  12:43  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ExtinguisherAI.tsx
+  49:41  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\Extinguishers.tsx
+  37:40  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ExtinguishersHistory.tsx
+  15:47  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\FireLoad.tsx
+  22:35  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\FireLoadHistory.tsx
+  38:42  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\History.tsx
+  54:34  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\Home.tsx
+  29:1  error  Parsing error: The keyword 'interface' is reserved
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\LOTOCreate.tsx
+  16:37  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\LOTOForm.tsx
+  24:17  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\LOTOHistory.jsx
+  42:57  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  40 |     const shareText = useMemo(() => {
+  41 |         if (!shareItem) return '';
+> 42 |         const dateStr = new Date(shareItem.createdAt || Date.now()).toLocaleDateString();
+     |                                                         ^^^^^^^^^^ Cannot call impure function
+  43 |         return `🔐 Bloqueo y Etiquetado (LOTO)\n⚙️ Equipo: ${shareItem.equipmentName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${dateStr}`;
+  44 |     }, [shareItem]);
+  45 |  react-hooks/purity
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\LOTOHistory.tsx
+  3:8  error  Parsing error: Identifier 'React' has already been declared
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\LOTOManager.tsx
+  63:38  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\LOTOPage.tsx
+  17:35  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\Legislation.tsx
+  13:38  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\LightingHistory.tsx
+  38:42  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\LightingReport.tsx
+  29:41  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\Login.tsx
+  11:1  error  Parsing error: The keyword 'interface' is reserved
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\LogoSettings.tsx
+  3:8  error  Parsing error: Identifier 'React' has already been declared
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ManagementReport.tsx
+  12:43  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\NoiseAssessment.tsx
+  53:42  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\NoiseAssessmentCreate.tsx
+  6:48  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\NoiseAssessmentForm.tsx
+  21:17  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\NoiseAssessmentHistory.jsx
+  17:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  15 |     useEffect(() => {
+  16 |         const stored = JSON.parse(localStorage.getItem('noise_assessments_db') || '[]');
+> 17 |         setMeasurements(stored);
+     |         ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  18 |     }, []);
+  19 |
+  20 |     const filteredMeasurements = measurements.filter(m => {  react-hooks/set-state-in-effect
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\NoiseAssessmentHistory.tsx
+  8:49  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\NoiseAssessmentPage.tsx
+  20:46  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\NoiseAssessment_debug.tsx
+  53:42  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\NotFound.tsx
+  5:1  error  Parsing error: The keyword 'interface' is reserved
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\Observation.tsx
+  4:8  error  Parsing error: Identifier 'React' has already been declared
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\PPETracker.tsx
+  20:31  error  Parsing error: Unexpected token as
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\PersonalData.tsx
+  9:39  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\Photos.tsx
+  6:33  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\PrivacyPolicy.tsx
+  6:40  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\Profile.tsx
+  10:34  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\PublicView.tsx
+  23:37  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\Report.tsx
+  4:8  error  Parsing error: Identifier 'React' has already been declared
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\Reports.tsx
+  10:34  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ReportsReport.tsx
+  13:40  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ResetPassword.tsx
+  4:8  error  Parsing error: Identifier 'React' has already been declared
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\RiskAssessment.tsx
+  11:32  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\RiskAssessmentHistory.tsx
+  4:8  error  Parsing error: Identifier 'React' has already been declared
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\RiskMapGenerator.tsx
+  29:43  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\RiskMapHistory.tsx
+  11:41  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\RiskMatrix.tsx
+  41:37  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\RiskMatrixReport.tsx
+  105:43  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\SafetyCalendar.tsx
+  18:41  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\Security.tsx
+  8:35  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\SignatureStamp.tsx
+  8:41  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\StopCards.tsx
+  9:36  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\StopCardsHistory.tsx
+  47:43  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\Subscription.tsx
+  11:39  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ThermalStress.tsx
+  26:40  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ThermalStressHistory.tsx
+  15:47  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\TrainingHistory.tsx
+  14:42  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\TrainingManagement.tsx
+  18:45  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\WorkPermit.tsx
+  19:37  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\WorkPermitHistory.tsx
+  19:44  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\WorkingAtHeight.tsx
+  71:42  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\WorkingAtHeightCreate.tsx
+  6:48  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\WorkingAtHeightForm.tsx
+  23:46  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\WorkingAtHeightHistory.jsx
+  43:57  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  41 |     const shareText = useMemo(() => {
+  42 |         if (!shareItem) return '';
+> 43 |         const dateStr = new Date(shareItem.createdAt || Date.now()).toLocaleDateString();
+     |                                                         ^^^^^^^^^^ Cannot call impure function
+  44 |         return `🧗 Permiso de Trabajo en Altura\n📍 Ubicación: ${shareItem.location}\n👷 Trabajador: ${shareItem.workerName}\n📅 Fecha: ${dateStr}`;
+  45 |     }, [shareItem]);
+  46 |  react-hooks/purity
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\WorkingAtHeightHistory.tsx
+  15:49  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\WorkingAtHeightPage.tsx
+  11:46  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\services\cloudSync.ts
+  20:8  error  Parsing error: Unexpected token interface
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\services\exportCsv.ts
+  8:8  error  Parsing error: Unexpected token interface
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\tests\setupTests.ts
+  6:16  error  Parsing error: Unexpected token :
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\utils\pdfHelper.js
+   7:50  error  'filename' is assigned a value but never used  no-unused-vars
+  89:17  error  'pageNum' is not defined                       no-undef
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\vite-env.d.ts
+  3:1  error  Parsing error: The keyword 'interface' is reserved
+
+✖ 179 problems (179 errors, 0 warnings)
+
