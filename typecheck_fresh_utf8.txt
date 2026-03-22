@@ -1,0 +1,318 @@
+﻿
+> asistente-de-higiene-y-seguridad@0.0.0 typecheck
+> tsc --noEmit
+
+src/components/PremiumHeader.tsx(65,15): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'size' does not exist in type 'Partial<unknown> & Attributes'.
+src/pages/AIChatAdvisor.tsx(240,30): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
+src/pages/AIChatAdvisor.tsx(298,30): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
+src/pages/AIGeneralCamera.tsx(134,23): error TS2339: Property 'info' does not exist on type '{ (message: Message, opts?: Partial<Pick<Toast, "className" | "id" | "style" | "icon" | "duration" | "ariaProps" | "position" | "iconTheme" | "toasterId" | "removeDelay">>): string; ... 8 more ...; promise<T>(promise: Promise<...> | (() => Promise<...>), msgs: { ...; }, opts?: DefaultToastOptions): Promise<...>; }'.
+src/pages/AppSettings.tsx(76,43): error TS2345: Argument of type 'string | ArrayBuffer' is not assignable to parameter of type 'string'.
+  Type 'ArrayBuffer' is not assignable to type 'string'.
+src/pages/CreateInspection.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/CreateInspection.tsx(3,8): error TS2300: Duplicate identifier 'React'.
+src/pages/CreateInspection.tsx(33,9): error TS2552: Cannot find name 'navigate'. Did you mean 'navigator'?
+src/pages/CreateInspection.tsx(39,40): error TS2552: Cannot find name 'navigate'. Did you mean 'navigator'?
+src/pages/CreateInspection.tsx(93,18): error TS2741: Property 'initialLocation' is missing in type '{ onLocationSelect: (location: any) => void; }' but required in type '{ onLocationSelect: Function; initialLocation: any; }'.
+src/pages/CreateInspection.tsx(110,40): error TS2552: Cannot find name 'navigate'. Did you mean 'navigator'?
+src/pages/EmergencyBot.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/EmergencyBot.tsx(3,8): error TS2300: Duplicate identifier 'React'.
+src/pages/EmergencyBot.tsx(231,36): error TS2304: Cannot find name 'navigate'.
+src/pages/EnvironmentalMonitor.tsx(1280,13): error TS2353: Object literal may only specify known properties, and 'className' does not exist in type 'Properties<string | number, string & {}>'.
+src/pages/Ergonomics.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/Ergonomics.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/ErgonomicsReport.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/ErgonomicsReport.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/ErgonomicsReport.tsx(48,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
+src/pages/History.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/History.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/History.tsx(294,18): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
+src/pages/History.tsx(303,100): error TS2322: Type '{ data: any; isHeadless: boolean; }' is not assignable to type 'IntrinsicAttributes & { data: any; }'.
+  Property 'isHeadless' does not exist on type 'IntrinsicAttributes & { data: any; }'.
+src/pages/History.tsx(380,18): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
+src/pages/History.tsx(389,117): error TS2322: Type '{ currentReport: any; isHeadless: boolean; }' is not assignable to type 'IntrinsicAttributes & { currentReport: any; }'.
+  Property 'isHeadless' does not exist on type 'IntrinsicAttributes & { currentReport: any; }'.
+src/pages/History.tsx(465,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
+src/pages/History.tsx(474,103): error TS2322: Type '{ initialData: any; isHeadless: boolean; }' is not assignable to type 'IntrinsicAttributes & { initialData: any; }'.
+  Property 'isHeadless' does not exist on type 'IntrinsicAttributes & { initialData: any; }'.
+src/pages/Home.tsx(234,23): error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
+src/pages/Home.tsx(235,19): error TS2349: This expression is not callable.
+  Type 'Number' has no call signatures.
+src/pages/Legislation.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/Legislation.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/Legislation.tsx(28,75): error TS2304: Cannot find name 'e'.
+src/pages/LightingHistory.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/LightingHistory.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/LightingHistory.tsx(72,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
+src/pages/LightingHistory.tsx(81,39): error TS2322: Type '{ contentRef: null; data: any; }' is not assignable to type 'IntrinsicAttributes & { data: any; }'.
+  Property 'contentRef' does not exist on type 'IntrinsicAttributes & { data: any; }'.
+src/pages/LightingReport.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/LightingReport.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/LightingReport.tsx(172,71): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/pages/LightingReport.tsx(176,54): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/pages/LightingReport.tsx(195,26): error TS2322: Type '{ id: string; ubicacion: string; luxMedido: number; } | { id: string; ubicacion: string; luxMedido: string; }' is not assignable to type '{ id: string; ubicacion: string; luxMedido: number; }'.
+  Type '{ id: string; ubicacion: string; luxMedido: string; }' is not assignable to type '{ id: string; ubicacion: string; luxMedido: number; }'.
+    Types of property 'luxMedido' are incompatible.
+      Type 'string' is not assignable to type 'number'.
+src/pages/LightingReport.tsx(195,134): error TS2322: Type 'string' is not assignable to type 'number'.
+src/pages/LightingReport.tsx(240,62): error TS2345: Argument of type '{ id: string; date: string; empresa: string; sector: string; results: { promedioLux: number; cumplePromedio: boolean; puntosCumplen: number; puntosNoCumplen: number; }; datos: { empresa: string; sector: string; ... 4 more ...; mediciones: { ...; }[]; }; profesionalResponsable: string; }' is not assignable to parameter of type 'unknown[]'.
+  Type '{ id: string; date: string; empresa: string; sector: string; results: { promedioLux: number; cumplePromedio: boolean; puntosCumplen: number; puntosNoCumplen: number; }; datos: { empresa: string; sector: string; ... 4 more ...; mediciones: { ...; }[]; }; profesionalResponsable: string; }' is missing the following properties from type 'unknown[]': length, pop, push, concat, and 28 more.
+src/pages/LightingReport.tsx(289,18): error TS2739: Type '{ open: true; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
+src/pages/LightingReport.tsx(578,75): error TS2339: Property 'stamp' does not exist on type '{ name: string; license: string; signature: any; }'.
+src/pages/LogoSettings.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/LogoSettings.tsx(3,8): error TS2300: Duplicate identifier 'React'.
+src/pages/LogoSettings.tsx(48,49): error TS2345: Argument of type 'string | ArrayBuffer' is not assignable to parameter of type 'string'.
+  Type 'ArrayBuffer' is not assignable to type 'string'.
+src/pages/LogoSettings.tsx(104,36): error TS2304: Cannot find name 'navigate'.
+src/pages/LogoSettings.tsx(329,37): error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
+src/pages/LogoSettings.tsx(330,46): error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
+src/pages/LogoSettings.tsx(332,122): error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
+src/pages/LogoSettings.tsx(334,94): error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
+src/pages/LogoSettings.tsx(337,30): error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
+src/pages/LOTOHistory.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/LOTOHistory.tsx(3,8): error TS2300: Duplicate identifier 'React'.
+src/pages/LOTOHistory.tsx(43,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
+src/pages/LOTOHistory.tsx(57,44): error TS2304: Cannot find name 'navigate'.
+src/pages/LOTOHistory.tsx(65,40): error TS2304: Cannot find name 'navigate'.
+src/pages/LOTOHistory.tsx(91,44): error TS2304: Cannot find name 'navigate'.
+src/pages/LOTOHistory.tsx(99,43): error TS2304: Cannot find name 'navigate'.
+src/pages/LOTOManager.tsx(369,18): error TS2741: Property 'badge' is missing in type '{ active: boolean; onClick: () => void; icon: Element; label: string; count: number; }' but required in type '{ active: any; onClick: any; icon: any; label: any; count: any; badge: any; }'.
+src/pages/LOTOManager.tsx(384,18): error TS2739: Type '{ active: boolean; onClick: () => void; icon: Element; label: string; }' is missing the following properties from type '{ active: any; onClick: any; icon: any; label: any; count: any; badge: any; }': count, badge
+src/pages/LOTOManager.tsx(934,31): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'number'.
+src/pages/LOTOManager.tsx(950,49): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/pages/LOTOManager.tsx(966,49): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/pages/LOTOManager.tsx(1234,25): error TS2322: Type '{ minHeight: string; resize: "vertical"; width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/LOTOManager.tsx(1277,13): error TS2353: Object literal may only specify known properties, and 'className' does not exist in type 'Properties<string | number, string & {}>'.
+src/pages/LOTOManager.tsx(1408,47): error TS2339: Property 'completed' does not exist on type '{ id: number; name: string; description: string; }'.
+src/pages/LOTOManager.tsx(1413,54): error TS2339: Property 'completed' does not exist on type '{ id: number; name: string; description: string; }'.
+src/pages/LOTOManager.tsx(1422,43): error TS2339: Property 'completed' does not exist on type '{ id: number; name: string; description: string; }'.
+src/pages/LOTOManager.tsx(1427,43): error TS2339: Property 'completed' does not exist on type '{ id: number; name: string; description: string; }'.
+src/pages/LOTOManager.tsx(1429,66): error TS2339: Property 'completedBy' does not exist on type '{ id: number; name: string; description: string; }'.
+src/pages/LOTOManager.tsx(1429,97): error TS2339: Property 'completedAt' does not exist on type '{ id: number; name: string; description: string; }'.
+src/pages/ManagementReport.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/ManagementReport.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/ManagementReport.tsx(107,30): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
+src/pages/ManagementReport.tsx(119,30): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
+src/pages/ManagementReport.tsx(130,64): error TS2304: Cannot find name 'e'.
+src/pages/ManagementReport.tsx(157,31): error TS2322: Type 'number[]' is not assignable to type 'Color'.
+  Type 'number[]' is not assignable to type '[number, number, number]'.
+    Target requires 3 element(s) but source may have fewer.
+src/pages/ManagementReport.tsx(163,32): error TS2339: Property 'lastAutoTable' does not exist on type 'jsPDF'.
+src/pages/NoiseAssessment.tsx(224,15): error TS2741: Property 'fileName' is missing in type '{ isOpen: boolean; open: boolean; onClose: () => void; title: string; text: string; rawMessage: string; elementIdToPrint: string; }' but required in type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }'.
+src/pages/NoiseAssessment.tsx(1335,17): error TS2322: Type '{ padding: string; fontSize: string; width: string; borderRadius: string; border: string; background: string; color: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(212,15): error TS2741: Property 'fileName' is missing in type '{ isOpen: boolean; open: boolean; onClose: () => void; title: string; text: string; rawMessage: string; elementIdToPrint: string; }' but required in type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }'.
+src/pages/NoiseAssessment_debug.tsx(764,54): error TS2345: Argument of type 'string | 0' is not assignable to parameter of type 'string'.
+  Type 'number' is not assignable to type 'string'.
+src/pages/NoiseAssessment_debug.tsx(1069,29): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(1081,29): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(1092,29): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(1104,29): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(1117,29): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(1129,29): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(1183,29): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(1214,29): error TS2322: Type '{ minHeight: string; resize: "vertical"; width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(1291,17): error TS2322: Type '{ padding: string; fontSize: string; width: string; borderRadius: string; border: string; background: string; color: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessmentHistory.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/NoiseAssessmentHistory.tsx(3,8): error TS2300: Duplicate identifier 'React'.
+src/pages/NoiseAssessmentHistory.tsx(36,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
+src/pages/NoiseAssessmentHistory.tsx(50,44): error TS2304: Cannot find name 'navigate'.
+src/pages/NoiseAssessmentHistory.tsx(58,40): error TS2304: Cannot find name 'navigate'.
+src/pages/NoiseAssessmentHistory.tsx(80,44): error TS2304: Cannot find name 'navigate'.
+src/pages/NoiseAssessmentHistory.tsx(88,43): error TS2304: Cannot find name 'navigate'.
+src/pages/Observation.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/Observation.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/Observation.tsx(34,33): error TS2339: Property 'id' does not exist on type '{ description: string; severity: string; assignee: string; deadline: string; itemId: any; category: any; }'.
+src/pages/Observation.tsx(71,38): error TS2339: Property 'style' does not exist on type 'EventTarget'.
+src/pages/Observation.tsx(72,38): error TS2339: Property 'style' does not exist on type 'EventTarget'.
+src/pages/Observation.tsx(72,62): error TS2339: Property 'scrollHeight' does not exist on type 'EventTarget'.
+src/pages/Photos.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/Photos.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/Photos.tsx(45,34): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Blob'.
+  Type '{}' is missing the following properties from type 'Blob': size, type, arrayBuffer, bytes, and 3 more.
+src/pages/PPETracker.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/PPETracker.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/PPETracker.tsx(22,23): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/pages/PPETracker.tsx(22,32): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/pages/Profile.tsx(34,31): error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
+src/pages/Report.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/Report.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/Report.tsx(129,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
+src/pages/Reports.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/Reports.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/Reports.tsx(38,17): error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'SetStateAction<{ title: string; company: string; location: string; date: string; responsable: string; }>'.
+src/pages/Reports.tsx(83,37): error TS2339: Property 'id' does not exist on type '{ title: string; company: string; location: string; date: string; responsable: string; }'.
+src/pages/Reports.tsx(97,25): error TS2339: Property 'id' does not exist on type '{ title: string; company: string; location: string; date: string; responsable: string; }'.
+src/pages/Reports.tsx(222,52): error TS2339: Property 'topic' does not exist on type '{}'.
+src/pages/Reports.tsx(230,52): error TS2339: Property 'duration' does not exist on type '{}'.
+src/pages/Reports.tsx(244,56): error TS2339: Property 'eventTime' does not exist on type '{}'.
+src/pages/Reports.tsx(252,56): error TS2339: Property 'affectedPerson' does not exist on type '{}'.
+src/pages/ReportsReport.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/ReportsReport.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/ReportsReport.tsx(49,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
+src/pages/ReportsReport.tsx(78,134): error TS2353: Object literal may only specify known properties, and 'tracking' does not exist in type 'Properties<string | number, string & {}>'.
+src/pages/ResetPassword.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/ResetPassword.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/RiskAssessment.tsx(189,14): error TS2741: Property 'fileName' is missing in type '{ isOpen: boolean; open: boolean; onClose: () => void; title: string; text: string; rawMessage: string; elementIdToPrint: string; }' but required in type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }'.
+src/pages/RiskAssessmentHistory.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/RiskAssessmentHistory.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/RiskAssessmentHistory.tsx(106,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
+src/pages/RiskMapGenerator.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/RiskMapGenerator.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/RiskMapGenerator.tsx(380,21): error TS2322: Type '{ style: { pointerEvents: string; cursor: string; }; onPointerDown: (e: any) => void; key: any; x: number; y: number; width: number; height: number; stroke: any; strokeWidth: any; strokeDasharray: string; fill: any; opacity: any; }' is not assignable to type 'SVGProps<SVGRectElement>'.
+  The types of 'style.pointerEvents' are incompatible between these types.
+    Type 'string' is not assignable to type 'PointerEvents'.
+src/pages/RiskMapGenerator.tsx(387,21): error TS2322: Type '{ style: { pointerEvents: string; cursor: string; }; onPointerDown: (e: any) => void; key: any; cx: number; cy: number; rx: number; ry: number; stroke: any; strokeWidth: any; strokeDasharray: string; fill: any; opacity: any; }' is not assignable to type 'SVGProps<SVGEllipseElement>'.
+  The types of 'style.pointerEvents' are incompatible between these types.
+    Type 'string' is not assignable to type 'PointerEvents'.
+src/pages/RiskMapGenerator.tsx(393,21): error TS2322: Type '{ style: { pointerEvents: string; cursor: string; }; onPointerDown: (e: any) => void; key: any; points: any; stroke: any; strokeWidth: any; strokeDasharray: string; fill: string; opacity: any; }' is not assignable to type 'SVGProps<SVGPolylineElement>'.
+  The types of 'style.pointerEvents' are incompatible between these types.
+    Type 'string' is not assignable to type 'PointerEvents'.
+src/pages/RiskMapGenerator.tsx(397,17): error TS2322: Type '{ style: { pointerEvents: string; cursor: string; }; onPointerDown: (e: any) => void; key: any; x1: any; y1: any; x2: any; y2: any; stroke: any; strokeWidth: any; strokeDasharray: string; markerEnd: string; opacity: any; }' is not assignable to type 'SVGLineElementAttributes<SVGLineElement>'.
+  The types of 'style.pointerEvents' are incompatible between these types.
+    Type 'string' is not assignable to type 'PointerEvents'.
+src/pages/RiskMapGenerator.tsx(433,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
+src/pages/RiskMapGenerator.tsx(855,38): error TS2322: Type '{ mapData: { elements: any; backgroundImage: any; empresa: any; sector: any; fecha: any; }; onBack: () => void; onShare: () => any; }' is not assignable to type 'IntrinsicAttributes & { data: any; onBack?: () => void; onShare?: () => void; }'.
+  Property 'mapData' does not exist on type 'IntrinsicAttributes & { data: any; onBack?: () => void; onShare?: () => void; }'.
+src/pages/RiskMapGenerator.tsx(855,121): error TS2304: Cannot find name 'setShowShare'.
+src/pages/RiskMapHistory.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/RiskMapHistory.tsx(3,8): error TS2300: Duplicate identifier 'React'.
+src/pages/RiskMapHistory.tsx(26,37): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/pages/RiskMapHistory.tsx(26,56): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/pages/RiskMapHistory.tsx(48,37): error TS2322: Type '{ mapData: any; onBack: () => void; }' is not assignable to type 'IntrinsicAttributes & { data: any; onBack?: () => void; onShare?: () => void; }'.
+  Property 'mapData' does not exist on type 'IntrinsicAttributes & { data: any; onBack?: () => void; onShare?: () => void; }'.
+src/pages/RiskMapHistory.tsx(67,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
+src/pages/RiskMapHistory.tsx(76,52): error TS2322: Type '{ mapData: any; isHeadless: boolean; }' is not assignable to type 'IntrinsicAttributes & { data: any; onBack?: () => void; onShare?: () => void; }'.
+  Property 'mapData' does not exist on type 'IntrinsicAttributes & { data: any; onBack?: () => void; onShare?: () => void; }'.
+src/pages/RiskMapHistory.tsx(81,44): error TS2552: Cannot find name 'navigate'. Did you mean 'navigator'?
+src/pages/RiskMapHistory.tsx(86,40): error TS2552: Cannot find name 'navigate'. Did you mean 'navigator'?
+src/pages/RiskMapHistory.tsx(156,37): error TS2552: Cannot find name 'navigate'. Did you mean 'navigator'?
+src/pages/RiskMatrixReport.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/RiskMatrixReport.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/RiskMatrixReport.tsx(141,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
+src/pages/SafetyCalendar.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/SafetyCalendar.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/SafetyCalendar.tsx(335,25): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/pages/SafetyCalendar.tsx(335,72): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/pages/SafetyCalendar.tsx(407,62): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/pages/SafetyCalendar.tsx(407,74): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/pages/SafetyCalendar.tsx(549,50): error TS2339: Property 'style' does not exist on type 'EventTarget'.
+src/pages/SafetyCalendar.tsx(550,50): error TS2339: Property 'style' does not exist on type 'EventTarget'.
+src/pages/SafetyCalendar.tsx(550,74): error TS2339: Property 'scrollHeight' does not exist on type 'EventTarget'.
+src/pages/Security.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/Security.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/Security.tsx(26,19): error TS2345: Argument of type '{ type: string; message: string; resetLink: string; }' is not assignable to parameter of type 'SetStateAction<{ type: string; message: string; resetLink: string; code: string; }>'.
+  Property 'code' is missing in type '{ type: string; message: string; resetLink: string; }' but required in type '{ type: string; message: string; resetLink: string; code: string; }'.
+src/pages/Security.tsx(50,21): error TS2353: Object literal may only specify known properties, and 'details' does not exist in type 'SetStateAction<{ type: string; message: string; resetLink: string; code: string; }>'.
+src/pages/Security.tsx(57,60): error TS2353: Object literal may only specify known properties, and 'details' does not exist in type 'SetStateAction<{ type: string; message: string; resetLink: string; code: string; }>'.
+src/pages/Security.tsx(64,21): error TS2353: Object literal may only specify known properties, and 'details' does not exist in type 'SetStateAction<{ type: string; message: string; resetLink: string; code: string; }>'.
+src/pages/Security.tsx(71,59): error TS2353: Object literal may only specify known properties, and 'details' does not exist in type 'SetStateAction<{ type: string; message: string; resetLink: string; code: string; }>'.
+src/pages/Security.tsx(241,41): error TS2339: Property 'details' does not exist on type '{ type: string; message: string; resetLink: string; code: string; }'.
+src/pages/Security.tsx(243,81): error TS2339: Property 'details' does not exist on type '{ type: string; message: string; resetLink: string; code: string; }'.
+src/pages/Security.tsx(246,41): error TS2339: Property 'suggestion' does not exist on type '{ type: string; message: string; resetLink: string; code: string; }'.
+src/pages/Security.tsx(248,52): error TS2339: Property 'suggestion' does not exist on type '{ type: string; message: string; resetLink: string; code: string; }'.
+src/pages/SignatureStamp.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/SignatureStamp.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/StopCards.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/StopCards.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/StopCards.tsx(97,128): error TS2322: Type 'string' is not assignable to type 'number'.
+src/pages/StopCards.tsx(102,128): error TS2322: Type 'string' is not assignable to type 'number'.
+src/pages/StopCardsHistory.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/StopCardsHistory.tsx(3,8): error TS2300: Duplicate identifier 'React'.
+src/pages/StopCardsHistory.tsx(98,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
+src/pages/StopCardsHistory.tsx(112,44): error TS2304: Cannot find name 'navigate'.
+src/pages/StopCardsHistory.tsx(117,40): error TS2304: Cannot find name 'navigate'.
+src/pages/StopCardsHistory.tsx(207,48): error TS2304: Cannot find name 'navigate'.
+src/pages/Subscription.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/Subscription.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/Subscription.tsx(29,13): error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
+src/pages/Subscription.tsx(95,22): error TS2349: This expression is not callable.
+  Type 'Number' has no call signatures.
+src/pages/ThermalStress.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/ThermalStress.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/ThermalStress.tsx(154,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
+src/pages/ThermalStress.tsx(363,21): error TS2322: Type '{ report: any; onBack: () => void; }' is not assignable to type 'IntrinsicAttributes & { data: any; onBack?: () => void; isHeadless?: boolean; }'.
+  Property 'report' does not exist on type 'IntrinsicAttributes & { data: any; onBack?: () => void; isHeadless?: boolean; }'.
+src/pages/TrainingManagement.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/TrainingManagement.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/TrainingManagement.tsx(104,74): error TS2304: Cannot find name 'e'.
+src/pages/TrainingManagement.tsx(132,18): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
+src/pages/TrainingManagement.tsx(336,39): error TS2322: Type '{ training: any; onBack: () => void; }' is not assignable to type 'IntrinsicAttributes & { data: any; onBack?: () => void; isHeadless?: boolean; }'.
+  Property 'training' does not exist on type 'IntrinsicAttributes & { data: any; onBack?: () => void; isHeadless?: boolean; }'.
+src/pages/WorkingAtHeight.tsx(943,47): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/pages/WorkingAtHeight.tsx(943,77): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/pages/WorkingAtHeight.tsx(1096,40): error TS2339: Property 'name' does not exist on type 'unknown'.
+src/pages/WorkingAtHeight.tsx(1100,46): error TS2339: Property 'min' does not exist on type 'unknown'.
+src/pages/WorkingAtHeight.tsx(1100,57): error TS2339: Property 'unit' does not exist on type 'unknown'.
+src/pages/WorkingAtHeight.tsx(1283,29): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/WorkingAtHeight.tsx(1360,25): error TS2322: Type '{ minHeight: string; resize: "vertical"; width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/WorkingAtHeight.tsx(1557,13): error TS2353: Object literal may only specify known properties, and 'className' does not exist in type 'Properties<string | number, string & {}>'.
+src/pages/WorkingAtHeightForm.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/WorkingAtHeightForm.tsx(3,8): error TS2300: Duplicate identifier 'React'.
+src/pages/WorkingAtHeightForm.tsx(144,145): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; boxSizing: string; transition: string; WebkitAppearance: string; MozAppearance: string; appearance: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'appearance' are incompatible.
+    Type 'string' is not assignable to type 'Appearance'.
+src/pages/WorkingAtHeightForm.tsx(148,130): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; boxSizing: string; transition: string; WebkitAppearance: string; MozAppearance: string; appearance: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'appearance' are incompatible.
+    Type 'string' is not assignable to type 'Appearance'.
+src/pages/WorkingAtHeightForm.tsx(155,154): error TS2322: Type '{ paddingRight: string; width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; boxSizing: string; transition: string; WebkitAppearance: string; MozAppearance: string; appearance: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'appearance' are incompatible.
+    Type 'string' is not assignable to type 'Appearance'.
+src/pages/WorkingAtHeightForm.tsx(161,141): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; boxSizing: string; transition: string; WebkitAppearance: string; MozAppearance: string; appearance: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'appearance' are incompatible.
+    Type 'string' is not assignable to type 'Appearance'.
+src/pages/WorkingAtHeightForm.tsx(165,145): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; boxSizing: string; transition: string; WebkitAppearance: string; MozAppearance: string; appearance: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'appearance' are incompatible.
+    Type 'string' is not assignable to type 'Appearance'.
+src/pages/WorkingAtHeightForm.tsx(169,130): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; boxSizing: string; transition: string; WebkitAppearance: string; MozAppearance: string; appearance: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'appearance' are incompatible.
+    Type 'string' is not assignable to type 'Appearance'.
+src/pages/WorkingAtHeightForm.tsx(204,41): error TS2322: Type '{ minHeight: string; width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; boxSizing: string; transition: string; WebkitAppearance: string; MozAppearance: string; appearance: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'appearance' are incompatible.
+    Type 'string' is not assignable to type 'Appearance'.
+src/pages/WorkingAtHeightForm.tsx(280,29): error TS2322: Type '{ minHeight: string; paddingTop: string; width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; boxSizing: string; transition: string; WebkitAppearance: string; MozAppearance: string; appearance: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'appearance' are incompatible.
+    Type 'string' is not assignable to type 'Appearance'.
+src/pages/WorkingAtHeightForm.tsx(312,14): error TS2739: Type '{ isOpen: boolean; onClose: () => void; elementIdToPrint: string; title: string; fileName: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': open, rawMessage, text
+src/pages/WorkingAtHeightForm.tsx(321,74): error TS2339: Property 'createdAt' does not exist on type '{ workerName: string; workType: string; location: string; height: string; priority: string; supervisor: string; observations: string; medicalFitness: boolean; rescuePlan: string; equipmentCheck: { ...; }; ppe: { ...; }; }'.
+src/pages/WorkingAtHeightHistory.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/WorkingAtHeightHistory.tsx(3,8): error TS2300: Duplicate identifier 'React'.
+src/pages/WorkingAtHeightHistory.tsx(44,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
+src/pages/WorkingAtHeightHistory.tsx(58,44): error TS2304: Cannot find name 'navigate'.
+src/pages/WorkingAtHeightHistory.tsx(66,40): error TS2304: Cannot find name 'navigate'.
+src/pages/WorkingAtHeightHistory.tsx(92,44): error TS2304: Cannot find name 'navigate'.
+src/pages/WorkingAtHeightHistory.tsx(100,43): error TS2304: Cannot find name 'navigate'.

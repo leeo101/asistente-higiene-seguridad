@@ -1,8 +1,9 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Printer, MapPin, Calendar, ThermometerSun, Info, Droplets, Wind, Sun, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { getCountryNormativa } from '../data/legislationData';
 
-export default function ThermalStressPdfGenerator({ data }: { data: any }): React.ReactElement | null {
+export default function ThermalStressPdfGenerator({ data, onBack = () => window.history.back(), isHeadless = false }: { data: any, onBack?: () => void, isHeadless?: boolean }): React.ReactElement | null {
+    const report = data;
     const [logoData, setLogoData] = useState({ companyLogo: null, showLogo: true });
 
     useEffect(() => {
@@ -13,7 +14,7 @@ export default function ThermalStressPdfGenerator({ data }: { data: any }): Reac
 
     const { companyLogo, showLogo } = logoData;
 
-    const componentRef = useRef();
+    const componentRef = useRef<HTMLDivElement>(null);
 
         
     const handlePrint = () => {

@@ -1,0 +1,173 @@
+﻿
+> asistente-de-higiene-y-seguridad@0.0.0 lint
+> eslint src
+
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\ConfinedSpacePdf.jsx
+  103:47  error  '_' is defined but never used  no-unused-vars
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\LocationPicker.jsx
+  15:12  error  'showMap' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u     no-unused-vars
+  15:21  error  'setShowMap' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\OfflineIndicator.jsx
+  1:17  error  'useEffect' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  1:28  error  'useState' is defined but never used. Allowed unused vars must match /^[A-Z_]/u   no-unused-vars
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\ProfileCompletionBanner.jsx
+  5:51  error  'onComplete' is defined but never used  no-unused-vars
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\ShareModal.jsx
+  87:38  error  'optLabel' is defined but never used  no-unused-vars
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\StarryBackground.jsx
+  12:34  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  10 |         let stars = '';
+  11 |         for (let i = 0; i < count; i++) {
+> 12 |             const x = Math.floor(Math.random() * 2000);
+     |                                  ^^^^^^^^^^^^^ Cannot call impure function
+  13 |             const y = Math.floor(Math.random() * 2000);
+  14 |             const opacity = Math.random() * 0.5 + 0.3;
+  15 |             stars += `${x}px ${y}px rgba(255, 255, 255, ${opacity})${i === count - 1 ? '' : ', '}`;  react-hooks/purity
+  13:34  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  11 |         for (let i = 0; i < count; i++) {
+  12 |             const x = Math.floor(Math.random() * 2000);
+> 13 |             const y = Math.floor(Math.random() * 2000);
+     |                                  ^^^^^^^^^^^^^ Cannot call impure function
+  14 |             const opacity = Math.random() * 0.5 + 0.3;
+  15 |             stars += `${x}px ${y}px rgba(255, 255, 255, ${opacity})${i === count - 1 ? '' : ', '}`;
+  16 |         }                react-hooks/purity
+  14:29  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  12 |             const x = Math.floor(Math.random() * 2000);
+  13 |             const y = Math.floor(Math.random() * 2000);
+> 14 |             const opacity = Math.random() * 0.5 + 0.3;
+     |                             ^^^^^^^^^^^^^ Cannot call impure function
+  15 |             stars += `${x}px ${y}px rgba(255, 255, 255, ${opacity})${i === count - 1 ? '' : ', '}`;
+  16 |         }
+  17 |         return stars;                                         react-hooks/purity
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\components\StatsBar.jsx
+  97:9  error  Error: Cannot access variable before it is declared
+
+`setSafetyScore` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+   95 |             score = Math.floor((score + currentCompliance) / 2);
+   96 |         }
+>  97 |         setSafetyScore(Math.max(0, Math.min(100, score)));
+      |         ^^^^^^^^^^^^^^ `setSafetyScore` accessed before it is declared
+   98 |
+   99 |     }, []);
+  100 |
+
+   99 |     }, []);
+  100 |
+> 101 |     const [safetyScore, setSafetyScore] = useState(100);
+      |                         ^^^^^^^^^^^^^^ `setSafetyScore` is declared here
+  102 |
+  103 |     const hasAnyData = stats.some(s => s.total > 0);
+  104 |     if (!hasAnyData && eppAlert === 0) return null;  react-hooks/immutability
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\hooks\usePaywall.jsx
+  79:11  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  77 |       const expiry = parseInt(subData.expiry || '0', 10);
+  78 |       if (!expiry) return 'active';
+> 79 |       if (Date.now() > expiry) return 'expired';
+     |           ^^^^^^^^^^ Cannot call impure function
+  80 |       return 'active';
+  81 |     } catch {
+  82 |       return 'none';  react-hooks/purity
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ChemicalSafetyHistory.jsx
+  60:189  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  58 |                 onClose={() => setShareItem(null)}
+  59 |                 title={`Ficha SGA - ${shareItem?.name || ''}`}
+> 60 |                 text={shareItem ? `­ƒº¬ Ficha T├®cnica de Seguridad (SGA)\n­ƒÅÀ´©Å Producto: ${shareItem.name}\n­ƒåö CAS: ${shareItem.casNumber || '-'}\n­ƒôà Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString()}` : ''}
+     |                                                                                                                                                                                             ^^^^^^^^^^ Cannot call impure function
+  61 |                 elementIdToPrint="pdf-content"
+  62 |                 fileName={`Ficha_Quimica_${shareItem?.name || 'Sin_Nombre'}.pdf`}
+  63 |             />  react-hooks/purity
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\ConfinedSpaceForm.jsx
+  72:30  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  70 |         atmosphericReadings: [],
+  71 |         validFrom: new Date().toISOString().slice(0, 16),
+> 72 |         validUntil: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString().slice(0, 16),
+     |                              ^^^^^^^^^^ Cannot call impure function
+  73 |         observations: ''
+  74 |     });
+  75 |  react-hooks/purity
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\EnvironmentalHistory.jsx
+   60:156  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  58 |                 onClose={() => setShareItem(null)}
+  59 |                 title={`Monitoreo Ambiental - ${shareItem?.stationName || ''}`}
+> 60 |                 text={shareItem ? `­ƒî┐ Monitoreo Ambiental (Ley 19.587)\n­ƒôì Estaci├│n: ${shareItem.stationName}\n­ƒôà Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString()}\n­ƒæÀ Responsable: ${shareItem.technician || '-'}` : ''}
+     |                                                                                                                                                            ^^^^^^^^^^ Cannot call impure function
+  61 |                 elementIdToPrint="pdf-content"
+  62 |                 fileName={`Monitoreo_${shareItem?.stationName || 'Sin_Nombre'}.pdf`}
+  63 |             />               react-hooks/purity
+  139:184  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  137 |                     <div style={{ flex: 1 }}>
+  138 |                         <h3 style={{ margin: '0:0 0.25rem 0', fontSize: '1rem', fontWeight: 700 }}>{measurement.stationName}</h3>
+> 139 |                         <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{measurement.location || 'Sin ubicaci├│n'} ÔÇó {new Date(measurement.createdAt || Date.now()).toLocaleDateString()}</p>
+      |                                                                                                                                                                                        ^^^^^^^^^^ Cannot call impure function
+  140 |                     </div>
+  141 |                 </div>
+  142 |                 <div style={{ textAlign: 'right' }}>  react-hooks/purity
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\LOTOHistory.jsx
+  46:188  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  44 |                 onClose={() => setShareItem(null)}
+  45 |                 title={`Bloqueo LOTO - ${shareItem?.equipmentName || ''}`}
+> 46 |                 text={shareItem ? `­ƒöÉ Bloqueo y Etiquetado (LOTO)\nÔÜÖ´©Å Equipo: ${shareItem.equipmentName}\n­ƒôì Ubicaci├│n: ${shareItem.location}\n­ƒôà Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString()}` : ''}
+     |                                                                                                                                                                                            ^^^^^^^^^^ Cannot call impure function
+  47 |                 elementIdToPrint="pdf-content"
+  48 |                 fileName={`LOTO_${shareItem?.equipmentName || 'Sin_Nombre'}.pdf`}
+  49 |             />  react-hooks/purity
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\pages\WorkingAtHeightHistory.jsx
+  47:190  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  45 |                 onClose={() => setShareItem(null)}
+  46 |                 title={`Permiso Altura - ${shareItem?.location || ''}`}
+> 47 |                 text={shareItem ? `­ƒºù Permiso de Trabajo en Altura\n­ƒôì Ubicaci├│n: ${shareItem.location}\n­ƒæÀ Trabajador: ${shareItem.workerName}\n­ƒôà Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString()}` : ''}
+     |                                                                                                                                                                                              ^^^^^^^^^^ Cannot call impure function
+  48 |                 elementIdToPrint="pdf-content"
+  49 |                 fileName={`Altura_${shareItem?.location || 'Sin_Nombre'}.pdf`}
+  50 |             />  react-hooks/purity
+
+C:\Users\Leo Rodriguez\asistente de higiene y seguridad\src\utils\pdfHelper.js
+   7:50  error  'filename' is assigned a value but never used  no-unused-vars
+  89:17  error  'pageNum' is not defined                       no-undef
+
+Ô£û 20 problems (20 errors, 0 warnings)
+

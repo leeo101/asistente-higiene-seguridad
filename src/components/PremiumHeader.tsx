@@ -5,6 +5,9 @@ interface PremiumHeaderProps {
   title: string;
   subtitle: string;
   icon?: React.ReactNode;
+  size?: string;
+  color?: string;
+  gradient?: string;
 }
 
 export default function PremiumHeader({
@@ -67,7 +70,7 @@ export default function PremiumHeader({
               height: '60%',
               color: '#ffffff',
               strokeWidth: 2.5
-            })}
+            } as any)}
           </div>
         )}
 

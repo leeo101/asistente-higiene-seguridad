@@ -124,7 +124,7 @@ export default function ManagementReport(): React.ReactElement | null {
                     // Note: If it's a cross-origin URL, jsPDF might fail, but base64 works perfectly.
                     doc.addImage(companyLogo, 'PNG', pageWidth - 45, 10, 30, 20);
                 } catch (err) {
-                    console.error('Error adding logo to PDF:', err);
+    
                 }
             }
             // ----------------

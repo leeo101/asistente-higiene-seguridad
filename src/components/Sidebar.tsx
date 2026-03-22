@@ -243,7 +243,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--color-hero-text)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   {currentUser ? userInfo.name : 'Invitado'}
-                  {isPro() && (
+                  {isPro && (
                     <div
                       style={{
                         display: 'flex',
@@ -255,11 +255,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
                         borderRadius: '20px',
                         backdropFilter: 'blur(4px)'
                       }}
-                      title={daysRemaining() === Infinity ? "Plan Administrador - Acceso Total" : `Días PRO: ${daysRemaining()}`}
+                      title={daysRemaining === Infinity ? "Plan Administrador - Acceso Total" : `Días PRO: ${daysRemaining}`}
                     >
                       <Crown size={12} color="#f59e0b" fill="#f59e0b" />
                       <span style={{ fontSize: '0.6rem', color: '#fcd34d', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        {daysRemaining() === Infinity ? 'Admin' : `PRO ${daysRemaining()}d`}
+                        {daysRemaining === Infinity ? 'Admin' : `PRO ${daysRemaining}d`}
                       </span>
                     </div>
                   )}
@@ -359,7 +359,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
           </a>
 
           {/* PRO banner */}
-          {!isPro() && (
+          {!isPro && (
             <Link to="/subscribe" onClick={onClose} style={{ textDecoration: 'none', marginBottom: '0.5rem' }}>
               <div style={{
                 display: 'flex', alignItems: 'center', gap: '0.9rem',

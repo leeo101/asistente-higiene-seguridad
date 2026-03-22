@@ -1,9 +1,10 @@
-﻿import React, { useRef } from 'react';
+import React, { useRef } from 'react';
 import { ArrowLeft, Printer, Users, Calendar, MapPin, Clock, BookOpen, Briefcase } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 
-export default function TrainingPdfGenerator({ data }: { data: any }): React.ReactElement | null {
-    const componentRef = useRef();
+export default function TrainingPdfGenerator({ data, onBack = () => window.history.back(), isHeadless = false }: { data: any, onBack?: () => void, isHeadless?: boolean }): React.ReactElement | null {
+    const training = data;
+    const componentRef = useRef<HTMLDivElement>(null);
 
 // logo code removed
 
@@ -13,6 +14,7 @@ export default function TrainingPdfGenerator({ data }: { data: any }): React.Rea
         window.print();
     };
 
+    const { month, year, selectedTrainings, personalData } = data;
     const isLandscape = (training?.asistentes?.length || 0) > 20;
 
     return (

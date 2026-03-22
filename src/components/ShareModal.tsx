@@ -1,12 +1,32 @@
 import React, { useEffect, useState } from 'react';
-import { X, MessageCircle, Mail, Copy, Check, Share2, Loader2, Printer } from 'lucide-react';
+import { X, Mail, Copy, Check, Printer } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { createPortal } from 'react-dom';
 import { generatePdfBlob } from '../utils/pdfHelper';
 
-const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdToPrint, fileName: propFileName }) => {
+interface ShareModalProps {
+    isOpen?: boolean;
+    open?: boolean;
+    onClose: () => void;
+    title: string;
+    rawMessage?: string;
+    text?: string;
+    elementIdToPrint?: string;
+    fileName?: string;
+}
+
+export default function ShareModal({ 
+    isOpen, 
+    open, 
+    onClose, 
+    title, 
+    rawMessage, 
+    text, 
+    elementIdToPrint, 
+    fileName: propFileName 
+}: ShareModalProps) {
     const displayOpen = isOpen !== undefined ? isOpen : open;
-    const message = rawMessage !== undefined ? rawMessage : text;
+    const message = rawMessage !== undefined ? rawMessage : text || '';
 
     const [copied, setCopied] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
@@ -18,10 +38,9 @@ const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdT
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Also close on Escape key
     useEffect(() => {
         if (!displayOpen) return;
-        const handleEsc = (e) => {
+        const handleEsc = (e: KeyboardEvent) => {
             if (e.key === 'Escape') onClose();
         };
         window.addEventListener('keydown', handleEsc);
@@ -31,8 +50,8 @@ const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdT
     if (!displayOpen) return null;
 
     const handleCopy = () => {
+        if (!message) return;
         navigator.clipboard.writeText(message);
-
         setCopied(true);
         toast.success('Resumen copiado');
         setTimeout(() => setCopied(false), 2000);
@@ -47,7 +66,6 @@ const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdT
         const element = document.getElementById(elementIdToPrint);
         if (!element) return;
 
-        // Store original styles
         const originalStyles = {
             position: element.style.position,
             left: element.style.left,
@@ -58,7 +76,6 @@ const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdT
             display: element.style.display
         };
 
-        // Prepare for print
         element.style.position = 'fixed';
         element.style.left = '0';
         element.style.top = '0';
@@ -72,8 +89,6 @@ const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdT
 
         setTimeout(() => {
             window.print();
-            
-            // Restore styles
             element.style.position = originalStyles.position;
             element.style.left = originalStyles.left;
             element.style.top = originalStyles.top;
@@ -84,7 +99,7 @@ const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdT
         }, 300);
     };
 
-    const handleNativeShare = async (optLabel) => {
+    const handleNativeShare = async (optLabel: string) => {
         if (!elementIdToPrint) {
             toast.error("No se ha especificado el contenido a imprimir.");
             return;
@@ -93,9 +108,7 @@ const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdT
         setIsGenerating(true);
         
         try {
-            // Safety delay to ensure hidden generator has rendered
             await new Promise(resolve => setTimeout(resolve, 150));
-            
             const pdfBlob = await generatePdfBlob(elementIdToPrint);
             const fileName = propFileName || `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'reporte'}.pdf`;
 
@@ -111,17 +124,17 @@ const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdT
                 toast.success('¡PDF generado! Descargando...', { id: 'pdf-gen' });
             };
 
-            if (navigator.canShare && navigator.canShare({ files: [new File([pdfBlob], fileName, { type: 'application/pdf' })] })) {
-                const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
-                
+            const shareData = {
+                title: title,
+                text: message,
+                files: [new File([pdfBlob], fileName, { type: 'application/pdf' })]
+            };
+
+            if (navigator.canShare && navigator.canShare(shareData)) {
                 try {
-                    await navigator.share({
-                        title: title,
-                        text: message,
-                        files: [file]
-                    });
+                    await navigator.share(shareData);
                     toast.success('¡Compartido con éxito!', { id: 'pdf-gen' });
-                } catch (shareErr) {
+                } catch (shareErr: any) {
                     if (shareErr.name === 'AbortError') {
                         triggerDownload();
                     } else {
@@ -165,17 +178,15 @@ const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdT
             icon: <Printer size={22} />,
             onClick: handlePrint,
             bg: '#1e293b',
-            color: '#ffffff'
+            color: '#ffffff',
+            hijack: false
         }
     ];
 
     return createPortal(
         <div className="share-modal-overlay" style={{
             position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
+            top: 0, left: 0, right: 0, bottom: 0,
             backgroundColor: 'rgba(15, 23, 42, 0.85)',
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)',
@@ -224,8 +235,6 @@ const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdT
                             boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
                             transition: 'all 0.2s',
                         }}
-                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
-                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                         title="Cerrar"
                     >
                         <X size={20} strokeWidth={3} />
@@ -254,8 +263,9 @@ const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdT
                                     objectFit: 'contain' 
                                 }} 
                                 onError={(e) => {
-                                    e.target.style.display = 'none';
-                                    e.target.parentElement.innerHTML = '<div style="color:var(--color-primary)"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div>';
+                                    (e.target as HTMLImageElement).style.display = 'none';
+                                    const parent = (e.target as HTMLImageElement).parentElement;
+                                    if (parent) parent.innerHTML = '<div style="color:var(--color-primary)"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div>';
                                 }}
                             />
                         </div>
@@ -400,4 +410,4 @@ const ShareModal = ({ isOpen, open, onClose, title, rawMessage, text, elementIdT
     );
 };
 
-export default ShareModal;
+

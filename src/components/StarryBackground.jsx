@@ -1,25 +1,27 @@
 import React, { useMemo } from 'react';
 
 
+// Generate random box-shadow strings for stars
+const generateStars = (count) => {
+    let stars = '';
+    for (let i = 0; i < count; i++) {
+        const x = Math.floor(Math.random() * 2000);
+        const y = Math.floor(Math.random() * 2000);
+        const opacity = Math.random() * 0.5 + 0.3;
+        stars += `${x}px ${y}px rgba(255, 255, 255, ${opacity})${i === count - 1 ? '' : ', '}`;
+    }
+    return stars;
+};
+
+// Generate static stars once at module load to ensure component remains pure
+const shadowsSmall = generateStars(700);
+const shadowsMedium = generateStars(200);
+const shadowsLarge = generateStars(100);
+
 /**
  * Generates a parallax 3D starry night background.
  */
 export default function StarryBackground() {
-    // Generate random box-shadow strings for stars
-    const generateStars = (count) => {
-        let stars = '';
-        for (let i = 0; i < count; i++) {
-            const x = Math.floor(Math.random() * 2000);
-            const y = Math.floor(Math.random() * 2000);
-            const opacity = Math.random() * 0.5 + 0.3;
-            stars += `${x}px ${y}px rgba(255, 255, 255, ${opacity})${i === count - 1 ? '' : ', '}`;
-        }
-        return stars;
-    };
-
-    const shadowsSmall = useMemo(() => generateStars(700), []);
-    const shadowsMedium = useMemo(() => generateStars(200), []);
-    const shadowsLarge = useMemo(() => generateStars(100), []);
 
     return (
         <div className="stars-container">

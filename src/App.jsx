@@ -14,6 +14,8 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SyncProvider, useSync } from './contexts/SyncContext';
 import { Toaster, toast } from 'react-hot-toast';
 import { usePaywall } from './hooks/usePaywall';
+import ModuleGuard from './components/ModuleGuard';
+
 
 // Custom lazy loader that catches chunk errors and reloads
 const lazyWithRetry = (componentImport) =>
@@ -414,47 +416,50 @@ function App() {
 
                 {/* Public Routes */}
                 <Route path="/" element={<Home />} />
-                <Route path="/ats" element={<ATS />} />
-                <Route path="/fire-load" element={<FireLoad />} />
+                <Route path="/ats" element={<ModuleGuard><ATS /></ModuleGuard>} />
+                <Route path="/fire-load" element={<ModuleGuard><FireLoad /></ModuleGuard>} />
+
                 <Route path="/legislation" element={<Legislation />} />
                 <Route path="/checklists" element={<ChecklistManager />} />
                 <Route path="/create-inspection" element={<CreateInspection />} />
                 <Route path="/checklist" element={<Checklist />} />
                 <Route path="/observation" element={<Observation />} />
                 <Route path="/photos" element={<Photos />} />
-                <Route path="/ai-camera" element={<AICamera />} />
-                <Route path="/ai-general-camera" element={<AIGeneralCamera />} />
-                <Route path="/ai-advisor" element={<AIChatAdvisor />} />
-                <Route path="/ai-history" element={<AIHistory />} />
-                <Route path="/ai-report" element={<AIReport />} />
-                <Route path="/emergency-bot" element={<EmergencyBot />} />
-                <Route path="/extinguisher-ai" element={<ExtinguisherAI />} />
+                <Route path="/ai-camera" element={<ModuleGuard><AICamera /></ModuleGuard>} />
+                <Route path="/ai-general-camera" element={<ModuleGuard><AIGeneralCamera /></ModuleGuard>} />
+                <Route path="/ai-advisor" element={<ModuleGuard><AIChatAdvisor /></ModuleGuard>} />
+                <Route path="/ai-history" element={<ModuleGuard><AIHistory /></ModuleGuard>} />
+                <Route path="/ai-report" element={<ModuleGuard><AIReport /></ModuleGuard>} />
+                <Route path="/emergency-bot" element={<ModuleGuard><EmergencyBot /></ModuleGuard>} />
+                <Route path="/extinguisher-ai" element={<ModuleGuard><ExtinguisherAI /></ModuleGuard>} />
+
 
                 {/* Safety Module Pages */}
-                <Route path="/chemical-safety" element={<ChemicalSafety />} />
-                <Route path="/chemical-safety-create" element={<ChemicalSafetyCreate />} />
-                <Route path="/noise-assessment" element={<NoiseAssessment />} />
-                <Route path="/noise-assessment-create" element={<NoiseAssessmentCreate />} />
-                <Route path="/noise-assessment-page" element={<NoiseAssessmentPage />} />
-                <Route path="/confined-space" element={<ConfinedSpace />} />
-                <Route path="/confined-space-create" element={<ConfinedSpaceCreate />} />
-                <Route path="/confined-space-page" element={<ConfinedSpacePage />} />
-                <Route path="/working-at-height" element={<WorkingAtHeight />} />
-                <Route path="/working-at-height-create" element={<WorkingAtHeightCreate />} />
-                <Route path="/working-at-height-page" element={<WorkingAtHeightPage />} />
-                <Route path="/audit" element={<AuditManager />} />
-                <Route path="/audit-create" element={<AuditCreate />} />
-                <Route path="/audit/:id" element={<AuditDetail />} />
-                <Route path="/audit-page" element={<AuditPage />} />
-                <Route path="/capa" element={<CAPAManager />} />
-                <Route path="/capa-create" element={<CAPACreate />} />
-                <Route path="/capa-page" element={<CAPAPage />} />
-                <Route path="/environmental" element={<EnvironmentalMonitor />} />
-                <Route path="/environmental-create" element={<EnvironmentalCreate />} />
-                <Route path="/environmental-page" element={<EnvironmentalPage />} />
-                <Route path="/loto" element={<LOTOManager />} />
-                <Route path="/loto-create" element={<LOTOCreate />} />
-                <Route path="/loto-page" element={<LOTOPage />} />
+                <Route path="/chemical-safety" element={<ModuleGuard><ChemicalSafety /></ModuleGuard>} />
+                <Route path="/chemical-safety-create" element={<ModuleGuard><ChemicalSafetyCreate /></ModuleGuard>} />
+                <Route path="/noise-assessment" element={<ModuleGuard><NoiseAssessment /></ModuleGuard>} />
+                <Route path="/noise-assessment-create" element={<ModuleGuard><NoiseAssessmentCreate /></ModuleGuard>} />
+                <Route path="/noise-assessment-page" element={<ModuleGuard><NoiseAssessmentPage /></ModuleGuard>} />
+                <Route path="/confined-space" element={<ModuleGuard><ConfinedSpace /></ModuleGuard>} />
+                <Route path="/confined-space-create" element={<ModuleGuard><ConfinedSpaceCreate /></ModuleGuard>} />
+                <Route path="/confined-space-page" element={<ModuleGuard><ConfinedSpacePage /></ModuleGuard>} />
+                <Route path="/working-at-height" element={<ModuleGuard><WorkingAtHeight /></ModuleGuard>} />
+                <Route path="/working-at-height-create" element={<ModuleGuard><WorkingAtHeightCreate /></ModuleGuard>} />
+                <Route path="/working-at-height-page" element={<ModuleGuard><WorkingAtHeightPage /></ModuleGuard>} />
+                <Route path="/audit" element={<ModuleGuard><AuditManager /></ModuleGuard>} />
+                <Route path="/audit-create" element={<ModuleGuard><AuditCreate /></ModuleGuard>} />
+                <Route path="/audit/:id" element={<ModuleGuard><AuditDetail /></ModuleGuard>} />
+                <Route path="/audit-page" element={<ModuleGuard><AuditPage /></ModuleGuard>} />
+                <Route path="/capa" element={<ModuleGuard><CAPAManager /></ModuleGuard>} />
+                <Route path="/capa-create" element={<ModuleGuard><CAPACreate /></ModuleGuard>} />
+                <Route path="/capa-page" element={<ModuleGuard><CAPAPage /></ModuleGuard>} />
+                <Route path="/environmental" element={<ModuleGuard><EnvironmentalMonitor /></ModuleGuard>} />
+                <Route path="/environmental-create" element={<ModuleGuard><EnvironmentalCreate /></ModuleGuard>} />
+                <Route path="/environmental-page" element={<ModuleGuard><EnvironmentalPage /></ModuleGuard>} />
+                <Route path="/loto" element={<ModuleGuard><LOTOManager /></ModuleGuard>} />
+                <Route path="/loto-create" element={<ModuleGuard><LOTOCreate /></ModuleGuard>} />
+                <Route path="/loto-page" element={<ModuleGuard><LOTOPage /></ModuleGuard>} />
+
 
                 {/* Safety Module Forms (NEW structure) */}
                 <Route path="/audit/new" element={<AuditForm />} />

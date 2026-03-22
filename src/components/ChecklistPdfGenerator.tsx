@@ -2,7 +2,15 @@ import React from 'react';
 import { ClipboardCheck, Check, X, AlertTriangle, Calendar, Info } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 
-export default function ChecklistPdfGenerator({ checklistData }: { checklistData: any }): React.ReactElement | null {
+export default function ChecklistPdfGenerator({ 
+    checklistData, 
+    showSignatures = { operator: true, supervisor: true, professional: true },
+    isHeadless = false
+}: { 
+    checklistData: any, 
+    showSignatures?: { operator: boolean, supervisor: boolean, professional: boolean },
+    isHeadless?: boolean
+}): React.ReactElement | null {
     if (!checklistData) return null;
 
     const fullData = checklistData;
@@ -174,7 +182,7 @@ export default function ChecklistPdfGenerator({ checklistData }: { checklistData
 
                 {/* Sections - Checklist Items */}
                 {sections.map((section, sectionIdx) => {
-                                        
+                    const sectionFails = section.items.filter(item => item.status === 'FAIL');
                     return (
                         <div key={section.id} style={{ 
                             border: '2px solid #e2e8f0', 

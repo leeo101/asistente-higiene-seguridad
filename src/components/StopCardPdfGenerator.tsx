@@ -1,10 +1,10 @@
-﻿import React, { useRef } from 'react';
+import React, { useRef } from 'react';
 import { MapPin, Calendar, Clock, User, AlertCircle, AlertTriangle, ShieldCheck, Camera, FileText, CheckCircle2 } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import { getCountryNormativa } from '../data/legislationData';
 
 export default function StopCardPdfGenerator({ card }: { card: any }): React.ReactElement | null {
-    const componentRef = useRef();
+    const componentRef = useRef<HTMLDivElement>(null);
     
     if (!card) return null;
 

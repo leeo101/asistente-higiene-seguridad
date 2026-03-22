@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Activity, Wind, Clipboard } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 

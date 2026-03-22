@@ -1,13 +1,24 @@
-﻿import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { ArrowLeft, Printer, Map as MapIcon } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import { SAFETY_ICONS } from '../data/mapIcons';
 
-export default function RiskMapPdfGenerator({ data }: { data: any }): React.ReactElement | null {
+export default function RiskMapPdfGenerator({ 
+    data,
+    onBack = () => window.history.back(),
+    onShare = () => {},
+    showProfSignature = true
+}: { 
+    data: any,
+    onBack?: () => void,
+    onShare?: () => void,
+    showProfSignature?: boolean
+}): React.ReactElement | null {
+    const mapData = data;
 // logo code removed
 
 
-    const componentRef = useRef();
+    const componentRef = useRef<HTMLDivElement>(null);
 
         
     const handlePrint = () => {
@@ -28,7 +39,7 @@ export default function RiskMapPdfGenerator({ data }: { data: any }): React.Reac
             }
         });
     }
-    const legendIcons = Object.values(usedIconsMap);
+    const legendIcons = Object.values(usedIconsMap) as any[];
 
     const { autoScale } = React.useMemo(() => {
         let maxX = 800; // default assumptions
@@ -127,8 +138,8 @@ export default function RiskMapPdfGenerator({ data }: { data: any }): React.Reac
 
                             {/* Emulate SVG Layers as HTML Divs to PREVENT Chrome SVG Print Culling bugs */}
                             <div style={{ position: 'absolute', top: 0, left: 0, width: '4000px', height: '4000px', pointerEvents: 'none', zIndex: 2 }}>
-                                {mapData?.elements?.filter(el => ['arrow', 'line', 'rect'].includes(el.type)).map(el => {
-                                    const commonStyle = {
+                                {mapData?.elements?.filter((el: any) => ['arrow', 'line', 'rect'].includes(el.type)).map((el: any) => {
+                                    const commonStyle: React.CSSProperties = {
                                         position: 'absolute',
                                         zIndex: 2,
                                         WebkitPrintColorAdjust: 'exact',

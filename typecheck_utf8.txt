@@ -2,124 +2,27 @@
 > asistente-de-higiene-y-seguridad@0.0.0 typecheck
 > tsc --noEmit
 
-src/components/ChecklistPdfGenerator.tsx(204,34): error TS2304: Cannot find name 'sectionFails'.
-src/components/ChecklistPdfGenerator.tsx(218,42): error TS2304: Cannot find name 'sectionFails'.
-src/components/ChecklistPdfGenerator.tsx(218,75): error TS2304: Cannot find name 'sectionFails'.
-src/components/ChecklistPdfGenerator.tsx(387,22): error TS2304: Cannot find name 'showSignatures'.
-src/components/ChecklistPdfGenerator.tsx(396,22): error TS2304: Cannot find name 'showSignatures'.
-src/components/ChecklistPdfGenerator.tsx(405,22): error TS2304: Cannot find name 'showSignatures'.
 src/components/PremiumHeader.tsx(65,15): error TS2769: No overload matches this call.
   The last overload gave the following error.
     Object literal may only specify known properties, and 'size' does not exist in type 'Partial<unknown> & Attributes'.
-src/components/RiskMapPdfGenerator.tsx(10,26): error TS2554: Expected 1 arguments, but got 0.
-src/components/RiskMapPdfGenerator.tsx(18,26): error TS2304: Cannot find name 'mapData'.
-src/components/RiskMapPdfGenerator.tsx(24,9): error TS2304: Cannot find name 'mapData'.
-src/components/RiskMapPdfGenerator.tsx(25,9): error TS2304: Cannot find name 'mapData'.
-src/components/RiskMapPdfGenerator.tsx(37,13): error TS2304: Cannot find name 'mapData'.
-src/components/RiskMapPdfGenerator.tsx(42,9): error TS2304: Cannot find name 'mapData'.
-src/components/RiskMapPdfGenerator.tsx(55,9): error TS2304: Cannot find name 'mapData'.
-src/components/RiskMapPdfGenerator.tsx(60,38): error TS2304: Cannot find name 'onBack'.
-src/components/RiskMapPdfGenerator.tsx(66,38): error TS2304: Cannot find name 'onShare'.
-src/components/RiskMapPdfGenerator.tsx(80,21): error TS2322: Type 'RefObject<unknown>' is not assignable to type 'Ref<HTMLDivElement>'.
-  Type 'RefObject<unknown>' is not assignable to type 'RefObject<HTMLDivElement>'.
-    Type '{}' is missing the following properties from type 'HTMLDivElement': align, addEventListener, removeEventListener, accessKey, and 315 more.
-src/components/RiskMapPdfGenerator.tsx(124,30): error TS2304: Cannot find name 'mapData'.
-src/components/RiskMapPdfGenerator.tsx(125,43): error TS2304: Cannot find name 'mapData'.
-src/components/RiskMapPdfGenerator.tsx(130,34): error TS2304: Cannot find name 'mapData'.
-src/components/RiskMapPdfGenerator.tsx(146,62): error TS2322: Type '{ left: any; top: any; width: string; height: string; backgroundColor: any; backgroundImage: "none" | `linear-gradient(to right, ${any} 50%, transparent 50%)`; backgroundSize: string; transformOrigin: string; transform: `translateY(-50%) rotate(${number}deg)`; borderRadius: string; ... 4 more ...; pointerEvents: str...' is not assignable to type 'CSSProperties'.
-  Types of property 'pointerEvents' are incompatible.
-    Type 'string' is not assignable to type 'PointerEvents'.
-src/components/RiskMapPdfGenerator.tsx(172,62): error TS2322: Type '{ left: number; top: number; width: number; height: number; border: string; backgroundColor: "transparent"; boxSizing: "border-box"; position: string; zIndex: number; WebkitPrintColorAdjust: string; printColorAdjust: string; pointerEvents: string; }' is not assignable to type 'CSSProperties'.
-  Types of property 'pointerEvents' are incompatible.
-    Type 'string' is not assignable to type 'PointerEvents'.
-src/components/RiskMapPdfGenerator.tsx(183,30): error TS2304: Cannot find name 'mapData'.
-src/components/RiskMapPdfGenerator.tsx(226,52): error TS2339: Property 'id' does not exist on type 'unknown'.
-src/components/RiskMapPdfGenerator.tsx(227,112): error TS2339: Property 'color' does not exist on type 'unknown'.
-src/components/RiskMapPdfGenerator.tsx(227,133): error TS2339: Property 'color' does not exist on type 'unknown'.
-src/components/RiskMapPdfGenerator.tsx(227,197): error TS2339: Property 'svg' does not exist on type 'unknown'.
-src/components/RiskMapPdfGenerator.tsx(228,53): error TS2339: Property 'label' does not exist on type 'unknown'.
-src/components/RiskMapPdfGenerator.tsx(248,65): error TS2304: Cannot find name 'mapData'.
-src/components/RiskMapPdfGenerator.tsx(249,64): error TS2304: Cannot find name 'mapData'.
-src/components/RiskMapPdfGenerator.tsx(250,63): error TS2304: Cannot find name 'mapData'.
-src/components/RiskMapPdfGenerator.tsx(250,89): error TS2304: Cannot find name 'mapData'.
+src/components/Sidebar.tsx(246,20): error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
+src/components/Sidebar.tsx(258,30): error TS2349: This expression is not callable.
+  Type 'Number' has no call signatures.
+src/components/Sidebar.tsx(258,112): error TS2349: This expression is not callable.
+  Type 'Number' has no call signatures.
+src/components/Sidebar.tsx(262,26): error TS2349: This expression is not callable.
+  Type 'Number' has no call signatures.
+src/components/Sidebar.tsx(262,74): error TS2349: This expression is not callable.
+  Type 'Number' has no call signatures.
+src/components/Sidebar.tsx(362,13): error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
 src/components/StopCardPdfGenerator.tsx(7,26): error TS2554: Expected 1 arguments, but got 0.
 src/components/StopCardPdfGenerator.tsx(77,17): error TS2322: Type 'RefObject<unknown>' is not assignable to type 'Ref<HTMLDivElement>'.
   Type 'RefObject<unknown>' is not assignable to type 'RefObject<HTMLDivElement>'.
     Type '{}' is missing the following properties from type 'HTMLDivElement': align, addEventListener, removeEventListener, accessKey, and 315 more.
-src/components/ThermalStressPdfGenerator.tsx(16,26): error TS2554: Expected 1 arguments, but got 0.
-src/components/ThermalStressPdfGenerator.tsx(23,25): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(45,36): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(52,17): error TS2322: Type 'RefObject<unknown>' is not assignable to type 'Ref<HTMLDivElement>'.
-  Type 'RefObject<unknown>' is not assignable to type 'RefObject<HTMLDivElement>'.
-    Type '{}' is missing the following properties from type 'HTMLDivElement': align, addEventListener, removeEventListener, accessKey, and 315 more.
-src/components/ThermalStressPdfGenerator.tsx(112,88): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(116,87): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(116,112): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(181,140): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(185,121): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(189,121): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(219,118): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(227,118): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(230,88): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(230,203): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(232,59): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(235,118): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(235,142): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(245,41): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(248,50): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(250,30): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(251,66): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(288,153): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(294,158): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(333,38): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(344,47): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(396,71): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(405,30): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(406,43): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(411,34): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(416,30): error TS2304: Cannot find name 'report'.
-src/components/ThermalStressPdfGenerator.tsx(418,43): error TS2304: Cannot find name 'report'.
-src/components/TrainingPdfGenerator.tsx(6,26): error TS2554: Expected 1 arguments, but got 0.
-src/components/TrainingPdfGenerator.tsx(16,26): error TS2304: Cannot find name 'training'.
-src/components/TrainingPdfGenerator.tsx(23,38): error TS2304: Cannot find name 'onBack'.
-src/components/TrainingPdfGenerator.tsx(40,21): error TS2322: Type 'RefObject<unknown>' is not assignable to type 'Ref<HTMLDivElement>'.
-  Type 'RefObject<unknown>' is not assignable to type 'RefObject<HTMLDivElement>'.
-    Type '{}' is missing the following properties from type 'HTMLDivElement': align, addEventListener, removeEventListener, accessKey, and 315 more.
-src/components/TrainingPdfGenerator.tsx(100,177): error TS2304: Cannot find name 'training'.
-src/components/TrainingPdfGenerator.tsx(103,38): error TS2304: Cannot find name 'training'.
-src/components/TrainingPdfGenerator.tsx(103,65): error TS2304: Cannot find name 'training'.
-src/components/TrainingPdfGenerator.tsx(108,94): error TS2304: Cannot find name 'training'.
-src/components/TrainingPdfGenerator.tsx(110,94): error TS2304: Cannot find name 'training'.
-src/components/TrainingPdfGenerator.tsx(114,94): error TS2304: Cannot find name 'training'.
-src/components/TrainingPdfGenerator.tsx(116,94): error TS2304: Cannot find name 'training'.
-src/components/TrainingPdfGenerator.tsx(139,30): error TS2304: Cannot find name 'training'.
-src/components/TrainingPdfGenerator.tsx(150,68): error TS2304: Cannot find name 'training'.
-src/components/TrainingPdfGenerator.tsx(166,101): error TS2304: Cannot find name 'training'.
-src/pages/AdminRequests.tsx(1,8): error TS2300: Duplicate identifier 'React'.
-src/pages/AdminRequests.tsx(4,8): error TS2300: Duplicate identifier 'React'.
-src/pages/AICamera.tsx(1,8): error TS2300: Duplicate identifier 'React'.
-src/pages/AICamera.tsx(4,8): error TS2300: Duplicate identifier 'React'.
-src/pages/AIChatAdvisor.tsx(1,8): error TS2300: Duplicate identifier 'React'.
-src/pages/AIChatAdvisor.tsx(4,8): error TS2300: Duplicate identifier 'React'.
-src/pages/AIChatAdvisor.tsx(34,60): error TS2304: Cannot find name 'e'.
-src/pages/AIChatAdvisor.tsx(121,16): error TS2304: Cannot find name 'e'.
-src/pages/AIChatAdvisor.tsx(127,42): error TS2339: Property 'SpeechRecognition' does not exist on type 'Window & typeof globalThis'.
-src/pages/AIChatAdvisor.tsx(127,70): error TS2339: Property 'webkitSpeechRecognition' does not exist on type 'Window & typeof globalThis'.
-src/pages/AIChatAdvisor.tsx(165,69): error TS2304: Cannot find name 'e'.
-src/pages/AIChatAdvisor.tsx(172,33): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
-src/pages/AIChatAdvisor.tsx(172,53): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
-src/pages/AIChatAdvisor.tsx(177,33): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
-src/pages/AIChatAdvisor.tsx(177,52): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
-src/pages/AIChatAdvisor.tsx(182,33): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
-src/pages/AIChatAdvisor.tsx(182,67): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
-src/pages/AIChatAdvisor.tsx(193,66): error TS2304: Cannot find name 'e'.
-src/pages/AIChatAdvisor.tsx(229,30): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
-src/pages/AIChatAdvisor.tsx(245,30): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
-src/pages/AIChatAdvisor.tsx(259,34): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
-src/pages/AIChatAdvisor.tsx(264,34): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
-src/pages/AIChatAdvisor.tsx(299,30): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
-src/pages/AIChatAdvisor.tsx(303,30): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
-src/pages/AIChatAdvisor.tsx(314,30): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
+src/pages/AIChatAdvisor.tsx(240,30): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
+src/pages/AIChatAdvisor.tsx(298,30): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
 src/pages/AIGeneralCamera.tsx(1,8): error TS2300: Duplicate identifier 'React'.
 src/pages/AIGeneralCamera.tsx(4,8): error TS2300: Duplicate identifier 'React'.
 src/pages/AIGeneralCamera.tsx(136,23): error TS2339: Property 'info' does not exist on type '{ (message: Message, opts?: Partial<Pick<Toast, "className" | "id" | "style" | "icon" | "duration" | "ariaProps" | "position" | "iconTheme" | "toasterId" | "removeDelay">>): string; ... 8 more ...; promise<T>(promise: Promise<...> | (() => Promise<...>), msgs: { ...; }, opts?: DefaultToastOptions): Promise<...>; }'.
@@ -128,66 +31,6 @@ src/pages/AppSettings.tsx(4,8): error TS2300: Duplicate identifier 'React'.
 src/pages/AppSettings.tsx(78,43): error TS2345: Argument of type 'string | ArrayBuffer' is not assignable to parameter of type 'string'.
   Type 'ArrayBuffer' is not assignable to type 'string'.
 src/pages/ATS.tsx(330,166): error TS2551: Property 'tarea' does not exist on type '{ id: string; empresa: string; cuit: string; obra: string; fecha: string; capatazNombre: string; checklist: { id: number; categoria: string; pregunta: string; estado: string; observaciones: string; }[]; tareas: { ...; }[]; }'. Did you mean 'tareas'?
-src/pages/AuditForm.tsx(1,8): error TS2300: Duplicate identifier 'React'.
-src/pages/AuditForm.tsx(3,8): error TS2300: Duplicate identifier 'React'.
-src/pages/AuditForm.tsx(111,43): error TS2304: Cannot find name 'labelStyle'.
-src/pages/AuditForm.tsx(112,139): error TS2304: Cannot find name 'inputStyle'.
-src/pages/AuditForm.tsx(115,43): error TS2304: Cannot find name 'labelStyle'.
-src/pages/AuditForm.tsx(116,136): error TS2304: Cannot find name 'inputStyle'.
-src/pages/AuditForm.tsx(121,43): error TS2304: Cannot find name 'labelStyle'.
-src/pages/AuditForm.tsx(122,137): error TS2304: Cannot find name 'inputStyle'.
-src/pages/AuditForm.tsx(125,43): error TS2304: Cannot find name 'labelStyle'.
-src/pages/AuditForm.tsx(126,143): error TS2304: Cannot find name 'inputStyle'.
-src/pages/AuditForm.tsx(129,43): error TS2304: Cannot find name 'labelStyle'.
-src/pages/AuditForm.tsx(130,145): error TS2304: Cannot find name 'inputStyle'.
-src/pages/AuditForm.tsx(135,39): error TS2304: Cannot find name 'labelStyle'.
-src/pages/AuditForm.tsx(139,41): error TS2304: Cannot find name 'inputStyle'.
-src/pages/AuditForm.tsx(188,53): error TS2304: Cannot find name 'inputStyle'.
-src/pages/AuditForm.tsx(200,47): error TS2304: Cannot find name 'labelStyle'.
-src/pages/AuditForm.tsx(201,217): error TS2304: Cannot find name 'inputStyle'.
-src/pages/AuditForm.tsx(204,47): error TS2304: Cannot find name 'labelStyle'.
-src/pages/AuditForm.tsx(205,201): error TS2304: Cannot find name 'inputStyle'.
-src/pages/AuditForm.tsx(208,47): error TS2304: Cannot find name 'labelStyle'.
-src/pages/AuditForm.tsx(212,49): error TS2304: Cannot find name 'inputStyle'.
-src/pages/AuditForm.tsx(246,14): error TS2739: Type '{ isOpen: boolean; onClose: () => void; elementIdToPrint: string; title: string; fileName: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': open, rawMessage, text
-src/pages/AuditForm.tsx(255,62): error TS2339: Property 'createdAt' does not exist on type '{ title: string; auditType: string; auditor: string; date: string; location: string; objective: string; scope: string; checklist: { id: number; question: string; legal: string; status: string; observation: string; }[]; closingMeeting: { ...; }; }'.
-src/pages/AuditHistory.tsx(1,8): error TS2300: Duplicate identifier 'React'.
-src/pages/AuditHistory.tsx(3,8): error TS2300: Duplicate identifier 'React'.
-src/pages/AuditHistory.tsx(59,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
-src/pages/AuditHistory.tsx(74,44): error TS2304: Cannot find name 'navigate'.
-src/pages/AuditHistory.tsx(82,40): error TS2304: Cannot find name 'navigate'.
-src/pages/AuditHistory.tsx(124,44): error TS2304: Cannot find name 'navigate'.
-src/pages/AuditHistory.tsx(134,43): error TS2304: Cannot find name 'navigate'.
-src/pages/CAPAForm.tsx(1,8): error TS2300: Duplicate identifier 'React'.
-src/pages/CAPAForm.tsx(3,8): error TS2300: Duplicate identifier 'React'.
-src/pages/CAPAForm.tsx(120,43): error TS2304: Cannot find name 'labelStyle'.
-src/pages/CAPAForm.tsx(121,136): error TS2304: Cannot find name 'inputStyle'.
-src/pages/CAPAForm.tsx(124,43): error TS2304: Cannot find name 'labelStyle'.
-src/pages/CAPAForm.tsx(125,131): error TS2304: Cannot find name 'inputStyle'.
-src/pages/CAPAForm.tsx(130,43): error TS2304: Cannot find name 'labelStyle'.
-src/pages/CAPAForm.tsx(131,131): error TS2304: Cannot find name 'inputStyle'.
-src/pages/CAPAForm.tsx(136,43): error TS2304: Cannot find name 'labelStyle'.
-src/pages/CAPAForm.tsx(137,148): error TS2304: Cannot find name 'inputStyle'.
-src/pages/CAPAForm.tsx(140,43): error TS2304: Cannot find name 'labelStyle'.
-src/pages/CAPAForm.tsx(141,140): error TS2304: Cannot find name 'inputStyle'.
-src/pages/CAPAForm.tsx(146,39): error TS2304: Cannot find name 'labelStyle'.
-src/pages/CAPAForm.tsx(150,41): error TS2304: Cannot find name 'inputStyle'.
-src/pages/CAPAForm.tsx(165,53): error TS2304: Cannot find name 'inputStyle'.
-src/pages/CAPAForm.tsx(171,47): error TS2304: Cannot find name 'labelStyle'.
-src/pages/CAPAForm.tsx(176,44): error TS2304: Cannot find name 'inputStyle'.
-src/pages/CAPAForm.tsx(186,43): error TS2304: Cannot find name 'labelStyle'.
-src/pages/CAPAForm.tsx(190,45): error TS2304: Cannot find name 'inputStyle'.
-src/pages/CAPAForm.tsx(235,47): error TS2304: Cannot find name 'labelStyle'.
-src/pages/CAPAForm.tsx(239,49): error TS2304: Cannot find name 'inputStyle'.
-src/pages/CAPAForm.tsx(274,14): error TS2739: Type '{ isOpen: boolean; onClose: () => void; elementIdToPrint: string; title: string; fileName: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': open, rawMessage, text
-src/pages/CAPAForm.tsx(283,59): error TS2339: Property 'createdAt' does not exist on type '{ title: string; capaType: string; priority: string; responsible: string; dueDate: string; description: string; rootCause: { why1: string; why2: string; why3: string; why4: string; why5: string; finalCause: string; }; actionPlan: string; verification: { ...; }; tags: any[]; }'.
-src/pages/CAPAHistory.tsx(1,8): error TS2300: Duplicate identifier 'React'.
-src/pages/CAPAHistory.tsx(3,8): error TS2300: Duplicate identifier 'React'.
-src/pages/CAPAHistory.tsx(65,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
-src/pages/CAPAHistory.tsx(80,44): error TS2304: Cannot find name 'navigate'.
-src/pages/CAPAHistory.tsx(88,40): error TS2304: Cannot find name 'navigate'.
-src/pages/CAPAHistory.tsx(130,44): error TS2304: Cannot find name 'navigate'.
-src/pages/CAPAHistory.tsx(140,43): error TS2304: Cannot find name 'navigate'.
 src/pages/Checklist.tsx(1,8): error TS2300: Duplicate identifier 'React'.
 src/pages/Checklist.tsx(4,8): error TS2300: Duplicate identifier 'React'.
 src/pages/Checklist.tsx(65,98): error TS2304: Cannot find name 'e'.
@@ -197,15 +40,15 @@ src/pages/ChecklistManager.tsx(3,8): error TS2300: Duplicate identifier 'React'.
 src/pages/ChecklistManager.tsx(343,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
 src/pages/ChecklistManager.tsx(347,123): error TS2339: Property 'address' does not exist on type '{ name: string; inspector: string; }'.
 src/pages/ChecklistManager.tsx(347,171): error TS2339: Property 'responsable' does not exist on type '{ name: string; inspector: string; }'.
-src/pages/ChecklistManager.tsx(391,44): error TS2304: Cannot find name 'navigate'.
+src/pages/ChecklistManager.tsx(391,44): error TS2552: Cannot find name 'navigate'. Did you mean 'navigator'?
 src/pages/ChecklistManager.tsx(487,62): error TS2339: Property 'style' does not exist on type 'EventTarget'.
 src/pages/ChecklistManager.tsx(488,62): error TS2339: Property 'style' does not exist on type 'EventTarget'.
 src/pages/ChecklistManager.tsx(488,86): error TS2339: Property 'scrollHeight' does not exist on type 'EventTarget'.
 src/pages/ChecklistsHistory.tsx(1,8): error TS2300: Duplicate identifier 'React'.
 src/pages/ChecklistsHistory.tsx(4,8): error TS2300: Duplicate identifier 'React'.
 src/pages/ChecklistsHistory.tsx(110,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
-src/pages/ChecklistsHistory.tsx(119,80): error TS2322: Type '{ checklistData: any; isHeadless: boolean; }' is not assignable to type 'IntrinsicAttributes & { checklistData: any; }'.
-  Property 'isHeadless' does not exist on type 'IntrinsicAttributes & { checklistData: any; }'.
+src/pages/ChecklistsHistory.tsx(119,80): error TS2322: Type '{ checklistData: any; isHeadless: boolean; }' is not assignable to type 'IntrinsicAttributes & { checklistData: any; showSignatures?: { operator: boolean; supervisor: boolean; professional: boolean; }; }'.
+  Property 'isHeadless' does not exist on type 'IntrinsicAttributes & { checklistData: any; showSignatures?: { operator: boolean; supervisor: boolean; professional: boolean; }; }'.
 src/pages/ChemicalSafety.tsx(198,14): error TS2741: Property 'fileName' is missing in type '{ isOpen: boolean; open: boolean; onClose: () => void; title: string; text: string; rawMessage: string; elementIdToPrint: string; }' but required in type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }'.
 src/pages/ChemicalSafety.tsx(508,14): error TS2741: Property 'fileName' is missing in type '{ isOpen: boolean; open: boolean; onClose: () => void; elementIdToPrint: string; title: string; text: string; rawMessage: string; }' but required in type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }'.
 src/pages/ChemicalSafetyForm.tsx(1,8): error TS2300: Duplicate identifier 'React'.
@@ -361,6 +204,10 @@ src/pages/History.tsx(389,117): error TS2322: Type '{ currentReport: any; isHead
 src/pages/History.tsx(465,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
 src/pages/History.tsx(474,103): error TS2322: Type '{ initialData: any; isHeadless: boolean; }' is not assignable to type 'IntrinsicAttributes & { initialData: any; }'.
   Property 'isHeadless' does not exist on type 'IntrinsicAttributes & { initialData: any; }'.
+src/pages/Home.tsx(234,23): error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
+src/pages/Home.tsx(235,19): error TS2349: This expression is not callable.
+  Type 'Number' has no call signatures.
 src/pages/Legislation.tsx(1,8): error TS2300: Duplicate identifier 'React'.
 src/pages/Legislation.tsx(4,8): error TS2300: Duplicate identifier 'React'.
 src/pages/Legislation.tsx(28,75): error TS2304: Cannot find name 'e'.
@@ -387,6 +234,16 @@ src/pages/LogoSettings.tsx(3,8): error TS2300: Duplicate identifier 'React'.
 src/pages/LogoSettings.tsx(48,49): error TS2345: Argument of type 'string | ArrayBuffer' is not assignable to parameter of type 'string'.
   Type 'ArrayBuffer' is not assignable to type 'string'.
 src/pages/LogoSettings.tsx(104,36): error TS2304: Cannot find name 'navigate'.
+src/pages/LogoSettings.tsx(329,37): error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
+src/pages/LogoSettings.tsx(330,46): error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
+src/pages/LogoSettings.tsx(332,122): error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
+src/pages/LogoSettings.tsx(334,94): error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
+src/pages/LogoSettings.tsx(337,30): error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
 src/pages/LOTOForm.tsx(1,8): error TS2300: Duplicate identifier 'React'.
 src/pages/LOTOForm.tsx(3,8): error TS2300: Duplicate identifier 'React'.
 src/pages/LOTOForm.tsx(128,43): error TS2304: Cannot find name 'labelStyle'.
@@ -535,25 +392,8 @@ src/pages/PPETracker.tsx(1,8): error TS2300: Duplicate identifier 'React'.
 src/pages/PPETracker.tsx(4,8): error TS2300: Duplicate identifier 'React'.
 src/pages/PPETracker.tsx(22,23): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
 src/pages/PPETracker.tsx(22,32): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
-src/pages/PublicView.tsx(1,8): error TS2300: Duplicate identifier 'React'.
-src/pages/PublicView.tsx(3,8): error TS2300: Duplicate identifier 'React'.
-src/pages/PublicView.tsx(83,36): error TS2304: Cannot find name 'navigate'.
-src/pages/PublicView.tsx(98,59): error TS2322: Type '{ docData: any; }' is not assignable to type 'IntrinsicAttributes & { data: any; }'.
-  Property 'docData' does not exist on type 'IntrinsicAttributes & { data: any; }'.
-src/pages/PublicView.tsx(100,59): error TS2322: Type '{ docData: any; }' is not assignable to type 'IntrinsicAttributes & { data: any; }'.
-  Property 'docData' does not exist on type 'IntrinsicAttributes & { data: any; }'.
-src/pages/PublicView.tsx(101,61): error TS2322: Type '{ docData: any; }' is not assignable to type 'IntrinsicAttributes & { checklistData: any; }'.
-  Property 'docData' does not exist on type 'IntrinsicAttributes & { checklistData: any; }'.
-src/pages/PublicView.tsx(102,59): error TS2322: Type '{ data: any; }' is not assignable to type 'IntrinsicAttributes & { report: any; onBack?: any; isHeadless?: boolean; }'.
-  Property 'data' does not exist on type 'IntrinsicAttributes & { report: any; onBack?: any; isHeadless?: boolean; }'.
-src/pages/PublicView.tsx(104,67): error TS2322: Type '{ data: any; }' is not assignable to type 'IntrinsicAttributes & { extinguishers: any[]; }'.
-  Property 'data' does not exist on type 'IntrinsicAttributes & { extinguishers: any[]; }'.
-src/pages/PublicView.tsx(106,53): error TS2322: Type '{ data: any; }' is not assignable to type 'IntrinsicAttributes & { report: any; onBack?: any; }'.
-  Property 'data' does not exist on type 'IntrinsicAttributes & { report: any; onBack?: any; }'.
-src/pages/PublicView.tsx(107,59): error TS2322: Type '{ data: any; }' is not assignable to type 'IntrinsicAttributes & { card: any; }'.
-  Property 'data' does not exist on type 'IntrinsicAttributes & { card: any; }'.
-src/pages/PublicView.tsx(108,71): error TS2322: Type '{ docData: any; }' is not assignable to type 'IntrinsicAttributes & { assessmentData: any; }'.
-  Property 'docData' does not exist on type 'IntrinsicAttributes & { assessmentData: any; }'.
+src/pages/Profile.tsx(34,31): error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
 src/pages/Report.tsx(1,8): error TS2300: Duplicate identifier 'React'.
 src/pages/Report.tsx(4,8): error TS2300: Duplicate identifier 'React'.
 src/pages/Report.tsx(129,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
@@ -591,18 +431,18 @@ src/pages/RiskMapGenerator.tsx(397,17): error TS2322: Type '{ style: { pointerEv
   The types of 'style.pointerEvents' are incompatible between these types.
     Type 'string' is not assignable to type 'PointerEvents'.
 src/pages/RiskMapGenerator.tsx(433,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
-src/pages/RiskMapGenerator.tsx(855,38): error TS2322: Type '{ mapData: { elements: any; backgroundImage: any; empresa: any; sector: any; fecha: any; }; onBack: () => void; onShare: () => any; }' is not assignable to type 'IntrinsicAttributes & { data: any; }'.
-  Property 'mapData' does not exist on type 'IntrinsicAttributes & { data: any; }'.
+src/pages/RiskMapGenerator.tsx(855,38): error TS2322: Type '{ mapData: { elements: any; backgroundImage: any; empresa: any; sector: any; fecha: any; }; onBack: () => void; onShare: () => any; }' is not assignable to type 'IntrinsicAttributes & { data: any; onBack?: () => void; onShare?: () => void; }'.
+  Property 'mapData' does not exist on type 'IntrinsicAttributes & { data: any; onBack?: () => void; onShare?: () => void; }'.
 src/pages/RiskMapGenerator.tsx(855,121): error TS2304: Cannot find name 'setShowShare'.
 src/pages/RiskMapHistory.tsx(1,8): error TS2300: Duplicate identifier 'React'.
 src/pages/RiskMapHistory.tsx(3,8): error TS2300: Duplicate identifier 'React'.
 src/pages/RiskMapHistory.tsx(26,37): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
 src/pages/RiskMapHistory.tsx(26,56): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
-src/pages/RiskMapHistory.tsx(48,37): error TS2322: Type '{ mapData: any; onBack: () => void; }' is not assignable to type 'IntrinsicAttributes & { data: any; }'.
-  Property 'mapData' does not exist on type 'IntrinsicAttributes & { data: any; }'.
+src/pages/RiskMapHistory.tsx(48,37): error TS2322: Type '{ mapData: any; onBack: () => void; }' is not assignable to type 'IntrinsicAttributes & { data: any; onBack?: () => void; onShare?: () => void; }'.
+  Property 'mapData' does not exist on type 'IntrinsicAttributes & { data: any; onBack?: () => void; onShare?: () => void; }'.
 src/pages/RiskMapHistory.tsx(67,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
-src/pages/RiskMapHistory.tsx(76,52): error TS2322: Type '{ mapData: any; isHeadless: boolean; }' is not assignable to type 'IntrinsicAttributes & { data: any; }'.
-  Property 'mapData' does not exist on type 'IntrinsicAttributes & { data: any; }'.
+src/pages/RiskMapHistory.tsx(76,52): error TS2322: Type '{ mapData: any; isHeadless: boolean; }' is not assignable to type 'IntrinsicAttributes & { data: any; onBack?: () => void; onShare?: () => void; }'.
+  Property 'mapData' does not exist on type 'IntrinsicAttributes & { data: any; onBack?: () => void; onShare?: () => void; }'.
 src/pages/RiskMapHistory.tsx(81,44): error TS2304: Cannot find name 'navigate'.
 src/pages/RiskMapHistory.tsx(86,40): error TS2304: Cannot find name 'navigate'.
 src/pages/RiskMapHistory.tsx(156,37): error TS2304: Cannot find name 'navigate'.
@@ -680,39 +520,43 @@ src/pages/StopCardsHistory.tsx(117,40): error TS2304: Cannot find name 'navigate
 src/pages/StopCardsHistory.tsx(207,48): error TS2304: Cannot find name 'navigate'.
 src/pages/Subscription.tsx(1,8): error TS2300: Duplicate identifier 'React'.
 src/pages/Subscription.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/Subscription.tsx(29,13): error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
+src/pages/Subscription.tsx(95,22): error TS2349: This expression is not callable.
+  Type 'Number' has no call signatures.
 src/pages/ThermalStress.tsx(1,8): error TS2300: Duplicate identifier 'React'.
 src/pages/ThermalStress.tsx(4,8): error TS2300: Duplicate identifier 'React'.
 src/pages/ThermalStress.tsx(154,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
-src/pages/ThermalStress.tsx(363,21): error TS2322: Type '{ report: any; onBack: () => void; }' is not assignable to type 'IntrinsicAttributes & { data: any; }'.
-  Property 'report' does not exist on type 'IntrinsicAttributes & { data: any; }'.
+src/pages/ThermalStress.tsx(363,21): error TS2322: Type '{ report: any; onBack: () => void; }' is not assignable to type 'IntrinsicAttributes & { data: any; onBack?: () => void; isHeadless?: boolean; }'.
+  Property 'report' does not exist on type 'IntrinsicAttributes & { data: any; onBack?: () => void; isHeadless?: boolean; }'.
 src/pages/ThermalStressHistory.tsx(1,8): error TS2300: Duplicate identifier 'React'.
 src/pages/ThermalStressHistory.tsx(4,8): error TS2300: Duplicate identifier 'React'.
 src/pages/ThermalStressHistory.tsx(32,37): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
 src/pages/ThermalStressHistory.tsx(32,56): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
-src/pages/ThermalStressHistory.tsx(54,43): error TS2322: Type '{ report: any; onBack: () => void; }' is not assignable to type 'IntrinsicAttributes & { data: any; }'.
-  Property 'report' does not exist on type 'IntrinsicAttributes & { data: any; }'.
+src/pages/ThermalStressHistory.tsx(54,43): error TS2322: Type '{ report: any; onBack: () => void; }' is not assignable to type 'IntrinsicAttributes & { data: any; onBack?: () => void; isHeadless?: boolean; }'.
+  Property 'report' does not exist on type 'IntrinsicAttributes & { data: any; onBack?: () => void; isHeadless?: boolean; }'.
 src/pages/ThermalStressHistory.tsx(73,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
-src/pages/ThermalStressHistory.tsx(82,58): error TS2322: Type '{ report: any; isHeadless: boolean; }' is not assignable to type 'IntrinsicAttributes & { data: any; }'.
-  Property 'report' does not exist on type 'IntrinsicAttributes & { data: any; }'.
+src/pages/ThermalStressHistory.tsx(82,58): error TS2322: Type '{ report: any; isHeadless: true; }' is not assignable to type 'IntrinsicAttributes & { data: any; onBack?: () => void; isHeadless?: boolean; }'.
+  Property 'report' does not exist on type 'IntrinsicAttributes & { data: any; onBack?: () => void; isHeadless?: boolean; }'.
 src/pages/TrainingHistory.tsx(1,8): error TS2300: Duplicate identifier 'React'.
 src/pages/TrainingHistory.tsx(3,8): error TS2300: Duplicate identifier 'React'.
 src/pages/TrainingHistory.tsx(32,64): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
 src/pages/TrainingHistory.tsx(32,83): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
 src/pages/TrainingHistory.tsx(38,71): error TS2304: Cannot find name 'e'.
-src/pages/TrainingHistory.tsx(62,38): error TS2322: Type '{ training: any; onBack: () => void; }' is not assignable to type 'IntrinsicAttributes & { data: any; }'.
-  Property 'training' does not exist on type 'IntrinsicAttributes & { data: any; }'.
+src/pages/TrainingHistory.tsx(62,38): error TS2322: Type '{ training: any; onBack: () => void; }' is not assignable to type 'IntrinsicAttributes & { data: any; onBack?: () => void; isHeadless?: boolean; }'.
+  Property 'training' does not exist on type 'IntrinsicAttributes & { data: any; onBack?: () => void; isHeadless?: boolean; }'.
 src/pages/TrainingHistory.tsx(81,14): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
-src/pages/TrainingHistory.tsx(90,53): error TS2322: Type '{ training: any; isHeadless: boolean; }' is not assignable to type 'IntrinsicAttributes & { data: any; }'.
-  Property 'training' does not exist on type 'IntrinsicAttributes & { data: any; }'.
+src/pages/TrainingHistory.tsx(90,53): error TS2322: Type '{ training: any; isHeadless: true; }' is not assignable to type 'IntrinsicAttributes & { data: any; onBack?: () => void; isHeadless?: boolean; }'.
+  Property 'training' does not exist on type 'IntrinsicAttributes & { data: any; onBack?: () => void; isHeadless?: boolean; }'.
 src/pages/TrainingHistory.tsx(95,44): error TS2304: Cannot find name 'navigate'.
-src/pages/TrainingHistory.tsx(100,40): error TS2304: Cannot find name 'navigate'.
+src/pages/TrainingHistory.tsx(100,40): error TS2552: Cannot find name 'navigate'. Did you mean 'navigator'?
 src/pages/TrainingHistory.tsx(172,37): error TS2304: Cannot find name 'navigate'.
 src/pages/TrainingManagement.tsx(1,8): error TS2300: Duplicate identifier 'React'.
 src/pages/TrainingManagement.tsx(4,8): error TS2300: Duplicate identifier 'React'.
 src/pages/TrainingManagement.tsx(104,74): error TS2304: Cannot find name 'e'.
 src/pages/TrainingManagement.tsx(132,18): error TS2739: Type '{ open: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': isOpen, rawMessage, fileName
-src/pages/TrainingManagement.tsx(336,39): error TS2322: Type '{ training: any; onBack: () => void; }' is not assignable to type 'IntrinsicAttributes & { data: any; }'.
-  Property 'training' does not exist on type 'IntrinsicAttributes & { data: any; }'.
+src/pages/TrainingManagement.tsx(336,39): error TS2322: Type '{ training: any; onBack: () => void; }' is not assignable to type 'IntrinsicAttributes & { data: any; onBack?: () => void; isHeadless?: boolean; }'.
+  Property 'training' does not exist on type 'IntrinsicAttributes & { data: any; onBack?: () => void; isHeadless?: boolean; }'.
 src/pages/WorkingAtHeight.tsx(281,14): error TS2739: Type '{ isOpen: boolean; onClose: () => void; title: string; text: string; elementIdToPrint: string; fileName: string; }' is missing the following properties from type '{ isOpen: any; open: any; onClose: any; title: any; rawMessage: any; text: any; elementIdToPrint: any; fileName: any; }': open, rawMessage
 src/pages/WorkingAtHeight.tsx(415,18): error TS2741: Property 'badge' is missing in type '{ active: boolean; onClick: () => void; icon: Element; label: string; count: number; }' but required in type '{ active: any; onClick: any; icon: any; label: any; count: any; badge: any; }'.
 src/pages/WorkingAtHeight.tsx(430,18): error TS2739: Type '{ active: boolean; onClick: () => void; icon: Element; label: string; }' is missing the following properties from type '{ active: any; onClick: any; icon: any; label: any; count: any; badge: any; }': count, badge
