@@ -122,6 +122,7 @@ const EnvironmentalMonitor = lazyWithRetry(() => import('./pages/EnvironmentalMo
 
 // SAFETY MODULE FORMS
 const AuditForm = lazyWithRetry(() => import('./pages/AuditForm'));
+const AuditDetail = lazyWithRetry(() => import('./pages/AuditDetail'));
 const CAPAForm = lazyWithRetry(() => import('./pages/CAPAForm'));
 const EnvironmentalForm = lazyWithRetry(() => import('./pages/EnvironmentalForm'));
 const LOTOForm = lazyWithRetry(() => import('./pages/LOTOForm'));
