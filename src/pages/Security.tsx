@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { ArrowLeft, Shield, Key, Fingerprint, Smartphone, ChevronRight, Lock, Eye, EyeOff, CheckCircle2, Moon, Sun, Check, ExternalLink } from 'lucide-react';
 import { API_BASE_URL } from '../config';
@@ -15,7 +13,7 @@ export default function Security(): React.ReactElement | null {
         biometrics: false,
         twoFactor: false
     });
-    const [status, setStatus] = useState({ type: '', message: '', resetLink: '', code: '' });
+    const [status, setStatus] = useState({ type: '', message: '', resetLink: '', code: '', details: '', suggestion: '' });
 
     const toggleFeature = (key) => {
         setToggles(prev => ({ ...prev, [key]: !prev[key] }));
@@ -23,7 +21,7 @@ export default function Security(): React.ReactElement | null {
 
     const handlePasswordChange = async (e) => {
         e.preventDefault();
-        setStatus({ type: 'loading', message: 'Enviando...', resetLink: '' });
+        setStatus({ type: 'loading', message: 'Enviando...', resetLink: '', code: '', details: '', suggestion: '' });
 
         try {
             const userEmail = currentUser?.email;
@@ -48,13 +46,15 @@ export default function Security(): React.ReactElement | null {
                     type: 'success',
                     message: '¡Link enviado con éxito! Revisa tu Gmail.',
                     details: '',
-                    suggestion: ''
+                    suggestion: '',
+                    resetLink: '',
+                    code: ''
                 });
 
                 if (!data.devLink) {
                     setTimeout(() => {
                         setShowPasswordChange(false);
-                        setStatus({ type: '', message: '', details: '', suggestion: '' });
+                        setStatus({ type: '', message: '', details: '', suggestion: '', resetLink: '', code: '' });
                     }, 3000);
                 }
             } else {
@@ -62,13 +62,15 @@ export default function Security(): React.ReactElement | null {
                     type: 'error',
                     message: data.error || 'Error al enviar el link.',
                     details: data.details || '',
-                    suggestion: data.suggestion || ''
+                    suggestion: data.suggestion || '',
+                    resetLink: '',
+                    code: ''
                 });
             }
         } catch (error) {
             console.error('[SECURITY] Password reset error:', error);
             const errorMsg = error.name === 'AbortError' ? 'El servidor tardó demasiado en responder.' : 'Error de conexión con el servidor.';
-            setStatus({ type: 'error', message: errorMsg, details: error.message, suggestion: 'Asegúrate de que el servidor backend esté corriendo.' });
+            setStatus({ type: 'error', message: errorMsg, details: error.message, suggestion: 'Asegúrate de que el servidor backend esté corriendo.', resetLink: '', code: '' });
         }
     };
 

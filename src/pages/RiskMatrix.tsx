@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate, useLocation } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ArrowLeft, Plus, Trash2, Save, TriangleAlert, ShieldCheck, Flame, Zap, Leaf, Activity, Brain, Wrench, Share2, Printer } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
@@ -32,11 +30,13 @@ const getRiskLevel = (p, s) => {
     return { label: 'CRÍTICO', bg: '#fee2e2', color: '#dc2626', border: '#fca5a5', score: val };
 };
 
-const emptyRow = () => ({
-    id: Date.now() + Math.random(),
-    task: '', hazardType: '', hazard: '', probableEffect: '',
-    exposedCount: 1, probability: 1, severity: 1, controls: ''
-});
+const emptyRow = () => {
+    return {
+        id: Date.now() + Math.random(),
+        task: '', hazardType: '', hazard: '', probableEffect: '',
+        exposedCount: 1, probability: 1, severity: 1, controls: ''
+    };
+};
 
 export default function RiskMatrix(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -65,7 +65,7 @@ export default function RiskMatrix(): React.ReactElement | null {
                 location: data.location || '',
                 date: data.date || new Date().toISOString().split('T')[0],
                 responsable: data.responsable || ''
-            });
+            } as any);
             if (data.rows && data.rows.length > 0) {
                 setRows(data.rows);
             }
@@ -92,14 +92,14 @@ export default function RiskMatrix(): React.ReactElement | null {
                 toast.error('Agregue al menos una evaluación con contenido.');
                 return;
             }
-            const entryId = projectData.id || Date.now();
+            const entryId = (projectData as any).id || Date.now();
             const entry = { id: entryId, ...projectData, rows: activeRowsToSave, createdAt: new Date().toISOString() };
             const history = JSON.parse(localStorage.getItem('risk_matrix_history') || '[]');
 
             let updated;
-            if (projectData.id) {
+            if ((projectData as any).id) {
                 // Update existing
-                updated = history.map(h => h.id === entryId ? entry : h);
+                updated = history.map((h: any) => h.id === entryId ? entry : h);
             } else {
                 // Add new
                 updated = [entry, ...history];
@@ -122,10 +122,14 @@ export default function RiskMatrix(): React.ReactElement | null {
     return (
         <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '5rem 1rem 8rem 1rem' }}>
             <ShareModal
+                isOpen={showShare}
                 open={showShare}
                 onClose={() => setShowShare(false)}
                 title={`Matriz de Riesgos – ${projectData.name}`}
                 text={`📋 Matriz de Riesgos\n🏗️ Proyecto: ${projectData.name}\n📍 Ubicación: ${projectData.location}\n👷 Responsable: ${projectData.responsable}\n\nGenerado con Asistente HYS`}
+                rawMessage={`📋 Matriz de Riesgos\n🏗️ Proyecto: ${projectData.name}\n📍 Ubicación: ${projectData.location}\n👷 Responsable: ${projectData.responsable}\n\nGenerado con Asistente HYS`}
+                elementIdToPrint="pdf-content"
+                fileName={`Matriz_${projectData.name || 'Riesgos'}.pdf`}
             />
 
             {/* Floating Action Buttons */}
@@ -282,8 +286,8 @@ export default function RiskMatrix(): React.ReactElement | null {
                                 <div>
                                     <label style={labelStyle}>Tarea / Proceso</label>
                                     <textarea value={row.task} onChange={e => updateRow(row.id, 'task', e.target.value)}
-                                        onInput={e => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
-                                        placeholder="Describa la tarea o proceso..." style={textareaStyle} />
+                                        onInput={e => { (e.target as any).style.height = 'auto'; (e.target as any).style.height = (e.target as any).scrollHeight + 'px'; }}
+                                        placeholder="Describa la tarea o proceso..." style={textareaStyle as any} />
                                 </div>
                                 <div>
                                     <label style={labelStyle}>Tipo de Peligro</label>
@@ -294,14 +298,14 @@ export default function RiskMatrix(): React.ReactElement | null {
                                 <div>
                                     <label style={labelStyle}>Peligro / Riesgo Identificado</label>
                                     <textarea value={row.hazard} onChange={e => updateRow(row.id, 'hazard', e.target.value)}
-                                        onInput={e => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
-                                        placeholder="¿Qué puede causar daño?" style={textareaStyle} />
+                                        onInput={e => { (e.target as any).style.height = 'auto'; (e.target as any).style.height = (e.target as any).scrollHeight + 'px'; }}
+                                        placeholder="¿Qué puede causar daño?" style={textareaStyle as any} />
                                 </div>
                                 <div>
                                     <label style={labelStyle}>Efecto Probable</label>
                                     <textarea value={row.probableEffect} onChange={e => updateRow(row.id, 'probableEffect', e.target.value)}
-                                        onInput={e => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
-                                        placeholder="Ej: Laceración, Hipoacusia..." style={textareaStyle} />
+                                        onInput={e => { (e.target as any).style.height = 'auto'; (e.target as any).style.height = (e.target as any).scrollHeight + 'px'; }}
+                                        placeholder="Ej: Laceración, Hipoacusia..." style={textareaStyle as any} />
                                 </div>
                             </div>
 
@@ -352,8 +356,8 @@ export default function RiskMatrix(): React.ReactElement | null {
                                 <div>
                                     <label style={labelStyle}>Medidas de Control</label>
                                     <textarea value={row.controls} onChange={e => updateRow(row.id, 'controls', e.target.value)}
-                                        onInput={e => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
-                                        placeholder="EPP, capacitación, procedimientos..." style={textareaStyle} />
+                                        onInput={e => { (e.target as any).style.height = 'auto'; (e.target as any).style.height = (e.target as any).scrollHeight + 'px'; }}
+                                        placeholder="EPP, capacitación, procedimientos..." style={textareaStyle as any} />
                                 </div>
                             </div>
                         </div>
@@ -408,10 +412,10 @@ const textareaStyle = {
     width: '100%', minHeight: '72px', padding: '0.6rem 0.8rem', margin: 0,
     background: 'var(--color-background)', border: '1.5px solid var(--color-border)', borderRadius: '10px',
     fontSize: '0.82rem', resize: 'none', overflow: 'hidden', color: 'var(--color-text)', fontFamily: 'inherit',
-    outline: 'none', boxSizing: 'border-box'
+    outline: 'none', boxSizing: 'border-box' as any
 };
 const selectStyle = {
     width: '100%', padding: '0.6rem 0.8rem', margin: 0,
     background: 'var(--color-background)', border: '1.5px solid var(--color-border)', borderRadius: '10px',
-    fontSize: '0.82rem', color: 'var(--color-text)', outline: 'none', boxSizing: 'border-box'
+    fontSize: '0.82rem', color: 'var(--color-text)', outline: 'none', boxSizing: 'border-box' as any
 };

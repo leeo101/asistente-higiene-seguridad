@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, HardHat, AlertTriangle, CheckCircle2, Clock, Share2, Printer, Trash2 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import ShareModal from '../components/ShareModal';
@@ -14,6 +13,7 @@ const PERMIT_STATUS = {
 };
 
 export default function WorkingAtHeightHistory(): React.ReactElement | null {
+    const navigate = useNavigate();
     useDocumentTitle('Trabajo en Altura');
     
     const [permits, setPermits] = useState([]);
@@ -42,11 +42,13 @@ export default function WorkingAtHeightHistory(): React.ReactElement | null {
     return (
         <div className="container" style={{ paddingBottom: '6rem' }}>
             <ShareModal
-                open={!!shareItem}
+                isOpen={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Permiso Altura - ${shareItem?.location || ''}`}
                 text={shareItem ? `🧗 Permiso de Trabajo en Altura\n📍 Ubicación: ${shareItem.location}\n👷 Trabajador: ${shareItem.workerName}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString()}` : ''}
+                rawMessage={shareItem ? `🧗 Permiso de Trabajo en Altura\n📍 Ubicación: ${shareItem.location}\n👷 Trabajador: ${shareItem.workerName}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString()}` : ''}
                 elementIdToPrint="pdf-content"
+                fileName={`Permiso_Altura_${shareItem?.workerName || 'Trabajo'}.pdf`}
             />
 
             <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>

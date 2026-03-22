@@ -203,6 +203,7 @@ export default function ChemicalSafety(): React.ReactElement | null {
                 text={shareItem ? `🧪 Ficha Técnica de Seguridad (SGA)\n🏷️ Producto: ${(shareItem as any).name}\n🆔 CAS: ${(shareItem as any).casNumber || '-'}\n📅 Fecha: ${new Date((shareItem as any).createdAt || Date.now()).toLocaleDateString()}` : ''}
                 rawMessage={shareItem ? `🧪 Ficha Técnica de Seguridad (SGA)\n🏷️ Producto: ${(shareItem as any).name}\n🆔 CAS: ${(shareItem as any).casNumber || '-'}\n📅 Fecha: ${new Date((shareItem as any).createdAt || Date.now()).toLocaleDateString()}` : ''}
                 elementIdToPrint="pdf-content"
+                fileName={`SGA_${(shareItem as any)?.name || 'Producto'}.pdf`}
             />
 
             <div style={{ position: 'fixed', left: '-9999px', top: 0, pointerEvents: 'none' }}>
@@ -513,6 +514,7 @@ export default function ChemicalSafety(): React.ReactElement | null {
                 title="Ficha de Seguridad (SDS)"
                 text={`📄 SDS: ${(selectedChemical as any)?.name || 'Químico'}`}
                 rawMessage={`📄 SDS: ${(selectedChemical as any)?.name || 'Químico'}`}
+                fileName={`SDS_${(selectedChemical as any)?.name || 'Quimico'}.pdf`}
             />
 
             <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>

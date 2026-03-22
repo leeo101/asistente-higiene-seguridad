@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { ArrowLeft, Download, FileText, Calendar, TrendingUp, TriangleAlert, CheckCircle, Shield, FileSignature, ChevronRight } from 'lucide-react';
 import { API_BASE_URL } from '../config';
@@ -100,8 +98,8 @@ export default function ManagementReport(): React.ReactElement | null {
             const pageWidth = doc.internal.pageSize.getWidth();
 
             // Colors
-            const primaryColor = [37, 99, 235];
-            const darkText = [31, 41, 55];
+            const primaryColor: [number, number, number] = [37, 99, 235];
+            const darkText: [number, number, number] = [31, 41, 55];
 
             // Header
             doc.setFillColor(...primaryColor);
@@ -125,9 +123,8 @@ export default function ManagementReport(): React.ReactElement | null {
                     // Try to add the logo if it's base64 or a valid image URL
                     // Note: If it's a cross-origin URL, jsPDF might fail, but base64 works perfectly.
                     doc.addImage(companyLogo, 'PNG', pageWidth - 45, 10, 30, 20);
-                } catch {
-
-                    console.error('Error adding logo to PDF:', e);
+                } catch (err) {
+                    console.error('Error adding logo to PDF:', err);
                 }
             }
             // ----------------
@@ -160,7 +157,7 @@ export default function ManagementReport(): React.ReactElement | null {
             });
 
             // Conclusions section
-            const finalY = doc.lastAutoTable.finalY || 130;
+            const finalY = (doc as any).lastAutoTable.finalY || 130;
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(12);
             doc.text('Resumen Ejecutivo del Período', 15, finalY + 15);

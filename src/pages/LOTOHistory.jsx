@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, Lock, AlertTriangle, CheckCircle2, Key, Share2, Printer, Trash2 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -37,13 +37,19 @@ export default function LOTOHistory() {
         completed: procedures.filter(p => p.status === 'completed').length
     };
 
+    const shareText = useMemo(() => {
+        if (!shareItem) return '';
+        const dateStr = new Date(shareItem.createdAt || Date.now()).toLocaleDateString();
+        return `🔐 Bloqueo y Etiquetado (LOTO)\n⚙️ Equipo: ${shareItem.equipmentName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${dateStr}`;
+    }, [shareItem]);
+
     return (
         <div className="container" style={{ paddingBottom: '6rem' }}>
             <ShareModal
                 isOpen={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Bloqueo LOTO - ${shareItem?.equipmentName || ''}`}
-                text={shareItem ? `🔐 Bloqueo y Etiquetado (LOTO)\n⚙️ Equipo: ${shareItem.equipmentName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString()}` : ''}
+                text={shareText}
                 elementIdToPrint="pdf-content"
                 fileName={`LOTO_${shareItem?.equipmentName || 'Sin_Nombre'}.pdf`}
             />

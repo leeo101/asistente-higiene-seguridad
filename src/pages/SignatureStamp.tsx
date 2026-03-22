@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { ArrowLeft, Save, Trash2, Upload, PenTool } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';

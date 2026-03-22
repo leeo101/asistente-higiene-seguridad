@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, FlaskConical, Shield, AlertTriangle, Droplets, Flame, Skull, Zap, Wind, Thermometer, Radio, CheckCircle2, Eye, Printer, Share2 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import ChemicalSafetyPdf from '../components/ChemicalSafetyPdf';
@@ -24,6 +23,27 @@ const HAZARD_CATEGORIES = [
     { id: 'salud', name: 'Peligro para la Salud', icon: '🏥' },
     { id: 'ambiental', name: 'Peligro Ambiental', icon: '🌍' }
 ];
+
+const labelStyle: React.CSSProperties = {
+    display: 'block',
+    marginBottom: '0.5rem',
+    fontSize: '0.9rem',
+    fontWeight: 700,
+    color: 'var(--color-text)'
+};
+
+const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '0.75rem 1rem',
+    borderRadius: '12px',
+    border: '1px solid var(--color-border)',
+    background: 'var(--color-background)',
+    color: 'var(--color-text)',
+    fontSize: '1rem',
+    outline: 'none',
+    boxSizing: 'border-box' as any,
+    transition: 'all 0.2s'
+};
 
 export default function ChemicalSafetyForm(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -299,14 +319,17 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
 
             <ShareModal
                 isOpen={showShareModal}
+                open={showShareModal}
                 onClose={() => setShowShareModal(false)}
                 elementIdToPrint="pdf-content"
                 title="Ficha Técnica Química"
+                text={`Ficha de Seguridad: ${chemical.name}`}
+                rawMessage={`Ficha de Seguridad: ${chemical.name}`}
                 fileName={`Quimico_${chemical.name || 'Sin_Nombre'}.pdf`}
             />
 
             <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
-                <ChemicalSafetyPdf data={{ ...chemical, createdAt: chemical.createdAt || new Date().toISOString() }} />
+                <ChemicalSafetyPdf data={{ ...chemical, id: (chemical as any).id || Date.now().toString(), createdAt: (chemical as any).createdAt || new Date().toISOString() }} />
             </div>
         </div>
     );

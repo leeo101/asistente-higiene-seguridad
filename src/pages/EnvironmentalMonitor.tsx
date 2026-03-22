@@ -255,9 +255,11 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
         <div className="container" style={{ paddingBottom: '6rem' }}>
             <ShareModal
                 isOpen={!!shareItem}
+                open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Monitoreo Ambiental - ${shareItem?.stationName || ''}`}
                 text={shareItem ? `🌿 Monitoreo Ambiental (Ley 19.587)\n📍 Estación: ${shareItem.stationName}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString()}\n👷 Responsable: ${shareItem.technician || '-'}` : ''}
+                rawMessage={shareItem ? `🌿 Monitoreo Ambiental (Ley 19.587)\n📍 Estación: ${shareItem.stationName}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString()}\n👷 Responsable: ${shareItem.technician || '-'}` : ''}
                 elementIdToPrint="pdf-content"
                 fileName={`Monitoreo_${shareItem?.stationName || 'Sin_Nombre'}.pdf`}
             />
@@ -425,6 +427,7 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
                     onClick={() => setActiveTab('limits')}
                     icon={<Target size={18} />}
                     label="Límites"
+                    count={0}
                 />
             </div>
 
@@ -576,18 +579,22 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
             {selectedMeasurement && (
                 <MeasurementDetailModal 
                     measurement={selectedMeasurement}
-                    statusConfig={MEASUREMENT_STATUS[selectedMeasurement.status] || MEASUREMENT_STATUS.normal}
-                    monitoringType={MONITORING_TYPES.find(t => t.id === selectedMeasurement.monitoringType)}
+                    statusConfig={MEASUREMENT_STATUS[(selectedMeasurement as any).status] || MEASUREMENT_STATUS.normal}
+                    monitoringType={MONITORING_TYPES.find(t => t.id === (selectedMeasurement as any).monitoringType)}
                     onClose={() => setSelectedMeasurement(null)}
                     PARAMETERS={PARAMETERS}
+                    setShowShareModal={setShowShareModal}
                 />
             )}
 
             <ShareModal 
                 isOpen={showShareModal}
+                open={showShareModal}
                 onClose={() => setShowShareModal(false)}
                 elementIdToPrint="pdf-content"
                 title={selectedMeasurement ? "Protocolo de Monitoreo" : "Borrador de Monitoreo"}
+                text={selectedMeasurement ? `🌿 Monitoreo Ambiental - ${selectedMeasurement.stationName}` : "Borrador de Monitoreo"}
+                rawMessage={selectedMeasurement ? `🌿 Monitoreo Ambiental - ${selectedMeasurement.stationName}` : "Borrador de Monitoreo"}
                 fileName={`Monitoreo_${(selectedMeasurement || newMeasurement)?.stationName || 'Ambiental'}.pdf`}
             />
 
@@ -905,7 +912,7 @@ function StationsList({ stations, measurements }) {
     );
 }
 
-function LimitsPanel({ parameters }) {
+function LimitsPanel({ parameters }: any) {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {Object.entries(parameters).map(([type, params]) => {
@@ -917,7 +924,7 @@ function LimitsPanel({ parameters }) {
                             {typeConfig?.name} - Límites Normativos
                         </h3>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
-                            {params.map(param => (
+                            {(params as any[]).map(param => (
                                 <div key={param.id} style={{
                                     padding: '0.75rem',
                                     background: '#f8fafc',
@@ -971,9 +978,7 @@ function AddMeasurementModal({ measurement, setMeasurement, onSave, onClose, MON
     };
 
     return (
-        <div style={{
-            className: 'modal-fullscreen-overlay'
-        }} onClick={onClose}>
+        <div className="modal-fullscreen-overlay" onClick={onClose}>
             <div 
                 className="card"
                 style={{
@@ -1267,7 +1272,7 @@ function AddMeasurementModal({ measurement, setMeasurement, onSave, onClose, MON
 }
 
 // Modal de Detalle
-function MeasurementDetailModal({ measurement, statusConfig, monitoringType, onClose, PARAMETERS }) {
+function MeasurementDetailModal({ measurement, statusConfig, monitoringType, onClose, PARAMETERS, setShowShareModal }: any) {
     const typeParams = PARAMETERS[measurement.monitoringType] || [];
 
     return (
@@ -1509,5 +1514,5 @@ const inputStyle = {
     fontWeight: 500,
     outline: 'none',
     transition: 'all var(--transition-fast)',
-    boxSizing: 'border-box'
+    boxSizing: 'border-box' as any
 };

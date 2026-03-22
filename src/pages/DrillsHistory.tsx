@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Clock, Building2, Timer, CheckCircle2, TriangleAlert, Edit2, Trash2, Share2,
     ArrowLeft, Search, Siren, Calendar, ChevronRight, QrCode
@@ -13,8 +12,8 @@ import ShareModal from '../components/ShareModal';
 import QRModal from '../components/QRModal';
 
 export default function DrillsHistory(): React.ReactElement | null {
-    useDocumentTitle('Historial de Simulacros');
-        const { currentUser } = useAuth();
+    const navigate = useNavigate();
+    const { currentUser } = useAuth();
     const { syncing, syncCollection } = useSync();
 
     const [history, setHistory] = useState([]);
@@ -26,7 +25,7 @@ export default function DrillsHistory(): React.ReactElement | null {
 
     useEffect(() => {
         const h = JSON.parse(localStorage.getItem('drills_history') || '[]');
-        setHistory(h.sort((a, b) => new Date(b.date) - new Date(a.date)));
+        setHistory(h.sort((a, b) => (new Date(b.date) as any) - (new Date(a.date) as any)));
     }, [syncing]);
 
     const handleDelete = (id, e) => {
@@ -68,11 +67,14 @@ export default function DrillsHistory(): React.ReactElement | null {
             )}
 
             <ShareModal
+                isOpen={!!shareItem}
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Simulacro - ${shareItem?.empresa || ''}`}
                 text={shareItem ? `🔔 Acta de Simulacro de Evacuación\n🏢 Empresa: ${shareItem.empresa}\n📅 Fecha: ${shareItem.fecha}\n⏱️ Tiempo: ${shareItem.tiempoVisual}` : ''}
+                rawMessage={shareItem ? `🔔 Acta de Simulacro de Evacuación\n🏢 Empresa: ${shareItem.empresa}\n📅 Fecha: ${shareItem.fecha}\n⏱️ Tiempo: ${shareItem.tiempoVisual}` : ''}
                 elementIdToPrint="pdf-content"
+                fileName={`Simulacro_${shareItem?.empresa || 'acta'}.pdf`}
             />
 
             <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>

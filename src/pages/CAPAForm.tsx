@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, RefreshCw, Shield, AlertTriangle, Clock, CheckCircle2, User, Calendar, FileText, Target, Info, Eye, Printer, Share2 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import CAPAPdf from '../components/CAPAPdf';
@@ -19,11 +18,36 @@ const PRIORITY = {
     low: { label: 'BAJA', color: '#16a34a', days: 30, icon: '✅' }
 };
 
+const labelStyle = {
+    display: 'block',
+    fontSize: '0.85rem',
+    fontWeight: 800,
+    color: 'var(--color-text)',
+    marginBottom: '0.5rem',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px'
+};
+
+const inputStyle = {
+    width: '100%',
+    padding: '0.85rem 1rem',
+    borderRadius: 'var(--radius-lg)',
+    border: '1px solid var(--color-input-border)',
+    background: 'var(--color-surface)',
+    color: 'var(--color-text)',
+    fontSize: '0.95rem',
+    outline: 'none',
+    transition: 'all 0.2s',
+    boxSizing: 'border-box' as const
+};
+
 export default function CAPAForm(): React.ReactElement | null {
     const navigate = useNavigate();
     const [isMobile, setIsMobile] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [capa, setCapa] = useState({
+        id: `CAPA-${Date.now()}`,
+        createdAt: new Date().toISOString(),
         title: '',
         capaType: 'corrective',
         priority: 'medium',
@@ -273,9 +297,12 @@ export default function CAPAForm(): React.ReactElement | null {
 
             <ShareModal
                 isOpen={showShareModal}
+                open={showShareModal}
                 onClose={() => setShowShareModal(false)}
                 elementIdToPrint="pdf-content"
                 title="Acción CAPA"
+                rawMessage={`Acción CAPA: ${capa.title}`}
+                text={`Acción CAPA: ${capa.title}`}
                 fileName={`CAPA_${capa.title || 'Sin_Nombre'}.pdf`}
             />
 

@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Search, Package, AlertTriangle, CheckCircle2, Clock, Thermometer, Droplets, Share2, Printer, Trash2
 } from 'lucide-react';
@@ -17,7 +16,7 @@ const PERMIT_STATUS = {
 
 export default function ConfinedSpaceHistory(): React.ReactElement | null {
     useDocumentTitle('Espacios Confinados');
-    
+    const navigate = useNavigate();
     const [permits, setPermits] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
@@ -45,11 +44,14 @@ export default function ConfinedSpaceHistory(): React.ReactElement | null {
     return (
         <div className="container" style={{ paddingBottom: '6rem' }}>
             <ShareModal
+                isOpen={!!shareItem}
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Espacio Confinado - ${shareItem?.spaceName || ''}`}
                 text={shareItem ? `🕳️ Permiso Ingreso Espacio Confinado\n🆔 Espacio: ${shareItem.spaceName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString()}` : ''}
+                rawMessage={``}
                 elementIdToPrint="pdf-content"
+                fileName={`Espacio_Confinado_${shareItem?.spaceName || 'Permiso'}.pdf`}
             />
 
             <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>

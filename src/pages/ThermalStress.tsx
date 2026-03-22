@@ -1,7 +1,6 @@
-import React from 'react';
-
-import { useNavigate, useLocation } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+
 
 import {
     Calculator, Info, RefreshCw, Printer, Search, Settings2, CheckCircle2, TriangleAlert, Share2, Save, ArrowLeft, ThermometerSun
@@ -360,7 +359,7 @@ export default function ThermalStress(): React.ReactElement | null {
             {/* Hidden report for direct printing */}
             <div className="print-only">
                 <ThermalStressPdfGenerator
-                    report={{
+                    data={{
                         id: Date.now(),
                         date: new Date().toISOString(),
                         evaluador: currentUser?.displayName || 'Profesional HSE',

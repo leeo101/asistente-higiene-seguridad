@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate, useLocation } from 'react-router-dom';
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
     ArrowLeft, Save, Play, Square, TimerReset,
@@ -146,11 +144,13 @@ export default function Drills(): React.ReactElement | null {
         <div className="container" style={{ paddingBottom: '6rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <div className="no-print">
                 <ShareModal
-                    open={showShareModal}
+                    isOpen={showShareModal}
                     onClose={() => setShowShareModal(false)}
                     title="Compartir Acta de Simulacro"
                     text={`🔔 Acta de Simulacro de Evacuación\n🏢 Empresa: ${formData.empresa}\n📅 Fecha: ${formData.fecha}\n⏱️ Tiempo: ${formData.manualMinutes}:${formData.manualSeconds}\n\nEnviado desde Asistente HYS`}
+                    rawMessage={`🔔 Acta de Simulacro de Evacuación\n🏢 Empresa: ${formData.empresa}\n📅 Fecha: ${formData.fecha}\n⏱️ Tiempo: ${formData.manualMinutes}:${formData.manualSeconds}\n\nEnviado desde Asistente HYS`}
                     elementIdToPrint="pdf-content"
+                    fileName={`Simulacro_${formData.empresa || 'Registro'}.pdf`}
                 />
 
                 {/* Floating Action Bar Premium */}
@@ -300,7 +300,7 @@ export default function Drills(): React.ReactElement | null {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1rem' }}>
                             <div>
                                 <label>Punto(s) de Encuentro Utilizados</label>
-                                <textarea value={formData.puntosEncuentro} onChange={e => handleInput('puntosEncuentro', e.target.value)} rows="2" placeholder="Ej. PE1 - Estacionamiento Frontal"></textarea>
+                                <textarea value={formData.puntosEncuentro} onChange={e => handleInput('puntosEncuentro', e.target.value)} rows={2} placeholder="Ej. PE1 - Estacionamiento Frontal"></textarea>
                             </div>
 
                             <div className="grid-2-cols" style={{ gap: '1rem' }}>
@@ -324,7 +324,7 @@ export default function Drills(): React.ReactElement | null {
 
                             <div>
                                 <label>Oportunidades de Mejora / Observaciones Críticas</label>
-                                <textarea value={formData.observaciones} onChange={e => handleInput('observaciones', e.target.value)} rows="3" placeholder="Ej. Se detectó puerta de emergencia trabada en sector Archivo..."></textarea>
+                                <textarea value={formData.observaciones} onChange={e => handleInput('observaciones', e.target.value)} rows={3} placeholder="Ej. Se detectó puerta de emergencia trabada en sector Archivo..."></textarea>
                             </div>
                         </div>
                     </div>

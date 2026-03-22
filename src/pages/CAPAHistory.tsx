@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Search, ClipboardCheck, Calendar, User,
     AlertTriangle, CheckCircle2, Clock, Target, Share2, Printer, Trash2
@@ -35,6 +34,7 @@ const PRIORITY = {
 
 export default function CAPAHistory(): React.ReactElement | null {
     useDocumentTitle('Historial CAPA');
+    const navigate = useNavigate();
     
     const [capas, setCapas] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -63,11 +63,14 @@ export default function CAPAHistory(): React.ReactElement | null {
     return (
         <div className="container" style={{ paddingBottom: '6rem' }}>
             <ShareModal
+                isOpen={!!shareItem}
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Acción CAPA - ${shareItem?.title || shareItem?.description?.slice(0, 20) || ''}...`}
+                rawMessage={shareItem ? `🛡️ Acción Correctiva / Preventiva (CAPA)\n📝 Hallazgo: ${shareItem.title || shareItem.description}\n📍 Origen: ${shareItem.source}\n📅 Fecha: ${shareItem.date}` : ''}
                 text={shareItem ? `🛡️ Acción Correctiva / Preventiva (CAPA)\n📝 Hallazgo: ${shareItem.title || shareItem.description}\n📍 Origen: ${shareItem.source}\n📅 Fecha: ${shareItem.date}` : ''}
                 elementIdToPrint="pdf-content"
+                fileName={`CAPA_${shareItem?.title || 'Reporte'}.pdf`}
             />
 
             <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>

@@ -1,6 +1,6 @@
-import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+
 import {
     ArrowLeft, Save, Plus, Trash2, Flame, Calculator,
     FileText, Printer, Building2, Layout, Maximize2,
@@ -20,10 +20,12 @@ import { API_BASE_URL } from '../config';
 import { getCountryNormativa } from '../data/legislationData';
 
 export default function FireLoad(): React.ReactElement | null {
-        const location = useLocation();
+    const navigate = useNavigate();
+    const location = useLocation();
     const { currentUser } = useAuth();
     const { syncCollection } = useSync();
     const { requirePro } = usePaywall();
+
     useDocumentTitle('Cálculo Carga de Fuego');
 
     const [formData, setFormData] = useState({
@@ -37,15 +39,24 @@ export default function FireLoad(): React.ReactElement | null {
         conclusion: '',
         materiales: [
             { nombre: 'Madera (General)', peso: 0, poderCalorifico: 4400, totalKcal: 0 }
-        ]
+        ],
+        id: ''
     });
 
+
     // CRITICAL: Define professional state which was causing 'not defined' crash
-    const [professional, setProfessional] = useState({
+    const [professional, setProfessional] = useState<{
+        name: string;
+        license: string;
+        signature: string | null;
+        stamp?: string | null;
+    }>({
         name: 'Profesional',
         license: '',
-        signature: null
+        signature: null,
+        stamp: null
     });
+
 
     const [showSignatures, setShowSignatures] = useState({
         operator: true,
@@ -65,7 +76,9 @@ export default function FireLoad(): React.ReactElement | null {
     } catch (error) {
         console.error('[FireLoad] Error parsing personalData:', error);
     }
+    const savedData = localStorage.getItem('personalData');
     const countryNorms = getCountryNormativa(userCountry);
+
 
     useEffect(() => {
         try {
@@ -81,8 +94,16 @@ export default function FireLoad(): React.ReactElement | null {
             let profData = {
                 name: 'Profesional',
                 license: '',
-                signature: signature
+                signature: signature,
+                stamp: null as string | null
             };
+
+            const savedStampData = localStorage.getItem('signatureStampData');
+            if (savedStampData) {
+                const parsed = JSON.parse(savedStampData);
+                profData.stamp = parsed.stamp || null;
+            }
+
 
             if (savedData) {
                 const data = JSON.parse(savedData);
@@ -299,12 +320,16 @@ export default function FireLoad(): React.ReactElement | null {
 
             <div style={{ paddingTop: '8rem' }}>
             <ShareModal
+                isOpen={showShare}
                 open={showShare}
                 onClose={() => setShowShare(false)}
                 title={`Carga de Fuego – ${formData.empresa}`}
                 text={`🔥 Estudio de Carga de Fuego\n🏗️ Empresa: ${formData.empresa}\n📍 Sector: ${formData.sector}\n🔥 Carga Qf: ${results.cargaDeFuego.toFixed(2)} Kg/m²\n🛡️ RF Requerida: ${results.rfRequerida}\n\nGenerado con Asistente HYS`}
                 elementIdToPrint="pdf-content"
+                rawMessage={``}
+                fileName={`Carga_de_Fuego_${formData.empresa || 'Reporte'}`}
             />
+
 
             {/* Floating Action Buttons */}
             <div className="no-print floating-action-bar">
@@ -408,9 +433,11 @@ export default function FireLoad(): React.ReactElement | null {
                                     value={formData.descripcionActividad}
                                     onChange={e => setFormData({ ...formData, descripcionActividad: e.target.value })}
                                     onInput={e => {
-                                        e.target.style.height = 'auto';
-                                        e.target.style.height = e.target.scrollHeight + 'px';
+                                        const target = e.target as HTMLTextAreaElement;
+                                        target.style.height = 'auto';
+                                        target.style.height = target.scrollHeight + 'px';
                                     }}
+
                                     placeholder="Detalle los procesos y actividades que se realizan en el sector..."
                                     style={{ width: '100%', padding: '0.7rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)', minHeight: '80px', overflow: 'hidden', fontFamily: 'inherit' }}
                                 />

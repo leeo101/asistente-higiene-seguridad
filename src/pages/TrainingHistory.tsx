@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Clock, MapPin, Printer, FileText, Users, Download, Trash2, Share2, Edit2,
     BookOpen, ArrowLeft, Calendar, ChevronRight, Search, QrCode
@@ -13,8 +12,8 @@ import ShareModal from '../components/ShareModal';
 import QRModal from '../components/QRModal';
 
 export default function TrainingHistory(): React.ReactElement | null {
-    useDocumentTitle('Historial de Capacitaciones');
-        const { currentUser } = useAuth();
+    const navigate = useNavigate();
+    const { currentUser } = useAuth();
     const { syncing, syncCollection } = useSync();
 
     const [history, setHistory] = useState([]);
@@ -29,12 +28,11 @@ export default function TrainingHistory(): React.ReactElement | null {
             const raw = localStorage.getItem('training_history');
             if (raw && raw !== 'undefined') {
                 const h = JSON.parse(raw);
-                setHistory(Array.isArray(h) ? h.sort((a, b) => new Date(b.date) - new Date(a.date)) : []);
+                setHistory(Array.isArray(h) ? h.sort((a, b) => (new Date(b.date) as any) - (new Date(a.date) as any)) : []);
             } else {
                 setHistory([]);
             }
-        } catch {
-
+        } catch (e) {
             console.error('[TrainingHistory] Error loading history:', e);
             setHistory([]);
         }
@@ -59,7 +57,7 @@ export default function TrainingHistory(): React.ReactElement | null {
     });
 
     if (selectedTraining) {
-        return <TrainingPdfGenerator training={selectedTraining} onBack={() => setSelectedTraining(null)} />;
+        return <TrainingPdfGenerator data={selectedTraining} onBack={() => setSelectedTraining(null)} />;
     }
 
     return (
@@ -79,15 +77,18 @@ export default function TrainingHistory(): React.ReactElement | null {
             )}
 
             <ShareModal
+                isOpen={!!shareItem}
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Capacitación - ${shareItem?.tema || ''}`}
                 text={shareItem ? `📊 Registro de Capacitación\n📚 Tema: ${shareItem.tema}\n🧑‍🏫 Expositor: ${shareItem.expositor}\n📅 Fecha: ${shareItem.fecha}\n👥 Asistentes: ${shareItem.asistentes.length}` : ''}
+                rawMessage={shareItem ? `📊 Registro de Capacitación\n📚 Tema: ${shareItem.tema}\n🧑‍🏫 Expositor: ${shareItem.expositor}\n📅 Fecha: ${shareItem.fecha}\n👥 Asistentes: ${shareItem.asistentes.length}` : ''}
                 elementIdToPrint="pdf-content"
+                fileName={`Capacitacion_${shareItem?.tema || 'registro'}.pdf`}
             />
 
             <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
-                {shareItem && <TrainingPdfGenerator training={shareItem} isHeadless={true} />}
+                {shareItem && <TrainingPdfGenerator data={shareItem} isHeadless={true} />}
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10 }}>

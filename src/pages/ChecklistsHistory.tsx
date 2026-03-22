@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { ArrowLeft, Search, Trash2, FileText, Calendar, Building2, ClipboardCheck, Share2, Download, QrCode } from 'lucide-react';
 import { downloadCSV } from '../services/exportCsv';
@@ -108,11 +106,14 @@ export default function ChecklistsHistory(): React.ReactElement | null {
             {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
 
             <ShareModal
+                isOpen={!!shareItem}
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Checklist - ${shareItem?.equipo || ''}`}
                 text={shareItem ? `📋 Checklist de Seguridad\n🔧 Equipo: ${shareItem.equipo}\n🏗️ Empresa: ${shareItem.empresa}\n📅 Fecha: ${new Date(shareItem.fecha).toLocaleDateString()}` : ''}
+                rawMessage={``}
                 elementIdToPrint="pdf-content"
+                fileName={`Checklist_${shareItem?.equipo || 'Reporte'}.pdf`}
             />
 
             <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>

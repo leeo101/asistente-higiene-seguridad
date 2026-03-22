@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Send, AlertTriangle, Phone, Shield, Heart, Flame, Zap, MessageCircle, Loader2, Info, X } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -83,6 +82,7 @@ const QUICK_RESPONSES = {
 };
 
 export default function EmergencyBot(): React.ReactElement | null {
+    const navigate = useNavigate();
     useDocumentTitle('Chatbot de Emergencias');
         const messagesEndRef = useRef(null);
     

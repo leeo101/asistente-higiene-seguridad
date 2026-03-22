@@ -1,7 +1,6 @@
-import React from 'react';
-
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 
 import {
     ArrowLeft, Search, Calendar, Building2,
@@ -84,12 +83,16 @@ export default function WorkPermitHistory(): React.ReactElement | null {
     return (
         <div className="container" style={{ maxWidth: '900px', paddingBottom: '8rem' }}>
             <ShareModal
+                isOpen={!!shareItem}
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Permiso de Trabajo - ${shareItem?.empresa || ''}`}
                 text={shareItem ? `🔐 Permiso de Trabajo\n🏗️ Empresa: ${shareItem.empresa}\n🚧 Obra: ${shareItem.obra}\n📅 Fecha: ${shareItem.fecha}\n📋 Tipo: ${permitTypes.find(t => t.id === shareItem.tipoPermiso)?.label || 'Permiso'}` : ''}
                 elementIdToPrint="pdf-content"
+                rawMessage={``}
+                fileName={`Permiso_${shareItem?.empresa || 'Trabajo'}`}
             />
+
 
             <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
                 {shareItem && <WorkPermitPdfGenerator data={shareItem} />}

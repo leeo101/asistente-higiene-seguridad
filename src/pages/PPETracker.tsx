@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { ArrowLeft, Plus, Trash2, HardHat, TriangleAlert, CheckCircle, Clock, Shield, Download } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -19,7 +17,7 @@ function getDaysUntilExpiry(purchaseDate, lifeMonths) {
     if (!purchaseDate || !lifeMonths) return null;
     const expiry = new Date(purchaseDate);
     expiry.setMonth(expiry.getMonth() + Number(lifeMonths));
-    return Math.ceil((expiry - new Date()) / (1000 * 60 * 60 * 24));
+    return Math.ceil(((expiry as any) - (new Date() as any)) / (1000 * 60 * 60 * 24));
 }
 
 function StatusBadge({ days }) {

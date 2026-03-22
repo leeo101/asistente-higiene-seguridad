@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
     ArrowLeft, Send, ShieldAlert, HardHat,
@@ -29,9 +27,8 @@ function HistoryPanel({ onLoad }) {
                 history = parsed.filter(item => item && item.id && item.task).slice(0, 5);
             }
         }
-    } catch {
-
-        console.error("Error loading ai_advisor_history:", e);
+    } catch (err) {
+        console.error("Error loading ai_advisor_history:", err);
     }
 
     if (history.length === 0) return null;
@@ -117,14 +114,14 @@ export default function AIChatAdvisor(): React.ReactElement | null {
             try {
                 const parsed = JSON.parse(savedData);
                 if (parsed.country) setUserCountry(parsed.country);
-            } catch {
- console.error(e); }
+            } catch (err) {
+ console.error(err); }
         }
     }, []);
     const [isListening, setIsListening] = useState(false);
 
     const toggleListening = () => {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
         if (!SpeechRecognition) {
             toast.error('Tu navegador no soporta reconocimiento de voz. Prueba con Chrome.');
             return;
@@ -160,26 +157,25 @@ export default function AIChatAdvisor(): React.ReactElement | null {
                 if (!raw || raw === 'undefined') return [];
                 const parsed = JSON.parse(raw);
                 return Array.isArray(parsed) ? parsed : [];
-            } catch {
-
-                console.error(`[Advisor IA] Error parsing ${key}:`, e);
+            } catch (err) {
+                console.error(`[Advisor IA] Error parsing ${key}:`, err);
                 return [];
             }
         };
 
         try {
             const ats = safeParse('atsHistory')
-                .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+                .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
                 .slice(0, 3)
                 .map(a => `- Fecha: ${a.fecha}, Tarea: ${a.tarea}, Ubicación: ${a.ubicacion}`);
 
             const insp = safeParse('inspections_history')
-                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                 .slice(0, 3)
                 .map(i => `- Fecha: ${i.date}, Sector: ${i.sector}, Resultado: ${i.score}%`);
 
             const risk = safeParse('risk_assessment_history')
-                .sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt))
+                .sort((a, b) => new Date(b.date || b.createdAt).getTime() - new Date(a.date || a.createdAt).getTime())
                 .slice(0, 3)
                 .map(r => `- Fecha: ${r.date || (r.createdAt && r.createdAt.split('T')[0])}, Tarea: ${r.name}, Nivel de Riesgo: ${r.riskLevel}`);
 
@@ -188,9 +184,8 @@ export default function AIChatAdvisor(): React.ReactElement | null {
             if (insp.length) ctx.push("ÚLTIMAS INSPECCIONES REALIZADAS:\n" + insp.join("\n"));
             if (risk.length) ctx.push("ÚLTIMAS EVALUACIONES DE RIESGO:\n" + risk.join("\n"));
             return ctx.join("\n\n");
-        } catch {
-
-            console.error("[Advisor IA] Error getting context:", e);
+        } catch (err) {
+            console.error("[Advisor IA] Error getting context:", err);
             return "";
         }
     };
@@ -217,16 +212,16 @@ export default function AIChatAdvisor(): React.ReactElement | null {
 
             // Color Palette
             const colors = {
-                primary: [37, 99, 235],    // blue-600
-                danger: [239, 68, 68],     // red-500
-                success: [16, 185, 129],   // emerald-500
-                warning: [249, 115, 22],   // orange-500
-                text: [31, 41, 55],        // gray-800
-                muted: [107, 114, 128]     // gray-500
+                primary: [37, 99, 235] as [number, number, number],    // blue-600
+                danger: [239, 68, 68] as [number, number, number],     // red-500
+                success: [16, 185, 129] as [number, number, number],   // emerald-500
+                warning: [249, 115, 22] as [number, number, number],   // orange-500
+                text: [31, 41, 55] as [number, number, number],
+                muted: [107, 114, 128] as [number, number, number]
             };
 
             // Header
-            doc.setFillColor(...colors.primary);
+            doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
             doc.rect(0, 0, pageWidth, 35, 'F');
 
             doc.setTextColor(255, 255, 255);
@@ -256,12 +251,12 @@ export default function AIChatAdvisor(): React.ReactElement | null {
 
             // Sections
             const createSection = (title, items, color) => {
-                doc.setFillColor(...color);
+                doc.setFillColor(color[0], color[1], color[2]);
                 doc.rect(15, currentY, 4, 8, 'F');
 
                 doc.setFont('helvetica', 'bold');
                 doc.setFontSize(12);
-                doc.setTextColor(...colors.text);
+                doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
                 doc.text(title, 22, currentY + 6);
                 currentY += 12;
 
@@ -296,7 +291,7 @@ export default function AIChatAdvisor(): React.ReactElement | null {
             }
 
             // Divider line
-            doc.setDrawColor(...colors.muted);
+            doc.setDrawColor(colors.muted[0], colors.muted[1], colors.muted[2]);
             doc.setLineWidth(0.5);
             doc.line(120, currentY + 15, 190, currentY + 15);
 
@@ -311,7 +306,7 @@ export default function AIChatAdvisor(): React.ReactElement | null {
             doc.text(`Matrícula: ${profMat}`, 120, currentY + 32);
 
             // Stamp-like decoration
-            doc.setDrawColor(...colors.primary);
+            doc.setDrawColor(colors.primary[0], colors.primary[1], colors.primary[2]);
             doc.setLineWidth(1);
             doc.rect(115, currentY + 10, 80, 28);
 
@@ -354,9 +349,8 @@ export default function AIChatAdvisor(): React.ReactElement | null {
                     const parsed = JSON.parse(raw);
                     history = Array.isArray(parsed) ? parsed : [];
                 }
-            } catch {
-
-                console.error("[Advisor IA] Error parsing history for save:", e);
+            } catch (err) {
+                console.error("[Advisor IA] Error parsing history for save:", err);
                 history = [];
             }
             
@@ -367,9 +361,8 @@ export default function AIChatAdvisor(): React.ReactElement | null {
             };
             try {
                 localStorage.setItem('ai_advisor_history', JSON.stringify([newRecord, ...history].slice(0, 20)));
-            } catch {
-
-                console.error("[Advisor IA] Error saving to history:", e);
+            } catch (err) {
+                console.error("[Advisor IA] Error saving to history:", err);
             }
         } catch (error) {
             console.error('Error:', error);

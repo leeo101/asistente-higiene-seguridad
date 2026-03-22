@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
     ArrowLeft, Search, Flame, Calendar, MapPin,
@@ -42,7 +40,7 @@ export default function ExtinguishersHistory(): React.ReactElement | null {
 
         const dueDate = addMonths(lastDate, monthsValid);
         const today = new Date();
-        const diffDays = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+        const diffDays = Math.ceil(((dueDate as any) - (today as any)) / (1000 * 60 * 60 * 24));
 
         if (diffDays < 0) return { status: 'expired', color: '#ef4444', text: 'Vencido' };
         if (diffDays <= 30) return { status: 'warning', color: '#f59e0b', text: 'Próximo a Vencer' };
@@ -58,13 +56,18 @@ export default function ExtinguishersHistory(): React.ReactElement | null {
         <div className="container" style={{ paddingBottom: '3rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             
             <ShareModal
+                isOpen={!!shareItem}
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={Array.isArray(shareItem) ? "Inventario de Extintores" : `Extintor #${shareItem?.chapa}`}
                 text={shareItem ? (Array.isArray(shareItem) 
                     ? `🧯 Inventario de Extintores\n📊 Total equipos: ${shareItem.length}\n📅 Fecha: ${new Date().toLocaleDateString()}`
                     : `🧯 Extintor #${shareItem.chapa}\n📍 Ubicación: ${shareItem.ubicacion}\n🏢 Empresa: ${shareItem.empresa || '-'}\n🔥 Tipo: ${shareItem.tipo} (${shareItem.capacidad})`) : ''}
+                rawMessage={shareItem ? (Array.isArray(shareItem) 
+                    ? `🧯 Inventario de Extintores\n📊 Total equipos: ${shareItem.length}\n📅 Fecha: ${new Date().toLocaleDateString()}`
+                    : `🧯 Extintor #${shareItem.chapa}\n📍 Ubicación: ${shareItem.ubicacion}\n🏢 Empresa: ${shareItem.empresa || '-'}\n🔥 Tipo: ${shareItem.tipo} (${shareItem.capacidad})`) : ''}
                 elementIdToPrint="pdf-content"
+                fileName={Array.isArray(shareItem) ? "Inventario_Extintores.pdf" : `Extintor_${shareItem?.chapa || 'Reporte'}.pdf`}
             />
 
             <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>

@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, ArrowDown, Shield, AlertTriangle, Clock, CheckCircle2, User, MapPin, Ruler, Eye, Printer, Share2 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import WorkingAtHeightPdf from '../components/WorkingAtHeightPdf';
@@ -92,10 +91,10 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
         fontSize: '1rem',
         boxSizing: 'border-box',
         transition: 'border-color 0.2s',
-        WebkitAppearance: 'none', // Remove default styling for Safari
-        MozAppearance: 'none',    // Remove default styling for Firefox
-        appearance: 'none'        // Remove default styling for other browsers
-    };
+        WebkitAppearance: 'none',
+        MozAppearance: 'none',
+        appearance: 'none'
+    } as any;
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem' }}>
@@ -318,7 +317,7 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
             />
 
             <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
-                <WorkingAtHeightPdf data={{ ...permit, createdAt: permit.createdAt || new Date().toISOString() }} />
+                <WorkingAtHeightPdf data={{ ...permit, createdAt: (permit as any).createdAt || new Date().toISOString() } as any} />
             </div>
         </div>
     );

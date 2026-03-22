@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import CompanyLogo from '../components/CompanyLogo';
 import { ArrowLeft, CheckCircle2, Circle, AlertCircle, ChevronRight } from 'lucide-react';
@@ -56,15 +54,14 @@ export default function Checklist(): React.ReactElement | null {
     // Helper to save current state to localStorage with defensive merging
     const saveToLocalStorage = (updatedResponses) => {
         const current = localStorage.getItem('current_inspection');
-        let inspection = {};
+        let inspection: any = {};
         if (current) {
             try {
                 inspection = JSON.parse(current);
-            } catch {
-
+            } catch (e) {
                 console.error('[Checklist] Error parsing current_inspection from localStorage:', e);
                 // If parsing fails, start with an empty inspection object
-                inspection = {};
+                inspection = {} as any;
             }
         }
 

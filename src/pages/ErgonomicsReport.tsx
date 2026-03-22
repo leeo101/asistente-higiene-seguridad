@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { ArrowLeft, Printer, Share2, Download, CheckCircle2, TriangleAlert, Info } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -46,11 +44,14 @@ export default function ErgonomicsReport(): React.ReactElement | null {
     return (
         <div className="container" style={{ paddingBottom: '3rem' }}>
             <ShareModal
+                isOpen={showShare}
                 open={showShare}
                 onClose={() => setShowShare(false)}
                 title={`Protocolo Ergonómico – ${data.empresa}`}
                 text={`📋 Protocolo de Ergonomía\n🏗️ Empresa: ${data.empresa}\n🪑 Puesto: ${data.puesto}\n📍 Sector: ${data.sector}\n⚠️ Nivel de Riesgo: ${data.riesgo || 'N/A'}\n\nGenerado con Asistente H&S`}
+                rawMessage={`📋 Protocolo de Ergonomía\n🏗️ Empresa: ${data.empresa}\n🪑 Puesto: ${data.puesto}\n📍 Sector: ${data.sector}\n⚠️ Nivel de Riesgo: ${data.riesgo || 'N/A'}\n\nGenerado con Asistente H&S`}
                 elementIdToPrint="pdf-content"
+                fileName={`Ergonomia_${data.empresa}.pdf`}
             />
             <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', marginTop: '1rem' }}>
                 <button

@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate, useLocation } from 'react-router-dom';
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import html2canvas from 'html2canvas';
 import {
@@ -373,7 +371,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
         const dashArr = el.lineStyle === 'dashed' ? '10,5' : 'none';
         const stroke = isSel ? '#3b82f6' : el.color;
         const sw = el.strokeWidth || 3;
-        const selProps = { style: { pointerEvents: 'stroke', cursor: 'pointer' }, onPointerDown: (e) => { e.stopPropagation(); setSelectedElementId(el.id); } };
+        const selProps = { style: { pointerEvents: 'stroke' as any, cursor: 'pointer' }, onPointerDown: (e) => { e.stopPropagation(); setSelectedElementId(el.id); } };
 
         if (el.type === 'rect') {
             const rx = Math.min(el.startX, el.endX), ry = Math.min(el.startY, el.endY);
@@ -430,10 +428,16 @@ export default function RiskMapGenerator(): React.ReactElement | null {
     // ─── Render ───────────────────────────────────────────────────────────────
     return (
         <div className="container" style={{ paddingBottom: '5rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <ShareModal open={showShareModal} onClose={() => setShowShareModal(false)}
+            <ShareModal 
+                isOpen={showShareModal}
+                open={showShareModal} 
+                onClose={() => setShowShareModal(false)}
                 title="Compartir Mapa de Riesgos"
                 text={`🗺️ Mapa: ${meta.empresa}\n📍 Sector: ${meta.sector}\n⚠️ Elementos: ${elements.length}\n\nAsistente HYS`}
-                elementIdToPrint="pdf-content" />
+                rawMessage={`🗺️ Mapa: ${meta.empresa}\n📍 Sector: ${meta.sector}\n⚠️ Elementos: ${elements.length}\n\nAsistente HYS`}
+                elementIdToPrint="pdf-content" 
+                fileName={`Mapa_${meta.empresa}.pdf`}
+            />
 
             {/* Clear Canvas Confirm Modal */}
             {showClearConfirm && (
@@ -852,7 +856,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
             <AdBanner />
 
             <div className="print-only">
-                <RiskMapPdfGenerator mapData={{ ...meta, elements, backgroundImage }} onBack={() => { }} onShare={() => setShowShare(true)} />
+                <RiskMapPdfGenerator data={{ ...meta, elements, backgroundImage }} onBack={() => { }} onShare={() => setShowShareModal(true)} />
             </div>
         </div>
     );

@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate, useLocation } from 'react-router-dom';
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ArrowLeft, Camera, Trash2, CheckCircle2, RefreshCw, Upload } from 'lucide-react';
 
@@ -36,10 +34,10 @@ export default function Photos(): React.ReactElement | null {
         files.forEach(file => {
             const reader = new FileReader();
             reader.onloadend = () => {
-                newPhotos.push(reader.result);
+                newPhotos.push(reader.result as any);
                 loadedCount++;
                 if (loadedCount === files.length) {
-                    setPhotos(prev => [...prev, ...newPhotos]);
+                    setPhotos((prev: any) => [...prev, ...newPhotos]);
                 }
             };
             reader.readAsDataURL(file);

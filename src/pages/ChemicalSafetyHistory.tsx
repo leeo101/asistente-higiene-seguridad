@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Search, FlaskConical, AlertTriangle, CheckCircle2, Share2, Printer, Trash2
 } from 'lucide-react';
@@ -20,7 +19,7 @@ const GHS_PICTOGRAMS = {
 
 export default function ChemicalSafetyHistory(): React.ReactElement | null {
     useDocumentTitle('Productos Químicos');
-    
+    const navigate = useNavigate();
     const [chemicals, setChemicals] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterCategory, setFilterCategory] = useState('all');
@@ -55,11 +54,14 @@ export default function ChemicalSafetyHistory(): React.ReactElement | null {
     return (
         <div className="container" style={{ paddingBottom: '6rem' }}>
             <ShareModal
+                isOpen={!!shareItem}
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Ficha SGA - ${shareItem?.name || ''}`}
                 text={shareItem ? `🧪 Ficha Técnica de Seguridad (SGA)\n🏷️ Producto: ${shareItem.name}\n🆔 CAS: ${shareItem.casNumber || '-'}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString()}` : ''}
+                rawMessage={``}
                 elementIdToPrint="pdf-content"
+                fileName={`SGA_${shareItem?.name || 'Producto'}.pdf`}
             />
 
             <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>

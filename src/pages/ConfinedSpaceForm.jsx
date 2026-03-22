@@ -53,7 +53,7 @@ export default function ConfinedSpaceForm() {
     const navigate = useNavigate();
     const [isMobile, setIsMobile] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
-    const [permit, setPermit] = useState({
+    const [permit, setPermit] = useState(() => ({
         spaceName: '',
         spaceType: 'tank',
         location: '',
@@ -71,7 +71,7 @@ export default function ConfinedSpaceForm() {
         validFrom: new Date().toISOString().slice(0, 16),
         validUntil: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString().slice(0, 16),
         observations: ''
-    });
+    }));
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);

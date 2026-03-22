@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { useNavigate, useLocation } from 'react-router-dom';
 import React, { useState } from 'react';
 
@@ -99,8 +97,7 @@ export default function TrainingManagement(): React.ReactElement | null {
                 const parsed = JSON.parse(raw);
                 history = Array.isArray(parsed) ? parsed : [];
             }
-        } catch {
-
+        } catch (e) {
             console.error('[TrainingManagement] Error parsing history:', e);
             history = [];
         }
@@ -130,11 +127,13 @@ export default function TrainingManagement(): React.ReactElement | null {
         <div className="container" style={{ paddingBottom: '6rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <div className="no-print">
                 <ShareModal
-                    open={showShareModal}
+                    isOpen={showShareModal}
                     onClose={() => setShowShareModal(false)}
                     title="Compartir Capacitación"
                     text={`📊 Registro de Capacitación: ${formData.tema}\n📅 Fecha: ${formData.fecha}\n👥 Asistentes: ${formData.asistentes.length}\n\nEnviado desde Asistente HYS`}
+                    rawMessage={`📊 Registro de Capacitación: ${formData.tema}\n📅 Fecha: ${formData.fecha}\n👥 Asistentes: ${formData.asistentes.length}\n\nEnviado desde Asistente HYS`}
                     elementIdToPrint="pdf-content"
+                    fileName={`Capacitacion_${formData.tema.replace(/\s+/g, '_')}.pdf`}
                 />
 
                 {/* Floating Action Bar Premium */}
@@ -333,7 +332,7 @@ export default function TrainingManagement(): React.ReactElement | null {
 
             {/* Hidden report for direct printing */}
             <div className="print-only">
-                <TrainingPdfGenerator training={formData} onBack={() => { }} />
+                <TrainingPdfGenerator data={formData} onBack={() => { }} />
             </div>
 
         </div>

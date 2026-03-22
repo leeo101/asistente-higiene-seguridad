@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, Map as MapIcon, Calendar, ChevronRight, Trash2, Share2, Edit2, QrCode } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
@@ -11,7 +10,8 @@ import QRModal from '../components/QRModal';
 
 export default function RiskMapHistory(): React.ReactElement | null {
     useDocumentTitle('Historial de Mapas de Riesgo');
-        const { currentUser } = useAuth();
+    const navigate = useNavigate();
+    const { currentUser } = useAuth();
     const { syncing, syncCollection } = useSync();
 
     const [history, setHistory] = useState([]);
@@ -23,7 +23,7 @@ export default function RiskMapHistory(): React.ReactElement | null {
 
     useEffect(() => {
         const h = JSON.parse(localStorage.getItem('risk_map_history') || '[]');
-        setHistory(h.sort((a, b) => new Date(b.date) - new Date(a.date)));
+        setHistory(h.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     }, [syncing]);
 
     const handleDelete = (id, e) => {
@@ -45,7 +45,7 @@ export default function RiskMapHistory(): React.ReactElement | null {
     });
 
     if (selectedMap) {
-        return <RiskMapPdfGenerator mapData={selectedMap} onBack={() => setSelectedMap(null)} />;
+        return <RiskMapPdfGenerator data={selectedMap} onBack={() => setSelectedMap(null)} />;
     }
 
     return (
@@ -73,7 +73,7 @@ export default function RiskMapHistory(): React.ReactElement | null {
             />
 
             <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
-                {shareItem && <RiskMapPdfGenerator mapData={shareItem} isHeadless={true} />}
+                {shareItem && <RiskMapPdfGenerator data={shareItem} />}
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10 }}>

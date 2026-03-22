@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Lock, Save, Eye, CheckCircle2, Printer, Share2 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import LOTOPdf from '../components/LOTOPdf';
@@ -21,6 +20,27 @@ const LOTO_DEVICES = [
     { id: 'valve_lock', name: 'Bloqueo Válvula', icon: '🔩' },
     { id: 'tagout', name: 'Etiqueta', icon: '🏷️' }
 ];
+
+const labelStyle: React.CSSProperties = {
+    display: 'block',
+    marginBottom: '0.5rem',
+    fontSize: '0.9rem',
+    fontWeight: 700,
+    color: 'var(--color-text)'
+};
+
+const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '0.75rem 1rem',
+    borderRadius: '12px',
+    border: '1px solid var(--color-border)',
+    background: 'var(--color-background)',
+    color: 'var(--color-text)',
+    fontSize: '1rem',
+    outline: 'none',
+    boxSizing: 'border-box' as any,
+    transition: 'all 0.2s'
+};
 
 export default function LOTOForm(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -287,14 +307,17 @@ export default function LOTOForm(): React.ReactElement | null {
 
             <ShareModal
                 isOpen={showShareModal}
+                open={showShareModal}
                 onClose={() => setShowShareModal(false)}
                 elementIdToPrint="pdf-content"
                 title="Procedimiento LOTO"
+                text={`Bloqueo y Etiquetado: ${procedure.equipmentName}`}
+                rawMessage={`Bloqueo y Etiquetado: ${procedure.equipmentName}`}
                 fileName={`LOTO_${procedure.equipmentName || 'Sin_Nombre'}.pdf`}
             />
 
             <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
-                <LOTOPdf data={{ ...procedure, createdAt: procedure.createdAt || new Date().toISOString() }} />
+                <LOTOPdf data={{ ...procedure, id: (procedure as any).id || Date.now().toString(), createdAt: (procedure as any).createdAt || new Date().toISOString() }} />
             </div>
         </div>
     );

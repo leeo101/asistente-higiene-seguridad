@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import { UserPlus, Trash2, Mail, Phone, Briefcase, RefreshCw, AlertCircle } from 'lucide-react';

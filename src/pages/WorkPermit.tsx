@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate, useLocation } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
     ArrowLeft, Save, Plus, Trash2, Printer,
@@ -160,7 +158,7 @@ export default function WorkPermit(): React.ReactElement | null {
                 professionalName: professional.name,
                 professionalLicense: professional.license,
                 professionalSignature: professional.signature,
-                createdAt: formData.createdAt || new Date().toISOString()
+                createdAt: (formData as any).createdAt || new Date().toISOString()
             };
 
             let updated;
@@ -185,11 +183,14 @@ export default function WorkPermit(): React.ReactElement | null {
     return (
         <div className="container" style={{ maxWidth: '1000px', paddingBottom: '8rem' }}>
             <ShareModal
+                isOpen={showShare}
                 open={showShare}
                 onClose={() => setShowShare(false)}
                 title={`Permiso de Trabajo – ${formData.empresa}`}
                 text={`📄 Permiso de Trabajo: ${selectedTypeLabel}\n🏗️ Empresa: ${formData.empresa}\n📅 Fecha: ${formData.fecha}\n⏰ Validez: ${formData.validezDesde} a ${formData.validezHasta}\n\nGenerado con Asistente HYS`}
+                rawMessage={`📄 Permiso de Trabajo: ${selectedTypeLabel}\n🏗️ Empresa: ${formData.empresa}\n📅 Fecha: ${formData.fecha}\n⏰ Validez: ${formData.validezDesde} a ${formData.validezHasta}\n\nGenerado con Asistente HYS`}
                 elementIdToPrint="pdf-content"
+                fileName={`Permiso_${formData.empresa || 'Trabajo'}.pdf`}
             />
 
             {/* Action Bar */}
@@ -444,7 +445,7 @@ function StatusBtn({ active, onClick, label, color = '#36B37E' }) {
     );
 }
 
-function DocBox({ label, value, onChange, type = "text", borderLeft, borderTop, noInput, children }) {
+function DocBox({ label, value = '', onChange = () => {}, type = "text", borderLeft = false, borderTop = false, noInput = false, children = null }: any) {
     return (
         <div style={{
             padding: '1rem',

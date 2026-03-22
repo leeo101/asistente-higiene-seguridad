@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate, useLocation } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
     ArrowLeft, Save, Plus, Trash2, Lightbulb, Calculator,
@@ -43,7 +41,7 @@ export default function LightingReport(): React.ReactElement | null {
         luxRequerido: 500,
         conclusion: '',
         mediciones: [
-            { id: Date.now().toString(), ubicacion: 'Puesto 1', luxMedido: 0 }
+            { id: Date.now().toString(), ubicacion: 'Puesto 1', luxMedido: 0 as any }
         ]
     });
 
@@ -79,10 +77,11 @@ export default function LightingReport(): React.ReactElement | null {
         }
     };
 
-    const [professional, setProfessional] = useState({
+    const [professional, setProfessional] = useState<{ name: string; license: string; signature: any; stamp?: any }>({
         name: 'Profesional',
         license: '',
-        signature: null
+        signature: null,
+        stamp: null
     });
 
     const [showSignatures, setShowSignatures] = useState({
@@ -237,7 +236,7 @@ export default function LightingReport(): React.ReactElement | null {
                 localStorage.setItem('lighting_history', JSON.stringify(existingHistory));
 
                 if (currentUser) {
-                    await syncCollection('lighting_history', reportData);
+                    await syncCollection('lighting_history', existingHistory);
                 }
 
                 toast.success('Informe guardado en el Historial');
@@ -287,11 +286,14 @@ export default function LightingReport(): React.ReactElement | null {
 
             {showShare && (
                 <ShareModal
+                    isOpen={showShare}
                     open={showShare}
                     onClose={() => setShowShare(false)}
                     title={`Estudio de Iluminación - ${formData.empresa}`}
                     text={`🔦 Estudio de Iluminación\n🏢 Empresa: ${formData.empresa}\n📍 Sector: ${formData.sector}\n💡 Requerido: ${formData.luxRequerido} Lux | Promedio Medido: ${results.promedioLux} Lux\n\nGenerado con Asistente HYS`}
+                    rawMessage={`🔦 Estudio de Iluminación\n🏢 Empresa: ${formData.empresa}\n📍 Sector: ${formData.sector}\n💡 Requerido: ${formData.luxRequerido} Lux | Promedio Medido: ${results.promedioLux} Lux\n\nGenerado con Asistente HYS`}
                     elementIdToPrint="pdf-content"
+                    fileName={`Iluminacion_${formData.empresa}.pdf`}
                 />
             )}
 

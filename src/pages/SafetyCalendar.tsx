@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
     ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon,
@@ -331,8 +329,8 @@ export default function SafetyCalendar(): React.ReactElement | null {
     };
 
     const upcomingEvents = events
-        .filter(e => new Date(e.date + 'T' + (e.time || '12:00')) >= new Date())
-        .sort((a, b) => new Date(a.date + 'T' + (a.time || '12:00')) - new Date(b.date + 'T' + (b.time || '12:00')))
+        .filter(e => new Date(e.date + 'T' + (e.time || '12:00')) >= (new Date() as any))
+        .sort((a, b) => (new Date(a.date + 'T' + (a.time || '12:00')) as any) - (new Date(b.date + 'T' + (b.time || '12:00')) as any))
         .slice(0, 5);
 
     return (
@@ -404,7 +402,7 @@ export default function SafetyCalendar(): React.ReactElement | null {
                             {upcomingEvents.length > 0 ? upcomingEvents.map((e, i) => {
                                 const eventDate = new Date(e.date + 'T12:00:00');
                                 const todayMidnight = new Date(); todayMidnight.setHours(0, 0, 0, 0);
-                                const diffDays = Math.round((eventDate - todayMidnight) / (1000 * 60 * 60 * 24));
+                                const diffDays = Math.round(((eventDate as any) - (todayMidnight as any)) / (1000 * 60 * 60 * 24));
                                 const badgeColor = diffDays <= 0 ? '#ef4444' : diffDays <= 7 ? '#f59e0b' : '#10b981';
                                 const badgeBg = diffDays <= 0 ? 'rgba(239,68,68,0.1)' : diffDays <= 7 ? 'rgba(245,158,11,0.1)' : 'rgba(16,185,129,0.1)';
                                 const badgeLabel = diffDays <= 0 ? (diffDays === 0 ? 'HOY' : 'VENCIDO') : diffDays === 1 ? '1 día' : `${diffDays} días`;
@@ -546,8 +544,8 @@ export default function SafetyCalendar(): React.ReactElement | null {
                                     className="overflow-hidden block"
                                     value={newEvent.description}
                                     onInput={e => {
-                                        e.target.style.height = 'auto';
-                                        e.target.style.height = e.target.scrollHeight + 'px';
+                                        (e.target as any).style.height = 'auto';
+                                        (e.target as any).style.height = (e.target as any).scrollHeight + 'px';
                                     }}
                                     onChange={e => setNewEvent({ ...newEvent, description: e.target.value })}
                                     placeholder="Detalles adicionales sobre esta agenda..."

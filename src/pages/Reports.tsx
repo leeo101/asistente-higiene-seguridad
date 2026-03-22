@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate, useLocation } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ArrowLeft, Save, FileText, AlertCircle, GraduationCap, ClipboardCheck, Package, Plus, Trash2, History, Share2, Printer, Clock, Edit2 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
@@ -14,7 +12,14 @@ export default function Reports(): React.ReactElement | null {
     const location = useLocation();
     const { syncCollection } = useSync();
     const [template, setTemplate] = useState('general'); // general, accident, training, rgrl, epp
-    const [projectData, setProjectData] = useState({
+    const [projectData, setProjectData] = useState<{
+        id?: number | string;
+        title: string;
+        company: string;
+        location: string;
+        date: string;
+        responsable: string;
+    }>({
         title: '',
         company: '',
         location: '',
@@ -27,7 +32,7 @@ export default function Reports(): React.ReactElement | null {
     const [photos, setPhotos] = useState([]);
 
     // Template specific fields
-    const [extraFields, setExtraFields] = useState({});
+    const [extraFields, setExtraFields] = useState<Record<string, any>>({});
     const [personnel, setPersonnel] = useState(() => [{ id: Date.now(), name: '', dni: '' }]);
 
     useEffect(() => {

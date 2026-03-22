@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { ArrowLeft, Printer, Share2, Download, CheckCircle2, Info, Building2, User, HelpCircle, MapPin, Calendar } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -47,11 +45,14 @@ export default function ReportsReport(): React.ReactElement | null {
     return (
         <div className="container" style={{ maxWidth: '1000px' }}>
             <ShareModal
+                isOpen={showShare}
                 open={showShare}
                 onClose={() => setShowShare(false)}
-                title={`Checklist – ${report.company || ''}`}
-                text={`📋 Checklist de Inspección\n🏗️ Empresa: ${report.company}\n📍 Ubicación: ${report.location || '-'}\n📅 Fecha: ${new Date(report.date).toLocaleDateString()}\n\nGenerado con Asistente H&S`}
+                title={`Informe – ${report.company || ''}`}
+                text={`📋 Informe de Higiene y Seguridad\n🏗️ Empresa: ${report.company}\n📍 Ubicación: ${report.location || '-'}\n📅 Fecha: ${new Date(report.date).toLocaleDateString()}\n\nGenerado con Asistente H&S`}
+                rawMessage={`📋 Informe de Higiene y Seguridad\n🏗️ Empresa: ${report.company}\n📍 Ubicación: ${report.location || '-'}\n📅 Fecha: ${new Date(report.date).toLocaleDateString()}\n\nGenerado con Asistente H&S`}
                 elementIdToPrint="pdf-content"
+                fileName={`Informe_${report.company}.pdf`}
             />
             {/* Control Panel - Absolute Print Hide */}
             <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
@@ -75,7 +76,7 @@ export default function ReportsReport(): React.ReactElement | null {
                     <div style={{ flex: 1, display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
                         <CompanyLogo style={{ height: '60px', width: 'auto', objectFit: 'contain' }} />
                         <div>
-                            <h1 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-primary)', fontSize: '2.5rem', fontWeight: 900, tracking: '-1px' }}>INFORME</h1>
+                            <h1 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-primary)', fontSize: '2.5rem', fontWeight: 900, letterSpacing: '-1px' }}>INFORME</h1>
                             <p style={{ margin: 0, fontSize: '0.9rem', color: '#475569', textTransform: 'uppercase', letterSpacing: '1px' }}>
                                 {report.template === 'general' ? 'Informe Técnico' :
                                     report.template === 'accident' ? 'Registro de Accidente' :

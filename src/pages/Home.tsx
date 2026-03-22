@@ -17,10 +17,13 @@ import { useSync } from '../contexts/SyncContext';
 import { usePaywall } from '../hooks/usePaywall';
 import AdBanner from '../components/AdBanner';
 import StarryBackground from '../components/StarryBackground';
-import OnboardingModal from '../components/OnboardingModal';
 import StickyCtaBanner from '../components/StickyCtaBanner';
 import StatsBar from '../components/StatsBar';
+
 import NewsWidget from '../components/NewsWidget';
+import MarketingLanding from '../components/MarketingLanding';
+import ModulePreview from '../components/ModulePreview';
+
 
 // Tipos
 interface StatItem {
@@ -187,7 +190,6 @@ export default function Home(): React.ReactElement {
   
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
   const [daysLeft, setDaysLeft] = useState<number | typeof Infinity | null>(null);
-  const [showOnboarding, setShowOnboarding] = useState<boolean>(false);
   const [stats, setStats] = useState<StatItem[]>([
     { label: 'Accidentes', value: 0, icon: <Siren />, color: '#ef4444', grad: 'linear-gradient(135deg,#ef4444,#b91c1c)', key: 'accident_history' },
     { label: 'ATS', value: 0, icon: <ShieldCheck />, color: '#10b981', grad: 'linear-gradient(135deg,#10b981,#059669)', key: 'ats_history' },
@@ -202,6 +204,8 @@ export default function Home(): React.ReactElement {
   const [recentWorks, setRecentWorks] = useState<WorkItem[]>([]);
   const [userName, setUserName] = useState<string>('Profesional');
   const [dailyInsight, setDailyInsight] = useState<DailyInsight | null>(null);
+  const [activePreview, setActivePreview] = useState<string | null>(null);
+
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -331,8 +335,13 @@ export default function Home(): React.ReactElement {
     }
   }, [syncPulse, currentUser]);
 
+  if (!currentUser && activePreview) {
+    return <ModulePreview path={activePreview} onBack={() => setActivePreview(null)} />;
+  }
+
   return (
     <div className="page-transition" style={{ paddingBottom: '4rem' }}>
+
       {!currentUser && <StickyCtaBanner />}
 
       {/* HERO BANNER */}
@@ -455,109 +464,11 @@ export default function Home(): React.ReactElement {
       </div>
 
 
-      {/* Features Grid - Visible to visitors */}
+      {/* Marketing Landing Content - Primary for visitors */}
       {!currentUser && (
-        <div id="tools" style={{ marginTop: '2.5rem' }}>
-          <h2 style={{
-            fontSize: 'clamp(1.3rem, 4vw, 1.5rem)',
-            fontWeight: 900,
-            textAlign: 'center',
-            marginBottom: '0.4rem',
-            background: 'linear-gradient(135deg, #1e3a8a, #2563eb)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text'
-          }}>
-            Todo lo que necesitás en una sola App
-          </h2>
-          <p style={{
-            textAlign: 'center',
-            color: 'var(--color-text-muted)',
-            fontSize: 'clamp(0.85rem, 2.5vw, 0.95rem)',
-            marginBottom: '2rem',
-            maxWidth: '600px',
-            margin: '0 auto 2rem'
-          }}>
-            11+ módulos profesionales con IA, gratis para usar
-          </p>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
-            gap: '1rem'
-          }}>
-            {quickLinks.map((link, i) => (
-              <Link
-                key={i}
-                to={link.to}
-                className="card stagger-item"
-                style={{
-                  textDecoration: 'none',
-                  padding: '1.5rem',
-                  borderRadius: '20px',
-                  background: link.bg,
-                  border: `2px solid ${link.color}20`,
-                  transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                  animationDelay: `${0.1 + (i * 0.03)}s`
-                }}
-                onMouseOver={e => {
-                  e.currentTarget.style.transform = 'translateY(-6px)';
-                  e.currentTarget.style.borderColor = link.color;
-                }}
-                onMouseOut={e => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.borderColor = `${link.color}20`;
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                  <div style={{
-                    width: '50px',
-                    height: '50px',
-                    borderRadius: '14px',
-                    background: link.color + '20',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: link.color
-                  }}>
-                    {link.icon}
-                  </div>
-                  {link.premium && (
-                    <div style={{
-                      padding: '0.25rem 0.6rem',
-                      background: 'linear-gradient(135deg, #f59e0b, #fbbf24)',
-                      borderRadius: '20px',
-                      fontSize: '0.65rem',
-                      fontWeight: 900,
-                      color: '#ffffff',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px'
-                    }}>
-                      PRO
-                    </div>
-                  )}
-                </div>
-                <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text)' }}>
-                  {link.label}
-                </h3>
-                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
-                  {link.sub}
-                </p>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  marginTop: '1rem',
-                  color: link.color,
-                  fontWeight: 700,
-                  fontSize: '0.85rem'
-                }}>
-                  <span>Acceder</span>
-                  <ChevronRight size={16} />
-                </div>
-              </Link>
-            ))}
-          </div>
-
+        <div style={{ marginTop: '0' }}>
+          <MarketingLanding onStart={() => navigate('/login', { state: { view: 'register' } })} />
+          
           <div style={{ marginTop: '4rem', maxWidth: '800px', margin: '4rem auto 0' }}>
             <h2 style={{
               fontSize: 'clamp(1.3rem, 4vw, 1.5rem)',
@@ -736,7 +647,8 @@ export default function Home(): React.ReactElement {
       )}
         </div>
       )}
-      {showOnboarding && <OnboardingModal onClose={() => setShowOnboarding(false)} />}
+      {/* Removed legacy onboarding modal in favor of MarketingLanding */}
+
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Headphones, Gauge, Ear, Plus, Search,
@@ -229,6 +229,7 @@ export default function NoiseAssessment(): React.ReactElement | null {
                 text={shareItem ? `🔊 Protocolo de Medición de Ruido (Res. 85/12)\n👤 Trabajador: ${shareItem.workerName}\n📈 Nivel: ${shareItem.levels?.lavg} dB(A)\n📅 Fecha: ${new Date(shareItem.date).toLocaleDateString()}` : ''}
                 rawMessage={shareItem ? `🔊 Protocolo de Medición de Ruido (Res. 85/12)\n👤 Trabajador: ${shareItem.workerName}\n📈 Nivel: ${shareItem.levels?.lavg} dB(A)\n📅 Fecha: ${new Date(shareItem.date).toLocaleDateString()}` : ''}
                 elementIdToPrint="pdf-content"
+                fileName={`Ruido_${shareItem?.workerName || 'Protocolo'}.pdf`}
             />
 
             <div style={{ position: 'fixed', left: '-9999px', top: 0, pointerEvents: 'none' }}>
@@ -413,8 +414,8 @@ export default function NoiseAssessment(): React.ReactElement | null {
                                     fontSize: '0.95rem',
                                     fontWeight: 500,
                                     outline: 'none',
-                                    boxSizing: 'border-box' as const
-                                }}
+                                    boxSizing: 'border-box'
+                                } as any}
                             />
                         </div>
 
@@ -1335,8 +1336,9 @@ function LevelInput({ label, value, onChange, placeholder }: { label: string; va
                 style={{
                     ...inputStyle,
                     padding: '0.6rem 0.75rem',
-                    fontSize: '0.9rem'
-                }}
+                    fontSize: '0.9rem',
+                    boxSizing: 'border-box'
+                } as any}
                 placeholder={placeholder}
             />
         </div>

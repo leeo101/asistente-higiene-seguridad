@@ -1,11 +1,8 @@
-import React from 'react';
-
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
-
+import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Plus, Search, Flame, AlertCircle, Calendar, MapPin,
-    ShieldCheck, TriangleAlert, Edit2, Trash2, Printer, FileText, CheckCircle2
+    ShieldCheck, TriangleAlert, Edit2, Trash2, Printer, FileText, CheckCircle2, Share2
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
@@ -134,11 +131,14 @@ export default function Extinguishers(): React.ReactElement | null {
     return (
         <div className="container" style={{ paddingBottom: '3rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <ShareModal
+                isOpen={showShareModal}
                 open={showShareModal}
                 onClose={() => setShowShareModal(false)}
                 title="Inventario de Extintores"
                 text={`🧯 Reporte de Extintores\n🏢 Empresa: ${companyFilter || 'Todas'}\n📊 Total: ${stats.total}\n⚠️ Cargas Vencidas: ${stats.cargaVencida}\n🛠️ PH Vencidas: ${stats.phVencida}`}
+                rawMessage={``}
                 elementIdToPrint="pdf-content"
+                fileName={`Inventario_Extintores_${companyFilter || 'Gral'}.pdf`}
             />
 
             <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>

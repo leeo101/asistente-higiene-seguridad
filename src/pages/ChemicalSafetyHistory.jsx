@@ -51,13 +51,19 @@ export default function ChemicalSafetyHistory() {
         { id: 'ambiental', name: 'Ambiental', icon: '🌍' }
     ];
 
+    const shareText = useMemo(() => {
+        if (!shareItem) return '';
+        const dateStr = new Date(shareItem.createdAt || Date.now()).toLocaleDateString();
+        return `🧪 Ficha Técnica de Seguridad (SGA)\n🏷️ Producto: ${shareItem.name}\n🆔 CAS: ${shareItem.casNumber || '-'}\n📅 Fecha: ${dateStr}`;
+    }, [shareItem]);
+
     return (
         <div className="container" style={{ paddingBottom: '6rem' }}>
             <ShareModal
                 isOpen={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Ficha SGA - ${shareItem?.name || ''}`}
-                text={shareItem ? `🧪 Ficha Técnica de Seguridad (SGA)\n🏷️ Producto: ${shareItem.name}\n🆔 CAS: ${shareItem.casNumber || '-'}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString()}` : ''}
+                text={shareText}
                 elementIdToPrint="pdf-content"
                 fileName={`Ficha_Quimica_${shareItem?.name || 'Sin_Nombre'}.pdf`}
             />

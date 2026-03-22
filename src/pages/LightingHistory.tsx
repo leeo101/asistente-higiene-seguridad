@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
     ArrowLeft, Search, Trash2, FileText,
@@ -70,15 +68,18 @@ export default function LightingHistory(): React.ReactElement | null {
             {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
 
             <ShareModal
+                isOpen={!!shareItem}
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Estudio de Iluminación - ${shareItem?.sector || ''}`}
                 text={shareItem ? `💡 Estudio de Iluminación\n🏗️ Empresa: ${shareItem.empresa}\n📍 Sector: ${shareItem.sector || '-'}` : ''}
+                rawMessage={shareItem ? `💡 Estudio de Iluminación\n🏗️ Empresa: ${shareItem.empresa}\n📍 Sector: ${shareItem.sector || '-'}` : ''}
                 elementIdToPrint="pdf-content"
+                fileName={`Iluminacion_${shareItem?.empresa || 'Empresa'}.pdf`}
             />
 
             <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
-                <LightingPdfGenerator contentRef={null} data={shareItem} />
+                <LightingPdfGenerator data={shareItem} />
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>

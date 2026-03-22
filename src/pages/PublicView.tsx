@@ -1,6 +1,5 @@
-import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { fetchPublicDoc, fetchPublicLogo } from '../services/cloudSync';
 import { FileText, ArrowLeft, Loader2, AlertTriangle, Printer, Download } from 'lucide-react';
 import LoadingScreen from '../components/LoadingScreen';
@@ -23,7 +22,8 @@ import RiskAssessmentPdfGenerator from '../components/RiskAssessmentPdfGenerator
 
 export default function PublicView(): React.ReactElement | null {
     const { uid, cat, id } = useParams();
-        const [docData, setDocData] = useState(null);
+    const navigate = useNavigate();
+    const [docData, setDocData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isPrintMode, setIsPrintMode] = useState(false);
@@ -95,17 +95,17 @@ export default function PublicView(): React.ReactElement | null {
             case 'ats': return <ATSPdfGenerator atsData={docData} />;
             case 'camera': return <AiReportPdfGenerator item={docData} />;
             case 'permit': return <WorkPermitPdfGenerator data={docData} />;
-            case 'fireload': return <FireLoadPdfGenerator docData={docData} />;
+            case 'fireload': return <FireLoadPdfGenerator data={docData} />;
             case 'matrix': return <RiskMatrixPdfGenerator data={docData} />;
-            case 'lighting': return <LightingPdfGenerator docData={docData} />;
-            case 'checklist': return <ChecklistPdfGenerator docData={docData} />;
-            case 'accident': return <AccidentPdfGenerator data={docData} />;
+            case 'lighting': return <LightingPdfGenerator data={docData} />;
+            case 'checklist': return <ChecklistPdfGenerator checklistData={docData} />;
+            case 'accident': return <AccidentPdfGenerator report={docData} onBack={() => navigate(-1)} />;
             case 'training': return <TrainingPdfGenerator data={docData} />;
-            case 'extinguisher': return <ExtinguisherPdfGenerator data={docData} />;
+            case 'extinguisher': return <ExtinguisherPdfGenerator extinguishers={docData || []} />;
             case 'thermal': return <ThermalStressPdfGenerator data={docData} />;
-            case 'drill': return <DrillPdfGenerator data={docData} />;
-            case 'stopcard': return <StopCardPdfGenerator data={docData} />;
-            case 'riskassessment': return <RiskAssessmentPdfGenerator docData={docData} />;
+            case 'drill': return <DrillPdfGenerator report={docData} onBack={() => navigate(-1)} />;
+            case 'stopcard': return <StopCardPdfGenerator card={docData} />;
+            case 'riskassessment': return <RiskAssessmentPdfGenerator assessmentData={docData} />;
             default: return <div>Categoría no soportada.</div>;
         }
     };

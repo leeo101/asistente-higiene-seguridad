@@ -1,9 +1,31 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, Leaf, Shield, AlertTriangle, Clock, CheckCircle2, User, MapPin, Activity, Droplets, Wind, Thermometer, Sun, Eye, Printer, Share2 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import EnvironmentalPdf from '../components/EnvironmentalPdf';
+
+const labelStyle: React.CSSProperties = {
+    fontSize: '0.85rem',
+    fontWeight: 700,
+    color: 'var(--color-text-muted)',
+    display: 'block'
+};
+
+const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '0.8rem 1rem',
+    background: 'var(--color-surface)',
+    border: '1px solid var(--color-border)',
+    borderRadius: 'var(--radius-lg)',
+    color: 'var(--color-text)',
+    fontSize: '0.95rem',
+    transition: 'all 0.2s',
+    outline: 'none',
+    marginTop: '0.5rem',
+    boxSizing: 'border-box' as any
+};
+
+const labelSubStyle: React.CSSProperties = { display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text)', marginBottom: '0.4rem' };
 
 const MONITORING_TYPES = [
     { id: 'air', name: 'Calidad de Aire', icon: '💨' },
@@ -252,37 +274,19 @@ export default function EnvironmentalForm(): React.ReactElement | null {
 
             <ShareModal
                 isOpen={showShareModal}
+                open={showShareModal}
                 onClose={() => setShowShareModal(false)}
                 elementIdToPrint="pdf-content"
                 title="Monitoreo Ambiental"
+                text={`Monitoreo Ambiental: ${measurement.stationName}`}
+                rawMessage={`Monitoreo Ambiental: ${measurement.stationName}`}
                 fileName={`Ambiente_${measurement.stationName || 'Sin_Nombre'}.pdf`}
             />
 
             <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
-                <EnvironmentalPdf data={{ ...measurement, createdAt: measurement.createdAt || new Date().toISOString() }} />
+                <EnvironmentalPdf data={{ ...measurement, id: (measurement as any).id || Date.now().toString(), createdAt: (measurement as any).createdAt || new Date().toISOString() }} />
             </div>
         </div>
     );
 }
 
-const inputStyle = {
-    width: '100%',
-    padding: '0.8rem 1rem',
-    background: 'var(--color-surface)',
-    border: '1px solid var(--color-border)',
-    borderRadius: 'var(--radius-lg)',
-    color: 'var(--color-text)',
-    fontSize: '0.95rem',
-    transition: 'all 0.2s',
-    outline: 'none',
-    marginTop: '0.5rem'
-};
-
-const labelStyle = {
-    fontSize: '0.85rem',
-    fontWeight: 700,
-    color: 'var(--color-text-muted)',
-    display: 'block'
-};
-
-const labelSubStyle = { display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text)', marginBottom: '0.4rem' };

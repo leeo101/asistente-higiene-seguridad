@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
@@ -94,12 +92,12 @@ export default function StopCards(): React.ReactElement | null {
 
                 <div className="form-group" style={{ marginBottom: '1rem' }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><AlertTriangle size={16} /> Descripción del Hallazgo</label>
-                    <textarea name="description" value={formData.description} onChange={handleChange} className="form-control" rows="3" placeholder="Describí exactamente qué viste..."></textarea>
+                    <textarea name="description" value={formData.description} onChange={handleChange} className="form-control" rows={3} placeholder="Describí exactamente qué viste..."></textarea>
                 </div>
 
                 <div className="form-group" style={{ marginBottom: '1rem' }}>
                     <label>Acción Inmediata Tomada (opcional)</label>
-                    <textarea name="actionTaken" value={formData.actionTaken} onChange={handleChange} className="form-control" rows="2" placeholder="Ej. Se detuvo la tarea, se limpió el área..."></textarea>
+                    <textarea name="actionTaken" value={formData.actionTaken} onChange={handleChange} className="form-control" rows={2} placeholder="Ej. Se detuvo la tarea, se limpió el área..."></textarea>
                 </div>
 
                 <div className="form-group" style={{ marginBottom: '1.5rem' }}>

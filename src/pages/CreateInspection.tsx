@@ -1,12 +1,12 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Building2, MapPin, ClipboardList, Play } from 'lucide-react';
 import LocationPicker from '../components/LocationPicker';
 import toast from 'react-hot-toast';
 
 export default function CreateInspection(): React.ReactElement | null {
-        const [project, setProject] = useState({
+    const navigate = useNavigate();
+    const [project, setProject] = useState({
         name: '',
         location: '',
         type: 'Seguridad',
@@ -91,6 +91,7 @@ export default function CreateInspection(): React.ReactElement | null {
 
                 {/* Geolocalización */}
                 <LocationPicker
+                    initialLocation={null}
                     onLocationSelect={(location) => {
                         setProject({ ...project, gpsLocation: location });
                     }}

@@ -1,12 +1,12 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, Volume2, AlertTriangle, CheckCircle2, Share2, Printer, Trash2 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import ShareModal from '../components/ShareModal';
 import NoiseAssessmentPdf from '../components/NoiseAssessmentPdf';
 
 export default function NoiseAssessmentHistory(): React.ReactElement | null {
+    const navigate = useNavigate();
     useDocumentTitle('Evaluación de Ruido');
     
     const [measurements, setMeasurements] = useState([]);
@@ -34,15 +34,18 @@ export default function NoiseAssessmentHistory(): React.ReactElement | null {
     return (
         <div className="container" style={{ paddingBottom: '6rem' }}>
             <ShareModal
+                isOpen={!!shareItem}
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Protocolo Ruido - ${shareItem?.workerName || ''}`}
                 text={shareItem ? `🔊 Protocolo de Medición de Ruido (Res. 85/12)\n👤 Trabajador: ${shareItem.workerName}\n📈 Nivel: ${shareItem.levels?.lavg} dB(A)\n📅 Fecha: ${new Date(shareItem.date).toLocaleDateString()}` : ''}
+                rawMessage={shareItem ? `🔊 Protocolo de Medición de Ruido (Res. 85/12)\n👤 Trabajador: ${shareItem.workerName}\n📈 Nivel: ${shareItem.levels?.lavg} dB(A)\n📅 Fecha: ${new Date(shareItem.date).toLocaleDateString()}` : ''}
                 elementIdToPrint="pdf-content"
+                fileName={`Ruido_${shareItem?.workerName || 'Protocolo'}.pdf`}
             />
 
             <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
-                <NoiseAssessmentPdf data={shareItem} />
+                {shareItem && <NoiseAssessmentPdf data={shareItem} />}
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>

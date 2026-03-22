@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { ArrowLeft, Camera, RefreshCw, CheckCircle, TriangleAlert, ShieldCheck, Zap, ZapOff, FlipHorizontal, Search } from 'lucide-react';
 import { API_BASE_URL } from '../config';
@@ -57,7 +55,7 @@ export default function AIGeneralCamera(): React.ReactElement | null {
                     height: { ideal: 600 }
                 }
             };
-            const newStream = await navigator.mediaDevices.getUserMedia(constraints);
+            const newStream = await window.navigator.mediaDevices.getUserMedia(constraints);
             setStream(newStream);
             if (videoRef.current) videoRef.current.srcObject = newStream;
             setTorchOn(false);
@@ -133,7 +131,7 @@ export default function AIGeneralCamera(): React.ReactElement | null {
                 const markedImage = await drawDetections(imageSrc, data.detections);
                 setCapturedImage(markedImage);
             } else {
-                toast.info("No se detectaron riesgos evidentes en esta escena.");
+                toast("No se detectaron riesgos evidentes en esta escena.");
             }
 
             setAnalysisResult(data);

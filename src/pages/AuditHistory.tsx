@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Search, ClipboardCheck, Calendar, User,
     AlertTriangle, CheckCircle2, Clock, Share2, Printer, Trash2
@@ -28,6 +27,7 @@ const AUDIT_STATUS = {
 
 export default function AuditHistory(): React.ReactElement | null {
     useDocumentTitle('Historial de Auditorías');
+    const navigate = useNavigate();
     
     const [audits, setAudits] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -57,11 +57,14 @@ export default function AuditHistory(): React.ReactElement | null {
     return (
         <div className="container" style={{ paddingBottom: '6rem' }}>
             <ShareModal
+                isOpen={!!shareItem}
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Informe Auditoría - ${shareItem?.auditTitle || shareItem?.title || ''}`}
+                rawMessage={shareItem ? `📋 Informe de Auditoría EHS\n📌 Título: ${shareItem.auditTitle || shareItem.title}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${shareItem.date || shareItem.scheduledDate}` : ''}
                 text={shareItem ? `📋 Informe de Auditoría EHS\n📌 Título: ${shareItem.auditTitle || shareItem.title}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${shareItem.date || shareItem.scheduledDate}` : ''}
                 elementIdToPrint="pdf-content"
+                fileName={`Auditoria_${shareItem?.auditTitle || shareItem?.title || 'Reporte'}.pdf`}
             />
 
             <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>

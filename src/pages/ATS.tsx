@@ -323,15 +323,15 @@ export default function ATS(): React.ReactElement | null {
                 />
 
                 <ShareModal
-                    isOpen={showShare}
-                    open={showShare}
-                    onClose={() => setShowShare(false)}
-                    title={`ATS – ${formData.empresa}`}
-                    rawMessage={`📋 Análisis de Trabajo Seguro\n🏗️ Empresa: ${formData.empresa}\n🚧 Obra: ${formData.obra}\n📅 Fecha: ${formData.fecha}\n👷 Responsable: ${formData.capatazNombre}\n\nGenerado con Asistente HYS`}
-                    text={`📋 Análisis de Trabajo Seguro\n🏗️ Empresa: ${formData.empresa}\n🚧 Obra: ${formData.obra}\n📅 Fecha: ${formData.fecha}\n👷 Responsable: ${formData.capatazNombre}\n\nGenerado con Asistente HYS`}
-                    elementIdToPrint="pdf-content"
-                    fileName={`ATS_${formData.empresa.replace(/\s+/g, '_')}_${formData.fecha}.pdf`}
-                />
+                isOpen={showShare}
+                open={showShare}
+                onClose={() => setShowShare(false)}
+                title={`ATS – ${formData.empresa} (${formData.obra})`}
+                text={`🔐 Análisis de Trabajo Seguro\n🏗️ Empresa: ${formData.empresa}\n🚧 Obra: ${formData.obra}\n📅 Fecha: ${formData.fecha}\n📋 Tarea: ${(formData as any).tarea || ''}\n\nGenerado con Asistente HYS`}
+                elementIdToPrint="pdf-content"
+                rawMessage={``}
+                fileName={`ATS_${formData.empresa || 'Reporte'}`}
+            />
 
                 <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
                     <ATSPdfGenerator atsData={formData} />

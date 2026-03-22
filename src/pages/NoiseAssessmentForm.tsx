@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Volume2, Save, Eye, Printer, Share2 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import NoiseAssessmentPdf from '../components/NoiseAssessmentPdf';
@@ -18,6 +17,27 @@ const HEARING_PROTECTION = [
     { id: 'earmuffs', name: 'Orejeras', nrr: 25 },
     { id: 'dual', name: 'Protección dual', nrr: 35 }
 ];
+
+const labelStyle: React.CSSProperties = {
+    display: 'block',
+    marginBottom: '0.5rem',
+    fontSize: '0.9rem',
+    fontWeight: 700,
+    color: 'var(--color-text)'
+};
+
+const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '0.75rem 1rem',
+    borderRadius: '12px',
+    border: '1px solid var(--color-border)',
+    background: 'var(--color-background)',
+    color: 'var(--color-text)',
+    fontSize: '1rem',
+    outline: 'none',
+    boxSizing: 'border-box' as any,
+    transition: 'all 0.2s'
+};
 
 export default function NoiseAssessmentForm(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -243,14 +263,17 @@ export default function NoiseAssessmentForm(): React.ReactElement | null {
 
             <ShareModal
                 isOpen={showShareModal}
+                open={showShareModal}
                 onClose={() => setShowShareModal(false)}
                 elementIdToPrint="pdf-content"
                 title="Medición de Ruido"
+                text={`Evaluación de Ruido - ${measurement.workerName}`}
+                rawMessage={`Evaluación de Ruido - ${measurement.workerName}`}
                 fileName={`Ruido_${measurement.workerName || 'Sin_Nombre'}.pdf`}
             />
 
             <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
-                <NoiseAssessmentPdf data={{ ...measurement, createdAt: measurement.createdAt || new Date().toISOString() }} />
+                <NoiseAssessmentPdf data={{ ...measurement, id: (measurement as any).id || Date.now().toString(), createdAt: (measurement as any).createdAt || new Date().toISOString() }} />
             </div>
         </div>
     );

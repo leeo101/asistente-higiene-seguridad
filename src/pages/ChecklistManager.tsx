@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
 import {
     ClipboardCheck, Printer, Plus,
     Settings, TriangleAlert, Building2, Calendar,
@@ -155,7 +154,8 @@ const getNormsForCountry = (country) => {
 };
 
 export default function ChecklistManager(): React.ReactElement | null {
-        const { currentUser } = useAuth();
+    const navigate = useNavigate();
+    const { currentUser } = useAuth();
     const { syncCollection } = useSync();
     const { requirePro } = usePaywall();
     const [searchParams] = useSearchParams();
@@ -163,6 +163,8 @@ export default function ChecklistManager(): React.ReactElement | null {
     const [companyInfo, setCompanyInfo] = useState({
         name: '',
         inspector: '',
+        address: '',
+        responsable: ''
     });
 
     const [inspectionInfo, setInspectionInfo] = useState({
@@ -341,11 +343,14 @@ export default function ChecklistManager(): React.ReactElement | null {
         <div className="container" style={{ maxWidth: '1100px', paddingBottom: '8rem' }}>
 
             <ShareModal
+                isOpen={showShare}
                 open={showShare}
                 onClose={() => setShowShare(false)}
                 title={`Checklist – ${companyInfo?.name || ''}`}
                 text={`📋 Checklist de Inspección\n🏗️ Empresa: ${companyInfo?.name || '-'}\n📍 Ubicación: ${companyInfo?.address || '-'}\n👷 Responsable: ${companyInfo?.responsable || '-'}\n\nGenerado con Asistente H&S`}
+                rawMessage={`📋 Checklist de Inspección\n🏗️ Empresa: ${companyInfo?.name || '-'}\n📍 Ubicación: ${companyInfo?.address || '-'}\n👷 Responsable: ${companyInfo?.responsable || '-'}\n\nGenerado con Asistente H&S`}
                 elementIdToPrint="pdf-content"
+                fileName={`Checklist_${companyInfo?.name || 'Reporte'}.pdf`}
             />
 
             {/* Floating Action Buttons */}
@@ -484,8 +489,9 @@ export default function ChecklistManager(): React.ReactElement | null {
                                                 style={{ flex: 1, minWidth: '200px', padding: '0.5rem', fontWeight: 700, fontSize: '0.9rem', outline: 'none', background: 'transparent', resize: 'none', border: 'none', color: 'var(--color-text)' }}
                                                 value={item.text}
                                                 onInput={(e) => {
-                                                    e.target.style.height = 'auto';
-                                                    e.target.style.height = e.target.scrollHeight + 'px';
+                                                    const target = e.target as any;
+                                                    target.style.height = 'auto';
+                                                    target.style.height = target.scrollHeight + 'px';
                                                 }}
                                                 onChange={e => updateItem(section.id, idx, 'text', e.target.value)}
                                             />

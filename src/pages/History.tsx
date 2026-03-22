@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate, useLocation } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
     ArrowLeft, Search, Calendar, ChevronRight,
@@ -292,15 +290,18 @@ export default function History(): React.ReactElement | null {
                 {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
                 
                 <ShareModal
+                    isOpen={!!shareItem}
                     open={!!shareItem}
                     onClose={() => setShareItem(null)}
                     title={`Matriz de Riesgos - ${shareItem?.data?.name || ''}`}
                     text={shareItem ? `🚫 Matriz de Riesgo\n🏗️ ${shareItem.data.name}\n📍 ${shareItem.data.location}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString()}` : ''}
+                    rawMessage={shareItem ? `🚫 Matriz de Riesgo\n🏗️ ${shareItem.data.name}\n📍 ${shareItem.data.location}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString()}` : ''}
                     elementIdToPrint="pdf-content"
+                    fileName={`Matriz_${shareItem?.data?.name || 'Riesgo'}.pdf`}
                 />
 
                 <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
-                    {shareItem?.type === 'matrix' && <RiskMatrixPdfGenerator data={shareItem.data} isHeadless={true} />}
+                    {shareItem?.type === 'matrix' && <RiskMatrixPdfGenerator data={shareItem.data} />}
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
@@ -378,15 +379,18 @@ export default function History(): React.ReactElement | null {
                 {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
                 
                 <ShareModal
+                    isOpen={!!shareItem}
                     open={!!shareItem}
                     onClose={() => setShareItem(null)}
                     title={`Informe - ${shareItem?.data?.title || ''}`}
                     text={shareItem ? `📄 Informe Profesional\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString()}` : ''}
+                    rawMessage={shareItem ? `📄 Informe Profesional\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString()}` : ''}
                     elementIdToPrint="pdf-content"
+                    fileName={`Informe_${shareItem?.data?.title || 'Profesional'}.pdf`}
                 />
 
                 <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
-                    {shareItem?.type === 'report' && <ProfessionalReportPdfGenerator currentReport={shareItem.data} isHeadless={true} />}
+                    {shareItem?.type === 'report' && <ProfessionalReportPdfGenerator currentReport={shareItem.data} />}
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
@@ -463,15 +467,18 @@ export default function History(): React.ReactElement | null {
             {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
             
             <ShareModal
+                isOpen={!!shareItem}
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Inspección - ${shareItem?.data?.name || ''}`}
                 text={shareItem ? `📋 Inspección de Seguridad\n🏗️ ${shareItem.data.name || 'Sin nombre'}\n📅 ${new Date(shareItem.data.date).toLocaleDateString()}\n🔎 Tipo: ${shareItem.data.type || '—'}\n📊 Resultado: ${shareItem.data.result || '—'}` : ''}
+                rawMessage={shareItem ? `📋 Inspección de Seguridad\n🏗️ ${shareItem.data.name || 'Sin nombre'}\n📅 ${new Date(shareItem.data.date).toLocaleDateString()}\n🔎 Tipo: ${shareItem.data.type || '—'}\n📊 Resultado: ${shareItem.data.result || '—'}` : ''}
                 elementIdToPrint="pdf-content"
+                fileName={`Inspeccion_${shareItem?.data?.name || 'Seguridad'}.pdf`}
             />
 
             <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
-                {shareItem?.type === 'inspection' && <ReportPdfGenerator initialData={shareItem.data} isHeadless={true} />}
+                {shareItem?.type === 'inspection' && <ReportPdfGenerator initialData={shareItem.data} />}
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '2rem', flexWrap: 'wrap' }}>

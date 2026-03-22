@@ -280,9 +280,11 @@ export default function WorkingAtHeight(): React.ReactElement | null {
         <div className="container" style={{ paddingBottom: '6rem' }}>
             <ShareModal
                 isOpen={!!shareItem}
+                open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Permiso Altura - ${shareItem?.location || ''}`}
                 text={shareItem ? `🧗 Permiso de Trabajo en Altura\n📍 Ubicación: ${shareItem.location}\n👷 Trabajador: ${shareItem.workerName}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString()}` : ''}
+                rawMessage={shareItem ? `🧗 Permiso de Trabajo en Altura\n📍 Ubicación: ${shareItem.location}\n👷 Trabajador: ${shareItem.workerName}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString()}\n\nGenerado con Asistente H&S` : ''}
                 elementIdToPrint="pdf-content"
                 fileName={`Altura_${shareItem?.location || 'Sin_Nombre'}.pdf`}
             />
@@ -418,6 +420,7 @@ export default function WorkingAtHeight(): React.ReactElement | null {
                     icon={<FileText size={18} />}
                     label="Permisos"
                     count={permits.length}
+                    badge={false}
                 />
                 <TabButton 
                     active={activeTab === 'active'}
@@ -425,13 +428,15 @@ export default function WorkingAtHeight(): React.ReactElement | null {
                     icon={<CheckCircle2 size={18} />}
                     label="Activos"
                     count={activePermits.length}
-                    badge={activePermits.length}
+                    badge={activePermits.length > 0}
                 />
                 <TabButton 
                     active={activeTab === 'limits'}
                     onClick={() => setActiveTab('limits')}
                     icon={<Activity size={18} />}
                     label="Límites"
+                    count={0}
+                    badge={false}
                 />
             </div>
 
@@ -933,9 +938,9 @@ function ActivePermitsList({ activePermits, onComplete, onSuspend, onView, onSha
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {activePermits.map(permit => {
                 const workType = WORK_TYPES.find(t => t.id === permit.workType);
-                const isExpired = permit.validUntil && new Date(permit.validUntil) < new Date();
+                const isExpired = permit.validUntil && (new Date(permit.validUntil) as any) < (new Date() as any);
                 const timeRemaining = permit.validUntil 
-                    ? Math.max(0, Math.floor((new Date(permit.validUntil) - new Date()) / (1000 * 60 * 60)))
+                    ? Math.max(0, Math.floor(((new Date(permit.validUntil) as any) - (new Date() as any)) / (1000 * 60 * 60)))
                     : 0;
                 const heightRisk = parseFloat(permit.height) >= 6 ? 'high' : parseFloat(permit.height) >= 3 ? 'medium' : 'low';
                 const riskColor = heightRisk === 'high' ? '#dc2626' : heightRisk === 'medium' ? '#f59e0b' : '#16a34a';
@@ -1080,7 +1085,7 @@ function HeightLimitsPanel({ limits, fallProtection }) {
                     Límites de Altura (OSHA 1926.501)
                 </h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
-                    {Object.entries(limits).map(([key, limit]) => (
+                    {Object.entries(limits).map(([key, limit]: [string, any]) => (
                         <div key={key} style={{
                             padding: '1.25rem',
                             background: '#eff6ff',
@@ -1229,9 +1234,7 @@ function CreatePermitModal({ permit, setPermit, onSave, onClose, WORK_TYPES, FAL
     };
 
     return (
-        <div style={{
-            className: 'modal-fullscreen-overlay'
-        }} onClick={onClose}>
+        <div className="modal-fullscreen-overlay" onClick={onClose}>
             <div 
                 className="card"
                 style={{
@@ -1288,7 +1291,7 @@ function CreatePermitModal({ permit, setPermit, onSave, onClose, WORK_TYPES, FAL
                         <select
                             value={permit.workType}
                             onChange={(e) => setPermit({ ...permit, workType: e.target.value })}
-                            style={inputStyle}
+                            style={{ ...inputStyle, boxSizing: 'border-box' } as any}
                         >
                             <option value="">Seleccionar tipo</option>
                             {WORK_TYPES.map(type => (
@@ -1304,7 +1307,7 @@ function CreatePermitModal({ permit, setPermit, onSave, onClose, WORK_TYPES, FAL
                             type="text"
                             value={permit.location}
                             onChange={(e) => setPermit({ ...permit, location: e.target.value })}
-                            style={inputStyle}
+                            style={{ ...inputStyle, boxSizing: 'border-box' } as any}
                             placeholder="Ej: Edificio A, Nivel 3"
                         />
                     </div>
@@ -1317,7 +1320,7 @@ function CreatePermitModal({ permit, setPermit, onSave, onClose, WORK_TYPES, FAL
                             step="0.1"
                             value={permit.height}
                             onChange={(e) => setPermit({ ...permit, height: e.target.value })}
-                            style={inputStyle}
+                            style={{ ...inputStyle, boxSizing: 'border-box' } as any}
                             placeholder="Ej: 3.5"
                         />
                     </div>
@@ -1330,7 +1333,7 @@ function CreatePermitModal({ permit, setPermit, onSave, onClose, WORK_TYPES, FAL
                             step="0.5"
                             value={permit.duration}
                             onChange={(e) => setPermit({ ...permit, duration: e.target.value })}
-                            style={inputStyle}
+                            style={{ ...inputStyle, boxSizing: 'border-box' } as any}
                             placeholder="Ej: 4"
                         />
                     </div>
@@ -1342,7 +1345,7 @@ function CreatePermitModal({ permit, setPermit, onSave, onClose, WORK_TYPES, FAL
                             type="text"
                             value={permit.supervisor}
                             onChange={(e) => setPermit({ ...permit, supervisor: e.target.value })}
-                            style={inputStyle}
+                            style={{ ...inputStyle, boxSizing: 'border-box' } as any}
                             placeholder="Nombre del supervisor"
                         />
                     </div>
@@ -1550,9 +1553,10 @@ function PermitDetailModal({ permit, statusConfig, onClose, WORK_TYPES, FALL_PRO
     const isExpired = permit.validUntil && new Date(permit.validUntil) < new Date();
 
     return (
-        <div style={{
-            className: 'modal-fullscreen-overlay'
-        }} onClick={onClose}>
+        <div 
+            className="modal-fullscreen-overlay"
+            onClick={onClose}
+        >
             <div 
                 className="card"
                 style={{
@@ -1863,5 +1867,5 @@ const inputStyle = {
     fontWeight: 500,
     outline: 'none',
     transition: 'all var(--transition-fast)',
-    boxSizing: 'border-box'
+    boxSizing: 'border-box' as any
 };

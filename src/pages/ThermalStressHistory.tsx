@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
     Clock, MapPin, Printer, TriangleAlert, CheckCircle2, Edit2, Trash2, Share2,
@@ -29,7 +27,7 @@ export default function ThermalStressHistory(): React.ReactElement | null {
 
     useEffect(() => {
         const h = JSON.parse(localStorage.getItem('thermal_history') || '[]');
-        setHistory(h.sort((a, b) => new Date(b.date) - new Date(a.date)));
+        setHistory(h.sort((a, b) => (new Date(b.date) as any) - (new Date(a.date) as any)));
     }, [syncing]);
 
     const handleDelete = (id, e) => {
@@ -51,7 +49,7 @@ export default function ThermalStressHistory(): React.ReactElement | null {
     });
 
     if (selectedReport) {
-        return <ThermalStressPdfGenerator report={selectedReport} onBack={() => setSelectedReport(null)} />;
+        return <ThermalStressPdfGenerator data={selectedReport} onBack={() => setSelectedReport(null)} />;
     }
 
     return (
@@ -71,15 +69,18 @@ export default function ThermalStressHistory(): React.ReactElement | null {
             )}
 
             <ShareModal
+                isOpen={!!shareItem}
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Estrés Térmico - ${shareItem?.puesto || ''}`}
                 text={shareItem ? `🔥 Evaluación de Estrés Térmico\n📍 Puesto: ${shareItem.puesto}\n🌡️ TGBH: ${shareItem.resultados.tgbh}°C\n✅ Resultado: ${shareItem.resultados.admisible ? 'ADMISIBLE' : 'NO ADMISIBLE'}` : ''}
+                rawMessage={shareItem ? `🔥 Evaluación de Estrés Térmico\n📍 Puesto: ${shareItem.puesto}\n🌡️ TGBH: ${shareItem.resultados.tgbh}°C\n✅ Resultado: ${shareItem.resultados.admisible ? 'ADMISIBLE' : 'NO ADMISIBLE'}` : ''}
                 elementIdToPrint="pdf-content"
+                fileName={`Estres_Termico_${shareItem?.puesto || 'report'}.pdf`}
             />
 
             <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
-                {shareItem && <ThermalStressPdfGenerator report={shareItem} isHeadless={true} />}
+                {shareItem && <ThermalStressPdfGenerator data={shareItem} isHeadless={true} />}
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10 }}>

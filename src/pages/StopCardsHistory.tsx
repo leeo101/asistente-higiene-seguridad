@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, Plus, Calendar, AlertTriangle, ShieldCheck, MapPin, Trash2, Share2, AlertCircle, QrCode } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
@@ -47,7 +46,8 @@ function DeleteConfirm({ onConfirm, onCancel }) {
 
 export default function StopCardsHistory(): React.ReactElement | null {
     useDocumentTitle('Historial Tarjetas STOP');
-        const { syncCollection, syncPulse } = useSync();
+        const navigate = useNavigate();
+    const { syncCollection, syncPulse } = useSync();
 
     const [cards, setCards] = useState([]);
     const [loading, setLoading] = useState(true);

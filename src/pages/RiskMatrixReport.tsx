@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
@@ -139,11 +139,13 @@ export default function RiskMatrixReport(): React.ReactElement | null {
     return (
         <div className="container" style={{ maxWidth: '1100px' }}>
             <ShareModal
-                open={showShare}
+                isOpen={showShare}
                 onClose={() => setShowShare(false)}
                 title={`Matriz de Riesgos – ${matrix.name}`}
                 text={`📋 Matriz de Riesgos\n🏗️ Proyecto: ${matrix.name}\n📍 Ubicación: ${matrix.location || '-'}\n📅 Fecha: ${matrix.date}\n👷 Responsable: ${profile?.name || matrix.responsable}\n\n✅ Riesgos evaluados: ${matrix.rows?.length || 0}\n\nGenerado con Asistente H&S`}
+                rawMessage={`📋 Matriz de Riesgos\n🏗️ Proyecto: ${matrix.name}\n📍 Ubicación: ${matrix.location || '-'}\n📅 Fecha: ${matrix.date}\n👷 Responsable: ${profile?.name || matrix.responsable}\n\n✅ Riesgos evaluados: ${matrix.rows?.length || 0}\n\nGenerado con Asistente H&S`}
                 elementIdToPrint="pdf-content"
+                fileName={`Matriz_Riesgos_${matrix.name.replace(/\s+/g, '_')}.pdf`}
             />
 
             {/* ─── Action Bar (no-print) ─── */}

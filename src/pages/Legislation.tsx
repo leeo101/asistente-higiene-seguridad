@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
     ArrowLeft, FileText, Download, Search,
@@ -23,9 +21,8 @@ export default function Legislation(): React.ReactElement | null {
             try {
                 const parsed = JSON.parse(savedData);
                 if (parsed.country) setUserCountry(parsed.country);
-            } catch {
-
-                console.error('Error loading country from personalData:', e);
+            } catch (err) {
+                console.error('Error loading country from personalData:', err);
             }
         }
     }, []);

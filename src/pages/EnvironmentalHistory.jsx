@@ -51,13 +51,19 @@ export default function EnvironmentalHistory() {
         agua: measurements.filter(m => m.monitoringType === 'water').length
     };
 
+    const shareText = useMemo(() => {
+        if (!shareItem) return '';
+        const dateStr = new Date(shareItem.createdAt || Date.now()).toLocaleDateString();
+        return `🌿 Monitoreo Ambiental (Ley 19.587)\n📍 Estación: ${shareItem.stationName}\n📅 Fecha: ${dateStr}\n👷 Responsable: ${shareItem.technician || '-'}`;
+    }, [shareItem]);
+
     return (
         <div className="container" style={{ paddingBottom: '6rem' }}>
             <ShareModal
                 isOpen={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Monitoreo Ambiental - ${shareItem?.stationName || ''}`}
-                text={shareItem ? `🌿 Monitoreo Ambiental (Ley 19.587)\n📍 Estación: ${shareItem.stationName}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString()}\n👷 Responsable: ${shareItem.technician || '-'}` : ''}
+                text={shareText}
                 elementIdToPrint="pdf-content"
                 fileName={`Monitoreo_${shareItem?.stationName || 'Sin_Nombre'}.pdf`}
             />
@@ -136,7 +142,9 @@ function MeasurementCard({ measurement, onEdit, onShare }) {
                     <div style={{ width: '48px', height: '48px', background: `${statusColor}15`, borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', color: statusColor }}>{typeConfig.icon}</div>
                     <div style={{ flex: 1 }}>
                         <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem', fontWeight: 700 }}>{measurement.stationName}</h3>
-                        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{measurement.location || 'Sin ubicación'} • {new Date(measurement.createdAt || Date.now()).toLocaleDateString()}</p>
+                        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+                            {measurement.location || 'Sin ubicación'} • {new Date(measurement.createdAt || Date.now()).toLocaleDateString()}
+                        </p>
                     </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>

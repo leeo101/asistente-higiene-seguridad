@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
     ArrowLeft, ChevronRight, ChevronLeft,
@@ -252,7 +250,7 @@ export default function ErgonomicsForm(): React.ReactElement | null {
                                     value={formData.calculoLevantamiento.peso}
                                     onChange={(e) => setFormData({
                                         ...formData,
-                                        calculoLevantamiento: { ...formData.calculoLevantamiento, peso: e.target.value }
+                                        calculoLevantamiento: { ...formData.calculoLevantamiento, peso: Number(e.target.value) }
                                     })}
                                     placeholder="Ej: 15"
                                 />
@@ -330,7 +328,7 @@ export default function ErgonomicsForm(): React.ReactElement | null {
                             rows={3}
                             className="no-print block w-full"
                             value={formData.recomendaciones}
-                            onInput={e => {
+                            onInput={(e: any) => {
                                 e.target.style.height = 'auto';
                                 e.target.style.height = e.target.scrollHeight + 'px';
                             }}

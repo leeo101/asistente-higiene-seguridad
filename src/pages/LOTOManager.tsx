@@ -232,9 +232,11 @@ export default function LOTOManager(): React.ReactElement | null {
         <div className="container" style={{ paddingBottom: '6rem' }}>
             <ShareModal
                 isOpen={!!shareItem}
+                open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Procedimiento LOTO - ${shareItem?.equipmentName || ''}`}
                 text={shareItem ? `🔒 Procedimiento LOTO\n⚙️ Equipo: ${shareItem.equipmentName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString()}` : ''}
+                rawMessage={shareItem ? `🔒 Procedimiento LOTO\n⚙️ Equipo: ${shareItem.equipmentName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString()}` : ''}
                 elementIdToPrint="pdf-content"
                 fileName={`LOTO_${shareItem?.equipmentName || 'Procedimiento'}.pdf`}
             />
@@ -558,7 +560,7 @@ function StatCard({ icon, label, value, color, gradient }) {
     );
 }
 
-function TabButton({ active, onClick, icon, label, count, badge }) {
+function TabButton({ active, onClick, icon, label, count, badge }: any) {
     return (
         <button
             onClick={onClick}
@@ -929,7 +931,7 @@ function ActiveLOTOList({ activeLOTOs, onComplete, onView }) {
 }
 
 function EnergyTypesPanel({ stats, ENERGY_TYPES }) {
-    const maxCount = Math.max(...Object.values(stats.energyTypes || { default: 1 }), 1);
+    const maxCount = Math.max(...(Object.values(stats.energyTypes || { default: 1 }) as any[]), 1);
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -945,7 +947,7 @@ function EnergyTypesPanel({ stats, ENERGY_TYPES }) {
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
                         {Object.entries(stats.energyTypes).map(([typeId, count]) => {
                             const energyType = ENERGY_TYPES.find(e => e.id === typeId);
-                            const percentage = (count / maxCount) * 100;
+                            const percentage = ((count as any) / maxCount) * 100;
                             
                             return (
                                 <div key={typeId} style={{
@@ -961,7 +963,7 @@ function EnergyTypesPanel({ stats, ENERGY_TYPES }) {
                                                 {energyType?.name}
                                             </div>
                                             <div style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--color-text)' }}>
-                                                {count}
+                                                {count as any}
                                             </div>
                                         </div>
                                     </div>
@@ -1031,9 +1033,7 @@ function CreateProcedureModal({ procedure, setProcedure, onSave, onClose, ENERGY
     };
 
     return (
-        <div style={{
-            className: 'modal-fullscreen-overlay'
-        }} onClick={onClose}>
+        <div className="modal-fullscreen-overlay" onClick={onClose}>
             <div 
                 className="card"
                 style={{
@@ -1079,7 +1079,7 @@ function CreateProcedureModal({ procedure, setProcedure, onSave, onClose, ENERGY
                             type="text"
                             value={procedure.equipmentName}
                             onChange={(e) => setProcedure({ ...procedure, equipmentName: e.target.value })}
-                            style={inputStyle}
+                            style={{ ...inputStyle, boxSizing: 'border-box' } as any}
                             placeholder="Ej: Compresor Principal"
                         />
                     </div>
@@ -1091,7 +1091,7 @@ function CreateProcedureModal({ procedure, setProcedure, onSave, onClose, ENERGY
                             type="text"
                             value={procedure.equipmentId}
                             onChange={(e) => setProcedure({ ...procedure, equipmentId: e.target.value })}
-                            style={inputStyle}
+                            style={{ ...inputStyle, boxSizing: 'border-box' } as any}
                             placeholder="Ej: COMP-001"
                         />
                     </div>
@@ -1103,7 +1103,7 @@ function CreateProcedureModal({ procedure, setProcedure, onSave, onClose, ENERGY
                             type="text"
                             value={procedure.location}
                             onChange={(e) => setProcedure({ ...procedure, location: e.target.value })}
-                            style={inputStyle}
+                            style={{ ...inputStyle, boxSizing: 'border-box' } as any}
                             placeholder="Ej: Sala de Máquinas"
                         />
                     </div>
@@ -1115,7 +1115,7 @@ function CreateProcedureModal({ procedure, setProcedure, onSave, onClose, ENERGY
                             type="text"
                             value={procedure.department}
                             onChange={(e) => setProcedure({ ...procedure, department: e.target.value })}
-                            style={inputStyle}
+                            style={{ ...inputStyle, boxSizing: 'border-box' } as any}
                             placeholder="Ej: Mantenimiento"
                         />
                     </div>
@@ -1231,7 +1231,7 @@ function CreateProcedureModal({ procedure, setProcedure, onSave, onClose, ENERGY
                     <textarea
                         value={procedure.observations}
                         onChange={(e) => setProcedure({ ...procedure, observations: e.target.value })}
-                        style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }}
+                        style={{ ...inputStyle, minHeight: '80px', resize: 'vertical', boxSizing: 'border-box' } as any}
                         placeholder="Información adicional sobre el procedimiento..."
                     />
                 </div>
@@ -1273,9 +1273,10 @@ function CreateProcedureModal({ procedure, setProcedure, onSave, onClose, ENERGY
 // Modal de Detalle
 function ProcedureDetailModal({ procedure, statusConfig, onClose, ENERGY_TYPES, LOTO_DEVICES }) {
     return (
-        <div style={{
-            className: 'modal-fullscreen-overlay'
-        }} onClick={onClose}>
+        <div 
+            className="modal-fullscreen-overlay"
+            onClick={onClose}
+        >
             <div 
                 className="card"
                 style={{
@@ -1396,7 +1397,7 @@ function ProcedureDetailModal({ procedure, statusConfig, onClose, ENERGY_TYPES, 
                         Pasos del Procedimiento
                     </h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                        {LOTO_STEPS.map((step, idx) => (
+                        {LOTO_STEPS.map((step: any, idx) => (
                             <div key={step.id} style={{
                                 padding: '0.75rem 1rem',
                                 background: 'var(--color-background)',

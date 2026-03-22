@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { ShieldCheck, CreditCard, Sparkles, CheckCircle2, Lock, ArrowRight, ArrowLeft, Calendar, TriangleAlert } from 'lucide-react';
 import { API_BASE_URL } from '../config';
@@ -26,7 +24,7 @@ export default function Subscription(): React.ReactElement | null {
         const subData = JSON.parse(localStorage.getItem('subscriptionData') || '{}');
 
         // Check if user is active
-        if (isPro()) {
+        if (isPro) {
             setIsSubscribed(true);
             const expiry = parseInt(subData.expiry || '0', 10);
             if (expiry) setExpiryDate(new Date(expiry));
@@ -92,7 +90,7 @@ export default function Subscription(): React.ReactElement | null {
 
 
     if (isSubscribed && !showPricing) {
-        const days = daysRemaining();
+        const days = daysRemaining;
         const isExpiringSoon = days > 0 && days <= 7;
 
         return (
