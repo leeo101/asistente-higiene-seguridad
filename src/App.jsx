@@ -157,7 +157,7 @@ function GlobalPrintGuard() {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
-        if (!isPro()) {
+        if (!isPro) {
           e.preventDefault();
           e.stopPropagation();
           toast.error('La función de impresión es exclusiva para usuarios PRO y Administradores.', {
