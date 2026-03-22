@@ -98,7 +98,7 @@ export class ErrorBoundary extends Component<Props, State> {
               Ha ocurrido un error inesperado. No te preocupes, nuestro equipo ha sido notificado.
             </p>
 
-            {import.meta.env.DEV && this.state.error && (
+            {this.state.error && (
               <div style={{
                 background: 'rgba(0, 0, 0, 0.2)',
                 borderRadius: '12px',
