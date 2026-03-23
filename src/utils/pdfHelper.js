@@ -15,21 +15,40 @@ export async function generatePdfBlob(elementId, filename = 'reporte.pdf', isLan
         position: element.style.position,
         left: element.style.left,
         top: element.style.top,
+        width: element.style.width,
+        maxWidth: element.style.maxWidth,
+        height: element.style.height,
+        minHeight: element.style.minHeight,
+        transform: element.style.transform,
         zIndex: element.style.zIndex,
         opacity: element.style.opacity,
         pointerEvents: element.style.pointerEvents,
-        visibility: element.style.visibility
+        visibility: element.style.visibility,
+        backgroundColor: element.style.backgroundColor
     };
 
     try {
         // Make element visible and positioned for capture
-        element.style.position = 'fixed';
-        element.style.left = '0';
+        // Force element to A4 width so its layout does not wrap endlessly on mobile.
+        // Use absolute positioning to allow its height to grow naturally to whatever
+        // height is needed to fit the unwrapped content.
+        const targetWidth = isLandscape ? '297mm' : '210mm';
+        
+        element.style.position = 'absolute';
+        element.style.left = '-9999px'; // Render off-screen to avoid jumping
         element.style.top = '0';
+        element.style.width = targetWidth;
+        element.style.maxWidth = 'none';
+        
+        // Remove height constraints so it can expand
+        element.style.height = 'max-content';
+        element.style.minHeight = isLandscape ? '210mm' : '297mm';
+        
         element.style.zIndex = '9999';
         element.style.opacity = '1';
         element.style.pointerEvents = 'none';
         element.style.visibility = 'visible';
+        element.style.backgroundColor = '#ffffff';
 
         // Wait for styles to apply
         await new Promise(resolve => setTimeout(resolve, 300));
@@ -100,10 +119,16 @@ export async function generatePdfBlob(elementId, filename = 'reporte.pdf', isLan
         element.style.position = originalStyles.position;
         element.style.left = originalStyles.left;
         element.style.top = originalStyles.top;
+        element.style.width = originalStyles.width;
+        element.style.maxWidth = originalStyles.maxWidth;
+        element.style.height = originalStyles.height;
+        element.style.minHeight = originalStyles.minHeight;
+        element.style.transform = originalStyles.transform;
         element.style.zIndex = originalStyles.zIndex;
         element.style.opacity = originalStyles.opacity;
         element.style.pointerEvents = originalStyles.pointerEvents;
         element.style.visibility = originalStyles.visibility;
+        element.style.backgroundColor = originalStyles.backgroundColor;
         element.classList.remove('pdf-render-in-progress');
     }
 }

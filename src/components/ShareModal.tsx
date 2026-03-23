@@ -80,7 +80,8 @@ export default function ShareModal({
         element.style.left = '0';
         element.style.top = '0';
         element.style.width = '100vw';
-        element.style.height = '100vh';
+        // Remove height constraint to allow full document print
+
         element.style.zIndex = '9999999';
         element.style.opacity = '1';
         element.style.visibility = 'visible';
