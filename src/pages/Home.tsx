@@ -426,7 +426,7 @@ export default function Home(): React.ReactElement {
         </div>
       ) : (
         /* DASHBOARD HERO BANNER */
-        <div style={{ padding: 'clamp(6rem, 8vw, 7rem) 1.2rem 2rem', background: 'var(--color-hero-bg)', borderBottom: '1px solid var(--color-border)', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ padding: 'clamp(8rem, 10vw, 9rem) 1.2rem 2rem', background: 'var(--color-hero-bg)', borderBottom: '1px solid var(--color-border)', position: 'relative', overflow: 'hidden' }}>
           <StarryBackground />
           <div style={{ position: 'relative', zIndex: 1, maxWidth: '1200px', margin: '0 auto' }}>
             <div className="stagger-item" style={{ animationDelay: '0.1s' }}>
