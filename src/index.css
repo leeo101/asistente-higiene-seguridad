@@ -2052,14 +2052,15 @@ label {
     visibility: visible !important;
   }
 
-  /* Force print area to top-left and take full page */
+  /* Force print area to normal flow to avoid absolute-position pagination bugs */
   .print-area,
   #pdf-content {
-    position: absolute !important;
+    position: relative !important;
     left: 0 !important;
     top: 0 !important;
     width: 100% !important;
     height: auto !important;
+    min-height: auto !important; /* Prevents 297mm from triggering blank pages */
     margin: 0 !important;
     padding: 0 !important;
     background: white !important;
