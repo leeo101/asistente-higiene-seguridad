@@ -62,7 +62,8 @@ export default function ATS(): React.ReactElement | null {
     const location = useLocation();
     const { requirePro, isPro, daysRemaining } = usePaywall();
     const { syncCollection } = useSync();
-    useDocumentTitle('Análisis de Trabajo Seguro (ATS)');
+    const editData = location.state?.editData;
+    useDocumentTitle(editData ? 'Editar ATS' : 'Análisis de Trabajo Seguro (ATS)');
     const capatazCanvasRef = useRef(null);
     const [isDrawingCapataz, setIsDrawingCapataz] = useState(false);
 
@@ -382,7 +383,7 @@ export default function ATS(): React.ReactElement | null {
                         <div>
                             <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, color: 'var(--color-text)', letterSpacing: '-1px', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                                 <ShieldCheck className="text-blue-600" size={32} />
-                                Análisis de Trabajo Seguro
+                                {editData ? 'Editar ATS' : 'Análisis de Trabajo Seguro'}
                             </h1>
                             <p style={{ margin: 0, color: 'var(--color-text-muted)', fontWeight: 600, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Control HYS</p>
                         </div>

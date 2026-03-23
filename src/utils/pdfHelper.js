@@ -76,17 +76,20 @@ export async function generatePdfBlob(elementId, filename = 'reporte.pdf', isLan
             pdf.addImage(imgData, 'JPEG', marginX, marginY, contentWidthMM, contentHeightMM);
         } else {
             let heightLeft = contentHeightMM;
-            let positionY = marginY;
-            
+            let position = 0;
+            let page = 1;
+
+            // First page
             pdf.addImage(imgData, 'JPEG', marginX, marginY, contentWidthMM, contentHeightMM);
             heightLeft -= (pdfHeight - marginY * 2);
 
+            // Additional pages
             while (heightLeft > 0) {
-                positionY = heightLeft - contentHeightMM + marginY;
+                position = heightLeft - contentHeightMM + marginY;
                 pdf.addPage();
-                pdf.addImage(imgData, 'JPEG', marginX, positionY, contentWidthMM, contentHeightMM);
+                pdf.addImage(imgData, 'JPEG', marginX, position, contentWidthMM, contentHeightMM);
                 heightLeft -= (pdfHeight - marginY * 2);
-                pageNum++;
+                page++;
             }
         }
 

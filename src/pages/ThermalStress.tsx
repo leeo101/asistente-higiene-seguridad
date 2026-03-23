@@ -24,7 +24,6 @@ const LIMITS_295 = {
 };
 
 export default function ThermalStress(): React.ReactElement | null {
-    useDocumentTitle('Cálculo Estrés Térmico');
     const navigate = useNavigate();
     const location = useLocation();
     const { currentUser } = useAuth();
@@ -32,6 +31,8 @@ export default function ThermalStress(): React.ReactElement | null {
     const { syncCollection } = useSync();
 
     const editData = location.state?.editData;
+    useDocumentTitle(editData ? 'Editar Estrés Térmico' : 'Cálculo Estrés Térmico');
+
 
     const [formData, setFormData] = useState(editData || {
         puesto: '',
@@ -188,7 +189,7 @@ export default function ThermalStress(): React.ReactElement | null {
                         <button onClick={() => navigate('/#tools')} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)' }}>
                             <ArrowLeft size={20} />
                         </button>
-                        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Estrés Térmico Calculadora</h1>
+                        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>{editData ? 'Editar Estrés Térmico' : 'Estrés Térmico Calculadora'}</h1>
                     </div>
                     <button onClick={() => navigate('/thermal-stress-history')} className="btn-outline" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1.2rem' }}>
                         <Search size={18} /> Historial

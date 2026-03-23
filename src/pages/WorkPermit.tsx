@@ -22,7 +22,8 @@ export default function WorkPermit(): React.ReactElement | null {
     const { currentUser } = useAuth();
     const { syncCollection } = useSync();
     const { requirePro } = usePaywall();
-    useDocumentTitle('Permiso de Trabajo');
+    const editData = location.state?.editData;
+    useDocumentTitle(editData ? 'Editar Permiso de Trabajo' : 'Permiso de Trabajo');
 
     // Default state
     const [formData, setFormData] = useState(() => ({
@@ -222,7 +223,9 @@ export default function WorkPermit(): React.ReactElement | null {
                         <ArrowLeft size={20} />
                     </button>
                     <div>
-                        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-text)' }}>Permisos de Trabajo</h1>
+                        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-text)' }}>
+                            {editData ? 'Editar Permiso de Trabajo' : 'Permisos de Trabajo'}
+                        </h1>
                         <p style={{ margin: 0, color: 'var(--color-text-muted)', fontWeight: 600, fontSize: '0.8rem', textTransform: 'uppercase' }}>Gestión de Riesgos Especiales</p>
                     </div>
                 </div>

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Lock, Save, Eye, CheckCircle2, Printer, Share2 } from 'lucide-react';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import LOTOPdf from '../components/LOTOPdf';
 
@@ -44,8 +46,12 @@ const inputStyle: React.CSSProperties = {
 
 export default function LOTOForm(): React.ReactElement | null {
     const navigate = useNavigate();
+    const location = useLocation();
     const [isMobile, setIsMobile] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
+    const [isEdit, setIsEdit] = useState(false);
+
+    useDocumentTitle(isEdit ? 'Editar Procedimiento LOTO' : 'Nuevo Procedimiento LOTO');
     const [procedure, setProcedure] = useState({
         equipmentName: '',
         location: '',
@@ -61,6 +67,13 @@ export default function LOTOForm(): React.ReactElement | null {
             result: 'safe'
         }
     });
+
+    useEffect(() => {
+        if (location.state?.editData) {
+            setProcedure(location.state.editData);
+            setIsEdit(true);
+        }
+    }, [location.state]);
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -85,20 +98,28 @@ export default function LOTOForm(): React.ReactElement | null {
 
     const handleSave = () => {
         if (!procedure.equipmentName) {
-            alert('Por favor complete el nombre del equipo');
+            toast.error('Por favor complete el nombre del equipo');
             return;
         }
 
-        const newEntry = {
-            ...procedure,
-            id: `LOTO-${Date.now()}`,
-            createdAt: new Date().toISOString(),
-            status: 'pending'
-        };
+        const saved = JSON.parse(localStorage.getItem('loto_procedures_db') || '[]');
+        let updated;
 
-        const currentData = JSON.parse(localStorage.getItem('loto_procedures_db') || '[]');
-        localStorage.setItem('loto_procedures_db', JSON.stringify([newEntry, ...currentData]));
-        
+        if (isEdit) {
+            updated = saved.map((p: any) => p.id === (procedure as any).id ? procedure : p);
+            toast.success('Procedimiento actualizado');
+        } else {
+            const newEntry = {
+                ...procedure,
+                id: `LOTO-${Date.now()}`,
+                createdAt: new Date().toISOString(),
+                status: 'pending'
+            };
+            updated = [newEntry, ...saved];
+            toast.success('Procedimiento guardado');
+        }
+
+        localStorage.setItem('loto_procedures_db', JSON.stringify(updated));
         navigate('/loto-history');
     };
 
@@ -135,7 +156,7 @@ export default function LOTOForm(): React.ReactElement | null {
                 <div style={{ flex: 1 }}>
                     <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.3rem', fontWeight: 900 }}>
                         <Lock size={20} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />
-                        Nuevo Procedimiento LOTO
+                        {isEdit ? 'Editar Procedimiento LOTO' : 'Nuevo Procedimiento LOTO'}
                     </h1>
                 </div>
                 {/* Header Buttons Removed as they are now in the floating bar */}

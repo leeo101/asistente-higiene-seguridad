@@ -1,18 +1,23 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { ArrowLeft, Save, AlertTriangle, MapPin, Camera, User } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function StopCards(): React.ReactElement | null {
-    useDocumentTitle('Nueva Tarjeta STOP');
     const navigate = useNavigate();
+    const location = useLocation();
+    const editData = location.state?.editData;
+
+    useDocumentTitle(editData ? 'Editar Tarjeta STOP' : 'Nueva Tarjeta STOP');
+    
     const { currentUser } = useAuth();
     const { syncCollection } = useSync();
 
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState(editData || {
         id: Date.now().toString(),
         date: new Date().toISOString().split('T')[0],
         time: new Date().toTimeString().split(' ')[0].substring(0, 5),
@@ -42,25 +47,34 @@ export default function StopCards(): React.ReactElement | null {
 
     const handleSave = () => {
         if (!formData.location || !formData.description) {
-            alert("Por favor completá ubicación y descripción.");
+            toast.error("Por favor completá ubicación y descripción.");
             return;
         }
 
-        const history = JSON.parse(localStorage.getItem('stop_cards_history') || '[]');
-        const updated = [formData, ...history];
-        localStorage.setItem('stop_cards_history', JSON.stringify(updated));
-        syncCollection('stop_cards_history', updated);
+        let history = JSON.parse(localStorage.getItem('stop_cards_history') || '[]');
+        
+        if (editData) {
+            history = history.map(item => item.id === editData.id ? formData : item);
+        } else {
+            history.unshift(formData);
+        }
 
+        localStorage.setItem('stop_cards_history', JSON.stringify(history));
+        syncCollection('stop_cards_history', history);
+
+        toast.success(editData ? 'Tarjeta STOP actualizada' : 'Tarjeta STOP guardada');
         navigate('/stop-cards-history');
     };
 
     return (
         <div className="container page-transition" style={{ paddingBottom: '4rem', maxWidth: '600px', margin: '0 auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                <button onClick={() => navigate('/#tools')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                <button onClick={() => navigate(editData ? '/stop-cards-history' : '/#tools')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer' }}>
                     <ArrowLeft size={24} />
                 </button>
-                <h1 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800 }}>Tarjeta STOP</h1>
+                <h1 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800 }}>
+                    {editData ? 'Editar Tarjeta STOP' : 'Tarjeta STOP'}
+                </h1>
             </div>
 
             <div className="card" style={{ padding: '1.5rem' }}>
@@ -123,7 +137,7 @@ export default function StopCards(): React.ReactElement | null {
                 </div>
 
                 <button onClick={handleSave} className="btn-primary" style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
-                    <Save size={20} /> Guardar Tarjeta STOP
+                    <Save size={20} /> {editData ? 'Actualizar Tarjeta' : 'Guardar Tarjeta STOP'}
                 </button>
             </div>
         </div>

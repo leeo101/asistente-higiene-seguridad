@@ -130,7 +130,7 @@ export default function Ergonomics(): React.ReactElement | null {
 
                             <div style={{ display: 'flex', gap: '0.8rem', marginTop: '1rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
                                 <button
-                                    onClick={() => navigate(`/ergonomics-report?id=${item.id}`)}
+                                    onClick={() => navigate('/ergonomics-form', { state: { editData: item } })}
                                     className="btn-secondary"
                                     style={{ flex: 1, padding: '0.6rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'center' }}
                                 >

@@ -6,6 +6,8 @@ import {
     User, Users, Shield, Wind, Droplets, Thermometer,
     Activity, ShieldCheck, AlertCircle, Plus, Trash2
 } from 'lucide-react';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import ConfinedSpacePdf from '../components/ConfinedSpacePdf';
 
@@ -59,6 +61,9 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
     const location = useLocation();
     const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
     const [showShareModal, setShowShareModal] = useState(false);
+    const [isEdit, setIsEdit] = useState(false);
+
+    useDocumentTitle(isEdit ? 'Editar Permiso Espacio Confinado' : 'Permiso Espacio Confinado');
 
     const [permit, setPermit] = useState({
         id: '',
@@ -93,6 +98,7 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                 hazards: location.state.editData.hazards || [],
                 team: location.state.editData.team || { entrants: [], attendant: '', supervisor: '', rescue: '' }
             });
+            setIsEdit(true);
         }
 
         return () => window.removeEventListener('resize', handleResize);
@@ -128,23 +134,28 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
 
     const handleSave = () => {
         if (!permit.spaceName || !permit.location || !permit.team.attendant || !permit.team.supervisor) {
-            alert('Por favor complete los campos obligatorios (*) incluyendo Vigía y Supervisor');
+            toast.error('Por favor complete los campos obligatorios (*)');
             return;
         }
 
-        const newEntry = {
-            ...permit,
-            id: permit.id || `CS-${Date.now()}`,
-            updatedAt: new Date().toISOString(),
-            status: permit.status || 'pending'
-        };
+        const saved = JSON.parse(localStorage.getItem('confined_space_permits_db') || '[]');
+        let updated;
 
-        const currentData = JSON.parse(localStorage.getItem('confined_space_permits_db') || '[]');
-        const updatedData = permit.id
-            ? currentData.map((item: any) => item.id === permit.id ? newEntry : item)
-            : [newEntry, ...currentData];
+        if (isEdit) {
+            updated = saved.map((p: any) => p.id === permit.id ? permit : p);
+            toast.success('Permiso actualizado');
+        } else {
+            const newEntry = {
+                ...permit,
+                id: `CS-${Date.now()}`,
+                createdAt: new Date().toISOString(),
+                status: permit.status || 'pending'
+            };
+            updated = [newEntry, ...saved];
+            toast.success('Permiso guardado');
+        }
 
-        localStorage.setItem('confined_space_permits_db', JSON.stringify(updatedData));
+        localStorage.setItem('confined_space_permits_db', JSON.stringify(updated));
         navigate('/confined-space-history');
     };
 
@@ -202,7 +213,7 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                 <div style={{ flex: 1 }}>
                     <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.3rem', fontWeight: 900 }}>
                         <Tent size={24} style={{ display: 'inline', marginRight: '0.75rem', verticalAlign: 'middle', color: '#f59e0b' }} />
-                        Nuevo Permiso OSHA 1910.146
+                        {isEdit ? 'Editar Permiso Espacio Confinado' : 'Nuevo Permiso OSHA 1910.146'}
                     </h1>
                 </div>
             </div>

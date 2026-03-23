@@ -1,38 +1,66 @@
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { ADMIN_EMAILS } from '../config';
 
 export function usePaywall() {
+  const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const [isPro, setIsPro] = useState<boolean>(false);
-  const [daysRemaining, setDaysRemaining] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
+  const status = useMemo(() => {
+    if (currentUser?.email && ADMIN_EMAILS.includes(currentUser.email)) {
+      return 'active';
+    }
+    try {
+      const subData = JSON.parse(localStorage.getItem('subscriptionData') || '{}');
+      if (!subData.status) return 'none';
+      if (subData.status !== 'active') return 'none';
+
+      const expiry = parseInt(subData.expiry || '0', 10);
+      if (!expiry) return 'active';
+      if (Date.now() > expiry) return 'expired';
+      return 'active';
+    } catch {
+      return 'none';
+    }
+  }, [currentUser?.email]);
+
+  const isActive = status === 'active';
+  const isPro = !!currentUser && isActive;
+
+  const daysRemaining = useMemo(() => {
+    if (!isPro) return 0;
+    if (currentUser?.email && ADMIN_EMAILS.includes(currentUser.email)) {
+      return Infinity;
+    }
+    try {
+      const subData = JSON.parse(localStorage.getItem('subscriptionData') || '{}');
+      const expiry = parseInt(subData.expiry || '0', 10);
+      if (!expiry) return 0;
+      return Math.max(0, Math.ceil((expiry - Date.now()) / (1000 * 60 * 60 * 24)));
+    } catch {
+      return 0;
+    }
+  }, [currentUser?.email, isPro]);
+
+  const requirePro = (action: (() => void) | (() => Promise<void>)) => {
     if (!currentUser) {
-      setIsPro(false);
-      setLoading(false);
+      navigate('/login');
       return;
     }
-
-    try {
-      // Mocked logic for now, should be replaced with real subscription check
-      // Ensure it always returns a boolean
-      const status = localStorage.getItem('subscriptionStatus');
-      const isCurrentlyPro = status === 'active';
-      
-      setIsPro(isCurrentlyPro);
-      setDaysRemaining(isCurrentlyPro ? 30 : 0);
-    } catch (error) {
-      console.error('[usePaywall] Error checking status:', error);
-      setIsPro(false);
-    } finally {
-      setLoading(false);
+    if (!isActive) {
+      navigate('/subscribe');
+      return;
     }
-  }, [currentUser]);
+    if (typeof action === 'function') action();
+  };
 
-  return { 
-    isPro: Boolean(isPro), 
-    daysRemaining: Number(daysRemaining), 
-    loading: Boolean(loading) 
+  return {
+    requirePro,
+    isPro,
+    daysRemaining,
+    status,
+    isActive,
+    loading: false // Keep for compatibility if needed
   };
 }

@@ -17,14 +17,13 @@ import toast from 'react-hot-toast';
 const SECTIONS = ['Datos Generales', 'Accidentado', 'Descripción y Testigos', 'Análisis Causal', 'Medidas Preventivas'];
 
 export default function AccidentInvestigation(): React.ReactElement | null {
-    useDocumentTitle('Investigación de Accidentes');
     const navigate = useNavigate();
     const location = useLocation();
     const { currentUser } = useAuth();
     const { syncCollection } = useSync();
     const { requirePro } = usePaywall();
-
     const editData = location.state?.editData;
+    useDocumentTitle(editData ? 'Editar Investigación' : 'Investigación de Accidentes');
 
     const [currentStep, setCurrentStep] = useState(0);
     const [formData, setFormData] = useState(editData || {

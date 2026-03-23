@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
     ArrowLeft, ChevronRight, ChevronLeft,
@@ -13,8 +13,11 @@ import { API_BASE_URL } from '../config';
 export default function ErgonomicsForm(): React.ReactElement | null {
     const navigate = useNavigate();
     const { syncCollection } = useSync();
+    const location = useLocation();
+    const editData = location.state?.editData;
+
     const [step, setStep] = useState(1);
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState(editData || {
         empresa: '',
         cuit: '',
         sector: '',
@@ -54,21 +57,29 @@ export default function ErgonomicsForm(): React.ReactElement | null {
     const handleBack = () => setStep(step - 1);
 
     const handleSave = () => {
-        const id = Date.now().toString();
-        const history = JSON.parse(localStorage.getItem('ergonomics_history') || '[]');
+        const id = editData?.id || Date.now().toString();
+        let history = JSON.parse(localStorage.getItem('ergonomics_history') || '[]');
 
         // Simulación de riesgo basado en Planilla 1
         let riesgo = 'Tolerable';
         const activeFactors = Object.values(formData.planilla1).filter(v => v === true).length;
-        if (activeFactors > 2 || formData.calculoLevantamiento.peso > 25) {
+        if (activeFactors > 2 || (formData.planilla1.levantamientoCarga && formData.calculoLevantamiento.peso > 25)) {
             riesgo = 'Moderado';
         }
 
-        const newEntry = { ...formData, id, riesgo };
-        history.push(newEntry);
+        const report = { ...formData, id, riesgo };
+
+        if (editData) {
+            history = history.map(item => item.id === editData.id ? report : item);
+        } else {
+            history.unshift(report);
+        }
+
         localStorage.setItem('ergonomics_history', JSON.stringify(history));
         syncCollection('ergonomics_history', history);
-        navigate(`/ergonomics-report?id=${id}`);
+        
+        toast.success(editData ? 'Estudio actualizado correctamente.' : 'Estudio registrado con éxito.');
+        navigate(`/ergonomics-report?id=${id}`, { state: { report } });
     };
 
     const [isGeneratingConclusion, setIsGeneratingConclusion] = useState(false);
@@ -113,7 +124,9 @@ export default function ErgonomicsForm(): React.ReactElement | null {
                     <ArrowLeft />
                 </button>
                 <div style={{ flex: 1 }}>
-                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Nuevo Estudio Ergonómico</h1>
+                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>
+                        {editData ? 'Editar Estudio Ergonómico' : 'Nuevo Estudio Ergonómico'}
+                    </h1>
                     <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Protocolo Res. SRT 886/15</p>
                 </div>
                 <CompanyLogo style={{ height: '32px', width: 'auto', maxWidth: '80px', objectFit: 'contain' }} />

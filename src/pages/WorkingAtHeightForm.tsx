@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Save, ArrowDown, Shield, AlertTriangle, Clock, CheckCircle2, User, MapPin, Ruler, Eye, Printer, Share2 } from 'lucide-react';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import WorkingAtHeightPdf from '../components/WorkingAtHeightPdf';
 
@@ -22,8 +24,12 @@ const PRIORITY = {
 
 export default function WorkingAtHeightForm(): React.ReactElement | null {
     const navigate = useNavigate();
+    const location = useLocation();
     const [isMobile, setIsMobile] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
+    const [isEdit, setIsEdit] = useState(false);
+
+    useDocumentTitle(isEdit ? 'Editar Permiso en Altura' : 'Permiso de Trabajo en Altura');
     const [permit, setPermit] = useState({
         workerName: '',
         workType: 'scaffolding',
@@ -48,6 +54,13 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
     });
 
     useEffect(() => {
+        if (location.state?.editData) {
+            setPermit(location.state.editData);
+            setIsEdit(true);
+        }
+    }, [location.state]);
+
+    useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         handleResize();
         window.addEventListener('resize', handleResize);
@@ -56,20 +69,28 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
 
     const handleSave = () => {
         if (!permit.workerName || !permit.height) {
-            alert('Por favor complete los campos obligatorios (*)');
+            toast.error('Por favor complete los campos obligatorios (*)');
             return;
         }
 
-        const newPermit = {
-            ...permit,
-            id: `WAH-${Date.now()}`,
-            createdAt: new Date().toISOString(),
-            status: 'open'
-        };
-        const currentData = JSON.parse(localStorage.getItem('working_at_height_db') || '[]');
-        const updatedData = [newPermit, ...currentData];
-        localStorage.setItem('working_at_height_db', JSON.stringify(updatedData));
-        
+        const saved = JSON.parse(localStorage.getItem('working_at_height_db') || '[]');
+        let updated;
+
+        if (isEdit) {
+            updated = saved.map((p: any) => p.id === (permit as any).id ? permit : p);
+            toast.success('Permiso actualizado');
+        } else {
+            const newPermit = {
+                ...permit,
+                id: `WAH-${Date.now()}`,
+                createdAt: new Date().toISOString(),
+                status: 'open'
+            };
+            updated = [newPermit, ...saved];
+            toast.success('Permiso guardado');
+        }
+
+        localStorage.setItem('working_at_height_db', JSON.stringify(updated));
         navigate('/working-at-height-history');
     };
 
@@ -129,7 +150,7 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
                 <div style={{ flex: 1 }}>
                     <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.3rem', fontWeight: 900 }}>
                         <ArrowDown size={20} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />
-                        Permiso de Trabajo en Altura
+                        {isEdit ? 'Editar Permiso en Altura' : 'Permiso de Trabajo en Altura'}
                     </h1>
                 </div>
                 {/* Header Buttons Removed as they are now in the floating bar */}

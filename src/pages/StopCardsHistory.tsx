@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Plus, Calendar, AlertTriangle, ShieldCheck, MapPin, Trash2, Share2, AlertCircle, QrCode } from 'lucide-react';
+import { ArrowLeft, Search, Plus, Calendar, AlertTriangle, ShieldCheck, MapPin, Trash2, Share2, AlertCircle, QrCode, Pencil } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -170,11 +170,18 @@ export default function StopCardsHistory(): React.ReactElement | null {
 
                                 <div style={{ display: 'flex', gap: '0.8rem', borderTop: '1px solid var(--color-border)', paddingTop: '0.8rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                                     <button
+                                        onClick={() => navigate('/stop-cards', { state: { editData: item } })}
+                                        className="btn-secondary"
+                                        style={{ padding: '0.5rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-primary)', border: '1px solid var(--color-primary)22', cursor: 'pointer', background: 'var(--color-primary)08', borderRadius: '10px' }}
+                                    >
+                                        <Pencil size={16} /> <span className="hidden sm:inline">Editar</span>
+                                    </button>
+                                    <button
                                         onClick={() => setShareCard(item)}
                                         className="btn-secondary"
                                         style={{ padding: '0.5rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-text)', border: '1px solid var(--color-border)', cursor: 'pointer', background: 'transparent', borderRadius: '10px' }}
                                     >
-                                        <Share2 size={16} /> Compartir
+                                        <Share2 size={16} /> <span className="hidden sm:inline">Compartir</span>
                                     </button>
                                     <button
                                         onClick={() => {

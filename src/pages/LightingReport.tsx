@@ -215,8 +215,8 @@ export default function LightingReport(): React.ReactElement | null {
         requirePro(async () => {
             try {
                 const reportData = {
-                    id: Date.now().toString(),
-                    date: new Date().toISOString(),
+                    id: location.state?.editData?.id || Date.now().toString(),
+                    date: location.state?.editData?.date || new Date().toISOString(),
                     empresa: formData.empresa || 'Empresa Sin Nombre',
                     sector: formData.sector || 'Sin Sector',
                     results: results,
@@ -232,14 +232,19 @@ export default function LightingReport(): React.ReactElement | null {
                     }
                 } catch (e) {}
 
-                existingHistory.push(reportData);
+                if (location.state?.editData) {
+                    existingHistory = existingHistory.map(item => item.id === location.state.editData.id ? reportData : item);
+                } else {
+                    existingHistory.push(reportData);
+                }
+                
                 localStorage.setItem('lighting_history', JSON.stringify(existingHistory));
 
                 if (currentUser) {
                     await syncCollection('lighting_history', existingHistory);
                 }
 
-                toast.success('Informe guardado en el Historial');
+                toast.success(location.state?.editData ? 'Informe actualizado correctamente.' : 'Informe guardado en el Historial');
             } catch (err) {
                 console.error("Error saving document:", err);
                 toast.error("Error al guardar en la base de datos.");
@@ -279,7 +284,9 @@ export default function LightingReport(): React.ReactElement | null {
                     <ArrowLeft />
                 </button>
                 <div>
-                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Estudio de Iluminación</h1>
+                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>
+                        {location.state?.editData ? 'Editar Protocolo de Iluminación' : 'Estudio de Iluminación'}
+                    </h1>
                     <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Medición {countryNorms.lighting}</p>
                 </div>
             </div>

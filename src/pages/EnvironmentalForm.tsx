@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Save, Leaf, Shield, AlertTriangle, Clock, CheckCircle2, User, MapPin, Activity, Droplets, Wind, Thermometer, Sun, Eye, Printer, Share2 } from 'lucide-react';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import EnvironmentalPdf from '../components/EnvironmentalPdf';
 
@@ -38,8 +40,12 @@ const MONITORING_TYPES = [
 
 export default function EnvironmentalForm(): React.ReactElement | null {
     const navigate = useNavigate();
+    const location = useLocation();
     const [isMobile, setIsMobile] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
+    const [isEdit, setIsEdit] = useState(false);
+
+    useDocumentTitle(isEdit ? 'Editar Monitoreo Ambiental' : 'Nuevo Monitoreo Ambiental');
     const [measurement, setMeasurement] = useState({
         stationName: '',
         monitoringType: 'air',
@@ -65,6 +71,13 @@ export default function EnvironmentalForm(): React.ReactElement | null {
     });
 
     useEffect(() => {
+        if (location.state?.editData) {
+            setMeasurement(location.state.editData);
+            setIsEdit(true);
+        }
+    }, [location.state]);
+
+    useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         handleResize();
         window.addEventListener('resize', handleResize);
@@ -73,21 +86,28 @@ export default function EnvironmentalForm(): React.ReactElement | null {
 
     const handleSave = () => {
         if (!measurement.stationName || !measurement.location) {
-            alert('Por favor complete los campos obligatorios (*)');
+            toast.error('Por favor complete los campos obligatorios (*)');
             return;
         }
 
-        const newMeasurement = {
-            ...measurement,
-            id: `ENV-${Date.now()}`,
-            createdAt: new Date().toISOString(),
-            status: 'normal'
-        };
-
         const saved = JSON.parse(localStorage.getItem('environmental_measurements_db') || '[]');
-        const updated = [newMeasurement, ...saved];
+        let updated;
+
+        if (isEdit) {
+            updated = saved.map((m: any) => m.id === (measurement as any).id ? measurement : m);
+            toast.success('Registro ambiental actualizado');
+        } else {
+            const newMeasurement = {
+                ...measurement,
+                id: `ENV-${Date.now()}`,
+                createdAt: new Date().toISOString(),
+                status: 'normal'
+            };
+            updated = [newMeasurement, ...saved];
+            toast.success('Registro ambiental guardado');
+        }
+
         localStorage.setItem('environmental_measurements_db', JSON.stringify(updated));
-        
         navigate('/environmental-history');
     };
 
@@ -124,7 +144,7 @@ export default function EnvironmentalForm(): React.ReactElement | null {
                 <div style={{ flex: 1 }}>
                     <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.3rem', fontWeight: 900 }}>
                         <Leaf size={20} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />
-                        Nuevo Monitoreo Ambiental
+                        {isEdit ? 'Editar Monitoreo Ambiental' : 'Nuevo Monitoreo Ambiental'}
                     </h1>
                 </div>
                 {/* Header Buttons Removed as they are now in the floating bar */}

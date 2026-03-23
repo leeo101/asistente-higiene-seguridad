@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Save, RefreshCw, Shield, AlertTriangle, Clock, CheckCircle2, User, Calendar, FileText, Target, Info, Eye, Printer, Share2 } from 'lucide-react';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import CAPAPdf from '../components/CAPAPdf';
 
@@ -43,8 +45,12 @@ const inputStyle = {
 
 export default function CAPAForm(): React.ReactElement | null {
     const navigate = useNavigate();
+    const location = useLocation();
     const [isMobile, setIsMobile] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
+    const [isEdit, setIsEdit] = useState(false);
+
+    useDocumentTitle(isEdit ? 'Editar Acción CAPA' : 'Nueva Acción CAPA');
     const [capa, setCapa] = useState({
         id: `CAPA-${Date.now()}`,
         createdAt: new Date().toISOString(),
@@ -72,6 +78,13 @@ export default function CAPAForm(): React.ReactElement | null {
     });
 
     useEffect(() => {
+        if (location.state?.editData) {
+            setCapa(location.state.editData);
+            setIsEdit(true);
+        }
+    }, [location.state]);
+
+    useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         handleResize();
         window.addEventListener('resize', handleResize);
@@ -80,21 +93,28 @@ export default function CAPAForm(): React.ReactElement | null {
 
     const handleSave = () => {
         if (!capa.title || !capa.description) {
-            alert('Por favor complete los campos obligatorios (*)');
+            toast.error('Por favor complete los campos obligatorios (*)');
             return;
         }
 
-        const newCapa = {
-            ...capa,
-            id: `CAPA-${Date.now()}`,
-            createdAt: new Date().toISOString(),
-            status: 'open'
-        };
-
         const saved = JSON.parse(localStorage.getItem('ehs_capa_db') || '[]');
-        const updated = [newCapa, ...saved];
+        let updated;
+
+        if (isEdit) {
+            updated = saved.map((c: any) => c.id === capa.id ? capa : c);
+            toast.success('Acción CAPA actualizada');
+        } else {
+            const newCapa = {
+                ...capa,
+                id: `CAPA-${Date.now()}`,
+                createdAt: new Date().toISOString(),
+                status: 'open'
+            };
+            updated = [newCapa, ...saved];
+            toast.success('Acción CAPA guardada');
+        }
+
         localStorage.setItem('ehs_capa_db', JSON.stringify(updated));
-        
         navigate('/capa-history');
     };
 
@@ -131,7 +151,7 @@ export default function CAPAForm(): React.ReactElement | null {
                 <div style={{ flex: 1 }}>
                     <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.3rem', fontWeight: 900 }}>
                         <RefreshCw size={20} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />
-                        Nueva Acción CAPA
+                        {isEdit ? 'Editar Acción CAPA' : 'Nueva Acción CAPA'}
                     </h1>
                 </div>
                 {/* Header Buttons Removed as they are now in the floating bar */}

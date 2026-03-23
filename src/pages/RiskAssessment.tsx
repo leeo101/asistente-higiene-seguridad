@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Save, Activity, ShieldAlert, AlertCircle, Printer, Share2 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import { usePaywall } from '../hooks/usePaywall';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import ShareModal from '../components/ShareModal';
 import RiskAssessmentPdfGenerator from '../components/RiskAssessmentPdfGenerator';
 import toast from 'react-hot-toast';
@@ -76,6 +77,9 @@ export default function RiskAssessment(): React.ReactElement | null {
     const location = useLocation();
     const { syncCollection } = useSync();
     const { requirePro } = usePaywall();
+    
+    const editData = location.state?.editData;
+    useDocumentTitle(editData ? 'Editar Evaluación de Riesgo' : 'Evaluación de Riesgo');
 
     // Project Data State
     const [projectData, setProjectData] = useState({
@@ -237,7 +241,9 @@ export default function RiskAssessment(): React.ReactElement | null {
                     <ArrowLeft size={20} />
                 </button>
                 <div>
-                    <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 800 }}>Evaluación de Riesgo</h1>
+                    <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 800 }}>
+                        {editData ? 'Editar Matriz de Riesgo' : 'Evaluación de Riesgo'}
+                    </h1>
                     <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--color-text-muted)', fontWeight: 500 }}>Matriz IPER: Probabilidad × Severidad</p>
                 </div>
             </div>

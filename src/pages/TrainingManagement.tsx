@@ -16,14 +16,13 @@ import { usePaywall } from '../hooks/usePaywall';
 import AdBanner from '../components/AdBanner';
 
 export default function TrainingManagement(): React.ReactElement | null {
-    useDocumentTitle('Gestión de Capacitaciones');
     const navigate = useNavigate();
     const location = useLocation();
     const { currentUser } = useAuth();
     const { syncCollection } = useSync();
     const { requirePro } = usePaywall();
-
     const editData = location.state?.editData;
+    useDocumentTitle(editData ? 'Editar Capacitación' : 'Gestión de Capacitaciones');
 
     const [formData, setFormData] = useState(editData || {
         tema: '',

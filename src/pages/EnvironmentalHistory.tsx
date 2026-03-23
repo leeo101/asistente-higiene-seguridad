@@ -106,7 +106,7 @@ export default function EnvironmentalHistory(): React.ReactElement | null {
                         <MeasurementCard 
                             key={m.id} 
                             measurement={m} 
-                            onEdit={() => navigate(`/environmental`)}
+                            onEdit={() => navigate(`/environmental`, { state: { editData: m } })}
                             onShare={() => setShareItem(m)}
                         />
                     ))}

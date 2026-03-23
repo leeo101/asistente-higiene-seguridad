@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Volume2, Save, Eye, Printer, Share2 } from 'lucide-react';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import NoiseAssessmentPdf from '../components/NoiseAssessmentPdf';
 
@@ -41,8 +43,12 @@ const inputStyle: React.CSSProperties = {
 
 export default function NoiseAssessmentForm(): React.ReactElement | null {
     const navigate = useNavigate();
+    const location = useLocation();
     const [isMobile, setIsMobile] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
+    const [isEdit, setIsEdit] = useState(false);
+
+    useDocumentTitle(isEdit ? 'Editar Medición de Ruido' : 'Nueva Medición de Ruido');
     const [measurement, setMeasurement] = useState({
         workerName: '',
         type: 'personal',
@@ -63,6 +69,13 @@ export default function NoiseAssessmentForm(): React.ReactElement | null {
     });
 
     useEffect(() => {
+        if (location.state?.editData) {
+            setMeasurement(location.state.editData);
+            setIsEdit(true);
+        }
+    }, [location.state]);
+
+    useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         handleResize();
         window.addEventListener('resize', handleResize);
@@ -78,20 +91,28 @@ export default function NoiseAssessmentForm(): React.ReactElement | null {
 
     const handleSave = () => {
         if (!measurement.workerName || !measurement.levels.lavg) {
-            alert('Por favor complete los campos obligatorios (*)');
+            toast.error('Por favor complete los campos obligatorios (*)');
             return;
         }
 
-        const newEntry = {
-            ...measurement,
-            id: `NA-${Date.now()}`,
-            createdAt: new Date().toISOString(),
-            status: calculateRiskLevel(parseFloat(measurement.levels.lavg) || 0)
-        };
+        const saved = JSON.parse(localStorage.getItem('noise_assessments_db') || '[]');
+        let updated;
 
-                const currentData = JSON.parse(localStorage.getItem('noise_assessments_db') || '[]');
-        localStorage.setItem('noise_assessments_db', JSON.stringify([newEntry, ...currentData]));
+        if (isEdit) {
+            updated = saved.map((n: any) => n.id === (measurement as any).id ? measurement : n);
+            toast.success('Medición actualizada');
+        } else {
+            const newEntry = {
+                ...measurement,
+                id: `NA-${Date.now()}`,
+                createdAt: new Date().toISOString(),
+                status: calculateRiskLevel(parseFloat(measurement.levels.lavg) || 0)
+            };
+            updated = [newEntry, ...saved];
+            toast.success('Medición guardada');
+        }
         
+        localStorage.setItem('noise_assessments_db', JSON.stringify(updated));
         navigate('/noise-assessment-history');
     };
 
@@ -132,7 +153,7 @@ export default function NoiseAssessmentForm(): React.ReactElement | null {
                 <div style={{ flex: 1 }}>
                     <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.3rem', fontWeight: 900 }}>
                         <Volume2 size={20} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />
-                        Nueva Medición
+                        {isEdit ? 'Editar Medición' : 'Nueva Medición'}
                     </h1>
                 </div>
                 {/* Header Buttons Removed as they are now in the floating bar */}

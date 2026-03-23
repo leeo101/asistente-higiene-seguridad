@@ -26,7 +26,8 @@ export default function FireLoad(): React.ReactElement | null {
     const { syncCollection } = useSync();
     const { requirePro } = usePaywall();
 
-    useDocumentTitle('Cálculo Carga de Fuego');
+    const editData = location.state?.editData;
+    useDocumentTitle(editData ? 'Editar Carga de Fuego' : 'Cálculo Carga de Fuego');
 
     const [formData, setFormData] = useState({
         empresa: '',
@@ -365,7 +366,7 @@ export default function FireLoad(): React.ReactElement | null {
 
                     <div style={{ textAlign: 'center' }}>
                         <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '1px', lineHeight: 1.2 }}>
-                            Cálculo Carga de Fuego
+                            {editData ? 'Editar Carga de Fuego' : 'Cálculo Carga de Fuego'}
                         </h2>
                         <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b', fontWeight: 600 }}>{countryNorms.fire}</p>
                     </div>
@@ -391,7 +392,7 @@ export default function FireLoad(): React.ReactElement | null {
                         <ArrowLeft />
                     </button>
                     <div>
-                        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Estudio de Carga de Fuego</h1>
+                        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>{editData ? 'Editar Carga de Fuego' : 'Estudio de Carga de Fuego'}</h1>
                         <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Cálculo según {countryNorms.fire}</p>
                     </div>
                 </div>
