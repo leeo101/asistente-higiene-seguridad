@@ -43,6 +43,9 @@ interface QuickLink {
   color: string;
   bg: string;
   premium: boolean;
+  category: string;
+  featured?: boolean;
+  badge?: string;
 }
 
 interface WorkItem {
@@ -104,35 +107,35 @@ const getRegSub = (module: string): string => {
 };
 
 const quickLinks: QuickLink[] = [
-  { to: '/ats', icon: <ShieldCheck size={26} />, label: 'ATS', sub: 'Análisis Trabajo Seguro', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true },
-  { to: '/ai-advisor', icon: <Bot size={26} />, label: 'Asesor IA', sub: 'Consultas de Seguridad', color: '#a855f7', bg: 'rgba(168,85,247,0.1)', premium: true },
-  { to: '/ai-camera', icon: <Camera size={26} />, label: 'Cámara IA', sub: 'Detección EPP', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', premium: true },
-  { to: '/emergency-bot', icon: <Siren size={26} />, label: 'Emergencias', sub: 'Chatbot 24/7', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true },
-  { to: '/extinguisher-ai', icon: <Flame size={26} />, label: 'Extintores IA', sub: 'Reconocimiento', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true },
-  { to: '/training-management', icon: <Users size={26} />, label: 'Capacitar', sub: 'Planillas y Asistencia', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true },
-  { to: '/fire-load', icon: <Flame size={26} />, label: 'Carga Fuego', sub: getRegSub('fire'), color: '#f97316', bg: 'rgba(249,115,22,0.1)', premium: true },
-  { to: '/checklists', icon: <ClipboardList size={26} />, label: 'Checklists', sub: 'Herramientas y Equipos', color: '#14b8a6', bg: 'rgba(20,184,166,0.1)', premium: true },
-  { to: '/ppe-tracker', icon: <HardHat size={26} />, label: 'Control EPP', sub: 'Vencimientos', color: '#10b981', bg: 'rgba(16,185,129,0.08)', premium: true },
-  { to: '/ergonomics', icon: <Accessibility size={26} />, label: 'Ergonomía', sub: getRegSub('ergo'), color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true },
-  { to: '/thermal-stress', icon: <ThermometerSun size={26} />, label: 'Estrés Térmico', sub: getRegSub('thermal'), color: '#f97316', bg: 'rgba(249,115,22,0.1)', premium: true },
-  { to: '/lighting', icon: <Lightbulb size={26} />, label: 'Iluminación', sub: getRegSub('lighting'), color: '#eab308', bg: 'rgba(234,179,8,0.1)', premium: true },
-  { to: '/reports', icon: <ScrollText size={26} />, label: 'Informes', sub: 'Técnicos', color: '#ec4899', bg: 'rgba(236,72,153,0.1)', premium: true },
-  { to: '/accident-investigation', icon: <Siren size={26} />, label: 'Investigación', sub: 'Accidentes / Árbol', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true },
-  { to: '/legislation', icon: <Gavel size={26} />, label: 'Legislación', sub: 'Biblioteca Legal', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true },
-  { to: '/risk-maps', icon: <Map size={26} />, label: 'Mapas', sub: 'Croquis de Riesgos', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true },
-  { to: '/extinguishers', icon: <Flame size={26} />, label: 'Matafuegos', sub: 'Control y Vencimientos', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true },
-  { to: '/work-permit', icon: <KeySquare size={26} />, label: 'Permisos', sub: 'Tareas Críticas', color: '#2563eb', bg: 'rgba(37,99,235,0.1)', premium: true },
-  { to: '/ai-general-camera', icon: <ShieldAlert size={26} />, label: 'Riesgos IA', sub: 'Análisis de Entorno', color: '#f43f5e', bg: 'rgba(244, 63, 94, 0.1)', premium: true },
-  { to: '/drills', icon: <Siren size={26} />, label: 'Simulacros', sub: 'Actas de Evacuación', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true },
-  { to: '/stop-cards', icon: <TriangleAlert size={26} />, label: 'Tarjetas STOP', sub: 'Observaciones', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true },
-  { to: '/audit', icon: <ClipboardCheck size={26} />, label: 'Auditorías', sub: 'Control Interno y EHS', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true },
-  { to: '/capa', icon: <CheckCircle2 size={26} />, label: 'CAPA', sub: 'Acciones Correctivas', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true },
-  { to: '/chemical-safety', icon: <FlaskConical size={26} />, label: 'Seguridad Química', sub: 'Gestión de Sustancias y SGA', color: '#ec4899', bg: 'rgba(236,72,153,0.1)', premium: true },
-  { to: '/noise-assessment', icon: <Volume2 size={26} />, label: 'Ruido', sub: 'Evaluación de Niveles Sonoros', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true },
-  { to: '/environmental', icon: <Droplets size={26} />, label: 'Medio Ambiente', sub: 'Monitoreo y Control', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', premium: true },
-  { to: '/confined-space', icon: <Tent size={26} />, label: 'Espacios Confinados', sub: 'Permisos y Control', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', premium: true },
-  { to: '/working-at-height', icon: <HardHat size={26} />, label: 'Trabajo en Altura', sub: 'Permisos y EPP Crítico', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true },
-  { to: '/loto', icon: <Lock size={26} />, label: 'LOTO', sub: 'Bloqueo y Etiquetado', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true },
+  { to: '/ats', icon: <ShieldCheck size={26} />, label: 'ATS', sub: 'Análisis Trabajo Seguro', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true, category: 'docs', featured: true },
+  { to: '/ai-advisor', icon: <Bot size={26} />, label: 'Asesor IA', sub: 'Consultas de Seguridad', color: '#a855f7', bg: 'rgba(168,85,247,0.1)', premium: true, category: 'ia', featured: true, badge: 'IA ✨' },
+  { to: '/ai-camera', icon: <Camera size={26} />, label: 'Cámara IA', sub: 'Detección EPP', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', premium: true, category: 'ia', featured: true, badge: 'IA ✨' },
+  { to: '/emergency-bot', icon: <Siren size={26} />, label: 'Emergencias', sub: 'Chatbot 24/7', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'ia', badge: 'IA ✨' },
+  { to: '/extinguisher-ai', icon: <Flame size={26} />, label: 'Extintores IA', sub: 'Reconocimiento', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true, category: 'ia', badge: 'IA ✨' },
+  { to: '/training-management', icon: <Users size={26} />, label: 'Capacitar', sub: 'Planillas y Asistencia', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'management' },
+  { to: '/fire-load', icon: <Flame size={26} />, label: 'Carga Fuego', sub: getRegSub('fire'), color: '#f97316', bg: 'rgba(249,115,22,0.1)', premium: true, category: 'specific' },
+  { to: '/checklists', icon: <ClipboardList size={26} />, label: 'Checklists', sub: 'Herramientas y Equipos', color: '#14b8a6', bg: 'rgba(20,184,166,0.1)', premium: true, category: 'docs' },
+  { to: '/ppe-tracker', icon: <HardHat size={26} />, label: 'Control EPP', sub: 'Vencimientos', color: '#10b981', bg: 'rgba(16,185,129,0.08)', premium: true, category: 'management' },
+  { to: '/ergonomics', icon: <Accessibility size={26} />, label: 'Ergonomía', sub: getRegSub('ergo'), color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'specific' },
+  { to: '/thermal-stress', icon: <ThermometerSun size={26} />, label: 'Estrés Térmico', sub: getRegSub('thermal'), color: '#f97316', bg: 'rgba(249,115,22,0.1)', premium: true, category: 'specific' },
+  { to: '/lighting', icon: <Lightbulb size={26} />, label: 'Iluminación', sub: getRegSub('lighting'), color: '#eab308', bg: 'rgba(234,179,8,0.1)', premium: true, category: 'specific' },
+  { to: '/reports', icon: <ScrollText size={26} />, label: 'Informes', sub: 'Técnicos', color: '#ec4899', bg: 'rgba(236,72,153,0.1)', premium: true, category: 'docs' },
+  { to: '/accident-investigation', icon: <Siren size={26} />, label: 'Investigación', sub: 'Accidentes / Árbol', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management' },
+  { to: '/legislation', icon: <Gavel size={26} />, label: 'Legislación', sub: 'Biblioteca Legal', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true, category: 'docs' },
+  { to: '/risk-maps', icon: <Map size={26} />, label: 'Mapas', sub: 'Croquis de Riesgos', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true, category: 'docs' },
+  { to: '/extinguishers', icon: <Flame size={26} />, label: 'Matafuegos', sub: 'Control y Vencimientos', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true, category: 'management' },
+  { to: '/work-permit', icon: <KeySquare size={26} />, label: 'Permisos', sub: 'Tareas Críticas', color: '#2563eb', bg: 'rgba(37,99,235,0.1)', premium: true, category: 'critical', featured: true },
+  { to: '/ai-general-camera', icon: <ShieldAlert size={26} />, label: 'Riesgos IA', sub: 'Análisis de Entorno', color: '#f43f5e', bg: 'rgba(244, 63, 94, 0.1)', premium: true, category: 'ia', badge: 'IA ✨' },
+  { to: '/drills', icon: <Siren size={26} />, label: 'Simulacros', sub: 'Actas de Evacuación', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management' },
+  { to: '/stop-cards', icon: <TriangleAlert size={26} />, label: 'Tarjetas STOP', sub: 'Observaciones', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management' },
+  { to: '/audit', icon: <ClipboardCheck size={26} />, label: 'Auditorías', sub: 'Control Interno y EHS', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'management' },
+  { to: '/capa', icon: <CheckCircle2 size={26} />, label: 'CAPA', sub: 'Acciones Correctivas', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true, category: 'management' },
+  { to: '/chemical-safety', icon: <FlaskConical size={26} />, label: 'Seguridad Química', sub: 'Gestión de Sustancias y SGA', color: '#ec4899', bg: 'rgba(236,72,153,0.1)', premium: true, category: 'specific' },
+  { to: '/noise-assessment', icon: <Volume2 size={26} />, label: 'Ruido', sub: 'Evaluación de Niveles Sonoros', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true, category: 'specific' },
+  { to: '/environmental', icon: <Droplets size={26} />, label: 'Medio Ambiente', sub: 'Monitoreo y Control', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', premium: true, category: 'specific' },
+  { to: '/confined-space', icon: <Tent size={26} />, label: 'Espacios Confinados', sub: 'Permisos y Control', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', premium: true, category: 'critical' },
+  { to: '/working-at-height', icon: <HardHat size={26} />, label: 'Trabajo en Altura', sub: 'Permisos y EPP Crítico', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'critical' },
+  { to: '/loto', icon: <Lock size={26} />, label: 'LOTO', sub: 'Bloqueo y Etiquetado', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true, category: 'critical' },
 ];
 
 // Counter hook
@@ -205,6 +208,24 @@ export default function Home(): React.ReactElement {
   const [userName, setUserName] = useState<string>('Profesional');
   const [dailyInsight, setDailyInsight] = useState<DailyInsight | null>(null);
   const [activePreview, setActivePreview] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+
+  const categories = [
+    { id: 'all', label: 'Todos' },
+    { id: 'ia', label: 'IA y Automatización' },
+    { id: 'docs', label: 'Documentación' },
+    { id: 'critical', label: 'Trabajos Críticos' },
+    { id: 'management', label: 'Gestión y Auditoría' },
+    { id: 'specific', label: 'Específicos' }
+  ];
+
+  const filteredLinks = quickLinks.filter(link => {
+    const matchesCategory = activeCategory === 'all' || link.category === activeCategory;
+    const matchesSearch = link.label.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          link.sub.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
 
   useEffect(() => {
@@ -519,78 +540,182 @@ export default function Home(): React.ReactElement {
         <div style={{ marginTop: '2.5rem', maxWidth: '1200px', margin: '2.5rem auto 0', padding: '0 1rem' }}>
           
           {/* Professional Tools Grid */}
-          <div style={{ marginBottom: '3rem' }}>
-            <h2 style={{
-              fontSize: 'clamp(1.3rem, 4vw, 1.5rem)',
-              fontWeight: 900,
-              marginBottom: '1.5rem',
-              color: 'var(--color-text)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.6rem'
-            }}>
-              <Star size={24} fill="#f59e0b" color="#f59e0b" />
-              Herramientas Profesionales
-            </h2>
+          <div style={{ marginBottom: '4rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                  <h2 style={{
+                    fontSize: 'clamp(1.5rem, 4vw, 2rem)',
+                    fontWeight: 900,
+                    margin: 0,
+                    color: 'var(--color-text)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.6rem',
+                    letterSpacing: '-1px'
+                  }}>
+                    <Star size={28} fill="#f59e0b" color="#f59e0b" />
+                    Bóveda Pro
+                  </h2>
+                  <p style={{ margin: '0.5rem 0 0', color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>
+                    Herramientas y módulos avanzados para tu gestión de seguridad.
+                  </p>
+                </div>
+                
+                {/* Search Bar */}
+                <div style={{ position: 'relative', minWidth: '250px', flex: '1 1 auto', maxWidth: '400px' }}>
+                  <Search size={18} color="var(--color-text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+                  <input 
+                    type="text" 
+                    placeholder="Buscar herramientas..." 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '0.8rem 1rem 0.8rem 2.8rem',
+                      borderRadius: '12px',
+                      border: '1px solid var(--color-border)',
+                      background: 'rgba(255,255,255,0.03)',
+                      color: 'var(--color-text)',
+                      fontSize: '0.95rem',
+                      outline: 'none',
+                      transition: 'all 0.3s'
+                    }}
+                    onFocus={(e) => { e.target.style.borderColor = 'var(--color-primary)'; e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}
+                    onBlur={(e) => { e.target.style.borderColor = 'var(--color-border)'; e.target.style.boxShadow = 'none'; }}
+                  />
+                </div>
+              </div>
+
+              {/* Categories Tabs */}
+              <div className="hide-scrollbar" style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+                {categories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setActiveCategory(cat.id)}
+                    style={{
+                      padding: '0.6rem 1.2rem',
+                      borderRadius: '100px',
+                      border: '1px solid',
+                      borderColor: activeCategory === cat.id ? 'var(--color-primary)' : 'var(--color-border)',
+                      background: activeCategory === cat.id ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
+                      color: activeCategory === cat.id ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                      fontWeight: 600,
+                      fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
-              gap: '1rem'
+              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+              gap: '1.2rem',
+              gridAutoRows: 'minmax(120px, auto)'
             }}>
-              {quickLinks.map((link, i) => (
+              {filteredLinks.length > 0 ? filteredLinks.map((link, i) => (
                 <Link
                   key={i}
                   to={link.to}
-                  className="card stagger-item"
+                  className="card hover-lift"
                   style={{
                     textDecoration: 'none',
-                    padding: '1.2rem',
-                    borderRadius: '20px',
-                    background: 'var(--color-surface)',
-                    border: '1px solid var(--color-border)',
+                    padding: link.featured ? '1.8rem 1.5rem' : '1.2rem',
+                    borderRadius: '24px',
+                    background: link.featured ? `linear-gradient(145deg, ${link.bg}, rgba(255,255,255,0.02))` : 'rgba(255,255,255,0.03)',
+                    border: '1px solid',
+                    borderColor: link.featured ? `${link.color}40` : 'var(--color-border)',
                     transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                    animationDelay: `${0.1 + (i * 0.03)}s`,
                     display: 'flex',
-                    alignItems: 'center',
-                    gap: '1rem'
+                    flexDirection: link.featured ? 'column' : 'row',
+                    alignItems: link.featured ? 'flex-start' : 'center',
+                    gap: '1rem',
+                    gridColumn: link.featured ? 'span auto' : 'span 1',
+                    position: 'relative',
+                    overflow: 'hidden'
                   }}
                   onMouseOver={e => {
-                    e.currentTarget.style.transform = 'translateY(-4px)';
                     e.currentTarget.style.borderColor = link.color;
-                    e.currentTarget.style.boxShadow = `0 10px 20px ${link.color}15`;
+                    e.currentTarget.style.boxShadow = `0 10px 30px ${link.color}20`;
+                    e.currentTarget.style.background = link.featured ? `linear-gradient(145deg, ${link.bg}, ${link.color}15)` : 'rgba(255,255,255,0.05)';
                   }}
                   onMouseOut={e => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.borderColor = 'var(--color-border)';
+                    e.currentTarget.style.borderColor = link.featured ? `${link.color}40` : 'var(--color-border)';
                     e.currentTarget.style.boxShadow = 'none';
+                    e.currentTarget.style.background = link.featured ? `linear-gradient(145deg, ${link.bg}, rgba(255,255,255,0.02))` : 'rgba(255,255,255,0.03)';
                   }}
                 >
+                  {/* Badge */}
+                  {link.badge && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '1rem',
+                      right: '1rem',
+                      background: `linear-gradient(135deg, ${link.color}, ${link.color}aa)`,
+                      color: '#fff',
+                      padding: '0.2rem 0.6rem',
+                      borderRadius: '100px',
+                      fontSize: '0.7rem',
+                      fontWeight: 800,
+                      boxShadow: `0 2px 10px ${link.color}40`,
+                      zIndex: 2
+                    }}>
+                      {link.badge}
+                    </div>
+                  )}
+
                   <div style={{
-                    width: '44px',
-                    height: '44px',
-                    borderRadius: '12px',
-                    background: link.color + '15',
+                    width: link.featured ? '56px' : '48px',
+                    height: link.featured ? '56px' : '48px',
+                    borderRadius: '16px',
+                    background: link.color + '20',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: link.color,
-                    flexShrink: 0
+                    flexShrink: 0,
+                    boxShadow: link.featured ? `inset 0 0 0 1px ${link.color}40` : 'none'
                   }}>
-                    {link.icon}
+                    {React.cloneElement(link.icon as React.ReactElement<any>, { size: link.featured ? 32 : 24 })}
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  
+                  <div style={{ flex: 1, minWidth: 0, marginTop: link.featured ? '0.5rem' : '0' }}>
+                    <h3 style={{ margin: 0, fontSize: link.featured ? '1.2rem' : '1rem', fontWeight: 800, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {link.label}
                     </h3>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <p style={{ margin: '0.2rem 0 0', fontSize: '0.8rem', color: 'var(--color-text-muted)', whiteSpace: link.featured ? 'normal' : 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.4, opacity: 0.8 }}>
                       {link.sub}
                     </p>
                   </div>
-                  <ChevronRight size={18} color="var(--color-text-muted)" />
+
+                  {!link.featured && (
+                    <ChevronRight size={18} color="var(--color-text-muted)" style={{ opacity: 0.5 }} />
+                  )}
+                  
+                  {link.featured && (
+                    <div style={{ marginTop: 'auto', paddingTop: '1rem', width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
+                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--color-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+                        <ArrowRight size={16} color={link.color} />
+                      </div>
+                    </div>
+                  )}
                 </Link>
-              ))}
+              )) : (
+                <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '4rem 0', color: 'var(--color-text-muted)' }}>
+                  <Search size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
+                  <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700 }}>No se encontraron herramientas</h3>
+                  <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem' }}>Probá con otro término de búsqueda.</p>
+                </div>
+              )}
             </div>
           </div>
+
 
           {/* Recent Works */}
           {recentWorks.length > 0 && (
