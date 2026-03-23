@@ -37,7 +37,7 @@ export default function AdBanner({ placement = 'general' }) {
         setCurrentAd(randomAd);
     }, []);
 
-    if (isPro() || !currentAd) return null;
+    if (isPro || !currentAd) return null;
 
     const isSidebar = placement === 'sidebar';
 

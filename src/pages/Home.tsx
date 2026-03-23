@@ -231,8 +231,8 @@ export default function Home(): React.ReactElement {
         setUserName(name);
       }
 
-      setIsSubscribed(isPro());
-      setDaysLeft(daysRemaining());
+      setIsSubscribed(isPro);
+      setDaysLeft(daysRemaining);
     }
 
     const loadStats = (): void => {

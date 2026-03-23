@@ -326,15 +326,15 @@ export default function LogoSettings(): React.ReactElement | null {
 
                     <div className="card" style={{ 
                         padding: '1.5rem', 
-                        background: isPro() ? 'rgba(16,185,129,0.04)' : 'rgba(251,191,36,0.06)',
-                        border: `1px solid ${isPro() ? 'rgba(16,185,129,0.1)' : 'rgba(251,191,36,0.15)'}`
+                        background: isPro ? 'rgba(16,185,129,0.04)' : 'rgba(251,191,36,0.06)',
+                        border: `1px solid ${isPro ? 'rgba(16,185,129,0.1)' : 'rgba(251,191,36,0.15)'}`
                     }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1rem', color: isPro() ? '#10b981' : '#f59e0b' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1rem', color: isPro ? '#10b981' : '#f59e0b' }}>
                             <Sparkles size={20} />
-                            <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800 }}>{isPro() ? 'Beneficio PRO Activado' : 'Función Exclusiva PRO'}</h3>
+                            <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800 }}>{isPro ? 'Beneficio PRO Activado' : 'Función Exclusiva PRO'}</h3>
                         </div>
                         <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-text-muted)', lineHeight: 1.6 }}>
-                            {isPro() 
+                            {isPro 
                                 ? 'Como usuario PRO, tenés habilitada la personalización completa. Tu logo aparecerá en alta calidad en todas las descargas.' 
                                 : 'La personalización de reportes con logo propio es una característica premium. Subilo ahora para ver cómo queda y activá PRO cuando estés listo.'}
                         </p>

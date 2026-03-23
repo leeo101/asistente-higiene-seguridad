@@ -316,7 +316,10 @@ function App() {
             error: { style: { background: '#ef4444', color: '#fff' } },
           }}
         />
-        <div className="app-container">
+        <div className="app-container" style={{ position: 'relative' }}>
+          <div style={{ background: 'red', color: 'white', textAlign: 'center', padding: '10px', fontWeight: 'bold', position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 9999 }}>
+            VERCEL DEPLOY VERIFIED: 2026-03-22-22-22
+          </div>
           {showMenuButton && (
             <div
               className="glass-panel no-print"
