@@ -375,7 +375,7 @@ export default function Dashboard(): React.ReactElement {
   }
 
   return (
-    <div style={{ paddingBottom: '3rem' }}>
+    <div className="container" style={{ paddingTop: '6rem', paddingBottom: '3rem' }}>
       <Breadcrumbs />
 
       {/* Header */}
