@@ -344,124 +344,153 @@ export default function Home(): React.ReactElement {
 
       {!currentUser && <StickyCtaBanner />}
 
-      {/* HERO BANNER */}
-      <div className="home-hero-banner" style={{
-        padding: 'clamp(7rem, 12vw, 8.5rem) 1.2rem 3rem',
-        position: 'relative',
-        overflow: 'hidden',
-        marginBottom: '0',
-        borderBottom: '1px solid rgba(255,255,255,0.1)',
-        width: '100%',
-        boxSizing: 'border-box',
-        background: '#0f172a'
-      }}>
-        <StarryBackground />
-
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: '700px', margin: '0 auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '2rem' }}>
+      {/* HERO BANNER / DASHBOARD HEADER */}
+      {!currentUser ? (
+        <div className="home-hero-banner" style={{
+          padding: 'clamp(8rem, 12vw, 10rem) 1.2rem 6rem',
+          position: 'relative',
+          overflow: 'hidden',
+          marginBottom: '0',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          width: '100%',
+          boxSizing: 'border-box',
+          background: 'radial-gradient(circle at top right, #1e3a8a, #020617)'
+        }}>
+          <StarryBackground />
+          <div style={{ position: 'relative', zIndex: 1, maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 1fr)', gap: '4rem', alignItems: 'center' }}>
             <div className="stagger-item" style={{ animationDelay: '0.1s' }}>
-              <p style={{ color: 'var(--color-hero-accent)', fontSize: '0.9rem', fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase', margin: '0 0 0.5rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                {currentUser ? 'Dashboard Profesional' : 'Inteligencia Artificial H&S'}
-              </p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', marginBottom: '1rem' }}>
-                <img src="/logo.png" alt="Logo de Asistente HYS" style={{ width: '64px', height: '64px', objectFit: 'contain', filter: 'drop-shadow(0 0 20px rgba(59, 130, 246, 0.4))' }} />
-                <h1 style={{ fontSize: 'clamp(2.5rem, 8vw, 4rem)', fontWeight: 900, color: 'var(--color-hero-text)', margin: 0, lineHeight: 0.9, letterSpacing: '-2px', fontFamily: 'var(--font-heading)' }}>
-                  {currentUser ? (
-                    <span>{userName} {isSubscribed && <Sparkles size={28} color="#f59e0b" fill="#f59e0b" />}</span>
-                  ) : 'Asistente HYS'}
-                </h1>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.5rem 1rem', background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '100px', marginBottom: '2rem' }}>
+                <Sparkles size={16} color="#60a5fa" />
+                <span style={{ color: '#60a5fa', fontSize: '0.85rem', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase' }}>Plataforma H&S con IA</span>
               </div>
-              <p style={{ color: 'var(--color-hero-subtext)', fontSize: '1.2rem', marginTop: '1.5rem', fontWeight: 500, maxWidth: '550px', lineHeight: 1.6 }}>
-                {currentUser
-                  ? 'Gestioná riesgos, ATS y cumplimiento normativo con IA.'
-                  : 'Creá ATS, Carga de Fuego e Informes Técnicos en minutos. Validado por normativa de Argentina, Chile, Bolivia, Paraguay y Uruguay.'}
+              <h1 style={{ fontSize: 'clamp(2.8rem, 6vw, 4.5rem)', fontWeight: 900, color: 'white', margin: '0 0 1.5rem', lineHeight: 1.1, letterSpacing: '-2px', fontFamily: 'var(--font-heading)' }}>
+                El futuro de la prevención <span style={{ background: 'linear-gradient(to right, #60a5fa, #a855f7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>ya llegó.</span>
+              </h1>
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.25rem', marginBottom: '2.5rem', fontWeight: 500, maxWidth: '550px', lineHeight: 1.6 }}>
+                Creá ATS, Carga de Fuego e Informes Técnicos en minutos. Validado por la normativa de toda la región.
               </p>
-            </div>
-            {!currentUser && (
-              <div className="hero-buttons stagger-item" style={{ animationDelay: '0.3s', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', width: '100%', maxWidth: '450px' }}>
-                <button onClick={() => navigate('/login', { state: { view: 'register' } })}
-                  style={{ flex: 2, padding: '1.3rem 2rem', borderRadius: '20px', border: 'none', background: 'var(--color-primary)', color: 'white', fontWeight: 800, cursor: 'pointer', fontSize: '1.1rem', boxShadow: '0 20px 40px rgba(59, 130, 246, 0.4)', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}
-                  onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-6px)'; e.currentTarget.style.boxShadow = '0 30px 60px rgba(59, 130, 246, 0.5)'; }}
-                  onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(59, 130, 246, 0.4)'; }}>
-                  Comenzar Ahora - Gratis
+              <div className="hero-buttons stagger-item" style={{ animationDelay: '0.3s', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                <button onClick={() => navigate('/login', { state: { view: 'register' } })} className="glow-button hover-lift" style={{ padding: '1.1rem 2.5rem', fontSize: '1.1rem' }}>
+                  Comenzar Gratis <ArrowRight size={20} style={{ display: 'inline', verticalAlign: 'middle', margin: '-2px 0 0 0.5rem' }} />
                 </button>
-                <button onClick={() => navigate('/login', { state: { view: 'login' } })}
-                  style={{ flex: 1, padding: '1.3rem 2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', color: 'white', fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', fontSize: '1rem', transition: 'all 0.3s ease' }}
-                  onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-                  onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}>
+                <button onClick={() => navigate('/login', { state: { view: 'login' } })} style={{ padding: '1.1rem 2.5rem', borderRadius: 'var(--radius-xl)', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)', color: 'white', fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(12px)', fontSize: '1.1rem', transition: 'all 0.3s ease' }} onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}>
                   Ingresar
                 </button>
               </div>
-            )}
+              {/* Stats inline */}
+              <div style={{ display: 'flex', gap: '2.5rem', marginTop: '3.5rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem' }}>
+                <CounterItem value={1240} label="Profesionales" suffix="+" />
+                <CounterItem value={8500} label="Reportes" suffix="+" />
+              </div>
+            </div>
+            
+            {/* The Glass Mockup */}
+            <div className="stagger-item hidden-mobile" style={{ animationDelay: '0.4s', perspective: '1000px' }}>
+              <div className="glass-mockup" style={{ transform: 'rotateY(-15deg) rotateX(5deg)', transformStyle: 'preserve-3d', padding: '2rem', transition: 'transform 0.5s ease' }} onMouseOver={e => e.currentTarget.style.transform = 'rotateY(0) rotateX(0)' } onMouseOut={e => e.currentTarget.style.transform = 'rotateY(-15deg) rotateX(5deg)' }>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '1rem' }}>
+                  <div style={{ width: '48px', height: '48px', background: 'var(--color-primary)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}><ShieldCheck size={24} /></div>
+                  <div>
+                    <div style={{ color: 'white', fontWeight: 800, fontSize: '1.2rem' }}>Análisis de Trabajo Seguro</div>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem' }}>Generado por IA en 1.2s</div>
+                  </div>
+                </div>
+                <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '16px', padding: '1.2rem', marginBottom: '1.5rem' }}>
+                  <div className="skeleton-text" style={{ width: '100%', background: 'rgba(255,255,255,0.1)' }}></div>
+                  <div className="skeleton-text" style={{ width: '80%', background: 'rgba(255,255,255,0.1)' }}></div>
+                  <div className="skeleton-text" style={{ width: '90%', background: 'rgba(255,255,255,0.1)', marginBottom: 0 }}></div>
+                </div>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                  <div style={{ flex: 1, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', padding: '1rem', borderRadius: '16px' }}>
+                    <CheckCircle2 color="#10b981" size={24} style={{ marginBottom: '0.8rem' }} />
+                    <div style={{ color: '#10b981', fontWeight: 800, fontSize: '0.9rem' }}>Normativa</div>
+                  </div>
+                  <div style={{ flex: 1, background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)', padding: '1rem', borderRadius: '16px' }}>
+                    <FileText color="#60a5fa" size={24} style={{ marginBottom: '0.8rem' }} />
+                    <div style={{ color: '#60a5fa', fontWeight: 800, fontSize: '0.9rem' }}>PDF Listo</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
+      ) : (
+        /* DASHBOARD HERO BANNER */
+        <div style={{ padding: 'clamp(6rem, 8vw, 7rem) 1.2rem 2rem', background: 'var(--color-hero-bg)', borderBottom: '1px solid var(--color-border)', position: 'relative', overflow: 'hidden' }}>
+          <StarryBackground />
+          <div style={{ position: 'relative', zIndex: 1, maxWidth: '1200px', margin: '0 auto' }}>
+            <div className="stagger-item" style={{ animationDelay: '0.1s' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.8rem', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', marginBottom: '1.5rem', backdropFilter: 'blur(8px)' }}>
+                <Shield size={14} color="#60a5fa" />
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'white', textTransform: 'uppercase', letterSpacing: '1px' }}>Dashboard Privado</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                <div style={{ width: '64px', height: '64px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '16px', padding: '10px', backdropFilter: 'blur(10px)', flexShrink: 0 }}>
+                  <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                </div>
+                <div>
+                  <h1 style={{ fontSize: 'clamp(2rem, 5vw, 2.8rem)', fontWeight: 900, color: 'white', margin: 0, lineHeight: 1.1, fontFamily: 'var(--font-heading)' }}>
+                    Hola, {userName} {isSubscribed && <Sparkles size={24} color="#f59e0b" fill="#f59e0b" style={{ display: 'inline', verticalAlign: 'middle', marginLeft: '0.5rem' }}/>}
+                  </h1>
+                  <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem', margin: '0.5rem 0 0', fontWeight: 500 }}>
+                    Gestioná riesgos, ATS y cumplimiento normativo con IA.
+                  </p>
+                </div>
+              </div>
+            </div>
 
-          {/* Stats for logged users */}
-          {currentUser && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '1rem', marginTop: '1.8rem' }}>
+            {/* Stats for logged users */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '1rem', marginTop: '2.5rem' }}>
               {stats.map((stat, i) => (
                 <div key={i}
                   onClick={() => navigate('/history')}
-                  className="glass-card stagger-item"
+                  className="glass-card stagger-item hover-lift"
                   style={{
-                    borderRadius: '24px',
-                    padding: '1.2rem 0.6rem',
+                    borderRadius: '20px',
+                    padding: '1.2rem 1rem',
                     textAlign: 'center',
                     cursor: 'pointer',
-                    transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
                     background: 'rgba(255,255,255,0.05)',
                     border: '1px solid rgba(255,255,255,0.1)',
-                    animationDelay: `${0.4 + (i * 0.05)}s`
+                    animationDelay: `${0.2 + (i * 0.05)}s`
                   }}
-                  onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-6px)'; e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; }}
-                  onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
                 >
-                  <div style={{ color: 'var(--color-primary)', marginBottom: '0.6rem', opacity: 0.9 }}>
+                  <div style={{ color: 'var(--color-primary)', marginBottom: '0.8rem', opacity: 0.9 }}>
                     {/* @ts-ignore */}
                     {React.cloneElement(stat.icon, { size: 24 })}
                   </div>
-                  <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#ffffff', lineHeight: 1 }}>{stat.value}</div>
-                  <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.6)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', marginTop: '0.4rem' }}>{stat.label}</div>
+                  <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#ffffff', lineHeight: 1 }}>{stat.value}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', marginTop: '0.5rem' }}>{stat.label}</div>
                 </div>
               ))}
             </div>
-          )}
-
-          {/* Social Proof */}
-          {!currentUser && (
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '2.5rem', padding: '1.5rem 1rem 0', flexWrap: 'wrap' }}>
-              <CounterItem value={1240} label="Profesionales registrados" suffix="+" />
-              <CounterItem value={8500} label="Reportes generados" suffix="+" />
-              <CounterItem value={11} label="Módulos disponibles" suffix="" />
-            </div>
-          )}
-
-          {/* Daily Insight */}
-          {currentUser && dailyInsight && (
-            <div className="stagger-item" style={{
-              marginTop: '2rem',
-              padding: '1.2rem',
-              borderRadius: '20px',
-              background: 'rgba(59, 130, 246, 0.1)',
-              border: '1px solid rgba(59,130,246,0.2)',
-              display: 'flex',
-              gap: '1rem',
-              alignItems: 'center',
-              animationDelay: '0.8s'
-            }}>
-              <div style={{ background: 'var(--color-primary)', color: 'white', padding: '0.8rem', borderRadius: '15px', display: 'flex' }}>
-                <Sparkles size={20} />
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
-                  <span style={{ fontSize: '0.7rem', color: 'var(--color-primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Consejo del día · {dailyInsight.category}</span>
+            {/* Daily Insight */}
+            {currentUser && dailyInsight && (
+              <div className="stagger-item" style={{
+                marginTop: '1.5rem',
+                padding: '1.2rem',
+                borderRadius: '20px',
+                background: 'rgba(59, 130, 246, 0.1)',
+                border: '1px solid rgba(59,130,246,0.2)',
+                display: 'flex',
+                gap: '1rem',
+                alignItems: 'center',
+                animationDelay: '0.5s'
+              }}>
+                <div style={{ background: 'var(--color-primary)', color: 'white', padding: '0.8rem', borderRadius: '15px', display: 'flex' }}>
+                  <Sparkles size={20} />
                 </div>
-                <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#ffffff' }}>{dailyInsight.title}</h4>
-                <p style={{ margin: '0.2rem 0 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.4 }}>{dailyInsight.content}</p>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--color-primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Consejo del día · {dailyInsight.category}</span>
+                  </div>
+                  <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#ffffff' }}>{dailyInsight.title}</h4>
+                  <p style={{ margin: '0.2rem 0 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.4 }}>{dailyInsight.content}</p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
 
       {/* Marketing Landing Content - Primary for visitors */}

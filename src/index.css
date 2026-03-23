@@ -500,6 +500,58 @@ a:hover {
   border-radius: var(--radius-xl);
 }
 
+.glass-mockup {
+  background: var(--color-surface);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border-subtle);
+  border-radius: var(--radius-2xl);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease;
+}
+
+.glass-mockup::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 100%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.glow-button {
+  position: relative;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  color: white;
+  border: none;
+  font-weight: 800;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  z-index: 1;
+  transition: all 0.3s ease;
+  box-shadow: 0 15px 35px rgba(59, 130, 246, 0.4);
+}
+
+.glow-button::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  transition: left 0.6s ease;
+  z-index: -1;
+}
+
+.glow-button:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 45px rgba(59, 130, 246, 0.6);
+}
+
+.glow-button:hover::before {
+  left: 100%;
+}
+
+
 .btn-primary {
   background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
   color: white;
