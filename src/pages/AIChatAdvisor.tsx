@@ -133,7 +133,10 @@ export default function AIChatAdvisor(): React.ReactElement | null {
         }
 
         const recognition = new SpeechRecognition();
-        recognition.lang = userCountry === 'chile' ? 'es-CL' : 'es-AR';
+        const langMap: Record<string, string> = {
+            chile: 'es-CL', bolivia: 'es-BO', paraguay: 'es-PY', uruguay: 'es-UY', argentina: 'es-AR'
+        };
+        recognition.lang = langMap[userCountry] || 'es-AR';
         recognition.continuous = false;
         recognition.interimResults = false;
 
@@ -276,7 +279,8 @@ export default function AIChatAdvisor(): React.ReactElement | null {
             createSection('Riesgos Detectados', result.riesgos, colors.danger);
             createSection('EPP Recomendado', result.epp, colors.primary);
             createSection('Medidas Preventivas', result.recomendaciones, colors.success);
-            createSection(`Marco Legal (${userCountry === 'chile' ? 'Chile' : userCountry === 'argentina' ? 'Arg' : 'Local'})`, result.normativa, [139, 92, 246]);
+            const countryLabel = userCountry.charAt(0).toUpperCase() + userCountry.slice(1);
+            createSection(`Marco Legal (${countryLabel})`, result.normativa, [139, 92, 246]);
 
             // Professional Signature Section
             const personalData = JSON.parse(localStorage.getItem('personalData') || '{}');
@@ -569,7 +573,7 @@ export default function AIChatAdvisor(): React.ReactElement | null {
                         <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', borderLeft: '4px solid #8b5cf6' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: '#8b5cf6' }}>
                                 <Gavel size={20} />
-                                <h4 style={{ margin: 0, fontWeight: 700 }}>Marco Legal ({userCountry === 'chile' ? 'Chile' : userCountry === 'argentina' ? 'Arg' : 'Local'})</h4>
+                                <h4 style={{ margin: 0, fontWeight: 700 }}>Marco Legal ({userCountry.charAt(0).toUpperCase() + userCountry.slice(1)})</h4>
                             </div>
                             <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', lineHeight: '1.5', listStyleType: 'none' }}>
                                 {(result.normativa || []).map((item, i) => <li key={i} style={{ marginBottom: '0.4rem' }}>• {item}</li>)}

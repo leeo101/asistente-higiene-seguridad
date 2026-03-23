@@ -43,14 +43,32 @@ export default function SafetyCalendar(): React.ReactElement | null {
     const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
     const countryNorms = getCountryNormativa(userCountry);
 
-    const initialDates = userCountry === 'argentina' ? [
-        { title: 'Día de la Higiene y Seguridad en el Trabajo (Arg)', date: '2026-04-21', time: '09:00', type: 'Commemorative', description: 'Ley 19.587' },
-        { title: 'Día Mundial de la Seguridad y Salud en el Trabajo', date: '2026-04-28', time: '09:00', type: 'Commemorative', description: 'OIT' },
-        { title: 'Presentación Anual R.G.R.L.', date: '2026-03-31', time: '10:00', type: 'Legal', description: 'Resolución SRT 463/09' },
-        { title: 'Presentación de Relevamiento de Agentes de Riesgo', date: '2026-04-15', time: '10:00', type: 'Legal', description: 'Res. 81/19' }
-    ] : [
-        { title: 'Día Mundial de la Seguridad y Salud en el Trabajo', date: '2026-04-28', time: '09:00', type: 'Commemorative', description: 'OIT' }
-    ];
+    const getCountryEvents = (country: string, currentYear: number) => {
+        const events: Record<string, any[]> = {
+            argentina: [
+                { title: 'Día de la HyS en el Trabajo (Arg)', date: `${currentYear}-04-21`, time: '09:00', type: 'Commemorative', description: 'Ley 19.587' },
+                { title: 'Día Mundial de la Seguridad y Salud en el Trabajo', date: `${currentYear}-04-28`, time: '09:00', type: 'Commemorative', description: 'OIT' },
+                { title: 'Presentación Anual R.G.R.L.', date: `${currentYear}-03-31`, time: '10:00', type: 'Legal', description: 'Resolución SRT 463/09' },
+                { title: 'Relevamiento de Agentes de Riesgo', date: `${currentYear}-04-15`, time: '10:00', type: 'Legal', description: 'Res. 81/19' }
+            ],
+            chile: [
+                { title: 'Día del Prevencionista de Riesgos (Chile)', date: `${currentYear}-03-07`, time: '09:00', type: 'Commemorative', description: 'Reconocimiento Nacional' },
+                { title: 'Día Mundial de la Seguridad y Salud en el Trabajo', date: `${currentYear}-04-28`, time: '09:00', type: 'Commemorative', description: 'OIT' }
+            ],
+            bolivia: [
+                { title: 'Día Mundial de la Seguridad y Salud en el Trabajo', date: `${currentYear}-04-28`, time: '09:00', type: 'Commemorative', description: 'OIT' }
+            ],
+            paraguay: [
+                { title: 'Día Mundial de la Seguridad y Salud en el Trabajo', date: `${currentYear}-04-28`, time: '09:00', type: 'Commemorative', description: 'OIT' }
+            ],
+            uruguay: [
+                { title: 'Día Mundial de la Seguridad y Salud en el Trabajo', date: `${currentYear}-04-28`, time: '09:00', type: 'Commemorative', description: 'OIT' }
+            ]
+        };
+        return events[country] || events.argentina;
+    };
+
+    const initialDates = getCountryEvents(userCountry, today.getFullYear());
 
     // Load events and setup schedules
     useEffect(() => {

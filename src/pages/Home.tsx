@@ -92,18 +92,8 @@ try {
 }
 
 const getRegSub = (module: string): string => {
-  if (userCountry === 'argentina') {
-    if (module === 'fire') return 'Dec. 351/79';
-    if (module === 'ergo') return 'Res. SRT 886/15';
-    if (module === 'thermal') return 'TGBH Res. 295/03';
-    if (module === 'lighting') return 'Dec. 351/79';
-  } else if (userCountry === 'chile') {
-    if (module === 'fire') return 'DS 594 / Art. 44';
-    if (module === 'ergo') return 'Ley 20.949';
-    if (module === 'thermal') return 'DS 594';
-    if (module === 'lighting') return 'DS 594';
-  }
-  return 'Referencia Normativa Local';
+  const norms: any = getCountryNormativa(userCountry);
+  return norms[module] || 'Referencia Normativa Local';
 };
 
 const quickLinks: QuickLink[] = [
@@ -615,55 +605,54 @@ export default function Home(): React.ReactElement {
 
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-              gap: '1.2rem',
-              gridAutoRows: 'minmax(120px, auto)'
+              gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+              gap: '1rem',
+              gridAutoRows: 'auto'
             }}>
               {filteredLinks.length > 0 ? filteredLinks.map((link, i) => (
                 <Link
                   key={i}
                   to={link.to}
-                  className="card hover-lift"
+                  className="card"
                   style={{
                     textDecoration: 'none',
-                    padding: link.featured ? '1.8rem 1.5rem' : '1.2rem',
-                    borderRadius: '24px',
-                    background: link.featured ? `linear-gradient(145deg, ${link.bg}, rgba(255,255,255,0.02))` : 'rgba(255,255,255,0.03)',
-                    border: '1px solid',
-                    borderColor: link.featured ? `${link.color}40` : 'var(--color-border)',
-                    transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                    padding: '1rem',
+                    borderRadius: '16px',
+                    background: `linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))`,
+                    border: '1px solid var(--color-border)',
+                    transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
                     display: 'flex',
-                    flexDirection: link.featured ? 'column' : 'row',
-                    alignItems: link.featured ? 'flex-start' : 'center',
+                    alignItems: 'center',
                     gap: '1rem',
-                    gridColumn: link.featured ? 'span auto' : 'span 1',
                     position: 'relative',
                     overflow: 'hidden'
                   }}
                   onMouseOver={e => {
-                    e.currentTarget.style.borderColor = link.color;
-                    e.currentTarget.style.boxShadow = `0 10px 30px ${link.color}20`;
-                    e.currentTarget.style.background = link.featured ? `linear-gradient(145deg, ${link.bg}, ${link.color}15)` : 'rgba(255,255,255,0.05)';
+                    e.currentTarget.style.borderColor = `${link.color}50`;
+                    e.currentTarget.style.boxShadow = `0 8px 25px ${link.color}15`;
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.background = `linear-gradient(145deg, ${link.bg}, rgba(255,255,255,0.02))`;
                   }}
                   onMouseOut={e => {
-                    e.currentTarget.style.borderColor = link.featured ? `${link.color}40` : 'var(--color-border)';
+                    e.currentTarget.style.borderColor = 'var(--color-border)';
                     e.currentTarget.style.boxShadow = 'none';
-                    e.currentTarget.style.background = link.featured ? `linear-gradient(145deg, ${link.bg}, rgba(255,255,255,0.02))` : 'rgba(255,255,255,0.03)';
+                    e.currentTarget.style.transform = 'none';
+                    e.currentTarget.style.background = `linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))`;
                   }}
                 >
                   {/* Badge */}
                   {link.badge && (
                     <div style={{
                       position: 'absolute',
-                      top: '1rem',
-                      right: '1rem',
-                      background: `linear-gradient(135deg, ${link.color}, ${link.color}aa)`,
+                      top: '0.8rem',
+                      right: '0.8rem',
+                      background: `linear-gradient(135deg, ${link.color}, ${link.color}cc)`,
                       color: '#fff',
-                      padding: '0.2rem 0.6rem',
+                      padding: '0.15rem 0.5rem',
                       borderRadius: '100px',
-                      fontSize: '0.7rem',
+                      fontSize: '0.65rem',
                       fontWeight: 800,
-                      boxShadow: `0 2px 10px ${link.color}40`,
+                      boxShadow: `0 2px 10px ${link.color}30`,
                       zIndex: 2
                     }}>
                       {link.badge}
@@ -671,40 +660,32 @@ export default function Home(): React.ReactElement {
                   )}
 
                   <div style={{
-                    width: link.featured ? '56px' : '48px',
-                    height: link.featured ? '56px' : '48px',
-                    borderRadius: '16px',
-                    background: link.color + '20',
+                    width: '44px',
+                    height: '44px',
+                    borderRadius: '12px',
+                    background: link.color + '15',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: link.color,
                     flexShrink: 0,
-                    boxShadow: link.featured ? `inset 0 0 0 1px ${link.color}40` : 'none'
+                    border: `1px solid ${link.color}20`
                   }}>
-                    {React.cloneElement(link.icon as React.ReactElement<any>, { size: link.featured ? 32 : 24 })}
+                    {React.cloneElement(link.icon as React.ReactElement<any>, { size: 22 })}
                   </div>
                   
-                  <div style={{ flex: 1, minWidth: 0, marginTop: link.featured ? '0.5rem' : '0' }}>
-                    <h3 style={{ margin: 0, fontSize: link.featured ? '1.2rem' : '1rem', fontWeight: 800, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {link.label}
                     </h3>
-                    <p style={{ margin: '0.2rem 0 0', fontSize: '0.8rem', color: 'var(--color-text-muted)', whiteSpace: link.featured ? 'normal' : 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.4, opacity: 0.8 }}>
+                    <p style={{ margin: '0.15rem 0 0', fontSize: '0.75rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.4, opacity: 0.8 }}>
                       {link.sub}
                     </p>
                   </div>
 
-                  {!link.featured && (
-                    <ChevronRight size={18} color="var(--color-text-muted)" style={{ opacity: 0.5 }} />
-                  )}
-                  
-                  {link.featured && (
-                    <div style={{ marginTop: 'auto', paddingTop: '1rem', width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
-                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--color-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-                        <ArrowRight size={16} color={link.color} />
-                      </div>
-                    </div>
-                  )}
+                  <div style={{ display: 'flex', opacity: 0.4, transition: 'all 0.3s' }} className="chevron-icon">
+                    <ChevronRight size={18} color="var(--color-text-muted)" />
+                  </div>
                 </Link>
               )) : (
                 <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '4rem 0', color: 'var(--color-text-muted)' }}>
