@@ -100,22 +100,20 @@ const CARD_GRADIENTS = {
   orange: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
   red: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
   purple: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-  cyan: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)'
+  cyan: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)'  
 };
 
 const KPICard: React.FC<KPICardProps> = ({ icon: Icon, title, value, trend, gradient, delay }) => (
-  <div
-    className="stagger-item"
-    style={{ animationDelay: delay }}
-  >
-    <div style={{
-      padding: '1.5rem',
-      borderRadius: '20px',
-      background: gradient,
-      color: '#ffffff',
-      boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
-      transition: 'transform 0.3s ease, box-shadow 0.3s ease'
-    }}
+  <div className="stagger-item" style={{ animationDelay: delay }}>
+    <div
+      style={{
+        padding: '1.5rem',
+        borderRadius: '20px',
+        background: gradient,
+        color: '#ffffff',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+        transition: 'transform 0.3s ease, box-shadow 0.3s ease'
+      }}
       onMouseOver={e => {
         e.currentTarget.style.transform = 'translateY(-5px)';
         e.currentTarget.style.boxShadow = '0 15px 40px rgba(0,0,0,0.3)';
@@ -128,16 +126,7 @@ const KPICard: React.FC<KPICardProps> = ({ icon: Icon, title, value, trend, grad
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
         <Icon size={28} opacity={0.9} />
         {trend !== undefined && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.3rem',
-            padding: '0.3rem 0.6rem',
-            borderRadius: '20px',
-            background: 'rgba(255,255,255,0.2)',
-            fontSize: '0.75rem',
-            fontWeight: 700
-          }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', padding: '0.3rem 0.6rem', borderRadius: '20px', background: 'rgba(255,255,255,0.2)', fontSize: '0.75rem', fontWeight: 700 }}>
             {trend >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
             {Math.abs(trend).toFixed(1)}%
           </div>
@@ -148,6 +137,79 @@ const KPICard: React.FC<KPICardProps> = ({ icon: Icon, title, value, trend, grad
     </div>
   </div>
 );
+
+// Skeleton loader for KPI cards
+const KPISkeleton: React.FC = () => (
+  <div style={{ padding: '1.5rem', borderRadius: '20px', background: 'var(--color-surface)', border: '1px solid var(--color-border)', overflow: 'hidden', position: 'relative' }}>
+    <style>{`
+      @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+      }
+      .shimmer-line {
+        background: var(--color-border);
+        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+      }
+      .shimmer-line::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+        animation: shimmer 1.4s infinite;
+      }
+    `}</style>
+    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+      <div className="shimmer-line" style={{ width: 32, height: 32, borderRadius: '8px' }} />
+      <div className="shimmer-line" style={{ width: 56, height: 24, borderRadius: '20px' }} />
+    </div>
+    <div className="shimmer-line" style={{ width: '60%', height: 14, marginBottom: '0.5rem' }} />
+    <div className="shimmer-line" style={{ width: '40%', height: 36 }} />
+  </div>
+);
+
+// Skeleton for full chart card
+const ChartSkeleton: React.FC = () => (
+  <div className="card" style={{ padding: '1.5rem' }}>
+    <div className="shimmer-line" style={{ width: '45%', height: 20, marginBottom: '1.5rem', borderRadius: '8px', background: 'var(--color-border)', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)', animation: 'shimmer 1.4s infinite' }} />
+    </div>
+    {[40, 70, 55, 85, 60, 75].map((h, i) => (
+      <div key={i} style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem', marginBottom: '0.5rem' }}>
+        <div style={{ width: `${h}%`, height: 12, borderRadius: 8, background: 'var(--color-border)', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)', animation: `shimmer 1.4s ${i * 0.1}s infinite` }} />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+// Animated counter for days without accidents
+const AnimatedCounter: React.FC<{ value: number }> = ({ value }) => {
+  const [display, setDisplay] = React.useState(0);
+  React.useEffect(() => {
+    let start = 0;
+    const duration = 1200;
+    const step = Math.ceil(value / (duration / 16));
+    const timer = setInterval(() => {
+      start += step;
+      if (start >= value) { setDisplay(value); clearInterval(timer); }
+      else setDisplay(start);
+    }, 16);
+    return () => clearInterval(timer);
+  }, [value]);
+  const color = value >= 180 ? '#10b981' : value >= 30 ? '#f59e0b' : '#ef4444';
+  const label = value >= 180 ? '🏆 Excelente' : value >= 30 ? '⚠️ Atención' : '🚨 Riesgo';
+  return (
+    <div style={{ textAlign: 'center' }}>
+      <div style={{ fontSize: '3.5rem', fontWeight: 900, lineHeight: 1, letterSpacing: '-2px', textShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>{display}</div>
+      <div style={{ marginTop: '0.3rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', padding: '0.2rem 0.8rem', borderRadius: '20px', background: 'rgba(255,255,255,0.25)', fontSize: '0.7rem', fontWeight: 800, letterSpacing: 0.5 }}>
+        {label}
+      </div>
+    </div>
+  );
+};
 
 export default function Dashboard(): React.ReactElement {
   const navigate = useNavigate();
@@ -173,9 +235,8 @@ export default function Dashboard(): React.ReactElement {
   const [selectedPeriod, setSelectedPeriod] = useState<string>('month');
 
   useEffect(() => {
+    setLoading(true);
     loadDashboardData();
-    const timeout = setTimeout(() => setLoading(false), 3000);
-    return () => clearTimeout(timeout);
   }, [syncPulse, selectedPeriod]);
 
   const loadDashboardData = (): void => {
@@ -190,69 +251,69 @@ export default function Dashboard(): React.ReactElement {
       };
 
       const accidents = safeParse('accident_history');
-      const ats = safeParse('ats_history');
       const trainings = safeParse('training_history');
       const permits = safeParse('work_permits_history');
       const inspections = safeParse('inspections_history');
       const riskMatrices = safeParse('risk_matrix_history');
       const aiCamera = safeParse('ai_camera_history');
 
-      const currentMonth = new Date().getMonth();
-      const currentYear = new Date().getFullYear();
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+
+      // Period filter helper
+      const inPeriod = (dateVal: unknown): boolean => {
+        const d = new Date((dateVal as string) || 0);
+        if (selectedPeriod === 'week') {
+          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          return d >= weekAgo;
+        }
+        if (selectedPeriod === 'quarter') {
+          const quarterAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+          return d >= quarterAgo;
+        }
+        // default: month
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+      };
 
       // Días sin accidentes
       const lastAccident = accidents.length > 0
-        ? new Date(Math.max(...accidents.map(a => new Date(a.date || a.createdAt || 0).getTime())))
+        ? new Date(Math.max(...accidents.map(a => new Date(a.date as string || a.createdAt as string || 0).getTime())))
         : null;
       const daysWithoutAccidents = lastAccident
-        ? Math.floor((new Date().getTime() - lastAccident.getTime()) / (1000 * 60 * 60 * 24))
+        ? Math.floor((now.getTime() - lastAccident.getTime()) / (1000 * 60 * 60 * 24))
         : 365;
 
-      // Tasa de accidentabilidad
-      const accidentsThisMonth = accidents.filter(a => {
-        const d = new Date(a.date || a.createdAt || 0);
-        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-      }).length;
-
+      // Tasa de accidentabilidad (period-filtered)
+      const accidentsThisPeriod = accidents.filter(a => inPeriod(a.date || a.createdAt)).length;
       const accidentsLastMonth = accidents.filter(a => {
-        const d = new Date(a.date || a.createdAt || 0);
+        const d = new Date(a.date as string || a.createdAt as string || 0);
         return d.getMonth() === currentMonth - 1 && d.getFullYear() === currentYear;
       }).length;
-
-      const accidentRate = accidentsThisMonth * 100;
+      const accidentRate = accidentsThisPeriod * 100;
       const accidentTrend = accidentsLastMonth > 0
-        ? ((accidentsThisMonth - accidentsLastMonth) / accidentsLastMonth) * 100
+        ? ((accidentsThisPeriod - accidentsLastMonth) / accidentsLastMonth) * 100
         : 0;
 
       // Cumplimiento de capacitaciones
       const totalTrainings = trainings.length;
       const completedTrainings = trainings.filter(t => t.status === 'completed' || t.completed).length;
-      const trainingCompletion = totalTrainings > 0
-        ? Math.round((completedTrainings / totalTrainings) * 100)
-        : 0;
+      const trainingCompletion = totalTrainings > 0 ? Math.round((completedTrainings / totalTrainings) * 100) : 0;
 
       // Cumplimiento de EPP
       const totalDetections = aiCamera.length;
       const compliantDetections = aiCamera.filter(a => a.ppeComplete === true).length;
-      const ppeCompliance = totalDetections > 0
-        ? Math.round((compliantDetections / totalDetections) * 100)
-        : 100;
+      const ppeCompliance = totalDetections > 0 ? Math.round((compliantDetections / totalDetections) * 100) : 100;
 
       // Permisos activos
-      const activePermits = permits.filter(p => {
-        const endDate = new Date((p.endDate as string | number) || 0);
-        return endDate > new Date();
-      }).length;
+      const activePermits = permits.filter(p => new Date((p.endDate as string | number) || 0) > now).length;
 
-      // Inspecciones completadas
-      const inspectionsCompleted = inspections.filter(i => {
-        const d = new Date(i.date || 0);
-        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-      }).length;
+      // Inspecciones completadas (period-filtered)
+      const inspectionsCompleted = inspections.filter(i => inPeriod(i.date)).length;
 
-      // Recuperar riesgos críticos de matrices
+      // Top riesgos críticos
       const topRisks = riskMatrices
-        .filter(m => m.riskLevel === 'high' || m.riskLevel === 'alto' || m.riskLevel === 'critical' || m.riskLevel === 'crítico')
+        .filter(m => ['high', 'alto', 'critical', 'crítico'].includes(m.riskLevel as string))
         .slice(0, 5)
         .map(m => ({
           name: (m.process || m.task || 'Riesgo sin nombre') as string,
@@ -260,119 +321,62 @@ export default function Dashboard(): React.ReactElement {
           category: (m.category || 'General') as string
         }));
 
-      // Generar alertas
+      // Alertas
       const alerts: AlertItem[] = [];
-      
-      // Alertas de permisos por vencer (próximos 3 días)
-      const now = new Date();
-      const threeDaysLater = new Date(now.getTime() + (3 * 24 * 60 * 60 * 1000));
+      const threeDaysLater = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
       permits.forEach(p => {
         const endDate = new Date(p.endDate as string || 0);
         if (endDate > now && endDate < threeDaysLater) {
-          alerts.push({
-            id: `permit-${p.id}`,
-            type: 'warning',
-            message: `Permiso de trabajo #${p.id} vence pronto`,
-            date: endDate.toLocaleDateString()
-          });
+          alerts.push({ id: `permit-${p.id}`, type: 'warning', message: `Permiso de trabajo #${p.id} vence pronto`, date: endDate.toLocaleDateString() });
         }
       });
-
-      // Alertas de capacitaciones pendientes
       trainings.filter(t => t.status === 'pending' || !t.completed).forEach(t => {
-        alerts.push({
-          id: `training-${t.id}`,
-          type: 'info',
-          message: `Capacitación pendiente: ${t.title || t.name}`,
-          date: new Date(t.date as string || 0).toLocaleDateString()
-        });
+        alerts.push({ id: `training-${t.id}`, type: 'info', message: `Capacitación pendiente: ${t.title || t.name}`, date: new Date(t.date as string || 0).toLocaleDateString() });
       });
 
-      // Tasa de cumplimiento real (Promedio de capacitaciones y EPP)
       const complianceRate = Math.round((trainingCompletion + ppeCompliance) / 2);
 
-      // Estado de matriz de riesgos
       const riskMatrixStatus = {
-        low: riskMatrices.filter(m => m.riskLevel === 'low' || m.riskLevel === 'bajo').length,
-        medium: riskMatrices.filter(m => m.riskLevel === 'medium' || m.riskLevel === 'medio').length,
-        high: riskMatrices.filter(m => m.riskLevel === 'high' || m.riskLevel === 'alto').length,
-        critical: riskMatrices.filter(m => m.riskLevel === 'critical' || m.riskLevel === 'crítico').length
+        low: riskMatrices.filter(m => ['low', 'bajo'].includes(m.riskLevel as string)).length,
+        medium: riskMatrices.filter(m => ['medium', 'medio'].includes(m.riskLevel as string)).length,
+        high: riskMatrices.filter(m => ['high', 'alto'].includes(m.riskLevel as string)).length,
+        critical: riskMatrices.filter(m => ['critical', 'crítico'].includes(m.riskLevel as string)).length
       };
 
-      // Estadísticas mensuales
+      // Monthly stats — # of slots depends on period
+      const numSlots = selectedPeriod === 'week' ? 7 : selectedPeriod === 'quarter' ? 12 : 6;
       const monthlyStats: MonthlyStat[] = [];
-      for (let i = 5; i >= 0; i--) {
-        const date = new Date(currentYear, currentMonth - i, 1);
-        const month = date.getMonth();
-        const year = date.getFullYear();
-        const monthName = date.toLocaleDateString('es-AR', { month: 'short' });
+      for (let i = numSlots - 1; i >= 0; i--) {
+        const date = selectedPeriod === 'week'
+          ? new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
+          : new Date(currentYear, currentMonth - i, 1);
+        const slotMonth = date.getMonth();
+        const slotYear = date.getFullYear();
+        const label = selectedPeriod === 'week'
+          ? date.toLocaleDateString('es-AR', { weekday: 'short' })
+          : date.toLocaleDateString('es-AR', { month: 'short' });
 
-        const monthAccidents = accidents.filter(a => {
-          const d = new Date(a.date || a.createdAt || 0);
-          return d.getMonth() === month && d.getFullYear() === year;
-        }).length;
-
-        const monthInspections = inspections.filter(i => {
-          const d = new Date(i.date || 0);
-          return d.getMonth() === month && d.getFullYear() === year;
-        }).length;
-
-        const monthTrainings = trainings.filter(t => {
-          const d = new Date(t.date || t.createdAt || 0);
-          return d.getMonth() === month && d.getFullYear() === year;
-        }).length;
+        const slotFilter = (d: Date) => selectedPeriod === 'week'
+          ? d.toDateString() === date.toDateString()
+          : d.getMonth() === slotMonth && d.getFullYear() === slotYear;
 
         monthlyStats.push({
-          month: monthName,
-          accidents: monthAccidents,
-          inspections: monthInspections,
-          trainings: monthTrainings
+          month: label,
+          accidents: accidents.filter(a => slotFilter(new Date(a.date as string || a.createdAt as string || 0))).length,
+          inspections: inspections.filter(a => slotFilter(new Date(a.date as string || 0))).length,
+          trainings: trainings.filter(a => slotFilter(new Date(a.date as string || a.createdAt as string || 0))).length
         });
       }
 
-      setKpis({
-        accidentRate,
-        accidentTrend,
-        complianceRate,
-        trainingCompletion,
-        ppeCompliance,
-        activePermits,
-        daysWithoutAccidents,
-        inspectionsCompleted,
-        riskMatrixStatus,
-        monthlyStats,
-        topRisks,
-        alerts
-      });
+      setKpis({ accidentRate, accidentTrend, complianceRate, trainingCompletion, ppeCompliance, activePermits, daysWithoutAccidents, inspectionsCompleted, riskMatrixStatus, monthlyStats, topRisks, alerts });
+      setLoading(false);
     } catch (error) {
       console.error('[DASHBOARD] Error loading data:', error);
       setLoading(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div style={{
-        minHeight: '60vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            border: '4px solid var(--color-border)',
-            borderTopColor: 'var(--color-primary)',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 1rem'
-          }} />
-          <p style={{ color: 'var(--color-text-muted)' }}>Cargando dashboard...</p>
-        </div>
-      </div>
-    );
-  }
+  // Loading state is now inline (skeleton) — no full-page spinner needed
 
   return (
     <div className="container" style={{ paddingTop: '6rem', paddingBottom: '3rem' }}>
@@ -433,76 +437,68 @@ export default function Dashboard(): React.ReactElement {
       <ProfileCompletionBanner onComplete={() => loadDashboardData()} />
 
       {/* KPI Cards */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: '1.5rem',
-        marginBottom: '2rem'
-      }}>
-        <KPICard
-          icon={Activity}
-          title="Incidentes este Mes"
-          value={kpis.accidentRate}
-          trend={kpis.accidentTrend}
-          gradient={CARD_GRADIENTS.red}
-          delay="0.1s"
-        />
-        <KPICard
-          icon={Target}
-          title="Tasa de Cumplimiento"
-          value={`${kpis.complianceRate}%`}
-          gradient={CARD_GRADIENTS.cyan}
-          delay="0.2s"
-        />
-        <KPICard
-          icon={CheckCircle}
-          title="Cumplimiento Capacitaciones"
-          value={`${kpis.trainingCompletion}%`}
-          gradient={CARD_GRADIENTS.green}
-          delay="0.2s"
-        />
-        <KPICard
-          icon={HardHat}
-          title="Cumplimiento EPP"
-          value={`${kpis.ppeCompliance}%`}
-          gradient={CARD_GRADIENTS.blue}
-          delay="0.3s"
-        />
-        <KPICard
-          icon={Clock}
-          title="Días sin Accidentes"
-          value={kpis.daysWithoutAccidents}
-          gradient={CARD_GRADIENTS.purple}
-          delay="0.4s"
-        />
-        <KPICard
-          icon={ClipboardList}
-          title="Permisos Activos"
-          value={kpis.activePermits}
-          gradient={CARD_GRADIENTS.orange}
-          delay="0.5s"
-        />
-        <KPICard
-          icon={Eye}
-          title="Inspecciones este Mes"
-          value={kpis.inspectionsCompleted}
-          gradient={CARD_GRADIENTS.cyan}
-          delay="0.6s"
-        />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+        {loading ? (
+          <> {[...Array(7)].map((_, i) => <KPISkeleton key={i} />)} </>
+        ) : (
+          <>
+            <KPICard icon={Activity} title="Incidentes este Período" value={kpis.accidentRate} trend={kpis.accidentTrend} gradient={CARD_GRADIENTS.red} delay="0.1s" />
+            <KPICard icon={Target} title="Tasa de Cumplimiento" value={`${kpis.complianceRate}%`} gradient={CARD_GRADIENTS.cyan} delay="0.2s" />
+            <KPICard icon={CheckCircle} title="Cumplimiento Capacitaciones" value={`${kpis.trainingCompletion}%`} gradient={CARD_GRADIENTS.green} delay="0.2s" />
+            <KPICard icon={HardHat} title="Cumplimiento EPP" value={`${kpis.ppeCompliance}%`} gradient={CARD_GRADIENTS.blue} delay="0.3s" />
+
+            {/* Special: Animated days-without-accidents card */}
+            <div className="stagger-item" style={{ animationDelay: '0.4s' }}>
+              <div
+                style={{ padding: '1.5rem', borderRadius: '20px', background: CARD_GRADIENTS.purple, color: '#ffffff', boxShadow: '0 10px 30px rgba(0,0,0,0.2)', transition: 'transform 0.3s ease, box-shadow 0.3s ease', textAlign: 'center' }}
+                onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.boxShadow = '0 15px 40px rgba(0,0,0,0.3)'; }}
+                onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.2)'; }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '0.8rem', opacity: 0.9 }}>
+                  <Clock size={22} />
+                  <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>Días sin Accidentes</span>
+                </div>
+                <AnimatedCounter value={kpis.daysWithoutAccidents} />
+              </div>
+            </div>
+
+            <KPICard icon={ClipboardList} title="Permisos Activos" value={kpis.activePermits} gradient={CARD_GRADIENTS.orange} delay="0.5s" />
+            <KPICard icon={Eye} title="Inspecciones en el Período" value={kpis.inspectionsCompleted} gradient={CARD_GRADIENTS.cyan} delay="0.6s" />
+          </>
+        )}
       </div>
 
       {/* Charts */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-        gap: '1.5rem',
-        marginBottom: '2rem'
-      }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+
+        {loading ? <><ChartSkeleton /><ChartSkeleton /></> : (<>
+
         {/* Monthly Stats Chart */}
         <div className="card" style={{ padding: '1.5rem' }}>
-          <h3 style={{ margin: '0 0 1.5rem', fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text)' }}>
-            Estadísticas Mensuales
-          </h3>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text)' }}>Estadísticas</h3>
+            <div style={{ display: 'flex', gap: '0.4rem' }}>
+              {(['week', 'month', 'quarter'] as const).map(p => (
+                <button
+                  key={p}
+                  onClick={() => setSelectedPeriod(p)}
+                  style={{
+                    padding: '0.3rem 0.75rem',
+                    borderRadius: '20px',
+                    border: '1px solid var(--color-border)',
+                    background: selectedPeriod === p ? 'var(--color-primary)' : 'var(--color-surface)',
+                    color: selectedPeriod === p ? '#fff' : 'var(--color-text-muted)',
+                    fontWeight: 700,
+                    fontSize: '0.75rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {p === 'week' ? 'Semana' : p === 'month' ? 'Mes' : 'Trimestre'}
+                </button>
+              ))}
+            </div>
+          </div>
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={kpis.monthlyStats}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -526,9 +522,7 @@ export default function Dashboard(): React.ReactElement {
 
         {/* Risk Matrix Status */}
         <div className="card" style={{ padding: '1.5rem' }}>
-          <h3 style={{ margin: '0 0 1.5rem', fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text)' }}>
-            Estado de Matrices de Riesgo
-          </h3>
+          <h3 style={{ margin: '0 0 1.5rem', fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text)' }}>Estado de Matrices de Riesgo</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
@@ -555,6 +549,7 @@ export default function Dashboard(): React.ReactElement {
             </PieChart>
           </ResponsiveContainer>
         </div>
+        </>)}
       </div>
 
       {/* Top Risks & Alerts */}
