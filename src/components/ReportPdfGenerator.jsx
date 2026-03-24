@@ -1,4 +1,5 @@
 import { TriangleAlert, CheckCircle2 } from 'lucide-react';
+import PdfBrandingFooter from './PdfBrandingFooter';
 import CompanyLogo from './CompanyLogo';
 
 export default function ReportPdfGenerator({ initialData }) {
@@ -215,10 +216,7 @@ export default function ReportPdfGenerator({ initialData }) {
                     </div>
                 </div>
 
-                {/* Footer Print Info */}
-                <div style={{ marginTop: '3rem', borderTop: '1px solid #e2e8f0', paddingTop: '1rem', textAlign: 'center', fontSize: '0.6rem', color: '#94a3b8', fontStyle: 'italic' }}>
-                    Este documento ha sido generado mediante el Asistente Digital H&S. La información contenida es de carácter confidencial y técnico.
-                </div>
+                <PdfBrandingFooter />
             </div>
         </div>
     );

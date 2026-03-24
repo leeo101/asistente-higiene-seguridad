@@ -1,6 +1,7 @@
 import React from 'react';
 import { ShieldCheck, Pencil, Info, LucideIcon } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import PdfBrandingFooter from './PdfBrandingFooter';
 
 // Tipos
 interface ChecklistItem {
@@ -229,23 +230,7 @@ export default function ATSPdfGenerator({ atsData }: ATSPdfGeneratorProps): Reac
         })}
 
         {/* Footer informativo */}
-        <div style={{
-          marginTop: '3rem',
-          padding: '1rem',
-          background: '#f8fafc',
-          borderRadius: '8px',
-          border: '1px solid #e2e8f0',
-          display: 'flex',
-          gap: '0.8rem',
-          fontSize: '0.8rem',
-          color: '#64748b'
-        }}>
-          <Info size={18} color="#3b82f6" style={{ flexShrink: 0 }} />
-          <p style={{ margin: 0, lineHeight: 1.5 }}>
-            Este documento es un Análisis de Trabajo Seguro (ATS) que debe ser completado antes de iniciar cualquier tarea.
-            Todas las medidas de seguridad deben ser verificadas y cumplidas.
-          </p>
-        </div>
+        <PdfBrandingFooter />
       </div>
     </div>
   );

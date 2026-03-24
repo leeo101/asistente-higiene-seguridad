@@ -2,6 +2,7 @@ import React from 'react';
 import { permitTypes } from '../data/workPermits';
 import { ShieldCheck, Users } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import PdfBrandingFooter from './PdfBrandingFooter';
 
 export default function WorkPermitPdfGenerator({ data }: { data: any }): React.ReactElement | null {
     if (!data) return null;
@@ -209,9 +210,7 @@ export default function WorkPermitPdfGenerator({ data }: { data: any }): React.R
                 </div>
 
                 {/* Footer Notes */}
-                <div style={{ marginTop: '2rem', fontSize: '0.7rem', color: '#64748b', fontStyle: 'italic', borderTop: '1px solid #e2e8f0', paddingTop: '1rem', pageBreakInside: 'avoid' }}>
-                    * El presente permiso tiene validez únicamente por la jornada laboral y tareas especificadas. En caso de cambios en las condiciones o personal, se deberá emitir un nuevo permiso.
-                </div>
+                <PdfBrandingFooter />
             </div>
         </div>
     );

@@ -1,4 +1,5 @@
 import React from 'react';
+import PdfBrandingFooter from './PdfBrandingFooter';
 import { ShieldCheck, Pencil, Info } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 
@@ -192,7 +193,8 @@ export default function ATSPdfGenerator({ atsData }) {
                                                 </div>
                                             </div>
                                         ))}
-                                    </div>
+                                    <PdfBrandingFooter />
+            </div>
                                 </div>
                             );
                         })}

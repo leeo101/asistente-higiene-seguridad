@@ -1,6 +1,7 @@
 import React from 'react';
 import { ShieldCheck, Wind, Droplets, AlertTriangle, Activity, Thermometer, Clock } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import PdfBrandingFooter from './PdfBrandingFooter';
 
 export default function ConfinedSpacePdf({ data }) {
     if (!data) return null;
@@ -144,9 +145,7 @@ export default function ConfinedSpacePdf({ data }) {
                     </div>
                 </div>
 
-                <div style={{ marginTop: '1.5rem', fontSize: '0.6rem', color: '#64748b', textAlign: 'center', borderTop: '1px solid #eee', paddingTop: '0.5rem' }}>
-                    SEGÚN RES. SRT 95/03 - ANEXO I. ESTE PERMISO CADUCA AL FINALIZAR EL TURNO O SI LAS CONDICIONES ATMOSFÉRICAS CAMBIAN.
-                </div>
+                <PdfBrandingFooter />
             </div>
         </div>
     );

@@ -1,6 +1,7 @@
 import React from 'react';
 import { ShieldCheck } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import PdfBrandingFooter from './PdfBrandingFooter';
 
 const GHS_CONFIG = {
     explosive: { icon: '🧨', name: 'Explosivo' },
@@ -144,9 +145,7 @@ export default function ChemicalSafetyPdf({ data }) {
                     </div>
                 </div>
 
-                <div style={{ marginTop: '1.5rem', fontSize: '0.6rem', color: '#666', textAlign: 'center' }}>
-                    DOCUMENTO OBLIGATORIO SEGÚN RES. SRT 801/15 (SGA). DEBE ESTAR DISPONIBLE EN EL ÁREA DE TRABAJO.
-                </div>
+                <PdfBrandingFooter />
             </div>
         </div>
     );

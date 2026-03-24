@@ -1,6 +1,7 @@
 import React from 'react';
 import { Lock, Zap, AlertTriangle } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import PdfBrandingFooter from './PdfBrandingFooter';
 
 const ENERGY_MAP = {
     electrical: 'Eléctrica',
@@ -135,9 +136,7 @@ export default function LOTOPdf({ data }) {
                     </div>
                 </div>
 
-                <div style={{ marginTop: '2rem', fontSize: '0.6rem', color: '#666', textAlign: 'center' }}>
-                    REGISTRO DE BLOQUEO CONFORME A NORMAS INTERNACIONALES DE SEGURIDAD INDUSTRIAL.
-                </div>
+                <PdfBrandingFooter />
             </div>
         </div>
     );

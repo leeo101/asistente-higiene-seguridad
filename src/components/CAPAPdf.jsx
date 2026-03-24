@@ -1,6 +1,7 @@
 import React from 'react';
 import { ShieldCheck, AlertTriangle, Clock, CheckCircle2, Clipboard, User, Calendar } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import PdfBrandingFooter from './PdfBrandingFooter';
 
 export default function CAPAPdf({ data }) {
     if (!data) return null;
@@ -106,10 +107,7 @@ export default function CAPAPdf({ data }) {
                     </div>
                 </div>
 
-                <div style={{ marginTop: '2rem', fontSize: '0.6rem', color: '#64748b', textAlign: 'center' }}>
-                    DOCUMENTO OFICIAL DEL SISTEMA DE GESTIÓN DE CALIDAD Y SEGURIDAD INDUSTRIAL. 
-                    ESTE REQUISITO ES MANDATORIO PARA LA MEJORA CONTINUA.
-                </div>
+                <PdfBrandingFooter />
             </div>
         </div>
     );

@@ -15,6 +15,7 @@ import { permitTypes } from '../data/workPermits';
 import toast from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import CompanyLogo from '../components/CompanyLogo';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 export default function WorkPermit(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -419,10 +420,7 @@ export default function WorkPermit(): React.ReactElement | null {
                 </div>
 
                 {/* Footer Notes */}
-                <div style={{ marginTop: '3rem', fontSize: '0.65rem', color: '#666', fontStyle: 'italic', borderTop: '1px solid #eee', paddingTop: '1rem' }}>
-                    * El presente permiso tiene validez únicamente por la jornada laboral y tareas especificadas.
-                    En caso de cambios en las condiciones o personal, se deberá emitir un nuevo permiso.
-                </div>
+                <PdfBrandingFooter />
             </div>
         </div>
     );

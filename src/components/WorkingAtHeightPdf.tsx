@@ -1,6 +1,7 @@
 import React from 'react';
 import { Users, ShieldCheck, HeartPulse, LifeBuoy } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import PdfBrandingFooter from './PdfBrandingFooter';
 
 const RISK_FACTORS_MAP = {
     weather: 'Condiciones climáticas adversas',
@@ -142,10 +143,7 @@ export default function WorkingAtHeightPdf({ data }: { data: any }): React.React
                     </div>
                 </div>
 
-                <div style={{ marginTop: '1.5rem', fontSize: '0.65rem', color: '#64748b', fontStyle: 'italic', textAlign: 'center', borderTop: '1px solid #eee', paddingTop: '0.5rem' }}>
-                    * Documento generado por el Asistente Profesional de Higiene y Seguridad. 
-                    Cumple con los requisitos de la Resolución SRT 61/2023.
-                </div>
+                <PdfBrandingFooter />
             </div>
         </div>
     );

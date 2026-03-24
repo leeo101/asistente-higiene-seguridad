@@ -1,6 +1,7 @@
 import React from 'react';
 import { ClipboardCheck, CheckCircle2, AlertTriangle, User, Calendar, MapPin } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import PdfBrandingFooter from './PdfBrandingFooter';
 
 export default function AuditPdf({ data }) {
     if (!data) return null;
@@ -111,9 +112,7 @@ export default function AuditPdf({ data }) {
                     </div>
                 </div>
 
-                <div style={{ marginTop: '2rem', fontSize: '0.6rem', color: '#999', textAlign: 'center' }}>
-                    ESTE INFORME ES CONFIDENCIAL Y PARA USO EXCLUSIVO DE LA DIRECCIÓN Y EL DEPARTAMENTO DE EHS.
-                </div>
+                <PdfBrandingFooter />
             </div>
         </div>
     );
