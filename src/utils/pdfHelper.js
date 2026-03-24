@@ -49,9 +49,10 @@ export async function generatePdfBlob(elementId, filename = 'reporte.pdf', isLan
         element.style.pointerEvents = 'none';
         element.style.visibility = 'visible';
         element.style.backgroundColor = '#ffffff';
+        element.classList.add('force-pdf-print');
 
         // Wait for styles to apply
-        await new Promise(resolve => setTimeout(resolve, 300));
+        await new Promise(resolve => setTimeout(resolve, 400));
 
         // Default configuration
         const A4_WIDTH_MM = 210;
@@ -129,6 +130,7 @@ export async function generatePdfBlob(elementId, filename = 'reporte.pdf', isLan
         element.style.pointerEvents = originalStyles.pointerEvents;
         element.style.visibility = originalStyles.visibility;
         element.style.backgroundColor = originalStyles.backgroundColor;
+        element.classList.remove('force-pdf-print');
         element.classList.remove('pdf-render-in-progress');
     }
 }

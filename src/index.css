@@ -1263,6 +1263,62 @@ label {
   }
 }
 
+/* --- PDF GENERATION SYNC (Mirrors @media print for html2canvas) --- */
+.force-pdf-print .no-print,
+.force-pdf-print footer,
+.force-pdf-print .glass-panel,
+.force-pdf-print .sidebar,
+.force-pdf-print nav,
+.force-pdf-print .app-header,
+.force-pdf-print .header-actions,
+.force-pdf-print button,
+.force-pdf-print .floating-action-bar,
+.force-pdf-print .btn-floating-action {
+  display: none !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.force-pdf-print.pdf-container,
+.force-pdf-print .pdf-container {
+  box-shadow: none !important;
+  border: none !important;
+  padding: 10mm !important;
+  background: white !important;
+  width: 210mm !important;
+  margin: 0 auto !important;
+}
+
+.force-pdf-print .signature-container-row {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: flex-end !important;
+  align-items: flex-end !important;
+  width: 100% !important;
+  gap: 3rem !important;
+}
+
+.force-pdf-print .signature-item-box img,
+.force-pdf-print div > img[alt*="Firma"],
+.force-pdf-print .signature-container-row img {
+  max-width: 160px !important;
+  max-height: 80px !important;
+  object-fit: contain !important;
+}
+
+.force-pdf-print h1,
+.force-pdf-print h2,
+.force-pdf-print h3,
+.force-pdf-print h4,
+.force-pdf-print p,
+.force-pdf-print span {
+  color: #000 !important;
+}
+
 /* Print Styles */
 @media print {
   @page {

@@ -18,6 +18,17 @@ export default function PdfBrandingFooter() {
                         gap: 1rem;
                         page-break-inside: avoid;
                     }
+                }
+                .force-pdf-print .pdf-brand-container {
+                    display: flex !important;
+                    flex-direction: column;
+                    margin-top: 2rem;
+                    padding-top: 1.5rem;
+                    border-top: 1px solid #e2e8f0;
+                    gap: 1rem;
+                }
+                
+                @media print {
                     .pdf-legal-text {
                         font-size: 0.55rem;
                         color: #64748b;
@@ -49,6 +60,38 @@ export default function PdfBrandingFooter() {
                         font-weight: 700;
                         text-decoration: none;
                     }
+                }
+
+                .force-pdf-print .pdf-legal-text {
+                    font-size: 0.55rem;
+                    color: #64748b;
+                    line-height: 1.5;
+                    text-align: justify;
+                }
+                .force-pdf-print .pdf-legal-text strong {
+                    color: #475569;
+                }
+                .force-pdf-print .pdf-brand {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 0.5rem;
+                    font-size: 0.7rem;
+                    color: #94a3b8;
+                    font-weight: 600;
+                    letter-spacing: 0.02em;
+                    margin-top: 0.5rem;
+                }
+                .force-pdf-print .pdf-brand img {
+                    width: 18px;
+                    height: 18px;
+                    object-fit: contain;
+                    opacity: 0.7;
+                }
+                .force-pdf-print .pdf-brand a {
+                    color: #2563eb;
+                    font-weight: 700;
+                    text-decoration: none;
                 }
             `}</style>
             
