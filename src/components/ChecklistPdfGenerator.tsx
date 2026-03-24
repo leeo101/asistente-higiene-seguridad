@@ -391,9 +391,9 @@ export default function ChecklistPdfGenerator({
                 )}
 
                 {/* Signatures - Igual que ATS */}
-                <div style={{ marginTop: 'auto', paddingTop: '3rem', display: 'flex', justifyContent: 'space-between', pageBreakInside: 'avoid', gap: '2rem' }}>
+                <div style={{ marginTop: 'auto', paddingTop: '3rem', display: 'flex', justifyContent: 'flex-end', pageBreakInside: 'avoid', gap: '3rem' }}>
                     {showSignatures.operator && (
-                        <div style={{ flex: 1, textAlign: 'center' }}>
+                        <div style={{ flex: 1, maxWidth: '240px', textAlign: 'center' }}>
                             <div style={{ borderTop: '2px solid #1e293b', paddingTop: '8px' }}>
                                 <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>OPERADOR / RESPONSABLE</p>
                                 <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b' }}>Firma y Aclaración</p>
@@ -402,7 +402,7 @@ export default function ChecklistPdfGenerator({
                     )}
 
                     {showSignatures.supervisor && (
-                        <div style={{ flex: 1, textAlign: 'center' }}>
+                        <div style={{ flex: 1, maxWidth: '240px', textAlign: 'center' }}>
                             <div style={{ borderTop: '2px solid #1e293b', paddingTop: '8px' }}>
                                 <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>SUPERVISOR H&S</p>
                                 <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b' }}>Aprobación</p>
@@ -411,7 +411,7 @@ export default function ChecklistPdfGenerator({
                     )}
 
                     {showSignatures.professional && (
-                        <div style={{ flex: 1, textAlign: 'center' }}>
+                        <div style={{ flex: 1, maxWidth: '240px', textAlign: 'center' }}>
                             <div style={{ borderTop: '2px solid #1e293b', paddingTop: '8px' }}>
                                 <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>PROFESIONAL ACTUANTE</p>
                                 <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b' }}>Sello y Firma</p>

@@ -1163,13 +1163,15 @@ label {
 @media (min-width: 640px) {
   .signature-container-row {
     flex-direction: row;
-    align-items: flex-start;
-    gap: 1rem;
+    justify-content: flex-end;
+    align-items: flex-end;
+    gap: 3rem;
   }
 }
 
 .signature-item-box {
   flex: 1;
+  max-width: 240px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1285,7 +1287,10 @@ label {
   #root,
   .app-container,
   .main-content,
-  .app-layout {
+  .app-layout,
+  .page-transition,
+  div:has(> .print-area),
+  div:has(> #pdf-content) {
     background: white !important;
     height: auto !important;
     min-height: 0 !important;
@@ -1351,14 +1356,36 @@ label {
   .signature-container-row {
     display: flex !important;
     flex-direction: row !important;
-    justify-content: space-around !important;
-    align-items: flex-start !important;
+    justify-content: flex-end !important;
+    align-items: flex-end !important;
     flex-wrap: nowrap !important;
     width: 100% !important;
-    gap: 1rem !important;
+    gap: 3rem !important;
     page-break-inside: avoid !important;
     margin-bottom: 0 !important;
     padding-bottom: 0 !important;
+  }
+
+  .signature-item-box {
+    flex: 0 1 200px !important;
+    max-width: 200px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    padding-top: 3rem !important;
+    text-align: center !important;
+  }
+
+  .signature-item-box img,
+  div > img[alt*="Firma"],
+  div > img[alt*="Sello"],
+  div > img[alt*="Professional"],
+  .signature-container-row img {
+    max-width: 160px !important;
+    max-height: 80px !important;
+    object-fit: contain !important;
+    height: auto !important;
+    width: auto !important;
   }
 
   /* Flatten all cards and grids for linear printing */
