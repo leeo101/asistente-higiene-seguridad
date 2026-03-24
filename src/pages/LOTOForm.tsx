@@ -5,6 +5,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import LOTOPdf from '../components/LOTOPdf';
+import SignatureCanvas from '../components/SignatureCanvas';
 
 const ENERGY_TYPES = [
     { id: 'electrical', name: 'Eléctrica', icon: '⚡', color: '#fbbf24' },
@@ -65,7 +66,8 @@ export default function LOTOForm(): React.ReactElement | null {
             tested: false,
             method: 'try_start',
             result: 'safe'
-        }
+        },
+        signature: ''
     });
 
     useEffect(() => {
@@ -296,6 +298,14 @@ export default function LOTOForm(): React.ReactElement | null {
                             onChange={(e) => setProcedure({ ...procedure, observations: e.target.value })} 
                             style={{ ...inputStyle, minHeight: '100px', paddingTop: '0.75rem' }} 
                             placeholder="1. Detener equipo... 2. Bloquear interruptor Q1... 3. Verificar energía cero..."
+                        />
+                    </div>
+
+                    <div style={{ marginTop: '2.5rem' }}>
+                        <SignatureCanvas 
+                            onSave={(sig) => setProcedure({ ...procedure, signature: sig || '' })}
+                            initialImage={procedure.signature}
+                            label="Firma del Responsable / Supervisor"
                         />
                     </div>
                 </div>

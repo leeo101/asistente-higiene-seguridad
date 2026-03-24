@@ -5,6 +5,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import NoiseAssessmentPdf from '../components/NoiseAssessmentPdf';
+import SignatureCanvas from '../components/SignatureCanvas';
 
 const NOISE_LIMITS = {
     actionLevel: 80,
@@ -65,7 +66,8 @@ export default function NoiseAssessmentForm(): React.ReactElement | null {
             serial: '',
             lastCalibration: ''
         },
-        backgroundNoise: ''
+        backgroundNoise: '',
+        signature: ''
     });
 
     useEffect(() => {
@@ -253,6 +255,14 @@ export default function NoiseAssessmentForm(): React.ReactElement | null {
                     <div style={{ marginTop: '2rem' }}>
                         <label style={labelStyle}>Profesional / Técnico Responsable</label>
                         <input type="text" value={measurement.technician} onChange={(e) => setMeasurement({ ...measurement, technician: e.target.value })} style={inputStyle} placeholder="Nombre y Apellido del Técnico" />
+                    </div>
+
+                    <div style={{ marginTop: '2.5rem' }}>
+                        <SignatureCanvas 
+                            onSave={(sig) => setMeasurement({ ...measurement, signature: sig || '' })}
+                            initialImage={measurement.signature}
+                            label="Firma del Profesional / Técnico"
+                        />
                     </div>
                 </div>
 

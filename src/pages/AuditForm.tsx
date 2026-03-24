@@ -5,6 +5,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import AuditPdf from '../components/AuditPdf';
+import SignatureCanvas from '../components/SignatureCanvas';
 
 const AUDIT_TYPES = [
     { id: 'internal', name: 'Interna', icon: '📋' },
@@ -65,7 +66,8 @@ export default function AuditForm(): React.ReactElement | null {
             date: '',
             participants: '',
             conclusions: ''
-        }
+        },
+        signature: ''
     });
 
     useEffect(() => {
@@ -258,6 +260,14 @@ export default function AuditForm(): React.ReactElement | null {
                                 />
                             </div>
                         </div>
+                    </div>
+
+                    <div style={{ marginTop: '2.5rem' }}>
+                        <SignatureCanvas 
+                            onSave={(sig) => setAudit({ ...audit, signature: sig || '' })}
+                            initialImage={audit.signature}
+                            label="Firma del Auditor Líder"
+                        />
                     </div>
                 </div>
 

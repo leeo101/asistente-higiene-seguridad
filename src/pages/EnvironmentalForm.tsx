@@ -5,6 +5,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import EnvironmentalPdf from '../components/EnvironmentalPdf';
+import SignatureCanvas from '../components/SignatureCanvas';
 
 const labelStyle: React.CSSProperties = {
     fontSize: '0.85rem',
@@ -67,7 +68,8 @@ export default function EnvironmentalForm(): React.ReactElement | null {
             lastCalibration: ''
         },
         regulatoryLimit: '', // VLE (Valor Límite de Exposición)
-        observations: ''
+        observations: '',
+        signature: ''
     });
 
     useEffect(() => {
@@ -262,6 +264,13 @@ export default function EnvironmentalForm(): React.ReactElement | null {
                             onChange={(e) => setMeasurement({ ...measurement, observations: e.target.value })} 
                             style={{ ...inputStyle, minHeight: '100px', paddingTop: '0.75rem' }} 
                             placeholder="Describa el estado de las instalaciones, fuentes emisoras detectadas y si se cumple con el VLE..."
+                        />
+                    </div>
+                    <div style={{ marginTop: '2.5rem' }}>
+                        <SignatureCanvas 
+                            onSave={(sig) => setMeasurement({ ...measurement, signature: sig || '' })}
+                            initialImage={measurement.signature}
+                            label="Firma del Técnico Responsable"
                         />
                     </div>
                 </div>

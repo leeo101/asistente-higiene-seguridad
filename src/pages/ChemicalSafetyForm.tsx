@@ -5,6 +5,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import ChemicalSafetyPdf from '../components/ChemicalSafetyPdf';
+import SignatureCanvas from '../components/SignatureCanvas';
 
 const GHS_PICTOGRAMS = {
     explosive: { icon: '🧨', name: 'Explosivo', color: '#dc2626' },
@@ -82,7 +83,8 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
             skin: '',
             eyes: '',
             ingestion: ''
-        }
+        },
+        signature: ''
     });
 
     useEffect(() => {
@@ -307,6 +309,14 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
                             onChange={(e) => setChemical({ ...chemical, storage: e.target.value })} 
                             style={{ ...inputStyle, minHeight: '100px', paddingTop: '0.75rem' }} 
                             placeholder="Describa condiciones especiales, incompatibilidades y medidas urgentes de primeros auxilios..."
+                        />
+                    </div>
+
+                    <div style={{ marginTop: '2.5rem' }}>
+                        <SignatureCanvas 
+                            onSave={(sig) => setChemical({ ...chemical, signature: sig || '' })}
+                            initialImage={chemical.signature}
+                            label="Firma de Responsable de Seguridad Química"
                         />
                     </div>
                 </div>

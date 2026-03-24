@@ -5,6 +5,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import CAPAPdf from '../components/CAPAPdf';
+import SignatureCanvas from '../components/SignatureCanvas';
 
 const CAPA_TYPES = [
     { id: 'corrective', name: 'Correctiva', icon: '🔧' },
@@ -74,7 +75,8 @@ export default function CAPAForm(): React.ReactElement | null {
             effective: false,
             comments: ''
         },
-        tags: []
+        tags: [],
+        signature: ''
     });
 
     useEffect(() => {
@@ -285,6 +287,14 @@ export default function CAPAForm(): React.ReactElement | null {
                                 />
                             </div>
                         </div>
+                    </div>
+
+                    <div style={{ marginTop: '2.5rem' }}>
+                        <SignatureCanvas 
+                            onSave={(sig) => setCapa({ ...capa, signature: sig || '' })}
+                            initialImage={capa.signature}
+                            label="Firma de Autoridad EHS / Verificador"
+                        />
                     </div>
                 </div>
 

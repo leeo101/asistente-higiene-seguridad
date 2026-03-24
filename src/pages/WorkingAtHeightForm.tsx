@@ -5,6 +5,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import WorkingAtHeightPdf from '../components/WorkingAtHeightPdf';
+import SignatureCanvas from '../components/SignatureCanvas';
 
 const WORK_TYPES = [
     { id: 'scaffolding', name: 'Andamios', icon: '🏗️' },
@@ -50,7 +51,8 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
             lanyard: true,
             helmet: true,
             lifeline: false
-        }
+        },
+        signature: ''
     });
 
     useEffect(() => {
@@ -299,6 +301,14 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
                             onChange={(e) => setPermit({ ...permit, observations: e.target.value })} 
                             style={{ ...inputStyle, minHeight: '80px', paddingTop: '0.75rem' }} 
                             placeholder="Describa cualquier detalle relevante del trabajo o riesgos específicos..."
+                        />
+                    </div>
+
+                    <div style={{ marginTop: '2.5rem' }}>
+                        <SignatureCanvas 
+                            onSave={(sig) => setPermit({ ...permit, signature: sig || '' })}
+                            initialImage={permit.signature}
+                            label="Firma del Supervisor de Altura"
                         />
                     </div>
                 </div>

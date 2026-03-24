@@ -10,6 +10,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import ConfinedSpacePdf from '../components/ConfinedSpacePdf';
+import SignatureCanvas from '../components/SignatureCanvas';
 
 // Constants from ConfinedSpace.tsx
 const CONFINED_SPACE_TYPES = [
@@ -84,7 +85,8 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
         importance: 'high',
         status: 'pending',
         createdAt: new Date().toISOString(),
-        observations: ''
+        observations: '',
+        signature: ''
     });
 
     useEffect(() => {
@@ -347,6 +349,14 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                         style={{ ...inputStyle, minHeight: '120px', paddingTop: '1rem' }}
                         placeholder="Detalles adicionales, medidas preventivas específicas, condiciones climáticas, etc."
                     />
+
+                    <div style={{ marginTop: '2.5rem' }}>
+                        <SignatureCanvas 
+                            onSave={(sig) => setPermit({ ...permit, signature: sig || '' })}
+                            initialImage={permit.signature}
+                            label="Firma de Supervisor de Entrada"
+                        />
+                    </div>
                 </div>
             </main>
 
