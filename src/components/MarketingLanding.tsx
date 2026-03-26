@@ -267,7 +267,7 @@ export default function MarketingLanding({ onStart }) {
             <div style={{ position: 'relative', zIndex: 1 }}>
               <div style={{ fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', color: 'rgba(255,255,255,0.6)', marginBottom: '0.8rem' }}>Plan PRO</div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.4rem', marginBottom: '0.5rem' }}>
-                <span style={{ fontSize: '3rem', fontWeight: 900, color: 'white', lineHeight: 1 }}>USD $9.90</span>
+                <span style={{ fontSize: '3rem', fontWeight: 900, color: 'white', lineHeight: 1 }}>USD $2</span>
                 <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>/ mes</span>
               </div>
               <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.9rem', lineHeight: 1.5, margin: 0 }}>
