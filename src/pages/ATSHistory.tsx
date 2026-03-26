@@ -8,6 +8,7 @@ import QRModal from '../components/QRModal';
 import { downloadCSV } from '../services/exportCsv';
 import ShareModal from '../components/ShareModal';
 import ATSPdfGenerator from '../components/ATSPdfGenerator';
+import { SkeletonList } from '../components/SkeletonLoader';
 
 function DeleteConfirm({ onConfirm, onCancel }) {
     return (
@@ -42,10 +43,16 @@ export default function ATSHistory(): React.ReactElement | null {
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [qrTarget, setQrTarget] = useState(null);
     const [shareItem, setShareItem] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const historyRaw = localStorage.getItem('ats_history');
-        if (historyRaw) setHistory(JSON.parse(historyRaw));
+        setLoading(true);
+        const timer = setTimeout(() => {
+            const historyRaw = localStorage.getItem('ats_history');
+            if (historyRaw) setHistory(JSON.parse(historyRaw));
+            setLoading(false);
+        }, 600);
+        return () => clearTimeout(timer);
     }, [syncPulse]);
 
     const confirmDelete = () => {
@@ -127,9 +134,12 @@ export default function ATSHistory(): React.ReactElement | null {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {filteredHistory.length > 0 ? (
+                {loading ? (
+                    <SkeletonList count={3} cardProps={{ lines: 2, hasActions: true }} />
+                ) : filteredHistory.length > 0 ? (
                     filteredHistory.map((item) => (
                         <div key={item.id} className="card" style={{ padding: '1.2rem', transition: 'transform 0.2s' }}>
+                            {/* ... card content ... */}
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', flex: 1, minWidth: 0 }}>
                                     <div style={{ width: '45px', height: '45px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-secondary)' }}>

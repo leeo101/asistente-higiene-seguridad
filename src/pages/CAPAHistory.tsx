@@ -7,6 +7,7 @@ import {
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import ShareModal from '../components/ShareModal';
 import CAPAPdf from '../components/CAPAPdf';
+import { SkeletonList } from '../components/SkeletonLoader';
 
 const CAPA_TYPES = [
     { id: 'corrective', name: 'Acción Correctiva', icon: '🔧' },
@@ -40,10 +41,15 @@ export default function CAPAHistory(): React.ReactElement | null {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
     const [shareItem, setShareItem] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const stored = JSON.parse(localStorage.getItem('ehs_capa_db') || '[]');
-        setCapas(stored);
+        const timer = setTimeout(() => {
+            const stored = JSON.parse(localStorage.getItem('ehs_capa_db') || '[]');
+            setCapas(stored);
+            setLoading(false);
+        }, 600);
+        return () => clearTimeout(timer);
     }, []);
 
     const filteredCapas = capas.filter(capa => {
@@ -126,7 +132,9 @@ export default function CAPAHistory(): React.ReactElement | null {
             </div>
 
             {/* CAPA List */}
-            {filteredCapas.length === 0 ? (
+            {loading ? (
+                <SkeletonList count={3} cardProps={{ lines: 2, hasActions: true }} />
+            ) : filteredCapas.length === 0 ? (
                 <div className="card" style={{ padding: '3rem', textAlign: 'center' }}>
                     <ClipboardCheck size={48} color="var(--color-text-muted)" style={{ opacity: 0.3, marginBottom: '1rem' }} />
                     <p style={{ color: 'var(--color-text-muted)', fontSize: '1rem' }}>No hay CAPA registradas</p>

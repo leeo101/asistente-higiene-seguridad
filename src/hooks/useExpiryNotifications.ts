@@ -54,30 +54,31 @@ export function useExpiryNotifications() {
 
     // ─── Extintores ──────────────────────────────────────
     try {
-      const extinguishers = JSON.parse(localStorage.getItem('extinguishers') || '[]');
+      // Sincronizado con la clave real de Extinguishers.tsx
+      const extinguishers = JSON.parse(localStorage.getItem('extinguishers_inventory') || '[]');
       extinguishers.forEach((ext: any) => {
-        // Check recharge due date
-        if (ext.nextRechargeDate) {
-          const daysLeft = getDaysLeft(ext.nextRechargeDate);
+        // Vencimiento de Carga (12 meses)
+        if (ext.ultimaCarga) {
+          const daysLeft = getDaysLeft(ext.ultimaCarga, 12);
           if (daysLeft !== null && daysLeft <= 30) {
             items.push({
               id: `ext-recharge-${ext.id}`,
               type: 'extinguisher',
-              label: `Extintor ${ext.location || ext.code || 'sin ubicación'} — Recarga`,
+              label: `Extintor #${ext.chapa} (${ext.ubicacion || 'sin ubicación'}) — Recarga`,
               daysLeft,
               isExpired: daysLeft < 0,
               itemId: ext.id,
             });
           }
         }
-        // Check pressure test due date
-        if (ext.nextPressureTestDate) {
-          const daysLeft = getDaysLeft(ext.nextPressureTestDate);
+        // Vencimiento de Prueba Hidráulica (60 meses)
+        if (ext.ultimaPH) {
+          const daysLeft = getDaysLeft(ext.ultimaPH, 60);
           if (daysLeft !== null && daysLeft <= 30) {
             items.push({
               id: `ext-pressure-${ext.id}`,
               type: 'extinguisher',
-              label: `Extintor ${ext.location || ext.code || 'sin ubicación'} — Prueba hidráulica`,
+              label: `Extintor #${ext.chapa} (${ext.ubicacion || 'sin ubicación'}) — P. Hidráulica`,
               daysLeft,
               isExpired: daysLeft < 0,
               itemId: ext.id,

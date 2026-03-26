@@ -250,7 +250,23 @@ export default function Extinguishers(): React.ReactElement | null {
 
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
                                                 <span className="sm:hidden" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>Nº Chapa</span>
-                                                <span style={{ fontWeight: 900, fontSize: '1.1rem', color: 'var(--color-primary)' }}>#{ext.chapa}</span>
+                                                <span style={{ fontWeight: 900, fontSize: '1.1rem', color: 'var(--color-text)' }}>#{ext.chapa}</span>
+                                                {/* Mini status indicator */}
+                                                <div style={{ 
+                                                    display: 'inline-flex', 
+                                                    alignItems: 'center', 
+                                                    gap: '0.3rem', 
+                                                    fontSize: '0.65rem', 
+                                                    fontWeight: 900, 
+                                                    textTransform: 'uppercase',
+                                                    padding: '0.1rem 0.4rem',
+                                                    borderRadius: '4px',
+                                                    background: getStatus(ext.ultimaCarga, 12).status === 'valid' && getStatus(ext.ultimaPH, 60).status === 'valid' ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
+                                                    color: getStatus(ext.ultimaCarga, 12).status === 'valid' && getStatus(ext.ultimaPH, 60).status === 'valid' ? '#10b981' : '#ef4444',
+                                                    width: 'fit-content'
+                                                }}>
+                                                    {getStatus(ext.ultimaCarga, 12).status === 'valid' && getStatus(ext.ultimaPH, 60).status === 'valid' ? 'OK' : '⚠️ REVISAR'}
+                                                </div>
                                             </div>
 
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>

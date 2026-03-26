@@ -7,6 +7,7 @@ import {
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import ShareModal from '../components/ShareModal';
 import AuditPdf from '../components/AuditPdf';
+import { SkeletonList } from '../components/SkeletonLoader';
 
 const AUDIT_TYPES = [
     { id: 'internal', name: 'Auditoría Interna', icon: '📋' },
@@ -33,10 +34,15 @@ export default function AuditHistory(): React.ReactElement | null {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
     const [shareItem, setShareItem] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const stored = JSON.parse(localStorage.getItem('ehs_audits_db') || '[]');
-        setAudits(stored);
+        const timer = setTimeout(() => {
+            const stored = JSON.parse(localStorage.getItem('ehs_audits_db') || '[]');
+            setAudits(stored);
+            setLoading(false);
+        }, 650);
+        return () => clearTimeout(timer);
     }, []);
 
     const filteredAudits = audits.filter(audit => {
@@ -120,7 +126,9 @@ export default function AuditHistory(): React.ReactElement | null {
             </div>
 
             {/* Audits List */}
-            {filteredAudits.length === 0 ? (
+            {loading ? (
+                <SkeletonList count={3} cardProps={{ lines: 2, hasActions: true }} />
+            ) : filteredAudits.length === 0 ? (
                 <div className="card" style={{ padding: '3rem', textAlign: 'center' }}>
                     <ClipboardCheck size={48} color="var(--color-text-muted)" style={{ opacity: 0.3, marginBottom: '1rem' }} />
                     <p style={{ color: 'var(--color-text-muted)', fontSize: '1rem' }}>No hay auditorías registradas</p>

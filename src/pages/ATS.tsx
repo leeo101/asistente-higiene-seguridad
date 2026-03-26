@@ -57,6 +57,24 @@ const defaultChecklist = [
     { id: 19, categoria: 'Orden y Limpieza', pregunta: '¿Se dispone de iluminación adecuada en el área?', estado: 'Cumple', observaciones: '' }
 ];
 
+const PRESETS = {
+    'Andamios': [
+        { id: 101, paso: 'Verificación de nivelación y apoyos de andamio', riesgo: 'Caída de estructura', control: 'Uso de durmientes y nivelación nivel burbuja', realizado: false },
+        { id: 102, paso: 'Montaje de tablones y barandas de seguridad', riesgo: 'Caída de personas / objetos', control: 'Doble baranda y rodapié reglamentario', realizado: false },
+        { id: 103, paso: 'Anclaje de arnés a punto estructural certificado', riesgo: 'Caída a distinto nivel', control: 'Uso de arnés de cuerpo completo y cabo de vida', realizado: false }
+    ],
+    'Soldadura': [
+        { id: 201, paso: 'Inspección de cables, pinzas y equipo de soldar', riesgo: 'Contacto eléctrico / Incendio', control: 'Aislación y verificación de puesta a tierra', realizado: false },
+        { id: 202, paso: 'Colocación de pantallas protectoras y biombos', riesgo: 'Proyección de partículas / Irradiación', control: 'Uso de careta fotosensible y vestimenta de cuero', realizado: false },
+        { id: 203, paso: 'Verificación de extintor cerca de la zona de chispas', riesgo: 'Principio de incendio', control: 'Matafuego ABC a mano y retiro de inflamables', realizado: false }
+    ],
+    'Excavación': [
+        { id: 301, paso: 'Detección de interferencias (cañerías/cables)', riesgo: 'Rotura de servicios / Explosión', control: 'Cateo manual y plano de interferencias', realizado: false },
+        { id: 302, paso: 'Colocación de vallado y señalización perimetral', riesgo: 'Caída de personas / vehículos', control: 'Cerco rígido y balizamiento nocturno', realizado: false },
+        { id: 303, paso: 'Verificación de estabilidad de taludes y entibamiento', riesgo: 'Derrumbe de paredes de zanja', control: 'Perfilado de talud según tipo de suelo', realizado: false }
+    ]
+};
+
 export default function ATS(): React.ReactElement | null {
     const navigate = useNavigate();
     const location = useLocation();
@@ -145,6 +163,33 @@ export default function ATS(): React.ReactElement | null {
         } finally {
             setIsGeneratingATS(false);
         }
+    };
+
+    const handleApplyPreset = (name) => {
+        const tasks = PRESETS[name];
+        if (!tasks) return;
+        
+        if (formData.tareas.length > 2 && !window.confirm('¿Deseas reemplazar los pasos actuales por esta plantilla?')) return;
+        
+        setFormData(prev => ({
+            ...prev,
+            tareas: tasks.map((t, i) => ({ ...t, id: Date.now() + i }))
+        }));
+        toast.success(`Plantilla de ${name} aplicada.`);
+    };
+
+    const handleClearForm = () => {
+        if (!window.confirm('¿Seguro que deseas reiniciar el formulario? Se perderán los cambios no guardados.')) return;
+        setFormData({
+            id: '',
+            empresa: '', cuit: '', obra: '',
+            fecha: new Date().toISOString().split('T')[0],
+            capatazNombre: '',
+            checklist: defaultChecklist,
+            tareas: []
+        });
+        clearCapatazSignature();
+        toast.success('Formulario reiniciado');
     };
 
     const [professional, setProfessional] = useState({
@@ -341,6 +386,13 @@ export default function ATS(): React.ReactElement | null {
                 {/* Floating Action Buttons */}
                 <div className="no-print floating-action-bar">
                     <button
+                        onClick={handleClearForm}
+                        className="btn-floating-action"
+                        style={{ background: 'var(--color-surface)', color: '#ef4444', border: '1px solid #ef4444' }}
+                    >
+                        <Trash2 size={18} /> LIMPIAR
+                    </button>
+                    <button
                         onClick={handleSave}
                         className="btn-floating-action"
                         style={{ background: '#36B37E', color: '#ffffff' }}
@@ -430,25 +482,41 @@ export default function ATS(): React.ReactElement | null {
 
                     {/* Sección de Secuencia de Tareas */}
                     <div style={{ marginTop: '3rem', marginBottom: '3rem' }}>
-                        <div className="no-print flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3" style={{ marginBottom: '1.5rem' }}>
-                            <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                                <Pencil size={22} /> Secuencia de Tareas
-                            </h3>
-                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                                <button
-                                    onClick={handleGenerateAI}
-                                    disabled={isGeneratingATS}
-                                    style={{ flex: 1, minWidth: '120px', padding: '0.6rem 1rem', background: 'linear-gradient(135deg, #a855f7, #ec4899)', color: '#ffffff', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', cursor: isGeneratingATS ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: '0 4px 15px rgba(236,72,153,0.3)', opacity: isGeneratingATS ? 0.7 : 1 }}
-                                >
-                                    {isGeneratingATS ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                                    {isGeneratingATS ? 'PENSANDO...' : 'IA MÁGICA'}
-                                </button>
-                                <button
-                                    onClick={addTask}
-                                    style={{ flex: 1, minWidth: '120px', padding: '0.6rem 1.2rem', background: '#36B37E', color: '#ffffff', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
-                                >
-                                    <Plus size={16} /> AGREGAR PASO
-                                </button>
+                        <div className="no-print" style={{ marginBottom: '1.5rem' }}>
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3" style={{ marginBottom: '1rem' }}>
+                                <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                    <Pencil size={22} /> Secuencia de Tareas
+                                </h3>
+                                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                    <button
+                                        onClick={handleGenerateAI}
+                                        disabled={isGeneratingATS}
+                                        style={{ flex: 1, minWidth: '120px', padding: '0.6rem 1rem', background: 'linear-gradient(135deg, #a855f7, #ec4899)', color: '#ffffff', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', cursor: isGeneratingATS ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: '0 4px 15px rgba(236,72,153,0.3)', opacity: isGeneratingATS ? 0.7 : 1 }}
+                                    >
+                                        {isGeneratingATS ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                                        {isGeneratingATS ? 'PENSANDO...' : 'IA MÁGICA'}
+                                    </button>
+                                    <button
+                                        onClick={addTask}
+                                        style={{ flex: 1, minWidth: '120px', padding: '0.6rem 1.2rem', background: '#36B37E', color: '#ffffff', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                                    >
+                                        <Plus size={16} /> AGREGAR PASO
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Presets List */}
+                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', background: 'rgba(59,130,246,0.05)', padding: '0.8rem', borderRadius: '12px', border: '1px solid rgba(59,130,246,0.1)' }}>
+                                <span style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '1px', width: '100%', marginBottom: '0.3rem' }}>Plantillas Rápidas:</span>
+                                {Object.keys(PRESETS).map(name => (
+                                    <button
+                                        key={name}
+                                        onClick={() => handleApplyPreset(name)}
+                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                                    >
+                                        <Plus size={12} /> {name}
+                                    </button>
+                                ))}
                             </div>
                         </div>
                         <h3 className="print-only" style={{ margin: '0 0 1.5rem 0', display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '1px' }}>

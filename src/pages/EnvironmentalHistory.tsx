@@ -4,6 +4,7 @@ import { ArrowLeft, Activity, AlertTriangle, Wind, Droplets, Search, Share2 } fr
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import ShareModal from '../components/ShareModal';
 import EnvironmentalPdf from '../components/EnvironmentalPdf';
+import { SkeletonList } from '../components/SkeletonLoader';
 
 const MONITORING_TYPES = [
     { id: 'air', name: 'Calidad de Aire', icon: '💨', color: '#3b82f6' },
@@ -24,10 +25,15 @@ export default function EnvironmentalHistory(): React.ReactElement | null {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all');
     const [shareItem, setShareItem] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const stored = JSON.parse(localStorage.getItem('environmental_measurements_db') || '[]');
-        setMeasurements(stored);
+        const timer = setTimeout(() => {
+            const stored = JSON.parse(localStorage.getItem('environmental_measurements_db') || '[]');
+            setMeasurements(stored);
+            setLoading(false);
+        }, 600);
+        return () => clearTimeout(timer);
     }, []);
 
     const filteredMeasurements = measurements.filter((m: any) => {
@@ -94,11 +100,13 @@ export default function EnvironmentalHistory(): React.ReactElement | null {
                 </select>
             </div>
 
-            {filteredMeasurements.length === 0 ? (
+            {loading ? (
+                <SkeletonList count={3} cardProps={{ lines: 2, hasActions: true }} />
+            ) : filteredMeasurements.length === 0 ? (
                 <div className="card" style={{ padding: '3rem', textAlign: 'center' }}>
                     <Activity size={48} color="var(--color-text-muted)" style={{ opacity: 0.3, marginBottom: '1rem' }} />
                     <p style={{ color: 'var(--color-text-muted)', fontSize: '1rem' }}>No hay mediciones ambientales registradas</p>
-                    <button onClick={() => navigate('/environmental')} className="btn-primary" style={{ marginTop: '1rem' }}>Configurar EstaciÃ³n</button>
+                    <button onClick={() => navigate('/environmental')} className="btn-primary" style={{ marginTop: '1rem' }}>Configurar Estación</button>
                 </div>
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
