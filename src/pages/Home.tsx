@@ -395,29 +395,70 @@ export default function Home(): React.ReactElement {
               </div>
             </div>
             
-            {/* The Glass Mockup */}
+            {/* The Glass Mockup — Realistic ATS Preview */}
             <div className="stagger-item hidden-mobile" style={{ animationDelay: '0.4s', perspective: '1000px' }}>
-              <div className="glass-mockup" style={{ transform: 'rotateY(-15deg) rotateX(5deg)', transformStyle: 'preserve-3d', padding: '2rem', transition: 'transform 0.5s ease' }} onMouseOver={e => e.currentTarget.style.transform = 'rotateY(0) rotateX(0)' } onMouseOut={e => e.currentTarget.style.transform = 'rotateY(-15deg) rotateX(5deg)' }>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '1rem' }}>
-                  <div style={{ width: '48px', height: '48px', background: 'var(--color-primary)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}><ShieldCheck size={24} /></div>
+              <div className="glass-mockup" style={{ transform: 'rotateY(-12deg) rotateX(4deg)', transformStyle: 'preserve-3d', padding: '1.4rem', transition: 'transform 0.5s ease', maxWidth: '420px' }}
+                onMouseOver={e => e.currentTarget.style.transform = 'rotateY(0) rotateX(0)'}
+                onMouseOut={e => e.currentTarget.style.transform = 'rotateY(-12deg) rotateX(4deg)'}
+              >
+                {/* Header */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1rem', paddingBottom: '0.9rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                  <div style={{ width: '40px', height: '40px', background: 'linear-gradient(135deg,#1e40af,#3b82f6)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', flexShrink: 0 }}><ShieldCheck size={20} /></div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ color: 'white', fontWeight: 800, fontSize: '0.92rem', lineHeight: 1.2 }}>Análisis de Trabajo Seguro</div>
+                    <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.72rem', marginTop: '0.1rem' }}>⚡ Generado por IA en 1.2s</div>
+                  </div>
+                  <span style={{ background: 'rgba(16,185,129,0.2)', color: '#34d399', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 900, padding: '0.2rem 0.6rem', flexShrink: 0 }}>✓ Listo</span>
+                </div>
+
+                {/* Task info row */}
+                <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '10px', padding: '0.75rem 1rem', marginBottom: '0.9rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <div style={{ color: 'white', fontWeight: 800, fontSize: '1.2rem' }}>Análisis de Trabajo Seguro</div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem' }}>Generado por IA en 1.2s</div>
+                    <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Tarea</div>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 700, color: 'white', marginTop: '0.2rem' }}>Trabajos en altura — Andamios</div>
+                  </div>
+                  <span style={{ background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)', fontSize: '0.65rem', fontWeight: 900, padding: '0.25rem 0.6rem', borderRadius: '20px', flexShrink: 0 }}>🔴 ALTO</span>
+                </div>
+
+                {/* Steps list */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
+                  {[
+                    { step: '01', text: 'Verificar integridad del andamio y anclajes', done: true },
+                    { step: '02', text: 'Colocar arnés de seguridad certificado', done: true },
+                    { step: '03', text: 'Delimitar y señalizar área de trabajo', done: false },
+                  ].map(s => (
+                    <div key={s.step} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.55rem 0.8rem', borderRadius: '8px', background: s.done ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.04)', border: `1px solid ${s.done ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.07)'}` }}>
+                      <span style={{ fontSize: '0.62rem', fontWeight: 900, color: s.done ? '#34d399' : 'rgba(255,255,255,0.3)', background: s.done ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)', borderRadius: '6px', padding: '0.1rem 0.35rem', flexShrink: 0 }}>{s.step}</span>
+                      <span style={{ fontSize: '0.78rem', color: s.done ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.45)', fontWeight: 500, flex: 1, lineHeight: 1.3 }}>{s.text}</span>
+                      {s.done && <CheckCircle2 size={14} color="#34d399" style={{ flexShrink: 0 }} />}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Progress bar */}
+                <div style={{ marginBottom: '1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                    <span style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>Progreso</span>
+                    <span style={{ fontSize: '0.68rem', color: '#34d399', fontWeight: 800 }}>2/3 pasos</span>
+                  </div>
+                  <div style={{ height: '6px', borderRadius: '10px', background: 'rgba(255,255,255,0.08)' }}>
+                    <div style={{ width: '66%', height: '100%', borderRadius: '10px', background: 'linear-gradient(90deg,#10b981,#34d399)', transition: 'width 1s ease' }} />
                   </div>
                 </div>
-                <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '16px', padding: '1.2rem', marginBottom: '1.5rem' }}>
-                  <div className="skeleton-text" style={{ width: '100%', background: 'rgba(255,255,255,0.1)' }}></div>
-                  <div className="skeleton-text" style={{ width: '80%', background: 'rgba(255,255,255,0.1)' }}></div>
-                  <div className="skeleton-text" style={{ width: '90%', background: 'rgba(255,255,255,0.1)', marginBottom: 0 }}></div>
-                </div>
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                  <div style={{ flex: 1, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', padding: '1rem', borderRadius: '16px' }}>
-                    <CheckCircle2 color="#10b981" size={24} style={{ marginBottom: '0.8rem' }} />
-                    <div style={{ color: '#10b981', fontWeight: 800, fontSize: '0.9rem' }}>Normativa</div>
+
+                {/* Action buttons */}
+                <div style={{ display: 'flex', gap: '0.6rem' }}>
+                  <div style={{ flex: 1, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', padding: '0.6rem', borderRadius: '10px', textAlign: 'center' }}>
+                    <CheckCircle2 color="#34d399" size={18} style={{ display: 'block', margin: '0 auto 0.3rem' }} />
+                    <div style={{ color: '#34d399', fontWeight: 800, fontSize: '0.72rem' }}>Normativa</div>
                   </div>
-                  <div style={{ flex: 1, background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)', padding: '1rem', borderRadius: '16px' }}>
-                    <FileText color="#60a5fa" size={24} style={{ marginBottom: '0.8rem' }} />
-                    <div style={{ color: '#60a5fa', fontWeight: 800, fontSize: '0.9rem' }}>PDF Listo</div>
+                  <div style={{ flex: 1, background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.25)', padding: '0.6rem', borderRadius: '10px', textAlign: 'center' }}>
+                    <FileText color="#60a5fa" size={18} style={{ display: 'block', margin: '0 auto 0.3rem' }} />
+                    <div style={{ color: '#60a5fa', fontWeight: 800, fontSize: '0.72rem' }}>PDF Listo</div>
+                  </div>
+                  <div style={{ flex: 1, background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.25)', padding: '0.6rem', borderRadius: '10px', textAlign: 'center' }}>
+                    <Sparkles color="#c084fc" size={18} style={{ display: 'block', margin: '0 auto 0.3rem' }} />
+                    <div style={{ color: '#c084fc', fontWeight: 800, fontSize: '0.72rem' }}>IA ✨</div>
                   </div>
                 </div>
               </div>
