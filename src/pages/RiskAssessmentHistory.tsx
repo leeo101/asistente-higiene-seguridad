@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { ArrowLeft, Plus, Shield, ShieldAlert, Calendar, Trash2, Share2, QrCode } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';

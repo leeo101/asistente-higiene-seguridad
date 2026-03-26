@@ -1276,9 +1276,7 @@ function MeasurementDetailModal({ measurement, statusConfig, monitoringType, onC
     const typeParams = PARAMETERS[measurement.monitoringType] || [];
 
     return (
-        <div style={{
-            className: 'modal-fullscreen-overlay'
-        }} onClick={onClose}>
+        <div className="modal-fullscreen-overlay" onClick={onClose}>
             <div 
                 className="card"
                 style={{

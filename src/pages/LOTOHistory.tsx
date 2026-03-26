@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, Lock, AlertTriangle, CheckCircle2, Key, Share2, Printer, Trash2 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import ShareModal from '../components/ShareModal';
@@ -14,6 +13,7 @@ const LOTO_STATUS = {
 
 export default function LOTOHistory(): React.ReactElement | null {
     useDocumentTitle('LOTO - Bloqueo/Etiquetado');
+    const navigate = useNavigate();
     
     const [procedures, setProcedures] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');

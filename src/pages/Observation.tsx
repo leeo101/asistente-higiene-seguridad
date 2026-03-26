@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate, useLocation } from 'react-router-dom';
 import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ArrowLeft, Camera, Shield, Save, Clock, User } from 'lucide-react';
 
@@ -31,7 +29,7 @@ export default function Observation(): React.ReactElement | null {
             
             const newObs = {
                 ...observation,
-                id: observation.id || Date.now(),
+                id: (observation as any).id || Date.now(),
                 timestamp: new Date().toISOString()
             };
 
@@ -68,8 +66,9 @@ export default function Observation(): React.ReactElement | null {
                         placeholder="Detalle el riesgo observado..."
                         value={observation.description}
                         onInput={e => {
-                            e.target.style.height = 'auto';
-                            e.target.style.height = e.target.scrollHeight + 'px';
+                            const t = e.target as HTMLTextAreaElement;
+                            t.style.height = 'auto';
+                            t.style.height = t.scrollHeight + 'px';
                         }}
                         onChange={(e) => setObservation({ ...observation, description: e.target.value })}
                         style={{ background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '8px', padding: '0.8rem', color: 'var(--color-text)', outline: 'none' }}

@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { Lock, Eye, EyeOff, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
 import { API_BASE_URL } from '../config';

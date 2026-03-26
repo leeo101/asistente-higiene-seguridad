@@ -27,7 +27,7 @@ export default function Photos(): React.ReactElement | null {
     }, [fromObservation, itemId]);
 
     const handleFileChange = (e) => {
-        const files = Array.from(e.target.files);
+        const files = Array.from(e.target.files as FileList) as File[];
         let loadedCount = 0;
         const newPhotos = [];
 

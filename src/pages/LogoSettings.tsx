@@ -1,6 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Upload, X, CheckCircle, AlertCircle, Image as ImageIcon, Sparkles, ShieldCheck, Info } from 'lucide-react';
 import { usePaywall } from '../hooks/usePaywall';
 import { useAuth } from '../contexts/AuthContext';
@@ -9,7 +8,8 @@ import toast from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function LogoSettings(): React.ReactElement | null {
-        const { isPro } = usePaywall();
+    const navigate = useNavigate();
+    const { isPro } = usePaywall();
     const { currentUser } = useAuth();
     useDocumentTitle('Logo de Empresa');
     
@@ -43,7 +43,7 @@ export default function LogoSettings(): React.ReactElement | null {
 
         const reader = new FileReader();
         reader.onload = (e) => {
-            const base64 = e.target.result;
+            const base64 = e.target!.result as string;
             setLogo(base64);
             localStorage.setItem('companyLogo', base64);
             if (currentUser?.uid) {

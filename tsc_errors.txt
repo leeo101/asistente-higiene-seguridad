@@ -1,0 +1,57 @@
+﻿src/pages/AppSettings.tsx(76,43): error TS2345: Argument of type 'string | ArrayBuffer' is not assignable to parameter of type 'string'.
+  Type 'ArrayBuffer' is not assignable to type 'string'.
+src/pages/EnvironmentalMonitor.tsx(1280,13): error TS2353: Object literal may only specify known properties, and 'className' does not exist in type 'Properties<string | number, string & {}>'.
+src/pages/LogoSettings.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/LogoSettings.tsx(3,8): error TS2300: Duplicate identifier 'React'.
+src/pages/LogoSettings.tsx(48,49): error TS2345: Argument of type 'string | ArrayBuffer' is not assignable to parameter of type 'string'.
+  Type 'ArrayBuffer' is not assignable to type 'string'.
+src/pages/LogoSettings.tsx(104,36): error TS2552: Cannot find name 'navigate'. Did you mean 'navigator'?
+src/pages/LOTOHistory.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/LOTOHistory.tsx(3,8): error TS2300: Duplicate identifier 'React'.
+src/pages/LOTOHistory.tsx(57,44): error TS2552: Cannot find name 'navigate'. Did you mean 'navigator'?
+src/pages/LOTOHistory.tsx(65,40): error TS2552: Cannot find name 'navigate'. Did you mean 'navigator'?
+src/pages/LOTOHistory.tsx(91,44): error TS2552: Cannot find name 'navigate'. Did you mean 'navigator'?
+src/pages/LOTOHistory.tsx(99,43): error TS2552: Cannot find name 'navigate'. Did you mean 'navigator'?
+src/pages/NoiseAssessment_debug.tsx(764,54): error TS2345: Argument of type 'string | 0' is not assignable to parameter of type 'string'.
+  Type 'number' is not assignable to type 'string'.
+src/pages/NoiseAssessment_debug.tsx(1069,29): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(1081,29): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(1092,29): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(1104,29): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(1117,29): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(1129,29): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(1183,29): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(1214,29): error TS2322: Type '{ minHeight: string; resize: "vertical"; width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(1291,17): error TS2322: Type '{ padding: string; fontSize: string; width: string; borderRadius: string; border: string; background: string; color: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/Observation.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/Observation.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/Observation.tsx(34,33): error TS2339: Property 'id' does not exist on type '{ description: string; severity: string; assignee: string; deadline: string; itemId: any; category: any; }'.
+src/pages/Observation.tsx(71,38): error TS2339: Property 'style' does not exist on type 'EventTarget'.
+src/pages/Observation.tsx(72,38): error TS2339: Property 'style' does not exist on type 'EventTarget'.
+src/pages/Observation.tsx(72,62): error TS2339: Property 'scrollHeight' does not exist on type 'EventTarget'.
+src/pages/Photos.tsx(43,34): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Blob'.
+  Type '{}' is missing the following properties from type 'Blob': size, type, arrayBuffer, bytes, and 3 more.
+src/pages/Report.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/Report.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/ResetPassword.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/ResetPassword.tsx(4,8): error TS2300: Duplicate identifier 'React'.
+src/pages/RiskAssessmentHistory.tsx(1,8): error TS2300: Duplicate identifier 'React'.
+src/pages/RiskAssessmentHistory.tsx(4,8): error TS2300: Duplicate identifier 'React'.

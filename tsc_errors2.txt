@@ -1,0 +1,32 @@
+﻿src/pages/EnvironmentalMonitor.tsx(1280,13): error TS2353: Object literal may only specify known properties, and 'className' does not exist in type 'Properties<string | number, string & {}>'.
+src/pages/NoiseAssessment_debug.tsx(764,54): error TS2345: Argument of type 'string | 0' is not assignable to parameter of type 'string'.
+  Type 'number' is not assignable to type 'string'.
+src/pages/NoiseAssessment_debug.tsx(1069,29): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(1081,29): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(1092,29): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(1104,29): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(1117,29): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(1129,29): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(1183,29): error TS2322: Type '{ width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(1214,29): error TS2322: Type '{ minHeight: string; resize: "vertical"; width: string; padding: string; borderRadius: string; border: string; background: string; color: string; fontSize: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/NoiseAssessment_debug.tsx(1291,17): error TS2322: Type '{ padding: string; fontSize: string; width: string; borderRadius: string; border: string; background: string; color: string; fontWeight: number; outline: string; transition: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/Photos.tsx(43,34): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Blob'.
+  Type '{}' is missing the following properties from type 'Blob': size, type, arrayBuffer, bytes, and 3 more.

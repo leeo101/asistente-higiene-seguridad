@@ -73,7 +73,7 @@ export default function AppSettings(): React.ReactElement | null {
         const reader = new FileReader();
         reader.onload = (ev) => {
             try {
-                const parsed = JSON.parse(ev.target.result);
+                const parsed = JSON.parse(ev.target!.result as string);
                 if (!parsed.data) throw new Error('Formato inválido');
                 let imported = 0;
                 Object.entries(parsed.data).forEach(([k, v]) => {
