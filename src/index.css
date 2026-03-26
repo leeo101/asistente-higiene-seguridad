@@ -1437,6 +1437,45 @@ label {
 
 /* Print Styles */
 @media print {
+  /* 0. FORCE LIGHT MODE VARIABLES FOR PRINT */
+  :root, :root.dark, html, html.dark, body, body.dark {
+    --color-background: #ffffff !important;
+    --color-background-gradient: #ffffff !important;
+    --color-surface: #ffffff !important;
+    --color-surface-solid: #ffffff !important;
+    --color-text: #000000 !important;
+    --color-text-muted: #475569 !important;
+    --color-text-light: #64748B !important;
+    --color-border: #e2e8f0 !important;
+    --color-surface-hover: #f8fafc !important;
+    
+    /* Gradients */
+    --gradient-surface: none !important;
+    --gradient-card: none !important;
+    --gradient-premium: none !important;
+    --gradient-hero: none !important;
+    
+    /* Glassmorphism reset */
+    --glass-bg: #ffffff !important;
+    --glass-bg-header: #ffffff !important;
+    --glass-border: #e2e8f0 !important;
+    --glass-border-subtle: #f1f5f9 !important;
+    --glass-shadow: none !important;
+    --glass-shadow-hover: none !important;
+    --glass-thick: #ffffff !important;
+    --glass-glow: none !important;
+    --glass-glow-strong: none !important;
+
+    /* Component specifics */
+    --color-header-bg: #ffffff !important;
+    --color-input-bg: #ffffff !important;
+    --color-input-border: #cbd5e1 !important;
+    
+    color-scheme: light !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
   @page {
     margin: 1.5cm;
     size: A4;
