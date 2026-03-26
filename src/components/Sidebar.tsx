@@ -2,8 +2,9 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import React, { useEffect, useState, ChangeEvent } from 'react';
 import {
   X, User, History, LogOut, Home, Settings,
-  Calendar, MessageSquare, Sun, Moon, Sparkles, Star, ShieldCheck, HardHat, BarChart3, Users, TriangleAlert, CreditCard, Crown, ImageIcon, Upload, X as CloseIcon, CheckCircle, AlertCircle, LucideIcon, FileText
+  Calendar, MessageSquare, Sun, Moon, Sparkles, Star, ShieldCheck, HardHat, BarChart3, Users, TriangleAlert, CreditCard, Crown, ImageIcon, Upload, X as CloseIcon, CheckCircle, AlertCircle, LucideIcon, FileText, Bell
 } from 'lucide-react';
+import { useExpiryNotifications } from '../hooks/useExpiryNotifications';
 
 import { User as FirebaseUser } from 'firebase/auth';
 import { useAuth } from '../contexts/AuthContext';
@@ -47,6 +48,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
   const { isPro, daysRemaining } = usePaywall();
+  const { notifications, dismiss, dismissAll } = useExpiryNotifications();
+  const [showAlerts, setShowAlerts] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo>({
     name: currentUser?.displayName || currentUser?.email || 'Usuario',
     photo: null,
@@ -216,13 +219,84 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
               </div>
               <span style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--color-hero-text)', letterSpacing: '-0.8px', fontFamily: 'var(--font-heading)' }}>Asistente HYS</span>
             </div>
-            <button onClick={onClose} style={{ padding: 0, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#ffffff', backdropFilter: 'blur(10px)', transition: 'all 0.3s ease' }}
-              onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; e.currentTarget.style.transform = 'rotate(90deg)'; }}
-              onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.transform = 'rotate(0)'; }}
-            >
-              <X size={20} />
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              {/* 🔔 Notification Bell */}
+              {currentUser && (
+                <button
+                  onClick={() => setShowAlerts(v => !v)}
+                  style={{
+                    padding: 0, position: 'relative',
+                    background: notifications.length > 0 ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.1)',
+                    border: notifications.length > 0 ? '1px solid rgba(239,68,68,0.4)' : '1px solid rgba(255,255,255,0.15)',
+                    width: '36px', height: '36px', borderRadius: '10px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer', color: notifications.length > 0 ? '#fca5a5' : '#ffffff',
+                    transition: 'all 0.2s ease',
+                  }}
+                  title={`${notifications.length} alerta${notifications.length !== 1 ? 's' : ''} de vencimiento`}
+                >
+                  <Bell size={17} />
+                  {notifications.length > 0 && (
+                    <span style={{
+                      position: 'absolute', top: '-5px', right: '-5px',
+                      background: '#ef4444', color: '#fff',
+                      borderRadius: '50%', width: '18px', height: '18px',
+                      fontSize: '0.6rem', fontWeight: 900,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      border: '2px solid var(--color-hero-bg, #0f172a)',
+                      animation: 'pulse 2s infinite',
+                    }}>
+                      {notifications.length > 9 ? '9+' : notifications.length}
+                    </span>
+                  )}
+                </button>
+              )}
+              <button onClick={onClose} style={{ padding: 0, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#ffffff', backdropFilter: 'blur(10px)', transition: 'all 0.3s ease' }}
+                onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; e.currentTarget.style.transform = 'rotate(90deg)'; }}
+                onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.transform = 'rotate(0)'; }}
+              >
+                <X size={20} />
+              </button>
+            </div>
           </div>
+
+          {/* 🔔 Alerts Panel */}
+          {showAlerts && currentUser && (
+            <div style={{
+              background: 'rgba(0,0,0,0.25)', borderRadius: '14px',
+              padding: '0.8rem', marginBottom: '0.8rem',
+              border: '1px solid rgba(239,68,68,0.2)',
+              animation: 'slideDown 0.2s ease',
+              maxHeight: '200px', overflowY: 'auto',
+            }}>
+              {notifications.length === 0 ? (
+                <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', padding: '0.5rem' }}>
+                  ✅ Sin vencimientos próximos
+                </div>
+              ) : (
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase' }}>Alertas de Vencimiento</span>
+                    <button onClick={dismissAll} style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer', padding: '0.1rem 0.3rem', fontWeight: 700 }}>Descartar todo</button>
+                  </div>
+                  {notifications.map(n => (
+                    <div key={n.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.5rem', borderRadius: '8px', background: n.isExpired ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)', marginBottom: '0.3rem' }}>
+                      <span style={{ fontSize: '0.75rem', flex: 1, color: n.isExpired ? '#fca5a5' : '#fde68a', fontWeight: 600, lineHeight: 1.3 }}>
+                        {n.type === 'ppe' ? '🦺' : '🧯'} {n.label}
+                        <span style={{ display: 'block', fontSize: '0.65rem', opacity: 0.8 }}>
+                          {n.isExpired ? `Vencido hace ${Math.abs(n.daysLeft)}d` : `Vence en ${n.daysLeft}d`}
+                          {n.responsible ? ` · ${n.responsible}` : ''}
+                        </span>
+                      </span>
+                      <button onClick={() => dismiss(n.id)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', padding: '0.1rem', fontSize: '0.7rem', flexShrink: 0 }} title="Descartar">
+                        <X size={12} />
+                      </button>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          )}
 
           {/* User card */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.9rem' }}>

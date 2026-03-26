@@ -8,6 +8,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import ShareModal from '../components/ShareModal';
 import QRModal from '../components/QRModal';
 import RiskAssessmentPdfGenerator from '../components/RiskAssessmentPdfGenerator';
+import { SkeletonList } from '../components/SkeletonLoader';
 
 // ─── Reusable delete confirmation dialog ───────────────────────────
 function DeleteConfirm({ onConfirm, onCancel }) {
@@ -52,6 +53,7 @@ export default function RiskAssessmentHistory(): React.ReactElement | null {
     useDocumentTitle('Historial Evaluación de Riesgos');
 
     const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [qrTarget, setQrTarget] = useState(null);
     const [shareItem, setShareItem] = useState(null);
@@ -61,6 +63,7 @@ export default function RiskAssessmentHistory(): React.ReactElement | null {
         if (raw) {
             setData(JSON.parse(raw));
         }
+        setLoading(false);
     }, [syncPulse]);
 
     const askDelete = (e, id) => {
@@ -133,7 +136,9 @@ export default function RiskAssessmentHistory(): React.ReactElement | null {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {data.length > 0 ? data.map(item => (
+                {loading ? (
+                    <SkeletonList count={3} cardProps={{ hasAvatar: true, hasActions: true }} />
+                ) : data.length > 0 ? data.map(item => (
                     <div key={item.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', flex: 1 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>

@@ -4,6 +4,7 @@ import { ArrowLeft, Search, Lock, AlertTriangle, CheckCircle2, Key, Share2, Prin
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import ShareModal from '../components/ShareModal';
 import LOTOPdf from '../components/LOTOPdf';
+import { SkeletonList } from '../components/SkeletonLoader';
 
 const LOTO_STATUS = {
     active: { label: 'ACTIVO', color: '#dc2626' },
@@ -16,6 +17,7 @@ export default function LOTOHistory(): React.ReactElement | null {
     const navigate = useNavigate();
     
     const [procedures, setProcedures] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
     const [shareItem, setShareItem] = useState(null);
@@ -23,6 +25,7 @@ export default function LOTOHistory(): React.ReactElement | null {
     useEffect(() => {
         const stored = JSON.parse(localStorage.getItem('loto_procedures_db') || '[]');
         setProcedures(stored);
+        setLoading(false);
     }, []);
 
     const filteredProcedures = procedures.filter(proc => {
@@ -84,7 +87,9 @@ export default function LOTOHistory(): React.ReactElement | null {
                 </select>
             </div>
 
-            {filteredProcedures.length === 0 ? (
+            {loading ? (
+                <SkeletonList count={3} cardProps={{ hasAvatar: true, hasActions: true }} />
+            ) : filteredProcedures.length === 0 ? (
                 <div className="card" style={{ padding: '3rem', textAlign: 'center' }}>
                     <Lock size={48} color="var(--color-text-muted)" style={{ opacity: 0.3, marginBottom: '1rem' }} />
                     <p style={{ color: 'var(--color-text-muted)', fontSize: '1rem' }}>No hay procedimientos LOTO</p>
