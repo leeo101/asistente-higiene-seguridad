@@ -11,7 +11,6 @@ import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Toolti
 import { User } from 'firebase/auth';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
-import ProfileCompletionBanner from '../components/ProfileCompletionBanner';
 import Breadcrumbs from '../components/Breadcrumbs';
 import toast from 'react-hot-toast';
 
@@ -433,8 +432,7 @@ export default function Dashboard(): React.ReactElement {
         </div>
       </div>
 
-      {/* Profile Completion Banner */}
-      <ProfileCompletionBanner onComplete={() => loadDashboardData()} />
+      {/* Header */}
 
       {/* KPI Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
