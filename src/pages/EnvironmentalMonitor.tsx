@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import EnvironmentalPdf from '../components/EnvironmentalPdf';
+import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 
 // Tipos de monitoreo ambiental
 const MONITORING_TYPES = [
@@ -517,7 +518,12 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
 
                     {/* Measurements List */}
                     {filteredMeasurements.length === 0 ? (
-                        <EmptyState onAdd={() => setShowAddModal(true)} />
+                        <EmptyStateIllustrated 
+                            title="Sin Mediciones"
+                            description="Registrá mediciones de monitoreo ambiental según ISO 14001 para control de impacto."
+                            onAction={() => setShowAddModal(true)}
+                            icon={<Leaf />}
+                        />
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                             {filteredMeasurements.map(measurement => (

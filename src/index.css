@@ -464,7 +464,7 @@ a:hover {
 }
 
 .card:hover {
-  transform: translateY(-8px);
+  transform: translateY(-3px);
   box-shadow: var(--glass-shadow-hover);
   border-color: var(--color-primary);
   background: var(--color-surface-solid);
@@ -475,7 +475,7 @@ a:hover {
 }
 
 .card:active {
-  transform: translateY(-4px);
+  transform: translateY(-1px);
 }
 
 .premium-gradient {
@@ -684,9 +684,125 @@ select:focus,
 textarea:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.15);
 }
 
+/* Professional Input Focus */
+.input-professional {
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast) !important;
+}
+
+.input-professional:focus {
+  outline: none !important;
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.12), 0 1px 3px rgba(0,0,0,0.05) !important;
+  background: var(--color-surface-solid) !important;
+}
+
+/* Badge with border (professional status badges) */
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgba(from currentColor r g b / 0.3);
+}
+
+/* Tab with underline indicator */
+.tab-underline-container {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--color-border);
+  margin-bottom: 1.5rem;
+}
+
+.tab-underline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.25rem;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  transition: all var(--transition-fast);
+  position: relative;
+  box-shadow: none;
+}
+
+.tab-underline:hover {
+  color: var(--color-primary);
+  background: rgba(var(--color-primary-rgb), 0.04);
+  transform: none;
+  box-shadow: none;
+  border-bottom-color: rgba(var(--color-primary-rgb), 0.3);
+}
+
+.tab-underline.active {
+  color: var(--color-primary);
+  font-weight: 800;
+  border-bottom-color: var(--color-primary);
+  background: rgba(var(--color-primary-rgb), 0.05);
+}
+
+.tab-underline .tab-count {
+  padding: 0.15rem 0.5rem;
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 800;
+  transition: all var(--transition-fast);
+}
+
+.tab-underline.active .tab-count {
+  background: rgba(var(--color-primary-rgb), 0.15);
+  color: var(--color-primary);
+}
+
+/* Form section divider */
+.form-section {
+  margin-bottom: 2rem;
+}
+
+.form-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.form-section-header .section-bar {
+  width: 4px;
+  height: 20px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.form-section-header .section-title {
+  font-weight: 800;
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--color-text);
+}
+
+.form-section-header .section-icon {
+  margin-left: auto;
+  opacity: 0.4;
+}
 
 label {
   display: block;

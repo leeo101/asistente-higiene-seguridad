@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Search, CheckCircle2, XCircle, Clock, User, Calendar, AlertTriangle, Tent, Eye, Trash2, Wind, Droplets, Printer } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import ConfinedSpacePdf from '../components/ConfinedSpacePdf';
+import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 
 const PERMIT_STATUS = {
     draft: { label: 'BORRADOR', color: '#6b7280', bg: '#f3f4f6' },
@@ -68,7 +69,14 @@ export default function ConfinedSpacePage(): React.ReactElement | null {
             )}
 
             <div style={{ padding: isMobile ? '0 1rem' : '0 1.5rem', maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {filtered.length === 0 ? <EmptyState onAdd={() => navigate('/confined-space/new')} isMobile={isMobile} /> : filtered.map(p => (
+                {filtered.length === 0 ? (
+                    <EmptyStateIllustrated 
+                        title="Sin Permisos de Ingreso"
+                        description="Creá permisos de ingreso a espacios confinados según OSHA 1910.146 para garantizar la seguridad del personal."
+                        onAction={() => navigate('/confined-space/new')}
+                        icon={<Tent />}
+                    />
+                ) : filtered.map(p => (
                     <PermitCard key={p.id} permit={p} statusConfig={(PERMIT_STATUS as any)[p.status] || PERMIT_STATUS.pending} onStart={() => updateStatus(p.id, 'active')} onComplete={() => updateStatus(p.id, 'completed')} onView={() => setSelectedPermit(p)} onDelete={() => deletePermit(p.id)} isMobile={isMobile} />
                 ))}
             </div>

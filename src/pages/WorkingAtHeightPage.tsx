@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Search, CheckCircle2, XCircle, Clock, User, Calendar, AlertTriangle, ArrowDown, Eye, Trash2, Printer } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import WorkingAtHeightPdf from '../components/WorkingAtHeightPdf';
+import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 
 const WORK_TYPES = [{ id: 'scaffolding', name: 'Andamios', icon: '🏗️' }, { id: 'ladder', name: 'Escalera', icon: '🪜' }, { id: 'roof', name: 'Techos', icon: '🏠' }, { id: 'platform', name: 'Plataforma', icon: '📦' }, { id: 'lift', name: 'Elevador', icon: '⬆️' }, { id: 'structure', name: 'Estructura', icon: '🔩' }];
 const PRIORITY = { critical: { label: 'CRÍTICA', color: '#dc2626', days: 3 }, high: { label: 'ALTA', color: '#f59e0b', days: 7 }, medium: { label: 'MEDIA', color: '#3b82f6', days: 15 }, low: { label: 'BAJA', color: '#16a34a', days: 30 } };
@@ -52,7 +53,14 @@ export default function WorkingAtHeightPage(): React.ReactElement | null {
             </div>
             {isMobile && (<div style={{ padding: '0 1rem 1rem', display: 'flex', gap: '0.75rem' }}><div style={{ flex: 1, position: 'relative' }}><Search size={18} color="var(--color-text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} /><input type="text" placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 2.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)', background: 'var(--color-surface)', fontSize: '0.95rem' }} /></div><button onClick={() => navigate('/working-at-height/new')} className="btn-primary" style={{ width: 'auto', margin: 0, padding: '0 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Plus size={20} /></button></div>)}
             <div style={{ padding: isMobile ? '0 1rem' : '0 1.5rem', maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {filtered.length === 0 ? <EmptyState onAdd={() => navigate('/working-at-height/new')} isMobile={isMobile} /> : filtered.map(p => (<PermitCard key={p.id} permit={p} statusConfig={(STATUS as any)[p.status] || STATUS.open} priorityConfig={(PRIORITY as any)[p.priority] || PRIORITY.medium} onStart={() => updateStatus(p.id, 'in_progress')} onComplete={() => updateStatus(p.id, 'completed')} onView={() => setSelected(p)} onDelete={() => del(p.id)} isMobile={isMobile} />))}
+                {filtered.length === 0 ? (
+                    <EmptyStateIllustrated 
+                        title="Sin Permisos de Altura"
+                        description="Creá permisos de trabajo en altura según OSHA 1926.501 para prevenir caídas y asegurar la operación."
+                        onAction={() => navigate('/working-at-height/new')}
+                        icon={<ArrowDown />}
+                    />
+                ) : filtered.map(p => (<PermitCard key={p.id} permit={p} statusConfig={(STATUS as any)[p.status] || STATUS.open} priorityConfig={(PRIORITY as any)[p.priority] || PRIORITY.medium} onStart={() => updateStatus(p.id, 'in_progress')} onComplete={() => updateStatus(p.id, 'completed')} onView={() => setSelected(p)} onDelete={() => del(p.id)} isMobile={isMobile} />))}
             </div>
             </div>
             {selected && <DetailModal permit={selected} onClose={() => setSelected(null)} isMobile={isMobile} onPrint={() => setShowShareModal(true)} />}

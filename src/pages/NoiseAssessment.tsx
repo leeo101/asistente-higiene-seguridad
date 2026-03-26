@@ -11,6 +11,7 @@ import {
 import ShareModal from '../components/ShareModal';
 import NoiseAssessmentPdf from '../components/NoiseAssessmentPdf';
 import CompanyLogo from '../components/CompanyLogo';
+import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 
 // Límites según ISO 9612 y directivas internacionales
 const NOISE_LIMITS = {
@@ -443,7 +444,12 @@ export default function NoiseAssessment(): React.ReactElement | null {
 
                     {/* Measurements List */}
                     {filteredMeasurements.length === 0 ? (
-                        <EmptyState onAdd={() => setShowAddModal(true)} />
+                        <EmptyStateIllustrated 
+                            title="Sin Mediciones de Ruido"
+                            description="Comenzá a evaluar la exposición al ruido según ISO 9612 para proteger la salud auditiva."
+                            onAction={() => setShowAddModal(true)}
+                            icon={<Volume2 />}
+                        />
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                             {filteredMeasurements.map(measurement => (

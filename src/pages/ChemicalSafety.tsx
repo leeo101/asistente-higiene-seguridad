@@ -10,6 +10,7 @@ import ShareModal from '../components/ShareModal';
 import ChemicalSafetyPdf from '../components/ChemicalSafetyPdf';
 import CompanyLogo from '../components/CompanyLogo';
 import LazyImage from '../components/LazyImage';
+import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 
 // Pictogramas GHS/SGA
 const GHS_PICTOGRAMS = {
@@ -444,7 +445,12 @@ export default function ChemicalSafety(): React.ReactElement | null {
 
             {/* Chemicals Grid/List */}
             {filteredChemicals.length === 0 ? (
-                <EmptyState onAdd={() => navigate('/chemical-safety/new')} />
+                <EmptyStateIllustrated 
+                    title="Sin Productos Químicos"
+                    description="Registrá sustancias químicas según el Sistema Globalmente Armonizado (SGA/GHS)."
+                    onAction={() => navigate('/chemical-safety-form')}
+                    icon={<FlaskConical />}
+                />
             ) : viewMode === 'grid' ? (
                 <div style={{
                     display: 'grid',

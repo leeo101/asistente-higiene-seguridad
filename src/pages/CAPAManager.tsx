@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import CAPAPdf from '../components/CAPAPdf';
+import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 
 // Form styles
 const labelStyle = { 
@@ -596,7 +597,12 @@ export default function CAPAManager(): React.ReactElement | null {
 
             {/* CAPA List */}
             {filteredCapas.length === 0 ? (
-                <EmptyState onAdd={() => setShowAddModal(true)} />
+                <EmptyStateIllustrated 
+                    title="Sin Acciones CAPA"
+                    description="Registrá y hacé seguimiento de acciones correctivas y preventivas para la mejora continua."
+                    onAction={() => setShowAddModal(true)}
+                    icon={<RefreshCw />}
+                />
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                     {filteredCapas.map(capa => (

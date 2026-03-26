@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import AuditPdf from '../components/AuditPdf';
+import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 
 // Tipos de auditoría según ISO 45001
 const AUDIT_TYPES = [
@@ -537,7 +538,12 @@ export default function AuditManager(): React.ReactElement | null {
 
                     {/* Audits List */}
                     {filteredAudits.length === 0 ? (
-                        <EmptyState onAdd={() => navigate('/audit/new')} />
+                        <EmptyStateIllustrated 
+                            title="Sin Auditorías Registradas"
+                            description="Planificá y gestioná auditorías internas y externas según ISO 45001."
+                            onAction={() => navigate('/audit/new')}
+                            icon={<ClipboardCheck />}
+                        />
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                             {filteredAudits.map((audit: any) => (

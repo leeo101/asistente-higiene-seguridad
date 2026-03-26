@@ -111,21 +111,31 @@ export default function ChemicalSafetyCreate(): React.ReactElement | null {
 
             {/* Form */}
             <div className="card" style={{ padding: '2.5rem', paddingTop: '2rem' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
-                    <div style={{ gridColumn: '1 / -1' }}><label style={labelStyle}>Nombre del Producto *</label><input type="text" value={chemical.name} onChange={(e) => setChemical({ ...chemical, name: e.target.value })} style={inputStyle} placeholder="Ej: Acetona" /></div>
-                    <div><label style={labelStyle}>Número CAS</label><input type="text" value={chemical.casNumber} onChange={(e) => setChemical({ ...chemical, casNumber: e.target.value })} style={inputStyle} placeholder="Ej: 67-64-1" /></div>
-                    <div><label style={labelStyle}>Número UN</label><input type="text" value={chemical.unNumber} onChange={(e) => setChemical({ ...chemical, unNumber: e.target.value })} style={inputStyle} placeholder="Ej: UN1090" /></div>
-                    <div><label style={labelStyle}>Categoría</label><select value={chemical.category} onChange={(e) => setChemical({ ...chemical, category: e.target.value })} style={inputStyle}>{HAZARD_CATEGORIES.map(cat => <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>)}</select></div>
-                    <div><label style={labelStyle}>Ubicación</label><input type="text" value={chemical.location} onChange={(e) => setChemical({ ...chemical, location: e.target.value })} style={inputStyle} placeholder="Ej: Almacén A" /></div>
-                    <div><label style={labelStyle}>Cantidad</label><input type="text" value={chemical.quantity} onChange={(e) => setChemical({ ...chemical, quantity: e.target.value })} style={inputStyle} placeholder="Ej: 100" /></div>
-                    <div><label style={labelStyle}>Unidad</label><select value={chemical.unit} onChange={(e) => setChemical({ ...chemical, unit: e.target.value })} style={inputStyle}><option value="L">Litros</option><option value="kg">Kilogramos</option><option value="g">Gramos</option><option value="mL">Mililitros</option><option value="und">Unidades</option></select></div>
-                    <div><label style={labelStyle}>Proveedor</label><input type="text" value={chemical.supplier} onChange={(e) => setChemical({ ...chemical, supplier: e.target.value })} style={inputStyle} placeholder="Nombre del proveedor" /></div>
-                    <div><label style={labelStyle}>Fecha SDS</label><input type="date" value={chemical.sdsDate} onChange={(e) => setChemical({ ...chemical, sdsDate: e.target.value })} style={inputStyle} /></div>
+                {/* Sección: Identificación del Producto */}
+                <div className="form-section">
+                    <div className="form-section-header">
+                        <div className="section-bar" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }} />
+                        <span className="section-title">Identificación del Producto</span>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                        <div style={{ gridColumn: '1 / -1' }}><label style={labelStyle}>Nombre del Producto *</label><input className="input-professional" type="text" value={chemical.name} onChange={(e) => setChemical({ ...chemical, name: e.target.value })} style={inputStyle} placeholder="Ej: Acetona" /></div>
+                        <div><label style={labelStyle}>Número CAS</label><input className="input-professional" type="text" value={chemical.casNumber} onChange={(e) => setChemical({ ...chemical, casNumber: e.target.value })} style={inputStyle} placeholder="Ej: 67-64-1" /></div>
+                        <div><label style={labelStyle}>Número UN</label><input className="input-professional" type="text" value={chemical.unNumber} onChange={(e) => setChemical({ ...chemical, unNumber: e.target.value })} style={inputStyle} placeholder="Ej: UN1090" /></div>
+                        <div><label style={labelStyle}>Categoría</label><select className="input-professional" value={chemical.category} onChange={(e) => setChemical({ ...chemical, category: e.target.value })} style={inputStyle}>{HAZARD_CATEGORIES.map(cat => <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>)}</select></div>
+                        <div><label style={labelStyle}>Ubicación</label><input className="input-professional" type="text" value={chemical.location} onChange={(e) => setChemical({ ...chemical, location: e.target.value })} style={inputStyle} placeholder="Ej: Almacén A" /></div>
+                        <div><label style={labelStyle}>Cantidad</label><input className="input-professional" type="text" value={chemical.quantity} onChange={(e) => setChemical({ ...chemical, quantity: e.target.value })} style={inputStyle} placeholder="Ej: 100" /></div>
+                        <div><label style={labelStyle}>Unidad</label><select className="input-professional" value={chemical.unit} onChange={(e) => setChemical({ ...chemical, unit: e.target.value })} style={inputStyle}><option value="L">Litros</option><option value="kg">Kilogramos</option><option value="g">Gramos</option><option value="mL">Mililitros</option><option value="und">Unidades</option></select></div>
+                        <div><label style={labelStyle}>Proveedor</label><input className="input-professional" type="text" value={chemical.supplier} onChange={(e) => setChemical({ ...chemical, supplier: e.target.value })} style={inputStyle} placeholder="Nombre del proveedor" /></div>
+                        <div><label style={labelStyle}>Fecha SDS</label><input className="input-professional" type="date" value={chemical.sdsDate} onChange={(e) => setChemical({ ...chemical, sdsDate: e.target.value })} style={inputStyle} /></div>
+                    </div>
                 </div>
 
-                {/* Pictogramas */}
-                <div style={{ marginBottom: '2rem' }}>
-                    <label style={labelStyle}>Pictogramas GHS</label>
+                {/* Sección: Pictogramas GHS */}
+                <div className="form-section">
+                    <div className="form-section-header">
+                        <div className="section-bar" style={{ background: 'linear-gradient(135deg, #dc2626, #991b1b)' }} />
+                        <span className="section-title">Pictogramas GHS</span>
+                    </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '0.75rem' }}>
                         {Object.entries(GHS_PICTOGRAMS).map(([key, config]) => (
                             <button
@@ -151,10 +161,13 @@ export default function ChemicalSafetyCreate(): React.ReactElement | null {
                     </div>
                 </div>
 
-                {/* Almacenamiento */}
-                <div style={{ marginBottom: '1.5rem' }}>
-                    <label style={labelStyle}>Condiciones de Almacenamiento</label>
-                    <textarea value={chemical.storage} onChange={(e) => setChemical({ ...chemical, storage: e.target.value })} style={{ ...inputStyle, minHeight: '80px' }} placeholder="Ej: Mantener en lugar fresco y seco, alejado de fuentes de ignición..." />
+                {/* Sección: Almacenamiento */}
+                <div className="form-section">
+                    <div className="form-section-header">
+                        <div className="section-bar" style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }} />
+                        <span className="section-title">Condiciones de Almacenamiento</span>
+                    </div>
+                    <textarea className="input-professional" value={chemical.storage} onChange={(e) => setChemical({ ...chemical, storage: e.target.value })} style={{ ...inputStyle, minHeight: '80px' }} placeholder="Ej: Mantener en lugar fresco y seco, alejado de fuentes de ignición..." />
                 </div>
 
                 {/* Acciones */}
@@ -163,6 +176,7 @@ export default function ChemicalSafetyCreate(): React.ReactElement | null {
                     <button onClick={handleSave} className="btn-primary" style={{ flex: 1, fontSize: '1rem' }}>Guardar Producto</button>
                 </div>
             </div>
+
         </div>
     );
 }

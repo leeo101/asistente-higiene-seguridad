@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import ConfinedSpacePdf from '../components/ConfinedSpacePdf';
+import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 
 // Límites atmosféricos según OSHA 1910.146
 const ATMOSPHERIC_LIMITS = {
@@ -457,7 +458,12 @@ export default function ConfinedSpace(): React.ReactElement | null {
 
                     {/* Permits List */}
                     {filteredPermits.length === 0 ? (
-                        <EmptyState onAdd={() => navigate('/confined-space-form')} />
+                        <EmptyStateIllustrated 
+                            title="Sin Permisos de Espacio Confinado"
+                            description="Creá permisos de entrada según OSHA 1910.146 para asegurar el ingreso seguro."
+                            onAction={() => navigate('/confined-space-form')}
+                            icon={<Shield />}
+                        />
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                             {filteredPermits.map(permit => (

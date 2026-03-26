@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import WorkingAtHeightPdf from '../components/WorkingAtHeightPdf';
+import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 
 // Límites según OSHA 1926.501 y normas internacionales
 const HEIGHT_LIMITS = {
@@ -406,39 +407,44 @@ export default function WorkingAtHeight(): React.ReactElement | null {
                 />
             </div>
 
-            {/* Tabs */}
-            <div style={{
-                display: 'flex',
-                gap: '0.5rem',
-                marginBottom: '1.5rem',
-                borderBottom: '2px solid var(--color-border)',
-                paddingBottom: '0.5rem'
-            }}>
-                <TabButton 
-                    active={activeTab === 'permits'}
+            {/* Tabs — línea inferior estilo profesional */}
+            <div className="tab-underline-container">
+                <button
+                    className={`tab-underline${activeTab === 'permits' ? ' active' : ''}`}
                     onClick={() => setActiveTab('permits')}
-                    icon={<FileText size={18} />}
-                    label="Permisos"
-                    count={permits.length}
-                    badge={false}
-                />
-                <TabButton 
-                    active={activeTab === 'active'}
+                >
+                    <FileText size={16} />
+                    Permisos
+                    <span className="tab-count">{permits.length}</span>
+                </button>
+                <button
+                    className={`tab-underline${activeTab === 'active' ? ' active' : ''}`}
                     onClick={() => setActiveTab('active')}
-                    icon={<CheckCircle2 size={18} />}
-                    label="Activos"
-                    count={activePermits.length}
-                    badge={activePermits.length > 0}
-                />
-                <TabButton 
-                    active={activeTab === 'limits'}
+                >
+                    <CheckCircle2 size={16} />
+                    Activos
+                    <span className="tab-count">{activePermits.length}</span>
+                    {activePermits.length > 0 && (
+                        <span style={{
+                            position: 'absolute',
+                            top: '6px',
+                            right: '6px',
+                            width: '8px',
+                            height: '8px',
+                            background: '#ef4444',
+                            borderRadius: '50%',
+                        }} />
+                    )}
+                </button>
+                <button
+                    className={`tab-underline${activeTab === 'limits' ? ' active' : ''}`}
                     onClick={() => setActiveTab('limits')}
-                    icon={<Activity size={18} />}
-                    label="Límites"
-                    count={0}
-                    badge={false}
-                />
+                >
+                    <Activity size={16} />
+                    Límites de Seguridad
+                </button>
             </div>
+
 
             {/* Content by Tab */}
             {activeTab === 'permits' && (
@@ -505,7 +511,12 @@ export default function WorkingAtHeight(): React.ReactElement | null {
 
                     {/* Permits List */}
                     {filteredPermits.length === 0 ? (
-                        <EmptyState onAdd={() => setShowAddModal(true)} />
+                        <EmptyStateIllustrated 
+                            title="Sin Permisos de Trabajo en Altura"
+                            description="Todavía no hay permisos creados. Creá el primero para gestionar la seguridad según OSHA 1.8m."
+                            onAction={() => setShowAddModal(true)}
+                            icon={<HardHat />}
+                        />
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                             {filteredPermits.map(permit => (
@@ -865,72 +876,15 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
     );
 }
 
-function EmptyState({ onAdd }) {
-    return (
-        <div style={{
-            padding: '4rem 2rem',
-            textAlign: 'center',
-            background: 'var(--gradient-card)',
-            borderRadius: 'var(--radius-2xl)',
-            border: '2px dashed var(--color-border)'
-        }}>
-            <div style={{
-                width: '80px',
-                height: '80px',
-                margin: '0 auto 1.5rem',
-                background: 'var(--color-background)',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-            }}>
-                <HardHat size={40} color="var(--color-text-muted)" />
-            </div>
-            <h3 style={{ 
-                margin: '0 0 0.5rem 0', 
-                fontSize: '1.25rem', 
-                fontWeight: 800,
-                color: 'var(--color-text)'
-            }}>
-                Sin Permisos de Trabajo en Altura
-            </h3>
-            <p style={{ 
-                margin: '0 0 1.5rem 0', 
-                color: 'var(--color-text-muted)',
-                fontSize: '0.95rem'
-            }}>
-                Creá permisos de trabajo en altura según OSHA 1926.501
-            </p>
-            <button
-                onClick={onAdd}
-                className="btn-primary"
-                style={{ width: 'auto', margin: 0 }}
-            >
-                <Plus size={20} style={{ marginRight: '0.5rem' }} />
-                Primer Permiso
-            </button>
-        </div>
-    );
-}
-
 function ActivePermitsList({ activePermits, onComplete, onSuspend, onView, onShare }) {
     if (activePermits.length === 0) {
         return (
-            <div style={{
-                padding: '3rem 2rem',
-                textAlign: 'center',
-                background: 'var(--gradient-card)',
-                borderRadius: 'var(--radius-2xl)',
-                border: '2px dashed var(--color-border)'
-            }}>
-                <CheckCircle2 size={48} color="#16a34a" style={{ marginBottom: '1rem' }} />
-                <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', fontWeight: 800 }}>
-                    ¡No hay trabajos en altura activos!
-                </h3>
-                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>
-                    No hay permisos de trabajo en altura en curso.
-                </p>
-            </div>
+            <EmptyStateIllustrated 
+                title="Sin Trabajos Activos"
+                description="No hay permisos en curso actualmente. Los permisos autorizados aparecerán aquí."
+                icon={<CheckCircle2 />}
+                color="#16a34a"
+            />
         );
     }
 

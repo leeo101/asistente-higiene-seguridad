@@ -172,17 +172,28 @@ export default function AuditCreate(): React.ReactElement | null {
 
             {/* Form */}
             <div className="card" style={{ padding: '2.5rem', paddingTop: '2rem' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
-                    <div><label style={labelStyle}>Título *</label><input type="text" value={audit.title} onChange={(e) => setAudit({ ...audit, title: e.target.value })} style={inputStyle} placeholder="Ej: Auditoría Interna 2024" /></div>
-                    <div><label style={labelStyle}>Tipo de Auditoría</label><select value={audit.auditType} onChange={(e) => setAudit({ ...audit, auditType: e.target.value })} style={inputStyle}>{AUDIT_TYPES.map(t => <option key={t.id} value={t.id}>{t.icon} {t.name}</option>)}</select></div>
-                    <div><label style={labelStyle}>Auditor Líder</label><input type="text" value={audit.leadAuditor} onChange={(e) => setAudit({ ...audit, leadAuditor: e.target.value })} style={inputStyle} placeholder="Nombre del auditor" /></div>
-                    <div><label style={labelStyle}>Ubicación</label><input type="text" value={audit.location} onChange={(e) => setAudit({ ...audit, location: e.target.value })} style={inputStyle} placeholder="Ej: Planta Principal" /></div>
-                    <div><label style={labelStyle}>Fecha Programada</label><input type="date" value={audit.scheduledDate} onChange={(e) => setAudit({ ...audit, scheduledDate: e.target.value })} style={inputStyle} /></div>
-                    <div><label style={labelStyle}>Duración (días)</label><input type="number" value={audit.duration} onChange={(e) => setAudit({ ...audit, duration: e.target.value })} style={inputStyle} placeholder="Ej: 2" /></div>
+                {/* Sección: Información General */}
+                <div className="form-section">
+                    <div className="form-section-header">
+                        <div className="section-bar" style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)' }} />
+                        <span className="section-title">Información de la Auditoría</span>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                        <div><label style={labelStyle}>Título *</label><input className="input-professional" type="text" value={audit.title} onChange={(e) => setAudit({ ...audit, title: e.target.value })} style={inputStyle} placeholder="Ej: Auditoría Interna 2024" /></div>
+                        <div><label style={labelStyle}>Tipo de Auditoría</label><select className="input-professional" value={audit.auditType} onChange={(e) => setAudit({ ...audit, auditType: e.target.value })} style={inputStyle}>{AUDIT_TYPES.map(t => <option key={t.id} value={t.id}>{t.icon} {t.name}</option>)}</select></div>
+                        <div><label style={labelStyle}>Auditor Líder</label><input className="input-professional" type="text" value={audit.leadAuditor} onChange={(e) => setAudit({ ...audit, leadAuditor: e.target.value })} style={inputStyle} placeholder="Nombre del auditor" /></div>
+                        <div><label style={labelStyle}>Ubicación</label><input className="input-professional" type="text" value={audit.location} onChange={(e) => setAudit({ ...audit, location: e.target.value })} style={inputStyle} placeholder="Ej: Planta Principal" /></div>
+                        <div><label style={labelStyle}>Fecha Programada</label><input className="input-professional" type="date" value={audit.scheduledDate} onChange={(e) => setAudit({ ...audit, scheduledDate: e.target.value })} style={inputStyle} /></div>
+                        <div><label style={labelStyle}>Duración (días)</label><input className="input-professional" type="number" value={audit.duration} onChange={(e) => setAudit({ ...audit, duration: e.target.value })} style={inputStyle} placeholder="Ej: 2" /></div>
+                    </div>
                 </div>
 
-                <div style={{ marginBottom: '2rem' }}>
-                    <label style={labelStyle}>Áreas ISO 45001 a Auditar</label>
+                {/* Sección: Áreas ISO 45001 */}
+                <div className="form-section">
+                    <div className="form-section-header">
+                        <div className="section-bar" style={{ background: 'linear-gradient(135deg, #3b82f6, #2563eb)' }} />
+                        <span className="section-title">Áreas ISO 45001 a Auditar</span>
+                    </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
                         {AUDIT_AREAS.map(area => (
                             <label key={area.clause} style={{
@@ -214,6 +225,7 @@ export default function AuditCreate(): React.ReactElement | null {
         </div>
     );
 }
+
 
 const labelStyle = {
     display: 'block',

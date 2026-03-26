@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import LOTOPdf from '../components/LOTOPdf';
+import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 
 const LOTO_STATUS = {
     draft: { label: 'BORRADOR', color: '#6b7280', bg: '#f3f4f6' },
@@ -123,7 +124,12 @@ export default function LOTOPage(): React.ReactElement | null {
             {/* Procedures List */}
             <div style={{ padding: isMobile ? '0 1rem' : '0 1.5rem', maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {filteredProcedures.length === 0 ? (
-                    <EmptyState onAdd={() => navigate('/loto/new')} isMobile={isMobile} />
+                    <EmptyStateIllustrated 
+                        title="Sin Procedimientos LOTO"
+                        description="Bloqueo y Etiquetado (Lockout/Tagout) para control de energías peligrosas durante mantenimiento."
+                        onAction={() => navigate('/loto/new')}
+                        icon={<Lock />}
+                    />
                 ) : (
                     filteredProcedures.map(p => (
                         <ProcedureCard
@@ -205,18 +211,7 @@ function ProcedureCard({ procedure, statusConfig, onStart, onComplete, onView, o
     );
 }
 
-function EmptyState({ onAdd, isMobile }: any) {
-    return (
-        <div style={{ padding: isMobile ? '3rem 1rem' : '4rem 2rem', textAlign: 'center', background: 'var(--gradient-card)', borderRadius: 'var(--radius-2xl)', border: '2px dashed var(--color-border)' }}>
-            <div style={{ width: '80px', height: '80px', margin: '0 auto 1.5rem', background: 'var(--color-background)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Lock size={40} color="var(--color-text-muted)" />
-            </div>
-            <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem', fontWeight: 800 }}>Sin Procedimientos LOTO</h3>
-            <p style={{ margin: '0 0 1.5rem 0', color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>Creá procedimientos de Lockout/Tagout según OSHA 1910.147</p>
-            <button onClick={onAdd} className="btn-primary" style={{ width: 'auto', margin: 0 }}><Plus size={20} style={{ marginRight: '0.5rem' }} />Primer Procedimiento</button>
-        </div>
-    );
-}
+
 
 function DetailModal({ procedure, onClose, isMobile, onPrint }: any) {
     return (

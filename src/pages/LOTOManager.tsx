@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import LOTOPdf from '../components/LOTOPdf';
+import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 
 // Tipos de energía según OSHA 1910.147
 const ENERGY_TYPES = [
@@ -454,7 +455,12 @@ export default function LOTOManager(): React.ReactElement | null {
 
                     {/* Procedures List */}
                     {filteredProcedures.length === 0 ? (
-                        <EmptyState onAdd={() => setShowAddModal(true)} />
+                        <EmptyStateIllustrated 
+                            title="Sin Procedimientos LOTO"
+                            description="Creá procedimientos de Lockout/Tagout según OSHA 1910.147 para control de energías peligrosas."
+                            onAction={() => setShowAddModal(true)}
+                            icon={<Lock />}
+                        />
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                             {filteredProcedures.map(procedure => (
@@ -780,72 +786,17 @@ function ProcedureCard({ procedure, statusConfig, onStart, onComplete, onView, o
     );
 }
 
-function EmptyState({ onAdd }) {
-    return (
-        <div style={{
-            padding: '4rem 2rem',
-            textAlign: 'center',
-            background: 'var(--gradient-card)',
-            borderRadius: 'var(--radius-2xl)',
-            border: '2px dashed var(--color-border)'
-        }}>
-            <div style={{
-                width: '80px',
-                height: '80px',
-                margin: '0 auto 1.5rem',
-                background: 'var(--color-background)',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-            }}>
-                <Lock size={40} color="var(--color-text-muted)" />
-            </div>
-            <h3 style={{ 
-                margin: '0 0 0.5rem 0', 
-                fontSize: '1.25rem', 
-                fontWeight: 800,
-                color: 'var(--color-text)'
-            }}>
-                Sin Procedimientos LOTO
-            </h3>
-            <p style={{ 
-                margin: '0 0 1.5rem 0', 
-                color: 'var(--color-text-muted)',
-                fontSize: '0.95rem'
-            }}>
-                Creá procedimientos de Lockout/Tagout según OSHA 1910.147
-            </p>
-            <button
-                onClick={onAdd}
-                className="btn-primary"
-                style={{ width: 'auto', margin: 0 }}
-            >
-                <Plus size={20} style={{ marginRight: '0.5rem' }} />
-                Primer Procedimiento
-            </button>
-        </div>
-    );
-}
+
 
 function ActiveLOTOList({ activeLOTOs, onComplete, onView }) {
     if (activeLOTOs.length === 0) {
         return (
-            <div style={{
-                padding: '3rem 2rem',
-                textAlign: 'center',
-                background: 'var(--gradient-card)',
-                borderRadius: 'var(--radius-2xl)',
-                border: '2px dashed var(--color-border)'
-            }}>
-                <CheckCircle2 size={48} color="#16a34a" style={{ marginBottom: '1rem' }} />
-                <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', fontWeight: 800 }}>
-                    ¡No hay LOTOs activos!
-                </h3>
-                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>
-                    Todos los procedimientos están completados o no hay ninguno iniciado.
-                </p>
-            </div>
+            <EmptyStateIllustrated 
+                title="Sin LOTOs Activos"
+                description="Todos los procedimientos están completados o no hay ninguno iniciado actualmente."
+                icon={<CheckCircle2 />}
+                color="#16a34a"
+            />
         );
     }
 

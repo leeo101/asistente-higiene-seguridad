@@ -38,24 +38,51 @@ export default function EnvironmentalCreate(): React.ReactElement | null {
                 </div>
             </div>
             <div className="card" style={{ padding: '2.5rem', paddingTop: '2rem' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
-                    <div style={{ gridColumn: '1 / -1' }}><label style={labelStyle}>Ubicación *</label><input type="text" value={measurement.location} onChange={(e) => setMeasurement({ ...measurement, location: e.target.value })} style={inputStyle} /></div>
-                    <div><label style={labelStyle}>Área/Departamento</label><input type="text" value={measurement.area} onChange={(e) => setMeasurement({ ...measurement, area: e.target.value })} style={inputStyle} /></div>
-                    <div><label style={labelStyle}>Tipo de Medición</label><select value={measurement.type} onChange={(e) => setMeasurement({ ...measurement, type: e.target.value })} style={inputStyle}><option value="temperature">Temperatura</option><option value="humidity">Humedad</option><option value="pressure">Presión</option><option value="air_quality">Calidad de Aire</option></select></div>
-                    <div><label style={labelStyle}>Fecha</label><input type="date" value={measurement.date} onChange={(e) => setMeasurement({ ...measurement, date: e.target.value })} style={inputStyle} /></div>
-                    <div><label style={labelStyle}>Hora</label><input type="time" value={measurement.time} onChange={(e) => setMeasurement({ ...measurement, time: e.target.value })} style={inputStyle} /></div>
-                    <div><label style={labelStyle}>Técnico</label><input type="text" value={measurement.technician} onChange={(e) => setMeasurement({ ...measurement, technician: e.target.value })} style={inputStyle} /></div>
-                    {measurement.type === 'temperature' && <div><label style={labelStyle}>Temperatura (°C)</label><input type="number" value={measurement.temperature} onChange={(e) => setMeasurement({ ...measurement, temperature: e.target.value })} style={inputStyle} /></div>}
-                    {measurement.type === 'humidity' && <div><label style={labelStyle}>Humedad (%)</label><input type="number" value={measurement.humidity} onChange={(e) => setMeasurement({ ...measurement, humidity: e.target.value })} style={inputStyle} /></div>}
-                    {measurement.type === 'pressure' && <div><label style={labelStyle}>Presión (hPa)</label><input type="number" value={measurement.pressure} onChange={(e) => setMeasurement({ ...measurement, pressure: e.target.value })} style={inputStyle} /></div>}
-                    {measurement.type === 'air_quality' && <div><label style={labelStyle}>Calidad de Aire</label><input type="text" value={measurement.airQuality} onChange={(e) => setMeasurement({ ...measurement, airQuality: e.target.value })} style={inputStyle} /></div>}
+                {/* Sección: Información del Sitio */}
+                <div className="form-section">
+                    <div className="form-section-header">
+                        <div className="section-bar" style={{ background: 'linear-gradient(135deg, #3b82f6, #2563eb)' }} />
+                        <span className="section-title">Información del Sitio</span>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                        <div style={{ gridColumn: '1 / -1' }}><label style={labelStyle}>Ubicación *</label><input className="input-professional" type="text" value={measurement.location} onChange={(e) => setMeasurement({ ...measurement, location: e.target.value })} style={inputStyle} /></div>
+                        <div><label style={labelStyle}>Área/Departamento</label><input className="input-professional" type="text" value={measurement.area} onChange={(e) => setMeasurement({ ...measurement, area: e.target.value })} style={inputStyle} /></div>
+                        <div><label style={labelStyle}>Técnico</label><input className="input-professional" type="text" value={measurement.technician} onChange={(e) => setMeasurement({ ...measurement, technician: e.target.value })} style={inputStyle} /></div>
+                    </div>
                 </div>
-                <div style={{ marginBottom: '1.5rem' }}><label style={labelStyle}>Observaciones</label><textarea value={measurement.observations} onChange={(e) => setMeasurement({ ...measurement, observations: e.target.value })} style={{ ...inputStyle, minHeight: '80px' }} /></div>
+
+                {/* Sección: Datos de Medición */}
+                <div className="form-section">
+                    <div className="form-section-header">
+                        <div className="section-bar" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }} />
+                        <span className="section-title">Datos de Medición</span>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                        <div><label style={labelStyle}>Tipo de Medición</label><select className="input-professional" value={measurement.type} onChange={(e) => setMeasurement({ ...measurement, type: e.target.value })} style={inputStyle}><option value="temperature">Temperatura</option><option value="humidity">Humedad</option><option value="pressure">Presión</option><option value="air_quality">Calidad de Aire</option></select></div>
+                        <div><label style={labelStyle}>Fecha</label><input className="input-professional" type="date" value={measurement.date} onChange={(e) => setMeasurement({ ...measurement, date: e.target.value })} style={inputStyle} /></div>
+                        <div><label style={labelStyle}>Hora</label><input className="input-professional" type="time" value={measurement.time} onChange={(e) => setMeasurement({ ...measurement, time: e.target.value })} style={inputStyle} /></div>
+                        {measurement.type === 'temperature' && <div><label style={labelStyle}>Temperatura (°C)</label><input className="input-professional" type="number" value={measurement.temperature} onChange={(e) => setMeasurement({ ...measurement, temperature: e.target.value })} style={inputStyle} /></div>}
+                        {measurement.type === 'humidity' && <div><label style={labelStyle}>Humedad (%)</label><input className="input-professional" type="number" value={measurement.humidity} onChange={(e) => setMeasurement({ ...measurement, humidity: e.target.value })} style={inputStyle} /></div>}
+                        {measurement.type === 'pressure' && <div><label style={labelStyle}>Presión (hPa)</label><input className="input-professional" type="number" value={measurement.pressure} onChange={(e) => setMeasurement({ ...measurement, pressure: e.target.value })} style={inputStyle} /></div>}
+                        {measurement.type === 'air_quality' && <div><label style={labelStyle}>Calidad de Aire</label><input className="input-professional" type="text" value={measurement.airQuality} onChange={(e) => setMeasurement({ ...measurement, airQuality: e.target.value })} style={inputStyle} /></div>}
+                    </div>
+                </div>
+
+                {/* Sección: Observaciones */}
+                <div className="form-section">
+                    <div className="form-section-header">
+                        <div className="section-bar" style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)' }} />
+                        <span className="section-title">Observaciones</span>
+                    </div>
+                    <div><label style={labelStyle}>Notas Adicionales</label><textarea className="input-professional" value={measurement.observations} onChange={(e) => setMeasurement({ ...measurement, observations: e.target.value })} style={{ ...inputStyle, minHeight: '80px' }} /></div>
+                </div>
+
                 <div style={{ display: 'flex', gap: '1rem', paddingTop: '1.5rem', borderTop: '1px solid var(--color-border)' }}>
                     <button onClick={() => navigate('/environmental')} style={{ flex: 1, padding: '1rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', fontWeight: 700 }}>Cancelar</button>
                     <button onClick={handleSave} className="btn-primary" style={{ flex: 1 }}>Guardar Medición</button>
                 </div>
             </div>
+
         </div>
     );
 }
