@@ -77,7 +77,8 @@ const printStyles = `
     @page { size: A4 portrait; margin: 10mm; }
 }
 @media screen {
-    .print-only { display: none !important; }
+    /* Use positioning instead of display:none to allow PDF libraries to capture the element */
+    .no-view { position: absolute; left: -9999px; top: 0; pointer-events: none; visibility: hidden; }
 }
 `;
 
@@ -452,8 +453,8 @@ export default function ToolboxTalk(): React.ReactElement {
                     </div>
                 )}
 
-                {/* PDF AREA (hidden from screen, used for print/share) */}
-                <div id="toolbox-pdf-content" className="print-area print-only" style={{ padding: '20mm 15mm', fontFamily: 'Arial, sans-serif', background: '#fff', color: '#000' }}>
+                {/* PDF AREA (hidden from screen using no-view, used for print/share) */}
+                <div id="toolbox-pdf-content" className="print-area no-view" style={{ padding: '20mm 15mm', fontFamily: 'Arial, sans-serif', background: '#fff', color: '#000' }}>
                     {/* Header */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', alignItems: 'center', borderBottom: '3px solid #0052CC', paddingBottom: '12px', marginBottom: '20px' }}>
                         <div>
