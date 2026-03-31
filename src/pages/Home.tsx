@@ -8,7 +8,7 @@ import {
   ShieldCheck, TriangleAlert, KeySquare, ScrollText, Bot, ClipboardCheck, FileText, HardHat, ShieldAlert, PenTool,
   ArrowRight, Activity, BookOpen, Calendar as CalendarIcon, Search, TrendingUp, Star,
   Volume2, ArrowDown, RefreshCw, Leaf, Tent, LucideIcon,
-  FlaskConical, CheckCircle2, Droplets
+  FlaskConical, CheckCircle2, Droplets, MessageSquare
 } from 'lucide-react';
 import { User as FirebaseUser } from 'firebase/auth';
 import { getCountryNormativa } from '../data/legislationData';
@@ -126,6 +126,8 @@ const quickLinks: QuickLink[] = [
   { to: '/confined-space', icon: <Tent size={26} />, label: 'Espacios Confinados', sub: 'Permisos y Control', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', premium: true, category: 'critical' },
   { to: '/working-at-height', icon: <HardHat size={26} />, label: 'Trabajo en Altura', sub: 'Permisos y EPP Crítico', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'critical' },
   { to: '/loto', icon: <Lock size={26} />, label: 'LOTO', sub: 'Bloqueo y Etiquetado', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true, category: 'critical' },
+  { to: '/safety-kpis', icon: <BarChart3 size={26} />, label: 'KPIs Seguridad', sub: 'LTIFR, TRIFR y Estadísticas', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management' },
+  { to: '/toolbox-talk', icon: <MessageSquare size={26} />, label: 'Charlas 5 Min', sub: 'Registro de Capacitación Diaria', color: '#0052CC', bg: 'rgba(0,82,204,0.1)', premium: true, category: 'management' },
 ];
 
 // Counter hook
