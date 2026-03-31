@@ -311,7 +311,7 @@ export default function FireLoad(): React.ReactElement | null {
     return (
         <div className="container" style={{ maxWidth: '900px', paddingBottom: '8rem' }}>
             {/* Premium Header */}
-            <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100 }}>
+            <div style={{ position: 'fixed', top: '80px', left: 0, right: 0, zIndex: 100 }}>
                 <PremiumHeader
                     title="Carga de Fuego"
                     subtitle="Cálculo según Dec. 351/79"
@@ -319,7 +319,7 @@ export default function FireLoad(): React.ReactElement | null {
                 />
             </div>
 
-            <div style={{ paddingTop: '8rem' }}>
+            <div style={{ paddingTop: '13rem' }}>
             <ShareModal
                 isOpen={showShare}
                 open={showShare}
