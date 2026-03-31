@@ -119,6 +119,8 @@ const WorkingAtHeight = lazyWithRetry(() => import('./pages/WorkingAtHeight.jsx'
 const AuditManager = lazyWithRetry(() => import('./pages/AuditManager.jsx'));
 const CAPAManager = lazyWithRetry(() => import('./pages/CAPAManager.jsx'));
 const EnvironmentalMonitor = lazyWithRetry(() => import('./pages/EnvironmentalMonitor.jsx'));
+const SafetyKPIs = lazyWithRetry(() => import('./pages/SafetyKPIs.jsx'));
+const ToolboxTalk = lazyWithRetry(() => import('./pages/ToolboxTalk.jsx'));
 
 // SAFETY MODULE FORMS
 const AuditForm = lazyWithRetry(() => import('./pages/AuditForm'));
@@ -469,6 +471,8 @@ function App() {
                 <Route path="/confined-space-history" element={<ConfinedSpaceHistory />} />
                 <Route path="/chemical-safety-history" element={<ChemicalSafetyHistory />} />
 
+                <Route path="/safety-kpis" element={<ProtectedRoute><SafetyKPIs /></ProtectedRoute>} />
+                <Route path="/toolbox-talk" element={<ProtectedRoute><ToolboxTalk /></ProtectedRoute>} />
                 <Route path="/calendar" element={<SafetyCalendar />} />
                 <Route path="/ai-camera-history" element={<AICameraHistory />} />
                 <Route path="/lighting" element={<LightingReport />} />
