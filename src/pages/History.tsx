@@ -5,7 +5,7 @@ import {
     ArrowLeft, Search, Calendar, ChevronRight,
     ClipboardList, Flame, BarChart3, ShieldAlert, Plus, Sparkles, Trash2, Camera, Lightbulb, HardHat, Share2,
     ClipboardCheck, CheckCircle2, ScrollText, ShieldCheck, KeySquare, Bot, TriangleAlert, FileText, Shield, ThermometerSun, Siren, Map, BookOpen,
-    FlaskConical, Volume2, Lock, Tent, Droplets
+    FlaskConical, Volume2, Lock, Tent, Droplets, MessageSquare
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useSync } from '../contexts/SyncContext';
@@ -129,6 +129,8 @@ export default function History(): React.ReactElement | null {
             audits: safeGetList('ehs_audits_db').length,
             capa: safeGetList('ehs_capa_db').length,
             environmental: safeGetList('environmental_measurements_db').length,
+            safetyKPIs: safeGetList('ehs_kpi_data').length,
+            toolboxTalks: safeGetList('ehs_toolbox_talks').length,
         });
     };
 
@@ -227,6 +229,8 @@ export default function History(): React.ReactElement | null {
         { title: 'Permisos de Espacios Confinados', icon: <Tent size={24} />, color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', path: '/confined-space-history', countKey: 'confinedSpace' },
         { title: 'Permisos Trabajo en Altura', icon: <HardHat size={24} />, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', path: '/working-at-height-history', countKey: 'workHeight' },
         { title: 'Seguridad Química (SGA)', icon: <FlaskConical size={24} />, color: '#ec4899', bg: 'rgba(236,72,153,0.1)', path: '/chemical-safety-history', countKey: 'chemicalSafety' },
+        { title: 'KPIs de Seguridad', icon: <BarChart3 size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/safety-kpis', countKey: 'safetyKPIs' },
+        { title: 'Charlas de 5 Minutos', icon: <MessageSquare size={24} />, color: '#0052CC', bg: 'rgba(0,82,204,0.1)', path: '/toolbox-talk', countKey: 'toolboxTalks' },
     ];
 
     // ─── HUB ──────────────────────────────────────────────────────
