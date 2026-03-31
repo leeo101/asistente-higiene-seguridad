@@ -53,7 +53,57 @@ const valueProps = [
 export default function MarketingLanding({ onStart }) {
   return (
     <div style={{ color: 'var(--color-text)', maxWidth: '1200px', margin: '0 auto', padding: '0 1rem' }}>
-      
+      {/* 0. Trusted By Marquee */}
+      <section className="stagger-item" style={{ padding: '2rem 0', marginTop: '2rem', borderBottom: '1px solid var(--color-border)' }}>
+        <p style={{ textAlign: 'center', fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>
+          La tecnología elegida por miles de profesionales en
+        </p>
+        
+        <div className="marquee-container" style={{ margin: '0 auto', maxWidth: '1000px' }}>
+          <div className="marquee-content" style={{ gap: '3rem' }}>
+            {['🏢 Constructoras', '🏗️ Proyectos Mineros', '🏭 Industria Manufacturera', '👔 Consultores H&S', '🦺 Servicios Especializados', '🚚 Empresas de Logística', '⚡ Sector Energético', '🚜 Agroindustria'].map((tag, i) => (
+              <span key={i} style={{ 
+                fontSize: '1.05rem', 
+                fontWeight: 700, 
+                color: 'var(--color-text)', 
+                opacity: 0.8,
+                whiteSpace: 'nowrap',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.5rem 1rem',
+                background: 'rgba(255,255,255,0.03)',
+                borderRadius: '100px',
+                border: '1px solid var(--color-border)'
+              }}>
+                {tag}
+              </span>
+            ))}
+          </div>
+          {/* Duplicate for seamless looping */}
+          <div className="marquee-content" style={{ gap: '3rem' }}>
+            {['🏢 Constructoras', '🏗️ Proyectos Mineros', '🏭 Industria Manufacturera', '👔 Consultores H&S', '🦺 Servicios Especializados', '🚚 Empresas de Logística', '⚡ Sector Energético', '🚜 Agroindustria'].map((tag, i) => (
+              <span key={i} style={{ 
+                fontSize: '1.05rem', 
+                fontWeight: 700, 
+                color: 'var(--color-text)', 
+                opacity: 0.8,
+                whiteSpace: 'nowrap',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.5rem 1rem',
+                background: 'rgba(255,255,255,0.03)',
+                borderRadius: '100px',
+                border: '1px solid var(--color-border)'
+              }}>
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* 1. Value Props - Premium Cards */}
       <section className="stagger-item" style={{ padding: '6rem 0 3rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
