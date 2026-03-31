@@ -136,9 +136,19 @@ export default function ShareModal({
                     await navigator.share(shareData);
                     toast.success('¡Compartido con éxito!', { id: 'pdf-gen' });
                 } catch (shareErr: any) {
-                    // Fallback to download if sharing is cancelled or not allowed
-                    console.warn("Native share failed, falling back to download:", shareErr);
+                    console.warn("Native share failed, falling back to download/link:", shareErr);
                     triggerDownload();
+                    
+                    // Specific fallback for WhatsApp/Mail on desktop
+                    if (!isMobile) {
+                        const opt = options.find(o => o.label === optLabel);
+                        if (opt && opt.url && optLabel !== 'Imprimir') {
+                            setTimeout(() => {
+                                window.open(opt.url, '_blank');
+                                toast.success(`PDF listo. Adjúntalo en ${optLabel}.`);
+                            }, 1000);
+                        }
+                    }
                 }
             } else {
                 triggerDownload();

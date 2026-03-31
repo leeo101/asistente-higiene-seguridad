@@ -197,7 +197,7 @@ export default function ToolboxTalk(): React.ReactElement {
                     onClose={() => setShowShare(false)}
                     title={`Charla de 5 Minutos — ${form.tema}`}
                     text={`📋 Charla de 5 Minutos\n📅 Fecha: ${form.fecha}\n👷 Responsable: ${form.responsable}\n🏢 Área: ${form.area}\n📌 Tema: ${form.tema}\n👥 Asistentes: ${form.asistentes.filter(a => a.nombre).length}`}
-                    rawMessage=""
+                    rawMessage={`📋 Charla de 5 Minutos\n📅 Fecha: ${form.fecha}\n👷 Responsable: ${form.responsable}\n🏢 Área: ${form.area}\n📌 Tema: ${form.tema}\n👥 Asistentes: ${form.asistentes.filter(a => a.nombre).length}`}
                     elementIdToPrint="toolbox-pdf-content"
                     fileName={`Charla_5min_${form.tema.replace(/\s+/g, '_') || 'sin_tema'}`}
                 />
