@@ -72,9 +72,12 @@ const emptyTalk = (): ToolboxTalk => ({
 const printStyles = `
 @media print {
     .no-print { display: none !important; }
-    .print-area { display: block !important; width: 100% !important; }
+    .print-area { display: block !important; width: 100% !important; position: absolute !important; left: 0 !important; top: 0 !important; z-index: 9999 !important; background: white !important; }
     body { background: white !important; }
     @page { size: A4 portrait; margin: 10mm; }
+}
+@media screen {
+    .print-only { display: none !important; }
 }
 `;
 
@@ -449,8 +452,8 @@ export default function ToolboxTalk(): React.ReactElement {
                     </div>
                 )}
 
-                {/* PDF AREA (hidden, used for print/share) */}
-                <div id="toolbox-pdf-content" style={{ padding: '20mm 15mm', fontFamily: 'Arial, sans-serif', background: '#fff', color: '#000' }}>
+                {/* PDF AREA (hidden from screen, used for print/share) */}
+                <div id="toolbox-pdf-content" className="print-area print-only" style={{ padding: '20mm 15mm', fontFamily: 'Arial, sans-serif', background: '#fff', color: '#000' }}>
                     {/* Header */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', alignItems: 'center', borderBottom: '3px solid #0052CC', paddingBottom: '12px', marginBottom: '20px' }}>
                         <div>
