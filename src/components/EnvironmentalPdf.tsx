@@ -50,7 +50,7 @@ export default function EnvironmentalPdf({ data }: { data: any }): React.ReactEl
                         @page { size: A4 portrait; margin: 10mm; }
                         body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                         .no-print { display: none !important; }
-                        .print-area { box-shadow: none !important; margin: 0 !important; padding: 5mm !important; width: 100% !important; max-width: none !important; border: none !important; border-radius: 0 !important; }
+                        .print-area { box-shadow: none !important; margin: 0 !important; padding: 5mm !important; width: 100% !important; max-width: none !important; border: none !important; border-radius: 0 !important; min-height: auto !important; height: auto !important; }
                     `}
                 </style>
 
@@ -157,17 +157,38 @@ export default function EnvironmentalPdf({ data }: { data: any }): React.ReactEl
                 </div>
 
                 {/* Signatures */}
-                <div style={{ marginTop: 'auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', borderTop: '2px solid #333', paddingTop: '1.5rem' }}>
-                    <div style={{ textAlign: 'center' }}>
-                        <div style={{ height: '70px', borderBottom: '1px solid #000', marginBottom: '0.5rem' }}></div>
-                        <span style={{ fontSize: '0.7rem', fontWeight: 900, display: 'block' }}>PERSONAL EVALUADO (RESP. ÁREA)</span>
-                    </div>
-                    <div style={{ textAlign: 'center' }}>
-                        <div style={{ height: '70px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #000', marginBottom: '0.5rem' }}>
-                             {data.signature && <img src={data.signature} alt="Firma Profesional" style={{ maxHeight: '100%', objectFit: 'contain' }} />}
+                <div style={{ marginTop: 'auto', paddingTop: '3rem', display: 'flex', justifyContent: 'flex-end', pageBreakInside: 'avoid', gap: '3rem', paddingBottom: '2rem' }}>
+                    <div style={{ flex: 1, maxWidth: '240px', textAlign: 'center' }}>
+                        <div style={{ height: '60px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '2px solid #1e293b', marginBottom: '0.5rem', paddingBottom: '0.25rem' }}>
+                            <span style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>Firma original</span>
                         </div>
-                        <span style={{ fontSize: '0.7rem', fontWeight: 900, display: 'block' }}>TÉCNICO INTERVINIENTE</span>
-                        <span style={{ fontSize: '0.65rem' }}>{data.technician || 'Lic. Leo Rodriguez'} {data.license ? `- Mat: ${data.license}` : ''}</span>
+                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>RESPONSABLE ÁREA</p>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b' }}>Firma y Aclaración</p>
+                    </div>
+
+                    <div style={{ flex: 1, maxWidth: '240px', textAlign: 'center' }}>
+                        <div style={{ height: '60px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '2px solid #1e293b', marginBottom: '0.5rem', paddingBottom: '0.25rem' }}>
+                            <span style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>Firma original</span>
+                        </div>
+                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>SUPERVISOR H&S</p>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b' }}>Aprobación</p>
+                    </div>
+
+                    <div style={{ flex: 1, maxWidth: '240px', textAlign: 'center' }}>
+                        <div style={{ height: '60px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '2px solid #1e293b', marginBottom: '0.5rem', paddingBottom: '0.25rem' }}>
+                            {data.signature ? (
+                                <img src={data.signature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain' }} />
+                            ) : (
+                                <span style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>Sello y Firma original</span>
+                            )}
+                        </div>
+                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>TÉCNICO INTERVINIENTE</p>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b' }}>
+                            {data.technician || 'Firma y Sello'}
+                        </p>
+                        {data.license && (
+                            <p style={{ margin: 0, fontSize: '0.6rem', color: '#64748b' }}>Mat: {data.license}</p>
+                        )}
                     </div>
                 </div>
 

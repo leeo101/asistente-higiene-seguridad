@@ -40,9 +40,9 @@ export async function generatePdfBlob(elementId, filename = 'reporte.pdf', isLan
         element.style.width = targetWidth;
         element.style.maxWidth = 'none';
         
-        // Remove height constraints so it can expand
-        element.style.height = 'max-content';
-        element.style.minHeight = isLandscape ? '210mm' : '297mm';
+        // Remove height constraints so it can expand naturally to content height
+        element.style.height = 'auto';
+        element.style.minHeight = '0';
         
         element.style.zIndex = '9999';
         element.style.opacity = '1';

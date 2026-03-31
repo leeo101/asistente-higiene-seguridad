@@ -442,7 +442,7 @@ export default function ATS(): React.ReactElement | null {
                     </div>
                 </div>
 
-                <div id="pdf-content" className="card print-area" style={{ width: '100%', maxWidth: '950px', boxSizing: 'border-box', padding: '1rem', margin: '0 auto' }}>
+                <div id="pdf-content" className="card no-print" style={{ width: '100%', maxWidth: '950px', boxSizing: 'border-box', padding: '1rem', margin: '0 auto' }}>
 
                     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottom: '4px solid var(--color-border)', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
                         {/* Top Left Text */}

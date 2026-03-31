@@ -29,7 +29,11 @@ interface ATSData {
   supervisor?: string;
   tareas?: any[]; // Handle both string[] and TareaItem[]
   checklist?: ChecklistItem[];
-  [key: string]: unknown;
+  capatazSignature?: string | null;
+  professionalSignature?: string | null;
+  professionalName?: string;
+  professionalLicense?: string;
+  [key: string]: any;
 }
 
 interface ATSPdfGeneratorProps {
@@ -228,6 +232,46 @@ export default function ATSPdfGenerator({ atsData }: ATSPdfGeneratorProps): Reac
             </div>
           );
         })}
+
+        {/* Signatures */}
+        <div style={{ marginTop: 'auto', paddingTop: '3rem', display: 'flex', justifyContent: 'flex-end', pageBreakInside: 'avoid', gap: '3rem', paddingBottom: '2rem' }}>
+          <div style={{ flex: 1, maxWidth: '240px', textAlign: 'center' }}>
+            <div style={{ height: '60px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '2px solid #1e293b', marginBottom: '0.5rem', paddingBottom: '0.25rem' }}>
+              <span style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>Firma en original</span>
+            </div>
+            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>OPERADOR / RESPONSABLE</p>
+            <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b' }}>Firma y Aclaración</p>
+          </div>
+
+          <div style={{ flex: 1, maxWidth: '240px', textAlign: 'center' }}>
+            <div style={{ height: '60px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '2px solid #1e293b', marginBottom: '0.5rem', paddingBottom: '0.25rem' }}>
+              {data.capatazSignature ? (
+                <img src={data.capatazSignature} alt="Firma Supervisor" style={{ maxHeight: '50px', objectFit: 'contain' }} />
+              ) : (
+                <span style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>Firma digital / original</span>
+              )}
+            </div>
+            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>SUPERVISOR H&S</p>
+            <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b' }}>Aprobación</p>
+          </div>
+
+          <div style={{ flex: 1, maxWidth: '240px', textAlign: 'center' }}>
+            <div style={{ height: '60px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '2px solid #1e293b', marginBottom: '0.5rem', paddingBottom: '0.25rem' }}>
+              {data.professionalSignature ? (
+                <img src={data.professionalSignature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain' }} />
+              ) : (
+                <span style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>Sello y Firma original</span>
+              )}
+            </div>
+            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>PROFESIONAL ACTUANTE</p>
+            <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b' }}>
+              {data.professionalName || 'Firma y Sello'}
+            </p>
+            {data.professionalLicense && (
+              <p style={{ margin: 0, fontSize: '0.6rem', color: '#64748b' }}>Lic: {data.professionalLicense}</p>
+            )}
+          </div>
+        </div>
 
         {/* Footer informativo */}
         <PdfBrandingFooter />
