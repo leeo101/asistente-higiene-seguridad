@@ -136,11 +136,9 @@ export default function ShareModal({
                     await navigator.share(shareData);
                     toast.success('¡Compartido con éxito!', { id: 'pdf-gen' });
                 } catch (shareErr: any) {
-                    if (shareErr.name === 'AbortError') {
-                        triggerDownload();
-                    } else {
-                        throw shareErr;
-                    }
+                    // Fallback to download if sharing is cancelled or not allowed
+                    console.warn("Native share failed, falling back to download:", shareErr);
+                    triggerDownload();
                 }
             } else {
                 triggerDownload();
