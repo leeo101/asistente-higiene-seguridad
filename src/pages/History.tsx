@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import {
-    ArrowLeft, Search, Calendar, ChevronRight,
+import { ArrowLeft, Search, Calendar, ChevronRight,
     ClipboardList, Flame, BarChart3, ShieldAlert, Plus, Sparkles, Trash2, Camera, Lightbulb, HardHat, Share2,
     ClipboardCheck, CheckCircle2, ScrollText, ShieldCheck, KeySquare, Bot, TriangleAlert, FileText, Shield, ThermometerSun, Siren, Map, BookOpen,
-    FlaskConical, Volume2, Lock, Tent, Droplets, MessageSquare
+    FlaskConical, Volume2, Lock, Tent, Droplets, MessageSquare, Download
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useSync } from '../contexts/SyncContext';
@@ -14,6 +13,7 @@ import ShareModal from '../components/ShareModal';
 import RiskMatrixPdfGenerator from '../components/RiskMatrixPdfGenerator';
 import ProfessionalReportPdfGenerator from '../components/ProfessionalReportPdfGenerator';
 import ReportPdfGenerator from '../components/ReportPdfGenerator';
+import { downloadCSV } from '../services/exportCsv';
 
 // ─── Reusable delete confirmation dialog ───────────────────────────
 function DeleteConfirm({ onConfirm, onCancel }) {
@@ -315,9 +315,21 @@ export default function History(): React.ReactElement | null {
                         </button>
                         <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800 }}>Historial de Matrices</h1>
                     </div>
-                    <button onClick={() => navigate('/risk-matrix')} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.2rem', width: 'auto', marginTop: 0 }}>
-                        <Plus size={18} /> <span className="hidden sm:inline">Nuevo</span>
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.8rem', marginTop: 'auto' }}>
+                        <button onClick={() => {
+                            downloadCSV(matrixData.map(m => ({
+                                nombre: m.name, ubicacion: m.location, fecha: new Date(m.createdAt).toLocaleDateString('es-AR'),
+                                riesgos: m.rows?.length || 0
+                            })), 'historial_matrices', {
+                                nombre: 'Nombre/Obra', ubicacion: 'Ubicación', fecha: 'Fecha Creación', riesgos: 'Cant. Riesgos'
+                            });
+                        }} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '10px', padding: '0.6rem 1rem', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff' }}>
+                            <Download size={14} /> EXCEL
+                        </button>
+                        <button onClick={() => navigate('/risk-matrix')} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.2rem', width: 'auto', marginTop: 0 }}>
+                            <Plus size={18} /> <span className="hidden sm:inline">Nuevo</span>
+                        </button>
+                    </div>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -404,9 +416,21 @@ export default function History(): React.ReactElement | null {
                         </button>
                         <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800 }}>Historial de Informes</h1>
                     </div>
-                    <button onClick={() => navigate('/reports')} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.2rem', width: 'auto', marginTop: 0 }}>
-                        <Plus size={18} /> <span className="hidden sm:inline">Nuevo</span>
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.8rem', marginTop: 'auto' }}>
+                        <button onClick={() => {
+                            downloadCSV(reportsData.map(r => ({
+                                titulo: r.title, empresa: r.company, fecha: new Date(r.createdAt).toLocaleDateString('es-AR'),
+                                autor: r.author || ''
+                            })), 'historial_informes', {
+                                titulo: 'Título del Informe', empresa: 'Empresa', fecha: 'Fecha', autor: 'Autor'
+                            });
+                        }} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '10px', padding: '0.6rem 1rem', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff' }}>
+                            <Download size={14} /> EXCEL
+                        </button>
+                        <button onClick={() => navigate('/reports')} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.2rem', width: 'auto', marginTop: 0 }}>
+                            <Plus size={18} /> <span className="hidden sm:inline">Nuevo</span>
+                        </button>
+                    </div>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -489,7 +513,17 @@ export default function History(): React.ReactElement | null {
                 <button onClick={() => setView('hub')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
                     <ArrowLeft />
                 </button>
-                <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800 }}>Historial de Inspecciones</h1>
+                <div style={{ display: 'flex', gap: '0.8rem', marginTop: 'auto' }}>
+                    <button onClick={() => {
+                        downloadCSV(historicalData.map(h => ({
+                            obra: h.name, fecha: new Date(h.date).toLocaleDateString('es-AR'), tipo: h.type, resultado: h.result
+                        })), 'historial_inspecciones', {
+                            obra: 'Obra/Lugar', fecha: 'Fecha', tipo: 'Tipo de Inspección', resultado: 'Resultado'
+                        });
+                    }} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '10px', padding: '0.6rem 1rem', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff' }}>
+                        <Download size={14} /> EXCEL
+                    </button>
+                </div>
             </div>
 
             <div style={{ position: 'relative', marginBottom: '2rem' }}>

@@ -189,7 +189,7 @@ function ProtectedRoute({ children }) {
 
 function CloudStatusIndicator() {
   const { currentUser } = useAuth();
-  const { syncing, lastSync } = useSync();
+  const { syncing, lastSync, pendingCount } = useSync();
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
   useEffect(() => {
@@ -208,16 +208,20 @@ function CloudStatusIndicator() {
   if (!isOnline) {
     return (
       <div
-        title="Sin conexión (los cambios se guardan localmente)"
+        title={`${pendingCount > 0 ? `${pendingCount} cambios pendientes de subir` : 'Sin conexión (guardado local)'}`}
         style={{
-          display: 'flex', alignItems: 'center', gap: '0.25rem',
-          fontSize: '0.65rem', fontWeight: 700,
+          display: 'flex', alignItems: 'center', gap: '0.4rem',
+          fontSize: '0.65rem', fontWeight: 800,
           color: '#fbbf24',
-          flexShrink: 0, whiteSpace: 'nowrap'
+          flexShrink: 0, whiteSpace: 'nowrap',
+          background: 'rgba(251,191,36,0.1)',
+          padding: '0.2rem 0.5rem',
+          borderRadius: '8px',
+          border: '1px solid rgba(251,191,36,0.2)'
         }}
       >
         <CloudOff size={16} />
-        <span style={{ display: 'none' }} className="header-title">Offline</span>
+        <span className="header-title">{pendingCount > 0 ? `Pendiente (${pendingCount})` : 'Offline'}</span>
       </div>
     );
   }
@@ -226,18 +230,27 @@ function CloudStatusIndicator() {
     <div
       title={syncing ? 'Sincronizando...' : lastSync ? `Sincronizado ${lastSync.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}` : 'Conectado a la nube'}
       style={{
-        display: 'flex', alignItems: 'center', gap: '0.25rem',
-        fontSize: '0.65rem', fontWeight: 700,
-        color: syncing ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.9)',
-        flexShrink: 0, whiteSpace: 'nowrap'
+        display: 'flex', alignItems: 'center', gap: '0.4rem',
+        fontSize: '0.65rem', fontWeight: 800,
+        color: syncing ? '#93c5fd' : '#86efac',
+        flexShrink: 0, whiteSpace: 'nowrap',
+        background: syncing ? 'rgba(59,130,246,0.1)' : 'rgba(134,239,172,0.1)',
+        padding: '0.2rem 0.5rem',
+        borderRadius: '8px',
+        border: syncing ? '1px solid rgba(59,130,246,0.2)' : '1px solid rgba(134,239,172,0.2)'
       }}
     >
       {syncing ? (
-        <Cloud size={16} style={{ animation: 'pulse 1.5s infinite', color: '#93c5fd' }} />
+        <>
+          <Cloud size={16} style={{ animation: 'pulse 1.5s infinite' }} />
+          <span className="header-title">{pendingCount > 0 ? `Subiendo (${pendingCount})` : 'Sync...'}</span>
+        </>
       ) : (
-        <Cloud size={16} style={{ color: '#86efac' }} />
+        <>
+          <Cloud size={16} />
+          <span className="header-title" style={{ display: 'none' }}>Conectado</span>
+        </>
       )}
-      <span style={{ display: 'none' }} className="header-title">{syncing ? 'Sync...' : '✓'}</span>
     </div>
   );
 }

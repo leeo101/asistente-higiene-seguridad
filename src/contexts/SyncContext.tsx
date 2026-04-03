@@ -20,6 +20,7 @@ interface SyncContextType {
   syncCollection: (key: string, items: unknown[]) => Promise<void>;
   syncDocument: (key: string, data: Record<string, unknown>) => Promise<void>;
   deleteFromCollection: (key: string, id: string | number) => Promise<unknown[]>;
+  pendingCount: number;
 }
 
 interface CloudData {
@@ -154,8 +155,26 @@ export const SyncProvider: React.FC<SyncProviderProps> = ({ children }) => {
     return updated;
   };
 
+  // Cálculo de documentos pendientes (Simulación basada en marcas de tiempo o cambios no confirmados)
+  // Para esta versión, consideramos "pendientes" si no hay lastSync o si hubo actividad reciente
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    const checkPending = () => {
+      if (!currentUser) {
+        setPendingCount(0);
+        return;
+      }
+      // En una implementación real, compararíamos hashes o marcas de tiempo locales vs cloud
+      // Por ahora, simulamos "1" si hay pulso reciente y no hay lastSync reciente (< 10s)
+      const isRecentlyActive = lastSync && (new Date().getTime() - lastSync.getTime() < 10000);
+      setPendingCount(syncing ? 1 : 0);
+    };
+    checkPending();
+  }, [syncing, lastSync, currentUser]);
+
   return (
-    <SyncContext.Provider value={{ syncing, lastSync, syncReady, syncPulse, syncCollection, syncDocument, deleteFromCollection }}>
+    <SyncContext.Provider value={{ syncing, lastSync, syncReady, syncPulse, syncCollection, syncDocument, deleteFromCollection, pendingCount }}>
       {children}
     </SyncContext.Provider>
   );

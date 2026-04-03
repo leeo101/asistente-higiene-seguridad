@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import {
-    Search, TriangleAlert, ChevronRight, Activity, Trash2, Share2, Edit2, ArrowLeft, Calendar, FileText, MapPin, QrCode
+    Search, TriangleAlert, ChevronRight, Activity, Trash2, Share2, Edit2, ArrowLeft, Calendar, FileText, MapPin, QrCode, Download
 } from 'lucide-react';
+import { downloadCSV } from '../services/exportCsv';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -59,6 +60,16 @@ export default function AccidentHistory(): React.ReactElement | null {
         return <AccidentPdfGenerator report={selectedReport} onBack={() => setSelectedReport(null)} />;
     }
 
+    const handleExportCSV = () => {
+        downloadCSV(filteredHistory.map(i => ({
+            victima: i.victimaNombre, empresa: i.empresa, fecha: i.date,
+            lesion: i.lesionTipo || '', sector: i.sector || ''
+        })), 'historial_accidentes', {
+            victima: 'Víctima', empresa: 'Empresa', fecha: 'Fecha',
+            lesion: 'Tipo de Lesión', sector: 'Sector/Área'
+        });
+    };
+
     return (
         <div className="container" style={{ paddingBottom: '3rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             {deleteTarget && (
@@ -97,6 +108,11 @@ export default function AccidentHistory(): React.ReactElement | null {
                     </button>
                     <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Investigaciones de Accidentes</h1>
                 </div>
+                {filteredHistory.length > 0 && (
+                    <button onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#36B37E', border: 'none', borderRadius: '10px', padding: '0.6rem 1rem', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
+                        <Download size={16} /> EXCEL
+                    </button>
+                )}
             </div>
 
             <div style={{ position: 'relative', marginBottom: '2rem' }}>
