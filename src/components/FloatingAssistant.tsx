@@ -390,38 +390,52 @@ export default function FloatingAssistant() {
                                     </div>
 
                                     {/* User Info */}
-                                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1.5rem' }}>
+                                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1.2rem' }}>
                                         <div style={{ 
-                                            width: '60px', height: '60px', borderRadius: '12px', 
+                                            width: '56px', height: '56px', borderRadius: '12px', 
                                             overflow: 'hidden', border: '2px solid var(--color-primary)',
-                                            background: 'var(--color-surface)'
+                                            background: '#1e293b', display: 'flex', alignItems: 'center', justifyContent: 'center'
                                         }}>
-                                            <img src={currentUser?.photoURL || '/avatar-placeholder.png'} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            {currentUser?.photoURL ? (
+                                                <img src={currentUser.photoURL} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            ) : (
+                                                <div style={{ color: 'white', fontWeight: 800, fontSize: '1.2rem' }}>
+                                                    {currentUser?.displayName?.charAt(0) || 'P'}
+                                                </div>
+                                            )}
                                         </div>
-                                        <div>
-                                            <div style={{ fontSize: '1rem', fontWeight: 900, lineHeight: 1.1 }}>{currentUser?.displayName || 'Profesional'}</div>
-                                            <div style={{ fontSize: '0.65rem', color: 'var(--color-primary)', fontWeight: 800, marginTop: '2px' }}>ESPECIALISTA H&S</div>
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                            <div style={{ fontSize: '0.95rem', fontWeight: 900, lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                {currentUser?.displayName || 'Profesional H&S'}
+                                            </div>
+                                            <div style={{ fontSize: '0.6rem', color: 'var(--color-primary)', fontWeight: 800, marginTop: '2px', letterSpacing: '0.5px' }}>
+                                                ESPECIALISTA CERTIFICADO
+                                            </div>
                                             <div style={{ 
                                                 display: 'inline-block', marginTop: '6px', padding: '2px 8px', 
-                                                background: isPro ? 'rgba(234, 179, 8, 0.2)' : 'rgba(255,255,255,0.1)',
+                                                background: isPro ? 'rgba(234, 179, 8, 0.2)' : 'rgba(255,255,255,0.05)',
                                                 borderRadius: '20px', fontSize: '0.55rem', fontWeight: 900,
                                                 color: isPro ? '#fcd34d' : '#cbd5e1', border: `1px solid ${isPro ? '#fcd34d44' : '#cbd5e122'}`
                                             }}>
-                                                {isPro ? '⭐ MIEMBRO PRO' : 'PLAN BÁSICO'}
+                                                {isPro ? '⭐ MIEMBRO PRO' : 'PLAN ESTÁNDAR'}
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* QR & Number */}
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1rem' }}>
-                                        <div style={{ fontSize: '0.55rem', opacity: 0.5, fontFamily: 'monospace' }}>
-                                            ID: {currentUser?.uid?.substring(0, 14).toUpperCase()}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '0.8rem' }}>
+                                        <div style={{ minWidth: 0 }}>
+                                            <div style={{ fontSize: '0.5rem', opacity: 0.5, marginBottom: '2px' }}>NÚMERO DE LICENCIA</div>
+                                            <div style={{ fontSize: '0.55rem', opacity: 0.8, fontFamily: 'monospace', letterSpacing: '1px' }}>
+                                                {currentUser?.uid?.substring(0, 12).toUpperCase()}
+                                            </div>
                                         </div>
                                         <div style={{ 
-                                            background: 'white', padding: '4px', borderRadius: '6px',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                            background: 'white', padding: '3px', borderRadius: '6px',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            boxShadow: '0 0 15px rgba(255,255,255,0.2)'
                                         }}>
-                                            <QrCode size={40} color="#0f172a" />
+                                            <QrCode size={34} color="#0f172a" />
                                         </div>
                                     </div>
 
