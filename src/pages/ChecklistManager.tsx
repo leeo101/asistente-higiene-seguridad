@@ -71,6 +71,17 @@ const DEFAULT_TEMPLATES = {
             'Tablones metalicos o madera sin fisuras',
             'Plataforma de trabajo completa y trabada'
         ]
+    },
+    'audit_2026': {
+        title: 'Auditoría Legal 2026',
+        icon: <ShieldCheck size={18} />,
+        items: [
+            'Todos los EPP cuentan con certificación vigente y Sello "AR"',
+            'Los EPP entregados cuentan con código QR de trazabilidad legible (Res. SIyC 18/25)',
+            'Se verifican los certificados médicos de "Apto Calor" (Res. SRT 30/2023)',
+            'Monitoreo de estrés térmico con mediciones VLA y VLE actualizadas',
+            'Los protocolos ergonómicos contemplan Res. SRT 7/2026 y Res. 886/15'
+        ]
     }
 };
 

@@ -172,11 +172,35 @@ export default function ThermalStress(): React.ReactElement | null {
         navigate('/thermal-stress-history');
     };
 
+    const [showUpdateAlert, setShowUpdateAlert] = useState(() => {
+        return localStorage.getItem('thermal_stress_alert_dismissed') !== 'true';
+    });
+
     const handleSave = () => requirePro(doSave);
     const handlePrint = () => requirePro(() => window.print());
 
     return (
         <div className="container" style={{ paddingBottom: '6rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+            {showUpdateAlert && (
+                <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyItems: 'center', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
+                    <div style={{ background: '#fff', margin: 'auto', padding: '2rem', borderRadius: '16px', maxWidth: '400px', textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
+                        <div style={{ background: '#fef2f2', color: '#ef4444', height: '64px', width: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
+                            <TriangleAlert size={32} />
+                        </div>
+                        <h2 style={{ margin: '0 0 1rem', fontWeight: 900, color: '#111827', fontSize: '1.25rem' }}>Actualización Normativa</h2>
+                        <p style={{ margin: '0 0 1.5rem', color: '#4b5563', fontSize: '0.9rem', lineHeight: '1.5' }}>
+                            Hemos actualizado la calculadora a la <strong>Res. SRT 30/2023</strong>. Los límites de tolerancia térmica ahora son más restrictivos. Revisa cuidadosamente el dictamen VLA y VLE.
+                        </p>
+                        <button 
+                            onClick={() => { setShowUpdateAlert(false); localStorage.setItem('thermal_stress_alert_dismissed', 'true'); }}
+                            style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '0.8rem 2rem', borderRadius: '8px', fontWeight: 800, cursor: 'pointer', width: '100%' }}
+                        >
+                            ENTENDIDO
+                        </button>
+                    </div>
+                </div>
+            )}
+            
             <ShareModal
                 open={showShareModal}
                 onClose={() => setShowShareModal(false)}

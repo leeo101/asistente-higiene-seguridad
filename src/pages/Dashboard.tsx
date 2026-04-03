@@ -13,6 +13,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import Breadcrumbs from '../components/Breadcrumbs';
 import toast from 'react-hot-toast';
+import confetti from 'canvas-confetti';
 
 // Tipos
 interface KPIData {
@@ -193,7 +194,18 @@ const AnimatedCounter: React.FC<{ value: number }> = ({ value }) => {
     const step = Math.ceil(value / (duration / 16));
     const timer = setInterval(() => {
       start += step;
-      if (start >= value) { setDisplay(value); clearInterval(timer); }
+      if (start >= value) { 
+        setDisplay(value); 
+        clearInterval(timer);
+        if (value >= 30) {
+           confetti({
+             particleCount: 150,
+             spread: 70,
+             origin: { y: 0.6 },
+             zIndex: 9999
+           });
+        }
+      }
       else setDisplay(start);
     }, 16);
     return () => clearInterval(timer);
