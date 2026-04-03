@@ -34,16 +34,14 @@ interface SidebarProps {
 
 const navItems: NavItem[] = [
   { to: '/', icon: <Home size={18} />, label: 'Inicio', always: true },
-  { to: '/profile', icon: <User size={18} />, label: 'Mi Perfil', auth: true },
-  { to: '/history', icon: <History size={18} />, label: 'Historiales', auth: true },
   { to: '/calendar', icon: <Calendar size={18} />, label: 'Calendario', always: true },
-  { to: '/toolbox-talk', icon: <MessageSquare size={18} color="#0052CC" />, label: 'Charlas 5 Min', auth: true },
-  { to: '/safety-kpis', icon: <BarChart3 size={18} color="#ef4444" />, label: 'KPIs Seguridad', auth: true },
-  { to: '/dashboard', icon: <BarChart3 size={18} color="#10b981" />, label: 'Dashboard', auth: true },
-  { to: '/management-report', icon: <BarChart3 size={18} color="#8b5cf6" />, label: 'Reporte Mensual', auth: true },
   { to: '/settings', icon: <Settings size={18} />, label: 'Configuración', auth: true },
+  { to: '/dashboard', icon: <BarChart3 size={18} color="#10b981" />, label: 'Dashboard', auth: true },
+  { to: '/history', icon: <History size={18} />, label: 'Historiales', auth: true },
   { to: '/logo-settings', icon: <ImageIcon size={18} />, label: 'Logo de Empresa', auth: true },
+  { to: '/profile', icon: <User size={18} />, label: 'Mi Perfil', auth: true },
   { to: '/privacy', icon: <ShieldCheck size={18} />, label: 'Privacidad', always: true },
+  { to: '/management-report', icon: <BarChart3 size={18} color="#8b5cf6" />, label: 'Reporte Mensual', auth: true },
 ];
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactElement {
