@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
-  Bot, X, Plus, Mic, Shield, Zap, 
-  MessageSquare, BarChart3, ClipboardCheck, 
+  X, Zap, BarChart3, ClipboardCheck,
   ChevronRight, Sparkles, TrendingUp,
-  Volume2, Search, Settings, HelpCircle, Lock
+  Volume2, Search, Settings, HelpCircle, Lock,
+  FileText, ShieldCheck, KeySquare
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
@@ -82,9 +82,9 @@ export default function FloatingAssistant() {
     if (!currentUser) return null;
 
     const quickActions = [
-        { label: 'Nuevo ATS', icon: <Shield size={18} />, color: '#10b981', path: '/ats/new' },
+        { label: 'Nuevo ATS', icon: <ShieldCheck size={18} />, color: '#10b981', path: '/ats' },
         { label: 'Auditoría', icon: <ClipboardCheck size={18} />, color: '#3b82f6', path: '/audit/new' },
-        { label: 'Permiso Crítico', icon: <Zap size={18} />, color: '#f59e0b', path: '/work-permit/new' },
+        { label: 'Permiso Crítico', icon: <KeySquare size={18} />, color: '#f59e0b', path: '/work-permit' },
         { label: 'Investigación', icon: <BarChart3 size={18} />, color: '#ef4444', path: '/accident-investigation' }
     ];
 
@@ -100,7 +100,7 @@ export default function FloatingAssistant() {
             {isOpen && (
                 <div 
                     ref={menuRef}
-                    className="glass-mockup"
+                    className="glass-mockup assistant-panel-anim"
                     style={{
                         position: 'absolute',
                         bottom: '4.5rem',
@@ -108,7 +108,6 @@ export default function FloatingAssistant() {
                         width: '320px',
                         maxHeight: '480px',
                         pointerEvents: 'all',
-                        animation: 'dropdown-in 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards',
                         display: 'flex',
                         flexDirection: 'column',
                         padding: '1.2rem',
@@ -118,15 +117,16 @@ export default function FloatingAssistant() {
                     {/* Header */}
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                            <div style={{ 
-                                width: '40px', height: '40px', 
-                                background: 'var(--gradient-premium)', 
-                                borderRadius: '12px', 
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                boxShadow: '0 8px 20px rgba(59, 130, 246, 0.3)'
-                            }}>
-                                <Bot color="white" size={22} />
-                            </div>
+                                <div style={{ 
+                                    width: '40px', height: '40px', 
+                                    background: 'rgba(255,255,255,0.05)', 
+                                    borderRadius: '12px', 
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    border: '1px solid var(--color-border)',
+                                    boxShadow: 'var(--shadow-sm)'
+                                }}>
+                                    <img src="/logo.png" alt="Logo" style={{ width: '28px', height: '28px', objectFit: 'contain' }} className="assistant-logo-spin" />
+                                </div>
                             <div>
                                 <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 900, letterSpacing: '-0.3px' }}>Asistente IA</h4>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
@@ -295,34 +295,43 @@ export default function FloatingAssistant() {
             {/* Main Trigger Button */}
             <button
                 onClick={toggleAssistant}
+                className={!isOpen ? "assistant-trigger-active" : ""}
                 style={{
-                    width: '60px',
-                    height: '60px',
+                    width: '64px',
+                    height: '64px',
                     borderRadius: '50%',
                     background: 'var(--gradient-premium)',
-                    border: 'none',
+                    border: '1px solid rgba(255,255,255,0.2)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: 'white',
                     cursor: 'pointer',
                     pointerEvents: 'all',
-                    boxShadow: isOpen ? '0 0 0 10px rgba(59, 130, 246, 0.1)' : '0 10px 25px rgba(59, 130, 246, 0.4)',
+                    boxShadow: 'var(--shadow-glow-primary)',
                     transition: 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                    transform: isOpen ? 'rotate(90deg) scale(0.95)' : 'rotate(0) scale(1)',
-                    animation: isOpen ? 'none' : 'assistant-glow 3s infinite'
+                    transform: isOpen ? 'rotate(90deg) scale(0.9)' : 'scale(1)',
+                    position: 'relative',
+                    overflow: 'visible'
                 }}
             >
-                {isOpen ? <X size={28} /> : <Bot size={28} />}
+                {isOpen ? (
+                    <X size={28} />
+                ) : (
+                    <div style={{ position: 'relative', width: '38px', height: '38px' }}>
+                        <img src="/logo.png" alt="Portal" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.3))' }} />
+                    </div>
+                )}
                 
                 {!isOpen && (
                     <div style={{ 
-                        position: 'absolute', top: -5, right: -5, 
-                        width: '20px', height: '20px', background: '#ef4444', 
-                        borderRadius: '50%', border: '3px solid #fff',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        position: 'absolute', top: -2, right: -2, 
+                        width: '22px', height: '22px', background: 'var(--color-primary)', 
+                        borderRadius: '50%', border: '3px solid var(--color-background)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        zIndex: 10
                     }}>
-                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'white', animation: 'pulse-soft 1.5s infinite' }} />
+                        <Sparkles size={10} color="white" fill="white" />
                     </div>
                 )}
             </button>
