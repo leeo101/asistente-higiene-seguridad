@@ -351,8 +351,8 @@ export default function FloatingAssistant() {
                                 )}
                             </div>
                         ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                                <div className="hide-scrollbar" style={{ flex: 1, overflowY: 'auto', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+                                <div className="hide-scrollbar" style={{ flex: 1, overflowY: 'auto', marginBottom: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', paddingRight: '4px' }}>
                                     {messages.map((m, idx) => (
                                         <div key={idx} style={{
                                             alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
@@ -386,7 +386,7 @@ export default function FloatingAssistant() {
                                             placeholder={isTyping ? "IA procesando..." : "Hacé una pregunta..."}
                                             style={{
                                                 width: '100%',
-                                                padding: '0.6rem 4.5rem 0.6rem 1rem',
+                                                padding: '0.6rem 6.5rem 0.6rem 1rem',
                                                 borderRadius: '12px',
                                                 border: '1px solid var(--color-border)',
                                                 background: 'var(--color-background)',
@@ -437,12 +437,12 @@ export default function FloatingAssistant() {
                                     </div>
                                 </form>
                                 {!isPro && (
-                                    <div style={{ fontSize: '0.65rem', textAlign: 'center', color: 'var(--color-text-muted)', background: 'rgba(0,0,0,0.02)', padding: '0.4rem', borderRadius: '6px' }}>
+                                    <div style={{ fontSize: '0.62rem', textAlign: 'center', color: 'var(--color-text-muted)', background: 'rgba(59, 130, 246, 0.04)', padding: '0.35rem', borderRadius: '6px', marginBottom: '0.4rem' }}>
                                         Consultas gratis restantes: {3 - freeQueriesUsed}
                                     </div>
                                 )}
                                 
-                                <div style={{ display: 'flex', gap: '0.6rem', marginTop: 'auto', paddingTop: '1rem' }}>
+                                <div style={{ display: 'flex', gap: '0.6rem', marginTop: '0.2rem' }}>
                                     <button 
                                         onClick={handleSOS}
                                         className="assistant-pulse-glow"
