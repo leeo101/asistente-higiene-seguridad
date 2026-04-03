@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import {
     ArrowLeft, Plus, FileText,
-    Accessibility, Clock, Trash2, Search, Calendar, Building2
+    Accessibility, Clock, Trash2, Search, Calendar, Building2, TriangleAlert
 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import CompanyLogo from '../components/CompanyLogo';

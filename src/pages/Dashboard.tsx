@@ -626,6 +626,14 @@ export default function Dashboard(): React.ReactElement {
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.8rem', padding: '0.8rem', background: 'rgba(139, 92, 246, 0.05)', borderRadius: '10px', border: '1px solid rgba(139, 92, 246, 0.1)' }}>
               <div style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', background: '#8b5cf6', color: '#fff', fontSize: '0.65rem', fontWeight: 800, marginTop: '0.2rem' }}>2026</div>
               <div>
+                <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>Res. SRT 7/2026 (Daño Corporal) y Dec. 549/2025 (Baremo)</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>Nuevo Protocolo de Estudios Mínimos exigible en Comisiones Médicas tras accidentes. Baremo actualizado.</div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.8rem', padding: '0.8rem', background: 'rgba(139, 92, 246, 0.05)', borderRadius: '10px', border: '1px solid rgba(139, 92, 246, 0.1)' }}>
+              <div style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', background: '#8b5cf6', color: '#fff', fontSize: '0.65rem', fontWeight: 800, marginTop: '0.2rem' }}>2024/23</div>
+              <div>
                 <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>Res. SRT 30/2023 (Estrés Térmico)</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>Reemplaza Res. 295/03. Nuevos VLA/VLE y requisitos de aclimatación aplicados.</div>
               </div>

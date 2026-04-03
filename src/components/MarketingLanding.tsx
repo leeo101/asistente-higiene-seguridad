@@ -332,6 +332,8 @@ export default function MarketingLanding({ onStart }) {
                 { label: 'Historial en la nube', desc: 'Sincronizá y accedé a tus registros desde cualquier dispositivo' },
                 { label: 'Permisos de Trabajo Críticos', desc: 'Espacios confinados, trabajo en altura, LOTO' },
                 { label: 'Auditorías y CAPA', desc: 'Gestión de no conformidades y acciones correctivas' },
+                { label: 'Charlas de 5 Minutos', desc: 'Registro de capacitación diaria y firmas' },
+                { label: 'KPIs de Seguridad', desc: 'Dashboard avanzado de índices LFITR y TRIFR' },
                 { label: 'Investigación de Accidentes', desc: 'Árbol de causas y árbol de fallas integrado' },
                 { label: 'Seguridad Química (SGA)', desc: 'Fichas de sustancias peligrosas y gestión de riesgos' },
                 { label: 'Simulacros y Capacitaciones', desc: 'Actas firmadas, listas de asistencia y planificación' },

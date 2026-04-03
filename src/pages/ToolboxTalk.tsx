@@ -248,7 +248,7 @@ export default function ToolboxTalk(): React.ReactElement {
                                 Charla de 5 Minutos
                             </h1>
                             <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', fontWeight: 600 }}>
-                                Toolbox Talk • Registro de asistentes y firma
+                                Charla de 5 Minutos • Registro de asistentes y firma
                             </p>
                         </div>
                     </div>

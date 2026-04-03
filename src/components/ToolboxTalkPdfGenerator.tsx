@@ -60,7 +60,7 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
                     <h2 style={{ margin: 0, fontSize: '14px', fontWeight: 900, color: '#0052CC', textTransform: 'uppercase', letterSpacing: '1px' }}>
                         📋 CHARLA DE 5 MINUTOS
                     </h2>
-                    <p style={{ margin: '3px 0 0', fontSize: '8px', color: '#64748b', fontWeight: 600 }}>Toolbox Talk — Registro de Capacitación</p>
+                    <p style={{ margin: '3px 0 0', fontSize: '8px', color: '#64748b', fontWeight: 600 }}>Charla de 5 Minutos — Registro de Capacitación</p>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                     <CompanyLogo style={{ height: '40px', width: 'auto', maxWidth: '120px' }} />

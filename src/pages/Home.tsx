@@ -98,6 +98,8 @@ const getRegSub = (module: string): string => {
 
 const quickLinks: QuickLink[] = [
   { to: '/ats', icon: <ShieldCheck size={26} />, label: 'ATS', sub: 'Análisis Trabajo Seguro', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true, category: 'docs', featured: true },
+  { to: '/toolbox-talk', icon: <MessageSquare size={26} />, label: 'Charlas 5 Min', sub: 'Registro de Capacitación Diaria', color: '#0052CC', bg: 'rgba(0,82,204,0.1)', premium: true, category: 'management', badge: 'Nuevo ✨', featured: true },
+  { to: '/safety-kpis', icon: <BarChart3 size={26} />, label: 'KPIs Seguridad', sub: 'LTIFR, TRIFR y Estadísticas', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management', badge: 'Nuevo ✨', featured: true },
   { to: '/ai-advisor', icon: <Bot size={26} />, label: 'Asesor IA', sub: 'Consultas de Seguridad', color: '#a855f7', bg: 'rgba(168,85,247,0.1)', premium: true, category: 'ia', featured: true, badge: 'IA ✨' },
   { to: '/ai-camera', icon: <Camera size={26} />, label: 'Cámara IA', sub: 'Detección EPP', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', premium: true, category: 'ia', featured: true, badge: 'IA ✨' },
   { to: '/emergency-bot', icon: <Siren size={26} />, label: 'Emergencias', sub: 'Chatbot 24/7', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'ia', badge: 'IA ✨' },
@@ -125,9 +127,7 @@ const quickLinks: QuickLink[] = [
   { to: '/environmental', icon: <Droplets size={26} />, label: 'Medio Ambiente', sub: 'Monitoreo y Control', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', premium: true, category: 'specific' },
   { to: '/confined-space', icon: <Tent size={26} />, label: 'Espacios Confinados', sub: 'Permisos y Control', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', premium: true, category: 'critical' },
   { to: '/working-at-height', icon: <HardHat size={26} />, label: 'Trabajo en Altura', sub: 'Permisos y EPP Crítico', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'critical' },
-  { to: '/loto', icon: <Lock size={26} />, label: 'LOTO', sub: 'Bloqueo y Etiquetado', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true, category: 'critical' },
-  { to: '/safety-kpis', icon: <BarChart3 size={26} />, label: 'KPIs Seguridad', sub: 'LTIFR, TRIFR y Estadísticas', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management' },
-  { to: '/toolbox-talk', icon: <MessageSquare size={26} />, label: 'Charlas 5 Min', sub: 'Registro de Capacitación Diaria', color: '#0052CC', bg: 'rgba(0,82,204,0.1)', premium: true, category: 'management' },
+  { to: '/loto', icon: <Lock size={26} />, label: 'LOTO', sub: 'Bloqueo y Etiquetado', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true, category: 'critical' }
 ];
 
 // Counter hook

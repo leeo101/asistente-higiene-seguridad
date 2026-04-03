@@ -146,6 +146,23 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                     </div>
                 </div>
 
+                {/* Actualización Normativa */}
+                <div style={{
+                    marginBottom: '1.5rem', padding: '1.25rem', borderRadius: '12px',
+                    background: 'linear-gradient(135deg, rgba(8,145,178,0.1), rgba(6,182,212,0.05))',
+                    border: '1px solid rgba(8,145,178,0.2)', display: 'flex', gap: '1rem', alignItems: 'flex-start'
+                }}>
+                    <Sparkles size={24} color="#0891b2" style={{ flexShrink: 0, marginTop: '2px' }} />
+                    <div style={{ flex: 1 }}>
+                        <h4 style={{ margin: '0 0 0.4rem', color: '#164e63', fontSize: '0.95rem', fontWeight: 800 }}>
+                            Metodología Avalada: Res. SRT 7/2026 y Dec. 549/2025
+                        </h4>
+                        <p style={{ margin: 0, color: '#155e75', fontSize: '0.85rem', lineHeight: 1.5 }}>
+                            El presente análisis de causas y recolección testimonial se estructura para conformar prueba sólida frente a Comisiones Médicas, cumpliendo exigencias del Nuevo Protocolo de Valoración del Daño Corporal y nuevo baremo vigente.
+                        </p>
+                    </div>
+                </div>
+
                 <ShareModal
                     isOpen={showShare}
                     open={showShare}
