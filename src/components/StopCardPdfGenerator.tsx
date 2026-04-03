@@ -14,14 +14,14 @@ export default function StopCardPdfGenerator({ card }: { card: any }): React.Rea
 
     const getTypeConfig = (type) => {
         switch (type) {
-            case 'CondiciÃ³n Insegura': 
+            case 'Condición Insegura': 
                 return { 
                     color: '#f59e0b', 
                     bg: '#fef3c7', 
                     bgGradient: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
                     border: '#f59e0b',
                     icon: <AlertCircle size={32} strokeWidth={2.5} />,
-                    label: 'CONDICIÃ“N INSEGURA',
+                    label: 'CONDICIÓN INSEGURA',
                     iconBg: '#fef3c7'
                 };
             case 'Acto Inseguro': 
@@ -61,7 +61,7 @@ export default function StopCardPdfGenerator({ card }: { card: any }): React.Rea
                     bgGradient: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
                     border: '#3b82f6',
                     icon: <AlertCircle size={32} strokeWidth={2.5} />,
-                    label: 'OBSERVACIÃ“N',
+                    label: 'OBSERVACIÓN',
                     iconBg: '#dbeafe'
                 };
         }
@@ -204,7 +204,7 @@ export default function StopCardPdfGenerator({ card }: { card: any }): React.Rea
                             letterSpacing: '1px',
                             marginBottom: '6px'
                         }}>
-                            ðŸ“‹ ClasificaciÃ³n del Hallazgo
+                            📋 Clasificación del Hallazgo
                         </div>
                         <div style={{ 
                             fontSize: '22pt', 
@@ -297,7 +297,7 @@ export default function StopCardPdfGenerator({ card }: { card: any }): React.Rea
                                 letterSpacing: '0.5px',
                                 marginBottom: '4px'
                             }}>
-                                ðŸ“… Fecha y Hora
+                                📅 Fecha y Hora
                             </div>
                             <div style={{ 
                                 fontSize: '11pt', 
@@ -342,7 +342,7 @@ export default function StopCardPdfGenerator({ card }: { card: any }): React.Rea
                             textTransform: 'uppercase',
                             letterSpacing: '0.5px'
                         }}>
-                            DescripciÃ³n de la ObservaciÃ³n
+                            Descripción de la Observación
                         </h3>
                     </div>
                     <div style={{ 
@@ -383,7 +383,7 @@ export default function StopCardPdfGenerator({ card }: { card: any }): React.Rea
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.5px'
                             }}>
-                                âœ… AcciÃ³n Inmediata Tomada
+                                ✅ Acción Inmediata Tomada
                             </h3>
                         </div>
                         <div style={{ 
@@ -426,7 +426,7 @@ export default function StopCardPdfGenerator({ card }: { card: any }): React.Rea
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.5px'
                             }}>
-                                ðŸ“¸ Evidencia FotogrÃ¡fica
+                                📸 Evidencia Fotográfica
                             </h3>
                         </div>
                         <div style={{ 
@@ -509,7 +509,7 @@ export default function StopCardPdfGenerator({ card }: { card: any }): React.Rea
                                 fontWeight: 800,
                                 marginBottom: '4px'
                             }}>
-                                ðŸ‘· Observador / Prevencionista
+                                👷 Observador / Prevencionista
                             </div>
                             <div style={{ 
                                 fontSize: '8.5pt', 

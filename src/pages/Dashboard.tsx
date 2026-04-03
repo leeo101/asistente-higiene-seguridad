@@ -619,39 +619,57 @@ export default function Dashboard(): React.ReactElement {
 
         {/* Novedades Normativas */}
         <div className="card" style={{ padding: '1.5rem', borderTop: '4px solid #8b5cf6' }}>
-          <h3 style={{ margin: '0 0 1.5rem', fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <BookOpen size={20} color="#8b5cf6" /> Novedades Normativas
-          </h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+              <BookOpen size={20} color="#8b5cf6" /> Novedades Normativas
+            </h3>
+            <span style={{ fontSize: '0.7rem', fontWeight: 800, padding: '0.3rem 0.6rem', borderRadius: '20px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+              Actualizado: 02/04/2026 ✨
+            </span>
+          </div>
+          
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.8rem', padding: '0.8rem', background: 'rgba(139, 92, 246, 0.05)', borderRadius: '10px', border: '1px solid rgba(139, 92, 246, 0.1)' }}>
-              <div style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', background: '#8b5cf6', color: '#fff', fontSize: '0.65rem', fontWeight: 800, marginTop: '0.2rem' }}>2026</div>
+            {/* 2026 Update */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.8rem', padding: '0.8rem', background: 'rgba(139, 92, 246, 0.05)', borderRadius: '10px', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
+              <div style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', background: '#8b5cf6', color: '#fff', fontSize: '0.65rem', fontWeight: 800, marginTop: '0.2rem' }}>ABR 2026</div>
               <div>
-                <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>Res. SRT 7/2026 (Daño Corporal) y Dec. 549/2025 (Baremo)</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>Nuevo Protocolo de Estudios Mínimos exigible en Comisiones Médicas tras accidentes. Baremo actualizado.</div>
+                <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#8b5cf6' }}>Res. SRT 7/2026 y 15/2026</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.2rem', lineHeight: 1.4 }}>
+                  Nuevo Protocolo de Estudios Mínimos para Valoración del Daño Corporal y actualización de compensaciones (RIPTE).
+                </div>
               </div>
             </div>
 
+            {/* 2025 Baremo Update */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.8rem', padding: '0.8rem', background: 'rgba(139, 92, 246, 0.05)', borderRadius: '10px', border: '1px solid rgba(139, 92, 246, 0.1)' }}>
-              <div style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', background: '#8b5cf6', color: '#fff', fontSize: '0.65rem', fontWeight: 800, marginTop: '0.2rem' }}>2024/23</div>
+              <div style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', background: '#7c3aed', color: '#fff', fontSize: '0.65rem', fontWeight: 800, marginTop: '0.2rem' }}>2025</div>
               <div>
-                <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>Res. SRT 30/2023 (Estrés Térmico)</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>Reemplaza Res. 295/03. Nuevos VLA/VLE y requisitos de aclimatación aplicados.</div>
-              </div>
-            </div>
-            
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.8rem', padding: '0.8rem', background: 'rgba(139, 92, 246, 0.05)', borderRadius: '10px', border: '1px solid rgba(139, 92, 246, 0.1)' }}>
-              <div style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', background: '#8b5cf6', color: '#fff', fontSize: '0.65rem', fontWeight: 800, marginTop: '0.2rem' }}>2025</div>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>Res. SIyC 18/25 (EPP)</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>Nuevo certificado AR y trazabilidad QR exigible. Módulo EPP actualizado.</div>
+                <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>Dec. 549/2025 (Baremo) y Res. 48/2025</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.2rem', lineHeight: 1.4 }}>
+                  Actualización de Tabla de Evaluación de Incapacidades y Ecosistema Prevención 4.0.
+                </div>
               </div>
             </div>
 
+            {/* EPP Update */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.8rem', padding: '0.8rem', background: 'rgba(139, 92, 246, 0.05)', borderRadius: '10px', border: '1px solid rgba(139, 92, 246, 0.1)' }}>
+              <div style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', background: '#7c3aed', color: '#fff', fontSize: '0.65rem', fontWeight: 800, marginTop: '0.2rem' }}>2025</div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>Res. SIyC 18/25 (Nuevo Reglamento EPP)</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.2rem', lineHeight: 1.4 }}>
+                  Acepta normas ISO/EN/ANSI/NIOSH y exige QR de trazabilidad. Deroga Res. 896/99.
+                </div>
+              </div>
+            </div>
+
+            {/* Heat Stress */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.8rem', padding: '0.8rem', background: 'var(--color-background)', borderRadius: '10px', border: '1px solid var(--color-border)' }}>
-              <div style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', background: 'var(--color-text-muted)', color: '#fff', fontSize: '0.65rem', fontWeight: 800, marginTop: '0.2rem' }}>2024</div>
+              <div style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', background: 'var(--color-text-muted)', color: '#fff', fontSize: '0.65rem', fontWeight: 800, marginTop: '0.2rem' }}>2023/24</div>
               <div>
-                <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>Res. SRT 48/2025 y Anteriores</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>Derogación protocolos COVID-19 y actualización de Baremo aprobadas.</div>
+                <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>Res. SRT 30/23 y 7/24 (Estrés Térmico)</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.2rem', lineHeight: 1.4 }}>
+                  Nuevos límites de exposición al calor (WBGT) y prórroga de implementación finalizada.
+                </div>
               </div>
             </div>
           </div>
