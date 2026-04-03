@@ -6,6 +6,7 @@ import Footer from './components/Footer';
 import LoadingScreen from './components/LoadingScreen';
 import NetworkBadge from './components/NetworkBadge';
 import OfflineIndicator from './components/OfflineIndicator';
+import FloatingAssistant from './components/FloatingAssistant';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import InstallBanner from './components/InstallBanner';
