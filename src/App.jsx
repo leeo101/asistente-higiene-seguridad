@@ -110,7 +110,6 @@ const StopCards = lazyWithRetry(() => import('./pages/StopCards'));
 const StopCardsHistory = lazyWithRetry(() => import('./pages/StopCardsHistory'));
 const LogoSettings = lazyWithRetry(() => import('./pages/LogoSettings'));
 const PublicView = lazyWithRetry(() => import('./pages/PublicView'));
-const EmergencyBot = lazyWithRetry(() => import('./pages/EmergencyBot'));
 const ExtinguisherAI = lazyWithRetry(() => import('./pages/ExtinguisherAI'));
 const ChemicalSafety = lazyWithRetry(() => import('./pages/ChemicalSafety'));
 const NoiseAssessment = lazyWithRetry(() => import('./pages/NoiseAssessment'));
@@ -410,7 +409,6 @@ function App() {
                 <Route path="/ai-advisor" element={<ModuleGuard><AIChatAdvisor /></ModuleGuard>} />
                 <Route path="/ai-history" element={<ModuleGuard><AIHistory /></ModuleGuard>} />
                 <Route path="/ai-report" element={<ModuleGuard><AIReport /></ModuleGuard>} />
-                <Route path="/emergency-bot" element={<ModuleGuard><EmergencyBot /></ModuleGuard>} />
                 <Route path="/extinguisher-ai" element={<ModuleGuard><ExtinguisherAI /></ModuleGuard>} />
 
                 {/* Safety Modules */}

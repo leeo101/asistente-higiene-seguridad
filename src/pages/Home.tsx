@@ -107,7 +107,6 @@ const quickLinks: QuickLink[] = [
   { to: '/toolbox-talk', icon: <MessageSquare size={26} />, label: 'Charlas 5 Min', sub: 'Registro de Capacitación Diaria', color: '#0052CC', bg: 'rgba(0,82,204,0.1)', premium: true, category: 'management', badge: 'Nuevo ✨', featured: true },
   { to: '/checklists', icon: <ClipboardList size={26} />, label: 'Checklists', sub: 'Herramientas y Equipos', color: '#14b8a6', bg: 'rgba(20,184,166,0.1)', premium: true, category: 'docs' },
   { to: '/ppe-tracker', icon: <HardHat size={26} />, label: 'Control EPP', sub: 'Vencimientos', color: '#10b981', bg: 'rgba(16,185,129,0.08)', premium: true, category: 'management' },
-  { to: '/emergency-bot', icon: <Siren size={26} />, label: 'Emergencias', sub: 'Chatbot 24/7', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'ia', badge: 'IA ✨' },
   { to: '/ergonomics', icon: <Accessibility size={26} />, label: 'Ergonomía', sub: getRegSub('ergo'), color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'specific' },
   { to: '/confined-space', icon: <Tent size={26} />, label: 'Espacios Confinados', sub: 'Permisos y Control', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', premium: true, category: 'critical' },
   { to: '/thermal-stress', icon: <ThermometerSun size={26} />, label: 'Estrés Térmico', sub: getRegSub('thermal'), color: '#f97316', bg: 'rgba(249,115,22,0.1)', premium: true, category: 'specific' },
