@@ -5,7 +5,7 @@ import {
   Volume2, Search, Settings, HelpCircle, Lock,
   FileText, ShieldCheck, KeySquare, Send,
   Camera, AlertCircle, PhoneCall, HeartPulse,
-  Activity, MicOff
+  Activity, MicOff, Contact, QrCode, CreditCard, Award
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
@@ -19,16 +19,50 @@ export default function FloatingAssistant() {
     const { isPro } = usePaywall();
     const [isOpen, setIsOpen] = useState(false);
     const [isListening, setIsListening] = useState(false);
-    const [activeTab, setActiveTab] = useState<'actions' | 'chat'>('actions');
+    const [activeTab, setActiveTab] = useState<'actions' | 'chat' | 'id'>('actions');
     const [safetyScore, setSafetyScore] = useState(0);
     const [chatInput, setChatInput] = useState('');
-    const [messages, setMessages] = useState<{ role: 'ai' | 'user'; text: string }[]>([
-        { role: 'ai', text: '¡Hola! ¿En qué puedo ayudarte con la seguridad hoy?' }
-    ]);
     const [isTyping, setIsTyping] = useState(false);
     const [freeQueriesUsed, setFreeQueriesUsed] = useState(0);
     const menuRef = useRef<HTMLDivElement>(null);
     const chatEndRef = useRef<HTMLDivElement>(null);
+
+    // Tipado de mensajes con timestamp
+    interface Message {
+        role: 'ai' | 'user';
+        text: string;
+        timestamp: number;
+    }
+
+    const [messages, setMessages] = useState<Message[]>(() => {
+        const saved = localStorage.getItem('ai_assistant_messages');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                // Limpiar mensajes de más de 24 horas al cargar
+                const dayInMs = 24 * 60 * 60 * 1000;
+                const now = Date.now();
+                return parsed.filter((m: Message) => now - m.timestamp < dayInMs);
+            } catch (e) {
+                return [{ role: 'ai', text: '¡Hola! ¿En qué puedo ayudarte con la seguridad hoy?', timestamp: Date.now() }];
+            }
+        }
+        return [{ role: 'ai', text: '¡Hola! ¿En qué puedo ayudarte con la seguridad hoy?', timestamp: Date.now() }];
+    });
+
+    // Guardar mensajes y limpiar antiguos periódicamente
+    useEffect(() => {
+        const dayInMs = 24 * 60 * 60 * 1000;
+        const now = Date.now();
+        const filtered = messages.filter(m => now - m.timestamp < dayInMs);
+        
+        // Si se filtraron mensajes, actualizamos el estado
+        if (filtered.length !== messages.length) {
+            setMessages(filtered);
+        }
+        
+        localStorage.setItem('ai_assistant_messages', JSON.stringify(filtered));
+    }, [messages]);
 
     // Calcular un "Safety Pulse" (Score) basado en datos locales
     useEffect(() => {
@@ -76,8 +110,8 @@ export default function FloatingAssistant() {
 
     const handleSOS = () => {
         setMessages(prev => [...prev, 
-            { role: 'user', text: '🚨 ¡AUXILIO! EMERGENCIA DETECTADA' },
-            { role: 'ai', text: '⚠️ PROTOCOLO DE EMERGENCIA ACTIVADO\n\n1. Mantené la calma.\n2. Llamá al 911 (Emergencias).\n3. No muevas al herido si sospechás lesión de columna.\n4. Si hay fuego, evacuar por las salidas señalizadas.\n\n¿Qué tipo de emergencia es? (Incendio, Accidente, Derrame)' }
+            { role: 'user', text: '🚨 ¡AUXILIO! EMERGENCIA DETECTADA', timestamp: Date.now() },
+            { role: 'ai', text: '⚠️ PROTOCOLO DE EMERGENCIA ACTIVADO\n\n1. Mantené la calma.\n2. Llamá al 911 (Emergencias).\n3. No muevas al herido si sospechás lesión de columna.\n4. Si hay fuego, evacuar por las salidas señalizadas.\n\n¿Qué tipo de emergencia es? (Incendio, Accidente, Derrame)', timestamp: Date.now() }
         ]);
         setActiveTab('chat');
         toast.error('Protocolo S.O.S Activado', { icon: '🚨', duration: 5000 });
@@ -94,7 +128,7 @@ export default function FloatingAssistant() {
         toast.loading('Analizando imagen con Visión IA...', { id: 'vision' });
         
         setTimeout(() => {
-            setMessages(prev => [...prev, { role: 'ai', text: '📸 Análisis de Visión IA finalizado:\n\n• ✅ Casco detectado.\n• ⚠️ Falta protección ocular.\n• ⚠️ Andamio sin rodapié visible.\n\nRecomendación: Frenar tarea hasta colocar rodapié.' }]);
+            setMessages(prev => [...prev, { role: 'ai', text: '📸 Análisis de Visión IA finalizado:\n\n• ✅ Casco detectado.\n• ⚠️ Falta protección ocular.\n• ⚠️ Andamio sin rodapié visible.\n\nRecomendación: Frenar tarea hasta colocar rodapié.', timestamp: Date.now() }]);
             toast.success('Análisis finalizado', { id: 'vision' });
         }, 2000);
     };
@@ -113,8 +147,8 @@ export default function FloatingAssistant() {
             setIsListening(false);
             const transcript = "En el sector 4 hay un operario soldando sin biombo";
             setMessages(prev => [...prev, 
-                { role: 'user', text: transcript },
-                { role: 'ai', text: `🧠 Entendido. Analizando dictado: "Soldadura sin biombo".\n\nRIESGO: Proyecciones e IR/UV para terceros.\nACCION: Colocación de biombo inmediata. ¿Querés que genere una observación preventiva?` }
+                { role: 'user', text: transcript, timestamp: Date.now() },
+                { role: 'ai', text: `🧠 Entendido. Analizando dictado: "Soldadura sin biombo".\n\nRIESGO: Proyecciones e IR/UV para terceros.\nACCION: Colocación de biombo inmediata. ¿Querés que genere una observación preventiva?`, timestamp: Date.now() }
             ]);
         }, 3000);
     };
@@ -136,7 +170,7 @@ export default function FloatingAssistant() {
             
             const reportText = `📊 REPORTE GERENCIAL SEMANAL (IA)\n\n• Gestión: ${atsCount} ATS generados.\n• Control: ${inspCount} Inspecciones realizadas.\n• Seguridad: ${accidentCount} Accidentes reportados.\n\n💡 CONCLUSIÓN IA: "La actividad preventiva es estable. Se recomienda reforzar la supervisión en tareas de altura debido al incremento de ATS en dicha categoría."\n\n¿Querés que exporte este resumen a PDF comercial?`;
             
-            setMessages(prev => [...prev, { role: 'ai', text: reportText }]);
+            setMessages(prev => [...prev, { role: 'ai', text: reportText, timestamp: Date.now() }]);
             toast.success('Reporte generado', { id: 'report' });
         }, 2000);
     };
@@ -152,7 +186,7 @@ export default function FloatingAssistant() {
         }
 
         const userMsg = chatInput.trim();
-        setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+        setMessages(prev => [...prev, { role: 'user', text: userMsg, timestamp: Date.now() }]);
         setChatInput('');
         setIsTyping(true);
 
@@ -173,14 +207,14 @@ export default function FloatingAssistant() {
             const aiText = data.recomendaciones ? data.recomendaciones[0] : "Entendido. Recordá siempre verificar tus EPP antes de comenzar.";
             
             setTimeout(() => {
-                setMessages(prev => [...prev, { role: 'ai', text: aiText }]);
+                setMessages(prev => [...prev, { role: 'ai', text: aiText, timestamp: Date.now() }]);
                 setIsTyping(false);
                 if (!isPro) setFreeQueriesUsed(prev => prev + 1);
             }, 800);
 
         } catch (err) {
             console.error("Chat Error:", err);
-            setMessages(prev => [...prev, { role: 'ai', text: "Lo siento, tuve un problema de conexión. ¿Podés repetir?" }]);
+            setMessages(prev => [...prev, { role: 'ai', text: "Lo siento, tuve un problema de conexión. ¿Podés repetir?", timestamp: Date.now() }]);
             setIsTyping(false);
         }
     };
@@ -311,7 +345,20 @@ export default function FloatingAssistant() {
                                 fontWeight: 800
                             }}
                         >
-                            Chat IA
+                            Chat
+                        </button>
+                        <button 
+                            onClick={() => setActiveTab('id')}
+                            style={{ 
+                                flex: 1, padding: '0.5rem', fontSize: '0.75rem', borderRadius: '10px',
+                                background: activeTab === 'id' ? 'var(--color-primary)' : 'transparent',
+                                color: activeTab === 'id' ? 'white' : 'var(--color-text-muted)',
+                                border: '1px solid',
+                                borderColor: activeTab === 'id' ? 'var(--color-primary)' : 'var(--color-border)',
+                                fontWeight: 800
+                            }}
+                        >
+                            ID
                         </button>
                     </div>
 
@@ -320,7 +367,89 @@ export default function FloatingAssistant() {
                         className="hide-scrollbar"
                         style={{ flex: 1, overflowY: 'auto' }}
                     >
-                        {activeTab === 'actions' ? (
+                        {activeTab === 'id' ? (
+                            <div className="page-transition" style={{ padding: '0.5rem 0' }}>
+                                {/* Digital ID Card */}
+                                <div style={{
+                                    background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+                                    borderRadius: '20px',
+                                    padding: '1.5rem',
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                    boxShadow: '0 20px 40px rgba(0,0,0,0.3), 0 0 20px rgba(59,130,246,0.2)',
+                                    border: '1px solid rgba(255,255,255,0.1)',
+                                    color: 'white'
+                                }}>
+                                    {/* Chip & Logo */}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+                                        <div style={{ width: '40px', height: '30px', background: 'linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%)', borderRadius: '6px', opacity: 0.8 }}></div>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <div style={{ fontSize: '0.6rem', fontWeight: 900, opacity: 0.6, letterSpacing: '1px' }}>H&S IDENTIFICATION</div>
+                                            <img src="/logo.png" alt="Logo" style={{ height: '18px', marginTop: '4px' }} />
+                                        </div>
+                                    </div>
+
+                                    {/* User Info */}
+                                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1.5rem' }}>
+                                        <div style={{ 
+                                            width: '60px', height: '60px', borderRadius: '12px', 
+                                            overflow: 'hidden', border: '2px solid var(--color-primary)',
+                                            background: 'var(--color-surface)'
+                                        }}>
+                                            <img src={currentUser?.photoURL || '/avatar-placeholder.png'} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        </div>
+                                        <div>
+                                            <div style={{ fontSize: '1rem', fontWeight: 900, lineHeight: 1.1 }}>{currentUser?.displayName || 'Profesional'}</div>
+                                            <div style={{ fontSize: '0.65rem', color: 'var(--color-primary)', fontWeight: 800, marginTop: '2px' }}>ESPECIALISTA H&S</div>
+                                            <div style={{ 
+                                                display: 'inline-block', marginTop: '6px', padding: '2px 8px', 
+                                                background: isPro ? 'rgba(234, 179, 8, 0.2)' : 'rgba(255,255,255,0.1)',
+                                                borderRadius: '20px', fontSize: '0.55rem', fontWeight: 900,
+                                                color: isPro ? '#fcd34d' : '#cbd5e1', border: `1px solid ${isPro ? '#fcd34d44' : '#cbd5e122'}`
+                                            }}>
+                                                {isPro ? '⭐ MIEMBRO PRO' : 'PLAN BÁSICO'}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* QR & Number */}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1rem' }}>
+                                        <div style={{ fontSize: '0.55rem', opacity: 0.5, fontFamily: 'monospace' }}>
+                                            ID: {currentUser?.uid?.substring(0, 14).toUpperCase()}
+                                        </div>
+                                        <div style={{ 
+                                            background: 'white', padding: '4px', borderRadius: '6px',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                        }}>
+                                            <QrCode size={40} color="#0f172a" />
+                                        </div>
+                                    </div>
+
+                                    {/* Decorative pulse */}
+                                    <div style={{ 
+                                        position: 'absolute', top: '-20px', right: '-20px', 
+                                        width: '100px', height: '100px', background: 'var(--color-primary)', 
+                                        filter: 'blur(60px)', opacity: 0.2, zIndex: -1 
+                                    }}></div>
+                                </div>
+
+                                <button 
+                                    onClick={() => {
+                                        const text = `Esta es la Credencial Digital de Higiene y Seguridad de ${currentUser?.displayName}.\nID: ${currentUser?.uid}`;
+                                        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+                                    }}
+                                    style={{
+                                        width: '100%', marginTop: '1.2rem', padding: '0.8rem',
+                                        background: 'var(--color-surface)', border: '1px solid var(--color-border)',
+                                        borderRadius: '12px', fontWeight: 800, fontSize: '0.8rem',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    <Send size={16} color="var(--color-primary)" /> Compartir mi Perfil
+                                </button>
+                            </div>
+                        ) : activeTab === 'actions' ? (
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.6rem' }}>
                                 {quickActions.slice(0, isPro ? 4 : 2).map((action, i) => (
                                     <button 
