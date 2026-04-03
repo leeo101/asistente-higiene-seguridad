@@ -255,7 +255,7 @@ export default function StopCardPdfGenerator({ card }: { card: any }): React.Rea
                                 letterSpacing: '0.5px',
                                 marginBottom: '4px'
                             }}>
-                                ðŸ“ UbicaciÃ³n / Ãrea
+                                📍 Ubicación / Área
                             </div>
                             <div style={{ 
                                 fontSize: '11pt', 
@@ -312,7 +312,7 @@ export default function StopCardPdfGenerator({ card }: { card: any }): React.Rea
                                     day: 'numeric' 
                                 })}
                                 <div style={{ fontSize: '9pt', color: '#64748b', fontWeight: 600, marginTop: '2px' }}>
-                                    â° {card.time}hs
+                                    ⏰ {card.time}hs
                                 </div>
                             </div>
                         </div>
@@ -549,7 +549,7 @@ export default function StopCardPdfGenerator({ card }: { card: any }): React.Rea
                         letterSpacing: '1px', 
                         marginBottom: '6px'
                     }}>
-                        ðŸ›¡ï¸ Informe generado electrÃ³nicamente
+                        🛡️ Informe generado electrónicamente
                     </div>
                     <div style={{ color: '#64748b' }}>
                         {new Date().toLocaleDateString('es-AR', { 

@@ -78,13 +78,13 @@ export default function EnvironmentalHistory(): React.ReactElement | null {
                     </div>
                 </div>
                 <button onClick={() => navigate('/environmental')} className="btn-primary" style={{ margin: 0, padding: '0.75rem 1.25rem' }}>
-                    Nueva MediciÃ³n
+                    Nueva Medición
                 </button>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
                 <StatCard label="Total" value={stats.total} color="#3B82F6" icon={<Activity size={20} />} />
-                <StatCard label="CrÃ­ticos" value={stats.criticos} color="#dc2626" icon={<AlertTriangle size={20} />} />
+                <StatCard label="Críticos" value={stats.criticos} color="#dc2626" icon={<AlertTriangle size={20} />} />
                 <StatCard label="Calidad Aire" value={stats.aire} color="#16a34a" icon={<Wind size={20} />} />
                 <StatCard label="Calidad Agua" value={stats.agua} color="#06b6d4" icon={<Droplets size={20} />} />
             </div>
@@ -92,7 +92,7 @@ export default function EnvironmentalHistory(): React.ReactElement | null {
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
                 <div style={{ flex: 1, minWidth: '280px', position: 'relative' }}>
                     <Search size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
-                    <input type="text" placeholder="Buscar por estaciÃ³n, ubicaciÃ³n..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: '100%', padding: '0.85rem 1rem 0.85rem 3rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-input-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontSize: '0.95rem', outline: 'none' }} />
+                    <input type="text" placeholder="Buscar por estación, ubicación..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: '100%', padding: '0.85rem 1rem 0.85rem 3rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-input-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontSize: '0.95rem', outline: 'none' }} />
                 </div>
                 <select value={filterType} onChange={(e) => setFilterType(e.target.value)} style={{ padding: '0.85rem 1.25rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-input-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer' }}>
                     <option value="all">Todos los Tipos</option>
@@ -139,7 +139,7 @@ function MeasurementCard({ measurement, onEdit, onShare }) {
                     <div style={{ width: '48px', height: '48px', background: `${statusColor}15`, borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', color: statusColor }}>{typeConfig.icon}</div>
                     <div style={{ flex: 1 }}>
                         <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem', fontWeight: 700 }}>{measurement.stationName}</h3>
-                        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{measurement.location || 'Sin ubicaciÃ³n'} â€¢ {new Date(measurement.measurementDate).toLocaleDateString()}</p>
+                        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{measurement.location || 'Sin ubicación'} • {new Date(measurement.measurementDate).toLocaleDateString()}</p>
                     </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
@@ -149,7 +149,7 @@ function MeasurementCard({ measurement, onEdit, onShare }) {
                 </div>
             </div>
             <div style={{ display: 'flex', gap: '0.75rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
-                <button onClick={onEdit} className="btn-secondary" style={{ flex: 1, padding: '0.6rem', fontSize: '0.85rem' }}>Ver EstaciÃ³n</button>
+                <button onClick={onEdit} className="btn-secondary" style={{ flex: 1, padding: '0.6rem', fontSize: '0.85rem' }}>Ver Estación</button>
                 <button onClick={onShare} style={{ padding: '0.6rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                     <Share2 size={16} />
                     <span style={{ fontWeight: 700, fontSize: '0.8rem' }}>PDF</span>
