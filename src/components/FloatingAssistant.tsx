@@ -4,10 +4,11 @@ import {
   X, Zap, BarChart3, ClipboardCheck,
   ChevronRight, Sparkles, TrendingUp,
   Volume2, Search, Settings, HelpCircle, Lock,
-  FileText, ShieldCheck, KeySquare
+  FileText, ShieldCheck, KeySquare, Send 
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
+import { API_BASE_URL } from '../config';
 import toast from 'react-hot-toast';
 
 export default function FloatingAssistant() {
@@ -17,9 +18,16 @@ export default function FloatingAssistant() {
     const { isPro } = usePaywall();
     const [isOpen, setIsOpen] = useState(false);
     const [isListening, setIsListening] = useState(false);
-    const [activeTab, setActiveTab] = useState<'actions' | 'insights'>('actions');
+    const [activeTab, setActiveTab] = useState<'actions' | 'chat'>('actions');
     const [safetyScore, setSafetyScore] = useState(0);
+    const [chatInput, setChatInput] = useState('');
+    const [messages, setMessages] = useState<{ role: 'ai' | 'user'; text: string }[]>([
+        { role: 'ai', text: '¡Hola! ¿En qué puedo ayudarte con la seguridad hoy?' }
+    ]);
+    const [isTyping, setIsTyping] = useState(false);
+    const [freeQueriesUsed, setFreeQueriesUsed] = useState(0);
     const menuRef = useRef<HTMLDivElement>(null);
+    const chatEndRef = useRef<HTMLDivElement>(null);
 
     // Calcular un "Safety Pulse" (Score) basado en datos locales
     useEffect(() => {
@@ -45,6 +53,13 @@ export default function FloatingAssistant() {
         return () => window.removeEventListener('storage', calculateScore);
     }, []);
 
+    // Scroll automático en chat
+    useEffect(() => {
+        if (chatEndRef.current) {
+            chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [messages, activeTab]);
+
     // Cerrar al hacer clic fuera
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -58,25 +73,48 @@ export default function FloatingAssistant() {
 
     const toggleAssistant = () => setIsOpen(!isOpen);
 
-    const handleVoiceClick = () => {
-        if (!isPro) {
-            toast.error('Función exclusiva para usuarios PRO 💎', {
-                duration: 4000
-            });
+    const handleSendMessage = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        if (!chatInput.trim() || isTyping) return;
+
+        if (!isPro && freeQueriesUsed >= 3) {
+            toast.error('Límite de consultas gratuitas alcanzado. ¡Pasate a PRO! 💎', { duration: 5000 });
             navigate('/subscribe');
             return;
         }
-        setIsListening(true);
-        toast('🎙️ Escuchando... (Simulación de dictado para campo)', {
-            icon: '🎤',
-            duration: 3000
-        });
-        setTimeout(() => {
-            setIsListening(false);
-            toast.success('IA: "Entendido, preparé un borrador de Inspección en tus borradores."', {
-                duration: 4000
+
+        const userMsg = chatInput.trim();
+        setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+        setChatInput('');
+        setIsTyping(true);
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/ai-advisor`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    taskDescription: userMsg,
+                    country: 'argentina',
+                    isChat: true // Flag para que el backend sepa que es respuesta corta
+                })
             });
-        }, 3000);
+
+            const data = await response.json();
+            
+            // Simular respuesta natural si falla la API o para debug inicial
+            const aiText = data.recomendaciones ? data.recomendaciones[0] : "Entendido. Recordá siempre verificar tus EPP antes de comenzar.";
+            
+            setTimeout(() => {
+                setMessages(prev => [...prev, { role: 'ai', text: aiText }]);
+                setIsTyping(false);
+                if (!isPro) setFreeQueriesUsed(prev => prev + 1);
+            }, 800);
+
+        } catch (err) {
+            console.error("Chat Error:", err);
+            setMessages(prev => [...prev, { role: 'ai', text: "Lo siento, tuve un problema de conexión. ¿Podés repetir?" }]);
+            setIsTyping(false);
+        }
     };
 
     if (!currentUser) return null;
@@ -195,17 +233,17 @@ export default function FloatingAssistant() {
                             Acciones
                         </button>
                         <button 
-                            onClick={() => setActiveTab('insights')}
+                            onClick={() => setActiveTab('chat')}
                             style={{ 
                                 flex: 1, padding: '0.5rem', fontSize: '0.75rem', borderRadius: '10px',
-                                background: activeTab === 'insights' ? 'var(--color-primary)' : 'transparent',
-                                color: activeTab === 'insights' ? 'white' : 'var(--color-text-muted)',
+                                background: activeTab === 'chat' ? 'var(--color-primary)' : 'transparent',
+                                color: activeTab === 'chat' ? 'white' : 'var(--color-text-muted)',
                                 border: '1px solid',
-                                borderColor: activeTab === 'insights' ? 'var(--color-primary)' : 'var(--color-border)',
+                                borderColor: activeTab === 'chat' ? 'var(--color-primary)' : 'var(--color-border)',
                                 fontWeight: 800
                             }}
                         >
-                            Insights IA
+                            Chat IA
                         </button>
                     </div>
 
@@ -240,52 +278,73 @@ export default function FloatingAssistant() {
                                         borderRadius: '12px', border: '1px dashed rgba(59, 130, 246, 0.3)',
                                         textAlign: 'center', cursor: 'pointer'
                                     }} onClick={() => navigate('/subscribe')}>
-                                        <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-primary)' }}>+ Desbloquear 15 acciones más (PRO)</span>
+                                        <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-primary)' }}>+ Desbloquear acciones PRO</span>
                                     </div>
                                 )}
-                                <button 
-                                    onClick={handleVoiceClick}
-                                    style={{ 
-                                        marginTop: '0.5rem',
-                                        display: 'flex', alignItems: 'center', gap: '0.8rem',
-                                        padding: '1rem', background: isPro ? 'var(--gradient-premium)' : 'rgba(100, 116, 139, 0.1)',
-                                        borderRadius: '12px', border: isPro ? 'none' : '1px solid var(--color-border)', color: isPro ? 'white' : 'var(--color-text-muted)',
-                                        cursor: 'pointer', width: '100%', position: 'relative',
-                                        overflow: 'hidden'
-                                    }}
-                                >
-                                    {isListening ? (
-                                         <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.1)', animation: 'assistant-glow 1s infinite' }} />
-                                    ) : null}
-                                    {isPro ? <Volume2 size={20} /> : <Lock size={18} />}
-                                    <span style={{ fontWeight: 800, fontSize: '0.85rem' }}>
-                                        {isListening ? 'Escuchando Obra...' : isPro ? 'Dictado de Campo' : 'Dictado de Campo (PRO)'}
-                                    </span>
-                                    <Sparkles size={14} style={{ marginLeft: 'auto' }} />
-                                </button>
                             </div>
                         ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                                {aiTips.slice(0, isPro ? 3 : 1).map((tip, i) => (
-                                    <div key={i} style={{ 
-                                        display: 'flex', gap: '0.8rem', padding: '0.8rem', 
-                                        background: 'rgba(59, 130, 246, 0.05)', borderRadius: '12px',
-                                        borderLeft: '3px solid var(--color-primary)'
-                                    }}>
-                                        <Zap size={16} color="var(--color-primary)" style={{ flexShrink: 0, marginTop: '2px' }} />
-                                        <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text)', lineHeight: 1.4 }}>{tip}</p>
-                                    </div>
-                                ))}
-                                <div style={{ 
-                                    marginTop: '1rem', padding: '1rem', borderRadius: '12px', 
-                                    background: 'rgba(0,0,0,0.02)', border: '1px dashed var(--color-border)',
-                                    textAlign: 'center'
-                                }}>
-                                    <HelpCircle size={24} color="var(--color-text-muted)" style={{ marginBottom: '0.5rem' }} />
-                                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-                                        Preguntame algo sobre la normativa vigente o tus reportes.
-                                    </p>
+                            <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                                <div className="hide-scrollbar" style={{ flex: 1, overflowY: 'auto', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                                    {messages.map((m, idx) => (
+                                        <div key={idx} style={{
+                                            alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
+                                            maxWidth: '85%',
+                                            padding: '0.7rem 1rem',
+                                            borderRadius: m.role === 'user' ? '18px 18px 2px 18px' : '18px 18px 18px 2px',
+                                            background: m.role === 'user' ? 'var(--color-primary)' : 'rgba(59, 130, 246, 0.08)',
+                                            color: m.role === 'user' ? 'white' : 'var(--color-text)',
+                                            fontSize: '0.82rem',
+                                            lineHeight: 1.4,
+                                            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                                            animation: 'assistant-slide-up 0.3s ease-out'
+                                        }}>
+                                            {m.text}
+                                        </div>
+                                    ))}
+                                    {isTyping && (
+                                        <div style={{ alignSelf: 'flex-start', background: 'rgba(59, 130, 246, 0.05)', padding: '0.5rem 1rem', borderRadius: '12px', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                                            IA escribiendo...
+                                        </div>
+                                    )}
+                                    <div ref={chatEndRef} />
                                 </div>
+
+                                <form onSubmit={handleSendMessage} style={{ position: 'relative', display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                    <input 
+                                        type="text"
+                                        value={chatInput}
+                                        onChange={(e) => setChatInput(e.target.value)}
+                                        placeholder="Hacé una pregunta..."
+                                        style={{
+                                            flex: 1,
+                                            padding: '0.6rem 2.8rem 0.6rem 1rem',
+                                            borderRadius: '12px',
+                                            border: '1px solid var(--color-border)',
+                                            background: 'var(--color-background)',
+                                            color: 'var(--color-text)',
+                                            fontSize: '0.85rem',
+                                            outline: 'none'
+                                        }}
+                                    />
+                                    <button 
+                                        type="submit"
+                                        disabled={!chatInput.trim() || isTyping}
+                                        style={{
+                                            position: 'absolute', right: '5px', top: '50%', transform: 'translateY(-50%)',
+                                            background: 'var(--color-primary)', border: 'none', borderRadius: '8px',
+                                            width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            color: 'white', cursor: 'pointer', transition: 'all 0.2s',
+                                            opacity: !chatInput.trim() || isTyping ? 0.5 : 1
+                                        }}
+                                    >
+                                        <Send size={16} />
+                                    </button>
+                                </form>
+                                {!isPro && (
+                                    <div style={{ fontSize: '0.65rem', textAlign: 'center', color: 'var(--color-text-muted)', background: 'rgba(0,0,0,0.02)', padding: '0.4rem', borderRadius: '6px' }}>
+                                        Consultas gratis restantes: {3 - freeQueriesUsed}
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
