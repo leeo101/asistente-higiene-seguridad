@@ -156,14 +156,14 @@ export default function FloatingAssistant() {
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                                 <div style={{ 
-                                    width: '40px', height: '40px', 
-                                    background: 'rgba(255,255,255,0.05)', 
+                                    width: '45px', height: '45px', 
+                                    background: 'rgba(255,255,255,0.08)', 
                                     borderRadius: '12px', 
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                                     border: '1px solid var(--color-border)',
                                     boxShadow: 'var(--shadow-sm)'
                                 }}>
-                                    <img src="/logo.png" alt="Logo" style={{ width: '28px', height: '28px', objectFit: 'contain' }} className="assistant-logo-spin" />
+                                    <img src="/logo.png" alt="Logo" style={{ width: '34px', height: '34px', objectFit: 'contain' }} className="assistant-logo-spin" />
                                 </div>
                             <div>
                                 <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 900, letterSpacing: '-0.3px' }}>Asistente IA</h4>
@@ -377,8 +377,8 @@ export default function FloatingAssistant() {
                 {isOpen ? (
                     <X size={28} />
                 ) : (
-                    <div style={{ position: 'relative', width: '38px', height: '38px' }}>
-                        <img src="/logo.png" alt="Portal" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.3))' }} />
+                    <div style={{ position: 'relative', width: '46px', height: '46px' }}>
+                        <img src="/logo.png" alt="Portal" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.4))' }} />
                     </div>
                 )}
                 
