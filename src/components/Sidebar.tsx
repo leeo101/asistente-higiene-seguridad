@@ -9,6 +9,7 @@ import { useExpiryNotifications } from '../hooks/useExpiryNotifications';
 import { User as FirebaseUser } from 'firebase/auth';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
+import { listenToValue } from '../services/cloudSync';
 import AdBanner from './AdBanner';
 
 // Tipos
@@ -114,7 +115,26 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
     const savedShowLogo = localStorage.getItem('showCompanyLogo');
     if (savedLogo) setLogo(savedLogo);
     if (savedShowLogo !== null) setShowLogo(savedShowLogo === 'true');
-  }, [isOpen]);
+
+    if (currentUser?.uid && isOpen) {
+      const unsubscribeLogo = listenToValue<string>(currentUser.uid, 'companyLogo', (val) => {
+        setLogo(val);
+        if (val) localStorage.setItem('companyLogo', val);
+        else localStorage.removeItem('companyLogo');
+      });
+
+      const unsubscribeShow = listenToValue<boolean>(currentUser.uid, 'showCompanyLogo', (val) => {
+        const normalized = val === null ? true : val;
+        setShowLogo(normalized);
+        localStorage.setItem('showCompanyLogo', String(normalized));
+      });
+
+      return () => {
+        unsubscribeLogo();
+        unsubscribeShow();
+      };
+    }
+  }, [isOpen, currentUser]);
 
   const handleLogoUpload = (e: ChangeEvent<HTMLInputElement>): void => {
     const file = e.target.files?.[0];

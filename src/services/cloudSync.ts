@@ -74,6 +74,26 @@ export function listenToDocument<T = SyncDocument>(
 }
 
 /**
+ * Escucha cambios en tiempo real en un valor simple guardado con saveValue.
+ */
+export function listenToValue<T = string | boolean>(
+  uid: string,
+  key: string,
+  callback: SyncCallback<T | null>
+): Unsubscribe {
+  if (!uid) return () => {};
+  
+  return onSnapshot(userDocRef(uid, key), (snap: DocumentSnapshot) => {
+    if (snap.exists()) {
+      const data = snap.data() as { value?: T };
+      callback(data.value ?? null);
+    } else {
+      callback(null);
+    }
+  });
+}
+
+/**
  * Guarda un array de items a Firestore para el usuario.
  */
 export async function saveCollection<T = SyncItem>(

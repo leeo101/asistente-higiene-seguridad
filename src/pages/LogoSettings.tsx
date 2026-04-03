@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Upload, X, CheckCircle, AlertCircle, Image as ImageIcon, Sparkles, ShieldCheck, Info } from 'lucide-react';
 import { usePaywall } from '../hooks/usePaywall';
 import { useAuth } from '../contexts/AuthContext';
-import { saveValue } from '../services/cloudSync';
+import { saveValue, listenToValue } from '../services/cloudSync';
 import toast from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
@@ -19,11 +19,32 @@ export default function LogoSettings(): React.ReactElement | null {
     const [dragActive, setDragActive] = useState(false);
 
     useEffect(() => {
+        // Carga inicial rápida desde localStorage
         const savedLogo = localStorage.getItem('companyLogo');
         const savedShowLogo = localStorage.getItem('showCompanyLogo');
         if (savedLogo) setLogo(savedLogo);
         if (savedShowLogo !== null) setShowLogo(savedShowLogo === 'true');
-    }, []);
+
+        // Sincronización en tiempo real desde Firestore
+        if (currentUser?.uid) {
+            const unsubscribeLogo = listenToValue<string>(currentUser.uid, 'companyLogo', (val) => {
+                setLogo(val);
+                if (val) localStorage.setItem('companyLogo', val);
+                else localStorage.removeItem('companyLogo');
+            });
+
+            const unsubscribeShow = listenToValue<boolean>(currentUser.uid, 'showCompanyLogo', (val) => {
+                const normalized = val === null ? true : val;
+                setShowLogo(normalized);
+                localStorage.setItem('showCompanyLogo', String(normalized));
+            });
+
+            return () => {
+                unsubscribeLogo();
+                unsubscribeShow();
+            };
+        }
+    }, [currentUser]);
 
     const handleFileChange = (file) => {
         if (!file) return;
