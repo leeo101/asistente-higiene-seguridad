@@ -17,9 +17,9 @@ const getStatus = (lastDate, monthsValid) => {
     const today = new Date().toISOString().split('T')[0];
     const diffDays = Math.ceil((new Date(dueDate).getTime() - new Date(today).getTime()) / (1000 * 60 * 60 * 24));
 
-    if (diffDays < 0) return { text: 'Vencido', color: '#dc2626', vto: new Date(dueDate).toLocaleDateString() };
-    if (diffDays <= 30) return { text: 'Próximo', color: '#d97706', vto: new Date(dueDate).toLocaleDateString() };
-    return { text: 'Vigente', color: '#166534', vto: new Date(dueDate).toLocaleDateString() };
+    if (diffDays < 0) return { text: 'Vencido', color: '#dc2626', vto: new Date(dueDate).toLocaleDateString('es-AR') };
+    if (diffDays <= 30) return { text: 'Próximo', color: '#d97706', vto: new Date(dueDate).toLocaleDateString('es-AR') };
+    return { text: 'Vigente', color: '#166534', vto: new Date(dueDate).toLocaleDateString('es-AR') };
 };
 
 export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguishers: any[] }): React.ReactElement | null {
@@ -78,7 +78,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
                                 Planilla de Control de Extintores
                             </h1>
                             <p style={{ margin: 0, fontSize: '10pt', color: '#475569', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                <span><Calendar size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> Fecha: {new Date().toLocaleDateString()}</span>
+                                <span><Calendar size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> Fecha: {new Date().toLocaleDateString('es-AR')}</span>
                                 <span><Flame size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> Equipos: {stats.total}</span>
                                 {stats.vencidos > 0 && <span style={{ color: '#dc2626', fontWeight: 'bold' }}>({stats.vencidos} Vencidos)</span>}
                             </p>

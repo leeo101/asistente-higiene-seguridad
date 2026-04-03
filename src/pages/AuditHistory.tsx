@@ -178,7 +178,7 @@ function AuditCard({ audit, onEdit, onShare }) {
                     <div style={{ flex: 1 }}>
                         <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem', fontWeight: 700 }}>{audit.auditTitle || audit.title}</h3>
                         <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-                            {audit.location || 'Sin ubicación'} • {audit.leadAuditor || 'Sin auditor'} • {audit.date || (audit.scheduledDate ? new Date(audit.scheduledDate).toLocaleDateString() : 'Sin fecha')}
+                            {audit.location || 'Sin ubicación'} • {audit.leadAuditor || 'Sin auditor'} • {audit.date || (audit.scheduledDate ? new Date(audit.scheduledDate).toLocaleDateString('es-AR') : 'Sin fecha')}
                         </p>
                     </div>
                 </div>

@@ -106,7 +106,7 @@ export default function RiskAssessmentPdfGenerator({ assessmentData }: { assessm
                             <Calendar size={14} />
                             <span style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase' }}>Fecha de Evaluación</span>
                         </div>
-                        <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#1e293b' }}>{data.date ? new Date(data.date).toLocaleDateString() : 'N/A'}</div>
+                        <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#1e293b' }}>{data.date ? new Date(data.date).toLocaleDateString('es-AR') : 'N/A'}</div>
                     </div>
                 </div>
 

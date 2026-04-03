@@ -115,7 +115,7 @@ export default function NoiseAssessmentForm(): React.ReactElement | null {
         }
         
         localStorage.setItem('noise_assessments_db', JSON.stringify(updated));
-        navigate('/noise-assessment-history');
+        navigate('/noise-assessment');
     };
 
     const handleLevelChange = (field, value) => {

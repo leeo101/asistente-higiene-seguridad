@@ -127,7 +127,7 @@ export default function ChecklistPdfGenerator({
                         </div>
                         <div style={{ padding: '0.8rem', borderLeft: '2px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                             <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>FECHA REVISIÓN</span>
-                            <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>{inspInfo.date ? new Date(inspInfo.date + 'T12:00:00Z').toLocaleDateString() : '-'}</span>
+                            <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>{inspInfo.date ? new Date(inspInfo.date + 'T12:00:00Z').toLocaleDateString('es-AR') : '-'}</span>
                         </div>
                         <div style={{ padding: '0.8rem', borderLeft: '2px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                             <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>INSPECTOR</span>
@@ -347,7 +347,7 @@ export default function ChecklistPdfGenerator({
                                             <p style={{ margin: '0 0 0.4rem 0', fontWeight: 800, fontSize: '0.85rem', color: '#1e293b' }}>{action.action}</p>
                                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', fontSize: '0.7rem', color: '#64748b', fontWeight: 700 }}>
                                                 {action.responsible && <span>👤 Resp: {action.responsible}</span>}
-                                                {action.dueDate && <span>📅 Vence: {new Date(action.dueDate).toLocaleDateString()}</span>}
+                                                {action.dueDate && <span>📅 Vence: {new Date(action.dueDate).toLocaleDateString('es-AR')}</span>}
                                                 <span style={{ color: action.priority === 'critico' ? '#dc2626' : action.priority === 'alto' ? '#ea580c' : '#ca8a04' }}>🔥 {action.priority.toUpperCase()}</span>
                                             </div>
                                         </div>
@@ -365,7 +365,7 @@ export default function ChecklistPdfGenerator({
                             <Calendar size={24} color="#2563eb" />
                             <div>
                                 <p style={{ margin: 0, fontWeight: 900, fontSize: '0.85rem', color: '#1e3a8a', textTransform: 'uppercase' }}>Próxima Revisión Programada</p>
-                                <p style={{ margin: '0.25rem 0 0 0', fontSize: '1rem', fontWeight: 800, color: '#1e40af' }}>{new Date(nextReview).toLocaleDateString()}</p>
+                                <p style={{ margin: '0.25rem 0 0 0', fontSize: '1rem', fontWeight: 800, color: '#1e40af' }}>{new Date(nextReview).toLocaleDateString('es-AR')}</p>
                             </div>
                         </div>
                     </div>

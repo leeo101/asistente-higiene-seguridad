@@ -298,8 +298,8 @@ export default function History(): React.ReactElement | null {
                     open={!!shareItem}
                     onClose={() => setShareItem(null)}
                     title={`Matriz de Riesgos - ${shareItem?.data?.name || ''}`}
-                    text={shareItem ? `🚫 Matriz de Riesgo\n🏗️ ${shareItem.data.name}\n📍 ${shareItem.data.location}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString()}` : ''}
-                    rawMessage={shareItem ? `🚫 Matriz de Riesgo\n🏗️ ${shareItem.data.name}\n📍 ${shareItem.data.location}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString()}` : ''}
+                    text={shareItem ? `🚫 Matriz de Riesgo\n🏗️ ${shareItem.data.name}\n📍 ${shareItem.data.location}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString('es-AR')}` : ''}
+                    rawMessage={shareItem ? `🚫 Matriz de Riesgo\n🏗️ ${shareItem.data.name}\n📍 ${shareItem.data.location}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString('es-AR')}` : ''}
                     elementIdToPrint="pdf-content"
                     fileName={`Matriz_${shareItem?.data?.name || 'Riesgo'}.pdf`}
                 />
@@ -332,7 +332,7 @@ export default function History(): React.ReactElement | null {
                                         <h4 style={{ margin: '0 0 0.3rem 0', fontWeight: 700 }}>{item.name}</h4>
                                         <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
                                             <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                                                <Calendar size={14} /> {new Date(item.createdAt).toLocaleDateString()}
+                                                <Calendar size={14} /> {new Date(item.createdAt).toLocaleDateString('es-AR')}
                                             </span>
                                             <span>{item.location}</span>
                                         </div>
@@ -387,8 +387,8 @@ export default function History(): React.ReactElement | null {
                     open={!!shareItem}
                     onClose={() => setShareItem(null)}
                     title={`Informe - ${shareItem?.data?.title || ''}`}
-                    text={shareItem ? `📄 Informe Profesional\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString()}` : ''}
-                    rawMessage={shareItem ? `📄 Informe Profesional\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString()}` : ''}
+                    text={shareItem ? `📄 Informe Profesional\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString('es-AR')}` : ''}
+                    rawMessage={shareItem ? `📄 Informe Profesional\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString('es-AR')}` : ''}
                     elementIdToPrint="pdf-content"
                     fileName={`Informe_${shareItem?.data?.title || 'Profesional'}.pdf`}
                 />
@@ -421,7 +421,7 @@ export default function History(): React.ReactElement | null {
                                         <h4 style={{ margin: '0 0 0.3rem 0', fontWeight: 700 }}>{item.title}</h4>
                                         <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
                                             <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                                                <Calendar size={14} /> {new Date(item.createdAt).toLocaleDateString()}
+                                                <Calendar size={14} /> {new Date(item.createdAt).toLocaleDateString('es-AR')}
                                             </span>
                                             <span>{item.company}</span>
                                         </div>
@@ -475,8 +475,8 @@ export default function History(): React.ReactElement | null {
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Inspección - ${shareItem?.data?.name || ''}`}
-                text={shareItem ? `📋 Inspección de Seguridad\n🏗️ ${shareItem.data.name || 'Sin nombre'}\n📅 ${new Date(shareItem.data.date).toLocaleDateString()}\n🔎 Tipo: ${shareItem.data.type || '—'}\n📊 Resultado: ${shareItem.data.result || '—'}` : ''}
-                rawMessage={shareItem ? `📋 Inspección de Seguridad\n🏗️ ${shareItem.data.name || 'Sin nombre'}\n📅 ${new Date(shareItem.data.date).toLocaleDateString()}\n🔎 Tipo: ${shareItem.data.type || '—'}\n📊 Resultado: ${shareItem.data.result || '—'}` : ''}
+                text={shareItem ? `📋 Inspección de Seguridad\n🏗️ ${shareItem.data.name || 'Sin nombre'}\n📅 ${new Date(shareItem.data.date).toLocaleDateString('es-AR')}\n🔎 Tipo: ${shareItem.data.type || '—'}\n📊 Resultado: ${shareItem.data.result || '—'}` : ''}
+                rawMessage={shareItem ? `📋 Inspección de Seguridad\n🏗️ ${shareItem.data.name || 'Sin nombre'}\n📅 ${new Date(shareItem.data.date).toLocaleDateString('es-AR')}\n🔎 Tipo: ${shareItem.data.type || '—'}\n📊 Resultado: ${shareItem.data.result || '—'}` : ''}
                 elementIdToPrint="pdf-content"
                 fileName={`Inspeccion_${shareItem?.data?.name || 'Seguridad'}.pdf`}
             />
@@ -509,7 +509,7 @@ export default function History(): React.ReactElement | null {
                                     <h4 style={{ margin: '0 0 0.3rem 0', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name || 'Sin nombre'}</h4>
                                     <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
                                         <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap' }}>
-                                            <Calendar size={14} /> {new Date(item.date).toLocaleDateString()}
+                                            <Calendar size={14} /> {new Date(item.date).toLocaleDateString('es-AR')}
                                         </span>
                                         <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.type}</span>
                                     </div>

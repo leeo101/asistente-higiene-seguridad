@@ -131,7 +131,7 @@ export default function FireLoadHistory(): React.ReactElement | null {
                                     <div style={{ minWidth: 0, flex: 1 }}>
                                         <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.empresa || 'Empresa sin nombre'}</h3>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.2rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                            <Calendar size={14} style={{ flexShrink: 0 }} /> <span style={{ flexShrink: 0 }}>{new Date(item.createdAt).toLocaleDateString()}</span> - <Building2 size={14} style={{ flexShrink: 0 }} /> <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.sector}</span>
+                                            <Calendar size={14} style={{ flexShrink: 0 }} /> <span style={{ flexShrink: 0 }}>{new Date(item.createdAt).toLocaleDateString('es-AR')}</span> - <Building2 size={14} style={{ flexShrink: 0 }} /> <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.sector}</span>
                                         </div>
                                     </div>
                                 </div>

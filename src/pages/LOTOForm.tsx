@@ -122,7 +122,7 @@ export default function LOTOForm(): React.ReactElement | null {
         }
 
         localStorage.setItem('loto_procedures_db', JSON.stringify(updated));
-        navigate('/loto-history');
+        navigate('/loto');
     };
 
     return (

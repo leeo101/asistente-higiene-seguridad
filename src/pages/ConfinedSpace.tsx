@@ -245,8 +245,8 @@ export default function ConfinedSpace(): React.ReactElement | null {
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Espacio Confinado - ${shareItem?.spaceName || ''}`}
-                text={shareItem ? `🕳️ Permiso Ingreso Espacio Confinado\n🆔 Espacio: ${shareItem.spaceName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString()}` : ''}
-                rawMessage={shareItem ? `🕳️ Permiso Ingreso Espacio Confinado\n🆔 Espacio: ${shareItem.spaceName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString()}` : ''}
+                text={shareItem ? `🕳️ Permiso Ingreso Espacio Confinado\n🆔 Espacio: ${shareItem.spaceName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString('es-AR')}` : ''}
+                rawMessage={shareItem ? `🕳️ Permiso Ingreso Espacio Confinado\n🆔 Espacio: ${shareItem.spaceName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString('es-AR')}` : ''}
                 elementIdToPrint="pdf-content"
                 fileName={`Espacio_Confinado_${shareItem?.spaceName || 'Sin_Nombre'}.pdf`}
             />
@@ -475,6 +475,7 @@ export default function ConfinedSpace(): React.ReactElement | null {
                                     onSuspend={() => suspendPermit(permit.id)}
                                     onComplete={() => completePermit(permit.id)}
                                     onView={() => setSelectedPermit(permit)}
+                                    onEdit={() => navigate('/confined-space-form', { state: { editData: permit } })}
                                     onShare={() => setShareItem(permit)}
                                     onDelete={() => deletePermit(permit.id)}
                                 />
@@ -632,7 +633,7 @@ function TabButton({ active, onClick, icon, label, count, badge }) {
     );
 }
 
-function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, onView, onShare, onDelete }) {
+function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, onView, onEdit, onShare, onDelete }: any) {
     const spaceType = CONFINED_SPACE_TYPES.find(t => t.id === permit.spaceType);
     const isExpired = permit.validUntil && new Date(permit.validUntil) < new Date();
 
@@ -704,7 +705,7 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                         <Calendar size={14} />
-                        {permit.validUntil ? new Date(permit.validUntil).toLocaleDateString() : '-'}
+                        {permit.validUntil ? new Date(permit.validUntil).toLocaleDateString('es-AR') : '-'}
                     </span>
                 </div>
             </div>
@@ -769,19 +770,19 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
                     </>
                 )}
                 <button
-                    onClick={onView}
+                    onClick={onEdit}
                     style={{
                         padding: '0.6rem 0.75rem',
-                        background: 'var(--color-background)',
+                        background: 'var(--color-surface)',
                         border: '1px solid var(--color-border)',
                         borderRadius: 'var(--radius-md)',
                         cursor: 'pointer',
                         color: 'var(--color-primary)',
                         transition: 'all var(--transition-fast)'
                     }}
-                    title="Ver detalle"
+                    title="Editar Permiso"
                 >
-                    <Eye size={18} />
+                    <Edit3 size={18} />
                 </button>
                 <button
                     onClick={onShare}

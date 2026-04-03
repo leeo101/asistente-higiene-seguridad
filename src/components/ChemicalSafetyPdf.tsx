@@ -100,7 +100,7 @@ export default function ChemicalSafetyPdf({ data }: { data: any }): React.ReactE
                     </div>
                     <div style={{ border: '1px solid #ddd', padding: '0.8rem', borderRadius: '6px' }}>
                         <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', display: 'block' }}>FECHA DE CREACIÓN</span>
-                        <div style={{ fontWeight: 700 }}>{data.createdAt ? new Date(data.createdAt).toLocaleDateString() : 'N/A'}</div>
+                        <div style={{ fontWeight: 700 }}>{data.createdAt ? new Date(data.createdAt).toLocaleDateString('es-AR') : 'N/A'}</div>
                     </div>
                 </div>
 

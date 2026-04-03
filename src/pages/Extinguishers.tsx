@@ -289,7 +289,7 @@ export default function Extinguishers(): React.ReactElement | null {
                                                     <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: stCarga.color }}></div>
                                                     <span style={{ color: stCarga.color, fontWeight: 800, fontSize: '0.95rem' }}>{stCarga.text}</span>
                                                 </div>
-                                                {ext.ultimaCarga && <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>Últ: {new Date(ext.ultimaCarga + 'T12:00:00Z').toLocaleDateString()}</div>}
+                                                {ext.ultimaCarga && <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>Últ: {new Date(ext.ultimaCarga + 'T12:00:00Z').toLocaleDateString('es-AR')}</div>}
                                             </div>
 
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
@@ -298,7 +298,7 @@ export default function Extinguishers(): React.ReactElement | null {
                                                     <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: stPH.color }}></div>
                                                     <span style={{ color: stPH.color, fontWeight: 800, fontSize: '0.95rem' }}>{stPH.text}</span>
                                                 </div>
-                                                {ext.ultimaPH && <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>Últ: {new Date(ext.ultimaPH + 'T12:00:00Z').toLocaleDateString()}</div>}
+                                                {ext.ultimaPH && <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>Últ: {new Date(ext.ultimaPH + 'T12:00:00Z').toLocaleDateString('es-AR')}</div>}
                                             </div>
 
                                             <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '0.5rem', marginTop: '0.5rem' }} className="sm:justify-center sm:mt-0">

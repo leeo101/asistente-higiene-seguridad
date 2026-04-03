@@ -58,7 +58,7 @@ export default function ChemicalSafetyHistory(): React.ReactElement | null {
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Ficha SGA - ${shareItem?.name || ''}`}
-                text={shareItem ? `🧪 Ficha Técnica de Seguridad (SGA)\n🏷️ Producto: ${shareItem.name}\n🆔 CAS: ${shareItem.casNumber || '-'}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString()}` : ''}
+                text={shareItem ? `🧪 Ficha Técnica de Seguridad (SGA)\n🏷️ Producto: ${shareItem.name}\n🆔 CAS: ${shareItem.casNumber || '-'}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString('es-AR')}` : ''}
                 rawMessage={``}
                 elementIdToPrint="pdf-content"
                 fileName={`SGA_${shareItem?.name || 'Producto'}.pdf`}

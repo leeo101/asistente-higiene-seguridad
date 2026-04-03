@@ -115,7 +115,7 @@ export default function Ergonomics(): React.ReactElement | null {
                                     <div>
                                         <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700 }}>{item.empresa || 'Empresa sin nombre'}</h3>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
-                                            <Calendar size={14} /> {new Date(parseInt(item.id)).toLocaleDateString()} - <Building2 size={14} /> {item.puesto} · {item.sector}
+                                            <Calendar size={14} /> {new Date(parseInt(item.id)).toLocaleDateString('es-AR')} - <Building2 size={14} /> {item.puesto} · {item.sector}
                                         </div>
                                     </div>
                                 </div>

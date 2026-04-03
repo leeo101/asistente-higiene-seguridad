@@ -108,7 +108,7 @@ export default function RiskAssessmentHistory(): React.ReactElement | null {
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`IPER - ${shareItem?.name || ''}`}
-                text={shareItem ? `🛡️ Evaluación de Riesgo (IPER)\n📝 Tarea: ${shareItem.name}\n📍 Ubicación: ${shareItem.location || '-'}\n📅 Fecha: ${new Date(shareItem.date || shareItem.createdAt).toLocaleDateString()}\n⚠️ Resultado: ${shareItem.score} (${shareItem.riskLabel})` : ''}
+                text={shareItem ? `🛡️ Evaluación de Riesgo (IPER)\n📝 Tarea: ${shareItem.name}\n📍 Ubicación: ${shareItem.location || '-'}\n📅 Fecha: ${new Date(shareItem.date || shareItem.createdAt).toLocaleDateString('es-AR')}\n⚠️ Resultado: ${shareItem.score} (${shareItem.riskLabel})` : ''}
                 elementIdToPrint="pdf-content"
             />
 
@@ -149,7 +149,7 @@ export default function RiskAssessmentHistory(): React.ReactElement | null {
                                     <h4 style={{ margin: '0 0 0.3rem 0', fontWeight: 800 }}>{item.name}</h4>
                                     <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
                                         <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                                            <Calendar size={14} /> {new Date(item.date || item.createdAt).toLocaleDateString()}
+                                            <Calendar size={14} /> {new Date(item.date || item.createdAt).toLocaleDateString('es-AR')}
                                         </span>
                                         {item.location && <span>📍 {item.location}</span>}
                                     </div>

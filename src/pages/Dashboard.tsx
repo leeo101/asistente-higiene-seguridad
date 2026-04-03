@@ -338,11 +338,11 @@ export default function Dashboard(): React.ReactElement {
       permits.forEach(p => {
         const endDate = new Date(p.endDate as string || 0);
         if (endDate > now && endDate < threeDaysLater) {
-          alerts.push({ id: `permit-${p.id}`, type: 'warning', message: `Permiso de trabajo #${p.id} vence pronto`, date: endDate.toLocaleDateString() });
+          alerts.push({ id: `permit-${p.id}`, type: 'warning', message: `Permiso de trabajo #${p.id} vence pronto`, date: endDate.toLocaleDateString('es-AR') });
         }
       });
       trainings.filter(t => t.status === 'pending' || !t.completed).forEach(t => {
-        alerts.push({ id: `training-${t.id}`, type: 'info', message: `Capacitación pendiente: ${t.title || t.name}`, date: new Date(t.date as string || 0).toLocaleDateString() });
+        alerts.push({ id: `training-${t.id}`, type: 'info', message: `Capacitación pendiente: ${t.title || t.name}`, date: new Date(t.date as string || 0).toLocaleDateString('es-AR') });
       });
 
       const complianceRate = Math.round((trainingCompletion + ppeCompliance) / 2);

@@ -156,20 +156,7 @@ export default function AuditManager(): React.ReactElement | null {
     };
 
     const handleCreateAudit = () => {
-        if (!newAudit.title.trim()) return;
-
-        const audit = {
-            ...newAudit,
-            id: `AUD-${Date.now()}`,
-            createdAt: new Date().toISOString(),
-            status: 'planned',
-            checklist: buildChecklist(newAudit.areas)
-        };
-
-        const updated = [audit, ...audits];
-        saveAudits(updated);
-        navigate('/audit?created=' + audit.id);
-        resetForm();
+        navigate('/audit/new');
     };
 
     const buildChecklist = (selectedAreas: any) => {
@@ -556,6 +543,7 @@ export default function AuditManager(): React.ReactElement | null {
                                     onStart={() => startAudit(audit.id)}
                                     onComplete={() => completeAudit(audit.id)}
                                     onView={() => navigate(`/audit/${audit.id}`)}
+                                    onEdit={() => navigate('/audit/new', { state: { editData: audit } })}
                                     onShare={() => setShareItem(audit)}
                                     onAddFinding={() => {
                                         setCurrentAuditForFinding(audit);
@@ -689,7 +677,7 @@ function TabButton({ active, onClick, icon, label, count, badge }: any) {
     );
 }
 
-function AuditCard({ audit, findings, statusConfig, onStart, onComplete, onView, onShare, onAddFinding, onDelete }: any) {
+function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete, onView, onShare, onAddFinding, onDelete }: any) {
     const auditType = AUDIT_TYPES.find((t: any) => t.id === audit.auditType);
     const auditFindings = findings.filter((f: any) => f.auditId === audit.id);
     const openFindings = auditFindings.filter((f: any) => f.status === 'open').length;
@@ -758,7 +746,7 @@ function AuditCard({ audit, findings, statusConfig, onStart, onComplete, onView,
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                         <Calendar size={14} />
-                        {audit.scheduledDate ? new Date(audit.scheduledDate).toLocaleDateString() : '-'}
+                        {audit.scheduledDate ? new Date(audit.scheduledDate).toLocaleDateString('es-AR') : '-'}
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                         <Shield size={14} />
@@ -781,7 +769,22 @@ function AuditCard({ audit, findings, statusConfig, onStart, onComplete, onView,
             </div>
 
             {/* Acciones */}
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', gap: '0.4rem' }}>
+                <button
+                    onClick={onEdit}
+                    style={{
+                        padding: '0.6rem 0.75rem',
+                        background: 'var(--color-surface)',
+                        border: '1px solid var(--color-border)',
+                        borderRadius: 'var(--radius-md)',
+                        cursor: 'pointer',
+                        color: 'var(--color-primary)',
+                        transition: 'all var(--transition-fast)'
+                    }}
+                    title="Editar Auditoría"
+                >
+                    <Edit3 size={18} />
+                </button>
                 {audit.status === 'planned' && (
                     <button
                         onClick={onStart}
@@ -994,7 +997,7 @@ function FindingsList({ findings, audits, onUpdateStatus, severityConfig, status
                                 <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{finding.description}</p>
                                 <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
                                     <span>Auditoría: {audit?.title || 'N/A'}</span>
-                                    <span>Fecha: {new Date(finding.createdAt).toLocaleDateString()}</span>
+                                    <span>Fecha: {new Date(finding.createdAt).toLocaleDateString('es-AR')}</span>
                                 </div>
                             </div>
                             <select 

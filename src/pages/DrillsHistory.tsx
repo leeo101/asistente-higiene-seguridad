@@ -127,7 +127,7 @@ export default function DrillsHistory(): React.ReactElement | null {
                                     </span>
                                 </div>
                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginTop: '0.5rem', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={14} /> {new Date(report.fecha + 'T12:00:00Z').toLocaleDateString()}</span>
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={14} /> {new Date(report.fecha + 'T12:00:00Z').toLocaleDateString('es-AR')}</span>
                                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><TriangleAlert size={14} color="#f59e0b" /> {report.hipotesis}</span>
                                 </div>
                             </div>

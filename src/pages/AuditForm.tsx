@@ -11,8 +11,45 @@ const AUDIT_TYPES = [
     { id: 'internal', name: 'Interna', icon: '📋' },
     { id: 'external', name: 'Externa', icon: '🏢' },
     { id: 'certification', name: 'Certificación', icon: '📜' },
-    { id: 'surveillance', name: 'Seguimiento', icon: '👁️' }
+    { id: 'surveillance', name: 'Seguimiento', icon: '👁️' },
+    { id: 'compliance', name: 'Cumplimiento Legal', icon: '⚖️' }
 ];
+
+const ISO_CHECKLIST_BASE: any = {
+    context: [
+        { id: '4.1', question: '¿Se determinaron las cuestiones internas y externas relevantes?', legal: 'ISO 45001 4.1' },
+        { id: '4.2', question: '¿Se identificaron las partes interesadas y sus necesidades?', legal: 'ISO 45001 4.2' },
+        { id: '4.3', question: '¿Está definido el alcance del SGSST?', legal: 'ISO 45001 4.3' }
+    ],
+    leadership: [
+        { id: '5.1', question: '¿La dirección demuestra liderazgo y compromiso?', legal: 'ISO 45001 5.1' },
+        { id: '5.2', question: '¿Existe una política de SST documentada?', legal: 'ISO 45001 5.2' },
+        { id: '5.4', question: '¿Se consulta y participa a los trabajadores?', legal: 'ISO 45001 5.4' }
+    ],
+    planning: [
+        { id: '6.1', question: '¿Se identifican peligros y evalúan riesgos?', legal: 'ISO 45001 6.1' },
+        { id: '6.1.2', question: '¿Se determinan requisitos legales aplicables?', legal: 'ISO 45001 6.1.2' },
+        { id: '6.2', question: '¿Existen objetivos de SST medibles?', legal: 'ISO 45001 6.2' }
+    ],
+    support: [
+        { id: '7.2', question: '¿El personal es competente para sus tareas?', legal: 'ISO 45001 7.2' },
+        { id: '7.4', question: '¿Existen procesos de comunicación interna/externa?', legal: 'ISO 45001 7.4' },
+        { id: '7.5', question: '¿Se controla la información documentada?', legal: 'ISO 45001 7.5' }
+    ],
+    operation: [
+        { id: '8.1.1', question: '¿Existe jerarquía de controles de riesgo?', legal: 'ISO 45001 8.1.1' },
+        { id: '8.1.3', question: '¿Se gestionan compras y contratistas?', legal: 'ISO 45001 8.1.3' },
+        { id: '8.1.4', question: '¿Existe preparación y respuesta ante emergencias?', legal: 'ISO 45001 8.1.4' }
+    ],
+    performance: [
+        { id: '9.1', question: '¿Se realiza seguimiento y medición del desempeño?', legal: 'ISO 45001 9.1' },
+        { id: '9.2', question: '¿Se realiza auditoría interna periódica?', legal: 'ISO 45001 9.2' }
+    ],
+    improvement: [
+        { id: '10.2', question: '¿Se toman acciones correctivas?', legal: 'ISO 45001 10.2' },
+        { id: '10.3', question: '¿Existe mejora continua del sistema?', legal: 'ISO 45001 10.3' }
+    ]
+};
 
 const labelStyle = {
     display: 'block',
@@ -51,17 +88,11 @@ export default function AuditForm(): React.ReactElement | null {
         title: '',
         auditType: 'internal',
         auditor: '',
-        date: '',
+        date: new Date().toISOString().split('T')[0],
         location: '',
         objective: '',
         scope: '',
-        checklist: [
-            { id: 1, question: '¿Cuenta con Seguro de Vida Obligatorio?', legal: 'Ley 16.600', status: 'na', observation: '' },
-            { id: 2, question: '¿Se exhibe el Afiche de la ART?', legal: 'Res. SRT 70/97', status: 'na', observation: '' },
-            { id: 3, question: '¿Cuenta con Registro de Entrega de EPP?', legal: 'Res. SRT 299/11', status: 'na', observation: '' },
-            { id: 4, question: '¿Están señalizadas las salidas de emergencia?', legal: 'Ley 19.587 Cap 18', status: 'na', observation: '' },
-            { id: 5, question: '¿Extintores con carga vigente?', legal: 'DPS 351/79', status: 'na', observation: '' }
-        ],
+        checklist: [] as any[],
         closingMeeting: {
             date: '',
             participants: '',
@@ -74,6 +105,32 @@ export default function AuditForm(): React.ReactElement | null {
         if (location.state?.editData) {
             setAudit(location.state.editData);
             setIsEdit(true);
+        } else if (location.state?.selectedAreas) {
+            // Build checklist from selected areas in Manager
+            const newChecklist: any[] = [];
+            location.state.selectedAreas.forEach((areaId: string) => {
+                const items = ISO_CHECKLIST_BASE[areaId] || [];
+                items.forEach((item: any) => {
+                    newChecklist.push({
+                        ...item,
+                        status: 'na',
+                        observation: ''
+                    });
+                });
+            });
+            setAudit(prev => ({ ...prev, checklist: newChecklist }));
+        } else if (!isEdit && audit.checklist.length === 0) {
+            // Default 5-item quick checklist if no areas selected
+            setAudit(prev => ({
+                ...prev,
+                checklist: [
+                    { id: 1, question: '¿Cuenta con Seguro de Vida Obligatorio?', legal: 'Ley 16.600', status: 'na', observation: '' },
+                    { id: 2, question: '¿Se exhibe el Afiche de la ART?', legal: 'Res. SRT 70/97', status: 'na', observation: '' },
+                    { id: 3, question: '¿Cuenta con Registro de Entrega de EPP?', legal: 'Res. SRT 299/11', status: 'na', observation: '' },
+                    { id: 4, question: '¿Están señalizadas las salidas de emergencia?', legal: 'Ley 19.587 Cap 18', status: 'na', observation: '' },
+                    { id: 5, question: '¿Extintores con carga vigente?', legal: 'DPS 351/79', status: 'na', observation: '' }
+                ]
+            }));
         }
     }, [location.state]);
 
@@ -108,7 +165,7 @@ export default function AuditForm(): React.ReactElement | null {
         }
 
         localStorage.setItem('ehs_audits_db', JSON.stringify(updated));
-        navigate('/audit-history');
+        navigate('/audit');
     };
 
     return (

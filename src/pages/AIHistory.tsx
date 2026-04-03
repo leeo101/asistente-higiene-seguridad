@@ -215,7 +215,7 @@ export default function AIHistory(): React.ReactElement | null {
                                 <h4 style={{ margin: '0 0 0.3rem 0', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.task}</h4>
                                 <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
                                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                                        <Calendar size={14} /> {new Date(item.date).toLocaleDateString()}
+                                        <Calendar size={14} /> {new Date(item.date).toLocaleDateString('es-AR')}
                                     </span>
                                 </div>
                             </div>

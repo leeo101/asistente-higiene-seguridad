@@ -145,63 +145,7 @@ export default function WorkingAtHeight(): React.ReactElement | null {
     };
 
     const handleCreatePermit = () => {
-        if (!newPermit.workerName.trim() || !newPermit.height) return;
-        
-        const permit = {
-            ...newPermit,
-            id: `WAH-${Date.now()}`,
-            createdAt: new Date().toISOString(),
-            status: 'pending',
-            fallClearance: calculateFallClearance(parseFloat(newPermit.height) || 0)
-        };
-
-        const updated = [permit, ...permits];
-        savePermits(updated);
-        setShowAddModal(false);
-        resetForm();
-    };
-
-    const resetForm = () => {
-        setNewPermit({
-            id: '',
-            workerName: '',
-            workType: '',
-            location: '',
-            workDescription: '',
-            height: '',
-            duration: '',
-            riskFactors: [],
-            fallProtection: [],
-            anchorPoints: [],
-            rescuePlan: '',
-            weatherCheck: false,
-            equipmentCheck: false,
-            training: false,
-            supervisor: '',
-            status: 'draft',
-            validFrom: '',
-            validUntil: '',
-            createdAt: '',
-            authorizedAt: '',
-            completedAt: '',
-            observations: ''
-        });
-    };
-
-    const calculateFallClearance = (height) => {
-        // Cálculo de distancia de detención de caída
-        // Lanyard (1.8m) + Absorbedor (1.0m) + Factor seguridad (0.6m) + Altura trabajador (1.8m)
-        const lanyardLength = 1.8;
-        const shockAbsorberDeployment = 1.0;
-        const safetyFactor = 0.6;
-        const workerHeight = 1.8;
-        const totalClearance = lanyardLength + shockAbsorberDeployment + safetyFactor + workerHeight;
-        
-        return {
-            required: totalClearance.toFixed(1),
-            available: height,
-            safe: height >= totalClearance
-        };
+        navigate('/working-at-height/new');
     };
 
     const authorizePermit = (permitId) => {
@@ -284,8 +228,8 @@ export default function WorkingAtHeight(): React.ReactElement | null {
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Permiso Altura - ${shareItem?.location || ''}`}
-                text={shareItem ? `🧗 Permiso de Trabajo en Altura\n📍 Ubicación: ${shareItem.location}\n👷 Trabajador: ${shareItem.workerName}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString()}` : ''}
-                rawMessage={shareItem ? `🧗 Permiso de Trabajo en Altura\n📍 Ubicación: ${shareItem.location}\n👷 Trabajador: ${shareItem.workerName}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString()}\n\nGenerado con Asistente H&S` : ''}
+                text={shareItem ? `🧗 Permiso de Trabajo en Altura\n📍 Ubicación: ${shareItem.location}\n👷 Trabajador: ${shareItem.workerName}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString('es-AR')}` : ''}
+                rawMessage={shareItem ? `🧗 Permiso de Trabajo en Altura\n📍 Ubicación: ${shareItem.location}\n👷 Trabajador: ${shareItem.workerName}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString('es-AR')}\n\nGenerado con Asistente H&S` : ''}
                 elementIdToPrint="pdf-content"
                 fileName={`Altura_${shareItem?.location || 'Sin_Nombre'}.pdf`}
             />
@@ -344,7 +288,7 @@ export default function WorkingAtHeight(): React.ReactElement | null {
 
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                     <button
-                        onClick={() => navigate('/working-at-height/new')}
+                        onClick={handleCreatePermit}
                         className="btn-primary"
                         style={{
                             width: 'auto',
@@ -357,15 +301,6 @@ export default function WorkingAtHeight(): React.ReactElement | null {
                     >
                         <Plus size={20} strokeWidth={2.5} />
                         Nuevo Permiso
-                    </button>
-                    <button
-                        onClick={() => navigate('/working-at-height/history')}
-                        className="btn-outline"
-                        style={{
-                            padding: '0.75rem 1rem'
-                        }}
-                    >
-                        <FileText size={20} />
                     </button>
                 </div>
             </div>
@@ -514,7 +449,7 @@ export default function WorkingAtHeight(): React.ReactElement | null {
                         <EmptyStateIllustrated 
                             title="Sin Permisos de Trabajo en Altura"
                             description="Todavía no hay permisos creados. Creá el primero para gestionar la seguridad según OSHA 1.8m."
-                            onAction={() => setShowAddModal(true)}
+                            onAction={handleCreatePermit}
                             icon={<HardHat />}
                         />
                     ) : (
@@ -528,6 +463,7 @@ export default function WorkingAtHeight(): React.ReactElement | null {
                                     onSuspend={() => suspendPermit(permit.id)}
                                     onComplete={() => completePermit(permit.id)}
                                     onView={() => setSelectedPermit(permit)}
+                                    onEdit={() => navigate('/working-at-height/new', { state: { editData: permit } })}
                                     onShare={() => setShareItem(permit)}
                                     onDelete={() => deletePermit(permit.id)}
                                 />
@@ -549,22 +485,6 @@ export default function WorkingAtHeight(): React.ReactElement | null {
 
             {activeTab === 'limits' && (
                 <HeightLimitsPanel limits={HEIGHT_LIMITS} fallProtection={FALL_PROTECTION} />
-            )}
-
-            {/* Modal de Crear Permiso */}
-            {showAddModal && (
-                <CreatePermitModal 
-                    permit={newPermit}
-                    setPermit={setNewPermit}
-                    onSave={handleCreatePermit}
-                    onClose={() => {
-                        setShowAddModal(false);
-                        resetForm();
-                    }}
-                    WORK_TYPES={WORK_TYPES}
-                    FALL_PROTECTION={FALL_PROTECTION}
-                    RISK_FACTORS={RISK_FACTORS}
-                />
             )}
 
             {/* Modal de Detalle */}
@@ -627,63 +547,7 @@ function StatCard({ icon, label, value, color, gradient }) {
     );
 }
 
-function TabButton({ active, onClick, icon, label, count, badge }) {
-    return (
-        <button
-            onClick={onClick}
-            style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.75rem 1.25rem',
-                background: active ? 'var(--color-primary)' : 'transparent',
-                color: active ? '#fff' : 'var(--color-text-muted)',
-                border: 'none',
-                borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0',
-                cursor: 'pointer',
-                fontWeight: 700,
-                fontSize: '0.9rem',
-                transition: 'all var(--transition-fast)',
-                position: 'relative'
-            }}
-        >
-            {icon}
-            {label}
-            {count !== undefined && (
-                <span style={{
-                    padding: '0.2rem 0.5rem',
-                    background: active ? 'rgba(255,255,255,0.2)' : 'var(--color-background)',
-                    borderRadius: 'var(--radius-full)',
-                    fontSize: '0.75rem',
-                    fontWeight: 800
-                }}>
-                    {count}
-                </span>
-            )}
-            {badge > 0 && (
-                <span style={{
-                    position: 'absolute',
-                    top: '-4px',
-                    right: '-4px',
-                    width: '20px',
-                    height: '20px',
-                    background: '#ef4444',
-                    color: '#fff',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '0.7rem',
-                    fontWeight: 900
-                }}>
-                    {badge}
-                </span>
-            )}
-        </button>
-    );
-}
-
-function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, onView, onShare, onDelete }) {
+function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, onView, onEdit, onShare, onDelete }) {
     const workType = WORK_TYPES.find(t => t.id === permit.workType);
     const isExpired = permit.validUntil && new Date(permit.validUntil) < new Date();
     const heightRisk = parseFloat(permit.height) >= 6 ? 'high' : parseFloat(permit.height) >= 3 ? 'medium' : 'low';
@@ -762,7 +626,7 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                         <Calendar size={14} />
-                        {permit.validUntil ? new Date(permit.validUntil).toLocaleDateString() : '-'}
+                        {permit.validUntil ? new Date(permit.validUntil).toLocaleDateString('es-AR') : '-'}
                     </span>
                 </div>
             </div>
@@ -827,19 +691,19 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
                     </>
                 )}
                 <button
-                    onClick={onView}
+                    onClick={onEdit}
                     style={{
                         padding: '0.6rem 0.75rem',
-                        background: 'var(--color-background)',
+                        background: 'var(--color-surface)',
                         border: '1px solid var(--color-border)',
                         borderRadius: 'var(--radius-md)',
                         cursor: 'pointer',
                         color: 'var(--color-primary)',
                         transition: 'all var(--transition-fast)'
                     }}
-                    title="Ver detalle"
+                    title="Editar Permiso"
                 >
-                    <Eye size={18} />
+                    <Edit3 size={18} />
                 </button>
                 <button
                     onClick={onShare}

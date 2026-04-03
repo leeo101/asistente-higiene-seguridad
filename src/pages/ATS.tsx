@@ -91,6 +91,7 @@ export default function ATS(): React.ReactElement | null {
         empresa: '',
         cuit: '',
         obra: '',
+        tarea: '',
         fecha: new Date().toISOString().split('T')[0],
         capatazNombre: '',
         checklist: defaultChecklist,
@@ -182,7 +183,7 @@ export default function ATS(): React.ReactElement | null {
         if (!window.confirm('¿Seguro que deseas reiniciar el formulario? Se perderán los cambios no guardados.')) return;
         setFormData({
             id: '',
-            empresa: '', cuit: '', obra: '',
+            empresa: '', cuit: '', obra: '', tarea: '',
             fecha: new Date().toISOString().split('T')[0],
             capatazNombre: '',
             checklist: defaultChecklist,
@@ -373,7 +374,7 @@ export default function ATS(): React.ReactElement | null {
                 open={showShare}
                 onClose={() => setShowShare(false)}
                 title={`ATS – ${formData.empresa} (${formData.obra})`}
-                text={`🔐 Análisis de Trabajo Seguro\n🏗️ Empresa: ${formData.empresa}\n🚧 Obra: ${formData.obra}\n📅 Fecha: ${formData.fecha}\n📋 Tarea: ${(formData as any).tarea || ''}\n\nGenerado con Asistente HYS`}
+                text={`🔐 Análisis de Trabajo Seguro\n🏗️ Empresa: ${formData.empresa}\n🚧 Obra: ${formData.obra}\n📅 Fecha: ${formData.fecha}\n📋 Tarea: ${formData.tarea}\n\nGenerado con Asistente HYS`}
                 elementIdToPrint="pdf-content"
                 rawMessage={``}
                 fileName={`ATS_${formData.empresa || 'Reporte'}`}
@@ -473,9 +474,12 @@ export default function ATS(): React.ReactElement | null {
                             <div className="sm:col-span-1 print:col-span-1"><DocBox label="CUIT / CUIL" value={formData.cuit} onChange={v => setFormData({ ...formData, cuit: v })} borderLeft /></div>
                             <div className="sm:col-span-1 print:col-span-1"><DocBox label="UBICACIÓN / OBRA" value={formData.obra} onChange={v => setFormData({ ...formData, obra: v })} borderLeft /></div>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ width: '100%' }}>
+                        <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ width: '100%', borderBottom: '2px solid var(--color-border)' }}>
                             <div className="sm:col-span-1 print:col-span-1"><DocBox label="FECHA" value={formData.fecha} onChange={v => setFormData({ ...formData, fecha: v })} type="date" /></div>
-                            <div className="sm:col-span-1 print:col-span-1"><DocBox label="RESPONSABLE" value={formData.capatazNombre} onChange={v => setFormData({ ...formData, capatazNombre: v })} borderLeft /></div>
+                            <div className="sm:col-span-3 print:col-span-3"><DocBox label="DESCRIPCIÓN DE LA TAREA" value={formData.tarea} onChange={v => setFormData({ ...formData, tarea: v })} borderLeft /></div>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ width: '100%' }}>
+                            <div className="sm:col-span-2 print:col-span-2"><DocBox label="RESPONSABLE" value={formData.capatazNombre} onChange={v => setFormData({ ...formData, capatazNombre: v })} /></div>
                             <div className="sm:col-span-2 print:col-span-2"><DocBox label="PROFESIONAL HYS" value={professional.name} onChange={() => { }} borderLeft /></div>
                         </div>
                     </div>

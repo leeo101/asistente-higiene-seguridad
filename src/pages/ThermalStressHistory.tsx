@@ -129,7 +129,7 @@ export default function ThermalStressHistory(): React.ReactElement | null {
                                     </span>
                                 </div>
                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginTop: '0.5rem', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={14} /> {new Date(report.fecha + 'T12:00:00Z').toLocaleDateString()}</span>
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={14} /> {new Date(report.fecha + 'T12:00:00Z').toLocaleDateString('es-AR')}</span>
                                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><MapPin size={14} /> {report.sector}</span>
                                 </div>
                             </div>

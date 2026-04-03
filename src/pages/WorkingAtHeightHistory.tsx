@@ -45,8 +45,8 @@ export default function WorkingAtHeightHistory(): React.ReactElement | null {
                 isOpen={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Permiso Altura - ${shareItem?.location || ''}`}
-                text={shareItem ? `🧗 Permiso de Trabajo en Altura\n📍 Ubicación: ${shareItem.location}\n👷 Trabajador: ${shareItem.workerName}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString()}` : ''}
-                rawMessage={shareItem ? `🧗 Permiso de Trabajo en Altura\n📍 Ubicación: ${shareItem.location}\n👷 Trabajador: ${shareItem.workerName}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString()}` : ''}
+                text={shareItem ? `🧗 Permiso de Trabajo en Altura\n📍 Ubicación: ${shareItem.location}\n👷 Trabajador: ${shareItem.workerName}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString('es-AR')}` : ''}
+                rawMessage={shareItem ? `🧗 Permiso de Trabajo en Altura\n📍 Ubicación: ${shareItem.location}\n👷 Trabajador: ${shareItem.workerName}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString('es-AR')}` : ''}
                 elementIdToPrint="pdf-content"
                 fileName={`Permiso_Altura_${shareItem?.workerName || 'Trabajo'}.pdf`}
             />

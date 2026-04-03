@@ -117,7 +117,7 @@ export default function CAPAForm(): React.ReactElement | null {
         }
 
         localStorage.setItem('ehs_capa_db', JSON.stringify(updated));
-        navigate('/capa-history');
+        navigate('/capa');
     };
 
     return (

@@ -38,8 +38,8 @@ export default function NoiseAssessmentHistory(): React.ReactElement | null {
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Protocolo Ruido - ${shareItem?.workerName || ''}`}
-                text={shareItem ? `🔊 Protocolo de Medición de Ruido (Res. 85/12)\n👤 Trabajador: ${shareItem.workerName}\n📈 Nivel: ${shareItem.levels?.lavg} dB(A)\n📅 Fecha: ${new Date(shareItem.date).toLocaleDateString()}` : ''}
-                rawMessage={shareItem ? `🔊 Protocolo de Medición de Ruido (Res. 85/12)\n👤 Trabajador: ${shareItem.workerName}\n📈 Nivel: ${shareItem.levels?.lavg} dB(A)\n📅 Fecha: ${new Date(shareItem.date).toLocaleDateString()}` : ''}
+                text={shareItem ? `🔊 Protocolo de Medición de Ruido (Res. 85/12)\n👤 Trabajador: ${shareItem.workerName}\n📈 Nivel: ${shareItem.levels?.lavg} dB(A)\n📅 Fecha: ${new Date(shareItem.date).toLocaleDateString('es-AR')}` : ''}
+                rawMessage={shareItem ? `🔊 Protocolo de Medición de Ruido (Res. 85/12)\n👤 Trabajador: ${shareItem.workerName}\n📈 Nivel: ${shareItem.levels?.lavg} dB(A)\n📅 Fecha: ${new Date(shareItem.date).toLocaleDateString('es-AR')}` : ''}
                 elementIdToPrint="pdf-content"
                 fileName={`Ruido_${shareItem?.workerName || 'Protocolo'}.pdf`}
             />
@@ -111,7 +111,7 @@ function MeasurementCard({ measurement, onEdit, onShare }) {
                     <div style={{ width: '48px', height: '48px', background: isDangerous ? '#dc262620' : '#16a34a20', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: isDangerous ? '#dc2626' : '#16a34a' }}><Volume2 size={24} /></div>
                     <div style={{ flex: 1 }}>
                         <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem', fontWeight: 700 }}>{measurement.workerName || 'Sin trabajador'}</h3>
-                        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{measurement.location || 'Sin ubicación'} • {measurement.date ? new Date(measurement.date).toLocaleDateString() : 'Sin fecha'}</p>
+                        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{measurement.location || 'Sin ubicación'} • {measurement.date ? new Date(measurement.date).toLocaleDateString('es-AR') : 'Sin fecha'}</p>
                     </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>

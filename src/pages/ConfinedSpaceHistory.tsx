@@ -48,7 +48,7 @@ export default function ConfinedSpaceHistory(): React.ReactElement | null {
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Espacio Confinado - ${shareItem?.spaceName || ''}`}
-                text={shareItem ? `🕳️ Permiso Ingreso Espacio Confinado\n🆔 Espacio: ${shareItem.spaceName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString()}` : ''}
+                text={shareItem ? `🕳️ Permiso Ingreso Espacio Confinado\n🆔 Espacio: ${shareItem.spaceName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString('es-AR')}` : ''}
                 rawMessage={``}
                 elementIdToPrint="pdf-content"
                 fileName={`Espacio_Confinado_${shareItem?.spaceName || 'Permiso'}.pdf`}
@@ -125,7 +125,7 @@ function PermitCard({ permit, onEdit, onShare }) {
                     <div style={{ width: '48px', height: '48px', background: `${statusConfig.color}20`, borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: statusConfig.color }}><Package size={24} /></div>
                     <div style={{ flex: 1 }}>
                         <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem', fontWeight: 700 }}>{permit.spaceName || 'Sin nombre'}</h3>
-                        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{permit.entrySupervisor || 'Sin supervisor'} • {permit.createdAt ? new Date(permit.createdAt).toLocaleDateString() : 'Sin fecha'}</p>
+                        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{permit.entrySupervisor || 'Sin supervisor'} • {permit.createdAt ? new Date(permit.createdAt).toLocaleDateString('es-AR') : 'Sin fecha'}</p>
                     </div>
                 </div>
                 <span style={{ padding: '0.35rem 0.75rem', background: `${statusConfig.color}20`, color: statusConfig.color, borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontWeight: 800 }}>{statusConfig.label}</span>

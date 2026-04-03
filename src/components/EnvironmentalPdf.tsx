@@ -88,7 +88,7 @@ export default function EnvironmentalPdf({ data }: { data: any }): React.ReactEl
                     </div>
                     <div style={{ padding: '0.5rem', borderBottom: '1px solid #000' }}>
                         <span style={{ fontSize: '0.6rem', fontWeight: 900, display: 'block' }}>FECHA Y HORA</span>
-                        <span style={{ fontWeight: 700 }}>{data.measurementDate ? new Date(data.measurementDate).toLocaleDateString() : 'N/A'} {data.measurementTime || ''}</span>
+                        <span style={{ fontWeight: 700 }}>{data.measurementDate ? new Date(data.measurementDate).toLocaleDateString('es-AR') : 'N/A'} {data.measurementTime || ''}</span>
                     </div>
                     <div style={{ padding: '0.5rem', borderRight: '1.5px solid #000' }}>
                         <span style={{ fontSize: '0.6rem', fontWeight: 900, display: 'block' }}>COORDENADAS (LAT/LONG)</span>

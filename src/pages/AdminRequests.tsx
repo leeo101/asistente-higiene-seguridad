@@ -106,7 +106,7 @@ export default function AdminRequests(): React.ReactElement | null {
                                 <div>
                                     <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{req.name}</h3>
                                     <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-                                        {new Date(req.date).toLocaleDateString()}
+                                        {new Date(req.date).toLocaleDateString('es-AR')}
                                     </span>
                                 </div>
                                 <button

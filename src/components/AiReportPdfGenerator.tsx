@@ -71,7 +71,7 @@ export default function AiReportPdfGenerator({ item }: { item: any }): React.Rea
                             />
                         </div>
                         <div style={{ fontSize: '8pt', color: '#64748b', fontWeight: 700 }}>
-                            {new Date(data.date).toLocaleDateString()}
+                            {new Date(data.date).toLocaleDateString('es-AR')}
                         </div>
                     </div>
                 </div>

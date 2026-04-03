@@ -102,7 +102,7 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                                 <td style={{ border: '1px solid #cbd5e1', padding: '8px', width: '30%', fontWeight: 'bold', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{training.tema}</td>
                                 <td style={{ border: '1px solid #cbd5e1', padding: '8px', background: '#f8fafc', fontWeight: 'bold', width: '20%' }}>Fecha:</td>
                                 <td style={{ border: '1px solid #cbd5e1', padding: '8px', width: '30%' }}>
-                                    {training?.fecha ? new Date(training.fecha + 'T12:00:00Z').toLocaleDateString() : 'N/A'}
+                                    {training?.fecha ? new Date(training.fecha + 'T12:00:00Z').toLocaleDateString('es-AR') : 'N/A'}
                                 </td>
                             </tr>
                             <tr>

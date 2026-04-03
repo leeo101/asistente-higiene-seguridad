@@ -165,25 +165,7 @@ export default function CAPAManager(): React.ReactElement | null {
     };
 
     const handleCreateCapa = () => {
-        if (!newCapa.title.trim() || !newCapa.capaType) return;
-        
-        const capa = {
-            ...newCapa,
-            id: `CAPA-${Date.now()}`,
-            createdAt: new Date().toISOString(),
-            status: 'open',
-            actions: [],
-            timeline: [{
-                date: new Date().toISOString(),
-                event: 'Creada',
-                user: 'Usuario'
-            }]
-        };
-
-        const updated = [capa, ...capas];
-        saveCapas(updated);
-        setShowAddModal(false);
-        resetForm();
+        navigate('/capa/new');
     };
 
     const resetForm = () => {
@@ -614,6 +596,7 @@ export default function CAPAManager(): React.ReactElement | null {
                             capaType={CAPA_TYPES.find(t => t.id === capa.capaType)}
                             onUpdateStatus={updateCapaStatus}
                             onView={() => setSelectedCapa(capa)}
+                            onEdit={() => navigate('/capa/new', { state: { editData: capa } })}
                             onShare={() => setShareItem(capa)}
                             onAddAction={() => {
                                 setCurrentCapaForAction(capa);
@@ -757,7 +740,7 @@ function TabButton({ active, onClick, icon, label, count }) {
     );
 }
 
-function CapaCard({ capa, statusConfig, priorityConfig, capaType, onUpdateStatus, onView, onShare, onAddAction, onDelete }) {
+function CapaCard({ capa, statusConfig, priorityConfig, capaType, onUpdateStatus, onView, onEdit, onShare, onAddAction, onDelete }) {
     const isOverdue = capa.dueDate && new Date(capa.dueDate) < new Date() && capa.status !== 'closed';
     const daysUntilDue = capa.dueDate ? Math.ceil((new Date(capa.dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : null;
 
@@ -845,7 +828,7 @@ function CapaCard({ capa, statusConfig, priorityConfig, capaType, onUpdateStatus
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                         <Calendar size={14} />
-                        {capa.dueDate ? new Date(capa.dueDate).toLocaleDateString() : 'Sin fecha'}
+                        {capa.dueDate ? new Date(capa.dueDate).toLocaleDateString('es-AR') : 'Sin fecha'}
                     </span>
                     {daysUntilDue !== null && daysUntilDue >= 0 && (
                         <span style={{ 
@@ -860,7 +843,22 @@ function CapaCard({ capa, statusConfig, priorityConfig, capaType, onUpdateStatus
             </div>
 
             {/* Actions */}
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', gap: '0.4rem', borderLeft: '1px solid var(--color-border)', paddingLeft: '0.75rem' }}>
+                <button
+                    onClick={onEdit}
+                    style={{
+                        padding: '0.6rem 0.75rem',
+                        background: 'var(--color-surface)',
+                        border: '1px solid var(--color-border)',
+                        borderRadius: 'var(--radius-md)',
+                        cursor: 'pointer',
+                        color: 'var(--color-primary)',
+                        transition: 'all var(--transition-fast)'
+                    }}
+                    title="Editar CAPA"
+                >
+                    <Edit3 size={18} />
+                </button>
                 {capa.status === 'open' && (
                     <button
                         onClick={() => onUpdateStatus(capa.id, 'in_progress')}
@@ -1054,7 +1052,7 @@ function CapaDetailModal({ capa, statusConfig, priorityConfig, capaType, onClose
                     <InfoDetail label="Origen" value={capa.source ? CAPA_SOURCES.find(s => s.id === capa.source)?.name : '-'} />
                     <InfoDetail label="Responsable" value={capa.responsible || '-'} />
                     <InfoDetail label="Prioridad" value={<span style={{ color: priorityConfig.color, fontWeight: 800 }}>{priorityConfig.icon} {priorityConfig.label}</span>} />
-                    <InfoDetail label="Fecha Límite" value={capa.dueDate ? new Date(capa.dueDate).toLocaleDateString() : '-'} />
+                    <InfoDetail label="Fecha Límite" value={capa.dueDate ? new Date(capa.dueDate).toLocaleDateString('es-AR') : '-'} />
                     {isOverdue && <InfoDetail label="Estado" value={<span style={{ color: '#dc2626', fontWeight: 800 }}>⚠️ VENCIDA</span>} />}
                 </div>
 
@@ -1077,7 +1075,7 @@ function CapaDetailModal({ capa, statusConfig, priorityConfig, capaType, onClose
                                         <div style={{ width: '28px', height: '28px', background: action.status === 'completed' ? '#16a34a' : '#e2e8f0', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.75rem', fontWeight: 900 }}>{idx + 1}</div>
                                         <div style={{ flex: 1 }}>
                                             <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>{action.description}</div>
-                                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Responsable: {action.responsible || 'N/A'} • Vence: {action.dueDate ? new Date(action.dueDate).toLocaleDateString() : 'N/A'}</div>
+                                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Responsable: {action.responsible || 'N/A'} • Vence: {action.dueDate ? new Date(action.dueDate).toLocaleDateString('es-AR') : 'N/A'}</div>
                                         </div>
                                         <span style={{ padding: '0.25rem 0.5rem', background: action.status === 'completed' ? '#16a34a' : '#f59e0b', color: '#fff', borderRadius: 'var(--radius-full)', fontSize: '0.65rem', fontWeight: 800 }}>{action.status === 'completed' ? 'COMPLETADA' : 'PENDIENTE'}</span>
                                     </div>

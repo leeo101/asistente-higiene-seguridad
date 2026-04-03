@@ -47,7 +47,7 @@ export default function LOTOHistory(): React.ReactElement | null {
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Bloqueo LOTO - ${shareItem?.equipmentName || ''}`}
-                text={shareItem ? `🔐 Bloqueo y Etiquetado (LOTO)\n⚙️ Equipo: ${shareItem.equipmentName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString()}` : ''}
+                text={shareItem ? `🔐 Bloqueo y Etiquetado (LOTO)\n⚙️ Equipo: ${shareItem.equipmentName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString('es-AR')}` : ''}
                 elementIdToPrint="pdf-content"
             />
 

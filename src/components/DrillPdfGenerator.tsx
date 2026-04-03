@@ -72,7 +72,7 @@ export default function DrillPdfGenerator({ report, onBack, isHeadless = false }
                             </h1>
                             <div style={{ display: 'flex', gap: '1.5rem', color: '#475569', fontSize: '10pt' }}>
                                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><strong>Empresa:</strong> {report?.empresa || 'N/A'}</span>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><strong>Fecha:</strong> {report?.fecha ? new Date(report.fecha + 'T12:00:00Z').toLocaleDateString() : 'N/A'}</span>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><strong>Fecha:</strong> {report?.fecha ? new Date(report.fecha + 'T12:00:00Z').toLocaleDateString('es-AR') : 'N/A'}</span>
                             </div>
                         </div>
                         <CompanyLogo

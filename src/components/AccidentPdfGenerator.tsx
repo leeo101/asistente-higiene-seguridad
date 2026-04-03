@@ -91,7 +91,7 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
                             </h1>
                             <div style={{ display: 'flex', gap: '1.5rem', color: '#475569', fontSize: '10pt' }}>
                                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><FileText size={14} /> Ref: INV-{report?.id?.toString().slice(-6) || '000000'}</span>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={14} /> Generado: {new Date().toLocaleDateString()}</span>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={14} /> Generado: {new Date().toLocaleDateString('es-AR')}</span>
                             </div>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
@@ -119,7 +119,7 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', fontSize: '10pt' }}>
                             <div><strong style={{ color: '#64748b' }}>Empresa / Razón Social:</strong> {report?.empresa || 'N/A'}</div>
                             <div><strong style={{ color: '#64748b' }}>Ubicación / Sector:</strong> {report?.ubicacion || 'N/A'}</div>
-                            <div><strong style={{ color: '#64748b' }}>Fecha del Accidente:</strong> {report?.fecha ? new Date(report.fecha + 'T12:00:00Z').toLocaleDateString() : 'N/A'}</div>
+                            <div><strong style={{ color: '#64748b' }}>Fecha del Accidente:</strong> {report?.fecha ? new Date(report.fecha + 'T12:00:00Z').toLocaleDateString('es-AR') : 'N/A'}</div>
                             <div><strong style={{ color: '#64748b' }}>Hora Estimada:</strong> {report?.hora || 'No especificada'}</div>
                         </div>
                     </div>
@@ -208,7 +208,7 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
                                             <td style={{ padding: '0.6rem 0.5rem', color: '#1e293b', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{m.accion}</td>
                                             <td style={{ padding: '0.6rem 0.5rem', color: '#475569', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{m.responsable || '-'}</td>
                                             <td style={{ padding: '0.6rem 0.5rem', color: '#475569' }}>
-                                                {m.fechaLimite ? new Date(m.fechaLimite + 'T12:00:00Z').toLocaleDateString() : '-'}
+                                                {m.fechaLimite ? new Date(m.fechaLimite + 'T12:00:00Z').toLocaleDateString('es-AR') : '-'}
                                             </td>
                                         </tr>
                                     ))

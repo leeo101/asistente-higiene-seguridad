@@ -433,7 +433,7 @@ export default function ExtinguisherAI(): React.ReactElement | null {
                                 📅 Último Control
                             </div>
                             <div style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-text)' }}>
-                                {analysisResult.lastCheck ? new Date(analysisResult.lastCheck).toLocaleDateString() : 'N/A'}
+                                {analysisResult.lastCheck ? new Date(analysisResult.lastCheck).toLocaleDateString('es-AR') : 'N/A'}
                             </div>
                         </div>
 
@@ -448,7 +448,7 @@ export default function ExtinguisherAI(): React.ReactElement | null {
                                 ⏰ Próximo Control
                             </div>
                             <div style={{ fontSize: '1rem', fontWeight: 800, color: analysisResult.nextCheck ? '#f59e0b' : 'var(--color-text)' }}>
-                                {analysisResult.nextCheck ? new Date(analysisResult.nextCheck).toLocaleDateString() : 'N/A'}
+                                {analysisResult.nextCheck ? new Date(analysisResult.nextCheck).toLocaleDateString('es-AR') : 'N/A'}
                             </div>
                         </div>
 

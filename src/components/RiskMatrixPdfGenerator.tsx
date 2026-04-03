@@ -96,7 +96,7 @@ export default function RiskMatrixPdfGenerator({ data }: { data: any }): React.R
                             <span style={{ fontSize: '0.6rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                                 <Calendar size={14} color="#10b981" /> FECHA DE EVALUACIÓN
                             </span>
-                            <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#1e293b' }}>{date || createdAt ? new Date(date || createdAt).toLocaleDateString() : '-'}</span>
+                            <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#1e293b' }}>{date || createdAt ? new Date(date || createdAt).toLocaleDateString('es-AR') : '-'}</span>
                         </div>
                         <div style={{ padding: '0.8rem 1rem', borderLeft: '2px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
                             <span style={{ fontSize: '0.6rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>

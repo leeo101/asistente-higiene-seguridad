@@ -114,7 +114,7 @@ export default function ThermalStressPdfGenerator({ data, onBack = () => window.
                             </span>
                             <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '9pt' }}>
                                 <Calendar size={14} color="#94a3b8" /> 
-                                <strong style={{ color: '#fbbf24' }}>Fecha:</strong> {report?.fecha ? new Date(report.fecha + 'T12:00:00Z').toLocaleDateString() : 'N/A'}
+                                <strong style={{ color: '#fbbf24' }}>Fecha:</strong> {report?.fecha ? new Date(report.fecha + 'T12:00:00Z').toLocaleDateString('es-AR') : 'N/A'}
                             </span>
                         </div>
                     </div>
@@ -436,7 +436,7 @@ export default function ThermalStressPdfGenerator({ data, onBack = () => window.
                         Informe generado electrónicamente
                     </div>
                     <div>
-                        {new Date().toLocaleDateString()} a las {new Date().toLocaleTimeString()} | 
+                        {new Date().toLocaleDateString('es-AR')} a las {new Date().toLocaleTimeString()} | 
                         Asistente H&S - Sistema de Gestión
                     </div>
                 </div>

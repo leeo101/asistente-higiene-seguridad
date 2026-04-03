@@ -122,7 +122,7 @@ export default function RiskMapHistory(): React.ReactElement | null {
                                     </span>
                                 </div>
                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginTop: '0.5rem', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={14} /> {new Date(map.fecha + 'T12:00:00Z').toLocaleDateString()}</span>
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={14} /> {new Date(map.fecha + 'T12:00:00Z').toLocaleDateString('es-AR')}</span>
                                     <span><strong>Sector:</strong> {map.sector}</span>
                                 </div>
                             </div>

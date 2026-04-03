@@ -158,7 +158,7 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
         }
 
         localStorage.setItem('confined_space_permits_db', JSON.stringify(updated));
-        navigate('/confined-space-history');
+        navigate('/confined-space');
     };
 
     const labelStyle = {

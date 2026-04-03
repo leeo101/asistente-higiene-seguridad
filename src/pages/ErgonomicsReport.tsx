@@ -92,7 +92,7 @@ export default function ErgonomicsReport(): React.ReactElement | null {
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', fontSize: '0.8rem', color: '#64748b' }} className="no-print">
-                    <span>Fecha: {new Date(parseInt(data.id)).toLocaleDateString()}</span>
+                    <span>Fecha: {new Date(parseInt(data.id)).toLocaleDateString('es-AR')}</span>
                     {profile && <span>Profesional: {profile.name}</span>}
                 </div>
 

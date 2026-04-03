@@ -46,81 +46,81 @@ const lazyWithRetry = (componentImport) =>
   });
 
 // LAZY LOADED PAGES
-const CreateInspection = lazyWithRetry(() => import('./pages/CreateInspection.jsx'));
-const Checklist = lazyWithRetry(() => import('./pages/Checklist.jsx'));
-const Observation = lazyWithRetry(() => import('./pages/Observation.jsx'));
-const Photos = lazyWithRetry(() => import('./pages/Photos.jsx'));
-const RiskAssessment = lazyWithRetry(() => import('./pages/RiskAssessment.jsx'));
-const History = lazyWithRetry(() => import('./pages/History.jsx'));
-const Report = lazyWithRetry(() => import('./pages/Report.jsx'));
-const Profile = lazyWithRetry(() => import('./pages/Profile.jsx'));
-const PersonalData = lazyWithRetry(() => import('./pages/PersonalData.jsx'));
-const SignatureStamp = lazyWithRetry(() => import('./pages/SignatureStamp.jsx'));
-const Security = lazyWithRetry(() => import('./pages/Security.jsx'));
-const AppSettings = lazyWithRetry(() => import('./pages/AppSettings.jsx'));
-const ATS = lazyWithRetry(() => import('./pages/ATS.jsx'));
-const ATSHistory = lazyWithRetry(() => import('./pages/ATSHistory.jsx'));
-const FireLoad = lazyWithRetry(() => import('./pages/FireLoad.jsx'));
-const FireLoadHistory = lazyWithRetry(() => import('./pages/FireLoadHistory.jsx'));
-const RiskMatrix = lazyWithRetry(() => import('./pages/RiskMatrix.jsx'));
-const RiskMatrixReport = lazyWithRetry(() => import('./pages/RiskMatrixReport.jsx'));
-const Reports = lazyWithRetry(() => import('./pages/Reports.jsx'));
-const ReportsReport = lazyWithRetry(() => import('./pages/ReportsReport.jsx'));
-const AICamera = lazyWithRetry(() => import('./pages/AICamera.jsx'));
-const AIGeneralCamera = lazyWithRetry(() => import('./pages/AIGeneralCamera.jsx'));
-const AIChatAdvisor = lazyWithRetry(() => import('./pages/AIChatAdvisor.jsx'));
-const AIReport = lazyWithRetry(() => import('./pages/AIReport.jsx'));
-const Legislation = lazyWithRetry(() => import('./pages/Legislation.jsx'));
-const Ergonomics = lazyWithRetry(() => import('./pages/Ergonomics.jsx'));
-const ErgonomicsForm = lazyWithRetry(() => import('./pages/ErgonomicsForm.jsx'));
-const ErgonomicsReport = lazyWithRetry(() => import('./pages/ErgonomicsReport.jsx'));
-const SafetyCalendar = lazyWithRetry(() => import('./pages/SafetyCalendar.jsx'));
-const ResetPassword = lazyWithRetry(() => import('./pages/ResetPassword.jsx'));
-const AdminRequests = lazyWithRetry(() => import('./pages/AdminRequests.jsx'));
-const PrivacyPolicy = lazyWithRetry(() => import('./pages/PrivacyPolicy.jsx'));
-const LightingReport = lazyWithRetry(() => import('./pages/LightingReport.jsx'));
-const LightingHistory = lazyWithRetry(() => import('./pages/LightingHistory.jsx'));
-const WorkPermit = lazyWithRetry(() => import('./pages/WorkPermit.jsx'));
-const WorkPermitHistory = lazyWithRetry(() => import('./pages/WorkPermitHistory.jsx'));
-const RiskAssessmentHistory = lazyWithRetry(() => import('./pages/RiskAssessmentHistory.jsx'));
-const NotFound = lazyWithRetry(() => import('./pages/NotFound.jsx'));
-const PPETracker = lazyWithRetry(() => import('./pages/PPETracker.jsx'));
-const Dashboard = lazyWithRetry(() => import('./pages/Dashboard.jsx'));
-const ChecklistsHistory = lazyWithRetry(() => import('./pages/ChecklistsHistory.jsx'));
-const ChecklistManager = lazyWithRetry(() => import('./pages/ChecklistManager.jsx'));
-const Subscription = lazyWithRetry(() => import('./pages/Subscription.jsx'));
-const AIHistory = lazyWithRetry(() => import('./pages/AIHistory.jsx'));
-const AICameraHistory = lazyWithRetry(() => import('./pages/AICameraHistory.jsx'));
-const ManagementReport = lazyWithRetry(() => import('./pages/ManagementReport.jsx'));
-const AccidentInvestigation = lazyWithRetry(() => import('./pages/AccidentInvestigation.jsx'));
-const AccidentHistory = lazyWithRetry(() => import('./pages/AccidentHistory.jsx'));
-const TrainingManagement = lazyWithRetry(() => import('./pages/TrainingManagement.jsx'));
-const TrainingHistory = lazyWithRetry(() => import('./pages/TrainingHistory.jsx'));
-const Extinguishers = lazyWithRetry(() => import('./pages/Extinguishers.jsx'));
-const ExtinguishersHistory = lazyWithRetry(() => import('./pages/ExtinguishersHistory.jsx'));
-const ExtinguisherPdfGenerator = lazyWithRetry(() => import('./components/ExtinguisherPdfGenerator.jsx'));
-const ThermalStress = lazyWithRetry(() => import('./pages/ThermalStress.jsx'));
-const ThermalStressHistory = lazyWithRetry(() => import('./pages/ThermalStressHistory.jsx'));
-const Drills = lazyWithRetry(() => import('./pages/Drills.jsx'));
-const DrillsHistory = lazyWithRetry(() => import('./pages/DrillsHistory.jsx'));
-const RiskMapGenerator = lazyWithRetry(() => import('./pages/RiskMapGenerator.jsx'));
-const RiskMapHistory = lazyWithRetry(() => import('./pages/RiskMapHistory.jsx'));
-const StopCards = lazyWithRetry(() => import('./pages/StopCards.jsx'));
-const StopCardsHistory = lazyWithRetry(() => import('./pages/StopCardsHistory.jsx'));
-const LogoSettings = lazyWithRetry(() => import('./pages/LogoSettings.jsx'));
-const PublicView = lazyWithRetry(() => import('./pages/PublicView.jsx'));
-const EmergencyBot = lazyWithRetry(() => import('./pages/EmergencyBot.jsx'));
-const ExtinguisherAI = lazyWithRetry(() => import('./pages/ExtinguisherAI.jsx'));
-const ChemicalSafety = lazyWithRetry(() => import('./pages/ChemicalSafety.jsx'));
-const NoiseAssessment = lazyWithRetry(() => import('./pages/NoiseAssessment.jsx'));
-const LOTOManager = lazyWithRetry(() => import('./pages/LOTOManager.jsx'));
-const ConfinedSpace = lazyWithRetry(() => import('./pages/ConfinedSpace.jsx'));
-const WorkingAtHeight = lazyWithRetry(() => import('./pages/WorkingAtHeight.jsx'));
-const AuditManager = lazyWithRetry(() => import('./pages/AuditManager.jsx'));
-const CAPAManager = lazyWithRetry(() => import('./pages/CAPAManager.jsx'));
-const EnvironmentalMonitor = lazyWithRetry(() => import('./pages/EnvironmentalMonitor.jsx'));
-const SafetyKPIs = lazyWithRetry(() => import('./pages/SafetyKPIs.jsx'));
-const ToolboxTalk = lazyWithRetry(() => import('./pages/ToolboxTalk.jsx'));
+const CreateInspection = lazyWithRetry(() => import('./pages/CreateInspection'));
+const Checklist = lazyWithRetry(() => import('./pages/Checklist'));
+const Observation = lazyWithRetry(() => import('./pages/Observation'));
+const Photos = lazyWithRetry(() => import('./pages/Photos'));
+const RiskAssessment = lazyWithRetry(() => import('./pages/RiskAssessment'));
+const History = lazyWithRetry(() => import('./pages/History'));
+const Report = lazyWithRetry(() => import('./pages/Report'));
+const Profile = lazyWithRetry(() => import('./pages/Profile'));
+const PersonalData = lazyWithRetry(() => import('./pages/PersonalData'));
+const SignatureStamp = lazyWithRetry(() => import('./pages/SignatureStamp'));
+const Security = lazyWithRetry(() => import('./pages/Security'));
+const AppSettings = lazyWithRetry(() => import('./pages/AppSettings'));
+const ATS = lazyWithRetry(() => import('./pages/ATS'));
+const ATSHistory = lazyWithRetry(() => import('./pages/ATSHistory'));
+const FireLoad = lazyWithRetry(() => import('./pages/FireLoad'));
+const FireLoadHistory = lazyWithRetry(() => import('./pages/FireLoadHistory'));
+const RiskMatrix = lazyWithRetry(() => import('./pages/RiskMatrix'));
+const RiskMatrixReport = lazyWithRetry(() => import('./pages/RiskMatrixReport'));
+const Reports = lazyWithRetry(() => import('./pages/Reports'));
+const ReportsReport = lazyWithRetry(() => import('./pages/ReportsReport'));
+const AICamera = lazyWithRetry(() => import('./pages/AICamera'));
+const AIGeneralCamera = lazyWithRetry(() => import('./pages/AIGeneralCamera'));
+const AIChatAdvisor = lazyWithRetry(() => import('./pages/AIChatAdvisor'));
+const AIReport = lazyWithRetry(() => import('./pages/AIReport'));
+const Legislation = lazyWithRetry(() => import('./pages/Legislation'));
+const Ergonomics = lazyWithRetry(() => import('./pages/Ergonomics'));
+const ErgonomicsForm = lazyWithRetry(() => import('./pages/ErgonomicsForm'));
+const ErgonomicsReport = lazyWithRetry(() => import('./pages/ErgonomicsReport'));
+const SafetyCalendar = lazyWithRetry(() => import('./pages/SafetyCalendar'));
+const ResetPassword = lazyWithRetry(() => import('./pages/ResetPassword'));
+const AdminRequests = lazyWithRetry(() => import('./pages/AdminRequests'));
+const PrivacyPolicy = lazyWithRetry(() => import('./pages/PrivacyPolicy'));
+const LightingReport = lazyWithRetry(() => import('./pages/LightingReport'));
+const LightingHistory = lazyWithRetry(() => import('./pages/LightingHistory'));
+const WorkPermit = lazyWithRetry(() => import('./pages/WorkPermit'));
+const WorkPermitHistory = lazyWithRetry(() => import('./pages/WorkPermitHistory'));
+const RiskAssessmentHistory = lazyWithRetry(() => import('./pages/RiskAssessmentHistory'));
+const NotFound = lazyWithRetry(() => import('./pages/NotFound'));
+const PPETracker = lazyWithRetry(() => import('./pages/PPETracker'));
+const Dashboard = lazyWithRetry(() => import('./pages/Dashboard'));
+const ChecklistsHistory = lazyWithRetry(() => import('./pages/ChecklistsHistory'));
+const ChecklistManager = lazyWithRetry(() => import('./pages/ChecklistManager'));
+const Subscription = lazyWithRetry(() => import('./pages/Subscription'));
+const AIHistory = lazyWithRetry(() => import('./pages/AIHistory'));
+const AICameraHistory = lazyWithRetry(() => import('./pages/AICameraHistory'));
+const ManagementReport = lazyWithRetry(() => import('./pages/ManagementReport'));
+const AccidentInvestigation = lazyWithRetry(() => import('./pages/AccidentInvestigation'));
+const AccidentHistory = lazyWithRetry(() => import('./pages/AccidentHistory'));
+const TrainingManagement = lazyWithRetry(() => import('./pages/TrainingManagement'));
+const TrainingHistory = lazyWithRetry(() => import('./pages/TrainingHistory'));
+const Extinguishers = lazyWithRetry(() => import('./pages/Extinguishers'));
+const ExtinguishersHistory = lazyWithRetry(() => import('./pages/ExtinguishersHistory'));
+const ExtinguisherPdfGenerator = lazyWithRetry(() => import('./components/ExtinguisherPdfGenerator'));
+const ThermalStress = lazyWithRetry(() => import('./pages/ThermalStress'));
+const ThermalStressHistory = lazyWithRetry(() => import('./pages/ThermalStressHistory'));
+const Drills = lazyWithRetry(() => import('./pages/Drills'));
+const DrillsHistory = lazyWithRetry(() => import('./pages/DrillsHistory'));
+const RiskMapGenerator = lazyWithRetry(() => import('./pages/RiskMapGenerator'));
+const RiskMapHistory = lazyWithRetry(() => import('./pages/RiskMapHistory'));
+const StopCards = lazyWithRetry(() => import('./pages/StopCards'));
+const StopCardsHistory = lazyWithRetry(() => import('./pages/StopCardsHistory'));
+const LogoSettings = lazyWithRetry(() => import('./pages/LogoSettings'));
+const PublicView = lazyWithRetry(() => import('./pages/PublicView'));
+const EmergencyBot = lazyWithRetry(() => import('./pages/EmergencyBot'));
+const ExtinguisherAI = lazyWithRetry(() => import('./pages/ExtinguisherAI'));
+const ChemicalSafety = lazyWithRetry(() => import('./pages/ChemicalSafety'));
+const NoiseAssessment = lazyWithRetry(() => import('./pages/NoiseAssessment'));
+const LOTOManager = lazyWithRetry(() => import('./pages/LOTOManager'));
+const ConfinedSpace = lazyWithRetry(() => import('./pages/ConfinedSpace'));
+const WorkingAtHeight = lazyWithRetry(() => import('./pages/WorkingAtHeight'));
+const AuditManager = lazyWithRetry(() => import('./pages/AuditManager'));
+const CAPAManager = lazyWithRetry(() => import('./pages/CAPAManager'));
+const EnvironmentalMonitor = lazyWithRetry(() => import('./pages/EnvironmentalMonitor'));
+const SafetyKPIs = lazyWithRetry(() => import('./pages/SafetyKPIs'));
+const ToolboxTalk = lazyWithRetry(() => import('./pages/ToolboxTalk'));
 
 // SAFETY MODULE FORMS
 const AuditForm = lazyWithRetry(() => import('./pages/AuditForm'));
@@ -133,15 +133,7 @@ const WorkingAtHeightForm = lazyWithRetry(() => import('./pages/WorkingAtHeightF
 const ConfinedSpaceForm = lazyWithRetry(() => import('./pages/ConfinedSpaceForm'));
 const ChemicalSafetyForm = lazyWithRetry(() => import('./pages/ChemicalSafetyForm'));
 
-// SAFETY MODULE HISTORY
-const AuditHistory = lazyWithRetry(() => import('./pages/AuditHistory'));
-const CAPAHistory = lazyWithRetry(() => import('./pages/CAPAHistory'));
-const EnvironmentalHistory = lazyWithRetry(() => import('./pages/EnvironmentalHistory'));
-const LOTOHistory = lazyWithRetry(() => import('./pages/LOTOHistory'));
-const NoiseAssessmentHistory = lazyWithRetry(() => import('./pages/NoiseAssessmentHistory'));
-const WorkingAtHeightHistory = lazyWithRetry(() => import('./pages/WorkingAtHeightHistory'));
-const ConfinedSpaceHistory = lazyWithRetry(() => import('./pages/ConfinedSpaceHistory'));
-const ChemicalSafetyHistory = lazyWithRetry(() => import('./pages/ChemicalSafetyHistory'));
+
 
 function SubscriptionGuard({ children }) {
   const status = typeof window !== 'undefined' ? localStorage.getItem('subscriptionStatus') : null;
@@ -420,56 +412,31 @@ function App() {
                 <Route path="/emergency-bot" element={<ModuleGuard><EmergencyBot /></ModuleGuard>} />
                 <Route path="/extinguisher-ai" element={<ModuleGuard><ExtinguisherAI /></ModuleGuard>} />
 
-
-                {/* Safety Module Pages */}
-                <Route path="/chemical-safety" element={<ModuleGuard><ChemicalSafety /></ModuleGuard>} />
-                <Route path="/chemical-safety-create" element={<ModuleGuard><ChemicalSafetyForm /></ModuleGuard>} />
-                <Route path="/noise-assessment" element={<ModuleGuard><NoiseAssessment /></ModuleGuard>} />
-                <Route path="/noise-assessment-create" element={<ModuleGuard><NoiseAssessmentForm /></ModuleGuard>} />
-                <Route path="/confined-space" element={<ModuleGuard><ConfinedSpace /></ModuleGuard>} />
-                <Route path="/confined-space-create" element={<ModuleGuard><ConfinedSpaceForm /></ModuleGuard>} />
-                <Route path="/working-at-height" element={<ModuleGuard><WorkingAtHeight /></ModuleGuard>} />
-                <Route path="/working-at-height-create" element={<ModuleGuard><WorkingAtHeightForm /></ModuleGuard>} />
+                {/* Safety Modules */}
                 <Route path="/audit" element={<ModuleGuard><AuditManager /></ModuleGuard>} />
-                <Route path="/audit-create" element={<ModuleGuard><AuditForm /></ModuleGuard>} />
+                <Route path="/audit/new" element={<ModuleGuard><AuditForm /></ModuleGuard>} />
                 <Route path="/audit/:id" element={<ModuleGuard><AuditDetail /></ModuleGuard>} />
+                
                 <Route path="/capa" element={<ModuleGuard><CAPAManager /></ModuleGuard>} />
-                <Route path="/capa-create" element={<ModuleGuard><CAPAForm /></ModuleGuard>} />
+                <Route path="/capa/new" element={<ModuleGuard><CAPAForm /></ModuleGuard>} />
+                
                 <Route path="/environmental" element={<ModuleGuard><EnvironmentalMonitor /></ModuleGuard>} />
-                <Route path="/environmental-create" element={<ModuleGuard><EnvironmentalForm /></ModuleGuard>} />
+                <Route path="/environmental/new" element={<ModuleGuard><EnvironmentalForm /></ModuleGuard>} />
+                
                 <Route path="/loto" element={<ModuleGuard><LOTOManager /></ModuleGuard>} />
-                <Route path="/loto-create" element={<ModuleGuard><LOTOForm /></ModuleGuard>} />
-
-
-                {/* Safety Module Forms (NEW structure) */}
-                <Route path="/audit/new" element={<AuditForm />} />
-                <Route path="/capa/new" element={<CAPAForm />} />
-                <Route path="/environmental/new" element={<EnvironmentalForm />} />
-                <Route path="/loto/new" element={<LOTOForm />} />
-                <Route path="/noise-assessment/new" element={<NoiseAssessmentForm />} />
-                <Route path="/working-at-height/new" element={<WorkingAtHeightForm />} />
-                <Route path="/confined-space/new" element={<ConfinedSpaceForm />} />
-                <Route path="/chemical-safety/new" element={<ChemicalSafetyForm />} />
-
-                {/* Safety Module Forms (Compatibility) */}
-                <Route path="/audit-form" element={<AuditForm />} />
-                <Route path="/capa-form" element={<CAPAForm />} />
-                <Route path="/environmental-form" element={<EnvironmentalForm />} />
-                <Route path="/loto-form" element={<LOTOForm />} />
-                <Route path="/noise-assessment-form" element={<NoiseAssessmentForm />} />
-                <Route path="/working-at-height-form" element={<WorkingAtHeightForm />} />
-                <Route path="/confined-space-form" element={<ConfinedSpaceForm />} />
-                <Route path="/chemical-safety-form" element={<ChemicalSafetyForm />} />
-
-                {/* Safety Module History */}
-                <Route path="/audit-history" element={<AuditHistory />} />
-                <Route path="/capa-history" element={<CAPAHistory />} />
-                <Route path="/environmental-history" element={<EnvironmentalHistory />} />
-                <Route path="/loto-history" element={<LOTOHistory />} />
-                <Route path="/noise-assessment-history" element={<NoiseAssessmentHistory />} />
-                <Route path="/working-at-height-history" element={<WorkingAtHeightHistory />} />
-                <Route path="/confined-space-history" element={<ConfinedSpaceHistory />} />
-                <Route path="/chemical-safety-history" element={<ChemicalSafetyHistory />} />
+                <Route path="/loto/new" element={<ModuleGuard><LOTOForm /></ModuleGuard>} />
+                
+                <Route path="/noise-assessment" element={<ModuleGuard><NoiseAssessment /></ModuleGuard>} />
+                <Route path="/noise-assessment/new" element={<ModuleGuard><NoiseAssessmentForm /></ModuleGuard>} />
+                
+                <Route path="/working-at-height" element={<ModuleGuard><WorkingAtHeight /></ModuleGuard>} />
+                <Route path="/working-at-height/new" element={<ModuleGuard><WorkingAtHeightForm /></ModuleGuard>} />
+                
+                <Route path="/confined-space" element={<ModuleGuard><ConfinedSpace /></ModuleGuard>} />
+                <Route path="/confined-space/new" element={<ModuleGuard><ConfinedSpaceForm /></ModuleGuard>} />
+                
+                <Route path="/chemical-safety" element={<ModuleGuard><ChemicalSafety /></ModuleGuard>} />
+                <Route path="/chemical-safety/new" element={<ModuleGuard><ChemicalSafetyForm /></ModuleGuard>} />
 
                 <Route path="/safety-kpis" element={<ProtectedRoute><SafetyKPIs /></ProtectedRoute>} />
                 <Route path="/toolbox-talk" element={<ProtectedRoute><ToolboxTalk /></ProtectedRoute>} />

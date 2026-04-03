@@ -138,7 +138,7 @@ export default function TrainingHistory(): React.ReactElement | null {
                                         </span>
                                     </div>
                                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginTop: '0.5rem', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={14} /> {new Date(training.fecha + 'T12:00:00Z').toLocaleDateString()}</span>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={14} /> {new Date(training.fecha + 'T12:00:00Z').toLocaleDateString('es-AR')}</span>
                                         <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Clock size={14} /> {training.duracion} hs</span>
                                     </div>
                                 </div>

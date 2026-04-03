@@ -163,7 +163,7 @@ export default function AuditDetail(): React.ReactElement | null {
                     <InfoDetail label="Tipo" value={auditType?.name || '-'} />
                     <InfoDetail label="Norma" value={audit.standard || '-'} />
                     <InfoDetail label="Auditor Líder" value={audit.leadAuditor || '-'} />
-                    <InfoDetail label="Fecha" value={audit.scheduledDate ? new Date(audit.scheduledDate).toLocaleDateString() : '-'} />
+                    <InfoDetail label="Fecha" value={audit.scheduledDate ? new Date(audit.scheduledDate).toLocaleDateString('es-AR') : '-'} />
                     <InfoDetail label="Duración" value={audit.duration ? `${audit.duration} días` : '-'} />
                     <InfoDetail label="Departamento" value={audit.department || '-'} />
                 </div>
@@ -209,7 +209,7 @@ export default function AuditDetail(): React.ReactElement | null {
                                     <span style={{ padding: '0.25rem 0.75rem', background: f.status === 'open' ? '#dc2626' : '#16a34a', color: '#fff', borderRadius: 'var(--radius-full)', fontSize: '0.7rem', fontWeight: 800 }}>{f.status.toUpperCase()}</span>
                                 </div>
                                 <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{f.description}</p>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Responsable: {f.responsible || 'N/A'} • Vence: {f.dueDate ? new Date(f.dueDate).toLocaleDateString() : 'N/A'}</div>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Responsable: {f.responsible || 'N/A'} • Vence: {f.dueDate ? new Date(f.dueDate).toLocaleDateString('es-AR') : 'N/A'}</div>
                             </div>
                         ))
                     )}

@@ -99,7 +99,7 @@ export default function StopCardsHistory(): React.ReactElement | null {
                 open={!!shareCard}
                 onClose={() => setShareCard(null)}
                 title={`Tarjeta STOP - ${shareCard?.type || ''}`}
-                text={shareCard ? `🚨 Tarjeta STOP\n🛑 Tipo: ${shareCard.type}\n📍 Ubicación: ${shareCard.location}\n📅 Fecha: ${new Date(shareCard.date).toLocaleDateString()} ${shareCard.time}\n\n📝 Hallazgo:\n${shareCard.description}` : ''}
+                text={shareCard ? `🚨 Tarjeta STOP\n🛑 Tipo: ${shareCard.type}\n📍 Ubicación: ${shareCard.location}\n📅 Fecha: ${new Date(shareCard.date).toLocaleDateString('es-AR')} ${shareCard.time}\n\n📝 Hallazgo:\n${shareCard.description}` : ''}
                 elementIdToPrint="stop-card-pdf-content"
             />
 
@@ -148,7 +148,7 @@ export default function StopCardsHistory(): React.ReactElement | null {
                                         </p>
                                         <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', flexWrap: 'wrap' }}>
                                             <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap' }}>
-                                                <Calendar size={14} /> {new Date(item.date).toLocaleDateString()} {item.time}
+                                                <Calendar size={14} /> {new Date(item.date).toLocaleDateString('es-AR')} {item.time}
                                             </span>
                                             <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                                 <MapPin size={14} /> {item.location}

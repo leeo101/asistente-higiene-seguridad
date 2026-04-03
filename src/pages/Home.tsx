@@ -99,7 +99,7 @@ const getRegSub = (module: string): string => {
 const quickLinks: QuickLink[] = [
   { to: '/ats', icon: <ShieldCheck size={26} />, label: 'ATS', sub: 'Análisis Trabajo Seguro', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true, category: 'docs', featured: true },
   { to: '/toolbox-talk', icon: <MessageSquare size={26} />, label: 'Charlas 5 Min', sub: 'Registro de Capacitación Diaria', color: '#0052CC', bg: 'rgba(0,82,204,0.1)', premium: true, category: 'management', badge: 'Nuevo ✨', featured: true },
-  { to: '/safety-kpis', icon: <BarChart3 size={26} />, label: 'KPIs Seguridad', sub: 'LTIFR, TRIFR y Estadísticas', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management', badge: 'Nuevo ✨', featured: true },
+  { to: '/safety-kpis', icon: <BarChart3 size={26} />, label: 'KPIs Seguridad', sub: 'Índices de Siniestralidad y Estadísticas', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management', badge: 'Nuevo ✨', featured: true },
   { to: '/ai-advisor', icon: <Bot size={26} />, label: 'Asesor IA', sub: 'Consultas de Seguridad', color: '#a855f7', bg: 'rgba(168,85,247,0.1)', premium: true, category: 'ia', featured: true, badge: 'IA ✨' },
   { to: '/ai-camera', icon: <Camera size={26} />, label: 'Cámara IA', sub: 'Detección EPP', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', premium: true, category: 'ia', featured: true, badge: 'IA ✨' },
   { to: '/emergency-bot', icon: <Siren size={26} />, label: 'Emergencias', sub: 'Chatbot 24/7', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'ia', badge: 'IA ✨' },
@@ -789,7 +789,7 @@ export default function Home(): React.ReactElement {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
                     <span>{work.subtitle}</span>
                     <span>•</span>
-                    <span>{new Date(work.date).toLocaleDateString()}</span>
+                    <span>{new Date(work.date).toLocaleDateString('es-AR')}</span>
                     <span>•</span>
                     <span style={{
                       padding: '0.2rem 0.6rem',

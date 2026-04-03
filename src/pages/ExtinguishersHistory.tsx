@@ -61,10 +61,10 @@ export default function ExtinguishersHistory(): React.ReactElement | null {
                 onClose={() => setShareItem(null)}
                 title={Array.isArray(shareItem) ? "Inventario de Extintores" : `Extintor #${shareItem?.chapa}`}
                 text={shareItem ? (Array.isArray(shareItem) 
-                    ? `🧯 Inventario de Extintores\n📊 Total equipos: ${shareItem.length}\n📅 Fecha: ${new Date().toLocaleDateString()}`
+                    ? `🧯 Inventario de Extintores\n📊 Total equipos: ${shareItem.length}\n📅 Fecha: ${new Date().toLocaleDateString('es-AR')}`
                     : `🧯 Extintor #${shareItem.chapa}\n📍 Ubicación: ${shareItem.ubicacion}\n🏢 Empresa: ${shareItem.empresa || '-'}\n🔥 Tipo: ${shareItem.tipo} (${shareItem.capacidad})`) : ''}
                 rawMessage={shareItem ? (Array.isArray(shareItem) 
-                    ? `🧯 Inventario de Extintores\n📊 Total equipos: ${shareItem.length}\n📅 Fecha: ${new Date().toLocaleDateString()}`
+                    ? `🧯 Inventario de Extintores\n📊 Total equipos: ${shareItem.length}\n📅 Fecha: ${new Date().toLocaleDateString('es-AR')}`
                     : `🧯 Extintor #${shareItem.chapa}\n📍 Ubicación: ${shareItem.ubicacion}\n🏢 Empresa: ${shareItem.empresa || '-'}\n🔥 Tipo: ${shareItem.tipo} (${shareItem.capacidad})`) : ''}
                 elementIdToPrint="pdf-content"
                 fileName={Array.isArray(shareItem) ? "Inventario_Extintores.pdf" : `Extintor_${shareItem?.chapa || 'Reporte'}.pdf`}

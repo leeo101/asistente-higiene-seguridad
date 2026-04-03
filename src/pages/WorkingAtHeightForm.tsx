@@ -93,7 +93,7 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
         }
 
         localStorage.setItem('working_at_height_db', JSON.stringify(updated));
-        navigate('/working-at-height-history');
+        navigate('/working-at-height');
     };
 
     const labelStyle = {

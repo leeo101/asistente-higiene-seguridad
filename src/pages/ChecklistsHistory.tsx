@@ -110,7 +110,7 @@ export default function ChecklistsHistory(): React.ReactElement | null {
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Checklist - ${shareItem?.equipo || ''}`}
-                text={shareItem ? `📋 Checklist de Seguridad\n🔧 Equipo: ${shareItem.equipo}\n🏗️ Empresa: ${shareItem.empresa}\n📅 Fecha: ${new Date(shareItem.fecha).toLocaleDateString()}` : ''}
+                text={shareItem ? `📋 Checklist de Seguridad\n🔧 Equipo: ${shareItem.equipo}\n🏗️ Empresa: ${shareItem.empresa}\n📅 Fecha: ${new Date(shareItem.fecha).toLocaleDateString('es-AR')}` : ''}
                 rawMessage={``}
                 elementIdToPrint="pdf-content"
                 fileName={`Checklist_${shareItem?.equipo || 'Reporte'}.pdf`}
@@ -197,7 +197,7 @@ export default function ChecklistsHistory(): React.ReactElement | null {
                                                 }}>{badgeLabel}</span>
                                             </div>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
-                                                <Calendar size={14} /> {new Date(item.fecha).toLocaleDateString()} - <Building2 size={14} /> {item.empresa}
+                                                <Calendar size={14} /> {new Date(item.fecha).toLocaleDateString('es-AR')} - <Building2 size={14} /> {item.empresa}
                                             </div>
                                         </div>
                                     </div>

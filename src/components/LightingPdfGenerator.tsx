@@ -88,7 +88,7 @@ export default function LightingPdfGenerator({ data }: { data: any }): React.Rea
                         </div>
                         <div style={{ padding: '0.8rem', borderLeft: '2px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                             <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>FECHA DE MEDICIÓN</span>
-                            <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>{fecha ? new Date(fecha).toLocaleDateString() : '-'}</span>
+                            <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>{fecha ? new Date(fecha).toLocaleDateString('es-AR') : '-'}</span>
                         </div>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', width: '100%' }}>

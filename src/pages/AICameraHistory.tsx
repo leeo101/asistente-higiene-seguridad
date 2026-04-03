@@ -258,7 +258,7 @@ export default function AICameraHistory(): React.ReactElement | null {
                                     <div>
                                         <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.company || 'Empresa sin nombre'}</h3>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
-                                            <Calendar size={14} /> {new Date(item.date).toLocaleDateString()} — <Building2 size={14} /> {item.location}
+                                            <Calendar size={14} /> {new Date(item.date).toLocaleDateString('es-AR')} — <Building2 size={14} /> {item.location}
                                         </div>
                                     </div>
                                 </div>

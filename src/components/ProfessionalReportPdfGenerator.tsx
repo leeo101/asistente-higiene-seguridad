@@ -91,7 +91,7 @@ export default function ProfessionalReportPdfGenerator({ currentReport }: { curr
                         <Calendar size={20} color="#3b82f6" />
                         <div>
                             <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b' }}>Fecha</p>
-                            <p style={{ margin: 0, fontWeight: 700 }}>{report.date ? new Date(report.date).toLocaleDateString() : new Date().toLocaleDateString()}</p>
+                            <p style={{ margin: 0, fontWeight: 700 }}>{report.date ? new Date(report.date).toLocaleDateString('es-AR') : new Date().toLocaleDateString('es-AR')}</p>
                         </div>
                     </div>
                 </div>

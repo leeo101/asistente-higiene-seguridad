@@ -258,7 +258,7 @@ export default function RiskMapPdfGenerator({
                             <div style={{ flex: 1, padding: '4px 6px', display: 'grid', gridTemplateColumns: '1fr', gap: '2px' }}>
                                 <div><strong>Empresa:</strong> {mapData?.empresa || 'N/A'}</div>
                                 <div><strong>Sector:</strong> {mapData?.sector || 'N/A'}</div>
-                                <div><strong>Fecha:</strong> {mapData?.fecha ? new Date(mapData.fecha + 'T12:00:00Z').toLocaleDateString() : 'N/A'}</div>
+                                <div><strong>Fecha:</strong> {mapData?.fecha ? new Date(mapData.fecha + 'T12:00:00Z').toLocaleDateString('es-AR') : 'N/A'}</div>
                             </div>
                             <div style={{ padding: '4px 6px', borderTop: '1px solid #1e293b', display: 'flex', justifyContent: 'center', background: 'white' }}>
                                 <CompanyLogo

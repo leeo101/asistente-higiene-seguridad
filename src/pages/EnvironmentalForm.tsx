@@ -110,7 +110,7 @@ export default function EnvironmentalForm(): React.ReactElement | null {
         }
 
         localStorage.setItem('environmental_measurements_db', JSON.stringify(updated));
-        navigate('/environmental-history');
+        navigate('/environmental');
     };
 
     return (

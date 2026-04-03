@@ -49,8 +49,8 @@ export default function ReportsReport(): React.ReactElement | null {
                 open={showShare}
                 onClose={() => setShowShare(false)}
                 title={`Informe – ${report.company || ''}`}
-                text={`📋 Informe de Higiene y Seguridad\n🏗️ Empresa: ${report.company}\n📍 Ubicación: ${report.location || '-'}\n📅 Fecha: ${new Date(report.date).toLocaleDateString()}\n\nGenerado con Asistente H&S`}
-                rawMessage={`📋 Informe de Higiene y Seguridad\n🏗️ Empresa: ${report.company}\n📍 Ubicación: ${report.location || '-'}\n📅 Fecha: ${new Date(report.date).toLocaleDateString()}\n\nGenerado con Asistente H&S`}
+                text={`📋 Informe de Higiene y Seguridad\n🏗️ Empresa: ${report.company}\n📍 Ubicación: ${report.location || '-'}\n📅 Fecha: ${new Date(report.date).toLocaleDateString('es-AR')}\n\nGenerado con Asistente H&S`}
+                rawMessage={`📋 Informe de Higiene y Seguridad\n🏗️ Empresa: ${report.company}\n📍 Ubicación: ${report.location || '-'}\n📅 Fecha: ${new Date(report.date).toLocaleDateString('es-AR')}\n\nGenerado con Asistente H&S`}
                 elementIdToPrint="pdf-content"
                 fileName={`Informe_${report.company}.pdf`}
             />
@@ -114,7 +114,7 @@ export default function ReportsReport(): React.ReactElement | null {
                         <Calendar size={20} color="var(--color-primary)" />
                         <div>
                             <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b' }}>Fecha</p>
-                            <p style={{ margin: 0, fontWeight: 600 }}>{new Date(report.date).toLocaleDateString()}</p>
+                            <p style={{ margin: 0, fontWeight: 600 }}>{new Date(report.date).toLocaleDateString('es-AR')}</p>
                         </div>
                     </div>
                 </div>

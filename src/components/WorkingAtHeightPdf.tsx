@@ -85,7 +85,7 @@ export default function WorkingAtHeightPdf({ data }: { data: any }): React.React
                     </div>
                     <div style={{ padding: '0.5rem', borderRight: '1.5px solid #000' }}>
                         <span style={{ fontSize: '0.6rem', fontWeight: 900, display: 'block' }}>FECHA</span>
-                        <span style={{ fontWeight: 700 }}>{new Date(data.createdAt).toLocaleDateString()}</span>
+                        <span style={{ fontWeight: 700 }}>{new Date(data.createdAt).toLocaleDateString('es-AR')}</span>
                     </div>
                     <div style={{ padding: '0.5rem' }}>
                         <span style={{ fontSize: '0.6rem', fontWeight: 900, display: 'block' }}>ALTURA ESTIMADA</span>

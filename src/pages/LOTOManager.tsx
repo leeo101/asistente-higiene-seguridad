@@ -131,19 +131,7 @@ export default function LOTOManager(): React.ReactElement | null {
     };
 
     const handleCreateProcedure = () => {
-        if (!newProcedure.equipmentName.trim()) return;
-        
-        const procedure = {
-            ...newProcedure,
-            id: `LOTO-${Date.now()}`,
-            createdAt: new Date().toISOString(),
-            status: 'pending'
-        };
-
-        const updated = [procedure, ...procedures];
-        saveProcedures(updated);
-        setShowAddModal(false);
-        resetForm();
+        navigate('/loto/new');
     };
 
     const resetForm = () => {
@@ -236,8 +224,8 @@ export default function LOTOManager(): React.ReactElement | null {
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Procedimiento LOTO - ${shareItem?.equipmentName || ''}`}
-                text={shareItem ? `🔒 Procedimiento LOTO\n⚙️ Equipo: ${shareItem.equipmentName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString()}` : ''}
-                rawMessage={shareItem ? `🔒 Procedimiento LOTO\n⚙️ Equipo: ${shareItem.equipmentName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString()}` : ''}
+                text={shareItem ? `🔒 Procedimiento LOTO\n⚙️ Equipo: ${shareItem.equipmentName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString('es-AR')}` : ''}
+                rawMessage={shareItem ? `🔒 Procedimiento LOTO\n⚙️ Equipo: ${shareItem.equipmentName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString('es-AR')}` : ''}
                 elementIdToPrint="pdf-content"
                 fileName={`LOTO_${shareItem?.equipmentName || 'Procedimiento'}.pdf`}
             />
@@ -471,6 +459,7 @@ export default function LOTOManager(): React.ReactElement | null {
                                     onStart={() => startLOTO(procedure.id)}
                                     onComplete={() => completeLOTO(procedure.id)}
                                     onView={() => setSelectedProcedure(procedure)}
+                                    onEdit={() => navigate('/loto/new', { state: { editData: procedure } })}
                                     onShare={() => setShareItem(procedure)}
                                     onDelete={() => deleteProcedure(procedure.id)}
                                 />
@@ -622,7 +611,7 @@ function TabButton({ active, onClick, icon, label, count, badge }: any) {
     );
 }
 
-function ProcedureCard({ procedure, statusConfig, onStart, onComplete, onView, onShare, onDelete }) {
+function ProcedureCard({ procedure, statusConfig, onStart, onComplete, onView, onEdit, onShare, onDelete }) {
     return (
         <div className="card" style={{
             padding: '1.25rem',
@@ -691,7 +680,7 @@ function ProcedureCard({ procedure, statusConfig, onStart, onComplete, onView, o
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                         <Calendar size={14} />
-                        {new Date(procedure.createdAt).toLocaleDateString()}
+                        {new Date(procedure.createdAt).toLocaleDateString('es-AR')}
                     </span>
                 </div>
             </div>
@@ -737,19 +726,19 @@ function ProcedureCard({ procedure, statusConfig, onStart, onComplete, onView, o
                     </button>
                 )}
                 <button
-                    onClick={onView}
+                    onClick={onEdit}
                     style={{
                         padding: '0.6rem 0.75rem',
-                        background: 'var(--color-background)',
+                        background: 'var(--color-surface)',
                         border: '1px solid var(--color-border)',
                         borderRadius: 'var(--radius-md)',
                         cursor: 'pointer',
                         color: 'var(--color-primary)',
                         transition: 'all var(--transition-fast)'
                     }}
-                    title="Ver detalle"
+                    title="Editar Procedimiento"
                 >
-                    <Eye size={18} />
+                    <Edit3 size={18} />
                 </button>
                 <button
                     onClick={onShare}

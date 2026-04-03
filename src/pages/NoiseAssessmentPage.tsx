@@ -296,7 +296,7 @@ function DetailModal({ measurement, onClose, isMobile, onPrint, calculateRiskLev
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
                         <StatItem label="Ubicación" value={measurement.location} />
-                        <StatItem label="Fecha" value={new Date(measurement.date).toLocaleDateString()} />
+                        <StatItem label="Fecha" value={new Date(measurement.date).toLocaleDateString('es-AR')} />
                         <StatItem label="Duración" value={`${measurement.duration} hs`} />
                         <StatItem label="Turno" value={measurement.shift} />
                     </div>
@@ -384,7 +384,7 @@ function MeasurementCard({ measurement, riskLevel, onView, onDelete, isMobile }:
                     </span>
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: isMobile ? '0.5rem' : '1rem', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-                    <span>📅 {new Date(measurement.date).toLocaleDateString()}</span>
+                    <span>📅 {new Date(measurement.date).toLocaleDateString('es-AR')}</span>
                     <span>📍 {measurement.location || 'Sin ubicación'}</span>
                     <span>⏱️ {measurement.duration ? `${measurement.duration}h` : '-'}</span>
                 </div>

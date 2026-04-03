@@ -111,7 +111,7 @@ export default function ChemicalSafety(): React.ReactElement | null {
 
     const saveToStorage = (data: any[]) => {
         localStorage.setItem('chemical_safety_db', JSON.stringify(data));
-        setChemicals(data);
+        navigate('/chemical-safety');
     };
 
     const handleAddChemical = () => {
@@ -201,8 +201,8 @@ export default function ChemicalSafety(): React.ReactElement | null {
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Ficha SGA - ${(shareItem as any)?.name || ''}`}
-                text={shareItem ? `🧪 Ficha Técnica de Seguridad (SGA)\n🏷️ Producto: ${(shareItem as any).name}\n🆔 CAS: ${(shareItem as any).casNumber || '-'}\n📅 Fecha: ${new Date((shareItem as any).createdAt || Date.now()).toLocaleDateString()}` : ''}
-                rawMessage={shareItem ? `🧪 Ficha Técnica de Seguridad (SGA)\n🏷️ Producto: ${(shareItem as any).name}\n🆔 CAS: ${(shareItem as any).casNumber || '-'}\n📅 Fecha: ${new Date((shareItem as any).createdAt || Date.now()).toLocaleDateString()}` : ''}
+                text={shareItem ? `🧪 Ficha Técnica de Seguridad (SGA)\n🏷️ Producto: ${(shareItem as any).name}\n🆔 CAS: ${(shareItem as any).casNumber || '-'}\n📅 Fecha: ${new Date((shareItem as any).createdAt || Date.now()).toLocaleDateString('es-AR')}` : ''}
+                rawMessage={shareItem ? `🧪 Ficha Técnica de Seguridad (SGA)\n🏷️ Producto: ${(shareItem as any).name}\n🆔 CAS: ${(shareItem as any).casNumber || '-'}\n📅 Fecha: ${new Date((shareItem as any).createdAt || Date.now()).toLocaleDateString('es-AR')}` : ''}
                 elementIdToPrint="pdf-content"
                 fileName={`SGA_${(shareItem as any)?.name || 'Producto'}.pdf`}
             />
@@ -263,26 +263,8 @@ export default function ChemicalSafety(): React.ReactElement | null {
                     <button
                         onClick={() => navigate('/chemical-safety-form')}
                         className="btn-primary"
-                        style={{
-                            width: 'auto',
-                            margin: 0,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            padding: '0.75rem 1.25rem'
-                        }}
                     >
-                        <Plus size={20} strokeWidth={2.5} />
-                        Nuevo Producto
-                    </button>
-                    <button
-                        onClick={() => navigate('/chemical-safety-history')}
-                        className="btn-outline"
-                        style={{
-                            padding: '0.75rem 1rem'
-                        }}
-                    >
-                        <FileText size={20} />
+                        <Plus size={20} /> Nuevo Producto
                     </button>
                 </div>
             </div>
@@ -464,10 +446,7 @@ export default function ChemicalSafety(): React.ReactElement | null {
                             hazardLevel={getHazardLevel(chemical)}
                             onView={() => setSelectedChemical(chemical)}
                             onShare={() => setShareItem(chemical)}
-                            onEdit={() => {
-                                setNewChemical(chemical);
-                                setShowAddModal(true);
-                            }}
+                            onEdit={() => navigate('/chemical-safety-form', { state: { editData: chemical } })}
                             onDelete={() => handleDelete(chemical.id)}
                         />
                     ))}
@@ -670,7 +649,7 @@ function ChemicalCard({ chemical, hazardLevel, onView, onShare, onEdit, onDelete
                     <InfoField label="Ubicación" value={chemical.location || '-'} />
                     <InfoField label="Cantidad" value={`${chemical.quantity || '-'} ${chemical.unit}`} />
                     <InfoField label="Proveedor" value={chemical.supplier || '-'} />
-                    <InfoField label="Vencimiento" value={chemical.expiryDate ? new Date(chemical.expiryDate).toLocaleDateString() : '-'} />
+                    <InfoField label="Vencimiento" value={chemical.expiryDate ? new Date(chemical.expiryDate).toLocaleDateString('es-AR') : '-'} />
                 </div>
 
                 <div style={{ 
@@ -1279,8 +1258,8 @@ function ChemicalDetailModal({ chemical, hazardLevel, onClose, GHS_PICTOGRAMS, o
                     <DetailRow label="Ubicación" value={chemical.location || '-'} />
                     <DetailRow label="Cantidad" value={`${chemical.quantity || '-'} ${chemical.unit}`} />
                     <DetailRow label="Proveedor" value={chemical.supplier || '-'} />
-                    <DetailRow label="Vencimiento" value={chemical.expiryDate ? new Date(chemical.expiryDate).toLocaleDateString() : '-'} />
-                    <DetailRow label="Fecha SDS" value={chemical.sdsDate ? new Date(chemical.sdsDate).toLocaleDateString() : '-'} />
+                    <DetailRow label="Vencimiento" value={chemical.expiryDate ? new Date(chemical.expiryDate).toLocaleDateString('es-AR') : '-'} />
+                    <DetailRow label="Fecha SDS" value={chemical.sdsDate ? new Date(chemical.sdsDate).toLocaleDateString('es-AR') : '-'} />
                     <DetailRow label="Categoría" value={HAZARD_CATEGORIES.find(c => c.id === chemical.category)?.name || '-'} />
                 </div>
 

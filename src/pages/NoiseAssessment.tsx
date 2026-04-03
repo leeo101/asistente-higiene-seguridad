@@ -120,25 +120,8 @@ export default function NoiseAssessment(): React.ReactElement | null {
         setMeasurements(data);
     };
 
-    const saveWorkers = (data: any[]) => {
-        localStorage.setItem('noise_workers_db', JSON.stringify(data));
-        setWorkers(data);
-    };
-
     const handleAddMeasurement = () => {
-        if (!newMeasurement.workerName || !newMeasurement.levels.lavg) return;
-        
-        const measurement = {
-            ...newMeasurement,
-            id: Date.now().toString(),
-            createdAt: new Date().toISOString(),
-            status: calculateRiskLevel(parseFloat(newMeasurement.levels.lavg) || 0)
-        };
-
-        const updated = [measurement, ...measurements];
-        saveMeasurements(updated);
-        setShowAddModal(false);
-        resetForm();
+        navigate('/noise-assessment/new');
     };
 
     const getLevelColor = (level: number) => {
@@ -148,44 +131,11 @@ export default function NoiseAssessment(): React.ReactElement | null {
         return { level: 'low', color: '#16a34a', label: 'BAJO' };
     };
 
-    const resetForm = () => {
-        setNewMeasurement({
-            id: '',
-            workerId: '',
-            workerName: '',
-            type: 'personal',
-            date: new Date().toISOString().split('T')[0],
-            time: '',
-            location: '',
-            task: '',
-            duration: '',
-            levels: {
-                lavg: '',
-                lmax: '',
-                lmin: '',
-                lpeak: '',
-                lex8h: ''
-            },
-            hearingProtection: '',
-            observations: '',
-            equipment: '',
-            calibrated: true,
-            technician: ''
-        });
-    };
-
     const calculateRiskLevel = (level: number) => {
         if (level >= NOISE_LIMITS.limitValue) return { level: 'critical', color: '#dc2626', label: 'CRÍTICO' };
         if (level >= NOISE_LIMITS.actionLevelHigh) return { level: 'high', color: '#f59e0b', label: 'ALTO' };
         if (level >= NOISE_LIMITS.actionLevel) return { level: 'medium', color: '#eab308', label: 'MEDIO' };
         return { level: 'low', color: '#16a34a', label: 'BAJO' };
-    };
-
-    const calculateTose = (level: number, duration: number) => {
-        // Fórmula de dosis de ruido según OSHA/ISO
-        const referenceDuration = 8 * Math.pow(2, (85 - level) / 3);
-        const dose = (duration / referenceDuration) * 100;
-        return Math.min(dose, 100).toFixed(1);
     };
 
     const calculateAttenuatedLevel = (level: number, protectionId: string) => {
@@ -227,8 +177,8 @@ export default function NoiseAssessment(): React.ReactElement | null {
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Protocolo Ruido - ${shareItem?.workerName || ''}`}
-                text={shareItem ? `🔊 Protocolo de Medición de Ruido (Res. 85/12)\n👤 Trabajador: ${shareItem.workerName}\n📈 Nivel: ${shareItem.levels?.lavg} dB(A)\n📅 Fecha: ${new Date(shareItem.date).toLocaleDateString()}` : ''}
-                rawMessage={shareItem ? `🔊 Protocolo de Medición de Ruido (Res. 85/12)\n👤 Trabajador: ${shareItem.workerName}\n📈 Nivel: ${shareItem.levels?.lavg} dB(A)\n📅 Fecha: ${new Date(shareItem.date).toLocaleDateString()}` : ''}
+                text={shareItem ? `🔊 Protocolo de Medición de Ruido (Res. 85/12)\n👤 Trabajador: ${shareItem.workerName}\n📈 Nivel: ${shareItem.levels?.lavg} dB(A)\n📅 Fecha: ${new Date(shareItem.date).toLocaleDateString('es-AR')}` : ''}
+                rawMessage={shareItem ? `🔊 Protocolo de Medición de Ruido (Res. 85/12)\n👤 Trabajador: ${shareItem.workerName}\n📈 Nivel: ${shareItem.levels?.lavg} dB(A)\n📅 Fecha: ${new Date(shareItem.date).toLocaleDateString('es-AR')}` : ''}
                 elementIdToPrint="pdf-content"
                 fileName={`Ruido_${shareItem?.workerName || 'Protocolo'}.pdf`}
             />
@@ -287,7 +237,7 @@ export default function NoiseAssessment(): React.ReactElement | null {
 
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                     <button
-                        onClick={() => navigate('/noise-assessment/new')}
+                        onClick={handleAddMeasurement}
                         className="btn-primary"
                         style={{
                             width: 'auto',
@@ -447,7 +397,7 @@ export default function NoiseAssessment(): React.ReactElement | null {
                         <EmptyStateIllustrated 
                             title="Sin Mediciones de Ruido"
                             description="Comenzá a evaluar la exposición al ruido según ISO 9612 para proteger la salud auditiva."
-                            onAction={() => setShowAddModal(true)}
+                            onAction={handleAddMeasurement}
                             icon={<Volume2 />}
                         />
                     ) : (
@@ -458,6 +408,7 @@ export default function NoiseAssessment(): React.ReactElement | null {
                                     measurement={measurement}
                                     riskLevel={calculateRiskLevel(parseFloat(measurement.levels.lavg) || 0)}
                                     onView={() => setSelectedMeasurement(measurement)}
+                                    onEdit={() => navigate('/noise-assessment/new', { state: { editData: measurement } })}
                                     onShare={() => setShareItem(measurement)}
                                     onDelete={() => {
                                         if (confirm('¿Eliminar esta medición?')) {
@@ -484,23 +435,6 @@ export default function NoiseAssessment(): React.ReactElement | null {
                     measurements={measurements}
                     calculateRiskLevel={calculateRiskLevel}
                     NOISE_LIMITS={NOISE_LIMITS}
-                />
-            )}
-
-            {/* Modal de Agregar Medición */}
-            {showAddModal && (
-                <MeasurementForm 
-                    measurement={newMeasurement}
-                    setMeasurement={setNewMeasurement}
-                    workers={workers}
-                    onSave={handleAddMeasurement}
-                    onClose={() => {
-                        setShowAddModal(false);
-                        resetForm();
-                    }}
-                    MEASUREMENT_TYPES={MEASUREMENT_TYPES}
-                    HEARING_PROTECTION={HEARING_PROTECTION}
-                    NOISE_REFERENCES={NOISE_REFERENCES}
                 />
             )}
 
@@ -588,7 +522,7 @@ function TabButton({ active, onClick, icon, label }: { active: boolean; onClick:
     );
 }
 
-function MeasurementCard({ measurement, riskLevel, onView, onShare, onDelete }: { measurement: any; riskLevel: { level: string; color: string; label: string }; onView: () => void; onShare: () => void; onDelete: () => void }) {
+function MeasurementCard({ measurement, riskLevel, onView, onEdit, onShare, onDelete }: { measurement: any; riskLevel: { level: string; color: string; label: string }; onView: () => void; onEdit: () => void; onShare: () => void; onDelete: () => void }) {
     return (
         <div className="card" style={{
             padding: '1.25rem',
@@ -655,7 +589,7 @@ function MeasurementCard({ measurement, riskLevel, onView, onShare, onDelete }: 
                 }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                         <Calendar size={14} />
-                        {new Date(measurement.date).toLocaleDateString()}
+                        {new Date(measurement.date).toLocaleDateString('es-AR')}
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                         <Clock size={14} />
@@ -684,6 +618,21 @@ function MeasurementCard({ measurement, riskLevel, onView, onShare, onDelete }: 
                     title="Ver detalle"
                 >
                     <Eye size={18} />
+                </button>
+                <button
+                    onClick={onEdit}
+                    style={{
+                        padding: '0.6rem 0.75rem',
+                        background: 'var(--color-surface)',
+                        border: '1px solid var(--color-border)',
+                        borderRadius: 'var(--radius-md)',
+                        cursor: 'pointer',
+                        color: 'var(--color-primary)',
+                        transition: 'all var(--transition-fast)'
+                    }}
+                    title="Editar Evaluación"
+                >
+                    <Edit3 size={18} />
                 </button>
                 <button
                     onClick={onShare}
@@ -716,54 +665,6 @@ function MeasurementCard({ measurement, riskLevel, onView, onShare, onDelete }: 
                     <Trash2 size={18} />
                 </button>
             </div>
-        </div>
-    );
-}
-
-function EmptyState({ onAdd }: { onAdd: () => void }) {
-    return (
-        <div style={{
-            padding: '4rem 2rem',
-            textAlign: 'center',
-            background: 'var(--gradient-card)',
-            borderRadius: 'var(--radius-2xl)',
-            border: '2px dashed var(--color-border)'
-        }}>
-            <div style={{
-                width: '80px',
-                height: '80px',
-                margin: '0 auto 1.5rem',
-                background: 'var(--color-background)',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-            }}>
-                <Volume2 size={40} color="var(--color-text-muted)" />
-            </div>
-            <h3 style={{ 
-                margin: '0 0 0.5rem 0', 
-                fontSize: '1.25rem', 
-                fontWeight: 800,
-                color: 'var(--color-text)'
-            }}>
-                Sin Mediciones de Ruido
-            </h3>
-            <p style={{ 
-                margin: '0 0 1.5rem 0', 
-                color: 'var(--color-text-muted)',
-                fontSize: '0.95rem'
-            }}>
-                Comenzá a evaluar la exposición al ruido según ISO 9612
-            </p>
-            <button
-                onClick={onAdd}
-                className="btn-primary"
-                style={{ width: 'auto', margin: 0 }}
-            >
-                <Plus size={20} style={{ marginRight: '0.5rem' }} />
-                Primera Medición
-            </button>
         </div>
     );
 }
@@ -831,7 +732,7 @@ function WorkerDetails({ workers, measurements, calculateRiskLevel }: { workers:
                             {worker.workerName || 'Sin nombre'}
                         </h3>
                         <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-                            {worker.measurementCount} mediciones • Promedio: {worker.avgLevel} dB(A) • Última: {new Date(worker.lastMeasurement).toLocaleDateString()}
+                            {worker.measurementCount} mediciones • Promedio: {worker.avgLevel} dB(A) • Última: {new Date(worker.lastMeasurement).toLocaleDateString('es-AR')}
                         </p>
                     </div>
                     <span style={{
@@ -1011,324 +912,7 @@ const RiskDetailRow = ({ label, value, description, color }: { label: string; va
     </div>
 );
 
-// Modal de Agregar Medición
-function MeasurementForm({ measurement, setMeasurement, workers, onSave, onClose, MEASUREMENT_TYPES, HEARING_PROTECTION, NOISE_REFERENCES }: { measurement: any; setMeasurement: React.Dispatch<React.SetStateAction<any>>; workers: any[]; onSave: () => void; onClose: () => void; MEASUREMENT_TYPES: { id: string; name: string; icon: string }[]; HEARING_PROTECTION: { id: string; name: string; nrr: number }[]; NOISE_REFERENCES: { level: number; description: string; icon: string }[] }) {
-    const handleLevelChange = (field: string, value: string) => {
-        setMeasurement({
-            ...measurement,
-            levels: { ...measurement.levels, [field]: value }
-        });
-    };
 
-    const labelStyle: React.CSSProperties = {
-        display: 'block',
-        marginBottom: '0.5rem',
-        fontSize: '0.85rem',
-        fontWeight: 700,
-        color: 'var(--color-text-muted)'
-    };
-
-    const inputStyle: React.CSSProperties = {
-        width: '100%',
-        padding: '0.75rem 1rem',
-        borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--color-input-border)',
-        background: 'var(--color-surface)',
-        color: 'var(--color-text)',
-        fontSize: '0.95rem',
-        fontWeight: 500,
-        outline: 'none',
-        boxSizing: 'border-box' as const
-    };
-
-    const getColorForLevel = (level: number) => {
-        if (level >= 130) return '#dc2626'; // Umbral del dolor
-        if (level >= 85) return '#f59e0b'; // Umbral de riesgo
-        if (level >= 80) return '#eab308'; // Tráfico intenso
-        if (level >= 60) return '#10b981'; // Conversación normal
-        return '#16a34a'; // Susurro
-    };
-
-    return (
-        <div className="modal-fullscreen-overlay" onClick={onClose}>
-            <div className="modal-fullscreen-content" onClick={e => e.stopPropagation()}>
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '1.5rem',
-                    paddingBottom: '1rem',
-                    borderBottom: '1px solid var(--color-border)'
-                }}>
-                    <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900 }}>
-                        Nueva Medición de Ruido
-                    </h2>
-                    <button
-                        onClick={onClose}
-                        style={{
-                            padding: '0.5rem',
-                            background: 'var(--color-background)',
-                            border: 'none',
-                            borderRadius: 'var(--radius-md)',
-                            cursor: 'pointer',
-                            color: 'var(--color-text)'
-                        }}
-                    >
-                        <XCircle size={24} />
-                    </button>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    {/* Tipo de medición */}
-                    <div style={{ gridColumn: '1 / -1' }}>
-                        <label style={labelStyle}>Tipo de Medición</label>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
-                            {MEASUREMENT_TYPES.map((type: { id: string; name: string; icon: string }) => (
-                                <button
-                                    key={type.id}
-                                    onClick={() => setMeasurement({ ...measurement, type: type.id })}
-                                    style={{
-                                        padding: '0.75rem',
-                                        background: measurement.type === type.id 
-                                            ? 'var(--color-primary)' 
-                                            : 'var(--color-background)',
-                                        color: measurement.type === type.id ? '#fff' : 'var(--color-text)',
-                                        border: `2px solid ${measurement.type === type.id ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                                        borderRadius: 'var(--radius-lg)',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '0.5rem',
-                                        fontWeight: 600,
-                                        transition: 'all var(--transition-fast)'
-                                    }}
-                                >
-                                    <span>{type.icon}</span>
-                                    <span style={{ fontSize: '0.85rem' }}>{type.name}</span>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Trabajador */}
-                    <div>
-                        <label style={labelStyle}>Trabajador</label>
-                        <input
-                            type="text"
-                            value={measurement.workerName}
-                            onChange={(e) => setMeasurement({ ...measurement, workerName: e.target.value })}
-                            style={inputStyle}
-                            placeholder="Nombre del trabajador"
-                        />
-                    </div>
-
-                    {/* Fecha */}
-                    <div>
-                        <label style={labelStyle}>Fecha</label>
-                        <input
-                            type="date"
-                            value={measurement.date}
-                            onChange={(e) => setMeasurement({ ...measurement, date: e.target.value })}
-                            style={inputStyle}
-                        />
-                    </div>
-
-                    {/* Ubicación */}
-                    <div>
-                        <label style={labelStyle}>Ubicación / Área</label>
-                        <input
-                            type="text"
-                            value={measurement.location}
-                            onChange={(e) => setMeasurement({ ...measurement, location: e.target.value })}
-                            style={inputStyle}
-                            placeholder="Ej: Planta de Producción"
-                        />
-                    </div>
-
-                    {/* Tarea */}
-                    <div>
-                        <label style={labelStyle}>Tarea Evaluada</label>
-                        <input
-                            type="text"
-                            value={measurement.task}
-                            onChange={(e) => setMeasurement({ ...measurement, task: e.target.value })}
-                            style={inputStyle}
-                            placeholder="Ej: Operación de sierra"
-                        />
-                    </div>
-
-                    {/* Duración */}
-                    <div>
-                        <label style={labelStyle}>Duración de Exposición (horas)</label>
-                        <input
-                            type="number"
-                            step="0.5"
-                            value={measurement.duration}
-                            onChange={(e) => setMeasurement({ ...measurement, duration: e.target.value })}
-                            style={inputStyle}
-                            placeholder="Ej: 4"
-                        />
-                    </div>
-
-                    {/* Técnico */}
-                    <div>
-                        <label style={labelStyle}>Técnico Evaluador</label>
-                        <input
-                            type="text"
-                            value={measurement.technician}
-                            onChange={(e) => setMeasurement({ ...measurement, technician: e.target.value })}
-                            style={inputStyle}
-                            placeholder="Nombre del técnico"
-                        />
-                    </div>
-
-                    {/* Niveles de ruido */}
-                    <div style={{ gridColumn: '1 / -1' }}>
-                        <label style={labelStyle}>Niveles de Ruido (dB)</label>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
-                            <LevelInput 
-                                label="Lavg (Promedio)"
-                                value={measurement.levels.lavg}
-                                onChange={(v: string) => handleLevelChange('lavg', v)}
-                                placeholder="Ej: 85"
-                            />
-                            <LevelInput 
-                                label="Lmax (Máximo)"
-                                value={measurement.levels.lmax}
-                                onChange={(v: string) => handleLevelChange('lmax', v)}
-                                placeholder="Ej: 95"
-                            />
-                            <LevelInput 
-                                label="Lmin (Mínimo)"
-                                value={measurement.levels.lmin}
-                                onChange={(v: string) => handleLevelChange('lmin', v)}
-                                placeholder="Ej: 70"
-                            />
-                            <LevelInput 
-                                label="Lpeak (Pico)"
-                                value={measurement.levels.lpeak}
-                                onChange={(v: string) => handleLevelChange('lpeak', v)}
-                                placeholder="Ej: 130"
-                            />
-                            <LevelInput 
-                                label="Lex 8h"
-                                value={measurement.levels.lex8h}
-                                onChange={(v: string) => handleLevelChange('lex8h', v)}
-                                placeholder="Ej: 82"
-                            />
-                            <LevelInput 
-                                label="Equipo"
-                                value={measurement.equipment}
-                                onChange={(v: string) => setMeasurement({ ...measurement, equipment: v })}
-                                placeholder="Sonómetro"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Protección auditiva */}
-                    <div>
-                        <label style={labelStyle}>Protección Auditiva</label>
-                        <select
-                            value={measurement.hearingProtection}
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setMeasurement({ ...measurement, hearingProtection: e.target.value })}
-                            style={inputStyle}
-                        >
-                            <option value="">Sin protección</option>
-                            {HEARING_PROTECTION.map((hp: { id: string; name: string; nrr: number }) => (
-                                <option key={hp.id} value={hp.id}>
-                                    {hp.name} (NRR: {hp.nrr})
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Calibrado */}
-                    <div>
-                        <label style={labelStyle}>Equipo Calibrado</label>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.5rem' }}>
-                            <input
-                                type="checkbox"
-                                checked={measurement.calibrated}
-                                onChange={(e) => setMeasurement({ ...measurement, calibrated: e.target.checked })}
-                                style={{ width: '20px', height: '20px' }}
-                            />
-                            <span style={{ fontWeight: 600 }}>Certificado de calibración vigente</span>
-                        </div>
-                    </div>
-
-                    {/* Observaciones */}
-                    <div style={{ gridColumn: '1 / -1' }}>
-                        <label style={labelStyle}>Observaciones</label>
-                        <textarea
-                            value={measurement.observations}
-                            onChange={(e) => setMeasurement({ ...measurement, observations: e.target.value })}
-                            style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }}
-                            placeholder="Condiciones ambientales, observaciones relevantes..."
-                        />
-                    </div>
-                </div>
-
-                {/* Referencia de niveles */}
-                <div style={{
-                    marginTop: '1.5rem',
-                    padding: '1rem',
-                    background: 'var(--color-background)',
-                    borderRadius: 'var(--radius-lg)',
-                    border: '1px solid var(--color-border)'
-                }}>
-                    <h4 style={{ margin: '0 0 0.75rem 0', fontSize: '0.85rem', fontWeight: 800 }}>
-                        Referencia de Niveles
-                    </h4>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '0.5rem' }}>
-                        {NOISE_REFERENCES.slice(0, 6).map((ref: { level: number; description: string; icon: string }) => (
-                            <div key={ref.level} style={{
-                                fontSize: '0.75rem',
-                                padding: '0.5rem',
-                                background: `${getColorForLevel(ref.level)}15`,
-                                borderRadius: 'var(--radius-md)',
-                                textAlign: 'center'
-                            }}>
-                                <span style={{ fontSize: '1.25rem' }}>{ref.icon}</span>
-                                <div style={{ fontWeight: 700, marginTop: '0.25rem' }}>{ref.level} dB</div>
-                                <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>{ref.description}</div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div style={{
-                    display: 'flex',
-                    gap: '1rem',
-                    marginTop: '2rem',
-                    paddingTop: '1.5rem',
-                    borderTop: '1px solid var(--color-border)'
-                }}>
-                    <button
-                        onClick={onClose}
-                        style={{
-                            flex: 1,
-                            padding: '0.85rem',
-                            background: 'var(--color-background)',
-                            border: '1px solid var(--color-border)',
-                            borderRadius: 'var(--radius-lg)',
-                            fontWeight: 700,
-                            cursor: 'pointer'
-                        }}
-                    >
-                        Cancelar
-                    </button>
-                    <button
-                        onClick={onSave}
-                        className="btn-primary"
-                        style={{ flex: 1 }}
-                    >
-                        Guardar Medición
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-}
 
 function LevelInput({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (value: string) => void; placeholder: string }) {
     return (
@@ -1493,7 +1077,7 @@ function MeasurementDetailModal({ measurement, riskLevel, onClose, calculateAtte
                     gap: '1rem',
                     marginBottom: '1.5rem'
                 }}>
-                    <InfoDetail label="Fecha" value={new Date(measurement.date).toLocaleDateString()} />
+                    <InfoDetail label="Fecha" value={new Date(measurement.date).toLocaleDateString('es-AR')} />
                     <InfoDetail label="Tarea" value={measurement.task || '-'} />
                     <InfoDetail label="Equipo" value={measurement.equipment || '-'} />
                     <InfoDetail label="Técnico" value={measurement.technician || '-'} />

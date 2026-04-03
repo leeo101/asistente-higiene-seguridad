@@ -147,33 +147,7 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
     };
 
     const handleAddMeasurement = () => {
-        if (!newMeasurement.stationName || !newMeasurement.monitoringType) return;
-        
-        const measurement = {
-            ...newMeasurement,
-            id: `ENV-${Date.now()}`,
-            createdAt: new Date().toISOString(),
-            status: evaluateStatus(newMeasurement)
-        };
-
-        const updated = [measurement, ...measurements];
-        saveMeasurements(updated);
-        
-        // Update stations
-        const stationExists = stations.find(s => s.id === newMeasurement.stationId);
-        if (!stationExists && newMeasurement.stationId) {
-            const updatedStations = [...stations, {
-                id: newMeasurement.stationId,
-                name: newMeasurement.stationName,
-                type: newMeasurement.monitoringType,
-                location: newMeasurement.location,
-                lastMeasurement: new Date().toISOString()
-            }];
-            saveStations(updatedStations);
-        }
-
-        setShowAddModal(false);
-        resetForm();
+        navigate('/environmental/new');
     };
 
     const evaluateStatus = (measurement) => {
@@ -259,8 +233,8 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Monitoreo Ambiental - ${shareItem?.stationName || ''}`}
-                text={shareItem ? `🌿 Monitoreo Ambiental (Ley 19.587)\n📍 Estación: ${shareItem.stationName}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString()}\n👷 Responsable: ${shareItem.technician || '-'}` : ''}
-                rawMessage={shareItem ? `🌿 Monitoreo Ambiental (Ley 19.587)\n📍 Estación: ${shareItem.stationName}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString()}\n👷 Responsable: ${shareItem.technician || '-'}` : ''}
+                text={shareItem ? `🌿 Monitoreo Ambiental (Ley 19.587)\n📍 Estación: ${shareItem.stationName}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString('es-AR')}\n👷 Responsable: ${shareItem.technician || '-'}` : ''}
+                rawMessage={shareItem ? `🌿 Monitoreo Ambiental (Ley 19.587)\n📍 Estación: ${shareItem.stationName}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString('es-AR')}\n👷 Responsable: ${shareItem.technician || '-'}` : ''}
                 elementIdToPrint="pdf-content"
                 fileName={`Monitoreo_${shareItem?.stationName || 'Sin_Nombre'}.pdf`}
             />
@@ -533,6 +507,7 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
                                     statusConfig={MEASUREMENT_STATUS[measurement.status] || MEASUREMENT_STATUS.normal}
                                     monitoringType={MONITORING_TYPES.find(t => t.id === measurement.monitoringType)}
                                     onView={() => setSelectedMeasurement(measurement)}
+                                    onEdit={() => navigate('/environmental/new', { state: { editData: measurement } })}
                                     onShare={() => setShareItem(measurement)}
                                     onDelete={() => deleteMeasurement(measurement.id)}
                                 />
@@ -692,7 +667,7 @@ function TabButton({ active, onClick, icon, label, count }) {
     );
 }
 
-function MeasurementCard({ measurement, statusConfig, monitoringType, onView, onShare, onDelete }) {
+function MeasurementCard({ measurement, statusConfig, monitoringType, onView, onEdit, onShare, onDelete }) {
     return (
         <div className="card" style={{
             padding: '1.25rem',
@@ -758,7 +733,7 @@ function MeasurementCard({ measurement, statusConfig, monitoringType, onView, on
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                         <Calendar size={14} />
-                        {new Date(measurement.measurementDate).toLocaleDateString()}
+                        {new Date(measurement.measurementDate).toLocaleDateString('es-AR')}
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                         <User size={14} />
@@ -770,19 +745,19 @@ function MeasurementCard({ measurement, statusConfig, monitoringType, onView, on
             {/* Actions */}
             <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button
-                    onClick={onView}
+                    onClick={onEdit}
                     style={{
                         padding: '0.6rem 0.75rem',
-                        background: 'var(--color-background)',
+                        background: 'var(--color-surface)',
                         border: '1px solid var(--color-border)',
                         borderRadius: 'var(--radius-md)',
                         cursor: 'pointer',
                         color: 'var(--color-primary)',
                         transition: 'all var(--transition-fast)'
                     }}
-                    title="Ver detalle"
+                    title="Editar Medición"
                 >
-                    <Eye size={18} />
+                    <Edit3 size={18} />
                 </button>
                 <button
                     onClick={onShare}
@@ -909,7 +884,7 @@ function StationsList({ stations, measurements }) {
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
                             <span style={{ color: 'var(--color-text-muted)' }}>Mediciones: <strong>{stationMeasurements.length}</strong></span>
-                            <span style={{ color: 'var(--color-text-muted)' }}>Última: <strong>{lastMeasurement ? new Date(lastMeasurement.measurementDate).toLocaleDateString() : '-'}</strong></span>
+                            <span style={{ color: 'var(--color-text-muted)' }}>Última: <strong>{lastMeasurement ? new Date(lastMeasurement.measurementDate).toLocaleDateString('es-AR') : '-'}</strong></span>
                         </div>
                     </div>
                 );
@@ -1426,7 +1401,7 @@ function MeasurementDetailModal({ measurement, statusConfig, monitoringType, onC
                     gap: '1rem',
                     marginBottom: '1.5rem'
                 }}>
-                    <InfoDetail label="Fecha" value={measurement.measurementDate ? new Date(measurement.measurementDate).toLocaleDateString() : '-'} />
+                    <InfoDetail label="Fecha" value={measurement.measurementDate ? new Date(measurement.measurementDate).toLocaleDateString('es-AR') : '-'} />
                     <InfoDetail label="Hora" value={measurement.measurementTime || '-'} />
                     <InfoDetail label="Técnico" value={measurement.technician || '-'} />
                     <InfoDetail label="Equipo" value={measurement.equipment || '-'} />

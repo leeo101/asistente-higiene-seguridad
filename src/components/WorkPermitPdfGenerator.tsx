@@ -91,7 +91,7 @@ export default function WorkPermitPdfGenerator({ data }: { data: any }): React.R
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr' }}>
                         <div style={{ padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                             <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>FECHA</span>
-                            <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>{new Date(data.fecha).toLocaleDateString()}</span>
+                            <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>{new Date(data.fecha).toLocaleDateString('es-AR')}</span>
                         </div>
                         <div style={{ padding: '0.8rem', borderLeft: '2px solid #ddd', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                             <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>HORA INICIO</span>

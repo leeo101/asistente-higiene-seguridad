@@ -68,7 +68,7 @@ export default function NoiseAssessmentPdf({ data }: { data: any }): React.React
                     </div>
                     <div style={{ padding: '0.5rem', borderBottom: '1px solid #000' }}>
                         <span style={{ fontSize: '0.6rem', fontWeight: 900, display: 'block' }}>FECHA</span>
-                        <span style={{ fontWeight: 700 }}>{data.date ? new Date(data.date).toLocaleDateString() : 'N/A'}</span>
+                        <span style={{ fontWeight: 700 }}>{data.date ? new Date(data.date).toLocaleDateString('es-AR') : 'N/A'}</span>
                     </div>
                     <div style={{ padding: '0.5rem', borderRight: '1.5px solid #000' }}>
                         <span style={{ fontSize: '0.6rem', fontWeight: 900, display: 'block' }}>UBICACIÓN / SECTOR</span>

@@ -128,7 +128,7 @@ export default function Report(): React.ReactElement | null {
                 open={showShare}
                 onClose={() => setShowShare(false)}
                 title="Informe de Inspección"
-                text={`📋 Informe de Inspección\n🏗️ Obra: ${inspectionData.name}\n📅 Fecha: ${new Date(inspectionData.date).toLocaleDateString()}\n⚠️ Hallazgos: ${findingCount}\n\nGenerado con Asistente H&S`}
+                text={`📋 Informe de Inspección\n🏗️ Obra: ${inspectionData.name}\n📅 Fecha: ${new Date(inspectionData.date).toLocaleDateString('es-AR')}\n⚠️ Hallazgos: ${findingCount}\n\nGenerado con Asistente H&S`}
                 elementIdToPrint="pdf-content"
             />
 
