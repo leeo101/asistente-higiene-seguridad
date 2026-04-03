@@ -8,6 +8,7 @@ import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
 import QRModal from '../components/QRModal';
 import ChecklistPdfGenerator from '../components/ChecklistPdfGenerator';
+import { usePaywall } from '../hooks/usePaywall';
 
 function DeleteConfirm({ onConfirm, onCancel }) {
     return (
@@ -37,6 +38,7 @@ export default function ChecklistsHistory(): React.ReactElement | null {
     const navigate = useNavigate();
     const { syncCollection, syncPulse } = useSync();
     const { currentUser } = useAuth();
+    const { requirePro } = usePaywall();
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteTarget, setDeleteTarget] = useState(null);
@@ -131,7 +133,7 @@ export default function ChecklistsHistory(): React.ReactElement | null {
                     </div>
                 </div>
                 {filteredHistory.length > 0 && (
-                    <button onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
+                    <button onClick={() => requirePro(handleExportCSV)} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
                         <Download size={14} /> <span className="hidden sm:inline">EXCEL</span>
                     </button>
                 )}
@@ -216,8 +218,10 @@ export default function ChecklistsHistory(): React.ReactElement | null {
                                     </button>
                                     <button
                                         onClick={() => {
-                                            const url = `${window.location.origin}/v/${currentUser?.uid}/checklist/${item.id}?print=true`;
-                                            setQrTarget({ text: url, title: `Checklist — ${item.equipo}` });
+                                            requirePro(() => {
+                                                const url = `${window.location.origin}/v/${currentUser?.uid}/checklist/${item.id}?print=true`;
+                                                setQrTarget({ text: url, title: `Checklist — ${item.equipo}` });
+                                            });
                                         }}
                                         style={{ padding: '0.6rem', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                         title="Generar QR"
@@ -225,7 +229,7 @@ export default function ChecklistsHistory(): React.ReactElement | null {
                                         <QrCode size={16} />
                                     </button>
                                     <button
-                                        onClick={() => setShareItem(item)}
+                                        onClick={() => requirePro(() => setShareItem(item))}
                                         style={{ padding: '0.6rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', minWidth: '40px' }}
                                         title="Compartir"
                                     >

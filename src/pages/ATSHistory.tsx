@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, Trash2, FileText, Printer, Building2, Calendar, ShieldCheck, X, Share2, ClipboardList, QrCode, Download } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import { useAuth } from '../contexts/AuthContext';
+import { usePaywall } from '../hooks/usePaywall';
 import QRModal from '../components/QRModal';
 import { downloadCSV } from '../services/exportCsv';
 import ShareModal from '../components/ShareModal';
@@ -38,6 +39,7 @@ export default function ATSHistory(): React.ReactElement | null {
     const navigate = useNavigate();
     const { syncCollection, syncPulse } = useSync();
     const { currentUser } = useAuth();
+    const { isPro, requirePro } = usePaywall();
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteTarget, setDeleteTarget] = useState(null);
@@ -70,12 +72,14 @@ export default function ATSHistory(): React.ReactElement | null {
 
 
     const handleExportCSV = () => {
-        downloadCSV(filteredHistory.map(i => ({
-            empresa: i.empresa, obra: i.obra, fecha: i.fecha,
-            responsable: i.capatazNombre || '', tarea: i.tarea || ''
-        })), 'ats_historial', {
-            empresa: 'Empresa', obra: 'Obra/Proyecto', fecha: 'Fecha',
-            responsable: 'Responsable', tarea: 'Tarea'
+        requirePro(() => {
+            downloadCSV(filteredHistory.map(i => ({
+                empresa: i.empresa, obra: i.obra, fecha: i.fecha,
+                responsable: i.capatazNombre || '', tarea: i.tarea || ''
+            })), 'ats_historial', {
+                empresa: 'Empresa', obra: 'Obra/Proyecto', fecha: 'Fecha',
+                responsable: 'Responsable', tarea: 'Tarea'
+            });
         });
     };
 
@@ -164,8 +168,10 @@ export default function ATSHistory(): React.ReactElement | null {
                                 </button>
                                 <button
                                     onClick={() => {
-                                        const url = `${window.location.origin}/v/${currentUser?.uid}/ats/${item.id}?print=true`;
-                                        setQrTarget({ text: url, title: `ATS — ${item.empresa}` });
+                                        requirePro(() => {
+                                            const url = `${window.location.origin}/v/${currentUser?.uid}/ats/${item.id}?print=true`;
+                                            setQrTarget({ text: url, title: `ATS — ${item.empresa}` });
+                                        });
                                     }}
                                     style={{ padding: '0.6rem', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                     title="Generar QR"
@@ -173,7 +179,7 @@ export default function ATSHistory(): React.ReactElement | null {
                                     <QrCode size={16} />
                                 </button>
                                 <button
-                                    onClick={() => setShareItem(item)}
+                                    onClick={() => requirePro(() => setShareItem(item))}
                                     style={{ padding: '0.6rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '40px' }}
                                     title="Compartir Informe"
                                 >

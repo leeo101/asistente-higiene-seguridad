@@ -8,8 +8,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
-import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
+import ShareModal from '../components/ShareModal';
 import toast from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import CompanyLogo from '../components/CompanyLogo';
@@ -31,7 +31,7 @@ export default function LightingReport(): React.ReactElement | null {
     const location = useLocation();
     const { currentUser } = useAuth();
     const { syncCollection } = useSync();
-    const { requirePro } = usePaywall();
+    const { isPro, requirePro } = usePaywall();
 
     const [formData, setFormData] = useState({
         empresa: '',
@@ -207,49 +207,43 @@ export default function LightingReport(): React.ReactElement | null {
         setFormData({ ...formData, mediciones: newMeds });
     };
 
-    const handlePrint = () => {
-        requirePro(() => window.print());
-    };
-
     const saveReport = async () => {
-        requirePro(async () => {
+        try {
+            const reportData = {
+                id: location.state?.editData?.id || Date.now().toString(),
+                date: location.state?.editData?.date || new Date().toISOString(),
+                empresa: formData.empresa || 'Empresa Sin Nombre',
+                sector: formData.sector || 'Sin Sector',
+                results: results,
+                datos: formData,
+                profesionalResponsable: professional?.name || 'Profesional no registrado'
+            };
+
+            let existingHistory = [];
             try {
-                const reportData = {
-                    id: location.state?.editData?.id || Date.now().toString(),
-                    date: location.state?.editData?.date || new Date().toISOString(),
-                    empresa: formData.empresa || 'Empresa Sin Nombre',
-                    sector: formData.sector || 'Sin Sector',
-                    results: results,
-                    datos: formData,
-                    profesionalResponsable: professional?.name || 'Profesional no registrado'
-                };
-
-                let existingHistory = [];
-                try {
-                    const savedHistory = localStorage.getItem('lighting_history');
-                    if (savedHistory) {
-                        existingHistory = JSON.parse(savedHistory);
-                    }
-                } catch (e) {}
-
-                if (location.state?.editData) {
-                    existingHistory = existingHistory.map(item => item.id === location.state.editData.id ? reportData : item);
-                } else {
-                    existingHistory.push(reportData);
+                const savedHistory = localStorage.getItem('lighting_history');
+                if (savedHistory) {
+                    existingHistory = JSON.parse(savedHistory);
                 }
-                
-                localStorage.setItem('lighting_history', JSON.stringify(existingHistory));
+            } catch (e) {}
 
-                if (currentUser) {
-                    await syncCollection('lighting_history', existingHistory);
-                }
-
-                toast.success(location.state?.editData ? 'Informe actualizado correctamente.' : 'Informe guardado en el Historial');
-            } catch (err) {
-                console.error("Error saving document:", err);
-                toast.error("Error al guardar en la base de datos.");
+            if (location.state?.editData) {
+                existingHistory = existingHistory.map(item => item.id === location.state.editData.id ? reportData : item);
+            } else {
+                existingHistory.push(reportData);
             }
-        });
+            
+            localStorage.setItem('lighting_history', JSON.stringify(existingHistory));
+
+            if (currentUser) {
+                await syncCollection('lighting_history', existingHistory);
+            }
+
+            toast.success(location.state?.editData ? 'Informe actualizado correctamente.' : 'Informe guardado en el Historial');
+        } catch (err) {
+            console.error("Error saving document:", err);
+            toast.error("Error al guardar en la base de datos.");
+        }
     };
 
     return (
@@ -271,7 +265,7 @@ export default function LightingReport(): React.ReactElement | null {
                     <Share2 size={18} /> COMPARTIR
                 </button>
                 <button
-                    onClick={handlePrint}
+                    onClick={() => requirePro(() => window.print())}
                     className="btn-floating-action"
                     style={{ background: '#FF8B00', color: 'white' }}
                 >

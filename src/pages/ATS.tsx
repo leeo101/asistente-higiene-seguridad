@@ -317,34 +317,32 @@ export default function ATS(): React.ReactElement | null {
     };
 
     const handleSave = async () => {
-        requirePro(async () => {
-            const historyRaw = localStorage.getItem('ats_history');
-            const history = historyRaw ? JSON.parse(historyRaw) : [];
-            const entryId = formData.id || Date.now().toString();
-            const newEntry = {
-                ...formData,
-                id: entryId,
-                capatazSignature: capatazCanvasRef.current?.toDataURL() || null,
-                professionalSignature: professional.signature,
-                professionalName: professional.name,
-                professionalLicense: professional.license
-            };
+        const historyRaw = localStorage.getItem('ats_history');
+        const history = historyRaw ? JSON.parse(historyRaw) : [];
+        const entryId = formData.id || Date.now().toString();
+        const newEntry = {
+            ...formData,
+            id: entryId,
+            capatazSignature: capatazCanvasRef.current?.toDataURL() || null,
+            professionalSignature: professional.signature,
+            professionalName: professional.name,
+            professionalLicense: professional.license
+        };
 
-            let updated;
-            if (formData.id) {
-                updated = history.map(h => h.id === entryId ? newEntry : h);
-            } else {
-                updated = [newEntry, ...history];
-            }
+        let updated;
+        if (formData.id) {
+            updated = history.map(h => h.id === entryId ? newEntry : h);
+        } else {
+            updated = [newEntry, ...history];
+        }
 
-            localStorage.setItem('ats_history', JSON.stringify(updated));
-            await syncCollection('ats_history', updated);
-            toast.success('Análisis de Trabajo Seguro guardado con éxito');
-            navigate('/ats-history');
-        });
+        localStorage.setItem('ats_history', JSON.stringify(updated));
+        await syncCollection('ats_history', updated);
+        toast.success('Análisis de Trabajo Seguro guardado con éxito');
+        navigate('/ats-history');
     };
 
-    const handleShare = () => setShowShare(true);
+    const handleShare = () => requirePro(() => setShowShare(true));
     const handlePrint = () => {
         requirePro(() => {
             window.print();

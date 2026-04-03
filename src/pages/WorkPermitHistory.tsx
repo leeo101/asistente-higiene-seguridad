@@ -11,6 +11,7 @@ import ShareModal from '../components/ShareModal';
 import WorkPermitPdfGenerator from '../components/WorkPermitPdfGenerator';
 import QRModal from '../components/QRModal';
 import { downloadCSV } from '../services/exportCsv';
+import { usePaywall } from '../hooks/usePaywall';
 import { useSync } from '../contexts/SyncContext';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
@@ -20,6 +21,7 @@ export default function WorkPermitHistory(): React.ReactElement | null {
     const navigate = useNavigate();
     const { syncCollection } = useSync();
     const { currentUser } = useAuth();
+    const { requirePro } = usePaywall();
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [qrTarget, setQrTarget] = useState(null);
@@ -110,7 +112,7 @@ export default function WorkPermitHistory(): React.ReactElement | null {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     {filteredHistory.length > 0 && (
-                        <button onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
+                        <button onClick={() => requirePro(handleExportCSV)} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
                             <Download size={14} /> <span className="hidden sm:inline">EXCEL</span>
                         </button>
                     )}
@@ -165,8 +167,10 @@ export default function WorkPermitHistory(): React.ReactElement | null {
                                 </button>
                                 <button
                                     onClick={() => {
-                                        const url = `${window.location.origin}/v/${currentUser?.uid}/permit/${item.id}?print=true`;
-                                        setQrTarget({ text: url, title: `Permiso — ${item.empresa}` });
+                                        requirePro(() => {
+                                            const url = `${window.location.origin}/v/${currentUser?.uid}/permit/${item.id}?print=true`;
+                                            setQrTarget({ text: url, title: `Permiso — ${item.empresa}` });
+                                        });
                                     }}
                                     style={{ padding: '0.6rem', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: '10px', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                     title="Generar QR"
@@ -174,7 +178,7 @@ export default function WorkPermitHistory(): React.ReactElement | null {
                                     <QrCode size={18} />
                                 </button>
                                 <button
-                                    onClick={() => setShareItem(item)}
+                                    onClick={() => requirePro(() => setShareItem(item))}
                                     style={{ padding: '0.6rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '10px', cursor: 'pointer', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '40px' }}
                                     title="Compartir"
                                 >

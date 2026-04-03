@@ -8,6 +8,7 @@ import { downloadCSV } from '../services/exportCsv';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { usePaywall } from '../hooks/usePaywall';
 import AccidentPdfGenerator from '../components/AccidentPdfGenerator';
 import ShareModal from '../components/ShareModal';
 import QRModal from '../components/QRModal';
@@ -17,6 +18,7 @@ export default function AccidentHistory(): React.ReactElement | null {
     const navigate = useNavigate();
     const { currentUser } = useAuth();
     const { syncing, syncCollection } = useSync();
+    const { requirePro } = usePaywall();
 
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -109,7 +111,7 @@ export default function AccidentHistory(): React.ReactElement | null {
                     <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Investigaciones de Accidentes</h1>
                 </div>
                 {filteredHistory.length > 0 && (
-                    <button onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#36B37E', border: 'none', borderRadius: '10px', padding: '0.6rem 1rem', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
+                    <button onClick={() => requirePro(handleExportCSV)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#36B37E', border: 'none', borderRadius: '10px', padding: '0.6rem 1rem', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
                         <Download size={16} /> EXCEL
                     </button>
                 )}
@@ -162,7 +164,7 @@ export default function AccidentHistory(): React.ReactElement | null {
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        setShareItem(report);
+                                        requirePro(() => setShareItem(report));
                                     }}
                                     style={{ padding: '0.5rem', borderRadius: '8px', background: '#dcfce7', color: '#16a34a', border: '1px solid #86efac', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', fontWeight: 700 }}
                                 >
@@ -171,8 +173,10 @@ export default function AccidentHistory(): React.ReactElement | null {
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        const url = `${window.location.origin}/v/${currentUser?.uid}/accident/${report.id}?print=true`;
-                                        setQrTarget({ text: url, title: `Accidente — ${report.victimaNombre}` });
+                                        requirePro(() => {
+                                            const url = `${window.location.origin}/v/${currentUser?.uid}/accident/${report.id}?print=true`;
+                                            setQrTarget({ text: url, title: `Accidente — ${report.victimaNombre}` });
+                                        });
                                     }}
                                     style={{ padding: '0.5rem', borderRadius: '8px', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                     title="Generar QR"

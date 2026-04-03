@@ -123,53 +123,51 @@ export default function RiskAssessment(): React.ReactElement | null {
     }, [probability, severity]);
 
     const handleSave = async () => {
-        requirePro(async () => {
-            if (!projectData.name) {
-                toast.error('Ingresá el nombre o descripción de la tarea.');
-                return;
-            }
+        if (!projectData.name) {
+            toast.error('Ingresá el nombre o descripción de la tarea.');
+            return;
+        }
 
-            const entryId = projectData.id || Date.now().toString();
-            const entry = {
-                id: entryId,
-                name: projectData.name,
-                location: projectData.location,
-                date: projectData.date,
-                probability,
-                severity,
-                score: probability * severity,
-                riskLabel: riskLevel.label,
-                createdAt: new Date().toISOString()
-            };
+        const entryId = projectData.id || Date.now().toString();
+        const entry = {
+            id: entryId,
+            name: projectData.name,
+            location: projectData.location,
+            date: projectData.date,
+            probability,
+            severity,
+            score: probability * severity,
+            riskLabel: riskLevel.label,
+            createdAt: new Date().toISOString()
+        };
 
-            const history = JSON.parse(localStorage.getItem('risk_assessment_history') || '[]');
+        const history = JSON.parse(localStorage.getItem('risk_assessment_history') || '[]');
 
-            let updated;
-            if (projectData.id) {
-                // Update existing
-                updated = history.map((h: any) => h.id === entryId ? { ...h, ...entry } : h);
-            } else {
-                // Add new
-                updated = [entry, ...history];
-            }
+        let updated;
+        if (projectData.id) {
+            // Update existing
+            updated = history.map((h: any) => h.id === entryId ? { ...h, ...entry } : h);
+        } else {
+            // Add new
+            updated = [entry, ...history];
+        }
 
-            await syncCollection('risk_assessment_history', updated);
-            localStorage.setItem('risk_assessment_history', JSON.stringify(updated));
-            toast.success('Evaluación de riesgo guardada con éxito');
+        await syncCollection('risk_assessment_history', updated);
+        localStorage.setItem('risk_assessment_history', JSON.stringify(updated));
+        toast.success('Evaluación de riesgo guardada con éxito');
 
-            // Actualizar projectData con el nuevo ID si es necesario para el PDF
-            if (!projectData.id) {
-                setProjectData(prev => ({ ...prev, id: entryId }));
-            }
+        // Actualizar projectData con el nuevo ID si es necesario para el PDF
+        if (!projectData.id) {
+            setProjectData(prev => ({ ...prev, id: entryId }));
+        }
 
-            // Si viene de una inspección, volver atrás para no perder el flujo
-            if (location.state?.fromInspection) {
-                navigate(-1);
-            } else {
-                // Navigate to history instead of /observation
-                navigate('/risk-assessment-history');
-            }
-        });
+        // Si viene de una inspección, volver atrás para no perder el flujo
+        if (location.state?.fromInspection) {
+            navigate(-1);
+        } else {
+            // Navigate to history instead of /observation
+            navigate('/risk-assessment-history');
+        }
     };
 
     const handlePrint = () => requirePro(() => window.print());

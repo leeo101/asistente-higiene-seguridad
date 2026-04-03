@@ -11,12 +11,14 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import ThermalStressPdfGenerator from '../components/ThermalStressPdfGenerator';
 import ShareModal from '../components/ShareModal';
 import QRModal from '../components/QRModal';
+import { usePaywall } from '../hooks/usePaywall';
 
 export default function ThermalStressHistory(): React.ReactElement | null {
     useDocumentTitle('Historial de Estrés Térmico');
     const navigate = useNavigate();
     const { currentUser } = useAuth();
     const { syncing, syncCollection } = useSync();
+    const { requirePro } = usePaywall();
 
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -140,8 +142,10 @@ export default function ThermalStressHistory(): React.ReactElement | null {
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    const url = `${window.location.origin}/v/${currentUser?.uid}/thermal/${report.id}?print=true`;
-                                    setQrTarget({ text: url, title: `Estrés Térmico — ${report.puesto}` });
+                                    requirePro(() => {
+                                        const url = `${window.location.origin}/v/${currentUser?.uid}/thermal/${report.id}?print=true`;
+                                        setQrTarget({ text: url, title: `Estrés Térmico — ${report.puesto}` });
+                                    });
                                 }}
                                 style={{ padding: '0.5rem', borderRadius: '8px', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                 title="Generar QR"
@@ -151,7 +155,7 @@ export default function ThermalStressHistory(): React.ReactElement | null {
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    setShareItem(report);
+                                    requirePro(() => setShareItem(report));
                                 }}
                                 style={{ padding: '0.5rem', borderRadius: '8px', background: '#dcfce7', color: '#16a34a', border: '1px solid #86efac', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', fontWeight: 700 }}
                             >

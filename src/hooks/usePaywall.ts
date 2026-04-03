@@ -1,11 +1,25 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useSync } from '../contexts/SyncContext';
 import { ADMIN_EMAILS } from '../config';
 
 export function usePaywall() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
+  const { syncPulse } = useSync();
+  const [internalPulse, setInternalPulse] = useState(0);
+
+  // Escuchar eventos de storage para reaccionar a cambios en otras pestañas o procesos
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'subscriptionData' || e.key === 'personalData') {
+        setInternalPulse(p => p + 1);
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const status = useMemo(() => {
     if (currentUser?.email && ADMIN_EMAILS.includes(currentUser.email)) {
@@ -23,7 +37,7 @@ export function usePaywall() {
     } catch {
       return 'none';
     }
-  }, [currentUser?.email]);
+  }, [currentUser?.email, syncPulse, internalPulse]); // Re-calcular si cambia el pulso de sincronización
 
   const isActive = status === 'active';
   const isPro = !!currentUser && isActive;
@@ -41,7 +55,7 @@ export function usePaywall() {
     } catch {
       return 0;
     }
-  }, [currentUser?.email, isPro]);
+  }, [currentUser?.email, isPro, syncPulse, internalPulse]);
 
   const requirePro = (action: (() => void) | (() => Promise<void>)) => {
     if (!currentUser) {
@@ -61,6 +75,6 @@ export function usePaywall() {
     daysRemaining,
     status,
     isActive,
-    loading: false // Keep for compatibility if needed
+    loading: false
   };
 }

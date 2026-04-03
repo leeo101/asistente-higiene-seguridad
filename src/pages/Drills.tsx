@@ -131,7 +131,7 @@ export default function Drills(): React.ReactElement | null {
         navigate('/drills-history');
     };
 
-    const handleSave = () => requirePro(doSave);
+    const handleSave = () => doSave();
     const handlePrint = () => requirePro(() => window.print());
 
     const formatDisplayTime = (totalSecs) => {

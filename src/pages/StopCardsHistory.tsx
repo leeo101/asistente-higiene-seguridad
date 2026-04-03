@@ -7,6 +7,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import ShareModal from '../components/ShareModal';
 import QRModal from '../components/QRModal';
 import StopCardPdfGenerator from '../components/StopCardPdfGenerator';
+import { usePaywall } from '../hooks/usePaywall';
 import { HistoryCardSkeleton } from '../components/SkeletonLoader';
 
 function DeleteConfirm({ onConfirm, onCancel }) {
@@ -56,6 +57,7 @@ export default function StopCardsHistory(): React.ReactElement | null {
     const [qrTarget, setQrTarget] = useState(null);
     const [shareCard, setShareCard] = useState(null);
     const { currentUser } = useAuth();
+    const { requirePro } = usePaywall();
 
     useEffect(() => {
         setLoading(true);
@@ -177,7 +179,7 @@ export default function StopCardsHistory(): React.ReactElement | null {
                                         <Pencil size={16} /> <span className="hidden sm:inline">Editar</span>
                                     </button>
                                     <button
-                                        onClick={() => setShareCard(item)}
+                                        onClick={() => requirePro(() => setShareCard(item))}
                                         className="btn-secondary"
                                         style={{ padding: '0.5rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-text)', border: '1px solid var(--color-border)', cursor: 'pointer', background: 'transparent', borderRadius: '10px' }}
                                     >
@@ -185,8 +187,10 @@ export default function StopCardsHistory(): React.ReactElement | null {
                                     </button>
                                     <button
                                         onClick={() => {
-                                            const url = `${window.location.origin}/v/${currentUser?.uid}/stopcard/${item.id}?print=true`;
-                                            setQrTarget({ text: url, title: `Tarjeta STOP — ${item.type}` });
+                                            requirePro(() => {
+                                                const url = `${window.location.origin}/v/${currentUser?.uid}/stopcard/${item.id}?print=true`;
+                                                setQrTarget({ text: url, title: `Tarjeta STOP — ${item.type}` });
+                                            });
                                         }}
                                         style={{ padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8b5cf6', border: '1px solid rgba(139,92,246,0.18)', cursor: 'pointer', background: 'rgba(139,92,246,0.06)', borderRadius: '10px' }}
                                         title="Generar QR"

@@ -10,6 +10,7 @@ import {
 import ShareModal from '../components/ShareModal';
 import WorkingAtHeightPdf from '../components/WorkingAtHeightPdf';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
+import { usePaywall } from '../hooks/usePaywall';
 
 // Límites según OSHA 1926.501 y normas internacionales
 const HEIGHT_LIMITS = {
@@ -79,6 +80,7 @@ export default function WorkingAtHeight(): React.ReactElement | null {
     const [selectedPermit, setSelectedPermit] = useState(null);
     const [activeTab, setActiveTab] = useState('permits');
     const [shareItem, setShareItem] = useState(null);
+    const { isPro, requirePro } = usePaywall();
 
     const [newPermit, setNewPermit] = useState({
         id: '',
@@ -464,7 +466,7 @@ export default function WorkingAtHeight(): React.ReactElement | null {
                                     onComplete={() => completePermit(permit.id)}
                                     onView={() => setSelectedPermit(permit)}
                                     onEdit={() => navigate('/working-at-height/new', { state: { editData: permit } })}
-                                    onShare={() => setShareItem(permit)}
+                                    onShare={() => requirePro(() => setShareItem(permit))}
                                     onDelete={() => deletePermit(permit.id)}
                                 />
                             ))}
@@ -479,7 +481,7 @@ export default function WorkingAtHeight(): React.ReactElement | null {
                     onComplete={completePermit}
                     onSuspend={suspendPermit}
                     onView={setSelectedPermit}
-                    onShare={(permit) => setShareItem(permit)}
+                    onShare={(permit) => requirePro(() => setShareItem(permit))}
                 />
             )}
 

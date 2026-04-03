@@ -5,6 +5,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import CAPAPdf from '../components/CAPAPdf';
+import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
 
 const CAPA_TYPES = [
@@ -50,6 +51,7 @@ export default function CAPAForm(): React.ReactElement | null {
     const [isMobile, setIsMobile] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
+    const { isPro, requirePro } = usePaywall();
 
     useDocumentTitle(isEdit ? 'Editar Acción CAPA' : 'Nueva Acción CAPA');
     const [capa, setCapa] = useState({
@@ -303,14 +305,14 @@ export default function CAPAForm(): React.ReactElement | null {
 
             <div className="no-print floating-action-bar">
                 <button
-                    onClick={() => setShowShareModal(true)}
+                    onClick={() => requirePro(() => setShowShareModal(true))}
                     className="btn-floating-action"
                     style={{ background: '#0052CC', color: '#ffffff' }}
                 >
                     <Share2 size={18} /> COMPARTIR
                 </button>
                 <button
-                    onClick={() => window.print()}
+                    onClick={() => requirePro(() => window.print())}
                     className="btn-floating-action"
                     style={{ background: '#FF8B00', color: '#ffffff' }}
                 >

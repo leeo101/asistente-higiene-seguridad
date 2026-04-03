@@ -5,6 +5,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import WorkingAtHeightPdf from '../components/WorkingAtHeightPdf';
+import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
 
 const WORK_TYPES = [
@@ -29,6 +30,7 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
     const [isMobile, setIsMobile] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
+    const { isPro, requirePro } = usePaywall();
 
     useDocumentTitle(isEdit ? 'Editar Permiso en Altura' : 'Permiso de Trabajo en Altura');
     const [permit, setPermit] = useState({
@@ -317,14 +319,14 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
 
             <div className="no-print floating-action-bar">
                 <button
-                    onClick={() => setShowShareModal(true)}
+                    onClick={() => requirePro(() => setShowShareModal(true))}
                     className="btn-floating-action"
                     style={{ background: '#0052CC', color: '#ffffff' }}
                 >
                     <Share2 size={18} /> COMPARTIR
                 </button>
                 <button
-                    onClick={() => window.print()}
+                    onClick={() => requirePro(() => window.print())}
                     className="btn-floating-action"
                     style={{ background: '#FF8B00', color: '#ffffff' }}
                 >

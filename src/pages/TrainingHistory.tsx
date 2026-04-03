@@ -10,11 +10,13 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import TrainingPdfGenerator from '../components/TrainingPdfGenerator';
 import ShareModal from '../components/ShareModal';
 import QRModal from '../components/QRModal';
+import { usePaywall } from '../hooks/usePaywall';
 
 export default function TrainingHistory(): React.ReactElement | null {
     const navigate = useNavigate();
     const { currentUser } = useAuth();
     const { syncing, syncCollection } = useSync();
+    const { requirePro } = usePaywall();
 
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -150,8 +152,10 @@ export default function TrainingHistory(): React.ReactElement | null {
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    const url = `${window.location.origin}/v/${currentUser?.uid}/training/${training.id}?print=true`;
-                                    setQrTarget({ text: url, title: `Capacitación — ${training.tema}` });
+                                    requirePro(() => {
+                                        const url = `${window.location.origin}/v/${currentUser?.uid}/training/${training.id}?print=true`;
+                                        setQrTarget({ text: url, title: `Capacitación — ${training.tema}` });
+                                    });
                                 }}
                                 style={{ padding: '0.5rem', borderRadius: '8px', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                 title="Generar QR"
@@ -161,7 +165,7 @@ export default function TrainingHistory(): React.ReactElement | null {
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    setShareItem(training);
+                                    requirePro(() => setShareItem(training));
                                 }}
                                 style={{ padding: '0.5rem', borderRadius: '8px', background: '#dcfce7', color: '#16a34a', border: '1px solid #86efac', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', fontWeight: 700 }}
                             >

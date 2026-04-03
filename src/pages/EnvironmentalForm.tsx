@@ -5,6 +5,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import EnvironmentalPdf from '../components/EnvironmentalPdf';
+import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
 
 const labelStyle: React.CSSProperties = {
@@ -45,6 +46,7 @@ export default function EnvironmentalForm(): React.ReactElement | null {
     const [isMobile, setIsMobile] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
+    const { isPro, requirePro } = usePaywall();
 
     useDocumentTitle(isEdit ? 'Editar Monitoreo Ambiental' : 'Nuevo Monitoreo Ambiental');
     const [measurement, setMeasurement] = useState({
@@ -279,14 +281,14 @@ export default function EnvironmentalForm(): React.ReactElement | null {
 
             <div className="no-print floating-action-bar">
                 <button
-                    onClick={() => setShowShareModal(true)}
+                    onClick={() => requirePro(() => setShowShareModal(true))}
                     className="btn-floating-action"
                     style={{ background: '#0052CC', color: '#ffffff' }}
                 >
                     <Share2 size={18} /> COMPARTIR
                 </button>
                 <button
-                    onClick={() => window.print()}
+                    onClick={() => requirePro(() => window.print())}
                     className="btn-floating-action"
                     style={{ background: '#FF8B00', color: '#ffffff' }}
                 >

@@ -5,6 +5,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import NoiseAssessmentPdf from '../components/NoiseAssessmentPdf';
+import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
 
 const NOISE_LIMITS = {
@@ -48,6 +49,7 @@ export default function NoiseAssessmentForm(): React.ReactElement | null {
     const [isMobile, setIsMobile] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
+    const { requirePro } = usePaywall();
 
     useDocumentTitle(isEdit ? 'Editar Medición de Ruido' : 'Nueva Medición de Ruido');
     const [measurement, setMeasurement] = useState({
@@ -84,7 +86,7 @@ export default function NoiseAssessmentForm(): React.ReactElement | null {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const calculateRiskLevel = (level) => {
+    const calculateRiskLevel = (level: number) => {
         if (level >= NOISE_LIMITS.limitValue) return { level: 'critical', color: '#dc2626', label: 'CRÍTICO' };
         if (level >= NOISE_LIMITS.actionLevelHigh) return { level: 'high', color: '#f59e0b', label: 'ALTO' };
         if (level >= NOISE_LIMITS.actionLevel) return { level: 'medium', color: '#eab308', label: 'MEDIO' };
@@ -118,7 +120,7 @@ export default function NoiseAssessmentForm(): React.ReactElement | null {
         navigate('/noise-assessment');
     };
 
-    const handleLevelChange = (field, value) => {
+    const handleLevelChange = (field: string, value: string) => {
         setMeasurement({ ...measurement, levels: { ...measurement.levels, [field]: value } });
     };
 
@@ -270,14 +272,14 @@ export default function NoiseAssessmentForm(): React.ReactElement | null {
 
             <div className="no-print floating-action-bar">
                 <button
-                    onClick={() => setShowShareModal(true)}
+                    onClick={() => requirePro(() => setShowShareModal(true))}
                     className="btn-floating-action"
                     style={{ background: '#0052CC', color: '#ffffff' }}
                 >
                     <Share2 size={18} /> COMPARTIR
                 </button>
                 <button
-                    onClick={() => window.print()}
+                    onClick={() => requirePro(() => window.print())}
                     className="btn-floating-action"
                     style={{ background: '#FF8B00', color: '#ffffff' }}
                 >

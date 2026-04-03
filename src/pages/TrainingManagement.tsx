@@ -116,7 +116,7 @@ export default function TrainingManagement(): React.ReactElement | null {
         navigate('/training-history');
     };
 
-    const handleSave = () => requirePro(doSave);
+    const handleSave = () => doSave();
 
     const handleBack = () => {
         navigate('/training-history');

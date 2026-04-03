@@ -85,29 +85,27 @@ export default function RiskMatrix(): React.ReactElement | null {
     const updateRow = (id, field, value) => setRows(rows.map(r => r.id === id ? { ...r, [field]: value } : r));
 
     const handleSave = async () => {
-        requirePro(async () => {
-            if (!projectData.name) { toast.error('Ingresá el nombre de la obra / proyecto.'); return; }
-            const activeRowsToSave = rows.filter(r => r.task.trim() || r.hazard.trim());
-            if (activeRowsToSave.length === 0) {
-                toast.error('Agregue al menos una evaluación con contenido.');
-                return;
-            }
-            const entryId = (projectData as any).id || Date.now();
-            const entry = { id: entryId, ...projectData, rows: activeRowsToSave, createdAt: new Date().toISOString() };
-            const history = JSON.parse(localStorage.getItem('risk_matrix_history') || '[]');
+        if (!projectData.name) { toast.error('Ingresá el nombre de la obra / proyecto.'); return; }
+        const activeRowsToSave = rows.filter(r => r.task.trim() || r.hazard.trim());
+        if (activeRowsToSave.length === 0) {
+            toast.error('Agregue al menos una evaluación con contenido.');
+            return;
+        }
+        const entryId = (projectData as any).id || Date.now();
+        const entry = { id: entryId, ...projectData, rows: activeRowsToSave, createdAt: new Date().toISOString() };
+        const history = JSON.parse(localStorage.getItem('risk_matrix_history') || '[]');
 
-            let updated;
-            if ((projectData as any).id) {
-                // Update existing
-                updated = history.map((h: any) => h.id === entryId ? entry : h);
-            } else {
-                // Add new
-                updated = [entry, ...history];
-            }
-            await syncCollection('risk_matrix_history', updated);
-            localStorage.setItem('current_risk_matrix', JSON.stringify(entry));
-            navigate('/risk-matrix-report');
-        });
+        let updated;
+        if ((projectData as any).id) {
+            // Update existing
+            updated = history.map((h: any) => h.id === entryId ? entry : h);
+        } else {
+            // Add new
+            updated = [entry, ...history];
+        }
+        await syncCollection('risk_matrix_history', updated);
+        localStorage.setItem('current_risk_matrix', JSON.stringify(entry));
+        navigate('/risk-matrix-report');
     };
 
     const activeRows = rows.filter(r => r.task.trim() || r.hazard.trim() || r.hazardType);

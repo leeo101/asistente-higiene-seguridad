@@ -145,36 +145,34 @@ export default function WorkPermit(): React.ReactElement | null {
     };
 
     const handleSave = async () => {
-        requirePro(async () => {
-            if (!formData.empresa) {
-                toast.error('Por favor complete el nombre de la empresa');
-                return;
-            }
-            const historyRaw = localStorage.getItem('work_permits_history');
-            const history = historyRaw ? JSON.parse(historyRaw) : [];
-            const entryId = formData.id || Date.now().toString();
+        if (!formData.empresa) {
+            toast.error('Por favor complete el nombre de la empresa');
+            return;
+        }
+        const historyRaw = localStorage.getItem('work_permits_history');
+        const history = historyRaw ? JSON.parse(historyRaw) : [];
+        const entryId = formData.id || Date.now().toString();
 
-            const newEntry = {
-                ...formData,
-                id: entryId,
-                professionalName: professional.name,
-                professionalLicense: professional.license,
-                professionalSignature: professional.signature,
-                createdAt: (formData as any).createdAt || new Date().toISOString()
-            };
+        const newEntry = {
+            ...formData,
+            id: entryId,
+            professionalName: professional.name,
+            professionalLicense: professional.license,
+            professionalSignature: professional.signature,
+            createdAt: (formData as any).createdAt || new Date().toISOString()
+        };
 
-            let updated;
-            if (formData.id) {
-                updated = history.map(h => h.id === entryId ? newEntry : h);
-            } else {
-                updated = [newEntry, ...history];
-            }
+        let updated;
+        if (formData.id) {
+            updated = history.map(h => h.id === entryId ? newEntry : h);
+        } else {
+            updated = [newEntry, ...history];
+        }
 
-            localStorage.setItem('work_permits_history', JSON.stringify(updated));
-            await syncCollection('work_permits_history', updated);
-            toast.success('Permiso de Trabajo guardado con éxito');
-            navigate('/work-permit-history');
-        });
+        localStorage.setItem('work_permits_history', JSON.stringify(updated));
+        await syncCollection('work_permits_history', updated);
+        toast.success('Permiso de Trabajo guardado con éxito');
+        navigate('/work-permit-history');
     };
 
     const handlePrint = () => requirePro(() => window.print());

@@ -243,93 +243,97 @@ export default function FloatingAssistant() {
                     className="glass-mockup assistant-panel-anim"
                     style={{
                         position: 'absolute',
-                        bottom: '4.5rem',
+                        bottom: '5.5rem',
                         right: 0,
-                        width: '320px',
-                        maxHeight: '480px',
+                        width: '360px',
+                        maxHeight: '560px',
                         pointerEvents: 'all',
                         display: 'flex',
                         flexDirection: 'column',
-                        padding: '1.2rem',
-                        overflow: 'hidden'
+                        padding: '1.4rem',
+                        overflow: 'hidden',
+                        boxShadow: '0 30px 60px rgba(0,0,0,0.3), 0 0 40px rgba(59,130,246,0.15)',
+                        border: '1px solid rgba(255,255,255,0.2)'
                     }}
                 >
                     {/* Header */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.2rem', padding: '0 0.2rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.9rem' }}>
                                 <div style={{ 
-                                    width: '45px', height: '45px', 
-                                    background: 'rgba(255,255,255,0.08)', 
-                                    borderRadius: '12px', 
+                                    width: '48px', height: '48px', 
+                                    background: 'white', 
+                                    borderRadius: '14px', 
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    border: '1px solid var(--color-border)',
-                                    boxShadow: 'var(--shadow-sm)'
+                                    border: '1px solid rgba(59, 130, 246, 0.1)',
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
                                 }}>
-                                    <img src="/logo.png" alt="Logo" style={{ width: '34px', height: '34px', objectFit: 'contain' }} className="assistant-logo-spin" />
+                                    <img src="/logo.png" alt="Logo" style={{ width: '32px', height: '32px', objectFit: 'contain' }} className="assistant-logo-spin" />
                                 </div>
                             <div>
-                                <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 900, letterSpacing: '-0.3px' }}>Asistente IA</h4>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isPro ? '#10b981' : '#f59e0b' }}></span>
-                                    <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>
-                                        {isPro ? 'PRO Activo' : 'Básico'}
+                                <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 900, letterSpacing: '-0.5px', color: 'var(--color-text)' }}>Asistente IA</h4>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: isPro ? '#10b981' : '#f59e0b', boxShadow: isPro ? '0 0 10px #10b98188' : '0 0 10px #f59e0b88' }}></span>
+                                    <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>
+                                        {isPro ? 'Miembro PRO' : 'Plan Básico'}
                                     </span>
                                 </div>
                             </div>
                         </div>
-                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
                             {!isPro && (
                                 <button 
                                     onClick={() => navigate('/subscribe')}
                                     style={{ 
-                                        padding: '0.3rem 0.6rem', background: 'var(--gradient-premium)', color: 'white', 
-                                        fontSize: '0.65rem', fontWeight: 900, borderRadius: '8px', border: 'none',
-                                        boxShadow: '0 4px 10px rgba(59, 130, 246, 0.3)'
+                                        padding: '0.35rem 0.7rem', background: 'var(--gradient-premium)', color: 'white', 
+                                        fontSize: '0.7rem', fontWeight: 900, borderRadius: '10px', border: 'none',
+                                        boxShadow: '0 4px 12px rgba(59, 130, 246, 0.4)', cursor: 'pointer'
                                     }}
                                 >
                                     PRO
                                 </button>
                             )}
-                            <button onClick={() => setIsOpen(false)} style={{ padding: '0.4rem', background: 'transparent', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', boxShadow: 'none' }}>
-                                <X size={20} />
+                            <button onClick={() => setIsOpen(false)} style={{ padding: '0.5rem', background: 'rgba(0,0,0,0.03)', border: 'none', borderRadius: '50%', color: 'var(--color-text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <X size={18} />
                             </button>
                         </div>
                     </div>
 
                     {/* Safety Score Section */}
                     <div style={{ 
-                        background: 'rgba(59, 130, 246, 0.05)', 
-                        borderRadius: '16px', 
-                        padding: '1rem', 
+                        background: 'rgba(59, 130, 246, 0.04)', 
+                        borderRadius: '18px', 
+                        padding: '1.1rem', 
                         marginBottom: '1.2rem',
-                        border: '1px solid rgba(59, 130, 246, 0.1)'
+                        border: '1px solid rgba(59, 130, 246, 0.08)'
                     }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
-                            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-primary)' }}>NIVEL DE PREVENCIÓN (HYS)</span>
-                            <span style={{ fontSize: '0.9rem', fontWeight: 900, color: 'var(--color-primary)' }}>{safetyScore}%</span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.7rem' }}>
+                            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-primary)', letterSpacing: '0.3px' }}>NIVEL DE CUMPLIMIENTO</span>
+                            <span style={{ fontSize: '0.95rem', fontWeight: 900, color: 'var(--color-primary)' }}>{safetyScore}%</span>
                         </div>
-                        <div style={{ height: '6px', background: 'rgba(0,0,0,0.05)', borderRadius: '10px', overflow: 'hidden' }}>
+                        <div style={{ height: '8px', background: 'rgba(0,0,0,0.06)', borderRadius: '10px', overflow: 'hidden' }}>
                             <div style={{ 
                                 width: `${safetyScore}%`, 
                                 height: '100%', 
                                 background: 'var(--gradient-premium)', 
                                 borderRadius: '10px',
-                                transition: 'width 1s ease-out'
+                                transition: 'width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1)'
                             }}></div>
                         </div>
                     </div>
 
-                    {/* Tabs Control */}
-                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.2rem' }}>
+                    {/* Tabs Control - Improved for equal width and no cut-offs */}
+                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.2rem', padding: '2px', background: 'rgba(0,0,0,0.02)', borderRadius: '14px' }}>
                         <button 
                             onClick={() => setActiveTab('actions')}
                             style={{ 
-                                flex: 1, padding: '0.5rem', fontSize: '0.75rem', borderRadius: '10px',
-                                background: activeTab === 'actions' ? 'var(--color-primary)' : 'transparent',
-                                color: activeTab === 'actions' ? 'white' : 'var(--color-text-muted)',
-                                border: '1px solid',
-                                borderColor: activeTab === 'actions' ? 'var(--color-primary)' : 'var(--color-border)',
-                                fontWeight: 800
+                                flex: 1, padding: '0.6rem 0', fontSize: '0.75rem', borderRadius: '12px',
+                                background: activeTab === 'actions' ? 'white' : 'transparent',
+                                color: activeTab === 'actions' ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                                border: 'none',
+                                boxShadow: activeTab === 'actions' ? '0 4px 12px rgba(0,0,0,0.08)' : 'none',
+                                fontWeight: activeTab === 'actions' ? 800 : 600,
+                                transition: 'all 0.2s ease',
+                                cursor: 'pointer'
                             }}
                         >
                             Acciones
@@ -337,12 +341,14 @@ export default function FloatingAssistant() {
                         <button 
                             onClick={() => setActiveTab('chat')}
                             style={{ 
-                                flex: 1, padding: '0.5rem', fontSize: '0.75rem', borderRadius: '10px',
-                                background: activeTab === 'chat' ? 'var(--color-primary)' : 'transparent',
-                                color: activeTab === 'chat' ? 'white' : 'var(--color-text-muted)',
-                                border: '1px solid',
-                                borderColor: activeTab === 'chat' ? 'var(--color-primary)' : 'var(--color-border)',
-                                fontWeight: 800
+                                flex: 1, padding: '0.6rem 0', fontSize: '0.75rem', borderRadius: '12px',
+                                background: activeTab === 'chat' ? 'white' : 'transparent',
+                                color: activeTab === 'chat' ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                                border: 'none',
+                                boxShadow: activeTab === 'chat' ? '0 4px 12px rgba(0,0,0,0.08)' : 'none',
+                                fontWeight: activeTab === 'chat' ? 800 : 600,
+                                transition: 'all 0.2s ease',
+                                cursor: 'pointer'
                             }}
                         >
                             Chat
@@ -350,33 +356,35 @@ export default function FloatingAssistant() {
                         <button 
                             onClick={() => setActiveTab('id')}
                             style={{ 
-                                flex: 1, padding: '0.5rem', fontSize: '0.75rem', borderRadius: '10px',
-                                background: activeTab === 'id' ? 'var(--color-primary)' : 'transparent',
-                                color: activeTab === 'id' ? 'white' : 'var(--color-text-muted)',
-                                border: '1px solid',
-                                borderColor: activeTab === 'id' ? 'var(--color-primary)' : 'var(--color-border)',
-                                fontWeight: 800
+                                flex: 1, padding: '0.6rem 0', fontSize: '0.75rem', borderRadius: '12px',
+                                background: activeTab === 'id' ? 'white' : 'transparent',
+                                color: activeTab === 'id' ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                                border: 'none',
+                                boxShadow: activeTab === 'id' ? '0 4px 12px rgba(0,0,0,0.08)' : 'none',
+                                fontWeight: activeTab === 'id' ? 800 : 600,
+                                transition: 'all 0.2s ease',
+                                cursor: 'pointer'
                             }}
                         >
-                            ID
+                            H&S ID
                         </button>
                     </div>
 
                     {/* Content Area */}
                     <div 
                         className="hide-scrollbar"
-                        style={{ flex: 1, overflowY: 'auto' }}
+                        style={{ flex: 1, overflowY: 'auto', padding: '2px' }}
                     >
                         {activeTab === 'id' ? (
                             <div className="page-transition" style={{ padding: '0.5rem 0' }}>
                                 {/* Digital ID Card */}
                                 <div style={{
                                     background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-                                    borderRadius: '20px',
+                                    borderRadius: '24px',
                                     padding: '1.5rem',
                                     position: 'relative',
                                     overflow: 'hidden',
-                                    boxShadow: '0 20px 40px rgba(0,0,0,0.3), 0 0 20px rgba(59,130,246,0.2)',
+                                    boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
                                     border: '1px solid rgba(255,255,255,0.1)',
                                     color: 'white'
                                 }}>
@@ -384,37 +392,38 @@ export default function FloatingAssistant() {
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
                                         <div style={{ width: '40px', height: '30px', background: 'linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%)', borderRadius: '6px', opacity: 0.8 }}></div>
                                         <div style={{ textAlign: 'right' }}>
-                                            <div style={{ fontSize: '0.6rem', fontWeight: 900, opacity: 0.6, letterSpacing: '1px' }}>H&S IDENTIFICATION</div>
-                                            <img src="/logo.png" alt="Logo" style={{ height: '18px', marginTop: '4px' }} />
+                                            <div style={{ fontSize: '0.55rem', fontWeight: 900, opacity: 0.6, letterSpacing: '1px' }}>H&S IDENTIFICATION</div>
+                                            <img src="/logo.png" alt="Logo" style={{ height: '18px', marginTop: '4px', filter: 'brightness(0) invert(1)' }} />
                                         </div>
                                     </div>
 
                                     {/* User Info */}
                                     <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1.2rem' }}>
                                         <div style={{ 
-                                            width: '56px', height: '56px', borderRadius: '12px', 
+                                            width: '60px', height: '60px', borderRadius: '16px', 
                                             overflow: 'hidden', border: '2px solid var(--color-primary)',
-                                            background: '#1e293b', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                            background: '#1e293b', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            boxShadow: '0 0 15px rgba(59,130,246,0.3)'
                                         }}>
                                             {currentUser?.photoURL ? (
                                                 <img src={currentUser.photoURL} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                             ) : (
-                                                <div style={{ color: 'white', fontWeight: 800, fontSize: '1.2rem' }}>
+                                                <div style={{ color: 'white', fontWeight: 800, fontSize: '1.4rem' }}>
                                                     {currentUser?.displayName?.charAt(0) || 'P'}
                                                 </div>
                                             )}
                                         </div>
                                         <div style={{ flex: 1, minWidth: 0 }}>
-                                            <div style={{ fontSize: '0.95rem', fontWeight: 900, lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                            <div style={{ fontSize: '1rem', fontWeight: 900, lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                                 {currentUser?.displayName || 'Profesional H&S'}
                                             </div>
-                                            <div style={{ fontSize: '0.6rem', color: 'var(--color-primary)', fontWeight: 800, marginTop: '2px', letterSpacing: '0.5px' }}>
+                                            <div style={{ fontSize: '0.65rem', color: 'var(--color-primary)', fontWeight: 800, marginTop: '3px', letterSpacing: '0.5px' }}>
                                                 ESPECIALISTA CERTIFICADO
                                             </div>
                                             <div style={{ 
-                                                display: 'inline-block', marginTop: '6px', padding: '2px 8px', 
+                                                display: 'inline-block', marginTop: '8px', padding: '2px 10px', 
                                                 background: isPro ? 'rgba(234, 179, 8, 0.2)' : 'rgba(255,255,255,0.05)',
-                                                borderRadius: '20px', fontSize: '0.55rem', fontWeight: 900,
+                                                borderRadius: '20px', fontSize: '0.6rem', fontWeight: 900,
                                                 color: isPro ? '#fcd34d' : '#cbd5e1', border: `1px solid ${isPro ? '#fcd34d44' : '#cbd5e122'}`
                                             }}>
                                                 {isPro ? '⭐ MIEMBRO PRO' : 'PLAN ESTÁNDAR'}
@@ -423,28 +432,21 @@ export default function FloatingAssistant() {
                                     </div>
 
                                     {/* QR & Number */}
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '0.8rem' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1rem' }}>
                                         <div style={{ minWidth: 0 }}>
                                             <div style={{ fontSize: '0.5rem', opacity: 0.5, marginBottom: '2px' }}>NÚMERO DE LICENCIA</div>
-                                            <div style={{ fontSize: '0.55rem', opacity: 0.8, fontFamily: 'monospace', letterSpacing: '1px' }}>
-                                                {currentUser?.uid?.substring(0, 12).toUpperCase()}
+                                            <div style={{ fontSize: '0.6rem', opacity: 0.8, fontFamily: 'monospace', letterSpacing: '1px' }}>
+                                                {currentUser?.uid?.substring(0, 14).toUpperCase()}
                                             </div>
                                         </div>
                                         <div style={{ 
-                                            background: 'white', padding: '3px', borderRadius: '6px',
+                                            background: 'white', padding: '4px', borderRadius: '8px',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            boxShadow: '0 0 15px rgba(255,255,255,0.2)'
+                                            boxShadow: '0 0 20px rgba(255,255,255,0.2)'
                                         }}>
-                                            <QrCode size={34} color="#0f172a" />
+                                            <QrCode size={38} color="#0f172a" />
                                         </div>
                                     </div>
-
-                                    {/* Decorative pulse */}
-                                    <div style={{ 
-                                        position: 'absolute', top: '-20px', right: '-20px', 
-                                        width: '100px', height: '100px', background: 'var(--color-primary)', 
-                                        filter: 'blur(60px)', opacity: 0.2, zIndex: -1 
-                                    }}></div>
                                 </div>
 
                                 <button 
@@ -453,104 +455,125 @@ export default function FloatingAssistant() {
                                         window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
                                     }}
                                     style={{
-                                        width: '100%', marginTop: '1.2rem', padding: '0.8rem',
-                                        background: 'var(--color-surface)', border: '1px solid var(--color-border)',
-                                        borderRadius: '12px', fontWeight: 800, fontSize: '0.8rem',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem',
-                                        cursor: 'pointer'
+                                        width: '100%', marginTop: '1.2rem', padding: '0.9rem',
+                                        background: 'var(--color-background)', border: '1px solid var(--color-border)',
+                                        borderRadius: '16px', fontWeight: 800, fontSize: '0.85rem',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.7rem',
+                                        cursor: 'pointer', color: 'var(--color-text)'
                                     }}
                                 >
-                                    <Send size={16} color="var(--color-primary)" /> Compartir mi Perfil
+                                    <Send size={18} color="var(--color-primary)" /> Compartir mi Perfil
                                 </button>
                             </div>
                         ) : activeTab === 'actions' ? (
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.6rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.75rem' }}>
                                 {quickActions.slice(0, isPro ? 4 : 2).map((action, i) => (
                                     <button 
                                         key={i} 
                                         onClick={() => { navigate(action.path); setIsOpen(false); }}
                                         style={{ 
                                             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                            padding: '0.8rem', background: 'var(--color-background)',
-                                            borderRadius: '12px', border: '1px solid var(--color-border)',
-                                            textAlign: 'left', cursor: 'pointer', width: '100%'
+                                            padding: '0.9rem 1.1rem', background: 'var(--color-background)',
+                                            borderRadius: '16px', border: '1px solid var(--color-border)',
+                                            textAlign: 'left', cursor: 'pointer', width: '100%',
+                                            transition: 'all 0.2s ease',
+                                            boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
                                         }}
+                                        className="hover-lift"
                                     >
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                                            <div style={{ color: action.color }}>{action.icon}</div>
-                                            <span style={{ fontWeight: 700, fontSize: '0.85rem' }}>{action.label}</span>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.9rem' }}>
+                                            <div style={{ 
+                                                width: '36px', height: '36px', borderRadius: '10px', 
+                                                background: `${action.color}15`, display: 'flex', 
+                                                alignItems: 'center', justifyContent: 'center',
+                                                color: action.color 
+                                            }}>
+                                                {action.icon}
+                                            </div>
+                                            <span style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--color-text)' }}>{action.label}</span>
                                         </div>
-                                        <ChevronRight size={16} color="var(--color-text-muted)" />
+                                        <ChevronRight size={18} color="var(--color-text-light)" />
                                     </button>
                                 ))}
                                 {!isPro && (
                                     <div style={{ 
-                                        padding: '0.8rem', background: 'rgba(59, 130, 246, 0.05)', 
-                                        borderRadius: '12px', border: '1px dashed rgba(59, 130, 246, 0.3)',
+                                        padding: '1rem', background: 'rgba(59, 130, 246, 0.04)', 
+                                        borderRadius: '16px', border: '1px dashed rgba(59, 130, 246, 0.3)',
                                         textAlign: 'center', cursor: 'pointer'
                                     }} onClick={() => navigate('/subscribe')}>
-                                        <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-primary)' }}>+ Desbloquear acciones PRO</span>
+                                        <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-primary)' }}>+ Desbloquear acciones PRO</span>
                                     </div>
                                 )}
                             </div>
                         ) : (
                             <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-                                <div className="hide-scrollbar" style={{ flex: 1, overflowY: 'auto', marginBottom: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', paddingRight: '4px' }}>
+                                <div className="hide-scrollbar" style={{ flex: 1, overflowY: 'auto', marginBottom: '0.8rem', display: 'flex', flexDirection: 'column', gap: '1rem', paddingRight: '4px' }}>
                                     {messages.map((m, idx) => (
                                         <div key={idx} style={{
                                             alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
                                             maxWidth: '85%',
-                                            padding: '0.7rem 1rem',
-                                            borderRadius: m.role === 'user' ? '18px 18px 2px 18px' : '18px 18px 18px 2px',
+                                            padding: '0.8rem 1.1rem',
+                                            borderRadius: m.role === 'user' ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
                                             background: m.role === 'user' ? 'var(--color-primary)' : 'rgba(59, 130, 246, 0.08)',
                                             color: m.role === 'user' ? 'white' : 'var(--color-text)',
-                                            fontSize: '0.82rem',
-                                            lineHeight: 1.4,
-                                            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-                                            animation: 'assistant-slide-up 0.3s ease-out'
+                                            fontSize: '0.88rem',
+                                            lineHeight: 1.5,
+                                            boxShadow: m.role === 'user' ? '0 4px 12px rgba(59, 130, 246, 0.2)' : '0 2px 8px rgba(0,0,0,0.03)',
+                                            animation: 'assistant-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
                                         }}>
                                             {m.text}
                                         </div>
                                     ))}
                                     {isTyping && (
-                                        <div style={{ alignSelf: 'flex-start', background: 'rgba(59, 130, 246, 0.05)', padding: '0.5rem 1rem', borderRadius: '12px', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-                                            IA escribiendo...
+                                        <div style={{ alignSelf: 'flex-start', background: 'rgba(59, 130, 246, 0.04)', padding: '0.6rem 1.2rem', borderRadius: '14px', fontSize: '0.8rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            <div className="dot-flashing"></div> IA escribiendo...
                                         </div>
                                     )}
                                     <div ref={chatEndRef} />
                                 </div>
 
-                                <form onSubmit={handleSendMessage} style={{ position: 'relative', display: 'flex', gap: '0.5rem', marginBottom: '0.8rem' }}>
-                                    <div style={{ position: 'relative', flex: 1 }}>
+                                <form onSubmit={handleSendMessage} style={{ marginBottom: '1rem' }}>
+                                    <div style={{ 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        gap: '0.4rem',
+                                        background: 'var(--color-background)',
+                                        border: '1.5px solid var(--color-border)',
+                                        borderRadius: '16px',
+                                        padding: '4px 6px',
+                                        transition: 'all 0.2s ease',
+                                        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
+                                    }} className="input-focus-container">
                                         <input 
                                             type="text"
                                             value={chatInput}
                                             onChange={(e) => setChatInput(e.target.value)}
                                             placeholder={isTyping ? "IA procesando..." : "Hacé una pregunta..."}
                                             style={{
-                                                width: '100%',
-                                                padding: '0.6rem 6.5rem 0.6rem 1rem',
-                                                borderRadius: '12px',
-                                                border: '1px solid var(--color-border)',
-                                                background: 'var(--color-background)',
+                                                flex: 1,
+                                                padding: '0.6rem 0.5rem',
+                                                border: 'none',
+                                                background: 'transparent',
                                                 color: 'var(--color-text)',
-                                                fontSize: '0.85rem',
-                                                outline: 'none'
+                                                fontSize: '0.9rem',
+                                                outline: 'none',
+                                                marginBottom: 0
                                             }}
                                         />
-                                        <div style={{ position: 'absolute', right: '5px', top: '50%', transform: 'translateY(-50%)', display: 'flex', gap: '4px' }}>
+                                        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                                             <button 
                                                 type="button"
                                                 onClick={handleWeeklyReport}
                                                 title="Reporte Semanal IA"
                                                 style={{
-                                                    background: 'rgba(59, 130, 246, 0.1)', 
-                                                    border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '8px',
+                                                    background: 'transparent', 
+                                                    border: 'none', borderRadius: '8px',
                                                     width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                    color: 'var(--color-primary)', cursor: 'pointer'
+                                                    color: 'var(--color-primary)', cursor: 'pointer', padding: 0
                                                 }}
+                                                className="hover-scale"
                                             >
-                                                <BarChart3 size={16} />
+                                                <BarChart3 size={18} strokeWidth={2.5} />
                                             </button>
                                             <button 
                                                 type="button"
@@ -559,53 +582,58 @@ export default function FloatingAssistant() {
                                                     background: isListening ? '#ef4444' : 'transparent', 
                                                     border: 'none', borderRadius: '8px',
                                                     width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                    color: isListening ? 'white' : 'var(--color-primary)', cursor: 'pointer'
+                                                    color: isListening ? 'white' : 'var(--color-primary)', cursor: 'pointer', padding: 0
                                                 }}
+                                                className="hover-scale"
                                             >
-                                                {isListening ? <Activity size={16} className="animate-pulse" /> : <Volume2 size={16} />}
+                                                {isListening ? <Activity size={18} strokeWidth={2.5} className="animate-pulse" /> : <Volume2 size={18} strokeWidth={2.5} />}
                                             </button>
                                             <button 
                                                 type="submit"
                                                 disabled={!chatInput.trim() || isTyping}
                                                 style={{
-                                                    background: 'var(--color-primary)', border: 'none', borderRadius: '8px',
-                                                    width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                    background: 'var(--color-primary)', border: 'none', borderRadius: '10px',
+                                                    width: '34px', height: '34px', display: 'flex', alignItems: 'center', justifyContent: 'center',
                                                     color: 'white', cursor: 'pointer', transition: 'all 0.2s',
-                                                    opacity: !chatInput.trim() || isTyping ? 0.5 : 1
+                                                    opacity: !chatInput.trim() || isTyping ? 0.5 : 1, padding: 0,
+                                                    boxShadow: '0 4px 8px rgba(59, 130, 246, 0.3)'
                                                 }}
+                                                className="hover-scale"
                                             >
-                                                <Send size={16} />
+                                                <Send size={18} strokeWidth={2.5} />
                                             </button>
                                         </div>
                                     </div>
                                 </form>
                                 {!isPro && (
-                                    <div style={{ fontSize: '0.62rem', textAlign: 'center', color: 'var(--color-text-muted)', background: 'rgba(59, 130, 246, 0.04)', padding: '0.35rem', borderRadius: '6px', marginBottom: '0.4rem' }}>
-                                        Consultas gratis restantes: {3 - freeQueriesUsed}
+                                    <div style={{ fontSize: '0.65rem', textAlign: 'center', color: 'var(--color-text-muted)', background: 'rgba(59, 130, 246, 0.05)', padding: '0.45rem', borderRadius: '10px', marginBottom: '0.6rem', fontWeight: 600 }}>
+                                        Consultas gratis restantes: <span style={{ color: 'var(--color-primary)', fontWeight: 800 }}>{3 - freeQueriesUsed}</span>
                                     </div>
                                 )}
                                 
-                                <div style={{ display: 'flex', gap: '0.6rem', marginTop: '0.2rem' }}>
+                                <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.2rem' }}>
                                     <button 
                                         onClick={handleSOS}
                                         className="assistant-pulse-glow"
                                         style={{ 
-                                            flex: 1, padding: '0.8rem', background: '#dc2626', color: 'white',
-                                            borderRadius: '12px', border: 'none', fontWeight: 900,
-                                            fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem'
+                                            flex: 1.2, padding: '0.9rem', background: '#dc2626', color: 'white',
+                                            borderRadius: '16px', border: 'none', fontWeight: 900,
+                                            fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem',
+                                            cursor: 'pointer', boxShadow: '0 8px 20px rgba(220, 38, 38, 0.3)'
                                         }}
                                     >
-                                        <AlertCircle size={18} /> SOS
+                                        <AlertCircle size={20} /> SOS
                                     </button>
                                     <button 
                                         onClick={handlePhotoAnalysis}
                                         style={{ 
-                                            flex: 1, padding: '0.8rem', background: 'var(--color-surface)', color: 'var(--color-text)',
-                                            borderRadius: '12px', border: '1px solid var(--color-border)', fontWeight: 800,
-                                            fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem'
+                                            flex: 1, padding: '0.9rem', background: 'white', color: 'var(--color-text)',
+                                            borderRadius: '16px', border: '1px solid var(--color-border)', fontWeight: 800,
+                                            fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem',
+                                            cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
                                         }}
                                     >
-                                        <Camera size={18} color="#8b5cf6" /> {isPro ? 'Visión' : 'Visión PRO'}
+                                        <Camera size={20} color="#8b5cf6" /> {isPro ? 'Visión' : 'Visión PRO'}
                                     </button>
                                 </div>
                             </div>

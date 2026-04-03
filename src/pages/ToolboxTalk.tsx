@@ -126,28 +126,26 @@ export default function ToolboxTalk(): React.ReactElement {
     };
 
     const handleSave = () => {
-        requirePro(() => {
-            if (!form.tema.trim() || !form.responsable.trim()) {
-                toast.error('Completá el tema y el responsable');
-                return;
-            }
-            const entry: ToolboxTalk = {
-                ...form,
-                id: editId || `talk-${Date.now()}`,
-                createdAt: form.createdAt || new Date().toISOString()
-            };
-            let updated: ToolboxTalk[];
-            if (editId) {
-                updated = talks.map(t => t.id === editId ? entry : t);
-                toast.success('Charla actualizada ✅');
-            } else {
-                updated = [entry, ...talks];
-                toast.success('Charla de 5 minutos guardada 📋');
-            }
-            save(updated);
-            setEditId(null);
-            setForm(emptyTalk());
-        });
+        if (!form.tema.trim() || !form.responsable.trim()) {
+            toast.error('Completá el tema y el responsable');
+            return;
+        }
+        const entry: ToolboxTalk = {
+            ...form,
+            id: editId || `talk-${Date.now()}`,
+            createdAt: form.createdAt || new Date().toISOString()
+        };
+        let updated: ToolboxTalk[];
+        if (editId) {
+            updated = talks.map(t => t.id === editId ? entry : t);
+            toast.success('Charla actualizada ✅');
+        } else {
+            updated = [entry, ...talks];
+            toast.success('Charla de 5 minutos guardada 📋');
+        }
+        save(updated);
+        setEditId(null);
+        setForm(emptyTalk());
     };
 
     const handleDelete = (id: string) => {

@@ -201,45 +201,43 @@ export default function AIGeneralCamera(): React.ReactElement | null {
     };
 
     const handleSaveReport = () => {
-        requirePro(() => {
-            const currentReport = JSON.parse(localStorage.getItem('current_report') || '{}');
-            const company = currentReport.company || currentReport.empresa || 'Empresa Local';
-            const location = currentReport.location || currentReport.ubicacion || 'Inspección in situ';
+        const currentReport = JSON.parse(localStorage.getItem('current_report') || '{}');
+        const company = currentReport.company || currentReport.empresa || 'Empresa Local';
+        const location = currentReport.location || currentReport.ubicacion || 'Inspección in situ';
 
-            const report = {
-                id: Date.now(),
-                image: capturedImage,
-                analysis: analysisResult,
-                date: new Date().toISOString(),
-                type: 'general_risks',
-                company,
-                location,
-                findingsCount: analysisResult?.detections?.length || 0
-            };
+        const report = {
+            id: Date.now(),
+            image: capturedImage,
+            analysis: analysisResult,
+            date: new Date().toISOString(),
+            type: 'general_risks',
+            company,
+            location,
+            findingsCount: analysisResult?.detections?.length || 0
+        };
 
-            // Save FULL report to a unique key for history detail views
-            localStorage.setItem(`ai_report_full_${report.id}`, JSON.stringify(report));
+        // Save FULL report to a unique key for history detail views
+        localStorage.setItem(`ai_report_full_${report.id}`, JSON.stringify(report));
 
-            // Save FULL report for immediate detail view
-            localStorage.setItem('current_ai_inspection', JSON.stringify(report));
+        // Save FULL report for immediate detail view
+        localStorage.setItem('current_ai_inspection', JSON.stringify(report));
 
-            // Save ONLY lightweight summary to history (no image, no full analysis)
-            const history = JSON.parse(localStorage.getItem('ai_camera_history') || '[]');
-            if (!history.find(h => h.id === report.id)) {
-                history.unshift({
-                    id: report.id,
-                    date: report.date,
-                    type: report.type,
-                    company: report.company,
-                    location: report.location,
-                    findingsCount: report.findingsCount
-                });
-                localStorage.setItem('ai_camera_history', JSON.stringify(history));
-                syncCollection('ai_camera_history', history);
-            }
+        // Save ONLY lightweight summary to history (no image, no full analysis)
+        const history = JSON.parse(localStorage.getItem('ai_camera_history') || '[]');
+        if (!history.find(h => h.id === report.id)) {
+            history.unshift({
+                id: report.id,
+                date: report.date,
+                type: report.type,
+                company: report.company,
+                location: report.location,
+                findingsCount: report.findingsCount
+            });
+            localStorage.setItem('ai_camera_history', JSON.stringify(history));
+            syncCollection('ai_camera_history', history);
+        }
 
-            navigate('/ai-report');
-        });
+        navigate('/ai-report');
     };
 
 

@@ -2454,3 +2454,119 @@ label {
 .assistant-logo-spin:hover {
   transform: rotate(360deg) scale(1.1);
 }
+
+/* New Assistant Utilities */
+.hover-scale {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hover-scale:hover {
+  transform: scale(1.1);
+}
+
+.hover-scale:active {
+  transform: scale(0.95);
+}
+
+.hover-lift {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.08) !important;
+  border-color: var(--color-primary) !important;
+}
+
+.input-focus-primary:focus {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15), inset 0 2px 4px rgba(0,0,0,0.02) !important;
+  background: white !important;
+}
+
+.input-focus-container:focus-within {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15) !important;
+  background: white !important;
+}
+
+.dot-flashing {
+  position: relative;
+  width: 6px;
+  height: 6px;
+  border-radius: 5px;
+  background-color: var(--color-primary);
+  color: var(--color-primary);
+  animation: dot-flashing 1s infinite linear alternate;
+  animation-delay: 0.5s;
+}
+
+.dot-flashing::before, .dot-flashing::after {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  top: 0;
+}
+
+.dot-flashing::before {
+  left: -12px;
+  width: 6px;
+  height: 6px;
+  border-radius: 5px;
+  background-color: var(--color-primary);
+  color: var(--color-primary);
+  animation: dot-flashing 1s infinite linear alternate;
+  animation-delay: 0s;
+}
+
+.dot-flashing::after {
+  left: 12px;
+  width: 6px;
+  height: 6px;
+  border-radius: 5px;
+  background-color: var(--color-primary);
+  color: var(--color-primary);
+  animation: dot-flashing 1s infinite linear alternate;
+  animation-delay: 1s;
+}
+
+@keyframes dot-flashing {
+  0% { background-color: var(--color-primary); }
+  50%, 100% { background-color: rgba(59, 130, 246, 0.2); }
+}
+
+/* --- Paywall Print Restrictions --- */
+@media print {
+  body.not-pro-user .no-print-pro {
+    display: none !important;
+  }
+
+  body.not-pro-user .app-container::before {
+    content: "⚠️ FUNCIÓN EXCLUSIVA PARA USUARIOS PRO 💎";
+    display: block;
+    text-align: center;
+    padding: 100px 40px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: #1e293b;
+    border: 4px dashed #3b82f6;
+    border-radius: 24px;
+    margin: 50% auto;
+    width: 80%;
+  }
+
+  body.not-pro-user .app-container::after {
+    content: "Para imprimir o exportar sus informes profesionales, por favor active su suscripción PRO en la sección de Planes.";
+    display: block;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    color: #64748b;
+    margin-top: -45%;
+  }
+
+  body.not-pro-user .app-container > *:not(::before):not(::after) {
+    display: none !important;
+  }
+}

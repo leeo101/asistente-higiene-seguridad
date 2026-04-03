@@ -149,12 +149,22 @@ function GlobalPrintGuard() {
   const { isPro } = usePaywall();
 
   useEffect(() => {
+    // Aplicar clase al body para el bloqueo por CSS (@media print)
+    if (typeof document !== 'undefined') {
+      if (!isPro) {
+        document.body.classList.add('not-pro-user');
+      } else {
+        document.body.classList.remove('not-pro-user');
+      }
+    }
+
     const handleKeyDown = (e) => {
+      // Bloquear Ctrl+P y Cmd+P
       if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
         if (!isPro) {
           e.preventDefault();
           e.stopPropagation();
-          toast.error('La función de impresión es exclusiva para usuarios PRO y Administradores.', {
+          toast.error('Impresión y exportación exclusivas para miembros PRO 💎', {
             id: 'print-blocked-toast',
             duration: 4000,
             icon: '⚠️',
@@ -163,9 +173,9 @@ function GlobalPrintGuard() {
               background: '#1e293b',
               color: '#fff',
               fontSize: '14px',
-              fontWeight: '600',
-              border: '1px solid rgba(255,255,255,0.1)',
-              boxShadow: '0 10px 15px -3px rgba(0,0,0,0.2)'
+              fontWeight: '700',
+              border: '1px solid rgba(59,130,246,0.3)',
+              boxShadow: '0 20px 25px -5px rgba(0,0,0,0.4)'
             }
           });
         }
@@ -173,7 +183,12 @@ function GlobalPrintGuard() {
     };
 
     window.addEventListener('keydown', handleKeyDown, true);
-    return () => window.removeEventListener('keydown', handleKeyDown, true);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown, true);
+      if (typeof document !== 'undefined') {
+        document.body.classList.remove('not-pro-user');
+      }
+    };
   }, [isPro]);
 
   return null;

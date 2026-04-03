@@ -176,7 +176,7 @@ export default function ThermalStress(): React.ReactElement | null {
         return localStorage.getItem('thermal_stress_alert_dismissed') !== 'true';
     });
 
-    const handleSave = () => requirePro(doSave);
+    const handleSave = doSave;
     const handlePrint = () => requirePro(() => window.print());
 
     return (

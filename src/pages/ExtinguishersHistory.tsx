@@ -11,12 +11,14 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import ShareModal from '../components/ShareModal';
 import QRModal from '../components/QRModal';
 import ExtinguisherPdfGenerator from '../components/ExtinguisherPdfGenerator';
+import { usePaywall } from '../hooks/usePaywall';
 
 export default function ExtinguishersHistory(): React.ReactElement | null {
     useDocumentTitle('Historial de Extintores');
     const navigate = useNavigate();
     const { syncPulse } = useSync();
     const { currentUser } = useAuth();
+    const { requirePro } = usePaywall();
 
     const [inventory, setInventory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -136,7 +138,7 @@ export default function ExtinguishersHistory(): React.ReactElement | null {
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        setShareItem(ext);
+                                        requirePro(() => setShareItem(ext));
                                     }}
                                     style={{
                                         padding: '0.6rem',
@@ -157,8 +159,10 @@ export default function ExtinguishersHistory(): React.ReactElement | null {
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        const url = `${window.location.origin}/v/${currentUser?.uid}/extinguisher/${ext.id}?print=true`;
-                                        setQrTarget({ text: url, title: `Extintor — ${ext.chapa}` });
+                                        requirePro(() => {
+                                            const url = `${window.location.origin}/v/${currentUser?.uid}/extinguisher/${ext.id}?print=true`;
+                                            setQrTarget({ text: url, title: `Extintor — ${ext.chapa}` });
+                                        });
                                     }}
                                     style={{
                                         padding: '0.6rem',
@@ -194,14 +198,14 @@ export default function ExtinguishersHistory(): React.ReactElement | null {
 
             <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
                 <button
-                    onClick={() => navigate('/extinguishers-report')}
+                    onClick={() => requirePro(() => navigate('/extinguishers-report'))}
                     className="btn-outline"
                     style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', margin: 0 }}
                 >
                     <Printer size={18} /> <span className="hidden sm:inline">Imprimir Vista Previa</span>
                 </button>
                 <button
-                    onClick={() => setShareItem(inventory)}
+                    onClick={() => requirePro(() => setShareItem(inventory))}
                     className="btn-primary"
                     style={{ flex: 1.5, display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', margin: 0, background: '#16a34a', border: 'none' }}
                 >

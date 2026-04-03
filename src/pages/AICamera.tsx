@@ -206,7 +206,6 @@ export default function AICamera(): React.ReactElement | null {
     };
 
     const handleSaveReport = () => {
-        requirePro(() => {
             const currentReport = JSON.parse(localStorage.getItem('current_report') || '{}');
             const company = currentReport.company || currentReport.empresa || 'Empresa Local';
             const location = currentReport.location || currentReport.ubicacion || 'Planta Principal';
@@ -242,7 +241,6 @@ export default function AICamera(): React.ReactElement | null {
                 syncCollection('ai_camera_history', history);
             }
             navigate('/ai-report');
-        });
     };
 
 

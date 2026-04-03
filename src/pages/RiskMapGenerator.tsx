@@ -350,7 +350,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
         navigate('/risk-maps-history');
     };
 
-    const handleSave = () => requirePro(doSave);
+    const handleSave = () => doSave();
 
     const handleExportPNG = () => requirePro(async () => {
         if (!containerRef.current) return;

@@ -124,8 +124,9 @@ export default function AccidentInvestigation(): React.ReactElement | null {
     const handlePrint = () => {
         requirePro(() => {
             // Ensure ID exists for PDF ref (INV-XXXXXX)
+            const idToUse = formData.id || Date.now();
             if (!formData.id) {
-                setFormData(prev => ({ ...prev, id: Date.now() }));
+                setFormData(prev => ({ ...prev, id: idToUse }));
             }
             window.print();
         });

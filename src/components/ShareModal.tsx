@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { X, Mail, Copy, Check, Printer, Download } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { createPortal } from 'react-dom';
+import { useMemo } from 'react';
+import { usePaywall } from '../hooks/usePaywall';
 import { generatePdfBlob } from '../utils/pdfHelper';
 
 interface ShareModalProps {
@@ -25,6 +27,7 @@ export default function ShareModal({
     elementIdToPrint, 
     fileName: propFileName 
 }: ShareModalProps) {
+    const { isPro } = usePaywall();
     const displayOpen = isOpen !== undefined ? isOpen : open;
     const message = rawMessage !== undefined ? rawMessage : text || '';
 
@@ -58,6 +61,11 @@ export default function ShareModal({
     };
 
     const handlePrint = () => {
+        if (!isPro) {
+            toast.error('La impresión de reportes es exclusiva para miembros PRO 💎', { duration: 4000 });
+            return;
+        }
+
         if (!elementIdToPrint) {
             toast.error("No se ha especificado el contenido a imprimir.");
             return;
@@ -101,6 +109,11 @@ export default function ShareModal({
     };
 
     const handleNativeShare = async (optLabel: string) => {
+        if (!isPro) {
+            toast.error('La exportación en PDF es exclusiva para miembros PRO 💎', { duration: 4000 });
+            return;
+        }
+
         if (!elementIdToPrint) {
             toast.error("No se ha especificado el contenido a imprimir.");
             return;
@@ -163,6 +176,11 @@ export default function ShareModal({
     };
 
     const handleDirectDownload = async () => {
+        if (!isPro) {
+            toast.error('La descarga de PDFs es exclusiva para miembros PRO 💎', { duration: 4000 });
+            return;
+        }
+
         if (!elementIdToPrint) return;
         setIsGenerating(true);
         try {

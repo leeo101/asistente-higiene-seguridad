@@ -10,6 +10,7 @@ import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
 import QRModal from '../components/QRModal';
 import LightingPdfGenerator from '../components/LightingPdfGenerator';
+import { usePaywall } from '../hooks/usePaywall';
 
 function DeleteConfirm({ onConfirm, onCancel }) {
     return (
@@ -39,6 +40,7 @@ export default function LightingHistory(): React.ReactElement | null {
     const navigate = useNavigate();
     const { syncCollection, syncPulse } = useSync();
     const { currentUser } = useAuth();
+    const { requirePro } = usePaywall();
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteTarget, setDeleteTarget] = useState(null);
@@ -146,15 +148,17 @@ export default function LightingHistory(): React.ReactElement | null {
                                     <FileText size={16} /> Ver / Editar
                                 </button>
                                 <button
-                                    onClick={() => setShareItem(item)}
+                                    onClick={() => requirePro(() => setShareItem(item))}
                                     style={{ padding: '0.6rem 0.9rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, fontSize: '0.8rem', textDecoration: 'none' }}
                                 >
                                     <Share2 size={15} /> Compartir
                                 </button>
                                 <button
                                     onClick={() => {
-                                        const url = `${window.location.origin}/v/${currentUser?.uid}/lighting/${item.id}?print=true`;
-                                        setQrTarget({ text: url, title: `Iluminación — ${item.sector}` });
+                                        requirePro(() => {
+                                            const url = `${window.location.origin}/v/${currentUser?.uid}/lighting/${item.id}?print=true`;
+                                            setQrTarget({ text: url, title: `Iluminación — ${item.sector}` });
+                                        });
                                     }}
                                     style={{ padding: '0.6rem', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                     title="Generar QR"
