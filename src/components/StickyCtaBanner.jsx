@@ -43,10 +43,10 @@ export default function StickyCtaBanner() {
         }}>
             <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ color: '#ffffff', fontWeight: 800, fontSize: '0.95rem', lineHeight: 1.2 }}>
-                    ¡Es 100% gratuito!
+                    ¡Es 100% gratuito e ilimitado!
                 </div>
                 <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.78rem', marginTop: '0.1rem' }}>
-                    Calculá, hacé ATS y consultá la IA ahora
+                    Calculá, hacé tus ATS y probá la Cámara IA ahora
                 </div>
             </div>
             <button

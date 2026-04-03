@@ -255,14 +255,12 @@ export default function MarketingLanding({ onStart }) {
 
             <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.9rem', flex: 1 }}>
               {[
-                { label: 'ATS · Análisis de Trabajo Seguro', desc: 'Generá ATS completos con asistencia de IA' },
-                { label: 'Matrices de Riesgo', desc: 'Evaluación de riesgos Probabilidad × Consecuencia' },
-                { label: 'Carga de Fuego', desc: 'Cálculo normativo para Argentina, Chile y más' },
-                { label: 'Checklists de Herramientas', desc: 'Inspección de equipos y EPP' },
-                { label: 'Ergonomía y Estrés Térmico', desc: 'Módulos de evaluación específicos' },
-                { label: 'Asesor IA', desc: 'Consultas de H&S asistidas por inteligencia artificial' },
-                { label: 'Cámara IA · Detección EPP', desc: 'Detección en tiempo real vía cámara' },
-                { label: 'Administración local', desc: 'Datos guardados en tu dispositivo' },
+                { label: 'Uso Ilimitado y Gratuito', desc: 'Cargá datos y generá registros sin pagar nunca' },
+                { label: 'Todos los Módulos Base', desc: 'ATS, Matrices, Carga de Fuego y Checklists' },
+                { label: 'Cámara IA On-Screen', desc: 'Vigilancia de riesgos y EPP en tiempo real' },
+                { label: 'Asesor IA (Básico)', desc: 'Resolución de dudas normativas al instante' },
+                { label: 'Visualización de Reportes', desc: 'Ver reportes completos en pantalla' },
+                { label: 'Guardado en Historial Local', desc: 'Tus registros se guardan en tu dispositivo' },
               ].map((f, i) => (
                 <div key={i} style={{ display: 'flex', gap: '0.8rem', alignItems: 'flex-start' }}>
                   <CheckCircle2 size={17} color="#10b981" style={{ marginTop: '2px', flexShrink: 0 }} />
@@ -327,18 +325,14 @@ export default function MarketingLanding({ onStart }) {
 
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.9rem', flex: 1, position: 'relative', zIndex: 1 }}>
               {[
-                { label: 'Todo el plan gratuito incluido', desc: 'Acceso completo a todos los módulos base' },
-                { label: 'Exportación PDF profesional', desc: 'PDFs con tu logo listos para presentar al cliente' },
-                { label: 'Historial en la nube', desc: 'Sincronizá y accedé a tus registros desde cualquier dispositivo' },
-                { label: 'Permisos de Trabajo Críticos', desc: 'Espacios confinados, trabajo en altura, LOTO' },
-                { label: 'Auditorías y CAPA', desc: 'Gestión de no conformidades y acciones correctivas' },
-                { label: 'Charlas de 5 Minutos', desc: 'Registro de capacitación diaria y firmas' },
-                { label: 'KPIs de Seguridad', desc: 'Dashboard avanzado de índices LFITR y TRIFR' },
-                { label: 'Investigación de Accidentes', desc: 'Árbol de causas y árbol de fallas integrado' },
-                { label: 'Seguridad Química (SGA)', desc: 'Fichas de sustancias peligrosas y gestión de riesgos' },
-                { label: 'Simulacros y Capacitaciones', desc: 'Actas firmadas, listas de asistencia y planificación' },
-                { label: 'Control EPP y Matafuegos', desc: 'Alertas de vencimientos y auditoría de equipos' },
-                { label: 'Asesor IA ilimitado', desc: 'Sin restricciones de consultas de seguridad' },
+                { label: 'Exportación a PDF Profesional', desc: 'Documentos listos con tu logo para el cliente' },
+                { label: 'Compartir por WhatsApp y QR', desc: 'Envío instantáneo de registros para firmas' },
+                { label: 'Sincronización en la Nube', desc: 'Recuperá tus datos desde cualquier dispositivo' },
+                { label: 'Exportación a Excel / CSV', desc: 'Generación de planillas de historial rápidas' },
+                { label: 'Módulos Críticos y Gestión', desc: 'LOTO, Altura, CAPA, Auditorías y Accidentes' },
+                { label: 'Capacitación y Charlas', desc: 'Registro de firmas y actas de instrucción' },
+                { label: 'KPIs y Estadísticas PRO', desc: 'Dashboards avanzados de seguridad (LFITR/TRIFR)' },
+                { label: 'Asesor IA Premium', desc: 'Sin límites de consultas técnicas de seguridad' },
               ].map((f, i) => (
                 <div key={i} style={{ display: 'flex', gap: '0.8rem', alignItems: 'flex-start' }}>
                   <CheckCircle2 size={17} color="#86efac" style={{ marginTop: '2px', flexShrink: 0 }} />
