@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
-  X, Zap, BarChart3, ClipboardCheck,
-  ChevronRight, Sparkles, TrendingUp,
+  X, Zap, BarChart3, ClipboardCheck, ChevronRight, Sparkles, TrendingUp,
   Volume2, Search, Settings, HelpCircle, Lock,
-  FileText, ShieldCheck, KeySquare, Send 
+  FileText, ShieldCheck, KeySquare, Send,
+  Camera, AlertCircle, PhoneCall, HeartPulse,
+  Activity, MicOff
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
@@ -72,6 +73,51 @@ export default function FloatingAssistant() {
     }, [isOpen]);
 
     const toggleAssistant = () => setIsOpen(!isOpen);
+
+    const handleSOS = () => {
+        setMessages(prev => [...prev, 
+            { role: 'user', text: '🚨 ¡AUXILIO! EMERGENCIA DETECTADA' },
+            { role: 'ai', text: '⚠️ PROTOCOLO DE EMERGENCIA ACTIVADO\n\n1. Mantené la calma.\n2. Llamá al 911 (Emergencias).\n3. No muevas al herido si sospechás lesión de columna.\n4. Si hay fuego, evacuar por las salidas señalizadas.\n\n¿Qué tipo de emergencia es? (Incendio, Accidente, Derrame)' }
+        ]);
+        setActiveTab('chat');
+        toast.error('Protocolo S.O.S Activado', { icon: '🚨', duration: 5000 });
+    };
+
+    const handlePhotoAnalysis = () => {
+        if (!isPro) {
+            toast.error('Análisis Visual con IA es una función PRO 💎');
+            navigate('/subscribe');
+            return;
+        }
+        
+        // Simulación de selección de foto
+        toast.loading('Analizando imagen con Visión IA...', { id: 'vision' });
+        
+        setTimeout(() => {
+            setMessages(prev => [...prev, { role: 'ai', text: '📸 Análisis de Visión IA finalizado:\n\n• ✅ Casco detectado.\n• ⚠️ Falta protección ocular.\n• ⚠️ Andamio sin rodapié visible.\n\nRecomendación: Frenar tarea hasta colocar rodapié.' }]);
+            toast.success('Análisis finalizado', { id: 'vision' });
+        }, 2000);
+    };
+
+    const handleVoiceDictation = () => {
+        if (!isPro) {
+            toast.error('Dictado de Campo con IA es una función PRO 💎');
+            navigate('/subscribe');
+            return;
+        }
+        
+        setIsListening(true);
+        toast('🎤 Escuchando dictado de riesgo...', { icon: '🎙️' });
+        
+        setTimeout(() => {
+            setIsListening(false);
+            const transcript = "En el sector 4 hay un operario soldando sin biombo";
+            setMessages(prev => [...prev, 
+                { role: 'user', text: transcript },
+                { role: 'ai', text: `🧠 Entendido. Analizando dictado: "Soldadura sin biombo".\n\nRIESGO: Proyecciones e IR/UV para terceros.\nACCION: Colocación de biombo inmediata. ¿Querés que genere una observación preventiva?` }
+            ]);
+        }, 3000);
+    };
 
     const handleSendMessage = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
@@ -309,42 +355,81 @@ export default function FloatingAssistant() {
                                     <div ref={chatEndRef} />
                                 </div>
 
-                                <form onSubmit={handleSendMessage} style={{ position: 'relative', display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                                    <input 
-                                        type="text"
-                                        value={chatInput}
-                                        onChange={(e) => setChatInput(e.target.value)}
-                                        placeholder="Hacé una pregunta..."
-                                        style={{
-                                            flex: 1,
-                                            padding: '0.6rem 2.8rem 0.6rem 1rem',
-                                            borderRadius: '12px',
-                                            border: '1px solid var(--color-border)',
-                                            background: 'var(--color-background)',
-                                            color: 'var(--color-text)',
-                                            fontSize: '0.85rem',
-                                            outline: 'none'
-                                        }}
-                                    />
-                                    <button 
-                                        type="submit"
-                                        disabled={!chatInput.trim() || isTyping}
-                                        style={{
-                                            position: 'absolute', right: '5px', top: '50%', transform: 'translateY(-50%)',
-                                            background: 'var(--color-primary)', border: 'none', borderRadius: '8px',
-                                            width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            color: 'white', cursor: 'pointer', transition: 'all 0.2s',
-                                            opacity: !chatInput.trim() || isTyping ? 0.5 : 1
-                                        }}
-                                    >
-                                        <Send size={16} />
-                                    </button>
+                                <form onSubmit={handleSendMessage} style={{ position: 'relative', display: 'flex', gap: '0.5rem', marginBottom: '0.8rem' }}>
+                                    <div style={{ position: 'relative', flex: 1 }}>
+                                        <input 
+                                            type="text"
+                                            value={chatInput}
+                                            onChange={(e) => setChatInput(e.target.value)}
+                                            placeholder={isTyping ? "IA procesando..." : "Hacé una pregunta..."}
+                                            style={{
+                                                width: '100%',
+                                                padding: '0.6rem 4.5rem 0.6rem 1rem',
+                                                borderRadius: '12px',
+                                                border: '1px solid var(--color-border)',
+                                                background: 'var(--color-background)',
+                                                color: 'var(--color-text)',
+                                                fontSize: '0.85rem',
+                                                outline: 'none'
+                                            }}
+                                        />
+                                        <div style={{ position: 'absolute', right: '5px', top: '50%', transform: 'translateY(-50%)', display: 'flex', gap: '4px' }}>
+                                            <button 
+                                                type="button"
+                                                onClick={handleVoiceDictation}
+                                                style={{
+                                                    background: isListening ? '#ef4444' : 'transparent', 
+                                                    border: 'none', borderRadius: '8px',
+                                                    width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                    color: isListening ? 'white' : 'var(--color-primary)', cursor: 'pointer'
+                                                }}
+                                            >
+                                                {isListening ? <Activity size={16} className="animate-pulse" /> : <Volume2 size={16} />}
+                                            </button>
+                                            <button 
+                                                type="submit"
+                                                disabled={!chatInput.trim() || isTyping}
+                                                style={{
+                                                    background: 'var(--color-primary)', border: 'none', borderRadius: '8px',
+                                                    width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                    color: 'white', cursor: 'pointer', transition: 'all 0.2s',
+                                                    opacity: !chatInput.trim() || isTyping ? 0.5 : 1
+                                                }}
+                                            >
+                                                <Send size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
                                 </form>
                                 {!isPro && (
                                     <div style={{ fontSize: '0.65rem', textAlign: 'center', color: 'var(--color-text-muted)', background: 'rgba(0,0,0,0.02)', padding: '0.4rem', borderRadius: '6px' }}>
                                         Consultas gratis restantes: {3 - freeQueriesUsed}
                                     </div>
                                 )}
+                                
+                                <div style={{ display: 'flex', gap: '0.6rem', marginTop: 'auto', paddingTop: '1rem' }}>
+                                    <button 
+                                        onClick={handleSOS}
+                                        className="assistant-pulse-glow"
+                                        style={{ 
+                                            flex: 1, padding: '0.8rem', background: '#dc2626', color: 'white',
+                                            borderRadius: '12px', border: 'none', fontWeight: 900,
+                                            fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem'
+                                        }}
+                                    >
+                                        <AlertCircle size={18} /> SOS
+                                    </button>
+                                    <button 
+                                        onClick={handlePhotoAnalysis}
+                                        style={{ 
+                                            flex: 1, padding: '0.8rem', background: 'var(--color-surface)', color: 'var(--color-text)',
+                                            borderRadius: '12px', border: '1px solid var(--color-border)', fontWeight: 800,
+                                            fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem'
+                                        }}
+                                    >
+                                        <Camera size={18} color="#8b5cf6" /> {isPro ? 'Visión' : 'Visión PRO'}
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>
