@@ -72,8 +72,17 @@ const emptyTalk = (): ToolboxTalk => ({
 const printStyles = `
 @media print {
     .no-print { display: none !important; }
-    .print-area { display: block !important; width: 100% !important; position: absolute !important; left: 0 !important; top: 0 !important; z-index: 9999 !important; background: white !important; }
-    body { background: white !important; }
+    .print-area { 
+        display: block !important; 
+        width: 100% !important; 
+        position: static !important;
+        background: white !important; 
+        color: black !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    .print-area * { color: black !important; }
+    body { background: white !important; color: black !important; }
     @page { size: A4 portrait; margin: 10mm; }
 }
 `;
@@ -188,7 +197,7 @@ export default function ToolboxTalk(): React.ReactElement {
     return (
         <>
             <style>{printStyles}</style>
-            <div className="container" style={{ paddingTop: '6rem', paddingBottom: '6rem', maxWidth: 900 }}>
+            <div className="container no-print" style={{ paddingTop: '6rem', paddingBottom: '6rem', maxWidth: 900 }}>
                 <Breadcrumbs />
 
                 <ShareModal
@@ -202,7 +211,7 @@ export default function ToolboxTalk(): React.ReactElement {
                     fileName={`Charla_5min_${form.tema.replace(/\s+/g, '_') || 'sin_tema'}`}
                 />
 
-                <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                <div className="print-area" style={{ position: 'fixed', left: 0, top: 0, opacity: 0.01, pointerEvents: 'none', zIndex: -1 }}>
                     <ToolboxTalkPdfGenerator data={form} professional={professional} />
                 </div>
 

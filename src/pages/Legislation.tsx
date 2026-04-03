@@ -7,57 +7,120 @@ import {
     Star, MessageSquare
 } from 'lucide-react';
 import { API_BASE_URL } from '../config';
-import { legislationData, countryList } from '../data/legislationData';
+import { legislationData, countryList, regionalData, municipalData } from '../data/legislationData';
 import toast from 'react-hot-toast';
 
 export default function Legislation(): React.ReactElement | null {
     const navigate = useNavigate();
+    
+    // 1. Hooks de estado en la parte superior
     const [searchTerm, setSearchTerm] = useState('');
     const [userCountry, setUserCountry] = useState('argentina');
+    const [selectedLevel, setSelectedLevel] = useState('all'); // all, national, regional, municipal
+    const [selectedRegion, setSelectedRegion] = useState('');
+    const [selectedMunicipality, setSelectedMunicipality] = useState('');
+    const [summaries, setSummaries] = useState({});
+    const [loadingDocs, setLoadingDocs] = useState(new Set());
+    
+    const [favorites, setFavorites] = useState<string[]>(() => {
+        try {
+            const saved = localStorage.getItem('legislation_favorites');
+            return saved ? JSON.parse(saved) : [];
+        } catch (e) {
+            return [];
+        }
+    });
 
-    React.useEffect(() => {
+    const [notes, setNotes] = useState(() => {
+        try {
+            const saved = localStorage.getItem('legislation_notes');
+            return saved ? JSON.parse(saved) : {};
+        } catch (e) {
+            return {};
+        }
+    });
+
+    const [expandedNote, setExpandedNote] = useState<string | null>(null);
+
+    // 2. Efecto para cargar país del perfil
+    useEffect(() => {
         const savedData = localStorage.getItem('personalData');
         if (savedData) {
             try {
                 const parsed = JSON.parse(savedData);
-                if (parsed.country) setUserCountry(parsed.country);
+                if (parsed.country) {
+                    const countryCode = parsed.country.toLowerCase();
+                    setUserCountry(countryCode);
+                }
             } catch (err) {
                 console.error('Error loading country from personalData:', err);
             }
         }
     }, []);
 
+    // 3. Cálculos derivados (Filtrado y Ordenado)
     const countryInfo = countryList.find(c => c.code === userCountry) || countryList[0];
     const docs = legislationData[userCountry] || [];
+    const regions = regionalData[userCountry] || [];
 
-    const [summaries, setSummaries] = useState({});
-    const [loadingDocs, setLoadingDocs] = useState(new Set());
-    const [favorites, setFavorites] = useState(() => {
-        return JSON.parse(localStorage.getItem('legislation_favorites') || '[]');
-    });
-    const [notes, setNotes] = useState(() => {
-        return JSON.parse(localStorage.getItem('legislation_notes') || '{}');
-    });
-    const [expandedNote, setExpandedNote] = useState(null);
+    const filteredDocs = React.useMemo(() => {
+        return docs.filter(doc => {
+            const matchesSearch = doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (doc.subtitle && doc.subtitle.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                doc.description.toLowerCase().includes(searchTerm.toLowerCase());
+            
+            if (!matchesSearch) return false;
 
-    const toggleFavorite = (id) => {
-        setFavorites(prev => {
-            const next = prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id];
+            // Filtro por nivel (Ámbito) ESTRICTO
+            if (selectedLevel === 'national') {
+                if (doc.level !== 'national') return false;
+            }
+            
+            if (selectedLevel === 'regional') {
+                if (doc.level !== 'regional') return false;
+                if (selectedRegion && doc.region && doc.region !== selectedRegion) return false;
+            }
+
+            if (selectedLevel === 'municipal') {
+                if (doc.level !== 'municipal') return false;
+                if (selectedRegion && doc.region && doc.region !== selectedRegion) return false;
+                if (selectedMunicipality && doc.municipality && doc.municipality !== selectedMunicipality) return false;
+            }
+
+            return true;
+        });
+    }, [docs, searchTerm, selectedLevel, selectedRegion, selectedMunicipality]);
+
+    const sortedDocs = React.useMemo(() => {
+        return [...filteredDocs].sort((a, b) => {
+            const aFav = (favorites || []).includes(a.id);
+            const bFav = (favorites || []).includes(b.id);
+            if (aFav && !bFav) return -1;
+            if (!aFav && bFav) return 1;
+            return 0;
+        });
+    }, [filteredDocs, favorites]);
+
+    // 4. Manejadores de eventos
+    const toggleFavorite = (id: string) => {
+        setFavorites((prev) => {
+            const isFav = prev.includes(id);
+            const next = isFav ? prev.filter(f => f !== id) : [...prev, id];
             localStorage.setItem('legislation_favorites', JSON.stringify(next));
+            toast.success(isFav ? 'Removido de favoritos' : 'Añadido a favoritos', { icon: '⭐' });
             return next;
         });
-        toast.success(favorites.includes(id) ? 'Removido de favoritos' : 'Añadido a favoritos', { icon: '⭐' });
     };
 
-    const handleNoteChange = (id, text) => {
-        setNotes(prev => {
+    const handleNoteChange = (id: string, text: string) => {
+        setNotes((prev: any) => {
             const next = { ...prev, [id]: text };
             localStorage.setItem('legislation_notes', JSON.stringify(next));
             return next;
         });
     };
 
-    const handleSimplify = async (id, title, subtitle) => {
+    const handleSimplify = async (id: string, title: string, subtitle: string) => {
         if (loadingDocs.has(id)) return;
 
         setLoadingDocs(prev => new Set(prev).add(id));
@@ -86,36 +149,113 @@ export default function Legislation(): React.ReactElement | null {
         }
     };
 
-    // Sort: favorites first, then by title
-    const sortedDocs = [...docs].sort((a, b) => {
-        const aFav = favorites.includes(a.id);
-        const bFav = favorites.includes(b.id);
-        if (aFav && !bFav) return -1;
-        if (!aFav && bFav) return 1;
-        return 0; // maintain original order for non-favorites
-    });
-
-    const filteredDocs = sortedDocs.filter(doc =>
-        doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        doc.subtitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        doc.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
     return (
         <div className="container" style={{ paddingBottom: '3rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', marginTop: '1rem' }}>
                 <button
                     onClick={() => navigate('/#tools')}
-                    style={{ background: 'none', border: 'none', padding: 0, color: 'var(--color-text)' }}
+                    style={{ background: 'none', border: 'none', padding: 0, color: 'var(--color-text)', cursor: 'pointer' }}
                 >
                     <ArrowLeft size={24} />
                 </button>
-                <div>
+                <div style={{ flex: 1 }}>
                     <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Leyes y Normas</h1>
-                    <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.85rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                        <span>{countryInfo.flag}</span> Región: <strong>{countryInfo.name}</strong>
-                    </p>
+                    <select 
+                        value={userCountry}
+                        onChange={(e) => {
+                            setUserCountry(e.target.value);
+                            setSelectedLevel('all');
+                            setSelectedRegion('');
+                        }}
+                        style={{ 
+                            background: 'transparent', 
+                            border: 'none', 
+                            padding: 0, 
+                            fontSize: '0.85rem', 
+                            color: 'var(--color-primary)', 
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            outline: 'none'
+                        }}
+                    >
+                        {countryList.map(c => (
+                            <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
+                        ))}
+                    </select>
                 </div>
+            </div>
+
+            {/* Selectores de Nivel y Región */}
+            <div className="card" style={{ padding: '1.2rem', marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+                    {[
+                        { id: 'all', label: 'Todo' },
+                        { id: 'national', label: 'Nacional' },
+                        { id: 'regional', label: countryInfo.regionsLabel },
+                        { id: 'municipal', label: 'Municipal' }
+                    ].map(level => (
+                        <button
+                            key={level.id}
+                            onClick={() => {
+                                setSelectedLevel(level.id);
+                                if (level.id === 'national' || level.id === 'all') setSelectedRegion('');
+                            }}
+                            style={{
+                                padding: '0.5rem 1rem',
+                                borderRadius: '50px',
+                                border: 'none',
+                                background: selectedLevel === level.id ? 'var(--color-primary)' : 'var(--color-background)',
+                                color: selectedLevel === level.id ? '#ffffff' : 'var(--color-text-muted)',
+                                fontSize: '0.8rem',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                whiteSpace: 'nowrap',
+                                transition: 'all 0.2s',
+                                boxShadow: selectedLevel === level.id ? '0 4px 10px rgba(59, 130, 246, 0.3)' : 'none'
+                            }}
+                        >
+                            {level.label}
+                        </button>
+                    ))}
+                </div>
+
+                {(selectedLevel === 'regional' || selectedLevel === 'municipal') && (
+                    <div style={{ display: 'flex', gap: '1rem', animation: 'fadeIn 0.3s ease-out' }}>
+                        <div style={{ flex: 1 }}>
+                            <label style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.3rem', display: 'block' }}>
+                                Seleccionar {countryInfo.regionsLabel}
+                            </label>
+                            <select
+                                value={selectedRegion}
+                                onChange={(e) => setSelectedRegion(e.target.value)}
+                                style={{ width: '100%', padding: '0.6rem', height: 'auto', fontSize: '0.9rem' }}
+                            >
+                                <option value="">Todas las {countryInfo.regionsLabel}</option>
+                                {regions.map(r => (
+                                    <option key={r} value={r}>{r}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {selectedLevel === 'municipal' && selectedRegion && (municipalData[userCountry]?.[selectedRegion]) && (
+                            <div style={{ flex: 1, animation: 'fadeIn 0.3s ease-out' }}>
+                                <label style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.3rem', display: 'block' }}>
+                                    Municipio
+                                </label>
+                                <select
+                                    value={selectedMunicipality}
+                                    onChange={(e) => setSelectedMunicipality(e.target.value)}
+                                    style={{ width: '100%', padding: '0.6rem', height: 'auto', fontSize: '0.9rem' }}
+                                >
+                                    <option value="">Todos los Municipios</option>
+                                    {(municipalData[userCountry][selectedRegion] || []).map(m => (
+                                        <option key={m} value={m}>{m}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
 
             <div style={{ position: 'relative', marginBottom: '2rem' }}>
@@ -130,7 +270,7 @@ export default function Legislation(): React.ReactElement | null {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {filteredDocs.map(doc => (
+                {sortedDocs.map(doc => (
                     <div key={doc.id} className="card" style={{ padding: '1.2rem' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.8rem' }}>
                             <div>

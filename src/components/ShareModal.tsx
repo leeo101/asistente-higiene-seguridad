@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X, Mail, Copy, Check, Printer } from 'lucide-react';
+import { X, Mail, Copy, Check, Printer, Download } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { createPortal } from 'react-dom';
 import { generatePdfBlob } from '../utils/pdfHelper';
@@ -111,7 +111,8 @@ export default function ShareModal({
         try {
             await new Promise(resolve => setTimeout(resolve, 150));
             const pdfBlob = await generatePdfBlob(elementIdToPrint);
-            const fileName = propFileName || `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'reporte'}.pdf`;
+            const safeName = propFileName ? (propFileName.endsWith('.pdf') ? propFileName : `${propFileName}.pdf`) : `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'reporte'}.pdf`;
+            const fileName = safeName;
 
             const triggerDownload = () => {
                 const url = window.URL.createObjectURL(pdfBlob);
@@ -161,6 +162,31 @@ export default function ShareModal({
         }
     };
 
+    const handleDirectDownload = async () => {
+        if (!elementIdToPrint) return;
+        setIsGenerating(true);
+        try {
+            await new Promise(resolve => setTimeout(resolve, 150));
+            const pdfBlob = await generatePdfBlob(elementIdToPrint);
+            const safeName = propFileName ? (propFileName.endsWith('.pdf') ? propFileName : `${propFileName}.pdf`) : `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'reporte'}.pdf`;
+            const fileName = safeName;
+            const url = window.URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+            toast.success('¡PDF descargado con éxito!');
+        } catch (error) {
+            console.error("Error downloading PDF:", error);
+            toast.error('Hubo un error al generar el PDF.');
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
     const options = [
         {
             label: 'WhatsApp',
@@ -181,6 +207,14 @@ export default function ShareModal({
             bg: '#3b82f6',
             color: '#ffffff',
             hijack: true
+        },
+        {
+            label: 'Descargar',
+            icon: <Download size={22} />,
+            onClick: handleDirectDownload,
+            bg: '#8b5cf6',
+            color: '#ffffff',
+            hijack: false
         },
         {
             label: 'Imprimir',

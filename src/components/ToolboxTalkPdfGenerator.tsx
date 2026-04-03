@@ -39,13 +39,15 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
     return (
         <div 
             id="toolbox-pdf-content" 
+            className="pdf-container print-area"
             style={{ 
                 padding: '20mm 15mm', 
                 fontFamily: 'Arial, sans-serif', 
-                background: '#fff', 
-                color: '#000',
+                background: '#ffffff', 
+                color: '#000000',
                 width: '210mm',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                position: 'relative'
             }}
         >
             {/* Header */}
@@ -114,7 +116,7 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
                         {[...data.asistentes.filter(a => a.nombre), ...Array(Math.max(0, 10 - data.asistentes.filter(a => a.nombre).length)).fill({ id: '', nombre: '', dni: '', firma: false })].slice(0, 20).map((att, idx) => (
                             <tr key={idx} style={{ background: idx % 2 === 0 ? '#f8fafc' : '#fff', borderBottom: '1px solid #e2e8f0' }}>
                                 <td style={{ padding: '6px 8px', color: '#64748b', fontWeight: 700 }}>{idx + 1}</td>
-                                <td style={{ padding: '6px 8px', fontWeight: 600 }}>{att.nombre}</td>
+                                <td style={{ padding: '6px 8px', fontWeight: 600, color: '#1e293b' }}>{att.nombre}</td>
                                 <td style={{ padding: '6px 8px', color: '#374151' }}>{att.dni}</td>
                                 <td style={{ padding: '6px 8px', textAlign: 'center' }}>
                                     {att.firma ? '✅' : <span style={{ display: 'inline-block', width: '100px', borderBottom: '1px solid #aaa' }}>&nbsp;</span>}

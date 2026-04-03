@@ -34,8 +34,8 @@ export async function generatePdfBlob(elementId, filename = 'reporte.pdf', isLan
         // height is needed to fit the unwrapped content.
         const targetWidth = isLandscape ? '297mm' : '210mm';
         
-        element.style.position = 'absolute';
-        element.style.left = '-9999px'; // Render off-screen to avoid jumping
+        element.style.position = 'fixed';
+        element.style.left = '0';
         element.style.top = '0';
         element.style.width = targetWidth;
         element.style.maxWidth = 'none';
@@ -44,11 +44,12 @@ export async function generatePdfBlob(elementId, filename = 'reporte.pdf', isLan
         element.style.height = 'auto';
         element.style.minHeight = '0';
         
-        element.style.zIndex = '9999';
+        element.style.zIndex = '999999';
         element.style.opacity = '1';
         element.style.pointerEvents = 'none';
         element.style.visibility = 'visible';
         element.style.backgroundColor = '#ffffff';
+        element.style.color = '#000000';
         element.classList.add('force-pdf-print');
 
         // Wait for styles to apply
