@@ -211,10 +211,6 @@ export default function ToolboxTalk(): React.ReactElement {
                     fileName={`Charla_5min_${form.tema.replace(/\s+/g, '_') || 'sin_tema'}`}
                 />
 
-                <div className="print-area" style={{ position: 'fixed', left: 0, top: 0, opacity: 0.01, pointerEvents: 'none', zIndex: -1 }}>
-                    <ToolboxTalkPdfGenerator data={form} professional={professional} />
-                </div>
-
                 {/* Floating Action Buttons */}
                 <div className="no-print floating-action-bar">
                     <button onClick={handleSave} className="btn-floating-action" style={{ background: '#36B37E', color: '#fff' }}>
@@ -461,8 +457,10 @@ export default function ToolboxTalk(): React.ReactElement {
                         )}
                     </div>
                 )}
+            </div>
 
-                {/* The separate generator component above handles the PDF content */}
+            <div className="print-area" style={{ position: 'fixed', left: 0, top: 0, opacity: 0.01, pointerEvents: 'none', zIndex: -1 }}>
+                <ToolboxTalkPdfGenerator data={form} professional={professional} />
             </div>
         </>
     );
