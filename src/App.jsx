@@ -501,6 +501,7 @@ function App() {
             <Footer />
             <InstallBanner />
           </div>
+          <FloatingAssistant />
         </div>
       </SyncProvider>
     </AuthProvider >
