@@ -120,6 +120,74 @@ export const legislationData = {
             category: 'Minería',
             level: 'national'
         },
+        {
+            id: 'res-srt-30-2023',
+            title: 'Res. SRT 30/2023',
+            subtitle: 'Estrés por Calor — Nueva Norma Técnica',
+            description: '⚠️ VIGENTE DESDE 2024. Reemplaza el Anexo II del Dec. 351/79 sobre carga térmica. Incorpora criterios ACGIH actualizados, define VLA y VLE, exige apto médico específico para exposición al calor y protocolo de aclimatación de 5 a 14 días. También reemplaza disposiciones de los Dec. 911/96 y 249/07 en esta materia.',
+            url: 'https://www.argentina.gob.ar/normativa/nacional/resolución-30-2023-387988/texto',
+            category: 'Resolución SRT',
+            level: 'national',
+            isNew: true
+        },
+        {
+            id: 'res-srt-7-2024',
+            title: 'Res. SRT 7/2024',
+            subtitle: 'Prórroga implementación Res. SRT 30/2023',
+            description: 'Otorgó una prórroga de 180 días adicionales para la adecuación de los empleadores a los nuevos requisitos de evaluación de estrés por calor establecidos en la Res. 30/2023.',
+            url: 'https://www.argentina.gob.ar/srt/normativa',
+            category: 'Resolución SRT',
+            level: 'national'
+        },
+        {
+            id: 'res-siyc-18-25',
+            title: 'Res. SIyC 18/25',
+            subtitle: 'Nuevo Reglamento Técnico para EPP',
+            description: '⚠️ VIGENTE DESDE FEBRERO 2025. Deroga la Res. 896/1999. Establece nuevo sistema de certificación de EPP: acepta normas internacionales (ISO, EN, ANSI, NIOSH, NFPA, IEC). Introduce el nuevo Marcado de Conformidad "AR" (sello doble tilde + Código QR de trazabilidad). La Res. SRT 299/2011 sigue rigiendo el uso obligatorio en planta.',
+            url: 'https://www.boletinoficial.gob.ar/',
+            category: 'Resolución',
+            level: 'national',
+            isNew: true
+        },
+        {
+            id: 'dec-549-2025',
+            title: 'Decreto 549/2025',
+            subtitle: 'Nuevo Baremo Laboral — Tabla de Incapacidades',
+            description: '⚠️ VIGENTE DESDE AGOSTO 2025. Actualiza la Tabla de Evaluación de Incapacidades Laborales incorporando criterios científicos modernos para la determinación de secuelas incapacitantes en accidentes de trabajo y enfermedades profesionales.',
+            url: 'https://www.boletinoficial.gob.ar/',
+            category: 'Decreto Reglamentario',
+            level: 'national',
+            isNew: true
+        },
+        {
+            id: 'res-srt-48-2025',
+            title: 'Res. SRT 48/2025',
+            subtitle: 'Ecosistema Prevención 4.0',
+            description: 'Establece nuevos requisitos para prestadores tecnológicos dentro del ecosistema de gestión de riesgos del trabajo. Apunta a la modernización digital del sistema de prevención laboral y la agilización de procesos administrativos mediante tecnología.',
+            url: 'https://www.argentina.gob.ar/srt/normativa',
+            category: 'Resolución SRT',
+            level: 'national'
+        },
+        {
+            id: 'res-srt-7-2026',
+            title: 'Res. SRT 7/2026',
+            subtitle: 'Protocolo Valoración del Daño Corporal',
+            description: '⚠️ VIGENTE DESDE ENERO 2026. Aprueba el nuevo Protocolo de Estudios Mínimos para la Valoración del Daño Corporal e Incapacidad. Estandariza la recolección de evidencia médica ante Comisiones Médicas. Deroga la Res. SRT 886/17 y la Res. 3/21.',
+            url: 'https://www.argentina.gob.ar/srt/normativa',
+            category: 'Resolución SRT',
+            level: 'national',
+            isNew: true
+        },
+        {
+            id: 'res-srt-15-2026',
+            title: 'Res. SRT 15/2026',
+            subtitle: 'Actualización Valores Indemnizatorios RIPTE',
+            description: '⚠️ VIGENTE DESDE MARZO 2026. Actualiza los valores de compensaciones dinerarias y pisos mínimos indemnizatorios por accidentes de trabajo y enfermedades profesionales (ILP, muerte). Vigente hasta agosto 2026 según índice RIPTE.',
+            url: 'https://www.argentina.gob.ar/srt/normativa',
+            category: 'Resolución SRT',
+            level: 'national',
+            isNew: true
+        },
 
         // --- CABA ---
         {
@@ -454,7 +522,8 @@ export const getCountryNormativa = (country) => {
             fire: 'Dec. 351/79 Anexo VII',
             lighting: 'Dec. 351/79 Anexo IV',
             ergo: 'Res. SRT 886/15',
-            thermal: 'Res. SRT 295/03',
+            thermal: 'Res. SRT 30/2023',
+            thermalOld: 'Res. SRT 295/03 (derogada)',
             general: 'Ley 19.587'
         },
         chile: {

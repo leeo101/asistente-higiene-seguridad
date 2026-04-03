@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { ArrowLeft, Plus, Trash2, HardHat, TriangleAlert, CheckCircle, Clock, Shield, Download } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, HardHat, TriangleAlert, CheckCircle, Clock, Shield, Download, QrCode, ExternalLink, Info } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useSync } from '../contexts/SyncContext';
 import { downloadCSV } from '../services/exportCsv';
@@ -12,6 +12,9 @@ const EPP_TYPES = [
     'Chaleco reflectivo', 'Mascarilla / Respirador', 'Careta facial',
     'Ropa ignífuga', 'Botas de goma', 'Rodilleras', 'Otro'
 ];
+
+// Normas de certificación aceptadas por Res. SIyC 18/25
+const CERT_STANDARDS = ['IRAM', 'ISO', 'EN (Europeo)', 'ANSI', 'NIOSH', 'NFPA', 'IEC', 'Otra'];
 
 function getDaysUntilExpiry(purchaseDate, lifeMonths) {
     if (!purchaseDate || !lifeMonths) return null;
@@ -39,7 +42,7 @@ function StatusBadge({ days }) {
     );
 }
 
-const EMPTY_FORM = { type: '', custom: '', responsible: '', purchaseDate: '', lifeMonths: '' };
+const EMPTY_FORM = { type: '', custom: '', responsible: '', purchaseDate: '', lifeMonths: '', certStandard: '', certNumber: '' };
 
 export default function PPETracker(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -101,7 +104,7 @@ export default function PPETracker(): React.ReactElement | null {
                     </button>
                     <div>
                         <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800, lineHeight: 1.2 }}>Control de EPP</h1>
-                        <p style={{ margin: 0, fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Vida útil y vencimientos</p>
+                        <p style={{ margin: 0, fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Res. SIyC 18/25 · Res. SRT 299/11</p>
                     </div>
                 </div>
                 {items.length > 0 && (
@@ -109,6 +112,32 @@ export default function PPETracker(): React.ReactElement | null {
                         <Download size={14} /> <span className="hidden sm:inline">EXCEL</span>
                     </button>
                 )}
+            </div>
+
+            {/* Banner normativa actualizada */}
+            <div style={{
+                background: 'linear-gradient(135deg, rgba(37,99,235,0.07), rgba(139,92,246,0.07))',
+                border: '1px solid rgba(37,99,235,0.2)',
+                borderRadius: '14px',
+                padding: '0.85rem 1.1rem',
+                marginBottom: '1.2rem',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.8rem'
+            }}>
+                <div style={{ marginTop: '2px', flexShrink: 0 }}>
+                    <QrCode size={22} color="#2563eb" />
+                </div>
+                <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.3rem' }}>
+                        <span style={{ fontSize: '0.72rem', fontWeight: 900, textTransform: 'uppercase', color: '#2563eb', letterSpacing: '0.04em' }}>🆕 Res. SIyC 18/25 — Vigente desde Feb 2025</span>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+                        Los EPP comercializados en Argentina ahora deben contar con el <strong style={{ color: 'var(--color-text)' }}>Marcado "AR" ✓✓ + Código QR de trazabilidad</strong>.
+                        Se aceptan certificaciones <strong style={{ color: 'var(--color-text)' }}>ISO, EN, ANSI, NIOSH, NFPA, IEC</strong> (ya no solo IRAM).
+                        El uso obligatorio en planta sigue rigiendo por Res. SRT 299/11.
+                    </p>
+                </div>
             </div>
 
             {/* Alert summary */}
@@ -159,6 +188,17 @@ export default function PPETracker(): React.ReactElement | null {
                             <label>Vida útil (meses)</label>
                             <input type="number" min="1" max="120" value={form.lifeMonths} onChange={e => setForm({ ...form, lifeMonths: e.target.value })} placeholder="12" />
                         </div>
+                        <div>
+                            <label>Norma de Certificación <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>(Res. SIyC 18/25)</span></label>
+                            <select value={form.certStandard} onChange={e => setForm({ ...form, certStandard: e.target.value })}>
+                                <option value="">— Seleccioná —</option>
+                                {CERT_STANDARDS.map(s => <option key={s} value={s}>{s}</option>)}
+                            </select>
+                        </div>
+                        <div>
+                            <label>N° de Certificado / Sello AR</label>
+                            <input value={form.certNumber} onChange={e => setForm({ ...form, certNumber: e.target.value })} placeholder="Ej: AR-2025-001234" />
+                        </div>
                     </div>
                     <div style={{ display: 'flex', gap: '0.8rem', marginTop: '1rem', flexWrap: 'wrap' }}>
                         <button onClick={handleAdd} className="btn-primary" style={{ flex: 2, minWidth: '120px', margin: 0 }}>Guardar EPP</button>
@@ -201,6 +241,7 @@ export default function PPETracker(): React.ReactElement | null {
                                             {item.responsible && <span>👤 {item.responsible}</span>}
                                             <span>📅 Entrega: {new Date(item.purchaseDate).toLocaleDateString('es-AR')}</span>
                                             <span>⏳ Vida útil: {item.lifeMonths} meses</span>
+                                            {item.certStandard && <span style={{ color: '#2563eb', fontWeight: 700 }}>✓✓ {item.certStandard}{item.certNumber ? ` · ${item.certNumber}` : ''}</span>}
                                         </div>
                                     </div>
                                     <button onClick={() => handleDelete(item.id)} style={{ padding: '0.5rem', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer', flexShrink: 0 }}>

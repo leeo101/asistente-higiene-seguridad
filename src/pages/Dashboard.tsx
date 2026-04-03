@@ -5,7 +5,7 @@ import {
   AlertTriangle, Calendar, Users, FileText, HardHat, Flame,
   ClipboardList, Eye, Activity, Award, Clock, Target, Zap,
   BarChart3, PieChart as PieChartIcon, RefreshCw, Download, Filter, LucideIcon,
-  AlertCircle
+  AlertCircle, BookOpen
 } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, AreaChart, Area } from 'recharts';
 import { User } from 'firebase/auth';
@@ -602,6 +602,38 @@ export default function Dashboard(): React.ReactElement {
             ) : (
               <p style={{ textAlign: 'center', padding: '1rem', color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>Sin alertas pendientes</p>
             )}
+          </div>
+        </div>
+
+        {/* Novedades Normativas */}
+        <div className="card" style={{ padding: '1.5rem', borderTop: '4px solid #8b5cf6' }}>
+          <h3 style={{ margin: '0 0 1.5rem', fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <BookOpen size={20} color="#8b5cf6" /> Novedades Normativas
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.8rem', padding: '0.8rem', background: 'rgba(139, 92, 246, 0.05)', borderRadius: '10px', border: '1px solid rgba(139, 92, 246, 0.1)' }}>
+              <div style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', background: '#8b5cf6', color: '#fff', fontSize: '0.65rem', fontWeight: 800, marginTop: '0.2rem' }}>2026</div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>Res. SRT 30/2023 (Estrés Térmico)</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>Reemplaza Res. 295/03. Nuevos VLA/VLE y requisitos de aclimatación aplicados.</div>
+              </div>
+            </div>
+            
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.8rem', padding: '0.8rem', background: 'rgba(139, 92, 246, 0.05)', borderRadius: '10px', border: '1px solid rgba(139, 92, 246, 0.1)' }}>
+              <div style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', background: '#8b5cf6', color: '#fff', fontSize: '0.65rem', fontWeight: 800, marginTop: '0.2rem' }}>2025</div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>Res. SIyC 18/25 (EPP)</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>Nuevo certificado AR y trazabilidad QR exigible. Módulo EPP actualizado.</div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.8rem', padding: '0.8rem', background: 'var(--color-background)', borderRadius: '10px', border: '1px solid var(--color-border)' }}>
+              <div style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', background: 'var(--color-text-muted)', color: '#fff', fontSize: '0.65rem', fontWeight: 800, marginTop: '0.2rem' }}>2024</div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>Res. SRT 48/2025 y Anteriores</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>Derogación protocolos COVID-19 y actualización de Baremo aprobadas.</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
