@@ -1,12 +1,6 @@
-import fs from 'node:fs/promises'
-import express from 'express'
-import { MercadoPagoConfig, Preference } from 'mercadopago';
-import cors from 'cors';
-import { Resend } from 'resend';
-import crypto from 'crypto';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 
 dotenv.config();
 
@@ -27,14 +21,36 @@ if (!admin.apps.length) {
     }
 }
 
-// In-memory token store (for demo purposes - now unused for auth but kept for compatibility)
-const resetTokens = new Map();
+const db = admin.apps.length ? admin.firestore() : null;
 
 // Constants
 // ==========================================
 // UNIFIED SERVER (API + STATIC) 
 // ==========================================
 const app = express()
+
+// ==========================================
+// SECURITY HEADERS (HELMET)
+// ==========================================
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            "default-src": ["'self'"],
+            "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://www.gstatic.com", "https://firebase.googleapis.com", "https://apis.google.com"],
+            "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            "font-src": ["'self'", "https://fonts.gstatic.com"],
+            "img-src": ["'self'", "data:", "https:", "blob:"],
+            "connect-src": ["'self'", "https://firebase.googleapis.com", "https://firestore.googleapis.com", "https://identitytoolkit.googleapis.com", "https://securetoken.googleapis.com", "wss:", "ws:", "https://generativelanguage.googleapis.com"],
+            "media-src": ["'self'", "blob:"],
+            "object-src": ["'none'"],
+            "base-uri": ["'self'"],
+            "form-action": ["'self'"]
+        }
+    },
+    crossOriginEmbedderPolicy: false, // Often needed for Firebase/Google assets
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" }
+}));
+
 
 // Allow CORS for development and for the production Firebase URL
 const allowedOrigins = [
@@ -115,54 +131,17 @@ const adminLimiter = rateLimit({
 // Apply general limiter to all API routes
 app.use('/api', generalLimiter);
 
-// ==========================================
-// SECURITY HEADERS MIDDLEWARE
-// ==========================================
+// Extra Security Middleware
 app.use((req, res, next) => {
-    // Prevenir MIME-type sniffing
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-
-    // Prevenir clickjacking (evita que tu sitio sea embebido en iframes)
-    res.setHeader('X-Frame-Options', 'DENY');
-
-    // Prevenir ataques XSS en navegadores antiguos
-    res.setHeader('X-XSS-Protection', '1; mode=block');
-
-    // Forzar HTTPS en producción (HSTS)
-    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
-
-    // Prevenir prefetching de DNS para mayor privacidad
-    res.setHeader('X-DNS-Prefetch-Control', 'off');
-
-    // Política de seguridad de contenido (CSP) - restringe fuentes de recursos
-    res.setHeader('Content-Security-Policy', [
-        "default-src 'self'",
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://firebase.googleapis.com https://apis.google.com",
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-        "font-src 'self' https://fonts.gstatic.com",
-        "img-src 'self' data: https: blob:",
-        "connect-src 'self' https://firebase.googleapis.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com wss: ws: https://generativelanguage.googleapis.com",
-        "media-src 'self' blob:",
-        "object-src 'none'",
-        "base-uri 'self'",
-        "form-action 'self'"
-    ].join('; '));
-
-    // Política de permisos/feature
-    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(self)');
-
-    // Referrer Policy - controlar qué información del referer se envía
-    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-
-    // No cachear respuestas de API (pero permitir caché en producción para assets estáticos)
+    // No cachear respuestas de API
     if (req.path.startsWith('/api/')) {
         res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
         res.setHeader('Pragma', 'no-cache');
         res.setHeader('Expires', '0');
     }
-
     next();
 });
+
 
 process.on('unhandledRejection', (reason, promise) => {
     console.error("Unhandled Rejection at:", promise, "reason:", reason);
@@ -792,47 +771,9 @@ app.post('/api/forgot-password', authLimiter, async (req, res) => {
     }
 });
 
-app.post('/api/reset-password', async (req, res) => {
-    const { token, newPassword } = req.body;
-    const session = resetTokens.get(token);
-
-    if (!session || session.expires < Date.now()) {
-        return res.status(400).json({ error: 'Token no válido o expirado' });
-    }
-
-    try {
-        console.log(`[PASSWORD RESET] Correctly updated password for ${session.email}`);
-        resetTokens.delete(token);
-        res.json({ message: 'Contraseña actualizada correctamente.' });
-    } catch (error) {
-        res.status(500).json({ error: 'Error al actualizar la contraseña' });
-    }
-});
-
 // ==========================================
-// REGISTRATION REQUESTS API
+// REGISTRATION REQUESTS API (Firestore)
 // ==========================================
-
-const DATA_DIR = './data';
-const REQUESTS_FILE = `${DATA_DIR}/registration-requests.json`;
-
-async function ensureDataFile() {
-    try {
-        await fs.mkdir(DATA_DIR, { recursive: true });
-
-        // Registration requests
-        try {
-            await fs.access(REQUESTS_FILE);
-        } catch {
-            await fs.writeFile(REQUESTS_FILE, JSON.stringify([]), 'utf-8');
-        }
-    } catch (error) {
-        console.error("Error creating data directory/file:", error);
-    }
-}
-
-// Ensure on startup
-ensureDataFile();
 
 app.post('/api/register-request', async (req, res) => {
     try {
@@ -840,11 +781,13 @@ app.post('/api/register-request', async (req, res) => {
         if (!name || !email) {
             return res.status(400).json({ error: 'Nombre y correo son obligatorios' });
         }
-        await ensureDataFile();
-        const fileContent = await fs.readFile(REQUESTS_FILE, 'utf-8');
-        const requests = fileContent ? JSON.parse(fileContent) : [];
+
+        if (!db) {
+            console.error('[DATABASE] Firestore not initialized.');
+            return res.status(500).json({ error: 'Error interno en la base de datos.' });
+        }
+
         const newRequest = {
-            id: Date.now().toString(),
             name,
             email,
             profession: profession || '',
@@ -852,23 +795,27 @@ app.post('/api/register-request', async (req, res) => {
             status: 'pending',
             date: new Date().toISOString()
         };
-        requests.push(newRequest);
-        await fs.writeFile(REQUESTS_FILE, JSON.stringify(requests, null, 2), 'utf-8');
-        res.status(201).json({ message: 'Solicitud enviada correctamente', request: newRequest });
+
+        const docRef = await db.collection('registration_requests').add(newRequest);
+        res.status(201).json({ message: 'Solicitud enviada correctamente', id: docRef.id });
     } catch (error) {
-        console.error("Error saving registration request:", error);
-        res.status(500).json({ error: 'Error al guardar la solicitud' });
+        console.error("Error saving registration request to Firestore:", error);
+        res.status(500).json({ error: 'Error al conectar con la base de datos' });
     }
 });
 
 app.get('/api/admin/requests', adminLimiter, isAdmin, async (req, res) => {
     try {
-        await ensureDataFile();
-        const fileContent = await fs.readFile(REQUESTS_FILE, 'utf-8');
-        const requests = fileContent ? JSON.parse(fileContent) : [];
+        if (!db) return res.status(500).json({ error: 'Firestore no inicializado' });
+        
+        const snapshot = await db.collection('registration_requests')
+            .orderBy('date', 'desc')
+            .get();
+        
+        const requests = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         res.json(requests);
     } catch (error) {
-        console.error("Error reading registration requests:", error.message);
+        console.error("Error reading registration requests from Firestore:", error.message);
         res.status(500).json({ error: 'Error al leer las solicitudes' });
     }
 });
@@ -876,21 +823,16 @@ app.get('/api/admin/requests', adminLimiter, isAdmin, async (req, res) => {
 app.delete('/api/admin/requests/:id', adminLimiter, isAdmin, async (req, res) => {
     try {
         const { id } = req.params;
-        await ensureDataFile();
-        const fileContent = await fs.readFile(REQUESTS_FILE, 'utf-8');
-        let requests = fileContent ? JSON.parse(fileContent) : [];
-        const initialLength = requests.length;
-        requests = requests.filter(req => req.id !== id);
-        if (requests.length === initialLength) {
-            return res.status(404).json({ error: 'Solicitud no encontrada' });
-        }
-        await fs.writeFile(REQUESTS_FILE, JSON.stringify(requests, null, 2), 'utf-8');
+        if (!db) return res.status(500).json({ error: 'Firestore no inicializado' });
+        
+        await db.collection('registration_requests').doc(id).delete();
         res.json({ message: 'Solicitud eliminada' });
     } catch (error) {
-        console.error("Error deleting registration request:", error);
+        console.error("Error deleting registration request from Firestore:", error);
         res.status(500).json({ error: 'Error al eliminar la solicitud' });
     }
 });
+
 
 // Welcome email - email limiter (prevent spam)
 app.post('/api/welcome-email', emailLimiter, async (req, res) => {

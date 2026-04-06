@@ -30,6 +30,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
     useDocumentTitle('Creador de Mapas de Riesgo');
     const navigate = useNavigate();
     const location = useLocation();
+    const { currentUser } = useAuth();
     const { syncCollection } = useSync();
     const { requirePro } = usePaywall();
     const editData = location.state?.editData;
@@ -341,14 +342,39 @@ export default function RiskMapGenerator(): React.ReactElement | null {
 
     const doSave = () => {
         if (!meta.empresa || !meta.sector) { toast.error('Completá Empresa y Sector antes de guardar.'); return; }
-        const mapData = { id: editData?.id || Date.now(), ...meta, elements, backgroundImage, createdAt: editData?.createdAt || new Date().toISOString(), updatedAt: new Date().toISOString() };
+        
+        // ID más robusto (randomUUID o fallback aleatorio)
+        const generateId = () => {
+            if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+            return `map_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+        };
+
+        const mapData = { 
+            id: editData?.id || generateId(), 
+            ...meta, 
+            elements, 
+            backgroundImage, 
+            createdAt: editData?.createdAt || new Date().toISOString(), 
+            updatedAt: new Date().toISOString() 
+        };
+
         let hist = JSON.parse(localStorage.getItem('risk_map_history') || '[]');
         hist = editData ? hist.map(it => it.id === editData.id ? mapData : it) : [mapData, ...hist];
         localStorage.setItem('risk_map_history', JSON.stringify(hist));
         syncCollection('risk_map_history', hist);
-        toast.success(editData ? 'Mapa actualizado.' : 'Mapa guardado.');
+        
+        if (!currentUser) {
+            toast('Mapa guardado localmente (Inicie sesión para respaldar en la nube)', { 
+                icon: '⚠️',
+                duration: 4000 
+            });
+        } else {
+            toast.success(editData ? 'Mapa actualizado y sincronizado.' : 'Mapa guardado y sincronizado.');
+        }
+        
         navigate('/risk-maps-history');
     };
+
 
     const handleSave = () => doSave();
 

@@ -293,7 +293,9 @@ export const SYNC_COLLECTIONS: string[] = [
   'ehs_audits_db',
   'ehs_capa_db',
   'environmental_measurements_db',
+  'risk_map_history',
 ];
+
 
 export const SYNC_DOCUMENTS: string[] = [
   'personalData',

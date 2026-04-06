@@ -9,9 +9,15 @@ service cloud.firestore {
       }
     }
     
+    // registration_requests is managed via Backend API only
+    match /registration_requests/{docId} {
+      allow read, write: if false;
+    }
+    
     // Default deny for all other paths
     match /{path=**} {
       allow read, write: if false;
     }
   }
 }
+
