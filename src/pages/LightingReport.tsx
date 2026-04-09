@@ -299,7 +299,7 @@ export default function LightingReport(): React.ReactElement | null {
             )}
 
             {/* ENCABEZADO PARA IMPRESIÓN */}
-            <div id="pdf-content" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div id="pdf-content" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem', background: '#ffffff', color: '#000000' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', alignItems: 'center', borderBottom: '4px solid #3b82f6', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
                     <div style={{ textAlign: 'left' }}>
                         <p style={{ margin: 0, fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.05em' }}>Sistema de Gestión</p>

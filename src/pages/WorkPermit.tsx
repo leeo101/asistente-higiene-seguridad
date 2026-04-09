@@ -180,6 +180,38 @@ export default function WorkPermit(): React.ReactElement | null {
 
     const selectedTypeLabel = permitTypes.find(t => t.id === formData.tipoPermiso)?.label || 'Permiso de Trabajo';
 
+    // --- Progress tracking ---
+    const wpProgressItems = [
+        { label: 'Empresa', done: !!formData.empresa?.trim() },
+        { label: 'Obra', done: !!formData.obra?.trim() },
+        { label: 'Tipo de Permiso', done: !!formData.tipoPermiso },
+        { label: 'Horario', done: !!formData.validezDesde && !!formData.validezHasta },
+        { label: 'Personal autorizado', done: formData.personal.some(p => p.nombre?.trim()) },
+        { label: 'Checklist completo', done: formData.checklist.length > 0 && formData.checklist.every(c => c.estado !== '') },
+    ];
+    const wpDone = wpProgressItems.filter(p => p.done).length;
+    const wpPct = Math.round((wpDone / wpProgressItems.length) * 100);
+    const wpColor = wpPct === 100 ? '#10b981' : wpPct >= 66 ? '#f59e0b' : '#3b82f6';
+
+    // Quick templates per permit type
+    const QUICK_TEMPLATES = [
+        { id: 'hot_work', label: 'Trabajo en Caliente', emoji: '🔥', color: '#ef4444', eppPreset: ['Casco', 'Calzado de Seguridad', 'Guantes de Cuero', 'Careta de Soldar', 'Mandil de Cuero', 'Extintor a Mano'] },
+        { id: 'height',   label: 'Trabajo en Altura',  emoji: '⛰️', color: '#f97316', eppPreset: ['Casco', 'Calzado de Seguridad', 'Arnés de Cuerpo Completo', 'Cabo de Vida', 'Guantes', 'Anteojos'] },
+        { id: 'elec',     label: 'Trabajo Eléctrico',   emoji: '⚡',  color: '#eab308', eppPreset: ['Casco Dieléctrico', 'Guantes Dieléctricos', 'Calzado Dieléctrico', 'Anteojos', 'Herramienta Aislada'] },
+        { id: 'confined', label: 'Espacio Confinado',  emoji: '🕒', color: '#8b5cf6', eppPreset: ['Equipo de Respiración', 'Arnés', 'Detector de Gas', 'Radio Comunicación', 'Casco', 'Guantes'] },
+    ];
+
+    const applyQuickTemplate = (tpl) => {
+        const matched = permitTypes.find(t => t.id === tpl.id) || permitTypes[0];
+        setFormData(prev => ({
+            ...prev,
+            tipoPermiso: matched.id,
+            checklist: matched.questions.map((q, i) => ({ id: Date.now() + i, pregunta: q, estado: 'Cumple', observaciones: '' })),
+            eppRequeridos: tpl.eppPreset,
+        }));
+        toast.success(`Plantilla ${tpl.label} aplicada`);
+    };
+
     return (
         <div className="container" style={{ maxWidth: '1000px', paddingBottom: '8rem' }}>
             <ShareModal
@@ -206,26 +238,57 @@ export default function WorkPermit(): React.ReactElement | null {
                 </button>
             </div>
 
-            <div className="no-print" style={{
-                marginBottom: '2rem',
-                padding: '2rem',
-                background: 'var(--color-surface)',
-                borderRadius: '20px',
-                border: '1px solid #EBECF0',
-                display: 'flex',
-                justifyContent: 'space-between',
-                gap: '1.5rem',
-                alignItems: 'center'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <button onClick={() => navigate('/#tools')} style={{ padding: '0.5rem', background: 'var(--color-background)', borderRadius: '10px', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
-                        <ArrowLeft size={20} />
-                    </button>
-                    <div>
-                        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-text)' }}>
-                            {editData ? 'Editar Permiso de Trabajo' : 'Permisos de Trabajo'}
-                        </h1>
-                        <p style={{ margin: 0, color: 'var(--color-text-muted)', fontWeight: 600, fontSize: '0.8rem', textTransform: 'uppercase' }}>Gestión de Riesgos Especiales</p>
+            {/* Quick Templates + Progress */}
+            <div className="no-print" style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.5rem', background: 'var(--color-surface)', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.8rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                        <button onClick={() => navigate('/#tools')} style={{ padding: '0.5rem', background: 'var(--color-background)', borderRadius: '10px', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
+                            <ArrowLeft size={20} />
+                        </button>
+                        <div>
+                            <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.5rem)', fontWeight: 900, color: 'var(--color-text)' }}>
+                                {editData ? 'Editar Permiso de Trabajo' : 'Permisos de Trabajo'}
+                            </h1>
+                            <p style={{ margin: 0, color: 'var(--color-text-muted)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase' }}>Gestión de Riesgos Especiales</p>
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span style={{ fontSize: '1.3rem', fontWeight: 900, color: wpColor }}>{wpPct}%</span>
+                        <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>{wpPct === 100 ? 'Listo ✅' : 'Completando...'}</span>
+                    </div>
+                </div>
+
+                {/* Progress bar */}
+                <div style={{ height: '6px', background: 'var(--color-background)', borderRadius: '999px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${wpPct}%`, background: wpColor, borderRadius: '999px', transition: 'width 0.4s ease', boxShadow: `0 0 6px ${wpColor}88` }} />
+                </div>
+
+                {/* Quick Templates */}
+                <div>
+                    <p style={{ margin: '0 0 0.6rem', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--color-text-muted)' }}>Plantillas Rápidas por Tipo de Riesgo:</p>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        {QUICK_TEMPLATES.map(tpl => (
+                            <button
+                                key={tpl.id}
+                                onClick={() => applyQuickTemplate(tpl)}
+                                style={{
+                                    padding: '0.45rem 0.85rem',
+                                    background: `${tpl.color}15`,
+                                    border: `1.5px solid ${tpl.color}40`,
+                                    borderRadius: '12px',
+                                    fontSize: '0.75rem',
+                                    fontWeight: 800,
+                                    cursor: 'pointer',
+                                    color: tpl.color,
+                                    display: 'flex', alignItems: 'center', gap: '0.4rem',
+                                    transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = `${tpl.color}28`; }}
+                                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = `${tpl.color}15`; }}
+                            >
+                                {tpl.emoji} {tpl.label}
+                            </button>
+                        ))}
                     </div>
                 </div>
             </div>

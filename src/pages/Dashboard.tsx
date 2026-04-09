@@ -1,12 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import {
-  TrendingUp, TrendingDown, Shield, ShieldAlert, CheckCircle,
-  AlertTriangle, Calendar, Users, FileText, HardHat, Flame,
-  ClipboardList, Eye, Activity, Award, Clock, Target, Zap,
-  BarChart3, PieChart as PieChartIcon, RefreshCw, Download, Filter, LucideIcon,
-  AlertCircle, BookOpen
-} from 'lucide-react';
+  TrendUp, TrendDown, Shield, ShieldWarning, CheckCircle,
+  Warning as AlertTriangle, CalendarBlank as Calendar, Users, FileText, HardHat, Fire as Flame,
+  ClipboardText as ClipboardList, Eye, Pulse as Activity, Trophy as Award, Clock, Target, Lightning as Zap,
+  ChartBar as BarChart3, ChartPieSlice as PieChartIcon, ArrowsClockwise as RefreshCw, DownloadSimple as Download, Funnel as Filter,
+  WarningCircle as AlertCircle, BookOpen, Icon
+} from '@phosphor-icons/react';
+import AnimatedPage from '../components/AnimatedPage';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, AreaChart, Area } from 'recharts';
 import { User } from 'firebase/auth';
 import { useAuth } from '../contexts/AuthContext';
@@ -52,7 +53,7 @@ interface AlertItem {
 }
 
 interface KPICardProps {
-  icon: LucideIcon;
+  icon: Icon;
   title: string;
   value: string | number;
   trend?: number;
@@ -127,7 +128,7 @@ const KPICard: React.FC<KPICardProps> = ({ icon: Icon, title, value, trend, grad
         <Icon size={28} opacity={0.9} />
         {trend !== undefined && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', padding: '0.3rem 0.6rem', borderRadius: '20px', background: 'rgba(255,255,255,0.2)', fontSize: '0.75rem', fontWeight: 700 }}>
-            {trend >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+            {trend >= 0 ? <TrendUp weight="bold" size={14} /> : <TrendDown weight="bold" size={14} />}
             {Math.abs(trend).toFixed(1)}%
           </div>
         )}
@@ -390,8 +391,9 @@ export default function Dashboard(): React.ReactElement {
   // Loading state is now inline (skeleton) — no full-page spinner needed
 
   return (
-    <div className="container" style={{ paddingTop: '6rem', paddingBottom: '3rem' }}>
-      <Breadcrumbs />
+    <AnimatedPage>
+      <div className="container" style={{ paddingTop: '6rem', paddingBottom: '3rem' }}>
+        <Breadcrumbs />
 
       {/* Header */}
       <div style={{
@@ -733,6 +735,7 @@ export default function Dashboard(): React.ReactElement {
           }
         `}
       </style>
-    </div>
+      </div>
+    </AnimatedPage>
   );
 }

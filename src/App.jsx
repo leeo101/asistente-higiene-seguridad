@@ -1,6 +1,7 @@
 import { Routes, Route, useLocation, Navigate, Link } from 'react-router-dom';
 import React, { useEffect, useState, Suspense, lazy } from 'react';
-import { Menu, Search, Cloud, CloudOff } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
+import { List as Menu, MagnifyingGlass as Search, Cloud, CloudSlash as CloudOff } from '@phosphor-icons/react';
 import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
 import LoadingScreen from './components/LoadingScreen';
@@ -235,7 +236,7 @@ function CloudStatusIndicator() {
           border: '1px solid rgba(251,191,36,0.2)'
         }}
       >
-        <CloudOff size={16} />
+        <CloudOff weight="bold" size={18} />
         <span className="header-title">{pendingCount > 0 ? `Pendiente (${pendingCount})` : 'Offline'}</span>
       </div>
     );
@@ -257,7 +258,7 @@ function CloudStatusIndicator() {
     >
       {syncing ? (
         <>
-          <Cloud size={16} style={{ animation: 'pulse 1.5s infinite' }} />
+          <Cloud weight={syncing ? 'duotone' : 'bold'} size={18} className={syncing ? 'loading-spin' : ''} />
           <span className="header-title">{pendingCount > 0 ? `Subiendo (${pendingCount})` : 'Sync...'}</span>
         </>
       ) : (
@@ -376,7 +377,7 @@ function App() {
                   transition: 'all var(--transition-base)'
                 }}
               >
-                <Menu size={22} strokeWidth={2.5} />
+                <Menu weight="bold" size={22} />
               </button>
               <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', textDecoration: 'none', color: 'var(--color-text)', flex: 1, transition: 'opacity var(--transition-fast)' }}>
                 <img src="/logo.png" alt="Logo" style={{ width: '48px', height: '48px', objectFit: 'contain', filter: 'drop-shadow(0 2px 8px rgba(59, 130, 246, 0.2))' }} />
@@ -400,7 +401,7 @@ function App() {
                   transition: 'all var(--transition-base)'
                 }}
               >
-                <Search size={20} strokeWidth={2.5} />
+                <Search weight="bold" size={20} />
               </button>
               <CloudStatusIndicator />
             </div>
@@ -413,114 +414,116 @@ function App() {
           </div>
 
           <Suspense fallback={<LoadingScreen />}>
-            <div key={location.pathname} className="page-transition" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-              <Routes location={location}>
-                <Route path="/login" element={<Login />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/subscribe" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
-                <Route path="/privacy" element={<PrivacyPolicy />} />
-                <Route path="/v/:uid/:cat/:id" element={<PublicView />} />
+            <div className="page-transition" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <AnimatePresence mode="wait">
+                <Routes location={location} key={location.pathname}>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
+                  <Route path="/subscribe" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
+                  <Route path="/v/:uid/:cat/:id" element={<PublicView />} />
 
-                {/* Public Routes */}
-                <Route path="/" element={<Home />} />
-                <Route path="/ats" element={<ModuleGuard><ATS /></ModuleGuard>} />
-                <Route path="/fire-load" element={<ModuleGuard><FireLoad /></ModuleGuard>} />
+                  {/* Public Routes */}
+                  <Route path="/" element={<Home />} />
+                  <Route path="/ats" element={<ModuleGuard><ATS /></ModuleGuard>} />
+                  <Route path="/fire-load" element={<ModuleGuard><FireLoad /></ModuleGuard>} />
 
-                <Route path="/legislation" element={<Legislation />} />
-                <Route path="/checklists" element={<ChecklistManager />} />
-                <Route path="/create-inspection" element={<CreateInspection />} />
-                <Route path="/checklist" element={<Checklist />} />
-                <Route path="/observation" element={<Observation />} />
-                <Route path="/photos" element={<Photos />} />
-                <Route path="/ai-camera" element={<ModuleGuard><AICamera /></ModuleGuard>} />
-                <Route path="/ai-general-camera" element={<ModuleGuard><AIGeneralCamera /></ModuleGuard>} />
-                <Route path="/ai-advisor" element={<ModuleGuard><AIChatAdvisor /></ModuleGuard>} />
-                <Route path="/ai-history" element={<ModuleGuard><AIHistory /></ModuleGuard>} />
-                <Route path="/ai-report" element={<ModuleGuard><AIReport /></ModuleGuard>} />
-                <Route path="/extinguisher-ai" element={<ModuleGuard><ExtinguisherAI /></ModuleGuard>} />
+                  <Route path="/legislation" element={<Legislation />} />
+                  <Route path="/checklists" element={<ChecklistManager />} />
+                  <Route path="/create-inspection" element={<CreateInspection />} />
+                  <Route path="/checklist" element={<Checklist />} />
+                  <Route path="/observation" element={<Observation />} />
+                  <Route path="/photos" element={<Photos />} />
+                  <Route path="/ai-camera" element={<ModuleGuard><AICamera /></ModuleGuard>} />
+                  <Route path="/ai-general-camera" element={<ModuleGuard><AIGeneralCamera /></ModuleGuard>} />
+                  <Route path="/ai-advisor" element={<ModuleGuard><AIChatAdvisor /></ModuleGuard>} />
+                  <Route path="/ai-history" element={<ModuleGuard><AIHistory /></ModuleGuard>} />
+                  <Route path="/ai-report" element={<ModuleGuard><AIReport /></ModuleGuard>} />
+                  <Route path="/extinguisher-ai" element={<ModuleGuard><ExtinguisherAI /></ModuleGuard>} />
 
-                {/* Safety Modules */}
-                <Route path="/audit" element={<ModuleGuard><AuditManager /></ModuleGuard>} />
-                <Route path="/audit/new" element={<ModuleGuard><AuditForm /></ModuleGuard>} />
-                <Route path="/audit/:id" element={<ModuleGuard><AuditDetail /></ModuleGuard>} />
-                
-                <Route path="/capa" element={<ModuleGuard><CAPAManager /></ModuleGuard>} />
-                <Route path="/capa/new" element={<ModuleGuard><CAPAForm /></ModuleGuard>} />
-                
-                <Route path="/environmental" element={<ModuleGuard><EnvironmentalMonitor /></ModuleGuard>} />
-                <Route path="/environmental/new" element={<ModuleGuard><EnvironmentalForm /></ModuleGuard>} />
-                
-                <Route path="/loto" element={<ModuleGuard><LOTOManager /></ModuleGuard>} />
-                <Route path="/loto/new" element={<ModuleGuard><LOTOForm /></ModuleGuard>} />
-                
-                <Route path="/noise-assessment" element={<ModuleGuard><NoiseAssessment /></ModuleGuard>} />
-                <Route path="/noise-assessment/new" element={<ModuleGuard><NoiseAssessmentForm /></ModuleGuard>} />
-                
-                <Route path="/working-at-height" element={<ModuleGuard><WorkingAtHeight /></ModuleGuard>} />
-                <Route path="/working-at-height/new" element={<ModuleGuard><WorkingAtHeightForm /></ModuleGuard>} />
-                
-                <Route path="/confined-space" element={<ModuleGuard><ConfinedSpace /></ModuleGuard>} />
-                <Route path="/confined-space/new" element={<ModuleGuard><ConfinedSpaceForm /></ModuleGuard>} />
-                
-                <Route path="/chemical-safety" element={<ModuleGuard><ChemicalSafety /></ModuleGuard>} />
-                <Route path="/chemical-safety/new" element={<ModuleGuard><ChemicalSafetyForm /></ModuleGuard>} />
+                  {/* Safety Modules */}
+                  <Route path="/audit" element={<ModuleGuard><AuditManager /></ModuleGuard>} />
+                  <Route path="/audit/new" element={<ModuleGuard><AuditForm /></ModuleGuard>} />
+                  <Route path="/audit/:id" element={<ModuleGuard><AuditDetail /></ModuleGuard>} />
+                  
+                  <Route path="/capa" element={<ModuleGuard><CAPAManager /></ModuleGuard>} />
+                  <Route path="/capa/new" element={<ModuleGuard><CAPAForm /></ModuleGuard>} />
+                  
+                  <Route path="/environmental" element={<ModuleGuard><EnvironmentalMonitor /></ModuleGuard>} />
+                  <Route path="/environmental/new" element={<ModuleGuard><EnvironmentalForm /></ModuleGuard>} />
+                  
+                  <Route path="/loto" element={<ModuleGuard><LOTOManager /></ModuleGuard>} />
+                  <Route path="/loto/new" element={<ModuleGuard><LOTOForm /></ModuleGuard>} />
+                  
+                  <Route path="/noise-assessment" element={<ModuleGuard><NoiseAssessment /></ModuleGuard>} />
+                  <Route path="/noise-assessment/new" element={<ModuleGuard><NoiseAssessmentForm /></ModuleGuard>} />
+                  
+                  <Route path="/working-at-height" element={<ModuleGuard><WorkingAtHeight /></ModuleGuard>} />
+                  <Route path="/working-at-height/new" element={<ModuleGuard><WorkingAtHeightForm /></ModuleGuard>} />
+                  
+                  <Route path="/confined-space" element={<ModuleGuard><ConfinedSpace /></ModuleGuard>} />
+                  <Route path="/confined-space/new" element={<ModuleGuard><ConfinedSpaceForm /></ModuleGuard>} />
+                  
+                  <Route path="/chemical-safety" element={<ModuleGuard><ChemicalSafety /></ModuleGuard>} />
+                  <Route path="/chemical-safety/new" element={<ModuleGuard><ChemicalSafetyForm /></ModuleGuard>} />
 
-                <Route path="/safety-kpis" element={<ProtectedRoute><SafetyKPIs /></ProtectedRoute>} />
-                <Route path="/toolbox-talk" element={<ProtectedRoute><ToolboxTalk /></ProtectedRoute>} />
-                <Route path="/calendar" element={<SafetyCalendar />} />
-                <Route path="/ai-camera-history" element={<AICameraHistory />} />
-                <Route path="/lighting" element={<LightingReport />} />
+                  <Route path="/safety-kpis" element={<ProtectedRoute><SafetyKPIs /></ProtectedRoute>} />
+                  <Route path="/toolbox-talk" element={<ProtectedRoute><ToolboxTalk /></ProtectedRoute>} />
+                  <Route path="/calendar" element={<SafetyCalendar />} />
+                  <Route path="/ai-camera-history" element={<AICameraHistory />} />
+                  <Route path="/lighting" element={<LightingReport />} />
 
-                {/* Dashboard & Tools */}
-                <Route path="/risk" element={<RiskAssessment />} />
-                <Route path="/report" element={<Report />} />
-                <Route path="/risk-matrix" element={<RiskMatrix />} />
-                <Route path="/risk-matrix-report" element={<RiskMatrixReport />} />
-                <Route path="/reports" element={<Reports />} />
-                <Route path="/reports-report" element={<ReportsReport />} />
-                <Route path="/ergonomics" element={<Ergonomics />} />
-                <Route path="/ergonomics-form" element={<ErgonomicsForm />} />
-                <Route path="/ergonomics-report" element={<ErgonomicsReport />} />
+                  {/* Dashboard & Tools */}
+                  <Route path="/risk" element={<RiskAssessment />} />
+                  <Route path="/report" element={<Report />} />
+                  <Route path="/risk-matrix" element={<RiskMatrix />} />
+                  <Route path="/risk-matrix-report" element={<RiskMatrixReport />} />
+                  <Route path="/reports" element={<Reports />} />
+                  <Route path="/reports-report" element={<ReportsReport />} />
+                  <Route path="/ergonomics" element={<Ergonomics />} />
+                  <Route path="/ergonomics-form" element={<ErgonomicsForm />} />
+                  <Route path="/ergonomics-report" element={<ErgonomicsReport />} />
 
-                {/* Protected Private Routes */}
-                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-                <Route path="/personal-data" element={<ProtectedRoute><PersonalData /></ProtectedRoute>} />
-                <Route path="/signature-stamp" element={<ProtectedRoute><SignatureStamp /></ProtectedRoute>} />
-                <Route path="/security" element={<ProtectedRoute><Security /></ProtectedRoute>} />
-                <Route path="/settings" element={<ProtectedRoute><AppSettings /></ProtectedRoute>} />
-                <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
-                <Route path="/extinguishers-history" element={<ProtectedRoute><ExtinguishersHistory /></ProtectedRoute>} />
-                <Route path="/ats-history" element={<ProtectedRoute><ATSHistory /></ProtectedRoute>} />
-                <Route path="/fire-load-history" element={<ProtectedRoute><FireLoadHistory /></ProtectedRoute>} />
-                <Route path="/checklists-history" element={<ProtectedRoute><ChecklistsHistory /></ProtectedRoute>} />
-                <Route path="/lighting-history" element={<ProtectedRoute><LightingHistory /></ProtectedRoute>} />
-                <Route path="/work-permit" element={<ProtectedRoute><WorkPermit /></ProtectedRoute>} />
-                <Route path="/work-permit-history" element={<ProtectedRoute><WorkPermitHistory /></ProtectedRoute>} />
-                <Route path="/risk-assessment-history" element={<ProtectedRoute><RiskAssessmentHistory /></ProtectedRoute>} />
-                <Route path="/admin/requests" element={<ProtectedRoute><AdminRequests /></ProtectedRoute>} />
-                <Route path="/PPE-tracker" element={<ProtectedRoute><PPETracker /></ProtectedRoute>} />
-                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                <Route path="/management-report" element={<ProtectedRoute><ManagementReport /></ProtectedRoute>} />
-                <Route path="/accident-investigation" element={<ProtectedRoute><AccidentInvestigation /></ProtectedRoute>} />
-                <Route path="/accident-history" element={<ProtectedRoute><AccidentHistory /></ProtectedRoute>} />
-                <Route path="/training-management" element={<ProtectedRoute><TrainingManagement /></ProtectedRoute>} />
-                <Route path="/training-history" element={<ProtectedRoute><TrainingHistory /></ProtectedRoute>} />
-                <Route path="/extinguishers" element={<ProtectedRoute><Extinguishers /></ProtectedRoute>} />
-                <Route path="/thermal-stress" element={<ProtectedRoute><ThermalStress /></ProtectedRoute>} />
-                <Route path="/thermal-stress-history" element={<ProtectedRoute><ThermalStressHistory /></ProtectedRoute>} />
-                <Route path="/drills" element={<ProtectedRoute><Drills /></ProtectedRoute>} />
-                <Route path="/drills-history" element={<ProtectedRoute><DrillsHistory /></ProtectedRoute>} />
-                <Route path="/risk-maps" element={<ProtectedRoute><RiskMapGenerator /></ProtectedRoute>} />
-                <Route path="/risk-maps-history" element={<ProtectedRoute><RiskMapHistory /></ProtectedRoute>} />
-                <Route path="/stop-cards" element={<ProtectedRoute><StopCards /></ProtectedRoute>} />
-                <Route path="/stop-cards-history" element={<ProtectedRoute><StopCardsHistory /></ProtectedRoute>} />
-                <Route path="/logo-settings" element={<ProtectedRoute><LogoSettings /></ProtectedRoute>} />
+                  {/* Protected Private Routes */}
+                  <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                  <Route path="/personal-data" element={<ProtectedRoute><PersonalData /></ProtectedRoute>} />
+                  <Route path="/signature-stamp" element={<ProtectedRoute><SignatureStamp /></ProtectedRoute>} />
+                  <Route path="/security" element={<ProtectedRoute><Security /></ProtectedRoute>} />
+                  <Route path="/settings" element={<ProtectedRoute><AppSettings /></ProtectedRoute>} />
+                  <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
+                  <Route path="/extinguishers-history" element={<ProtectedRoute><ExtinguishersHistory /></ProtectedRoute>} />
+                  <Route path="/ats-history" element={<ProtectedRoute><ATSHistory /></ProtectedRoute>} />
+                  <Route path="/fire-load-history" element={<ProtectedRoute><FireLoadHistory /></ProtectedRoute>} />
+                  <Route path="/checklists-history" element={<ProtectedRoute><ChecklistsHistory /></ProtectedRoute>} />
+                  <Route path="/lighting-history" element={<ProtectedRoute><LightingHistory /></ProtectedRoute>} />
+                  <Route path="/work-permit" element={<ProtectedRoute><WorkPermit /></ProtectedRoute>} />
+                  <Route path="/work-permit-history" element={<ProtectedRoute><WorkPermitHistory /></ProtectedRoute>} />
+                  <Route path="/risk-assessment-history" element={<ProtectedRoute><RiskAssessmentHistory /></ProtectedRoute>} />
+                  <Route path="/admin/requests" element={<ProtectedRoute><AdminRequests /></ProtectedRoute>} />
+                  <Route path="/PPE-tracker" element={<ProtectedRoute><PPETracker /></ProtectedRoute>} />
+                  <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                  <Route path="/management-report" element={<ProtectedRoute><ManagementReport /></ProtectedRoute>} />
+                  <Route path="/accident-investigation" element={<ProtectedRoute><AccidentInvestigation /></ProtectedRoute>} />
+                  <Route path="/accident-history" element={<ProtectedRoute><AccidentHistory /></ProtectedRoute>} />
+                  <Route path="/training-management" element={<ProtectedRoute><TrainingManagement /></ProtectedRoute>} />
+                  <Route path="/training-history" element={<ProtectedRoute><TrainingHistory /></ProtectedRoute>} />
+                  <Route path="/extinguishers" element={<ProtectedRoute><Extinguishers /></ProtectedRoute>} />
+                  <Route path="/thermal-stress" element={<ProtectedRoute><ThermalStress /></ProtectedRoute>} />
+                  <Route path="/thermal-stress-history" element={<ProtectedRoute><ThermalStressHistory /></ProtectedRoute>} />
+                  <Route path="/drills" element={<ProtectedRoute><Drills /></ProtectedRoute>} />
+                  <Route path="/drills-history" element={<ProtectedRoute><DrillsHistory /></ProtectedRoute>} />
+                  <Route path="/risk-maps" element={<ProtectedRoute><RiskMapGenerator /></ProtectedRoute>} />
+                  <Route path="/risk-maps-history" element={<ProtectedRoute><RiskMapHistory /></ProtectedRoute>} />
+                  <Route path="/stop-cards" element={<ProtectedRoute><StopCards /></ProtectedRoute>} />
+                  <Route path="/stop-cards-history" element={<ProtectedRoute><StopCardsHistory /></ProtectedRoute>} />
+                  <Route path="/logo-settings" element={<ProtectedRoute><LogoSettings /></ProtectedRoute>} />
 
-                <Route path="/risk-matrix-history" element={<ProtectedRoute><History view="matrices" /></ProtectedRoute>} />
-                <Route path="/reports-history" element={<ProtectedRoute><History view="reports" /></ProtectedRoute>} />
-                <Route path="/matrices" element={<Navigate to="/risk-matrix" replace />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+                  <Route path="/risk-matrix-history" element={<ProtectedRoute><History view="matrices" /></ProtectedRoute>} />
+                  <Route path="/reports-history" element={<ProtectedRoute><History view="reports" /></ProtectedRoute>} />
+                  <Route path="/matrices" element={<Navigate to="/risk-matrix" replace />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </AnimatePresence>
             </div>
           </Suspense>
           <div className="no-print">

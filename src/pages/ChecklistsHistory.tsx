@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-import { ArrowLeft, Search, Trash2, FileText, Calendar, Building2, ClipboardCheck, Share2, Download, QrCode } from 'lucide-react';
+import { ArrowLeft, ClipboardText, Trash, FileText, Calendar, Buildings, Share2, DownloadSimple, QrCode } from '@phosphor-icons/react';
 import { downloadCSV } from '../services/exportCsv';
 import { useSync } from '../contexts/SyncContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -9,30 +8,42 @@ import ShareModal from '../components/ShareModal';
 import QRModal from '../components/QRModal';
 import ChecklistPdfGenerator from '../components/ChecklistPdfGenerator';
 import { usePaywall } from '../hooks/usePaywall';
+import { DataTable } from '../components/DataTable';
+import AnimatedPage from '../components/AnimatedPage';
 
 function DeleteConfirm({ onConfirm, onCancel }) {
     return (
-        <div style={{
-            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',
-            zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            backdropFilter: 'blur(4px)'
-        }}>
-            <div style={{
-                background: 'var(--color-surface)', borderRadius: '20px', padding: '2rem',
-                maxWidth: '360px', width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
-                textAlign: 'center'
-            }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+            <div style={{ background: 'var(--color-surface)', borderRadius: '20px', padding: '2rem', maxWidth: '360px', width: '90%', textAlign: 'center' }}>
                 <div style={{ fontSize: '2.5rem', marginBottom: '0.8rem' }}>🗑️</div>
-                <h3 style={{ margin: '0 0 0.5rem', fontWeight: 900, color: 'var(--color-text)' }}>¿Eliminar checklist?</h3>
+                <h3 style={{ margin: '0 0 0.5rem', fontWeight: 900 }}>¿Eliminar checklist?</h3>
                 <p style={{ margin: '0 0 1.5rem', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>Esta acción no se puede deshacer.</p>
                 <div style={{ display: 'flex', gap: '0.8rem' }}>
-                    <button onClick={onCancel} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: 'var(--color-background)', border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: '0.85rem', color: 'var(--color-text)' }}>Cancelar</button>
-                    <button onClick={onConfirm} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: 'linear-gradient(135deg,#ef4444,#dc2626)', border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: '0.85rem', color: '#ffffff' }}>Eliminar</button>
+                    <button onClick={onCancel} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: 'var(--color-background)', border: 'none', cursor: 'pointer', fontWeight: 800 }}>Cancelar</button>
+                    <button onClick={onConfirm} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: 'linear-gradient(135deg,#ef4444,#dc2626)', border: 'none', cursor: 'pointer', fontWeight: 800, color: '#fff' }}>Eliminar</button>
                 </div>
             </div>
         </div>
     );
 }
+
+const getChecklistStatus = (id) => {
+    const stored = localStorage.getItem(`checklist_${id}`);
+    if (!stored) return { label: 'Aprobado', color: '#10b981', bg: 'rgba(16,185,129,0.1)' };
+    try {
+        const parsed = JSON.parse(stored);
+        const items = parsed.items || parsed.checks || parsed || [];
+        const arr = Array.isArray(items) ? items : Object.values(items);
+        const nok = arr.filter((c: any) => c.value === 'NO' || c.estado === 'NO' || c.checked === false || c.result === 'no').length;
+        const obs = arr.filter((c: any) => c.observation || c.observacion).length;
+        if (arr.length === 0) return { label: 'Vacío', color: '#64748b', bg: 'rgba(100,116,139,0.1)' };
+        if (nok > 0) return { label: 'Rechazado', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' };
+        if (obs > 0) return { label: 'Con Obs.', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' };
+        return { label: 'Aprobado', color: '#10b981', bg: 'rgba(16,185,129,0.1)' };
+    } catch {
+        return { label: 'Aprobado', color: '#10b981', bg: 'rgba(16,185,129,0.1)' };
+    }
+};
 
 export default function ChecklistsHistory(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -40,7 +51,6 @@ export default function ChecklistsHistory(): React.ReactElement | null {
     const { currentUser } = useAuth();
     const { requirePro } = usePaywall();
     const [history, setHistory] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [qrTarget, setQrTarget] = useState(null);
     const [shareItem, setShareItem] = useState(null);
@@ -59,214 +69,113 @@ export default function ChecklistsHistory(): React.ReactElement | null {
         setDeleteTarget(null);
     };
 
-    const filteredHistory = history.filter(item =>
-        item.empresa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.equipo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.serial?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
     const handleExportCSV = () => {
-        downloadCSV(filteredHistory.map(i => {
-            const stored = localStorage.getItem(`checklist_${i.id}`);
-            let status = 'Aprobado';
-            if (stored) {
-                try {
-                    const parsed = JSON.parse(stored);
-                    const items = parsed.items || parsed.checks || parsed || [];
-                    const arr = Array.isArray(items) ? items : Object.values(items);
-                    const nok = arr.filter(c => c.value === 'NO' || c.estado === 'NO' || c.checked === false || c.result === 'no').length;
-                    const obs = arr.filter(c => c.observation || c.observacion).length;
-                    if (arr.length === 0) status = 'Vacío';
-                    else if (nok > 0) status = 'Rechazado';
-                    else if (obs > 0) status = 'Condicionado';
-                } catch { /* defaults to Aprobado */ }
-            }
-            return {
-                id: i.id,
-                fecha: new Date(i.fecha).toLocaleDateString('es-AR'),
-                equipo: i.equipo,
-                marca: i.marca,
-                modelo: i.modelo,
-                serial: i.serial,
-                empresa: i.empresa,
-                estado: status
-            };
-        }), 'checklists_herramientas', {
-            id: 'ID Lista',
-            fecha: 'Fecha Inspección',
-            equipo: 'Equipo / Herramienta',
-            marca: 'Marca',
-            modelo: 'Modelo',
-            serial: 'Número de Serie',
-            empresa: 'Empresa',
-            estado: 'Estado General'
-        }, 'Reporte de Checklists y Herramientas');
+        requirePro(() => downloadCSV(history.map(i => {
+            const st = getChecklistStatus(i.id);
+            return { fecha: new Date(i.fecha).toLocaleDateString('es-AR'), equipo: i.equipo, marca: i.marca, serial: i.serial, empresa: i.empresa, estado: st.label };
+        }), 'checklists_herramientas', { fecha: 'Fecha', equipo: 'Equipo', marca: 'Marca', serial: 'Número Serie', empresa: 'Empresa', estado: 'Estado' }, 'Reporte de Checklists'));
     };
 
-    return (
-        <div className="container" style={{ maxWidth: '800px', paddingBottom: '5rem' }}>
-            {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
-
-            <ShareModal
-                isOpen={!!shareItem}
-                open={!!shareItem}
-                onClose={() => setShareItem(null)}
-                title={`Checklist - ${shareItem?.equipo || ''}`}
-                text={shareItem ? `📋 Checklist de Seguridad\n🔧 Equipo: ${shareItem.equipo}\n🏗️ Empresa: ${shareItem.empresa}\n📅 Fecha: ${new Date(shareItem.fecha).toLocaleDateString('es-AR')}` : ''}
-                rawMessage={``}
-                elementIdToPrint="pdf-content"
-                fileName={`Checklist_${shareItem?.equipo || 'Reporte'}.pdf`}
-            />
-
-            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
-                {shareItem && <ChecklistPdfGenerator checklistData={shareItem} isHeadless={true} />}
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', marginTop: '1rem', flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', minWidth: '200px' }}>
-                    <button onClick={() => navigate('/#activity')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <ArrowLeft />
-                    </button>
+    const columns = [
+        {
+            header: 'Fecha',
+            accessor: 'fecha',
+            sortable: true,
+            render: (item: any) => (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>
+                    <Calendar size={14} /> {new Date(item.fecha).toLocaleDateString('es-AR')}
+                </span>
+            )
+        },
+        {
+            header: 'Equipo',
+            accessor: 'equipo',
+            sortable: true,
+            render: (item: any) => (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                    <div style={{ background: 'rgba(59,130,246,0.1)', padding: '0.5rem', borderRadius: '8px', color: '#3b82f6' }}>
+                        <ClipboardText size={16} />
+                    </div>
                     <div>
-                        <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800, lineHeight: 1.2 }}>Checklists</h1>
-                        <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Controles técnicos</p>
+                        <div style={{ fontWeight: 700 }}>{item.equipo || 'Sin nombre'}</div>
+                        <div style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)' }}>#{item.serial}</div>
                     </div>
                 </div>
-                {filteredHistory.length > 0 && (
-                    <button onClick={() => requirePro(handleExportCSV)} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
-                        <Download size={14} /> <span className="hidden sm:inline">EXCEL</span>
-                    </button>
-                )}
-            </div>
+            )
+        },
+        {
+            header: 'Empresa',
+            accessor: 'empresa',
+            sortable: true,
+            render: (item: any) => (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <Buildings size={14} /> {item.empresa}
+                </span>
+            )
+        },
+        {
+            header: 'Estado',
+            accessor: 'id',
+            render: (item: any) => {
+                const st = getChecklistStatus(item.id);
+                return (
+                    <span style={{ background: st.bg, color: st.color, padding: '0.25rem 0.7rem', borderRadius: '999px', fontSize: '0.72rem', fontWeight: 800 }}>
+                        {st.label}
+                    </span>
+                );
+            }
+        },
+        {
+            header: 'Acciones',
+            accessor: 'id',
+            render: (item: any) => (
+                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    <button onClick={() => navigate(`/checklists?id=${item.id}`)} style={{ padding: '0.4rem 0.8rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '4px' }}><FileText size={15} /> Ver</button>
+                    <button onClick={() => requirePro(() => { const url = `${window.location.origin}/v/${currentUser?.uid}/checklist/${item.id}?print=true`; setQrTarget({ text: url, title: `Checklist — ${item.equipo}` }); })} style={{ padding: '0.4rem', background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer' }} title="QR"><QrCode size={15} /></button>
+                    <button onClick={() => requirePro(() => setShareItem(item))} style={{ padding: '0.4rem', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '8px', color: '#16a34a', cursor: 'pointer' }} title="Compartir"><Share2 size={15} /></button>
+                    <button onClick={() => setDeleteTarget(item.id)} style={{ padding: '0.4rem', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}><Trash size={15} /></button>
+                </div>
+            )
+        }
+    ];
 
-            <div style={{ position: 'relative', marginBottom: '1.5rem' }}>
-                <Search style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} size={18} />
-                <input
-                    type="text"
-                    placeholder="Buscar por equipo, empresa o serial..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{
-                        width: '100%',
-                        padding: '0.8rem 1rem 0.8rem 2.8rem',
-                        borderRadius: '12px',
-                        border: '1px solid var(--color-border)',
-                        background: 'var(--color-surface)',
-                        fontSize: '0.95rem'
-                    }}
-                />
-            </div>
+    return (
+        <AnimatedPage>
+            <div className="container" style={{ maxWidth: '900px', paddingBottom: '5rem' }}>
+                {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
+                <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Checklist - ${shareItem?.equipo || ''}`} text={shareItem ? `📋 Checklist de Seguridad\n🔧 Equipo: ${shareItem.equipo}\n🏗️ Empresa: ${shareItem.empresa}\n📅 Fecha: ${new Date(shareItem.fecha).toLocaleDateString('es-AR')}` : ''} rawMessage={``} elementIdToPrint="pdf-content" fileName={`Checklist_${shareItem?.equipo || 'Reporte'}.pdf`} />
+                <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                    {shareItem && <ChecklistPdfGenerator checklistData={shareItem} isHeadless={true} />}
+                </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {filteredHistory.length > 0 ? (
-                    filteredHistory.map((item) => {
-                        // Compute status badge from stored checklist items
-                        const stored = localStorage.getItem(`checklist_${item.id}`);
-                        let badgeLabel = 'Sin datos';
-                        let badgeColor = 'var(--color-text-muted)';
-                        let badgeBg = 'rgba(100,116,139,0.1)';
-                        if (stored) {
-                            try {
-                                const parsed = JSON.parse(stored);
-                                const items = parsed.items || parsed.checks || parsed || [];
-                                const arr = Array.isArray(items) ? items : Object.values(items);
-                                const total = arr.length;
-                                const nok = arr.filter(c => c.value === 'NO' || c.estado === 'NO' || c.checked === false || c.result === 'no').length;
-                                const obs = arr.filter(c => c.observation || c.observacion).length;
-                                if (total === 0) { badgeLabel = 'Vacío'; }
-                                else if (nok > 0) { badgeLabel = 'Rechazado'; badgeColor = '#ef4444'; badgeBg = 'rgba(239,68,68,0.1)'; }
-                                else if (obs > 0) { badgeLabel = 'Con Obs.'; badgeColor = '#f59e0b'; badgeBg = 'rgba(245,158,11,0.1)'; }
-                                else { badgeLabel = 'Aprobado'; badgeColor = '#10b981'; badgeBg = 'rgba(16,185,129,0.1)'; }
-                            } catch { badgeLabel = 'Aprobado'; badgeColor = '#10b981'; badgeBg = 'rgba(16,185,129,0.1)'; }
-                        } else {
-                            badgeLabel = 'Aprobado'; badgeColor = '#10b981'; badgeBg = 'rgba(16,185,129,0.1)';
-                        }
-                        return (
-                            <div key={item.id} className="card" style={{ padding: '1.2rem', transition: 'transform 0.2s' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', flex: 1, minWidth: 0 }}>
-                                        <div style={{ width: '45px', height: '45px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6' }}>
-                                            <ClipboardCheck size={22} />
-                                        </div>
-                                        <div>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
-                                                <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.equipo || 'Equipo sin nombre'}</h3>
-                                                <span style={{
-                                                    background: badgeBg, color: badgeColor,
-                                                    border: `1px solid ${badgeColor}44`,
-                                                    borderRadius: '20px', padding: '0.15rem 0.55rem',
-                                                    fontSize: '0.65rem', fontWeight: 800, whiteSpace: 'nowrap'
-                                                }}>{badgeLabel}</span>
-                                            </div>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
-                                                <Calendar size={14} /> {new Date(item.fecha).toLocaleDateString('es-AR')} - <Building2 size={14} /> {item.empresa}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600, flexShrink: 0 }}>
-                                        #{item.serial}
-                                    </div>
-                                </div>
-
-                                <div style={{ display: 'flex', gap: '0.8rem', marginTop: '1rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem', flexWrap: 'wrap' }}>
-                                    <button
-                                        onClick={() => navigate(`/checklists?id=${item.id}`)}
-                                        className="btn-secondary"
-                                        style={{ flex: 1, padding: '0.6rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'center' }}
-                                    >
-                                        <FileText size={16} /> Ver / Editar
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            requirePro(() => {
-                                                const url = `${window.location.origin}/v/${currentUser?.uid}/checklist/${item.id}?print=true`;
-                                                setQrTarget({ text: url, title: `Checklist — ${item.equipo}` });
-                                            });
-                                        }}
-                                        style={{ padding: '0.6rem', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                        title="Generar QR"
-                                    >
-                                        <QrCode size={16} />
-                                    </button>
-                                    <button
-                                        onClick={() => requirePro(() => setShareItem(item))}
-                                        style={{ padding: '0.6rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', minWidth: '40px' }}
-                                        title="Compartir"
-                                    >
-                                        <Share2 size={15} /> <span className="hidden sm:inline" style={{ marginLeft: '0.3rem', fontWeight: 700, fontSize: '0.75rem' }}>Compartir</span>
-                                    </button>
-                                    <button
-                                        onClick={() => setDeleteTarget(item.id)}
-                                        style={{
-                                            padding: '0.6rem',
-                                            background: 'rgba(239, 68, 68, 0.05)',
-                                            border: '1px solid rgba(239, 68, 68, 0.2)',
-                                            borderRadius: '8px',
-                                            color: '#ef4444',
-                                            cursor: 'pointer'
-                                        }}
-                                    >
-                                        <Trash2 size={18} />
-                                    </button>
-                                </div>
-                            </div>
-                        );
-                    })
-                ) : (
-                    <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
-                        <ClipboardCheck size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
-                        <p>No se encontraron registros de Checklists.</p>
-                        <button onClick={() => navigate('/checklists')} className="btn-primary" style={{ marginTop: '1rem' }}>Realizar Control Nuevo</button>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                        <button onClick={() => navigate('/#activity')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}><ArrowLeft size={22} /></button>
+                        <div>
+                            <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800, lineHeight: 1.2 }}>Checklists</h1>
+                            <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Controles técnicos</p>
+                        </div>
                     </div>
-                )}
-            </div>
-            {qrTarget && (
-                <QRModal
-                    text={qrTarget.text}
-                    title={qrTarget.title}
-                    onClose={() => setQrTarget(null)}
+                    {history.length > 0 && (
+                        <button onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff' }}>
+                            <DownloadSimple size={14} /> EXCEL
+                        </button>
+                    )}
+                </div>
+
+                <DataTable
+                    data={history}
+                    columns={columns}
+                    searchPlaceholder="Buscar por equipo, empresa o serial..."
+                    searchFields={['equipo', 'empresa', 'serial', 'marca']}
+                    emptyMessage="No se encontraron registros de Checklists."
+                    emptyIcon={<ClipboardText size={48} />}
+                    onEmptyAction={() => navigate('/checklists')}
+                    emptyActionLabel="Realizar Control Nuevo"
                 />
-            )}
-        </div>
+
+                {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
+            </div>
+        </AnimatedPage>
     );
 }

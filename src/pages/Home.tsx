@@ -1,20 +1,23 @@
 import { Link, useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import {
-  ClipboardList, PlusCircle, History, User, Users, Settings,
-  Flame, BarChart3, ChevronRight, Plus, Gavel, Siren,
-  Accessibility, Lock, UserPlus, LogIn, Sparkles,
-  Camera, CalendarCheck, Shield, Cpu, Lightbulb, ThermometerSun, Map,
-  ShieldCheck, TriangleAlert, KeySquare, ScrollText, Bot, ClipboardCheck, FileText, HardHat, ShieldAlert, PenTool,
-  ArrowRight, Activity, BookOpen, Calendar as CalendarIcon, Search, TrendingUp, Star,
-  Volume2, ArrowDown, RefreshCw, Leaf, Tent, LucideIcon,
-  FlaskConical, CheckCircle2, Droplets, MessageSquare
-} from 'lucide-react';
+  ClipboardText, House, ClockCounterClockwise, User, Users, GearSix,
+  Fire, ChartBar, CaretRight, Plus, Gavel, Siren,
+  PersonArmsSpread, Lock, UserPlus, SignIn, Sparkle as Sparkles,
+  Camera, CalendarCheck, Shield, Cpu, Lightbulb, ThermometerHot, MapTrifold,
+  ShieldCheck, Warning, Key, Scroll, Robot, FileText, HardHat, ShieldWarning, Pen,
+  ArrowRight, X, SignOut, CalendarBlank,
+  ChatText, Sun, Moon, Star, ChartPieSlice,
+  CreditCard, Crown, Image as ImageIconPh, UploadSimple,
+  CheckCircle, Info, Bell, Pulse as Activity,
+  Tent, Drop as Droplets, SpeakerHigh, Flask, MagnifyingGlass, TrendUp as TrendingUp
+} from '@phosphor-icons/react';
 import { User as FirebaseUser } from 'firebase/auth';
 import { getCountryNormativa } from '../data/legislationData';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { usePaywall } from '../hooks/usePaywall';
+import AnimatedPage from '../components/AnimatedPage';
 import AdBanner from '../components/AdBanner';
 import StarryBackground from '../components/StarryBackground';
 import StickyCtaBanner from '../components/StickyCtaBanner';
@@ -69,15 +72,15 @@ interface PersonalData {
 }
 
 const typeColors: Record<string, { bg: string; text: string; icon: React.ReactElement }> = {
-  'ATS': { bg: 'rgba(16,185,129,0.12)', text: '#10b981', icon: <BarChart3 size={18} /> },
-  'Carga Fuego': { bg: 'rgba(249,115,22,0.12)', text: '#f97316', icon: <Flame size={18} /> },
-  'Inspección': { bg: 'rgba(59,130,246,0.12)', text: '#3b82f6', icon: <ClipboardList size={18} /> },
-  'Matriz': { bg: 'rgba(139,92,246,0.12)', text: '#8b5cf6', icon: <ShieldAlert size={18} /> },
-  'Informe': { bg: 'rgba(236,72,153,0.12)', text: '#ec4899', icon: <FileText size={18} /> },
-  'Checklist': { bg: 'rgba(20,184,166,0.12)', text: '#14b8a6', icon: <ClipboardList size={18} /> },
-  'Iluminación': { bg: 'rgba(234,179,8,0.12)', text: '#eab308', icon: <Lightbulb size={18} /> },
-  'Permiso': { bg: 'rgba(37,99,235,0.12)', text: '#2563eb', icon: <HardHat size={18} /> },
-  'Eval. Riesgo': { bg: 'rgba(239, 68, 68, 0.12)', text: '#ef4444', icon: <Shield size={18} /> },
+  'ATS': { bg: 'rgba(16,185,129,0.12)', text: '#10b981', icon: <ChartBar weight="duotone" size={18} /> },
+  'Carga Fuego': { bg: 'rgba(249,115,22,0.12)', text: '#f97316', icon: <Fire weight="duotone" size={18} /> },
+  'Inspección': { bg: 'rgba(59,130,246,0.12)', text: '#3b82f6', icon: <ClipboardText weight="duotone" size={18} /> },
+  'Matriz': { bg: 'rgba(139,92,246,0.12)', text: '#8b5cf6', icon: <ShieldWarning weight="duotone" size={18} /> },
+  'Informe': { bg: 'rgba(236,72,153,0.12)', text: '#ec4899', icon: <FileText weight="duotone" size={18} /> },
+  'Checklist': { bg: 'rgba(20,184,166,0.12)', text: '#14b8a6', icon: <ClipboardText weight="duotone" size={18} /> },
+  'Iluminación': { bg: 'rgba(234,179,8,0.12)', text: '#eab308', icon: <Lightbulb weight="duotone" size={18} /> },
+  'Permiso': { bg: 'rgba(37,99,235,0.12)', text: '#2563eb', icon: <HardHat weight="duotone" size={18} /> },
+  'Eval. Riesgo': { bg: 'rgba(239, 68, 68, 0.12)', text: '#ef4444', icon: <Shield weight="duotone" size={18} /> },
 };
 
 let userCountry = 'argentina';
@@ -97,36 +100,36 @@ const getRegSub = (module: string): string => {
 };
 
 const quickLinks: QuickLink[] = [
-  { to: '/ai-advisor', icon: <Bot size={26} />, label: 'Asesor IA', sub: 'Consultas de Seguridad', color: '#a855f7', bg: 'rgba(168,85,247,0.1)', premium: true, category: 'ia', featured: true, badge: 'IA ✨' },
-  { to: '/ats', icon: <ShieldCheck size={26} />, label: 'ATS', sub: 'Análisis Trabajo Seguro', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true, category: 'docs', featured: true },
-  { to: '/audit', icon: <ClipboardCheck size={26} />, label: 'Auditorías', sub: 'Control Interno y EHS', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'management' },
-  { to: '/ai-camera', icon: <Camera size={26} />, label: 'Cámara IA', sub: 'Detección EPP', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', premium: true, category: 'ia', featured: true, badge: 'IA ✨' },
-  { to: '/capa', icon: <CheckCircle2 size={26} />, label: 'CAPA', sub: 'Acciones Correctivas', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true, category: 'management' },
-  { to: '/training-management', icon: <Users size={26} />, label: 'Capacitar', sub: 'Planillas y Asistencia', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'management' },
-  { to: '/fire-load', icon: <Flame size={26} />, label: 'Carga Fuego', sub: getRegSub('fire'), color: '#f97316', bg: 'rgba(249,115,22,0.1)', premium: true, category: 'specific' },
-  { to: '/toolbox-talk', icon: <MessageSquare size={26} />, label: 'Charlas 5 Min', sub: 'Registro de Capacitación Diaria', color: '#0052CC', bg: 'rgba(0,82,204,0.1)', premium: true, category: 'management', badge: 'Nuevo ✨', featured: true },
-  { to: '/checklists', icon: <ClipboardList size={26} />, label: 'Checklists', sub: 'Herramientas y Equipos', color: '#14b8a6', bg: 'rgba(20,184,166,0.1)', premium: true, category: 'docs' },
-  { to: '/ppe-tracker', icon: <HardHat size={26} />, label: 'Control EPP', sub: 'Vencimientos', color: '#10b981', bg: 'rgba(16,185,129,0.08)', premium: true, category: 'management' },
-  { to: '/ergonomics', icon: <Accessibility size={26} />, label: 'Ergonomía', sub: getRegSub('ergo'), color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'specific' },
-  { to: '/confined-space', icon: <Tent size={26} />, label: 'Espacios Confinados', sub: 'Permisos y Control', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', premium: true, category: 'critical' },
-  { to: '/thermal-stress', icon: <ThermometerSun size={26} />, label: 'Estrés Térmico', sub: getRegSub('thermal'), color: '#f97316', bg: 'rgba(249,115,22,0.1)', premium: true, category: 'specific' },
-  { to: '/extinguisher-ai', icon: <Flame size={26} />, label: 'Extintores IA', sub: 'Reconocimiento', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true, category: 'ia', badge: 'IA ✨' },
-  { to: '/lighting', icon: <Lightbulb size={26} />, label: 'Iluminación', sub: getRegSub('lighting'), color: '#eab308', bg: 'rgba(234,179,8,0.1)', premium: true, category: 'specific' },
-  { to: '/reports', icon: <ScrollText size={26} />, label: 'Informes', sub: 'Técnicos', color: '#ec4899', bg: 'rgba(236,72,153,0.1)', premium: true, category: 'docs' },
-  { to: '/accident-investigation', icon: <Siren size={26} />, label: 'Investigación', sub: 'Accidentes / Árbol', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management' },
-  { to: '/safety-kpis', icon: <BarChart3 size={26} />, label: 'KPIs Seguridad', sub: 'Índices de Siniestralidad y Estadísticas', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management', badge: 'Nuevo ✨', featured: true },
-  { to: '/legislation', icon: <Gavel size={26} />, label: 'Legislación', sub: 'Biblioteca Legal', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true, category: 'docs' },
-  { to: '/loto', icon: <Lock size={26} />, label: 'LOTO', sub: 'Bloqueo y Etiquetado', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true, category: 'critical' },
-  { to: '/risk-maps', icon: <Map size={26} />, label: 'Mapas', sub: 'Croquis de Riesgos', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true, category: 'docs' },
-  { to: '/extinguishers', icon: <Flame size={26} />, label: 'Matafuegos', sub: 'Control y Vencimientos', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true, category: 'management' },
-  { to: '/environmental', icon: <Droplets size={26} />, label: 'Medio Ambiente', sub: 'Monitoreo y Control', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', premium: true, category: 'specific' },
-  { to: '/work-permit', icon: <KeySquare size={26} />, label: 'Permisos', sub: 'Tareas Críticas', color: '#2563eb', bg: 'rgba(37,99,235,0.1)', premium: true, category: 'critical', featured: true },
-  { to: '/ai-general-camera', icon: <ShieldAlert size={26} />, label: 'Riesgos IA', sub: 'Análisis de Entorno', color: '#f43f5e', bg: 'rgba(244, 63, 94, 0.1)', premium: true, category: 'ia', badge: 'IA ✨' },
-  { to: '/noise-assessment', icon: <Volume2 size={26} />, label: 'Ruido', sub: 'Evaluación de Niveles Sonoros', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true, category: 'specific' },
-  { to: '/chemical-safety', icon: <FlaskConical size={26} />, label: 'Seguridad Química', sub: 'Gestión de Sustancias y SGA', color: '#ec4899', bg: 'rgba(236,72,153,0.1)', premium: true, category: 'specific' },
-  { to: '/drills', icon: <Siren size={26} />, label: 'Simulacros', sub: 'Actas de Evacuación', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management' },
-  { to: '/stop-cards', icon: <TriangleAlert size={26} />, label: 'Tarjetas STOP', sub: 'Observaciones', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management' },
-  { to: '/working-at-height', icon: <HardHat size={26} />, label: 'Trabajo en Altura', sub: 'Permisos y EPP Crítico', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'critical' }
+  { to: '/ai-advisor', icon: <Robot weight="duotone" size={26} />, label: 'Asesor IA', sub: 'Consultas de Seguridad', color: '#a855f7', bg: 'rgba(168,85,247,0.1)', premium: true, category: 'ia', featured: true, badge: 'IA ✨' },
+  { to: '/ats', icon: <ShieldCheck weight="duotone" size={26} />, label: 'ATS', sub: 'Análisis Trabajo Seguro', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true, category: 'docs', featured: true },
+  { to: '/audit', icon: <ClipboardText weight="duotone" size={26} />, label: 'Auditorías', sub: 'Control Interno y EHS', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'management' },
+  { to: '/ai-camera', icon: <Camera weight="duotone" size={26} />, label: 'Cámara IA', sub: 'Detección EPP', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', premium: true, category: 'ia', featured: true, badge: 'IA ✨' },
+  { to: '/capa', icon: <CheckCircle weight="duotone" size={26} />, label: 'CAPA', sub: 'Acciones Correctivas', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true, category: 'management' },
+  { to: '/training-management', icon: <Users weight="duotone" size={26} />, label: 'Capacitar', sub: 'Planillas y Asistencia', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'management' },
+  { to: '/fire-load', icon: <Fire weight="duotone" size={26} />, label: 'Carga Fuego', sub: getRegSub('fire'), color: '#f97316', bg: 'rgba(249,115,22,0.1)', premium: true, category: 'specific' },
+  { to: '/toolbox-talk', icon: <ChatText weight="duotone" size={26} />, label: 'Charlas 5 Min', sub: 'Registro de Capacitación Diaria', color: '#0052CC', bg: 'rgba(0,82,204,0.1)', premium: true, category: 'management', badge: 'Nuevo ✨', featured: true },
+  { to: '/checklists', icon: <ClipboardText weight="duotone" size={26} />, label: 'Checklists', sub: 'Herramientas y Equipos', color: '#14b8a6', bg: 'rgba(20,184,166,0.1)', premium: true, category: 'docs' },
+  { to: '/ppe-tracker', icon: <HardHat weight="duotone" size={26} />, label: 'Control EPP', sub: 'Vencimientos', color: '#10b981', bg: 'rgba(16,185,129,0.08)', premium: true, category: 'management' },
+  { to: '/ergonomics', icon: <PersonArmsSpread weight="duotone" size={26} />, label: 'Ergonomía', sub: getRegSub('ergo'), color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'specific' },
+  { to: '/confined-space', icon: <Tent weight="duotone" size={26} />, label: 'Espacios Confinados', sub: 'Permisos y Control', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', premium: true, category: 'critical' },
+  { to: '/thermal-stress', icon: <ThermometerHot weight="duotone" size={26} />, label: 'Estrés Térmico', sub: getRegSub('thermal'), color: '#f97316', bg: 'rgba(249,115,22,0.1)', premium: true, category: 'specific' },
+  { to: '/extinguisher-ai', icon: <Fire weight="duotone" size={26} />, label: 'Extintores IA', sub: 'Reconocimiento', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true, category: 'ia', badge: 'IA ✨' },
+  { to: '/lighting', icon: <Lightbulb weight="duotone" size={26} />, label: 'Iluminación', sub: getRegSub('lighting'), color: '#eab308', bg: 'rgba(234,179,8,0.1)', premium: true, category: 'specific' },
+  { to: '/reports', icon: <Scroll weight="duotone" size={26} />, label: 'Informes', sub: 'Técnicos', color: '#ec4899', bg: 'rgba(236,72,153,0.1)', premium: true, category: 'docs' },
+  { to: '/accident-investigation', icon: <Siren weight="duotone" size={26} />, label: 'Investigación', sub: 'Accidentes / Árbol', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management' },
+  { to: '/safety-kpis', icon: <ChartPieSlice weight="duotone" size={26} />, label: 'KPIs Seguridad', sub: 'Índices de Siniestralidad y Estadísticas', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management', badge: 'Nuevo ✨', featured: true },
+  { to: '/legislation', icon: <Gavel weight="duotone" size={26} />, label: 'Legislación', sub: 'Biblioteca Legal', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true, category: 'docs' },
+  { to: '/loto', icon: <Lock weight="duotone" size={26} />, label: 'LOTO', sub: 'Bloqueo y Etiquetado', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true, category: 'critical' },
+  { to: '/risk-maps', icon: <MapTrifold weight="duotone" size={26} />, label: 'Mapas', sub: 'Croquis de Riesgos', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true, category: 'docs' },
+  { to: '/extinguishers', icon: <Fire weight="duotone" size={26} />, label: 'Matafuegos', sub: 'Control y Vencimientos', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true, category: 'management' },
+  { to: '/environmental', icon: <Droplets weight="duotone" size={26} />, label: 'Medio Ambiente', sub: 'Monitoreo y Control', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', premium: true, category: 'specific' },
+  { to: '/work-permit', icon: <Key weight="duotone" size={26} />, label: 'Permisos', sub: 'Tareas Críticas', color: '#2563eb', bg: 'rgba(37,99,235,0.1)', premium: true, category: 'critical', featured: true },
+  { to: '/ai-general-camera', icon: <ShieldWarning weight="duotone" size={26} />, label: 'Riesgos IA', sub: 'Análisis de Entorno', color: '#f43f5e', bg: 'rgba(244, 63, 94, 0.1)', premium: true, category: 'ia', badge: 'IA ✨' },
+  { to: '/noise-assessment', icon: <SpeakerHigh weight="duotone" size={26} />, label: 'Ruido', sub: 'Evaluación de Niveles Sonoros', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true, category: 'specific' },
+  { to: '/chemical-safety', icon: <Flask weight="duotone" size={26} />, label: 'Seguridad Química', sub: 'Gestión de Sustancias y SGA', color: '#ec4899', bg: 'rgba(236,72,153,0.1)', premium: true, category: 'specific' },
+  { to: '/drills', icon: <Siren weight="duotone" size={26} />, label: 'Simulacros', sub: 'Actas de Evacuación', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management' },
+  { to: '/stop-cards', icon: <Warning weight="duotone" size={26} />, label: 'Tarjetas STOP', sub: 'Observaciones', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management' },
+  { to: '/working-at-height', icon: <HardHat weight="duotone" size={26} />, label: 'Trabajo en Altura', sub: 'Permisos y EPP Crítico', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'critical' }
 ];
 
 // Counter hook
@@ -170,30 +173,30 @@ export default function Home(): React.ReactElement {
   const { isPro, daysRemaining } = usePaywall();
 
   const typeColors: Record<string, { bg: string, text: string, icon: React.ReactElement }> = {
-    'ATS': { bg: 'rgba(16, 185, 129, 0.1)', text: '#059669', icon: <ShieldCheck size={20} /> },
-    'Carga Fuego': { bg: 'rgba(249, 115, 22, 0.1)', text: '#ea580c', icon: <Flame size={20} /> },
-    'Inspección': { bg: 'rgba(59, 130, 246, 0.1)', text: '#2563eb', icon: <ClipboardCheck size={20} /> },
-    'Matriz': { bg: 'rgba(139, 92, 246, 0.1)', text: '#7c3aed', icon: <TriangleAlert size={20} /> },
-    'Informe': { bg: 'rgba(236, 72, 153, 0.1)', text: '#db2777', icon: <ScrollText size={20} /> },
-    'Checklist': { bg: 'rgba(20, 184, 166, 0.1)', text: '#0d9488', icon: <ClipboardList size={20} /> },
-    'Iluminación': { bg: 'rgba(234, 179, 8, 0.1)', text: '#ca8a04', icon: <Lightbulb size={20} /> },
-    'Permiso': { bg: 'rgba(37, 99, 235, 0.1)', text: '#1d4ed8', icon: <KeySquare size={20} /> },
-    'Eval. Riesgo': { bg: 'rgba(139, 92, 246, 0.1)', text: '#7c3aed', icon: <TriangleAlert size={20} /> },
-    'Accidente': { bg: 'rgba(239, 68, 68, 0.1)', text: '#dc2626', icon: <Siren size={20} /> },
+    'ATS': { bg: 'rgba(16, 185, 129, 0.1)', text: '#059669', icon: <ShieldCheck weight="duotone" size={20} /> },
+    'Carga Fuego': { bg: 'rgba(249, 115, 22, 0.1)', text: '#ea580c', icon: <Fire weight="duotone" size={20} /> },
+    'Inspección': { bg: 'rgba(59, 130, 246, 0.1)', text: '#2563eb', icon: <ClipboardText weight="duotone" size={20} /> },
+    'Matriz': { bg: 'rgba(139, 92, 246, 0.1)', text: '#7c3aed', icon: <Warning weight="duotone" size={20} /> },
+    'Informe': { bg: 'rgba(236, 72, 153, 0.1)', text: '#db2777', icon: <Scroll weight="duotone" size={20} /> },
+    'Checklist': { bg: 'rgba(20, 184, 166, 0.1)', text: '#0d9488', icon: <ClipboardText weight="duotone" size={20} /> },
+    'Iluminación': { bg: 'rgba(234, 179, 8, 0.1)', text: '#ca8a04', icon: <Lightbulb weight="duotone" size={20} /> },
+    'Permiso': { bg: 'rgba(37, 99, 235, 0.1)', text: '#1d4ed8', icon: <Key weight="duotone" size={20} /> },
+    'Eval. Riesgo': { bg: 'rgba(139, 92, 246, 0.1)', text: '#7c3aed', icon: <Warning weight="duotone" size={20} /> },
+    'Accidente': { bg: 'rgba(239, 68, 68, 0.1)', text: '#dc2626', icon: <Siren weight="duotone" size={20} /> },
   };
   
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
   const [daysLeft, setDaysLeft] = useState<number | typeof Infinity | null>(null);
   const [stats, setStats] = useState<StatItem[]>([
-    { label: 'Accidentes', value: 0, icon: <Siren />, color: '#ef4444', grad: 'linear-gradient(135deg,#ef4444,#b91c1c)', key: 'accident_history' },
-    { label: 'ATS', value: 0, icon: <ShieldCheck />, color: '#10b981', grad: 'linear-gradient(135deg,#10b981,#059669)', key: 'ats_history' },
-    { label: 'Carga Fuego', value: 0, icon: <Flame />, color: '#f97316', grad: 'linear-gradient(135deg,#f97316,#ea580c)', key: 'fireload_history' },
-    { label: 'Checklists', value: 0, icon: <ClipboardList />, color: '#14b8a6', grad: 'linear-gradient(135deg,#14b8a6,#0d9488)', key: 'tool_checklists_history' },
-    { label: 'Iluminación', value: 0, icon: <Lightbulb />, color: '#eab308', grad: 'linear-gradient(135deg,#eab308,#ca8a04)', key: 'lighting_history' },
-    { label: 'Informes', value: 0, icon: <ScrollText />, color: '#ec4899', grad: 'linear-gradient(135deg,#ec4899,#db2777)', key: 'reports_history' },
-    { label: 'Inspecciones', value: 0, icon: <ClipboardCheck />, color: '#3b82f6', grad: 'linear-gradient(135deg,#3b82f6,#2563eb)', key: 'inspections_history' },
-    { label: 'Matrices', value: 0, icon: <TriangleAlert />, color: '#8b5cf6', grad: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', key: 'risk_matrix_history' },
-    { label: 'Permisos', value: 0, icon: <KeySquare />, color: '#2563eb', grad: 'linear-gradient(135deg,#2563eb,#1d4ed8)', key: 'work_permits_history' },
+    { label: 'Accidentes', value: 0, icon: <Siren weight="duotone" />, color: '#ef4444', grad: 'linear-gradient(135deg,#ef4444,#b91c1c)', key: 'accident_history' },
+    { label: 'ATS', value: 0, icon: <ShieldCheck weight="duotone" />, color: '#10b981', grad: 'linear-gradient(135deg,#10b981,#059669)', key: 'ats_history' },
+    { label: 'Carga Fuego', value: 0, icon: <Fire weight="duotone" />, color: '#f97316', grad: 'linear-gradient(135deg,#f97316,#ea580c)', key: 'fireload_history' },
+    { label: 'Checklists', value: 0, icon: <ClipboardText weight="duotone" />, color: '#14b8a6', grad: 'linear-gradient(135deg,#14b8a6,#0d9488)', key: 'tool_checklists_history' },
+    { label: 'Iluminación', value: 0, icon: <Lightbulb weight="duotone" />, color: '#eab308', grad: 'linear-gradient(135deg,#eab308,#ca8a04)', key: 'lighting_history' },
+    { label: 'Informes', value: 0, icon: <Scroll weight="duotone" />, color: '#ec4899', grad: 'linear-gradient(135deg,#ec4899,#db2777)', key: 'reports_history' },
+    { label: 'Inspecciones', value: 0, icon: <ClipboardText weight="duotone" />, color: '#3b82f6', grad: 'linear-gradient(135deg,#3b82f6,#2563eb)', key: 'inspections_history' },
+    { label: 'Matrices', value: 0, icon: <Warning weight="duotone" />, color: '#8b5cf6', grad: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', key: 'risk_matrix_history' },
+    { label: 'Permisos', value: 0, icon: <Key weight="duotone" />, color: '#2563eb', grad: 'linear-gradient(135deg,#2563eb,#1d4ed8)', key: 'work_permits_history' },
   ]);
   const [recentWorks, setRecentWorks] = useState<WorkItem[]>([]);
   const [userName, setUserName] = useState<string>('Profesional');
@@ -352,6 +355,7 @@ export default function Home(): React.ReactElement {
   }
 
   return (
+    <AnimatedPage>
     <div className="page-transition" style={{ paddingBottom: '4rem' }}>
 
       {!currentUser && <StickyCtaBanner />}
@@ -431,7 +435,7 @@ export default function Home(): React.ReactElement {
                     <div key={s.step} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.55rem 0.8rem', borderRadius: '8px', background: s.done ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.04)', border: `1px solid ${s.done ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.07)'}` }}>
                       <span style={{ fontSize: '0.62rem', fontWeight: 900, color: s.done ? '#34d399' : 'rgba(255,255,255,0.3)', background: s.done ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)', borderRadius: '6px', padding: '0.1rem 0.35rem', flexShrink: 0 }}>{s.step}</span>
                       <span style={{ fontSize: '0.78rem', color: s.done ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.45)', fontWeight: 500, flex: 1, lineHeight: 1.3 }}>{s.text}</span>
-                      {s.done && <CheckCircle2 size={14} color="#34d399" style={{ flexShrink: 0 }} />}
+                      {s.done && <CheckCircle size={14} color="#34d399" style={{ flexShrink: 0 }} />}
                     </div>
                   ))}
                 </div>
@@ -450,15 +454,15 @@ export default function Home(): React.ReactElement {
                 {/* Action buttons */}
                 <div style={{ display: 'flex', gap: '0.6rem' }}>
                   <div style={{ flex: 1, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', padding: '0.6rem', borderRadius: '10px', textAlign: 'center' }}>
-                    <CheckCircle2 color="#34d399" size={18} style={{ display: 'block', margin: '0 auto 0.3rem' }} />
+                    <CheckCircle weight="bold" color="#34d399" size={18} style={{ display: 'block', margin: '0 auto 0.3rem' }} />
                     <div style={{ color: '#34d399', fontWeight: 800, fontSize: '0.72rem' }}>Normativa</div>
                   </div>
                   <div style={{ flex: 1, background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.25)', padding: '0.6rem', borderRadius: '10px', textAlign: 'center' }}>
-                    <FileText color="#60a5fa" size={18} style={{ display: 'block', margin: '0 auto 0.3rem' }} />
+                    <FileText weight="bold" color="#60a5fa" size={18} style={{ display: 'block', margin: '0 auto 0.3rem' }} />
                     <div style={{ color: '#60a5fa', fontWeight: 800, fontSize: '0.72rem' }}>PDF Listo</div>
                   </div>
                   <div style={{ flex: 1, background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.25)', padding: '0.6rem', borderRadius: '10px', textAlign: 'center' }}>
-                    <Sparkles color="#c084fc" size={18} style={{ display: 'block', margin: '0 auto 0.3rem' }} />
+                    <Sparkles weight="bold" color="#c084fc" size={18} style={{ display: 'block', margin: '0 auto 0.3rem' }} />
                     <div style={{ color: '#c084fc', fontWeight: 800, fontSize: '0.72rem' }}>IA ✨</div>
                   </div>
                 </div>
@@ -596,7 +600,7 @@ export default function Home(): React.ReactElement {
                 
                 {/* Search Bar */}
                 <div style={{ position: 'relative', minWidth: '250px', flex: '1 1 auto', maxWidth: '400px' }}>
-                  <Search size={18} color="var(--color-text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+                  <MagnifyingGlass weight="bold" size={18} color="var(--color-text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
                   <input 
                     type="text" 
                     placeholder="Buscar herramientas..." 
@@ -701,19 +705,16 @@ export default function Home(): React.ReactElement {
                     </div>
                   )}
 
-                  <div style={{
+                  <div className={`premium-icon-box ${link.category === 'ia' ? 'ai-magic-box' : ''}`} style={{
                     width: '44px',
                     height: '44px',
-                    borderRadius: '12px',
-                    background: link.color + '15',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
                     color: link.color,
-                    flexShrink: 0,
-                    border: `1px solid ${link.color}20`
+                    flexShrink: 0
                   }}>
-                    {React.cloneElement(link.icon as React.ReactElement<any>, { size: 22 })}
+                    {React.cloneElement(link.icon as React.ReactElement<any>, { 
+                      size: 24, 
+                      className: `${link.category === 'ia' ? 'ai-magic-icon' : 'icon-glow-soft'}` 
+                    })}
                   </div>
                   
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -726,12 +727,12 @@ export default function Home(): React.ReactElement {
                   </div>
 
                   <div style={{ display: 'flex', opacity: 0.4, transition: 'all 0.3s' }} className="chevron-icon">
-                    <ChevronRight size={18} color="var(--color-text-muted)" />
+                    <CaretRight weight="bold" size={18} color="var(--color-text-muted)" />
                   </div>
                 </Link>
               )) : (
                 <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '4rem 0', color: 'var(--color-text-muted)' }}>
-                  <Search size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
+                  <MagnifyingGlass size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
                   <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700 }}>No se encontraron herramientas</h3>
                   <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem' }}>Probá con otro término de búsqueda.</p>
                 </div>
@@ -752,7 +753,7 @@ export default function Home(): React.ReactElement {
                 alignItems: 'center',
                 gap: '0.6rem'
               }}>
-                <History size={24} color="var(--color-primary)" />
+                <ClockCounterClockwise weight="duotone" size={24} color="var(--color-primary)" />
                 Trabajos Recientes
               </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -827,6 +828,7 @@ export default function Home(): React.ReactElement {
       {/* Removed legacy onboarding modal in favor of MarketingLanding */}
 
     </div>
+    </AnimatedPage>
   );
 }
 

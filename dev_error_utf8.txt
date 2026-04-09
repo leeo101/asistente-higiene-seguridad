@@ -1,0 +1,69 @@
+﻿
+> asistente-de-higiene-y-seguridad@1.0.0-rollback dev
+> concurrently -n "API,VITE" -c "blue,green" "node server" "vite"
+
+[API] [dotenv@17.3.1] injecting env (7) from .env -- tip: ­ƒøí´©Å auth for agents: https://vestauth.com
+[API] Firebase Admin initialization error: FirebaseAppError: Failed to parse private key: Error: Invalid PEM formatted message.
+[API]     at new ServiceAccount (C:\Users\Leo Rodriguez\asistente de higiene y seguridad\node_modules\firebase-admin\lib\app\credential-internal.js:182:19)
+[API]     at new ServiceAccountCredential (C:\Users\Leo Rodriguez\asistente de higiene y seguridad\node_modules\firebase-admin\lib\app\credential-internal.js:118:15)
+[API]     at Object.cert (C:\Users\Leo Rodriguez\asistente de higiene y seguridad\node_modules\firebase-admin\lib\app\credential-factory.js:105:54)
+[API]     at file:///C:/Users/Leo%20Rodriguez/asistente%20de%20higiene%20y%20seguridad/server.js:16:46
+[API]     at ModuleJob.run (node:internal/modules/esm/module_job:329:25)
+[API]     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:644:26)
+[API]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+[API]   errorInfo: {
+[API]     code: 'app/invalid-credential',
+[API]     message: 'Failed to parse private key: Error: Invalid PEM formatted message.'
+[API]   },
+[API]   codePrefix: 'app'
+[API] }
+[API] file:///C:/Users/Leo%20Rodriguez/asistente%20de%20higiene%20y%20seguridad/server.js:30
+[API] const app = express()
+[API]             ^
+[API] 
+[API] ReferenceError: express is not defined
+[API]     at file:///C:/Users/Leo%20Rodriguez/asistente%20de%20higiene%20y%20seguridad/server.js:30:13
+[API]     at ModuleJob.run (node:internal/modules/esm/module_job:329:25)
+[API]     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:644:26)
+[API]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+[API] 
+[API] Node.js v22.17.0
+[API] node server exited with code 1
+[VITE] 
+[VITE]   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m278[22m[2m[0m ms[22m
+[VITE] 
+[VITE]   [32mÔ×£[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+[VITE]   [32mÔ×£[39m  [1mNetwork[22m: [36mhttp://192.168.1.105:[1m5173[22m/[39m
+[VITE] X [ERROR] Could not resolve "react-is"
+[VITE] 
+[VITE]     node_modules/recharts/es6/util/ReactUtils.js:3:27:
+[VITE]       3 Ôöé import { isFragment } from 'react-is';
+[VITE]         ÔòÁ                            ~~~~~~~~~~
+[VITE] 
+[VITE]   You can mark the path "react-is" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+[VITE] 
+[VITE] C:\Users\Leo Rodriguez\asistente de higiene y seguridad\node_modules\esbuild\lib\main.js:1467
+[VITE]   let error = new Error(text);
+[VITE]               ^
+[VITE] 
+[VITE] Error: [31mError during dependency optimization:
+[VITE] 
+[VITE] [39m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "react-is"[0m
+[VITE] 
+[VITE]     node_modules/recharts/es6/util/ReactUtils.js:3:27:
+[VITE] [37m      3 Ôöé import { isFragment } from [32m'react-is'[37m;
+[VITE]         ÔòÁ                            [32m~~~~~~~~~~[0m
+[VITE] 
+[VITE]   You can mark the path "react-is" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+[VITE] 
+[VITE] 
+[VITE]     at failureErrorWithLog (C:\Users\Leo Rodriguez\asistente de higiene y seguridad\node_modules\esbuild\lib\main.js:1467:15)
+[VITE]     at C:\Users\Leo Rodriguez\asistente de higiene y seguridad\node_modules\esbuild\lib\main.js:926:25
+[VITE]     at C:\Users\Leo Rodriguez\asistente de higiene y seguridad\node_modules\esbuild\lib\main.js:1345:9
+[VITE]     at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+[VITE]   errors: [Getter/Setter],
+[VITE]   warnings: [Getter/Setter]
+[VITE] }
+[VITE] 
+[VITE] Node.js v22.17.0
+[VITE] vite exited with code 1

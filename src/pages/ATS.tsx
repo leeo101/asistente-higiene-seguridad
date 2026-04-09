@@ -353,6 +353,20 @@ export default function ATS(): React.ReactElement | null {
     // Grouping checklist by category
     const categories = [...new Set(formData.checklist.map(i => i.categoria))];
 
+    // --- Progress tracking ---
+    const progressItems = [
+        { label: 'Empresa', done: !!formData.empresa?.trim() },
+        { label: 'Obra/Ubicación', done: !!formData.obra?.trim() },
+        { label: 'Descripción de tarea', done: !!formData.tarea?.trim() },
+        { label: 'Responsable', done: !!formData.capatazNombre?.trim() },
+        { label: 'Secuencia de tareas', done: formData.tareas.length > 0 && formData.tareas.every(t => t.paso?.trim() && t.riesgo?.trim()) },
+        { label: 'Checklist preventivo', done: formData.checklist.every(c => c.estado !== '') },
+    ];
+    const completedCount = progressItems.filter(p => p.done).length;
+    const progressPct = Math.round((completedCount / progressItems.length) * 100);
+    const progressLabel = progressPct === 100 ? 'Listo para guardar ✅' : progressPct >= 66 ? 'Casi completo' : progressPct >= 33 ? 'En progreso' : 'Pendiente';
+    const progressColor = progressPct === 100 ? '#10b981' : progressPct >= 66 ? '#f59e0b' : progressPct >= 33 ? '#3b82f6' : '#94a3b8';
+
     return (
         <>
             <style>{printStyles}</style>
@@ -417,26 +431,59 @@ export default function ATS(): React.ReactElement | null {
 
                 <div className="no-print" style={{
                     marginBottom: '2rem',
-                    padding: '2.5rem',
+                    padding: '2rem',
                     background: 'var(--color-surface)',
                     borderRadius: '24px',
                     border: '1px solid var(--color-border)',
                     display: 'flex',
-                    justifyContent: 'space-between',
-                    gap: '2rem',
-                    alignItems: 'center',
+                    flexDirection: 'column',
+                    gap: '1.2rem',
                     boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
                 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                        <button onClick={() => navigate('/#tools')} style={{ padding: '0.6rem', background: 'var(--color-background)', borderRadius: '12px', border: 'none', cursor: 'pointer', color: 'var(--color-text)', display: 'flex' }}>
-                            <ArrowLeft size={22} />
-                        </button>
-                        <div>
-                            <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, color: 'var(--color-text)', letterSpacing: '-1px', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                                <ShieldCheck className="text-blue-600" size={32} />
-                                {editData ? 'Editar ATS' : 'Análisis de Trabajo Seguro'}
-                            </h1>
-                            <p style={{ margin: 0, color: 'var(--color-text-muted)', fontWeight: 600, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Control HYS</p>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1.5rem', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <button onClick={() => navigate('/#tools')} style={{ padding: '0.6rem', background: 'var(--color-background)', borderRadius: '12px', border: 'none', cursor: 'pointer', color: 'var(--color-text)', display: 'flex' }}>
+                                <ArrowLeft size={22} />
+                            </button>
+                            <div>
+                                <h1 style={{ margin: 0, fontSize: 'clamp(1.2rem, 4vw, 1.8rem)', fontWeight: 900, color: 'var(--color-text)', letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                                    <ShieldCheck className="text-blue-600" size={28} />
+                                    {editData ? 'Editar ATS' : 'Análisis de Trabajo Seguro'}
+                                </h1>
+                                <p style={{ margin: 0, color: 'var(--color-text-muted)', fontWeight: 600, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Control HYS</p>
+                            </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexShrink: 0 }}>
+                            <span style={{ fontSize: '1.4rem', fontWeight: 900, color: progressColor }}>{progressPct}%</span>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>{progressLabel}</span>
+                        </div>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <div style={{ height: '8px', background: 'var(--color-background)', borderRadius: '999px', overflow: 'hidden' }}>
+                            <div style={{
+                                height: '100%',
+                                width: `${progressPct}%`,
+                                background: progressColor,
+                                borderRadius: '999px',
+                                transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                                boxShadow: `0 0 8px ${progressColor}88`
+                            }} />
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                            {progressItems.map((item) => (
+                                <span key={item.label} style={{
+                                    fontSize: '0.65rem', fontWeight: 700, padding: '0.2rem 0.5rem',
+                                    borderRadius: '999px',
+                                    background: item.done ? 'rgba(16,185,129,0.12)' : 'var(--color-background)',
+                                    color: item.done ? '#10b981' : 'var(--color-text-muted)',
+                                    border: `1px solid ${item.done ? 'rgba(16,185,129,0.3)' : 'var(--color-border)'}`,
+                                    display: 'flex', alignItems: 'center', gap: '0.3rem'
+                                }}>
+                                    {item.done ? '✓' : '○'} {item.label}
+                                </span>
+                            ))}
                         </div>
                     </div>
                 </div>

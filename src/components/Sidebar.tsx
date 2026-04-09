@@ -1,9 +1,11 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import React, { useEffect, useState, ChangeEvent } from 'react';
 import {
-  X, User, History, LogOut, Home, Settings,
-  Calendar, MessageSquare, Sun, Moon, Sparkles, Star, ShieldCheck, HardHat, BarChart3, Users, TriangleAlert, CreditCard, Crown, ImageIcon, Upload, X as CloseIcon, CheckCircle, AlertCircle, LucideIcon, FileText, Bell
-} from 'lucide-react';
+  X, User, House, GearSix, ClockCounterClockwise, SignOut, CalendarBlank,
+  ChatText, Sun, Moon, Sparkle as Sparkles, Star, ShieldCheck, HardHat, ChartPieSlice,
+  Users, Warning, CreditCard, Crown, Image as ImageIconPh, UploadSimple,
+  CheckCircle, Info, FileText, Bell, ChartBar
+} from '@phosphor-icons/react';
 import { useExpiryNotifications } from '../hooks/useExpiryNotifications';
 
 import { User as FirebaseUser } from 'firebase/auth';
@@ -33,15 +35,15 @@ interface SidebarProps {
 }
 
 const navItems: NavItem[] = [
-  { to: '/', icon: <Home size={18} />, label: 'Inicio', always: true },
-  { to: '/calendar', icon: <Calendar size={18} />, label: 'Calendario', always: true },
-  { to: '/settings', icon: <Settings size={18} />, label: 'Configuración', auth: true },
-  { to: '/dashboard', icon: <BarChart3 size={18} color="#10b981" />, label: 'Dashboard', auth: true },
-  { to: '/history', icon: <History size={18} />, label: 'Historiales', auth: true },
-  { to: '/logo-settings', icon: <ImageIcon size={18} />, label: 'Logo de Empresa', auth: true },
-  { to: '/profile', icon: <User size={18} />, label: 'Mi Perfil', auth: true },
-  { to: '/privacy', icon: <ShieldCheck size={18} />, label: 'Privacidad', always: true },
-  { to: '/management-report', icon: <BarChart3 size={18} color="#8b5cf6" />, label: 'Reporte Mensual', auth: true },
+  { to: '/', icon: <House weight="duotone" size={20} />, label: 'Inicio', always: true },
+  { to: '/calendar', icon: <CalendarBlank weight="duotone" size={20} />, label: 'Calendario', always: true },
+  { to: '/settings', icon: <GearSix weight="duotone" size={20} />, label: 'Configuración', auth: true },
+  { to: '/dashboard', icon: <ChartPieSlice weight="duotone" size={20} color="#10b981" />, label: 'Dashboard', auth: true },
+  { to: '/history', icon: <ClockCounterClockwise weight="duotone" size={20} />, label: 'Historiales', auth: true },
+  { to: '/logo-settings', icon: <ImageIconPh weight="duotone" size={20} />, label: 'Logo de Empresa', auth: true },
+  { to: '/profile', icon: <User weight="duotone" size={20} />, label: 'Mi Perfil', auth: true },
+  { to: '/privacy', icon: <ShieldCheck weight="duotone" size={20} />, label: 'Privacidad', always: true },
+  { to: '/management-report', icon: <ChartBar weight="duotone" size={20} color="#8b5cf6" />, label: 'Reporte Mensual', auth: true },
 ];
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactElement {
@@ -255,7 +257,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
                   }}
                   title={`${notifications.length} alerta${notifications.length !== 1 ? 's' : ''} de vencimiento`}
                 >
-                  <Bell size={17} />
+                  <Bell weight="duotone" size={20} />
                   {notifications.length > 0 && (
                     <span style={{
                       position: 'absolute', top: '-5px', right: '-5px',
@@ -275,7 +277,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
                 onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; e.currentTarget.style.transform = 'rotate(90deg)'; }}
                 onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.transform = 'rotate(0)'; }}
               >
-                <X size={20} />
+                <X weight="bold" size={20} />
               </button>
             </div>
           </div>
@@ -309,7 +311,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
                         </span>
                       </span>
                       <button onClick={() => dismiss(n.id)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', padding: '0.1rem', fontSize: '0.7rem', flexShrink: 0 }} title="Descartar">
-                        <X size={12} />
+                        <X weight="bold" size={14} />
                       </button>
                     </div>
                   ))}
@@ -330,7 +332,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
               {userInfo.photo ? (
                 <img src={userInfo.photo} alt="Foto de Perfil" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
-                <User size={22} color="rgba(255,255,255,0.9)" />
+                <User weight="duotone" size={26} color="rgba(255,255,255,0.9)" />
               )}
             </div>
             <div style={{ flex: 1 }}>
@@ -351,7 +353,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
                       }}
                       title={daysRemaining === Infinity ? "Plan Administrador - Acceso Total" : `Días PRO: ${daysRemaining}`}
                     >
-                      <Crown size={12} color="#f59e0b" fill="#f59e0b" />
+                      <Crown weight="fill" size={12} color="#f59e0b" />
                       <span style={{ fontSize: '0.6rem', color: '#fcd34d', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                         {daysRemaining === Infinity ? 'Admin' : `PRO ${daysRemaining}d`}
                       </span>
@@ -382,9 +384,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
                   onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
                 >
                   {isDarkMode ? (
-                    <Sun size={20} color="#ffffff" strokeWidth={2.5} />
+                    <Sun weight="bold" size={22} color="#ffffff" />
                   ) : (
-                    <Moon size={20} color="#ffffff" strokeWidth={2.5} />
+                    <Moon weight="bold" size={22} color="#ffffff" />
                   )}
                 </button>
               </div>
@@ -447,7 +449,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
               onMouseOver={e => e.currentTarget.style.background = 'var(--color-background)'}
               onMouseOut={e => e.currentTarget.style.background = 'transparent'}
             >
-              <MessageSquare size={18} color="var(--color-text-muted)" />
+              <ChatText weight="duotone" size={20} color="var(--color-text-muted)" />
               <span>Sugerencias y Mejoras</span>
             </div>
           </a>
@@ -483,7 +485,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
                   boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)',
                   flexShrink: 0
                 }}>
-                  <Crown size={18} color="#ffffff" fill="rgba(255,255,255,0.2)" />
+                  <Crown weight="fill" size={20} color="#ffffff" />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   <span style={{ fontWeight: 800, fontSize: '0.85rem', color: 'var(--color-primary)', letterSpacing: '-0.3px' }}>Activar Versión Pro</span>
@@ -511,7 +513,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
               onMouseOver={e => e.currentTarget.style.background = 'rgba(239,68,68,0.1)'}
               onMouseOut={e => e.currentTarget.style.background = 'rgba(239,68,68,0.05)'}
             >
-              <LogOut size={18} />
+              <SignOut weight="bold" size={20} />
               <span>Cerrar Sesión</span>
             </button>
           )}

@@ -90,6 +90,29 @@ export default function ConfinedSpace(): React.ReactElement | null {
     const [shareItem, setShareItem] = useState(null);
     const [selectedPermit, setSelectedPermit] = useState(null);
 
+    // --- Pre-Entry Checklist State ---
+    const PRE_ENTRY_ITEMS = [
+        { id: 'pe1', emoji: '💨', label: 'Atmósfera verificada (O₂, LEL, CO, H₂S)', critical: true },
+        { id: 'pe2', emoji: '🦺', label: 'Arnés de seguridad y malacate listos', critical: true },
+        { id: 'pe3', emoji: '📻', label: 'Comunicación de radio establecida', critical: true },
+        { id: 'pe4', emoji: '👁️', label: 'Vigía asignado y en posición', critical: true },
+        { id: 'pe5', emoji: '🚨', label: 'Plan de rescate definido y conocido', critical: true },
+        { id: 'pe6', emoji: '💡', label: 'Iluminación adecuada instalada', critical: false },
+        { id: 'pe7', emoji: '💨', label: 'Ventilación forzada activa (si aplica)', critical: false },
+        { id: 'pe8', emoji: '🧯', label: 'Extintor a la vista y operativo', critical: false },
+        { id: 'pe9', emoji: '🚧', label: 'Zona delimitada y señalizada', critical: false },
+        { id: 'pe10', emoji: '📋', label: 'Permiso de trabajo vigente y firmado', critical: true },
+    ];
+    const [preEntryChecks, setPreEntryChecks] = useState<Record<string, boolean>>(
+        Object.fromEntries(PRE_ENTRY_ITEMS.map(i => [i.id, false]))
+    );
+    const preEntryDone = Object.values(preEntryChecks).filter(Boolean).length;
+    const criticalItems = PRE_ENTRY_ITEMS.filter(i => i.critical);
+    const allCriticalDone = criticalItems.every(i => preEntryChecks[i.id]);
+    const preEntryPct = Math.round((preEntryDone / PRE_ENTRY_ITEMS.length) * 100);
+    const semaphoreColor = allCriticalDone && preEntryPct === 100 ? '#10b981' : allCriticalDone ? '#f59e0b' : '#ef4444';
+    const semaphoreLabel = allCriticalDone && preEntryPct === 100 ? '✅ AUTORIZADO PARA INGRESAR' : allCriticalDone ? '⚠️ INCOMPLETO — Verificar items opcionales' : '🚫 ENTRADA PROHIBIDA — Items críticos pendientes';
+
     useEffect(() => {
         const loadData = () => {
             const savedPermits = localStorage.getItem('confined_space_permits_db');
@@ -365,7 +388,8 @@ export default function ConfinedSpace(): React.ReactElement | null {
                 gap: '0.5rem',
                 marginBottom: '1.5rem',
                 borderBottom: '2px solid var(--color-border)',
-                paddingBottom: '0.5rem'
+                paddingBottom: '0.5rem',
+                flexWrap: 'wrap'
             }}>
                 <TabButton 
                     active={activeTab === 'permits'}
@@ -382,6 +406,14 @@ export default function ConfinedSpace(): React.ReactElement | null {
                     label="Activos"
                     count={activePermits.length}
                     badge={activePermits.length}
+                />
+                <TabButton 
+                    active={activeTab === 'preentry'}
+                    onClick={() => setActiveTab('preentry')}
+                    icon={<Shield size={18} />}
+                    label="Pre-Entrada"
+                    count={0}
+                    badge={!allCriticalDone ? 1 : 0}
                 />
                 <TabButton 
                     active={activeTab === 'limits'}
@@ -483,6 +515,84 @@ export default function ConfinedSpace(): React.ReactElement | null {
                         </div>
                     )}
                 </>
+            )}
+
+            {activeTab === 'preentry' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                    {/* Semaphore Panel */}
+                    <div style={{
+                        padding: '2rem',
+                        background: `${semaphoreColor}12`,
+                        border: `2px solid ${semaphoreColor}`,
+                        borderRadius: '20px',
+                        textAlign: 'center'
+                    }}>
+                        <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>
+                            {allCriticalDone && preEntryPct === 100 ? '🟢' : allCriticalDone ? '🟡' : '🔴'}
+                        </div>
+                        <div style={{ fontSize: '1.1rem', fontWeight: 900, color: semaphoreColor, marginBottom: '0.5rem' }}>
+                            {semaphoreLabel}
+                        </div>
+                        <div style={{ height: '8px', background: 'rgba(0,0,0,0.1)', borderRadius: '999px', margin: '1rem auto', maxWidth: '300px', overflow: 'hidden' }}>
+                            <div style={{ height: '100%', width: `${preEntryPct}%`, background: semaphoreColor, borderRadius: '999px', transition: 'width 0.5s ease' }} />
+                        </div>
+                        <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>
+                            {preEntryDone} / {PRE_ENTRY_ITEMS.length} verificaciones completadas
+                        </div>
+                        {preEntryPct === 100 && (
+                            <button
+                                onClick={() => setPreEntryChecks(Object.fromEntries(PRE_ENTRY_ITEMS.map(i => [i.id, false])))}
+                                style={{ marginTop: '1rem', padding: '0.5rem 1.2rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '12px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)' }}
+                            >
+                                Reiniciar Verificación
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Checklist Grid */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.75rem' }}>
+                        {PRE_ENTRY_ITEMS.map(item => {
+                            const done = preEntryChecks[item.id];
+                            return (
+                                <button
+                                    key={item.id}
+                                    onClick={() => setPreEntryChecks(prev => ({ ...prev, [item.id]: !prev[item.id] }))}
+                                    style={{
+                                        display: 'flex', alignItems: 'center', gap: '1rem',
+                                        padding: '1rem 1.2rem',
+                                        background: done ? 'rgba(16,185,129,0.08)' : 'var(--color-surface)',
+                                        border: `2px solid ${done ? '#10b981' : item.critical ? 'rgba(239,68,68,0.4)' : 'var(--color-border)'}`,
+                                        borderRadius: '14px',
+                                        cursor: 'pointer',
+                                        textAlign: 'left',
+                                        transition: 'all 0.2s',
+                                    }}
+                                >
+                                    <div style={{
+                                        width: '36px', height: '36px', flexShrink: 0,
+                                        borderRadius: '50%',
+                                        background: done ? '#10b981' : 'var(--color-background)',
+                                        border: `2px solid ${done ? '#10b981' : item.critical ? '#ef4444' : 'var(--color-border)'}`,
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        fontSize: done ? '1rem' : '0.9rem',
+                                        transition: 'all 0.25s',
+                                        color: done ? '#fff' : 'inherit'
+                                    }}>
+                                        {done ? '✓' : item.emoji}
+                                    </div>
+                                    <div>
+                                        <div style={{ fontWeight: 700, fontSize: '0.88rem', color: done ? '#10b981' : 'var(--color-text)' }}>
+                                            {item.label}
+                                        </div>
+                                        <div style={{ fontSize: '0.65rem', fontWeight: 700, color: item.critical ? '#ef4444' : 'var(--color-text-muted)', marginTop: '0.2rem' }}>
+                                            {item.critical ? '🔴 OBLIGATORIO' : '🟟 Recomendado'}
+                                        </div>
+                                    </div>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
             )}
 
             {activeTab === 'active' && (

@@ -1,6 +1,11 @@
+import express from 'express';
+import cors from 'cors';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
+import { MercadoPagoConfig, Preference } from 'mercadopago';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { Resend } from 'resend';
 
 dotenv.config();
 

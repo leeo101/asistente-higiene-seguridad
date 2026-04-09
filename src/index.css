@@ -2570,3 +2570,68 @@ label {
     display: none !important;
   }
 }
+
+/* --- Premium Icon Containers & Animation --- */
+.premium-icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-lg);
+  position: relative;
+  transition: all var(--transition-bounce);
+  overflow: visible !important;
+  z-index: 1;
+}
+
+.premium-icon-box::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0.1;
+  transition: opacity var(--transition-base);
+  z-index: -1;
+}
+
+.premium-icon-box:hover {
+  transform: scale(1.1) rotate(3deg);
+}
+
+.premium-icon-box:hover::after {
+  opacity: 0.2;
+}
+
+.icon-glow-soft {
+  filter: drop-shadow(0 4px 10px currentColor);
+}
+
+/* AI Magic Effect - For high-tech modules */
+.ai-magic-box {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(168, 85, 247, 0.1)) !important;
+  border: 1px solid rgba(168, 85, 247, 0.2) !important;
+  box-shadow: 0 8px 24px rgba(168, 85, 247, 0.1) !important;
+}
+
+.ai-magic-box:hover {
+  box-shadow: 0 12px 30px rgba(168, 85, 247, 0.25) !important;
+  border-color: rgba(168, 85, 247, 0.4) !important;
+}
+
+.ai-magic-icon {
+  filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.4));
+  color: #a855f7 !important;
+}
+
+/* Phosphor Duotone Visibility Enhancement */
+svg.ph-duotone {
+  display: block;
+}
+
+svg.ph-duotone [opacity="0.2"] {
+  opacity: 0.35 !important;
+}
+
+.scale-110 {
+  transform: scale(1.15);
+}

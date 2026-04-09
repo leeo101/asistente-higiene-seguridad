@@ -9,6 +9,7 @@ import { ArrowLeft, Search, Calendar, ChevronRight,
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useSync } from '../contexts/SyncContext';
 import { HistoryCardSkeleton } from '../components/SkeletonLoader';
+import { DataTable } from '../components/DataTable';
 import ShareModal from '../components/ShareModal';
 import RiskMatrixPdfGenerator from '../components/RiskMatrixPdfGenerator';
 import ProfessionalReportPdfGenerator from '../components/ProfessionalReportPdfGenerator';
@@ -332,57 +333,87 @@ export default function History(): React.ReactElement | null {
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {loading ? [1, 2, 3].map(i => <HistoryCardSkeleton key={i} />) : matrixData.length > 0 ? matrixData.map(item => (
-                        <div key={item.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', flex: 1 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                    <div style={{ background: 'rgba(139,92,246,0.1)', padding: '0.8rem', borderRadius: '12px', color: '#8b5cf6' }}>
-                                        <ShieldAlert />
-                                    </div>
-                                    <div style={{ flex: 1 }}>
-                                        <h4 style={{ margin: '0 0 0.3rem 0', fontWeight: 700 }}>{item.name}</h4>
-                                        <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-                                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                                                <Calendar size={14} /> {new Date(item.createdAt).toLocaleDateString('es-AR')}
-                                            </span>
-                                            <span>{item.location}</span>
+                <div style={{ padding: '0 0 2rem 0' }}>
+                    <DataTable 
+                        data={matrixData}
+                        searchPlaceholder="Buscar por nombre o ubicación..."
+                        searchFields={['name', 'location']}
+                        emptyMessage="No hay matrices registradas."
+                        emptyIcon={<ShieldAlert size={48} />}
+                        onEmptyAction={() => navigate('/risk-matrix')}
+                        emptyActionLabel="Crear mi primera Matriz"
+                        columns={[
+                            {
+                                header: 'Fecha',
+                                accessor: 'createdAt',
+                                sortable: true,
+                                render: (item: any) => (
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-text-muted)' }}>
+                                        <Calendar size={14} /> 
+                                        {new Date(item.createdAt).toLocaleDateString('es-AR')}
+                                    </span>
+                                )
+                            },
+                            {
+                                header: 'Nombre',
+                                accessor: 'name',
+                                sortable: true,
+                                render: (item: any) => (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                                        <div style={{ background: 'rgba(139,92,246,0.1)', padding: '0.5rem', borderRadius: '8px', color: '#8b5cf6' }}>
+                                            <ShieldAlert size={16} />
                                         </div>
+                                        <div style={{ fontWeight: 700 }}>{item.name}</div>
                                     </div>
-                                </div>
-                                <div style={{ display: 'flex', gap: '0.8rem', borderTop: '1px solid var(--color-border)', paddingTop: '0.8rem', flexWrap: 'wrap' }}>
-                                    <button
-                                        onClick={() => { localStorage.setItem('current_risk_matrix', JSON.stringify(item)); navigate('/risk-matrix-report'); }}
-                                        className="btn-primary"
-                                        style={{ flex: 2, padding: '0.5rem', fontSize: '0.85rem' }}
-                                    >
-                                        <FileText size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '0.3rem' }} /> Ver PDF
-                                    </button>
-                                    <button
-                                        onClick={() => navigate('/risk-matrix', { state: { editData: item } })}
-                                        className="btn-secondary"
-                                        style={{ flex: 1, padding: '0.5rem', fontSize: '0.85rem' }}
-                                    >
-                                        Editar
-                                    </button>
-                                    <button
-                                        onClick={() => setShareItem({ type: 'matrix', data: item })}
-                                        style={{ padding: '0.5rem 0.7rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-                                        title="Compartir"
-                                    >
-                                        <Share2 size={16} />
-                                    </button>
-                                    <DeleteBtn storageKey="risk_matrix_history" id={item.id} />
-                                </div>
-                            </div>
-                        </div>
-                    )) : (
-                        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
-                            <ShieldAlert size={48} style={{ opacity: 0.1, marginBottom: '1rem' }} />
-                            <p style={{ marginBottom: '1.5rem' }}>No hay matrices registradas</p>
-                            <button onClick={() => navigate('/risk-matrix')} className="btn-primary" style={{ margin: '0 auto' }}>Crear mi primera Matriz</button>
-                        </div>
-                    )}
+                                )
+                            },
+                            {
+                                header: 'Ubicación',
+                                accessor: 'location',
+                                sortable: true
+                            },
+                            {
+                                header: 'Riesgos',
+                                accessor: 'rows',
+                                render: (item: any) => (
+                                    <span style={{ 
+                                        padding: '0.2rem 0.6rem', 
+                                        background: 'var(--color-background)', 
+                                        borderRadius: 'var(--radius-full)', 
+                                        fontSize: '0.75rem', 
+                                        fontWeight: 800 
+                                    }}>
+                                        {item.rows?.length || 0}
+                                    </span>
+                                )
+                            },
+                            {
+                                header: 'Acciones',
+                                accessor: 'id',
+                                render: (item: any) => (
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <button
+                                            onClick={() => { localStorage.setItem('current_risk_matrix', JSON.stringify(item)); navigate('/risk-matrix-report'); }}
+                                            style={{
+                                                padding: '0.4rem 0.6rem', background: 'rgba(59,130,246,0.1)', color: '#3b82f6', border: '1px solid rgba(59,130,246,0.2)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px'
+                                            }}
+                                            title="Ver PDF"
+                                        >
+                                            <FileText size={16} /> <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>PDF</span>
+                                        </button>
+                                        <button
+                                            onClick={() => setShareItem({ type: 'matrix', data: item })}
+                                            style={{ padding: '0.4rem 0.6rem', background: 'rgba(22,163,74,0.1)', color: '#16a34a', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '8px', cursor: 'pointer' }}
+                                            title="Compartir"
+                                        >
+                                            <Share2 size={16} />
+                                        </button>
+                                        <DeleteBtn storageKey="risk_matrix_history" id={item.id} />
+                                    </div>
+                                )
+                            }
+                        ]}
+                    />
                 </div>
             </div>
         );
@@ -433,57 +464,84 @@ export default function History(): React.ReactElement | null {
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {reportsData.length > 0 ? reportsData.map(item => (
-                        <div key={item.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', flex: 1 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                    <div style={{ background: 'rgba(236,72,153,0.1)', padding: '0.8rem', borderRadius: '12px', color: '#ec4899' }}>
-                                        <FileText size={24} />
-                                    </div>
-                                    <div style={{ flex: 1 }}>
-                                        <h4 style={{ margin: '0 0 0.3rem 0', fontWeight: 700 }}>{item.title}</h4>
-                                        <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-                                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                                                <Calendar size={14} /> {new Date(item.createdAt).toLocaleDateString('es-AR')}
-                                            </span>
-                                            <span>{item.company}</span>
+                <div style={{ padding: '0 0 2rem 0' }}>
+                    <DataTable 
+                        data={reportsData}
+                        searchPlaceholder="Buscar por título o empresa..."
+                        searchFields={['title', 'company', 'author']}
+                        emptyMessage="No hay informes registrados."
+                        emptyIcon={<FileText size={48} />}
+                        onEmptyAction={() => navigate('/reports')}
+                        emptyActionLabel="Crear mi primer Informe"
+                        columns={[
+                            {
+                                header: 'Fecha',
+                                accessor: 'createdAt',
+                                sortable: true,
+                                render: (item: any) => (
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-text-muted)' }}>
+                                        <Calendar size={14} /> 
+                                        {new Date(item.createdAt).toLocaleDateString('es-AR')}
+                                    </span>
+                                )
+                            },
+                            {
+                                header: 'Título',
+                                accessor: 'title',
+                                sortable: true,
+                                render: (item: any) => (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                                        <div style={{ background: 'rgba(236,72,153,0.1)', padding: '0.5rem', borderRadius: '8px', color: '#ec4899' }}>
+                                            <FileText size={16} />
                                         </div>
+                                        <div style={{ fontWeight: 700 }}>{item.title}</div>
                                     </div>
-                                </div>
-                                <div style={{ display: 'flex', gap: '0.8rem', borderTop: '1px solid var(--color-border)', paddingTop: '0.8rem', flexWrap: 'wrap' }}>
-                                    <button
-                                        onClick={() => { localStorage.setItem('current_report', JSON.stringify(item)); navigate('/reports-report'); }}
-                                        className="btn-primary"
-                                        style={{ flex: 2, padding: '0.5rem', fontSize: '0.85rem' }}
-                                    >
-                                        <FileText size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '0.3rem' }} /> Ver PDF
-                                    </button>
-                                    <button
-                                        onClick={() => navigate('/reports', { state: { editData: item } })}
-                                        className="btn-secondary"
-                                        style={{ flex: 1, padding: '0.5rem', fontSize: '0.85rem' }}
-                                    >
-                                        Editar
-                                    </button>
-                                    <button
-                                        onClick={() => setShareItem({ type: 'report', data: item })}
-                                        style={{ padding: '0.5rem 0.7rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-                                        title="Compartir"
-                                    >
-                                        <Share2 size={16} />
-                                    </button>
-                                    <DeleteBtn storageKey="reports_history" id={item.id} />
-                                </div>
-                            </div>
-                        </div>
-                    )) : (
-                        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
-                            <FileText size={48} style={{ opacity: 0.1, marginBottom: '1rem' }} />
-                            <p style={{ marginBottom: '1.5rem' }}>No hay informes registrados</p>
-                            <button onClick={() => navigate('/reports')} className="btn-primary" style={{ margin: '0 auto' }}>Crear mi primer Informe</button>
-                        </div>
-                    )}
+                                )
+                            },
+                            {
+                                header: 'Empresa',
+                                accessor: 'company',
+                                sortable: true
+                            },
+                            {
+                                header: 'Autor',
+                                accessor: 'author',
+                                render: (item) => <span style={{ color: 'var(--color-text-muted)' }}>{item.author || '--'}</span>
+                            },
+                            {
+                                header: 'Acciones',
+                                accessor: 'id',
+                                render: (item: any) => (
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <button
+                                            onClick={() => { localStorage.setItem('current_report', JSON.stringify(item)); navigate('/reports-report'); }}
+                                            style={{
+                                                padding: '0.4rem 0.6rem', background: 'rgba(59,130,246,0.1)', color: '#3b82f6', border: '1px solid rgba(59,130,246,0.2)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px'
+                                            }}
+                                            title="Ver PDF"
+                                        >
+                                            <FileText size={16} /> <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>PDF</span>
+                                        </button>
+                                        <button
+                                            onClick={() => navigate('/reports', { state: { editData: item } })}
+                                            style={{ padding: '0.4rem 0.6rem', background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)', borderRadius: '8px', cursor: 'pointer' }}
+                                            title="Editar"
+                                        >
+                                            Editar
+                                        </button>
+                                        <button
+                                            onClick={() => setShareItem({ type: 'report', data: item })}
+                                            style={{ padding: '0.4rem 0.6rem', background: 'rgba(22,163,74,0.1)', color: '#16a34a', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '8px', cursor: 'pointer' }}
+                                            title="Compartir"
+                                        >
+                                            <Share2 size={16} />
+                                        </button>
+                                        <DeleteBtn storageKey="reports_history" id={item.id} />
+                                    </div>
+                                )
+                            }
+                        ]}
+                    />
                 </div>
             </div>
         );
@@ -526,65 +584,95 @@ export default function History(): React.ReactElement | null {
                 </div>
             </div>
 
-            <div style={{ position: 'relative', marginBottom: '2rem' }}>
-                <Search size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
-                <input type="text" placeholder="Buscar por obra..." style={{ paddingLeft: '2.8rem' }} />
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {loading ? [1, 2, 3, 4].map(i => <HistoryCardSkeleton key={i} />) : historicalData.length > 0 ? historicalData.map(item => (
-                    <div key={item.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', flex: 1 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                <div style={{ background: 'rgba(59,130,246,0.1)', padding: '0.8rem', borderRadius: '12px', color: 'var(--color-primary)', flexShrink: 0 }}>
-                                    <FileText />
-                                </div>
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                    <h4 style={{ margin: '0 0 0.3rem 0', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name || 'Sin nombre'}</h4>
-                                    <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap' }}>
-                                            <Calendar size={14} /> {new Date(item.date).toLocaleDateString('es-AR')}
-                                        </span>
-                                        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.type}</span>
+            <div style={{ padding: '0 0 2rem 0' }}>
+                <DataTable 
+                    data={historicalData}
+                    searchPlaceholder="Buscar por obra o tipo..."
+                    searchFields={['name', 'type']}
+                    emptyMessage="No hay inspecciones registradas."
+                    emptyIcon={<FileText size={48} />}
+                    onEmptyAction={() => navigate('/create-inspection')}
+                    emptyActionLabel="Crear mi primera Inspección"
+                    columns={[
+                        {
+                            header: 'Fecha',
+                            accessor: 'date',
+                            sortable: true,
+                            render: (item: any) => (
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-text-muted)' }}>
+                                    <Calendar size={14} /> 
+                                    {new Date(item.date).toLocaleDateString('es-AR')}
+                                </span>
+                            )
+                        },
+                        {
+                            header: 'Obra / Lugar',
+                            accessor: 'name',
+                            sortable: true,
+                            render: (item: any) => (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                                    <div style={{ background: 'rgba(59,130,246,0.1)', padding: '0.5rem', borderRadius: '8px', color: '#3b82f6' }}>
+                                        <FileText size={16} />
                                     </div>
+                                    <div style={{ fontWeight: 700 }}>{item.name || 'Sin nombre'}</div>
                                 </div>
-                                <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                                    <div style={{ fontWeight: 800, color: 'var(--color-secondary)' }}>{item.result || '--'}</div>
+                            )
+                        },
+                        {
+                            header: 'Tipo',
+                            accessor: 'type',
+                            sortable: true
+                        },
+                        {
+                            header: 'Resultado',
+                            accessor: 'result',
+                            render: (item) => (
+                                <span style={{ 
+                                    padding: '0.2rem 0.6rem', 
+                                    background: 'var(--color-background)', 
+                                    borderRadius: 'var(--radius-full)', 
+                                    fontSize: '0.75rem', 
+                                    fontWeight: 800,
+                                    color: 'var(--color-primary)'
+                                }}>
+                                    {item.result || '--'}
+                                </span>
+                            )
+                        },
+                        {
+                            header: 'Acciones',
+                            accessor: 'id',
+                            render: (item: any) => (
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <button
+                                        onClick={() => { localStorage.setItem('current_inspection', JSON.stringify(item)); navigate('/report'); }}
+                                        style={{
+                                            padding: '0.4rem 0.6rem', background: 'rgba(59,130,246,0.1)', color: '#3b82f6', border: '1px solid rgba(59,130,246,0.2)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px'
+                                        }}
+                                        title="Ver PDF"
+                                    >
+                                        <FileText size={16} /> <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>PDF</span>
+                                    </button>
+                                    <button
+                                        onClick={() => { localStorage.setItem('current_inspection', JSON.stringify(item)); navigate('/checklist', { state: { editData: item } }); }}
+                                        style={{ padding: '0.4rem 0.6rem', background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)', borderRadius: '8px', cursor: 'pointer' }}
+                                        title="Editar"
+                                    >
+                                        Editar
+                                    </button>
+                                    <button
+                                        onClick={() => setShareItem({ type: 'inspection', data: item })}
+                                        style={{ padding: '0.4rem 0.6rem', background: 'rgba(22,163,74,0.1)', color: '#16a34a', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '8px', cursor: 'pointer' }}
+                                        title="Compartir"
+                                    >
+                                        <Share2 size={16} />
+                                    </button>
+                                    <DeleteBtn storageKey="inspections_history" id={item.id} />
                                 </div>
-                            </div>
-                            <div style={{ display: 'flex', gap: '0.8rem', borderTop: '1px solid var(--color-border)', paddingTop: '0.8rem', flexWrap: 'wrap' }}>
-                                <button
-                                    onClick={() => { localStorage.setItem('current_inspection', JSON.stringify(item)); navigate('/report'); }}
-                                    className="btn-primary"
-                                    style={{ flex: 2, padding: '0.5rem', fontSize: '0.85rem' }}
-                                >
-                                    <FileText size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '0.3rem' }} /> Ver PDF
-                                </button>
-                                <button
-                                    onClick={() => { localStorage.setItem('current_inspection', JSON.stringify(item)); navigate('/checklist', { state: { editData: item } }); }}
-                                    className="btn-secondary"
-                                    style={{ flex: 1, padding: '0.5rem', fontSize: '0.85rem' }}
-                                >
-                                    Editar
-                                </button>
-                                <DeleteBtn storageKey="inspections_history" id={item.id} />
-                                <button
-                                    onClick={() => setShareItem({ type: 'inspection', data: item })}
-                                    style={{ padding: '0.5rem 0.7rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-                                    title="Compartir"
-                                >
-                                    <Share2 size={16} />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )) : (
-                    <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
-                        <FileText size={48} style={{ opacity: 0.1, marginBottom: '1rem' }} />
-                        <p style={{ marginBottom: '1.5rem' }}>No hay inspecciones registradas</p>
-                        <button onClick={() => navigate('/create-inspection')} className="btn-primary" style={{ margin: '0 auto' }}>Crear mi primera Inspección</button>
-                    </div>
-                )}
+                            )
+                        }
+                    ]}
+                />
             </div>
         </div>
     );

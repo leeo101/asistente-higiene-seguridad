@@ -310,8 +310,7 @@ export default function FireLoad(): React.ReactElement | null {
 
     return (
         <div className="container" style={{ maxWidth: '900px', paddingBottom: '8rem' }}>
-            {/* Premium Header */}
-            <div style={{ position: 'fixed', top: '80px', left: 0, right: 0, zIndex: 100 }}>
+            <div className="no-print">
                 <PremiumHeader
                     title="Carga de Fuego"
                     subtitle="Cálculo según Dec. 351/79"
@@ -319,7 +318,7 @@ export default function FireLoad(): React.ReactElement | null {
                 />
             </div>
 
-            <div style={{ paddingTop: '13rem' }}>
+            <div>
             <ShareModal
                 isOpen={showShare}
                 open={showShare}
@@ -357,7 +356,7 @@ export default function FireLoad(): React.ReactElement | null {
                 </button>
             </div>
 
-            <div id="pdf-content" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div id="pdf-content" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem', background: '#ffffff', color: '#000000' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', alignItems: 'center', borderBottom: '4px solid #e2e8f0', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
                     <div style={{ textAlign: 'left' }}>
                         <p style={{ margin: 0, fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.05em' }}>Sistema de Gestión</p>
@@ -365,7 +364,7 @@ export default function FireLoad(): React.ReactElement | null {
                     </div>
 
                     <div style={{ textAlign: 'center' }}>
-                        <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '1px', lineHeight: 1.2 }}>
+                        <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '1px', lineHeight: 1.2 }}>
                             {editData ? 'Editar Carga de Fuego' : 'Cálculo Carga de Fuego'}
                         </h2>
                         <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b', fontWeight: 600 }}>{countryNorms.fire}</p>
