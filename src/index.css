@@ -1561,21 +1561,28 @@ label {
     max-height: none !important;
   }
 
-  body.printing-isolated * {
-    visibility: hidden;
+  body.printing-isolated :not(:has(.isolated-print-target)):not(.isolated-print-target):not(.isolated-print-target *) {
+    display: none !important;
   }
-  
-  body.printing-isolated .isolated-print-target,
-  body.printing-isolated .isolated-print-target * {
-    visibility: visible;
+
+  body.printing-isolated *:has(.isolated-print-target) {
+    display: block !important;
+    position: static !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+    background: transparent !important;
   }
 
   body.printing-isolated .isolated-print-target {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    /* Let the element define layout height naturally without forcing extra pages */
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    background: white !important;
+    /* Allow the element to define layout height naturally for perfect pagination */
   }
 
   footer,
