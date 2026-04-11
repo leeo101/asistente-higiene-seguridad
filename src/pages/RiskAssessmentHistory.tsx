@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { ArrowLeft, Plus, Shield, ShieldAlert, Calendar, Trash2, ShareNetwork as Share2, QrCode } from 'lucide-react';
+import { ArrowLeft, Plus, Shield, ShieldAlert, Calendar, Trash2, Share2, QrCode } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -197,7 +197,7 @@ export default function RiskAssessmentHistory(): React.ReactElement | null {
                                     }}
                                     title="Compartir Informe"
                                 >
-                                    <ShareNetwork as Share2 size={16} /> <span>WA</span>
+                                    <Share2 size={16} /> <span>WA</span>
                                 </button>
                                 <button
                                     onClick={() => {

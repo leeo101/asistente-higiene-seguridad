@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Search, Calendar, ChevronRight,
     Trash2, Sparkles, Download, FileText, HardHat,
-    ShieldAlert, Lightbulb, Gavel, ShareNetwork as Share2
+    ShieldAlert, Lightbulb, Gavel, Share2
 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
@@ -87,7 +87,7 @@ export default function AIHistory(): React.ReactElement | null {
                             className="btn-primary"
                             style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}
                         >
-                            <ShareNetwork as Share2 size={16} /> Compartir Reporte
+                            <Share2 size={16} /> Compartir Reporte
                         </button>
                     </div>
 
@@ -225,7 +225,7 @@ export default function AIHistory(): React.ReactElement | null {
                                     style={{ background: '#dcfce7', border: '1px solid #86efac', borderRadius: '10px', color: '#16a34a', cursor: 'pointer', padding: '0.5rem 0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', minWidth: '40px' }}
                                     title="Compartir"
                                 >
-                                    <ShareNetwork as Share2 size={18} /> <span className="hidden sm:inline" style={{ marginLeft: '0.3rem', fontWeight: 700, fontSize: '0.75rem' }}>Compartir</span>
+                                    <Share2 size={18} /> <span className="hidden sm:inline" style={{ marginLeft: '0.3rem', fontWeight: 700, fontSize: '0.75rem' }}>Compartir</span>
                                 </button>
                                 <button
                                     onClick={(e) => handleDelete(item.id, e)}
