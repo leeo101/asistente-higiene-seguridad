@@ -34,9 +34,10 @@ export async function generatePdfBlob(elementId, filename = 'reporte.pdf', isLan
         // height is needed to fit the unwrapped content.
         const targetWidth = isLandscape ? '297mm' : '210mm';
         
-        element.style.position = 'fixed';
-        element.style.left = '0';
-        element.style.top = '0';
+        // Hide off-screen instead of overlapping the UI
+        element.style.position = 'absolute';
+        element.style.left = '-9999px';
+        element.style.top = '-9999px';
         element.style.width = targetWidth;
         element.style.maxWidth = 'none';
         
@@ -44,7 +45,7 @@ export async function generatePdfBlob(elementId, filename = 'reporte.pdf', isLan
         element.style.height = 'auto';
         element.style.minHeight = '0';
         
-        element.style.zIndex = '999999';
+        element.style.zIndex = '-9999';
         element.style.opacity = '1';
         element.style.pointerEvents = 'none';
         element.style.visibility = 'visible';
@@ -60,7 +61,7 @@ export async function generatePdfBlob(elementId, filename = 'reporte.pdf', isLan
         const A4_HEIGHT_MM = 297;
 
         const canvas = await html2canvas(element, {
-            scale: 2,
+            scale: 3, // Increased scale for better "print-like" quality
             useCORS: true,
             logging: false,
             windowWidth: element.scrollWidth,

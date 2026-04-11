@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 export interface ExpiryNotification {
   id: string;
-  type: 'ppe' | 'extinguisher';
+  type: 'ppe' | 'extinguisher' | 'contractor' | 'worker';
   label: string;
   responsible?: string;
   daysLeft: number;
@@ -82,6 +82,59 @@ export function useExpiryNotifications() {
               daysLeft,
               isExpired: daysLeft < 0,
               itemId: ext.id,
+            });
+          }
+        }
+      });
+    } catch { /* ignore */ }
+
+    // ─── Contratistas ────────────────────────────────────
+    try {
+      const contractors = JSON.parse(localStorage.getItem('contractors_data') || '[]');
+      contractors.forEach((c: any) => {
+        if (c.documentExpiresAt) {
+          const daysLeft = getDaysLeft(c.documentExpiresAt);
+          if (daysLeft !== null && daysLeft <= 15) {
+            items.push({
+              id: `ctr-${c.id}`,
+              type: 'contractor',
+              label: `Empresa ${c.name} — Doc. Principal`,
+              daysLeft,
+              isExpired: daysLeft < 0,
+              itemId: c.id,
+            });
+          }
+        }
+      });
+    } catch { /* ignore */ }
+
+    // ─── Trabajadores Contratistas ───────────────────────
+    try {
+      const workers = JSON.parse(localStorage.getItem('workers_data') || '[]');
+      workers.forEach((w: any) => {
+        if (w.artExpiresAt) {
+          const daysLeft = getDaysLeft(w.artExpiresAt);
+          if (daysLeft !== null && daysLeft <= 15) {
+            items.push({
+              id: `wrk-art-${w.id}`,
+              type: 'worker',
+              label: `${w.name} — Vto. ART`,
+              daysLeft,
+              isExpired: daysLeft < 0,
+              itemId: w.id,
+            });
+          }
+        }
+        if (w.lifeInsuranceExpiresAt) {
+          const daysLeft = getDaysLeft(w.lifeInsuranceExpiresAt);
+          if (daysLeft !== null && daysLeft <= 15) {
+            items.push({
+              id: `wrk-ins-${w.id}`,
+              type: 'worker',
+              label: `${w.name} — Seguro de Vida`,
+              daysLeft,
+              isExpired: daysLeft < 0,
+              itemId: w.id,
             });
           }
         }

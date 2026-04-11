@@ -122,6 +122,7 @@ const CAPAManager = lazyWithRetry(() => import('./pages/CAPAManager'));
 const EnvironmentalMonitor = lazyWithRetry(() => import('./pages/EnvironmentalMonitor'));
 const SafetyKPIs = lazyWithRetry(() => import('./pages/SafetyKPIs'));
 const ToolboxTalk = lazyWithRetry(() => import('./pages/ToolboxTalk'));
+const ContractorManagement = lazyWithRetry(() => import('./pages/ContractorManagement'));
 
 // SAFETY MODULE FORMS
 const AuditForm = lazyWithRetry(() => import('./pages/AuditForm'));
@@ -517,6 +518,7 @@ function App() {
                   <Route path="/stop-cards" element={<ProtectedRoute><StopCards /></ProtectedRoute>} />
                   <Route path="/stop-cards-history" element={<ProtectedRoute><StopCardsHistory /></ProtectedRoute>} />
                   <Route path="/logo-settings" element={<ProtectedRoute><LogoSettings /></ProtectedRoute>} />
+                  <Route path="/contractors" element={<ProtectedRoute><ContractorManagement /></ProtectedRoute>} />
 
                   <Route path="/risk-matrix-history" element={<ProtectedRoute><History view="matrices" /></ProtectedRoute>} />
                   <Route path="/reports-history" element={<ProtectedRoute><History view="reports" /></ProtectedRoute>} />

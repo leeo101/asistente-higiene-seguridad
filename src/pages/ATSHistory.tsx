@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ClipboardList, Calendar, Buildings, QrCode, Share2, Trash2, DownloadSimple } from '@phosphor-icons/react';
+import { ArrowLeft, ClipboardText as ClipboardList, Calendar, Buildings, QrCode, ShareNetwork as Share2, Trash as Trash2, DownloadSimple } from '@phosphor-icons/react';
 import { useSync } from '../contexts/SyncContext';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
@@ -108,7 +108,7 @@ export default function ATSHistory(): React.ReactElement | null {
                 <div style={{ display: 'flex', gap: '0.4rem' }}>
                     <button onClick={() => navigate('/ats', { state: { editData: item } })} style={{ padding: '0.4rem 0.8rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text)' }}>Ver</button>
                     <button onClick={() => requirePro(() => { const url = `${window.location.origin}/v/${currentUser?.uid}/ats/${item.id}?print=true`; setQrTarget({ text: url, title: `ATS — ${item.empresa}` }); })} style={{ padding: '0.4rem', background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer' }} title="QR"><QrCode size={15} /></button>
-                    <button onClick={() => requirePro(() => setShareItem(item))} style={{ padding: '0.4rem', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '8px', color: '#16a34a', cursor: 'pointer' }} title="Compartir"><Share2 size={15} /></button>
+                    <button onClick={() => requirePro(() => setShareItem(item))} style={{ padding: '0.4rem', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '8px', color: '#16a34a', cursor: 'pointer' }} title="Compartir"><ShareNetwork as Share2 size={15} /></button>
                     <button onClick={() => setDeleteTarget(item.id)} style={{ padding: '0.4rem', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}><Trash2 size={15} /></button>
                 </div>
             )

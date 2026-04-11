@@ -4,8 +4,10 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
-import { ArrowLeft, Save, AlertTriangle, MapPin, Camera, User } from 'lucide-react';
+import { ArrowLeft, Save, AlertTriangle, MapPin, Camera, User, Mic, MicOff, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { API_BASE_URL } from '../config';
+import { usePaywall } from '../hooks/usePaywall';
 
 export default function StopCards(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -29,6 +31,10 @@ export default function StopCards(): React.ReactElement | null {
         photoBase64: null
     });
 
+    const [isListening, setIsListening] = useState(false);
+    const [isProcessingAI, setIsProcessingAI] = useState(false);
+    const { requirePro } = usePaywall();
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -43,6 +49,66 @@ export default function StopCards(): React.ReactElement | null {
             };
             reader.readAsDataURL(file);
         }
+    };
+
+    const handleVoiceDictation = () => {
+        requirePro(() => {
+            // @ts-ignore
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                toast.error('Tu navegador no soporta reconocimiento de voz.');
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'es-AR';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onstart = () => {
+                setIsListening(true);
+                toast('Escuchando dictado... (Hablá ahora)', { icon: '🎙️' });
+            };
+
+            recognition.onresult = async (event) => {
+                const transcript = event.results[0][0].transcript;
+                setIsListening(false);
+                setIsProcessingAI(true);
+                toast.loading('Procesando dictado con IA...', { id: 'ai-voice' });
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/ai-stopcard`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ transcript })
+                    });
+                    if (!response.ok) throw new Error('Error al conectar con IA');
+                    const parsed = await response.json();
+                    
+                    setFormData(prev => ({
+                        ...prev,
+                        type: parsed.type || prev.type,
+                        location: parsed.location || prev.location,
+                        description: parsed.description || prev.description,
+                        actionTaken: parsed.actionTaken || prev.actionTaken
+                    }));
+
+                    toast.success('Formulario autocompletado con IA', { id: 'ai-voice' });
+                } catch (error) {
+                    console.error("Error from AI:", error);
+                    toast.error('No se pudo procesar la voz con IA. Autocompletá a mano.', { id: 'ai-voice' });
+                } finally {
+                    setIsProcessingAI(false);
+                }
+            };
+
+            recognition.onerror = (event) => {
+                setIsListening(false);
+                toast.error('Error al escuchar. Intentá de nuevo.');
+            };
+
+            recognition.start();
+        });
     };
 
     const handleSave = () => {
@@ -75,9 +141,26 @@ export default function StopCards(): React.ReactElement | null {
                 <h1 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800 }}>
                     {editData ? 'Editar Tarjeta STOP' : 'Tarjeta STOP'}
                 </h1>
+                
+                {!editData && (
+                    <button 
+                        onClick={handleVoiceDictation} 
+                        disabled={isListening || isProcessingAI}
+                        style={{ 
+                            marginLeft: 'auto', padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem',
+                            background: isListening ? '#ef4444' : 'var(--gradient-premium)', color: 'white', 
+                            border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer',
+                            boxShadow: '0 4px 12px rgba(59,130,246,0.3)', transition: 'all 0.2s'
+                        }}
+                    >
+                        {isListening ? <MicOff size={18} className="animate-pulse" /> : <Mic size={18} />}
+                        <span className="hidden sm:inline">{isListening ? 'Escuchando...' : 'Completar con Voz'}</span>
+                        {!isListening && <Sparkles size={14} />}
+                    </button>
+                )}
             </div>
 
-            <div className="card" style={{ padding: '1.5rem' }}>
+            <div className="card" style={{ padding: '1.5rem', opacity: isProcessingAI ? 0.6 : 1, pointerEvents: isProcessingAI ? 'none' : 'all' }}>
                 <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
                     <div className="form-group" style={{ flex: 1 }}>
                         <label>Fecha</label>

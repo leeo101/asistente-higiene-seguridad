@@ -602,6 +602,56 @@ app.post('/api/ai-legal-summary', aiLimiter, async (req, res) => {
 // ==========================================
 // AI GENERAL RISKS VISION (Gemini)
 // ==========================================
+app.post('/api/ai-stopcard', aiLimiter, async (req, res) => {
+    try {
+        const { transcript, country = 'argentina' } = req.body;
+        if (!transcript) return res.status(400).json({ error: 'Falta transcripción' });
+
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) return res.status(500).json({ error: 'Falta API Key' });
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const models = ["gemini-2.0-flash", "gemini-1.5-flash-latest"];
+
+        const responseSchema = {
+            type: SchemaType.OBJECT,
+            properties: {
+                type: { type: SchemaType.STRING },
+                location: { type: SchemaType.STRING },
+                description: { type: SchemaType.STRING },
+                actionTaken: { type: SchemaType.STRING }
+            },
+            required: ["type", "location", "description", "actionTaken"]
+        };
+
+        const prompt = `Analiza este reporte de voz de un inspector de seguridad: "${transcript}". Extrae e infiere los datos para una Tarjeta STOP. Clasifícalo en uno de estos: "Condición Insegura", "Acto Inseguro", "Casi Accidente", "Acto Seguro". Extrae la ubicación si se menciona. Da una descripción profesional del hallazgo. Si menciona qué hizo al respecto, ponlo en actionTaken.`;
+
+        let result;
+        for (const modelName of models) {
+            try {
+                const model = genAI.getGenerativeModel({ 
+                    model: modelName,
+                    systemInstruction: `Eres un asistente de seguridad laboral en ${country}. Transformas notas de voz informales en reportes estructurados.`,
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: responseSchema
+                    }
+                });
+                result = await model.generateContent(prompt);
+                if (result) break;
+            } catch (err) { continue; }
+        }
+        if (!result) throw new Error('Modelos fallaron');
+        res.json(JSON.parse(result.response.text()));
+    } catch (error) {
+        console.error("Error in AI StopCard:", error.message);
+        res.status(500).json({ error: 'Error procesando nota de voz' });
+    }
+});
+
+// ==========================================
+// AI GENERAL RISKS VISION (Gemini)
+// ==========================================
 app.post('/api/analyze-general-risks', aiLimiter, async (req, res) => {
     try {
         const { image } = req.body;

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ArrowLeft, Search, Calendar, ChevronRight,
-    ClipboardList, Flame, BarChart3, ShieldAlert, Plus, Sparkles, Trash2, Camera, Lightbulb, HardHat, Share2,
+    ClipboardList, Flame, BarChart3, ShieldAlert, Plus, Sparkles, Trash2, Camera, Lightbulb, HardHat, ShareNetwork as Share2,
     ClipboardCheck, CheckCircle2, ScrollText, ShieldCheck, KeySquare, Bot, TriangleAlert, FileText, Shield, ThermometerSun, Siren, Map, BookOpen,
     FlaskConical, Volume2, Lock, Tent, Droplets, MessageSquare, Download
 } from 'lucide-react';
@@ -406,7 +406,7 @@ export default function History(): React.ReactElement | null {
                                             style={{ padding: '0.4rem 0.6rem', background: 'rgba(22,163,74,0.1)', color: '#16a34a', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '8px', cursor: 'pointer' }}
                                             title="Compartir"
                                         >
-                                            <Share2 size={16} />
+                                            <ShareNetwork as Share2 size={16} />
                                         </button>
                                         <DeleteBtn storageKey="risk_matrix_history" id={item.id} />
                                     </div>
@@ -534,7 +534,7 @@ export default function History(): React.ReactElement | null {
                                             style={{ padding: '0.4rem 0.6rem', background: 'rgba(22,163,74,0.1)', color: '#16a34a', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '8px', cursor: 'pointer' }}
                                             title="Compartir"
                                         >
-                                            <Share2 size={16} />
+                                            <ShareNetwork as Share2 size={16} />
                                         </button>
                                         <DeleteBtn storageKey="reports_history" id={item.id} />
                                     </div>
@@ -665,7 +665,7 @@ export default function History(): React.ReactElement | null {
                                         style={{ padding: '0.4rem 0.6rem', background: 'rgba(22,163,74,0.1)', color: '#16a34a', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '8px', cursor: 'pointer' }}
                                         title="Compartir"
                                     >
-                                        <Share2 size={16} />
+                                        <ShareNetwork as Share2 size={16} />
                                     </button>
                                     <DeleteBtn storageKey="inspections_history" id={item.id} />
                                 </div>

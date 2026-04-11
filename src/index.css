@@ -1517,8 +1517,8 @@ label {
   }
 
   @page {
-    margin: 1.5cm;
-    size: A4;
+    margin: 1cm;
+    size: A4 portrait;
   }
 
   .glass-panel,
@@ -1551,6 +1551,31 @@ label {
     overflow: visible !important;
     box-shadow: none !important;
     border: none !important;
+  }
+
+  /* Specific fix for blank pages: override inline min-heights */
+  .pdf-container, .print-area {
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    max-height: none !important;
+  }
+
+  body.printing-isolated * {
+    visibility: hidden;
+  }
+  
+  body.printing-isolated .isolated-print-target,
+  body.printing-isolated .isolated-print-target * {
+    visibility: visible;
+  }
+
+  body.printing-isolated .isolated-print-target {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    /* Let the element define layout height naturally without forcing extra pages */
   }
 
   footer,

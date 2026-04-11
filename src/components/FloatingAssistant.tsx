@@ -11,6 +11,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
 import { API_BASE_URL } from '../config';
 import toast from 'react-hot-toast';
+import GlobalQRScanner from './GlobalQRScanner';
 
 export default function FloatingAssistant() {
     const navigate = useNavigate();
@@ -24,6 +25,7 @@ export default function FloatingAssistant() {
     const [chatInput, setChatInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const [freeQueriesUsed, setFreeQueriesUsed] = useState(0);
+    const [isScannerOpen, setIsScannerOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -625,6 +627,17 @@ export default function FloatingAssistant() {
                                         <AlertCircle size={20} /> SOS
                                     </button>
                                     <button 
+                                        onClick={() => setIsScannerOpen(true)}
+                                        style={{ 
+                                            flex: 1, padding: '0.9rem', background: 'white', color: 'var(--color-text)',
+                                            borderRadius: '16px', border: '1px solid var(--color-border)', fontWeight: 800,
+                                            fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem',
+                                            cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+                                        }}
+                                    >
+                                        <QrCode size={20} color="#3b82f6" /> Escáner
+                                    </button>
+                                    <button 
                                         onClick={handlePhotoAnalysis}
                                         style={{ 
                                             flex: 1, padding: '0.9rem', background: 'white', color: 'var(--color-text)',
@@ -641,6 +654,8 @@ export default function FloatingAssistant() {
                     </div>
                 </div>
             )}
+            
+            {isScannerOpen && <GlobalQRScanner onClose={() => setIsScannerOpen(false)} />}
 
             {/* Main Trigger Button */}
             <button

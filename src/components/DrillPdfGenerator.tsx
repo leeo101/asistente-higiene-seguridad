@@ -173,16 +173,20 @@ export default function DrillPdfGenerator({ report, onBack, isHeadless = false }
                     </div>
 
                     {/* Signatures Area */}
-                    <div style={{ marginTop: 'auto', paddingTop: '40px', display: 'flex', justifyContent: 'space-between', pageBreakInside: 'avoid' }}>
-                        <div style={{ width: '45%', textAlign: 'center' }}>
-                            <div style={{ borderBottom: '1px solid #1e293b', height: '50px', marginBottom: '5px' }}></div>
-                            <div style={{ fontSize: '10pt', color: '#1e293b', fontWeight: 'bold' }}>{report?.evaluador || '-'}</div>
-                            <div style={{ fontSize: '8pt', color: '#64748b' }}>Responsable Higiene y Seguridad</div>
+                    <div style={{ marginTop: 'auto', paddingTop: '3rem', display: 'flex', justifyContent: 'center', pageBreakInside: 'avoid', gap: '5rem', paddingBottom: '2rem' }}>
+                        <div style={{ flex: 1, maxWidth: '280px', textAlign: 'center' }}>
+                            <div style={{ height: '60px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '2px solid #1e293b', marginBottom: '0.5rem', paddingBottom: '0.25rem' }}>
+                                <span style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>Firma original</span>
+                            </div>
+                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.85rem', color: '#1e293b' }}>{report?.evaluador || 'PROFESIONAL H&S'}</p>
+                            <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>Responsable Evaluación</p>
                         </div>
-                        <div style={{ width: '45%', textAlign: 'center' }}>
-                            <div style={{ borderBottom: '1px solid #1e293b', height: '50px', marginBottom: '5px' }}></div>
-                            <div style={{ fontSize: '10pt', color: '#1e293b', fontWeight: 'bold' }}>Representante Empresa</div>
-                            <div style={{ fontSize: '8pt', color: '#64748b' }}>Firma y Aclaración</div>
+                        <div style={{ flex: 1, maxWidth: '280px', textAlign: 'center' }}>
+                            <div style={{ height: '60px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '2px solid #1e293b', marginBottom: '0.5rem', paddingBottom: '0.25rem' }}>
+                                <span style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>Firma original</span>
+                            </div>
+                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.85rem', color: '#1e293b' }}>REPRESENTANTE EMPRESA</p>
+                            <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>Firma y Aclaración</p>
                         </div>
                     </div>
 

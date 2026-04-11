@@ -39,6 +39,7 @@ const navItems: NavItem[] = [
   { to: '/calendar', icon: <CalendarBlank weight="duotone" size={20} />, label: 'Calendario', always: true },
   { to: '/settings', icon: <GearSix weight="duotone" size={20} />, label: 'Configuración', auth: true },
   { to: '/dashboard', icon: <ChartPieSlice weight="duotone" size={20} color="#10b981" />, label: 'Dashboard', auth: true },
+  { to: '/contractors', icon: <Users weight="duotone" size={20} color="#3b82f6" />, label: 'Contratistas', auth: true },
   { to: '/history', icon: <ClockCounterClockwise weight="duotone" size={20} />, label: 'Historiales', auth: true },
   { to: '/logo-settings', icon: <ImageIconPh weight="duotone" size={20} />, label: 'Logo de Empresa', auth: true },
   { to: '/profile', icon: <User weight="duotone" size={20} />, label: 'Mi Perfil', auth: true },
@@ -304,7 +305,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
                   {notifications.map(n => (
                     <div key={n.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.5rem', borderRadius: '8px', background: n.isExpired ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)', marginBottom: '0.3rem' }}>
                       <span style={{ fontSize: '0.75rem', flex: 1, color: n.isExpired ? '#fca5a5' : '#fde68a', fontWeight: 600, lineHeight: 1.3 }}>
-                        {n.type === 'ppe' ? '🦺' : '🧯'} {n.label}
+                        {n.type === 'ppe' ? '🦺' : n.type === 'contractor' ? '🏢' : n.type === 'worker' ? '👷' : '🧯'} {n.label}
                         <span style={{ display: 'block', fontSize: '0.65rem', opacity: 0.8 }}>
                           {n.isExpired ? `Vencido hace ${Math.abs(n.daysLeft)}d` : `Vence en ${n.daysLeft}d`}
                           {n.responsible ? ` · ${n.responsible}` : ''}

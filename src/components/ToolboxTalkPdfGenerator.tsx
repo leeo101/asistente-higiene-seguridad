@@ -136,23 +136,39 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
             )}
 
             {/* Signatures */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginTop: '20px' }}>
-                {['Operador', 'Supervisor', 'Responsable'].map((role, i) => (
-                    <div key={role} style={{ textAlign: 'center' }}>
-                        {i === 2 && professional.signature ? (
-                            <div style={{ height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '4px' }}>
-                                <img src={professional.signature} alt="Firma" style={{ maxHeight: '50px', maxWidth: '100px' }} />
-                                {professional.stamp && <img src={professional.stamp} alt="Sello" style={{ maxHeight: '50px', maxWidth: '60px', marginLeft: '6px' }} />}
-                            </div>
-                        ) : (
-                            <div style={{ height: '50px', marginBottom: '4px' }} />
-                        )}
-                        <div style={{ borderTop: '2px solid #1e293b', paddingTop: '4px' }}>
-                            <p style={{ margin: 0, fontSize: '7px', fontWeight: 900, textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.08em' }}>{role}</p>
-                            {i === 2 && professional.name && <p style={{ margin: '2px 0 0', fontSize: '8px', fontWeight: 800, color: '#1e293b' }}>{professional.name}</p>}
-                        </div>
+            <div style={{ marginTop: 'auto', paddingTop: '3rem', display: 'flex', justifyContent: 'flex-end', pageBreakInside: 'avoid', gap: '3rem', paddingBottom: '2rem' }}>
+                <div style={{ flex: 1, maxWidth: '240px', textAlign: 'center' }}>
+                    <div style={{ height: '60px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '2px solid #1e293b', marginBottom: '0.5rem', paddingBottom: '0.25rem' }}>
+                        <span style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>Firma en original</span>
                     </div>
-                ))}
+                    <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>OPERADOR / RESPONSABLE</p>
+                    <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b' }}>Firma y Aclaración</p>
+                </div>
+
+                <div style={{ flex: 1, maxWidth: '240px', textAlign: 'center' }}>
+                    <div style={{ height: '60px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '2px solid #1e293b', marginBottom: '0.5rem', paddingBottom: '0.25rem' }}>
+                        <span style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>Firma digital / original</span>
+                    </div>
+                    <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>SUPERVISOR H&S</p>
+                    <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b' }}>Aprobación</p>
+                </div>
+
+                <div style={{ flex: 1, maxWidth: '240px', textAlign: 'center' }}>
+                    <div style={{ height: '60px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '2px solid #1e293b', marginBottom: '0.5rem', paddingBottom: '0.25rem' }}>
+                        {professional?.signature ? (
+                            <img src={professional.signature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain' }} />
+                        ) : (
+                            <span style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>Sello y Firma original</span>
+                        )}
+                    </div>
+                    <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>PROFESIONAL ACTUANTE</p>
+                    <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b' }}>
+                        {professional?.name || 'Firma y Sello'}
+                    </p>
+                    {professional?.license && (
+                        <p style={{ margin: 0, fontSize: '0.6rem', color: '#64748b' }}>Mat: {professional.license}</p>
+                    )}
+                </div>
             </div>
 
             <PdfBrandingFooter />

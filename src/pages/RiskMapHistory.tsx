@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Map as MapIcon, Calendar, ChevronRight, Trash2, Share2, Edit2, QrCode } from 'lucide-react';
+import { ArrowLeft, Search, Map as MapIcon, Calendar, ChevronRight, Trash2, ShareNetwork as Share2, Edit2, QrCode } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -139,7 +139,7 @@ export default function RiskMapHistory(): React.ReactElement | null {
                                 }}
                                 style={{ padding: '0.5rem', borderRadius: '8px', background: '#dcfce7', color: '#16a34a', border: '1px solid #86efac', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', fontWeight: 700 }}
                             >
-                                <Share2 size={16} /> Compartir
+                                <ShareNetwork as Share2 size={16} /> Compartir
                             </button>
                             <button
                                 onClick={(e) => {

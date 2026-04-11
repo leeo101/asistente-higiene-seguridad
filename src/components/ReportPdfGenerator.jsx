@@ -200,19 +200,42 @@ export default function ReportPdfGenerator({ initialData }) {
                 )}
 
                 {/* Signatures Section */}
-                <div style={{ marginTop: '4rem', pageBreakInside: 'avoid' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '2rem' }}>
-                        <div style={{ flex: 1, textAlign: 'center' }}>
-                            <div style={{ borderTop: '2px dashed #94a3b8', width: '80%', margin: '0 auto 10px auto' }}></div>
-                            <p style={{ margin: 0, fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>OPERADOR</p>
-                            <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: 700 }}>Aclaración y Firma</p>
+                <div style={{ marginTop: '4rem', paddingTop: '1rem', display: 'flex', justifyContent: 'flex-end', pageBreakInside: 'avoid', gap: '3rem', paddingBottom: '2rem' }}>
+                    <div style={{ flex: 1, maxWidth: '240px', textAlign: 'center' }}>
+                        <div style={{ height: '60px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '2px solid #1e293b', marginBottom: '0.5rem', paddingBottom: '0.25rem' }}>
+                            <span style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>Firma en original</span>
                         </div>
+                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>OPERADOR / RESPONSABLE</p>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b' }}>Firma y Aclaración</p>
+                    </div>
 
-                        <div style={{ flex: 1, textAlign: 'center' }}>
-                            <div style={{ borderTop: '2px dashed #94a3b8', width: '80%', margin: '0 auto 10px auto' }}></div>
-                            <p style={{ margin: 0, fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>SUPERVISOR / HYS</p>
-                            <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: 700 }}>Validación de Inspección</p>
+                    <div style={{ flex: 1, maxWidth: '240px', textAlign: 'center' }}>
+                        <div style={{ height: '60px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '2px solid #1e293b', marginBottom: '0.5rem', paddingBottom: '0.25rem' }}>
+                            {initialData?.capatazSignature ? (
+                                <img src={initialData.capatazSignature} alt="Firma Supervisor" style={{ maxHeight: '50px', objectFit: 'contain' }} />
+                            ) : (
+                                <span style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>Firma digital / original</span>
+                            )}
                         </div>
+                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>SUPERVISOR H&S</p>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b' }}>Validación de Inspección</p>
+                    </div>
+
+                    <div style={{ flex: 1, maxWidth: '240px', textAlign: 'center' }}>
+                        <div style={{ height: '60px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '2px solid #1e293b', marginBottom: '0.5rem', paddingBottom: '0.25rem' }}>
+                            {initialData?.professionalSignature ? (
+                                <img src={initialData.professionalSignature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain' }} />
+                            ) : (
+                                <span style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>Sello y Firma original</span>
+                            )}
+                        </div>
+                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>PROFESIONAL ACTUANTE</p>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b' }}>
+                            {initialData?.professionalName || 'Firma y Sello'}
+                        </p>
+                        {initialData?.professionalLicense && (
+                            <p style={{ margin: 0, fontSize: '0.6rem', color: '#64748b' }}>Lic: {initialData.professionalLicense}</p>
+                        )}
                     </div>
                 </div>
 

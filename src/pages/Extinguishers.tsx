@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Plus, Search, Flame, AlertCircle, Calendar, MapPin,
-    ShieldCheck, TriangleAlert, Edit2, Trash2, Printer, FileText, CheckCircle2, Share2
+    ShieldCheck, TriangleAlert, Edit2, Trash2, Printer, FileText, CheckCircle2, Share2, QrCode
 } from 'lucide-react';
+import QRModal from '../components/QRModal';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -47,6 +48,8 @@ export default function Extinguishers(): React.ReactElement | null {
     const [companyFilter, setCompanyFilter] = useState('');
     const [showShareModal, setShowShareModal] = useState(false);
     const { requirePro } = usePaywall();
+
+    const [qrData, setQrData] = useState(null);
 
     const [formData, setFormData] = useState({
         chapa: '',
@@ -140,6 +143,13 @@ export default function Extinguishers(): React.ReactElement | null {
                 elementIdToPrint="pdf-content"
                 fileName={`Inventario_Extintores_${companyFilter || 'Gral'}.pdf`}
             />
+            {qrData && (
+                <QRModal 
+                    title={`QR Extintor #${qrData.chapa}`}
+                    text={`app://asset/extinguisher/${qrData.id}`}
+                    onClose={() => setQrData(null)}
+                />
+            )}
 
             <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
                 <ExtinguisherPdfGenerator extinguishers={filteredList} />
@@ -302,6 +312,9 @@ export default function Extinguishers(): React.ReactElement | null {
                                             </div>
 
                                             <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '0.5rem', marginTop: '0.5rem' }} className="sm:justify-center sm:mt-0">
+                                                <button onClick={() => setQrData(ext)} style={{ padding: '0.5rem', background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer', flex: '0 0 auto' }} title="Generar QR">
+                                                    <QrCode size={16} />
+                                                </button>
                                                 <button onClick={() => openModal(ext)} style={{ padding: '0.5rem 1rem', background: 'rgba(37,99,235,0.1)', border: '1px solid rgba(37,99,235,0.2)', borderRadius: '8px', color: 'var(--color-primary)', cursor: 'pointer', fontWeight: 700, flex: 1 }} className="sm:flex-none sm:p-2">
                                                     <Edit2 size={16} /> <span className="sm:hidden" style={{ marginLeft: '4px' }}>Editar</span>
                                                 </button>

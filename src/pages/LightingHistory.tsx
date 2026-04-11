@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import {
     ArrowLeft, Search, Trash2, FileText,
-    Calendar, Building2, Lightbulb, Plus, Share2, Download, QrCode
+    Calendar, Building2, Lightbulb, Plus, ShareNetwork as Share2, Download, QrCode
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
@@ -151,7 +151,7 @@ export default function LightingHistory(): React.ReactElement | null {
                                     onClick={() => requirePro(() => setShareItem(item))}
                                     style={{ padding: '0.6rem 0.9rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, fontSize: '0.8rem', textDecoration: 'none' }}
                                 >
-                                    <Share2 size={15} /> Compartir
+                                    <ShareNetwork as Share2 size={15} /> Compartir
                                 </button>
                                 <button
                                     onClick={() => {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Fire, MapPin, ArrowLeft, Share2, QrCode, Printer } from '@phosphor-icons/react';
+import { Fire, MapPin, ArrowLeft, ShareNetwork as Share2, QrCode, Printer } from '@phosphor-icons/react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -109,7 +109,7 @@ export default function ExtinguishersHistory(): React.ReactElement | null {
             render: (item: any) => (
                 <div style={{ display: 'flex', gap: '0.4rem' }}>
                     <button onClick={() => requirePro(() => { const url = `${window.location.origin}/v/${currentUser?.uid}/extinguisher/${item.id}?print=true`; setQrTarget({ text: url, title: `Extintor — ${item.chapa}` }); })} style={{ padding: '0.4rem', background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer' }} title="QR"><QrCode size={15} /></button>
-                    <button onClick={() => requirePro(() => setShareItem(item))} style={{ padding: '0.4rem', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '8px', color: '#16a34a', cursor: 'pointer' }} title="Compartir"><Share2 size={15} /></button>
+                    <button onClick={() => requirePro(() => setShareItem(item))} style={{ padding: '0.4rem', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '8px', color: '#16a34a', cursor: 'pointer' }} title="Compartir"><ShareNetwork as Share2 size={15} /></button>
                 </div>
             )
         }
@@ -151,7 +151,7 @@ export default function ExtinguishersHistory(): React.ReactElement | null {
                             <Printer size={18} /> Imprimir Vista Previa
                         </button>
                         <button onClick={() => requirePro(() => setShareItem(inventory))} className="btn-primary" style={{ flex: 1.5, display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', margin: 0, background: '#16a34a', border: 'none' }}>
-                            <Share2 size={18} /> Compartir Inventario (WA)
+                            <ShareNetwork as Share2 size={18} /> Compartir Inventario (WA)
                         </button>
                     </div>
                 )}

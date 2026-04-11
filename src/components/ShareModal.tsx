@@ -74,37 +74,13 @@ export default function ShareModal({
         const element = document.getElementById(elementIdToPrint);
         if (!element) return;
 
-        const originalStyles = {
-            position: element.style.position,
-            left: element.style.left,
-            top: element.style.top,
-            zIndex: element.style.zIndex,
-            opacity: element.style.opacity,
-            visibility: element.style.visibility,
-            display: element.style.display
-        };
-
-        element.style.position = 'fixed';
-        element.style.left = '0';
-        element.style.top = '0';
-        element.style.width = '100vw';
-        // Remove height constraint to allow full document print
-
-        element.style.zIndex = '9999999';
-        element.style.opacity = '1';
-        element.style.visibility = 'visible';
-        element.style.display = 'block';
-        element.style.backgroundColor = 'white';
+        document.body.classList.add('printing-isolated');
+        element.classList.add('isolated-print-target');
 
         setTimeout(() => {
             window.print();
-            element.style.position = originalStyles.position;
-            element.style.left = originalStyles.left;
-            element.style.top = originalStyles.top;
-            element.style.zIndex = originalStyles.zIndex;
-            element.style.opacity = originalStyles.opacity;
-            element.style.visibility = originalStyles.visibility;
-            element.style.display = originalStyles.display;
+            document.body.classList.remove('printing-isolated');
+            element.classList.remove('isolated-print-target');
         }, 300);
     };
 
@@ -182,27 +158,12 @@ export default function ShareModal({
         }
 
         if (!elementIdToPrint) return;
-        setIsGenerating(true);
-        try {
-            await new Promise(resolve => setTimeout(resolve, 150));
-            const pdfBlob = await generatePdfBlob(elementIdToPrint);
-            const safeName = propFileName ? (propFileName.endsWith('.pdf') ? propFileName : `${propFileName}.pdf`) : `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'reporte'}.pdf`;
-            const fileName = safeName;
-            const url = window.URL.createObjectURL(pdfBlob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-            toast.success('¡PDF descargado con éxito!');
-        } catch (error) {
-            console.error("Error downloading PDF:", error);
-            toast.error('Hubo un error al generar el PDF.');
-        } finally {
-            setIsGenerating(false);
-        }
+        
+        // Trigger native print for true vector PDF quality instead of html2canvas screenshots
+        toast.success('Para obtener la mejor calidad (sin capturas), selecciona "Guardar como PDF" en la siguiente ventana.', { duration: 5000 });
+        setTimeout(() => {
+            handlePrint();
+        }, 1500);
     };
 
     const options = [

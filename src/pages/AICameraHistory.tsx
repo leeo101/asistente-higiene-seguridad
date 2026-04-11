@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { ArrowLeft, Search, Trash2, Camera, Calendar, Building2, ShieldCheck, TriangleAlert, Share2, Info, FileText, QrCode, Download, BarChart2 } from 'lucide-react';
+import { ArrowLeft, Search, Trash2, Camera, Calendar, Building2, ShieldCheck, TriangleAlert, ShareNetwork as Share2, Info, FileText, QrCode, Download, BarChart2 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
@@ -325,7 +325,7 @@ export default function AICameraHistory(): React.ReactElement | null {
                                     style={{ padding: '0.6rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', minWidth: '40px' }}
                                     title="Compartir"
                                 >
-                                    <Share2 size={16} /> <span className="hidden sm:inline" style={{ marginLeft: '0.3rem', fontWeight: 700, fontSize: '0.75rem' }}>Compartir</span>
+                                    <ShareNetwork as Share2 size={16} /> <span className="hidden sm:inline" style={{ marginLeft: '0.3rem', fontWeight: 700, fontSize: '0.75rem' }}>Compartir</span>
                                 </button>
                                 <button
                                     onClick={() => setDeleteTarget(item.id)}
