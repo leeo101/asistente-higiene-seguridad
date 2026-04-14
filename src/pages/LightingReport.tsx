@@ -300,29 +300,20 @@ export default function LightingReport(): React.ReactElement | null {
 
             {/* ENCABEZADO PARA IMPRESIÓN */}
             <div id="pdf-content" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem', background: '#ffffff', color: '#000000' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', alignItems: 'center', borderBottom: '4px solid #3b82f6', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
-                    <div style={{ textAlign: 'left' }}>
-                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.05em' }}>Sistema de Gestión</p>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', color: '#1e293b' }}>Control H&S</p>
+                {/* Header Tripartito HSE */}
+                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '3px solid #e2e8f0', paddingBottom: '1.2rem', marginBottom: '1.5rem', width: '100%', borderTop: '12px solid #eab308', paddingTop: '1rem' }}>
+                    <div style={{ flex: 1, textAlign: 'left' }}>
+                        <p style={{ margin: 0, fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.08em' }}>Sistema de Gestión HSE</p>
+                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem', textTransform: 'uppercase', color: '#d97706' }}>Doc. Estudio de Iluminación</p>
                     </div>
-
-                    <div style={{ textAlign: 'center' }}>
-                        <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: '#1d4ed8', textTransform: 'uppercase', letterSpacing: '1px', lineHeight: 1.2 }}>
-                            Estudio de Iluminación
-                        </h2>
-                        <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b', fontWeight: 600 }}>{countryNorms.lighting}</p>
+                    <div style={{ flex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                        <h1 style={{ margin: 0, fontWeight: 900, fontSize: '2.4rem', letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1, color: '#0f172a' }}>ILUMINACIÓN</h1>
+                        <div style={{ marginTop: '0.3rem', background: '#eab308', color: 'white', padding: '0.2rem 0.8rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.1em' }}>
+                            ESTUDIO DE NIVELES — {countryNorms.lighting}
+                        </div>
                     </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '15px' }}>
-                         <div style={{ textAlign: 'right', fontSize: '0.7rem', color: '#64748b' }}>
-                            {professional?.name !== 'Profesional' ? (
-                                <>
-                                    <div style={{ fontWeight: 800, color: '#1e293b' }}>{professional.name}</div>
-                                    <div>Mat: {professional.license}</div>
-                                </>
-                            ) : <div>Perfil Incompleto</div>}
-                         </div>
-                        <CompanyLogo style={{ height: '40px', width: 'auto', maxWidth: '120px', objectFit: 'contain' }} />
+                    <div style={{ flex: 1, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                        <CompanyLogo style={{ height: '38px', width: 'auto', objectFit: 'contain', maxWidth: '120px' }} />
                     </div>
                 </div>
 
@@ -559,44 +550,42 @@ export default function LightingReport(): React.ReactElement | null {
                         </div>
                     </div>
 
-                    <div className="signature-container-row mt-10">
+                <div style={{ paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem' }}>
                         {showSignatures.operator && (
-                            <div className="signature-item-box">
-                                <div className="signature-line"></div>
-                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
-                                <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words min-h-[0.8rem]">Aclaración y Firma</p>
+                            <div style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
+                                    <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Firma original</span>
+                                </div>
+                                <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#1e293b' }}>OPERADOR / RESPONSABLE</p>
+                                <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Toma de conocimiento</p>
                             </div>
                         )}
-
                         {showSignatures.supervisor && (
-                            <div className="signature-item-box">
-                                <div className="signature-line"></div>
-                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR</p>
-                                <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words min-h-[0.8rem]">DNI / ACLARACIÓN</p>
+                            <div style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
+                                    <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Firma original</span>
+                                </div>
+                                <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#1e293b' }}>SUPERVISOR H&S</p>
+                                <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Aprobación del estudio</p>
                             </div>
                         )}
-
                         {showSignatures.professional && (
-                            <div className="signature-item-box">
-                                {professional?.signature || professional?.stamp ? (
-                                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', height: '60px' }}>
-                                        {professional?.signature && (
-                                            <img src={professional.signature} alt="Firma Profesional" style={{ maxHeight: '100%', maxWidth: '120px', objectFit: 'contain' }} />
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="signature-line"></div>
-                                )}
-                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL RESPONSABLE</p>
-                                <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words">{professional?.name || 'Firma y Sello'}</p>
-                                {professional?.license && (
-                                    <p className="text-[0.65rem] font-bold text-slate-500 mt-1 uppercase">MP: {professional.license}</p>
-                                )}
+                            <div style={{ flex: 1, border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #86efac', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
+                                    {professional?.signature ? (
+                                        <img src={professional.signature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain' }} />
+                                    ) : (
+                                        <span style={{ fontSize: '0.6rem', color: '#86efac' }}>Sello y Firma Digital</span>
+                                    )}
+                                </div>
+                                <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#166534' }}>PROFESIONAL RESPONSABLE</p>
+                                <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#15803d', fontWeight: 600 }}>{professional?.name || 'Especialista H&S'}</p>
+                                {professional?.license && <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#16a34a' }}>Mat: {professional.license}</p>}
                             </div>
                         )}
                     </div>
                     <PdfBrandingFooter />
-                </div >
+                </div>
             </div>
         </div >
     );

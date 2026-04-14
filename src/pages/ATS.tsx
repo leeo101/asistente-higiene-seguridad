@@ -58,20 +58,30 @@ const defaultChecklist = [
 ];
 
 const PRESETS = {
-    'Andamios': [
-        { id: 101, paso: 'Verificación de nivelación y apoyos de andamio', riesgo: 'Caída de estructura', control: 'Uso de durmientes y nivelación nivel burbuja', realizado: false },
-        { id: 102, paso: 'Montaje de tablones y barandas de seguridad', riesgo: 'Caída de personas / objetos', control: 'Doble baranda y rodapié reglamentario', realizado: false },
-        { id: 103, paso: 'Anclaje de arnés a punto estructural certificado', riesgo: 'Caída a distinto nivel', control: 'Uso de arnés de cuerpo completo y cabo de vida', realizado: false }
+    'Andamios (Altura)': [
+        { id: 101, paso: 'Verificación de nivelación y apoyos de andamio', riesgo: 'Caída de estructura / Desnivel', control: 'Uso de durmientes y nivelación con burbuja', realizado: false },
+        { id: 102, paso: 'Montaje de tablones y barandas de seguridad', riesgo: 'Caída de personas u objetos', control: 'Doble baranda y rodapié reglamentario', realizado: false },
+        { id: 103, paso: 'Anclaje de arnés a punto estructural', riesgo: 'Caída a distinto nivel', control: 'Arnés de cuerpo completo y doble cabo de vida', realizado: false }
     ],
-    'Soldadura': [
-        { id: 201, paso: 'Inspección de cables, pinzas y equipo de soldar', riesgo: 'Contacto eléctrico / Incendio', control: 'Aislación y verificación de puesta a tierra', realizado: false },
-        { id: 202, paso: 'Colocación de pantallas protectoras y biombos', riesgo: 'Proyección de partículas / Irradiación', control: 'Uso de careta fotosensible y vestimenta de cuero', realizado: false },
-        { id: 203, paso: 'Verificación de extintor cerca de la zona de chispas', riesgo: 'Principio de incendio', control: 'Matafuego ABC a mano y retiro de inflamables', realizado: false }
+    'Soldadura (Caliente)': [
+        { id: 201, paso: 'Inspección de equipo y pinzas', riesgo: 'Contacto eléctrico / Incendio', control: 'Verificación de aislación y puesta a tierra', realizado: false },
+        { id: 202, paso: 'Colocación de biombos y despeje de área', riesgo: 'Proyección de partículas / Irradiación', control: 'Careta fotosensible y vestimenta de cuero ignífugo', realizado: false },
+        { id: 203, paso: 'Vigilancia de chispas post-tarea', riesgo: 'Principio de incendio latente', control: 'Matafuego ABC a mano y guardia de cenizas (30 min)', realizado: false }
     ],
-    'Excavación': [
-        { id: 301, paso: 'Detección de interferencias (cañerías/cables)', riesgo: 'Rotura de servicios / Explosión', control: 'Cateo manual y plano de interferencias', realizado: false },
-        { id: 302, paso: 'Colocación de vallado y señalización perimetral', riesgo: 'Caída de personas / vehículos', control: 'Cerco rígido y balizamiento nocturno', realizado: false },
-        { id: 303, paso: 'Verificación de estabilidad de taludes y entibamiento', riesgo: 'Derrumbe de paredes de zanja', control: 'Perfilado de talud según tipo de suelo', realizado: false }
+    'Excavación (Zanjas)': [
+        { id: 301, paso: 'Detección de interferencias', riesgo: 'Rotura de servicios / Explosión', control: 'Cateo manual previo y chequeo de planos', realizado: false },
+        { id: 302, paso: 'Señalización perimetral', riesgo: 'Caída de personas o vehículos', control: 'Cerco rígido y balizamiento nocturno', realizado: false },
+        { id: 303, paso: 'Excavación y entibado', riesgo: 'Derrumbe de paredes', control: 'Perfilado/Escalonamiento de talud según tipo de suelo', realizado: false }
+    ],
+    'Corte Eléctrico (LOTO)': [
+        { id: 401, paso: 'Identificación de tablero y circuitos', riesgo: 'Corte erróneo', control: 'Uso de diagramas unifilares actualizados', realizado: false },
+        { id: 402, paso: 'Maniobra de corte y bloqueo (LOTO)', riesgo: 'Energización accidental', control: 'Colocación de candado personal y tarjeta de peligro', realizado: false },
+        { id: 403, paso: 'Verificación de ausencia de tensión', riesgo: 'Electrocución por tensión residual', control: 'Uso de multímetro/detector de tensión homologado', realizado: false }
+    ],
+    'Espacio Confinado': [
+        { id: 501, paso: 'Medición de gases previa', riesgo: 'Asfixia / Intoxicación / Explosión', control: 'Uso de explosímetro calibrado multigas', realizado: false },
+        { id: 502, paso: 'Ventilación mecánica', riesgo: 'Acumulación de vapores', control: 'Extractor/Insuflador portátil continuo', realizado: false },
+        { id: 503, paso: 'Ingreso supervisado', riesgo: 'Atrapamiento / Desvanecimiento', control: 'Vigía permanente en boca de hombre y trípode de rescate', realizado: false }
     ]
 };
 
@@ -555,15 +565,19 @@ export default function ATS(): React.ReactElement | null {
                             </div>
 
                             {/* Presets List */}
-                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', background: 'rgba(59,130,246,0.05)', padding: '0.8rem', borderRadius: '12px', border: '1px solid rgba(59,130,246,0.1)' }}>
-                                <span style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '1px', width: '100%', marginBottom: '0.3rem' }}>Plantillas Rápidas:</span>
+                            <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', background: 'var(--color-surface)', padding: '1rem', borderRadius: '16px', border: '1px solid rgba(59,130,246,0.15)', boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.01)' }}>
+                                <span style={{ fontSize: '0.7rem', fontWeight: 900, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '1px', width: '100%', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                    <Sparkles size={14} /> Plantillas Rápidas para Tareas Críticas:
+                                </span>
                                 {Object.keys(PRESETS).map(name => (
                                     <button
                                         key={name}
                                         onClick={() => handleApplyPreset(name)}
-                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                                        style={{ padding: '0.45rem 0.9rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'all 0.2s' }}
+                                        onMouseOver={e => { e.currentTarget.style.background = 'rgba(59,130,246,0.1)'; e.currentTarget.style.borderColor = 'rgba(59,130,246,0.5)'; e.currentTarget.style.color = 'var(--color-primary)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                                        onMouseOut={e => { e.currentTarget.style.background = 'var(--color-background)'; e.currentTarget.style.borderColor = 'var(--color-border)'; e.currentTarget.style.color = 'var(--color-text)'; e.currentTarget.style.transform = 'none'; }}
                                     >
-                                        <Plus size={12} /> {name}
+                                        <Plus size={14} /> {name}
                                     </button>
                                 ))}
                             </div>
@@ -941,25 +955,29 @@ function StatusBtn({ active, type, onClick, label }) {
 }
 
 function DocBox({ label, value, onChange, type = "text", large = false, borderLeft = false }) {
+    const [focused, setFocused] = useState(false);
+    
     return (
         <div style={{
-            padding: '0.8rem 1rem',
+            padding: '1rem 1.2rem',
             display: 'flex',
             flexDirection: 'column',
-            gap: '0.3rem',
+            gap: '0.4rem',
             justifyContent: 'center',
             borderLeft: borderLeft ? '2px solid var(--color-border)' : 'none',
             borderTop: '0',
-            background: 'transparent',
-            minHeight: '60px',
+            background: focused ? 'rgba(59, 130, 246, 0.03)' : 'transparent',
+            minHeight: '70px',
+            transition: 'background 0.3s ease',
         }}>
             <span style={{
-                fontSize: '0.6rem',
+                fontSize: '0.65rem',
                 fontWeight: 900,
-                color: 'var(--color-primary)',
+                color: focused ? 'var(--color-primary)' : 'var(--color-text-muted)',
                 textTransform: 'uppercase',
                 letterSpacing: '0.12em',
-                opacity: 0.8,
+                opacity: 0.9,
+                transition: 'color 0.3s ease'
             }}>{label}</span>
             <input
                 type={type}
@@ -967,19 +985,20 @@ function DocBox({ label, value, onChange, type = "text", large = false, borderLe
                 onChange={e => onChange(e.target.value)}
                 style={{
                     margin: 0,
-                    padding: '0.15rem 0',
+                    padding: '0.3rem 0',
                     border: 'none',
-                    borderBottom: '1.5px solid var(--color-border)',
+                    borderBottom: focused ? '2px solid var(--color-primary)' : '2px solid transparent',
                     background: 'transparent',
-                    fontSize: large ? '1.05rem' : '0.9rem',
-                    fontWeight: 700,
+                    fontSize: large ? '1.1rem' : '0.95rem',
+                    fontWeight: 800,
                     color: 'var(--color-text)',
                     outline: 'none',
                     width: '100%',
-                    transition: 'border-color 0.2s',
+                    transition: 'border-bottom-color 0.2s',
+                    boxShadow: 'none'
                 }}
-                onFocus={e => e.target.style.borderBottomColor = 'var(--color-primary)'}
-                onBlur={e => e.target.style.borderBottomColor = 'var(--color-border)'}
+                onFocus={() => setFocused(true)}
+                onBlur={() => setFocused(false)}
             />
         </div>
     );

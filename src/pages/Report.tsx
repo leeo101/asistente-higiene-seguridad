@@ -3,15 +3,16 @@ import { useNavigate } from 'react-router-dom';
 
 import {
     ArrowLeft, Save, Printer, Building2, User, Calendar,
-    CheckCircle2, AlertCircle, Info, Pencil, TriangleAlert,
-    ChevronRight, Share2, FileText, ShieldCheck, Camera,
-    ShieldAlert
+    CheckCircle2, AlertCircle, TriangleAlert,
+    Share2, FileText, ShieldCheck, Camera,
+    ShieldAlert, MapPin, Info
 } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+ import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
 import CompanyLogo from '../components/CompanyLogo';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 export default function Report(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -133,34 +134,55 @@ export default function Report(): React.ReactElement | null {
             />
 
             {/* PRINTABLE AREA */}
-            <div id="pdf-content" className="bg-white text-black p-4 md:p-12 shadow-sm border border-slate-200 rounded-2xl print-area print:mb-0 print:border-none print:shadow-none">
-                {/* Header Section */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', alignItems: 'center', borderBottom: '4px solid var(--color-primary)', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
-                    <div style={{ textAlign: 'left' }}>
-                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.05em' }}>Sistema de Gestión</p>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', color: '#1e293b' }}>Control H&S</p>
+            <div id="pdf-content" className="bg-white text-black p-4 md:p-12 shadow-sm border border-slate-200 rounded-2xl print-area print:mb-0 print:border-none print:shadow-none"
+                style={{ borderTop: findingCount > 0 ? '12px solid #dc2626' : '12px solid #2563eb' }}>
+                {/* Header Tripartito HSE */}
+                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '3px solid #e2e8f0', paddingBottom: '1.2rem', marginBottom: '1.5rem', width: '100%' }}>
+                    <div style={{ flex: 1, textAlign: 'left' }}>
+                        <p style={{ margin: 0, fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.08em' }}>Sistema de Gestión HSE</p>
+                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem', textTransform: 'uppercase', color: findingCount > 0 ? '#dc2626' : '#2563eb' }}>
+                            {findingCount > 0 ? `⚠ ${findingCount} HALLAZGO${findingCount > 1 ? 'S' : ''} DETECTADO${findingCount > 1 ? 'S' : ''}` : '✓ SIN HALLAZGOS CRÍTICOS'}
+                        </p>
                     </div>
-
-                    <div style={{ textAlign: 'center' }}>
-                        <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '1px', lineHeight: 1.2 }}>
-                            Informe Técnico de Inspección
-                        </h2>
-                        <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b', fontWeight: 600 }}>Protocolo de Relevamiento General de Riesgos</p>
+                    <div style={{ flex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                        <h1 style={{ margin: 0, fontWeight: 900, fontSize: '1.9rem', letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1, color: '#0f172a' }}>INFORME DE INSPECCIÓN</h1>
+                        <div style={{ marginTop: '0.3rem', background: findingCount > 0 ? '#dc2626' : '#2563eb', color: 'white', padding: '0.2rem 0.8rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.1em' }}>
+                            PROTOCOLO DE RELEVAMIENTO GENERAL DE RIESGOS
+                        </div>
                     </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <CompanyLogo style={{ height: '45px', width: 'auto', maxWidth: '140px', objectFit: 'contain' }} />
+                    <div style={{ flex: 1, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                        <CompanyLogo style={{ height: '38px', width: 'auto', objectFit: 'contain', maxWidth: '120px' }} />
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 bg-slate-50 p-5 rounded-xl border border-slate-200">
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div><span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>FECHA:</span> <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>{new Date(inspectionData.date).toLocaleDateString('es-AR')}</span></div>
-                        <div><span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>REFERENCIA:</span> <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>{inspectionData.name}</span></div>
+                {/* Grilla de datos */}
+                <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.5rem', overflow: 'hidden' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                        <div style={{ padding: '0.75rem 1rem', borderRight: '1px solid #e2e8f0' }}>
+                            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Building2 size={12}/> REFERENCIA / OBRA</span>
+                            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspectionData.name || '-'}</div>
+                        </div>
+                        <div style={{ padding: '0.75rem 1rem', borderRight: '1px solid #e2e8f0' }}>
+                            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={12}/> FECHA</span>
+                            <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.2rem' }}>{new Date(inspectionData.date).toLocaleDateString('es-AR')}</div>
+                        </div>
+                        <div style={{ padding: '0.75rem 1rem' }}>
+                            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><MapPin size={12}/> UBICACIÓN</span>
+                            <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.2rem' }}>{inspectionData.location || '-'}</div>
+                        </div>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                         <div><span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>UBICACIÓN:</span> <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>{inspectionData.location || '-'}</span></div>
-                         <div><span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>ESTADO:</span> <span style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--color-primary)' }}>FINALIZADO</span></div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', background: '#ffffff' }}>
+                        <div style={{ padding: '0.75rem 1rem', borderRight: '1px solid #e2e8f0' }}>
+                            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><User size={12}/> PROFESIONAL ACTUANTE</span>
+                            <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.2rem' }}>{professional?.name || 'No especificado'}</div>
+                        </div>
+                        <div style={{ padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <div style={{ padding: '0.4rem 1rem', background: findingCount > 0 ? '#fef2f2' : '#f0fdf4', border: `1px solid ${findingCount > 0 ? '#fca5a5' : '#86efac'}`, borderRadius: '8px' }}>
+                                <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>HALLAZGOS</span>
+                                <div style={{ fontWeight: 900, fontSize: '1.5rem', color: findingCount > 0 ? '#dc2626' : '#16a34a', lineHeight: 1 }}>{findingCount}</div>
+                            </div>
+                            <div style={{ padding: '0.4rem 0.8rem', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', fontWeight: 900, fontSize: '0.65rem', color: '#2563eb' }}>FINALIZADO</div>
+                        </div>
                     </div>
                 </div>
 
@@ -195,11 +217,12 @@ export default function Report(): React.ReactElement | null {
                     </div>
                 </div>
 
-                {/* Checklist Summary Section */}
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, marginBottom: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#172B4D' }}>
-                    <ShieldCheck size={24} color="#00875A" /> Resumen de Inspección por Áreas
-                </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '3rem' }}>
+                {/* Header de sección - Resumen */}
+                <div style={{ background: '#1e293b', padding: '0.6rem 1rem', borderRadius: '6px 6px 0 0', marginBottom: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
+                    <ShieldCheck size={15} color="#86efac" />
+                    <span style={{ fontWeight: 900, fontSize: '0.78rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em' }}>RESUMEN DE INSPECCIÓN POR ÁREAS</span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.8rem', marginBottom: '1.5rem', border: '1px solid #cbd5e1', borderRadius: '0 0 6px 6px', padding: '0.8rem', background: '#f8fafc' }}>
                     {[
                         { name: 'Extintores y Protección', id: 'extintores', items: ['e1', 'e2'] },
                         { name: 'Riesgo Eléctrico', id: 'electrico', items: ['L1', 'L2'] },
@@ -238,14 +261,15 @@ export default function Report(): React.ReactElement | null {
                     })}
                 </div>
 
-                {/* Risk Assessment Integrated Section */}
+                {/* IPER - Header oscuro */}
                 {riskAssessment && riskAssessment.length > 0 && (
-                    <div style={{ pageBreakInside: 'avoid', marginBottom: '3rem' }}>
-                        <h3 style={{ fontSize: '1.2rem', fontWeight: 900, marginBottom: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#172B4D' }}>
-                            <ShieldAlert size={24} color="#FF991F" /> Evaluación de Riesgos Previa (IPER)
-                        </h3>
+                    <div style={{ pageBreakInside: 'avoid', marginBottom: '1.5rem', border: '1px solid #fde68a', borderRadius: '6px', overflow: 'hidden' }}>
+                        <div style={{ background: '#1e293b', padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <ShieldAlert size={15} color="#fbbf24" />
+                            <span style={{ fontWeight: 900, fontSize: '0.78rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em' }}>EVALUACIÓN DE RIESGOS PREVIA (IPER)</span>
+                        </div>
                         <div style={{ overflowX: 'auto' }}>
-                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.83rem' }}>
                                 <thead>
                                     <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
                                         <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 900 }}>Peligro Identificado</th>
@@ -280,13 +304,15 @@ export default function Report(): React.ReactElement | null {
                     </div>
                 )}
 
-                {/* Findings Table */}
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, marginBottom: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#172B4D' }}>
-                    <TriangleAlert size={24} color="#DC2626" /> Detalle de Hallazgos y Desvíos
-                </h3>
+                {/* Hallazgos - Header oscuro */}
+                <div style={{ background: '#1e293b', padding: '0.6rem 1rem', borderRadius: '6px 6px 0 0', display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
+                    <TriangleAlert size={15} color="#fca5a5" />
+                    <span style={{ fontWeight: 900, fontSize: '0.78rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em' }}>DETALLE DE HALLAZGOS Y DESVÍOS</span>
+                    {findingCount > 0 && <span style={{ marginLeft: 'auto', background: '#dc2626', color: '#fff', padding: '0.1rem 0.5rem', borderRadius: '10px', fontSize: '0.65rem', fontWeight: 900 }}>{findingCount} HALLAZGO{findingCount > 1 ? 'S' : ''}</span>}
+                </div>
 
                 {findings.length > 0 ? (
-                    <div style={{ overflowX: 'auto', marginBottom: '3rem' }}>
+                    <div style={{ overflowX: 'auto', marginBottom: '1.5rem', border: '1px solid #fca5a5', borderRadius: '0 0 6px 6px' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                             <thead>
                                 <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
@@ -351,13 +377,14 @@ export default function Report(): React.ReactElement | null {
                     </div>
                 )}
 
-                {/* Photo Gallery (General Evidence) */}
+                {/* Registro fotográfico */}
                 {inspectionData.photos && inspectionData.photos.length > 0 && (
-                    <div style={{ marginTop: '4rem', pageBreakBefore: 'auto' }}>
-                        <h3 style={{ fontSize: '1.2rem', fontWeight: 900, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#172B4D', borderBottom: '2px solid #f1f5f9', paddingBottom: '0.8rem' }}>
-                            <Camera size={24} color="var(--color-primary)" /> Registro Fotográfico General de la Visita
-                        </h3>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
+                    <div style={{ marginTop: '1.5rem', pageBreakBefore: 'auto', border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden' }}>
+                        <div style={{ background: '#334155', padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <Camera size={15} color="#fff" />
+                            <span style={{ fontWeight: 900, fontSize: '0.78rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em' }}>REGISTRO FOTOGRÁFICO GENERAL DE LA VISITA</span>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.2rem', padding: '1rem', background: '#f8fafc' }}>
                             {inspectionData.photos.map((photo, index) => (
                                 <div key={index} style={{ border: '1px solid #e2e8f0', borderRadius: '20px', overflow: 'hidden', padding: '0.8rem', background: '#f8fafc', pageBreakInside: 'avoid', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
                                     <img src={photo} alt={`Evidencia ${index + 1}`} style={{ width: '100%', height: '260px', objectFit: 'cover', borderRadius: '12px', marginBottom: '0.8rem' }} />
@@ -368,62 +395,42 @@ export default function Report(): React.ReactElement | null {
                     </div>
                 )}
 
-                {/* Signatures Section */}
-                <div style={{ marginTop: '5rem' }}>
-                    <div className="no-print mb-10 p-6 bg-blue-50/50 border border-blue-100 rounded-2xl w-full flex flex-col md:flex-row gap-6 justify-center items-center text-sm font-bold text-blue-900 shadow-sm">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Info size={20}/> CONFIGURAR FIRMAS PARA EL PDF:</div>
-                        <div className="flex gap-6 flex-wrap justify-center">
-                            <label className="flex items-center gap-3 cursor-pointer p-2 hover:bg-white rounded-lg transition-colors">
-                                <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Operador
-                            </label>
-                            <label className="flex items-center gap-3 cursor-pointer p-2 hover:bg-white rounded-lg transition-colors">
-                                <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Supervisor
-                            </label>
-                            <label className="flex items-center gap-3 cursor-pointer p-2 hover:bg-white rounded-lg transition-colors">
-                                <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Profesional
-                            </label>
+                {/* Firmas Enterprise */}
+                <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem' }}>
+                    {showSignatures.operator && (
+                        <div style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
+                                <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Firma original</span>
+                            </div>
+                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#1e293b' }}>OPERADOR / RESPONSABLE</p>
+                            <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Firma y Aclaración</p>
                         </div>
-                    </div>
-
-                    <div className="signature-container-row mt-12" style={{ pageBreakInside: 'avoid', gap: '40px' }}>
-                        {showSignatures.operator && (
-                            <div className="signature-item-box" style={{ flex: 1, textAlign: 'center' }}>
-                                <div style={{ height: '80px' }}></div>
-                                <div className="signature-line" style={{ borderTop: '2px solid #172B4D', width: '200px', margin: '0 auto 12px auto' }}></div>
-                                <p style={{ fontSize: '0.75rem', fontWeight: 900, color: '#6B778C', textTransform: 'uppercase', marginBottom: '4px' }}>OPERADOR / RESPONSABLE</p>
-                                <p style={{ fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Firma y Aclaración</p>
+                    )}
+                    {showSignatures.supervisor && (
+                        <div style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
+                                <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Firma original</span>
                             </div>
-                        )}
-
-                        {showSignatures.supervisor && (
-                            <div className="signature-item-box" style={{ flex: 1, textAlign: 'center' }}>
-                                <div style={{ height: '80px' }}></div>
-                                <div className="signature-line" style={{ borderTop: '2px solid #172B4D', width: '200px', margin: '0 auto 12px auto' }}></div>
-                                <p style={{ fontSize: '0.75rem', fontWeight: 900, color: '#6B778C', textTransform: 'uppercase', marginBottom: '4px' }}>SUPERVISOR / JEFE DE OBRA</p>
-                                <p style={{ fontSize: '0.9rem', fontWeight: 800, color: '#172B4D' }}>Validación de Auditoría</p>
+                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#1e293b' }}>SUPERVISOR / JEFE DE OBRA</p>
+                            <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Validación de Auditoría</p>
+                        </div>
+                    )}
+                    {showSignatures.professional && (
+                        <div style={{ flex: 1, border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #86efac', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
+                                {professional?.signature ? (
+                                    <img src={professional.signature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain' }} />
+                                ) : (
+                                    <span style={{ fontSize: '0.6rem', color: '#86efac' }}>Sello y Firma Digital</span>
+                                )}
                             </div>
-                        )}
-
-                        {showSignatures.professional && (
-                            <div className="signature-item-box" style={{ flex: 1, textAlign: 'center' }}>
-                                <div style={{ height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    {professional?.signature && (
-                                        <img src={professional.signature} alt="Firma Profesional" style={{ maxHeight: '70px', maxWidth: '160px', mixBlendMode: 'multiply' }} />
-                                    )}
-                                </div>
-                                <div className="signature-line" style={{ borderTop: '2px solid #172B4D', width: '200px', margin: '0 auto 12px auto' }}></div>
-                                <p style={{ fontSize: '0.75rem', fontWeight: 900, color: '#6B778C', textTransform: 'uppercase', marginBottom: '4px' }}>PROFESIONAL ACTUANTE H&S</p>
-                                <p style={{ fontSize: '1rem', fontWeight: 900, color: '#172B4D' }}>{professional?.name}</p>
-                                {professional?.license && <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#6B778C' }}>MP: {professional.license}</p>}
-                            </div>
-                        )}
-                    </div>
+                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#166534' }}>PROFESIONAL ACTUANTE H&S</p>
+                            <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#15803d', fontWeight: 600 }}>{professional?.name || 'Especialista H&S'}</p>
+                            {professional?.license && <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#16a34a' }}>Mat: {professional.license}</p>}
+                        </div>
+                    )}
                 </div>
-
-                {/* Footer Print Info */}
-                <div className="print-only" style={{ marginTop: '5rem', borderTop: '0.5px solid #cbd5e1', paddingTop: '1.5rem', textAlign: 'center', fontSize: '0.7rem', color: '#64748b', fontStyle: 'italic' }}>
-                    Este documento es un registro oficial de inspección generado autónomamente por el sistema Asistente H&S para {professional?.name || 'el profesional actuante'}.
-                </div>
+                <PdfBrandingFooter />
             </div>
         </div>
     );

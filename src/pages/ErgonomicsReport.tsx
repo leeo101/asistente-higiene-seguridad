@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { ArrowLeft, Printer, Share2, Download, CheckCircle2, TriangleAlert, Info } from 'lucide-react';
+import { ArrowLeft, Printer, Share2, CheckCircle2, Building2, MapPin, User, Briefcase, Activity, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
 import CompanyLogo from '../components/CompanyLogo';
@@ -64,167 +64,161 @@ export default function ErgonomicsReport(): React.ReactElement | null {
 
             <div id="pdf-content" className="report-print print:p-0 print:m-0 print:border-none print:shadow-none print:min-h-0" style={{
                 background: 'white',
-                color: '#1a1a1a',
-                padding: '40px',
+                color: '#1e293b',
+                padding: '12mm 15mm',
                 borderRadius: '8px',
                 boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
                 minHeight: '29.7cm',
                 height: 'auto',
-                fontFamily: 'Arial, sans-serif'
+                fontFamily: 'Helvetica, Arial, sans-serif',
+                fontSize: '9pt',
+                borderTop: data.riesgo === 'Moderado' || data.riesgo === 'Alto' ? '12px solid #dc2626' : '12px solid #2563eb'
             }}>
-                {/* Header Legal */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', alignItems: 'center', borderBottom: '4px solid #3b82f6', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
-                    <div style={{ textAlign: 'left' }}>
-                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.05em' }}>Sistema de Gestión</p>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', color: '#1e293b' }}>Control H&S</p>
+                {/* Header Tripartito HSE */}
+                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '3px solid #e2e8f0', paddingBottom: '1.2rem', marginBottom: '1.5rem', width: '100%' }}>
+                    <div style={{ flex: 1, textAlign: 'left' }}>
+                        <p style={{ margin: 0, fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.08em' }}>Sistema de Gestión HSE</p>
+                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem', textTransform: 'uppercase', color: data.riesgo === 'Moderado' || data.riesgo === 'Alto' ? '#dc2626' : '#2563eb' }}>Doc. Ergonomía Laboral</p>
                     </div>
-
-                    <div style={{ textAlign: 'center' }}>
-                        <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: '#1d4ed8', textTransform: 'uppercase', letterSpacing: '1px', lineHeight: 1.2 }}>
-                            Protocolo de Ergonomía
-                        </h2>
-                        <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b', fontWeight: 600 }}>Resolución SRT N° 886/15</p>
+                    <div style={{ flex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                        <h1 style={{ margin: 0, fontWeight: 900, fontSize: '2.2rem', letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1, color: '#0f172a' }}>ERGONOMÍA</h1>
+                        <div style={{ marginTop: '0.3rem', background: data.riesgo === 'Moderado' || data.riesgo === 'Alto' ? '#dc2626' : '#3b82f6', color: 'white', padding: '0.2rem 0.8rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.1em' }}>
+                            PROTOCOLO — RES. SRT N° 886/15
+                        </div>
                     </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <CompanyLogo style={{ height: '45px', width: 'auto', maxWidth: '140px', objectFit: 'contain' }} />
+                    <div style={{ flex: 1, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                        <CompanyLogo style={{ height: '38px', width: 'auto', objectFit: 'contain', maxWidth: '120px' }} />
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', fontSize: '0.8rem', color: '#64748b' }} className="no-print">
-                    <span>Fecha: {new Date(parseInt(data.id)).toLocaleDateString('es-AR')}</span>
-                    {profile && <span>Profesional: {profile.name}</span>}
+                {/* I – Datos del Establecimiento */}
+                <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.5rem', overflow: 'hidden' }}>
+                    <div style={{ background: '#1e293b', padding: '0.6rem 1rem' }}>
+                        <span style={{ fontWeight: 900, fontSize: '0.75rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em' }}>I — DATOS DEL ESTABLECIMIENTO</span>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                        <div style={{ padding: '0.75rem 1rem', borderRight: '1px solid #e2e8f0' }}>
+                            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Building2 size={12}/> EMPRESA / RAZÓN SOCIAL</span>
+                            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a', marginTop: '0.2rem' }}>{data.empresa || '-'}</div>
+                        </div>
+                        <div style={{ padding: '0.75rem 1rem', borderRight: '1px solid #e2e8f0' }}>
+                            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><MapPin size={12}/> SECTOR</span>
+                            <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.2rem' }}>{data.sector || '-'}</div>
+                        </div>
+                        <div style={{ padding: '0.75rem 1rem' }}>
+                            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Briefcase size={12}/> PUESTO DE TRABAJO</span>
+                            <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.2rem' }}>{data.puesto || '-'}</div>
+                        </div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', background: '#ffffff' }}>
+                        <div style={{ padding: '0.75rem 1rem', borderRight: '1px solid #e2e8f0' }}>
+                            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>FECHA DE EVALUACIÓN</span>
+                            <div style={{ fontWeight: 700, fontSize: '0.9rem', marginTop: '0.2rem' }}>{data.id ? new Date(parseInt(data.id)).toLocaleDateString('es-AR') : '-'}</div>
+                        </div>
+                        <div style={{ padding: '0.75rem 1rem' }}>
+                            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><User size={12}/> PROFESIONAL EVALUADOR</span>
+                            <div style={{ fontWeight: 700, fontSize: '0.9rem', marginTop: '0.2rem' }}>{profile?.name || '-'}</div>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Datos Empresa */}
-                <div style={{ marginBottom: '30px' }}>
-                    <div style={{ background: '#f5f5f5', padding: '10px 15px', fontWeight: 'bold', marginBottom: '15px', borderLeft: '4px solid #3b82f6' }}>
-                        I - DATOS DEL ESTABLECIMIENTO
+                {/* II – Factores de Riesgo */}
+                <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.5rem', overflow: 'hidden' }}>
+                    <div style={{ background: '#1e293b', padding: '0.6rem 1rem' }}>
+                        <span style={{ fontWeight: 900, fontSize: '0.75rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em' }}>II — PLANILLA 1: IDENTIFICACIÓN DE FACTORES DE RIESGO ERGONÓMICO</span>
                     </div>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                        <tbody>
-                            <tr>
-                                <td style={{ padding: '8px', border: '1px solid #ddd', width: '30%', fontWeight: 'bold' }}>Empresa / Razón Social:</td>
-                                <td style={{ padding: '8px', border: '1px solid #ddd' }}>{data.empresa}</td>
-                            </tr>
-                            <tr>
-                                <td style={{ padding: '8px', border: '1px solid #ddd', fontWeight: 'bold' }}>Sector:</td>
-                                <td style={{ padding: '8px', border: '1px solid #ddd' }}>{data.sector}</td>
-                            </tr>
-                            <tr>
-                                <td style={{ padding: '8px', border: '1px solid #ddd', fontWeight: 'bold' }}>Puesto de Trabajo:</td>
-                                <td style={{ padding: '8px', border: '1px solid #ddd' }}>{data.puesto}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* Planilla 1 */}
-                <div style={{ marginBottom: '30px' }}>
-                    <div style={{ background: '#f5f5f5', padding: '10px 15px', fontWeight: 'bold', marginBottom: '15px', borderLeft: '4px solid #3b82f6' }}>
-                        II - PLANILLA 1: IDENTIFICACIÓN DE FACTORES DE RIESGO
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-[12px]">
+                    <div style={{ padding: '1rem', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.4rem', background: '#ffffff' }}>
                         {Object.entries(data.planilla1).map(([key, val]) => (
-                            <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '5px' }}>
-                                <div style={{
-                                    width: '18px', height: '18px', border: '2px solid #333', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
-                                }}>
-                                    {val ? 'X' : ''}
+                            <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.4rem 0.6rem', borderRadius: '6px', background: val ? '#eff6ff' : '#f8fafc', border: val ? '1px solid #bfdbfe' : '1px solid #e2e8f0' }}>
+                                <div style={{ width: '20px', height: '20px', border: val ? '2px solid #2563eb' : '2px solid #cbd5e1', borderRadius: '4px', background: val ? '#2563eb' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    {val ? <span style={{ color: '#fff', fontSize: '0.75rem', fontWeight: 900 }}>✓</span> : null}
                                 </div>
-                                <span style={{ textTransform: 'capitalize' }}>{key.replace(/([A-Z])/g, ' $1')}</span>
+                                <span style={{ fontSize: '0.78rem', fontWeight: val ? 700 : 600, color: val ? '#1e40af' : '#94a3b8', textTransform: 'capitalize' }}>{key.replace(/([A-Z])/g, ' $1')}</span>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* Planilla 2.A (Si existe) */}
+                {/* III – Levantamiento de Cargas */}
                 {data.planilla1.levantamientoCarga && (
-                    <div style={{ marginBottom: '30px' }}>
-                        <div style={{ background: '#f5f5f5', padding: '10px 15px', fontWeight: 'bold', marginBottom: '15px', borderLeft: '4px solid #3b82f6' }}>
-                            III - PLANILLA 2.A: EVALUACIÓN DE LEVANTAMIENTO DE CARGAS
+                    <div style={{ border: data.riesgo === 'Moderado' || data.riesgo === 'Alto' ? '1.5px solid #fca5a5' : '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.5rem', overflow: 'hidden' }}>
+                        <div style={{ background: '#1e293b', padding: '0.6rem 1rem' }}>
+                            <span style={{ fontWeight: 900, fontSize: '0.75rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em' }}>III — PLANILLA 2.A: EVALUACIÓN DE LEVANTAMIENTO DE CARGAS</span>
                         </div>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                            <tbody>
-                                <tr>
-                                    <td style={{ padding: '8px', border: '1px solid #ddd', width: '40%' }}>Peso Efectivo Manipulado:</td>
-                                    <td style={{ padding: '8px', border: '1px solid #ddd', fontWeight: 'bold' }}>{data.calculoLevantamiento.peso} kg</td>
-                                </tr>
-                                <tr>
-                                    <td style={{ padding: '8px', border: '1px solid #ddd' }}>Nivel de Riesgo Determinado:</td>
-                                    <td style={{ padding: '8px', border: '1px solid #ddd', color: data.riesgo === 'Moderado' ? '#e11d48' : '#16a34a', fontWeight: 'bold' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', background: '#ffffff' }}>
+                            <div style={{ padding: '1rem', borderRight: '1px solid #e2e8f0' }}>
+                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Activity size={12}/> PESO EFECTIVO MANIPULADO</span>
+                                <div style={{ fontWeight: 900, fontSize: '1.4rem', color: '#0f172a', marginTop: '0.3rem' }}>{data.calculoLevantamiento?.peso} <span style={{ fontSize: '0.9rem', fontWeight: 700 }}>kg</span></div>
+                            </div>
+                            <div style={{ padding: '1rem', background: data.riesgo === 'Moderado' || data.riesgo === 'Alto' ? '#fef2f2' : '#f0fdf4' }}>
+                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><AlertTriangle size={12}/> NIVEL DE RIESGO DETERMINADO</span>
+                                <div style={{ marginTop: '0.3rem' }}>
+                                    <span style={{ padding: '0.3rem 1rem', background: data.riesgo === 'Moderado' || data.riesgo === 'Alto' ? '#dc2626' : '#16a34a', color: '#fff', borderRadius: '8px', fontWeight: 900, fontSize: '1rem' }}>
                                         {data.riesgo}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-
-                {/* Recomendaciones */}
-                <div style={{ marginBottom: '50px' }}>
-                    <div style={{ background: '#f5f5f5', padding: '10px 15px', fontWeight: 'bold', marginBottom: '15px', borderLeft: '4px solid #3b82f6' }}>
-                        IV - RECOMENDACIONES DE ACCIÓN
-                    </div>
-                    <div style={{ minHeight: '100px', border: '1px solid #ddd', padding: '15px', fontSize: '13px' }}>
-                        {data.recomendaciones || 'No se registran recomendaciones específicas.'}
-                    </div>
-                </div>
-
-                {/* Firmas */}
-                <div className="no-print mt-10 mb-8 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-xs font-bold text-slate-700">
-                    <div className="text-center">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                    <div className="flex gap-4 flex-wrap justify-center">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-4 h-4 accent-blue-600" /> Operador
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-4 h-4 accent-blue-600" /> Supervisor
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-4 h-4 accent-blue-600" /> Profesional
-                        </label>
-                    </div>
-                </div>
-
-                <div className="signature-container-row mt-10">
-                    {showSignatures.operator && (
-                        <div className="signature-item-box">
-                            <div className="signature-line" />
-                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
-                            <p className="text-[0.8rem] font-black uppercase text-black leading-none min-h-[0.8rem]">Aclaración y Firma</p>
-                        </div>
-                    )}
-
-                    {showSignatures.supervisor && (
-                        <div className="signature-item-box">
-                            <div className="signature-line" />
-                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR / EMPLEADOR</p>
-                            <p className="text-[0.8rem] font-black uppercase text-black leading-none min-h-[0.8rem]">Firma Autorizada</p>
-                        </div>
-                    )}
-
-                    {showSignatures.professional && (
-                        <div className="signature-item-box">
-                            {signature?.signature && (
-                                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>
-                                    <img src={signature.signature} alt="Firma" style={{ maxHeight: '50px', maxWidth: '100%', objectFit: 'contain' }} />
+                                    </span>
                                 </div>
-                            )}
-                            <div className="signature-line" />
-                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL ACTUANTE</p>
-                            <p style={{ margin: 0, fontWeight: 700, fontSize: '0.8rem' }}>{profile?.name}</p>
-                            <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Mat: {profile?.license}</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* IV – Recomendaciones */}
+                <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.5rem', overflow: 'hidden' }}>
+                    <div style={{ background: '#1e293b', padding: '0.6rem 1rem' }}>
+                        <span style={{ fontWeight: 900, fontSize: '0.75rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em' }}>IV — RECOMENDACIONES DE ACCIÓN</span>
+                    </div>
+                    <div style={{ padding: '1rem', minHeight: '80px', fontSize: '0.85rem', color: '#334155', fontWeight: 600, lineHeight: 1.6, background: '#f8fafc', whiteSpace: 'pre-wrap' }}>
+                        {data.recomendaciones || 'No se registran recomendaciones específicas para este puesto de trabajo en el momento de la evaluación.'}
+                    </div>
+                </div>
+
+                {/* Selector de firmas (no imprime) */}
+                <div className="no-print" style={{ marginBottom: '1.5rem', padding: '0.8rem 1rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 900, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>INCLUIR FIRMAS:</span>
+                    {[['operator', 'Operador'], ['supervisor', 'Supervisor'], ['professional', 'Profesional']].map(([key, label]) => (
+                        <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700 }}>
+                            <input type="checkbox" checked={showSignatures[key]} onChange={e => setShowSignatures(s => ({ ...s, [key]: e.target.checked }))} style={{ width: 16, height: 16, accentColor: '#2563eb' }} />
+                            {label}
+                        </label>
+                    ))}
+                </div>
+
+                {/* Firmas Enterprise */}
+                <div style={{ paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem' }}>
+                    {showSignatures.operator && (
+                        <div style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
+                                <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Firma original</span>
+                            </div>
+                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#1e293b' }}>OPERADOR / TRABAJADOR</p>
+                            <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Toma de conocimiento</p>
+                        </div>
+                    )}
+                    {showSignatures.supervisor && (
+                        <div style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
+                                <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Firma original</span>
+                            </div>
+                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#1e293b' }}>SUPERVISOR / EMPLEADOR</p>
+                            <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Firma Autorizada</p>
+                        </div>
+                    )}
+                    {showSignatures.professional && (
+                        <div style={{ flex: 1, border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #86efac', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
+                                {signature?.signature ? (
+                                    <img src={signature.signature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain' }} />
+                                ) : (
+                                    <span style={{ fontSize: '0.6rem', color: '#86efac' }}>Sello y Firma Digital</span>
+                                )}
+                            </div>
+                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#166534' }}>PROFESIONAL ACTUANTE</p>
+                            <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#15803d', fontWeight: 600 }}>{profile?.name || 'Especialista H&S'}</p>
+                            {profile?.license && <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#16a34a' }}>Mat: {profile.license}</p>}
                         </div>
                     )}
                 </div>
 
-                {/* Stamp if available */}
-                {showSignatures.professional && signature?.stamp && (
-                    <div style={{ position: 'absolute', bottom: '60px', left: '60px', opacity: 0.8 }}>
-                        <img src={signature.stamp} alt="Sello" style={{ maxWidth: '90px' }} />
-                    </div>
-                )}
                 <PdfBrandingFooter />
             </div>
             {/* Floating Action Buttons */}
