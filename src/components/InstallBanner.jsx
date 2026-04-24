@@ -8,11 +8,25 @@ import { Smartphone, X } from 'lucide-react';
  */
 export default function InstallBanner() {
     const [deferredPrompt, setDeferredPrompt] = useState(null);
+    const [isIosPrompt, setIsIosPrompt] = useState(false);
     const [visible, setVisible] = useState(false);
 
     useEffect(() => {
-        // No mostrar si ya fue descartado antes
+        // No mostrar si ya fue descartado antes o si ya está instalado
         if (localStorage.getItem('pwa_banner_dismissed') === 'true') return;
+        
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        if (isStandalone) return;
+
+        // Detect iOS
+        const isIos = /ipad|iphone|ipod/.test(navigator.userAgent.toLowerCase());
+        const isSafari = /safari/.test(navigator.userAgent.toLowerCase()) && !/chrome|crios|fxios/.test(navigator.userAgent.toLowerCase());
+        
+        if (isIos && isSafari) {
+            setIsIosPrompt(true);
+            setVisible(true);
+            return;
+        }
 
         const handler = (e) => {
             e.preventDefault();
@@ -25,6 +39,10 @@ export default function InstallBanner() {
     }, []);
 
     const handleInstall = async () => {
+        if (isIosPrompt) {
+            // En iOS no se puede abrir el prompt automáticamente, solo indicamos qué hacer.
+            return;
+        }
         if (!deferredPrompt) return;
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
@@ -78,20 +96,26 @@ export default function InstallBanner() {
                     Instalá Asistente HYS
                 </div>
                 <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.3 }}>
-                    Accedé sin internet y más rápido desde tu celular
+                    {isIosPrompt ? (
+                        <span>Tocá <strong style={{color:'white'}}>Compartir</strong> y luego <strong style={{color:'white'}}>"Agregar a inicio"</strong></span>
+                    ) : (
+                        'Accedé sin internet y más rápido desde tu celular'
+                    )}
                 </div>
             </div>
-            <button
-                onClick={handleInstall}
-                style={{
-                    background: 'var(--color-surface)', color: '#2563eb', border: 'none',
-                    borderRadius: '10px', padding: '0.5rem 1rem',
-                    fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer',
-                    flexShrink: 0, whiteSpace: 'nowrap'
-                }}
-            >
-                Instalar
-            </button>
+            {!isIosPrompt && (
+                <button
+                    onClick={handleInstall}
+                    style={{
+                        background: 'var(--color-surface)', color: '#2563eb', border: 'none',
+                        borderRadius: '10px', padding: '0.5rem 1rem',
+                        fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer',
+                        flexShrink: 0, whiteSpace: 'nowrap'
+                    }}
+                >
+                    Instalar
+                </button>
+            )}
             <button
                 onClick={handleDismiss}
                 style={{
