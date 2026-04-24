@@ -96,5 +96,19 @@ export default defineConfig({
         changeOrigin: true,
       }
     }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom', 'framer-motion'],
+          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+          pdf: ['jspdf', 'jspdf-autotable', 'html2canvas'],
+          charts: ['recharts'],
+          excel: ['exceljs'],
+          icons: ['@phosphor-icons/react', 'lucide-react']
+        }
+      }
+    }
   }
 })
