@@ -8,6 +8,7 @@ import { Loader2 } from 'lucide-react';
 import AnimatedPage from '../components/AnimatedPage';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
+import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../config';
 
@@ -37,6 +38,7 @@ export default function ContractorManagement() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const { isPro } = usePaywall();
+  const { syncCollection, syncPulse } = useSync();
   
   const [contractors, setContractors] = useState<Contractor[]>([]);
   const [workers, setWorkers] = useState<Worker[]>([]);
@@ -56,8 +58,7 @@ export default function ContractorManagement() {
   const [isAnalyzingWorker, setIsAnalyzingWorker] = useState(false);
 
   useEffect(() => {
-    // Load data from localStorage initially
-    // Later we can integrate this into Firebase Sync
+    // Load data from localStorage initially and listen to cloud updates
     try {
       const savedContractors = localStorage.getItem('contractors_data');
       if (savedContractors) setContractors(JSON.parse(savedContractors));
@@ -67,16 +68,18 @@ export default function ContractorManagement() {
     } catch (e) {
       console.error('Error loading contractor data', e);
     }
-  }, []);
+  }, [syncPulse]);
 
   const saveContractors = (data: Contractor[]) => {
     setContractors(data);
     localStorage.setItem('contractors_data', JSON.stringify(data));
+    syncCollection('contractors_data', data);
   };
 
   const saveWorkers = (data: Worker[]) => {
     setWorkers(data);
     localStorage.setItem('workers_data', JSON.stringify(data));
+    syncCollection('workers_data', data);
   };
 
   const checkExpiryStatus = (dateString: string) => {

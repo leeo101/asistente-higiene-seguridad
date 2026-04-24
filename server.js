@@ -111,7 +111,13 @@ const aiLimiter = rateLimit({
     max: 20, // 20 requests per minute
     message: { error: 'Has excedido el límite de peticiones a la IA. Espera un minuto.' },
     standardHeaders: true,
-    legacyHeaders: false
+    legacyHeaders: false,
+    keyGenerator: (req) => {
+        // Prioritize explicit UID from body or headers, fallback to IP
+        const uid = req.body?.uid || req.headers['x-user-uid'];
+        if (uid) return uid;
+        return req.socket?.remoteAddress || req.ip;
+    }
 });
 
 // Email endpoints limiter - 3 requests per minute (prevent spam)

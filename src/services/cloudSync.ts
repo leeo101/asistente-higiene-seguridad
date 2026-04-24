@@ -294,6 +294,8 @@ export const SYNC_COLLECTIONS: string[] = [
   'ehs_capa_db',
   'environmental_measurements_db',
   'risk_map_history',
+  'contractors_data',
+  'workers_data',
 ];
 
 
