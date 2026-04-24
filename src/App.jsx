@@ -196,6 +196,56 @@ function GlobalPrintGuard() {
   return null;
 }
 
+function ThemeApplier() {
+  const { currentUser } = useAuth();
+
+  useEffect(() => {
+    const applyColors = (primary, secondary) => {
+        if (typeof document === 'undefined') return;
+        if (primary) {
+           document.documentElement.style.setProperty('--color-primary', primary);
+           const hex = primary.replace('#', '');
+           if (hex.length === 6) {
+               const r = parseInt(hex.substring(0, 2), 16);
+               const g = parseInt(hex.substring(2, 4), 16);
+               const b = parseInt(hex.substring(4, 6), 16);
+               document.documentElement.style.setProperty('--color-primary-rgb', `${r}, ${g}, ${b}`);
+           }
+        } else {
+           document.documentElement.style.removeProperty('--color-primary');
+           document.documentElement.style.removeProperty('--color-primary-rgb');
+        }
+        if (secondary) {
+           document.documentElement.style.setProperty('--color-secondary', secondary);
+        } else {
+           document.documentElement.style.removeProperty('--color-secondary');
+        }
+    };
+
+    const localPrimary = localStorage.getItem('primaryColor');
+    const localSecondary = localStorage.getItem('secondaryColor');
+    applyColors(localPrimary, localSecondary);
+
+    if (currentUser?.uid) {
+        import('./services/cloudSync').then(({ listenToValue }) => {
+            const unsubPrimary = listenToValue(currentUser.uid, 'primaryColor', (val) => {
+                if (val) localStorage.setItem('primaryColor', val);
+                else localStorage.removeItem('primaryColor');
+                applyColors(val, localStorage.getItem('secondaryColor'));
+            });
+            const unsubSecondary = listenToValue(currentUser.uid, 'secondaryColor', (val) => {
+                if (val) localStorage.setItem('secondaryColor', val);
+                else localStorage.removeItem('secondaryColor');
+                applyColors(localStorage.getItem('primaryColor'), val);
+            });
+            // We cannot easily unsubscribe here due to dynamic import, but that's ok for global app component
+        });
+    }
+  }, [currentUser]);
+
+  return null;
+}
+
 function ProtectedRoute({ children }) {
   const { currentUser } = useAuth();
   if (!currentUser) {
@@ -319,6 +369,7 @@ function App() {
       <SyncProvider>
         <ScrollToTop />
         <GlobalPrintGuard />
+        <ThemeApplier />
         <NetworkBadge />
         <OfflineIndicator />
         <Toaster

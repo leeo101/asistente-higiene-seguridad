@@ -334,6 +334,94 @@ app.post('/api/analyze-image', aiLimiter, async (req, res) => {
     }
 });
 
+// ==========================================
+// AI CONTRACTOR DOCUMENT ANALYSIS (Gemini)
+// ==========================================
+app.post('/api/analyze-contractor-doc', aiLimiter, async (req, res) => {
+    try {
+        const { image } = req.body;
+        if (!image) return res.status(400).json({ error: 'No se envió imagen' });
+
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) {
+            console.error("[ERROR] Missing GEMINI_API_KEY environment variable.");
+            return res.status(500).json({ error: 'Falta la API Key de Gemini en el backend' });
+        }
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+
+        const base64Data = image.split(',')[1];
+        if (!base64Data || base64Data.length < 10) {
+            return res.status(400).json({ error: 'La imagen enviada no es válida o está vacía.' });
+        }
+        const mimeType = image.split(';')[0].split(':')[1] || 'image/jpeg';
+
+        const prompt = `Analiza este documento (puede ser DNI, Certificado de cobertura ART, Seguro de Vida, etc.). Extrae la siguiente información y devuélvela estrictamente estructurada.`;
+
+        const responseSchema = {
+            type: SchemaType.OBJECT,
+            properties: {
+                documentType: { type: SchemaType.STRING, description: "DNI, ART, SEGURO, OTRO" },
+                name: { type: SchemaType.STRING, description: "Nombre completo de la persona o de la empresa contratista" },
+                idNumber: { type: SchemaType.STRING, description: "Número de DNI, CUIT o CUIL extraído" },
+                expiryDate: { type: SchemaType.STRING, description: "Fecha de vencimiento en formato YYYY-MM-DD. Si no tiene vencimiento, omitir o dejar vacío." }
+            },
+            required: ["documentType", "name", "idNumber"]
+        };
+
+        const imagePart = {
+            inlineData: {
+                data: base64Data,
+                mimeType
+            },
+        };
+
+        const models = [
+            "gemini-2.0-flash",
+            "gemini-1.5-flash-latest",
+            "gemini-1.5-pro-latest"
+        ];
+
+        let result;
+        let lastError;
+        for (const modelName of models) {
+            try {
+                const model = genAI.getGenerativeModel({
+                    model: modelName,
+                    systemInstruction: "Eres un experto en lectura de documentos laborales y de identidad. Extraes información precisa ignorando ruido visual. Siempre respondes con fechas en YYYY-MM-DD y números de ID limpios.",
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: responseSchema
+                    }
+                });
+
+                const fetchPromise = model.generateContent([prompt, imagePart]);
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Timeout local de 25s')), 25000)
+                );
+
+                result = await Promise.race([fetchPromise, timeoutPromise]);
+                if (result) break;
+            } catch (error) {
+                lastError = error;
+                continue;
+            }
+        }
+
+        if (!result) {
+            console.error("[RECOVERY] Todos los modelos fallaron. Último error:", lastError?.message);
+            return res.status(500).json({ error: 'Todos los modelos de IA fallaron' });
+        }
+        const responseText = result.response.text();
+        const parsedData = JSON.parse(responseText);
+        res.json(parsedData);
+
+    } catch (error) {
+        console.error("Error analyzing contractor doc:", error.message);
+        res.status(500).json({ error: 'Error analizando el documento' });
+    }
+});
+
 app.post('/api/daily-insight', aiLimiter, async (req, res) => {
     try {
         const { country = 'argentina' } = req.body;

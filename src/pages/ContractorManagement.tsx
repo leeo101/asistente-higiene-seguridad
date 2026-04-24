@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Users, UserPlus, Buildings, Plus, X, MagnifyingGlass, 
-  Trash, ArrowLeft, DownloadSimple, ShieldCheck, Warning, FileText
+  Trash, ArrowLeft, DownloadSimple, ShieldCheck, Warning, FileText, Camera, Sparkle, Spinner
 } from '@phosphor-icons/react';
+import { Loader2 } from 'lucide-react';
 import AnimatedPage from '../components/AnimatedPage';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
+import toast from 'react-hot-toast';
+import { API_BASE_URL } from '../config';
 
 // Interfaces
 export interface Contractor {
@@ -47,6 +50,10 @@ export default function ContractorManagement() {
   // Forms state
   const [contractorForm, setContractorForm] = useState<Partial<Contractor>>({});
   const [workerForm, setWorkerForm] = useState<Partial<Worker>>({});
+
+  // AI State
+  const [isAnalyzingContractor, setIsAnalyzingContractor] = useState(false);
+  const [isAnalyzingWorker, setIsAnalyzingWorker] = useState(false);
 
   useEffect(() => {
     // Load data from localStorage initially
@@ -135,6 +142,60 @@ export default function ContractorManagement() {
     if (window.confirm('¿Eliminar trabajador?')) {
       saveWorkers(workers.filter(w => w.id !== id));
     }
+  };
+
+  const handleDocumentUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'contractor' | 'worker') => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      if (type === 'contractor') setIsAnalyzingContractor(true);
+      else setIsAnalyzingWorker(true);
+
+      try {
+          // Read file as base64
+          const reader = new FileReader();
+          reader.onloadend = async () => {
+              const base64Image = reader.result as string;
+              
+              const response = await fetch(`${API_BASE_URL}/api/analyze-contractor-doc`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ image: base64Image })
+              });
+
+              if (!response.ok) {
+                  throw new Error('Error en el análisis de IA');
+              }
+
+              const data = await response.json();
+
+              if (type === 'contractor') {
+                  setContractorForm(prev => ({
+                      ...prev,
+                      name: data.name || prev.name,
+                      cuit: data.idNumber || prev.cuit,
+                      documentExpiresAt: data.expiryDate || prev.documentExpiresAt
+                  }));
+                  toast.success('✨ Datos de empresa extraídos con IA');
+              } else {
+                  setWorkerForm(prev => ({
+                      ...prev,
+                      name: data.name || prev.name,
+                      dni: data.idNumber || prev.dni,
+                      artExpiresAt: data.documentType === 'ART' ? data.expiryDate : prev.artExpiresAt,
+                      lifeInsuranceExpiresAt: data.documentType === 'SEGURO' ? data.expiryDate : prev.lifeInsuranceExpiresAt
+                  }));
+                  toast.success('✨ Datos de trabajador extraídos con IA');
+              }
+          };
+          reader.readAsDataURL(file);
+      } catch (err) {
+          console.error('Error analyzing document:', err);
+          toast.error('No se pudo analizar el documento');
+      } finally {
+          if (type === 'contractor') setIsAnalyzingContractor(false);
+          else setIsAnalyzingWorker(false);
+      }
   };
 
   return (
@@ -310,6 +371,28 @@ export default function ContractorManagement() {
                 <h2 style={{ margin: 0, fontSize: '1.2rem' }}>Añadir Contratista</h2>
                 <button onClick={() => setIsContractorModalOpen(false)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}><X size={20} /></button>
               </div>
+
+              {/* AI Button */}
+              <div style={{ marginBottom: '1.5rem', background: 'rgba(139, 92, 246, 0.1)', border: '1px dashed rgba(139, 92, 246, 0.5)', padding: '1rem', borderRadius: '12px', textAlign: 'center' }}>
+                  {isAnalyzingContractor ? (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: '#8b5cf6' }}>
+                          <Loader2 className="animate-spin" size={20} />
+                          <span style={{ fontWeight: 600 }}>Analizando documento...</span>
+                      </div>
+                  ) : (
+                      <>
+                          <label style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', color: '#8b5cf6' }}>
+                              <div style={{ background: '#8b5cf6', color: 'white', padding: '0.5rem', borderRadius: '50%' }}>
+                                  <Sparkle size={24} weight="fill" />
+                              </div>
+                              <span style={{ fontWeight: 700 }}>Autocompletar con IA</span>
+                              <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>Subí un Constancia AFIP o Seguro</span>
+                              <input type="file" accept="image/*" capture="environment" onChange={(e) => handleDocumentUpload(e, 'contractor')} style={{ display: 'none' }} />
+                          </label>
+                      </>
+                  )}
+              </div>
+
               <form onSubmit={handleAddContractor} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div><label>Razón Social / Empresa</label><input required type="text" value={contractorForm.name || ''} onChange={e => setContractorForm({...contractorForm, name: e.target.value})} className="form-input" style={{ width: '100%' }} /></div>
                 <div><label>CUIT</label><input required type="text" value={contractorForm.cuit || ''} onChange={e => setContractorForm({...contractorForm, cuit: e.target.value})} className="form-input" style={{ width: '100%' }} /></div>
@@ -331,6 +414,28 @@ export default function ContractorManagement() {
                 <h2 style={{ margin: 0, fontSize: '1.2rem' }}>Añadir Trabajador</h2>
                 <button onClick={() => setIsWorkerModalOpen(false)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}><X size={20} /></button>
               </div>
+
+              {/* AI Button */}
+              <div style={{ marginBottom: '1.5rem', background: 'rgba(139, 92, 246, 0.1)', border: '1px dashed rgba(139, 92, 246, 0.5)', padding: '1rem', borderRadius: '12px', textAlign: 'center' }}>
+                  {isAnalyzingWorker ? (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: '#8b5cf6' }}>
+                          <Loader2 className="animate-spin" size={20} />
+                          <span style={{ fontWeight: 600 }}>Analizando documento...</span>
+                      </div>
+                  ) : (
+                      <>
+                          <label style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', color: '#8b5cf6' }}>
+                              <div style={{ background: '#8b5cf6', color: 'white', padding: '0.5rem', borderRadius: '50%' }}>
+                                  <Sparkle size={24} weight="fill" />
+                              </div>
+                              <span style={{ fontWeight: 700 }}>Escanear DNI o ART</span>
+                              <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>Autocompleta nombre, DNI y fechas</span>
+                              <input type="file" accept="image/*" capture="environment" onChange={(e) => handleDocumentUpload(e, 'worker')} style={{ display: 'none' }} />
+                          </label>
+                      </>
+                  )}
+              </div>
+
               <form onSubmit={handleAddWorker} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div>
                   <label>Empresa Contratista</label>

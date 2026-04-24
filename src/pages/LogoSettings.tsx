@@ -15,6 +15,8 @@ export default function LogoSettings(): React.ReactElement | null {
     
     const [logo, setLogo] = useState(null);
     const [showLogo, setShowLogo] = useState(true);
+    const [primaryColor, setPrimaryColor] = useState('#3B82F6');
+    const [secondaryColor, setSecondaryColor] = useState('#10B981');
     const [isUploading, setIsUploading] = useState(false);
     const [dragActive, setDragActive] = useState(false);
 
@@ -22,8 +24,13 @@ export default function LogoSettings(): React.ReactElement | null {
         // Carga inicial rápida desde localStorage
         const savedLogo = localStorage.getItem('companyLogo');
         const savedShowLogo = localStorage.getItem('showCompanyLogo');
+        const savedPrimaryColor = localStorage.getItem('primaryColor');
+        const savedSecondaryColor = localStorage.getItem('secondaryColor');
+
         if (savedLogo) setLogo(savedLogo);
         if (savedShowLogo !== null) setShowLogo(savedShowLogo === 'true');
+        if (savedPrimaryColor) setPrimaryColor(savedPrimaryColor);
+        if (savedSecondaryColor) setSecondaryColor(savedSecondaryColor);
 
         // Sincronización en tiempo real desde Firestore
         if (currentUser?.uid) {
@@ -39,9 +46,25 @@ export default function LogoSettings(): React.ReactElement | null {
                 localStorage.setItem('showCompanyLogo', String(normalized));
             });
 
+            const unsubscribePrimary = listenToValue<string>(currentUser.uid, 'primaryColor', (val) => {
+                if (val) {
+                    setPrimaryColor(val);
+                    localStorage.setItem('primaryColor', val);
+                }
+            });
+
+            const unsubscribeSecondary = listenToValue<string>(currentUser.uid, 'secondaryColor', (val) => {
+                if (val) {
+                    setSecondaryColor(val);
+                    localStorage.setItem('secondaryColor', val);
+                }
+            });
+
             return () => {
                 unsubscribeLogo();
                 unsubscribeShow();
+                unsubscribePrimary();
+                unsubscribeSecondary();
             };
         }
     }, [currentUser]);
@@ -116,6 +139,32 @@ export default function LogoSettings(): React.ReactElement | null {
             saveValue(currentUser.uid, 'showCompanyLogo', newValue);
         }
         toast.success(newValue ? 'Logo activado en PDFs' : 'Logo desactivado en PDFs');
+    };
+
+    const handleColorChange = (type: 'primary' | 'secondary', value: string) => {
+        if (type === 'primary') {
+            setPrimaryColor(value);
+            localStorage.setItem('primaryColor', value);
+            if (currentUser?.uid) saveValue(currentUser.uid, 'primaryColor', value);
+        } else {
+            setSecondaryColor(value);
+            localStorage.setItem('secondaryColor', value);
+            if (currentUser?.uid) saveValue(currentUser.uid, 'secondaryColor', value);
+        }
+    };
+
+    const resetColors = () => {
+        const defPrimary = '#3B82F6';
+        const defSecondary = '#10B981';
+        setPrimaryColor(defPrimary);
+        setSecondaryColor(defSecondary);
+        localStorage.removeItem('primaryColor');
+        localStorage.removeItem('secondaryColor');
+        if (currentUser?.uid) {
+            saveValue(currentUser.uid, 'primaryColor', null);
+            saveValue(currentUser.uid, 'secondaryColor', null);
+        }
+        toast.success('Colores restablecidos por defecto');
     };
 
     return (
@@ -329,6 +378,63 @@ export default function LogoSettings(): React.ReactElement | null {
                         </div>
                     )}
                     <input id="logo-file-input" type="file" accept="image/*" onChange={(e) => handleFileChange(e.target.files?.[0])} style={{ display: 'none' }} />
+                </div>
+
+                {/* Colors Card */}
+                <div className="card" style={{ padding: '2rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
+                        <div style={{ 
+                            width: '48px', height: '48px', 
+                            background: 'var(--gradient-premium)', 
+                            borderRadius: '14px', 
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                            color: 'white', boxShadow: '0 8px 16px rgba(37,99,235,0.2)' 
+                        }}>
+                            <Sparkles size={24} />
+                        </div>
+                        <div>
+                            <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800 }}>Colores Corporativos</h2>
+                            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Definí la paleta de colores para botones y acentos en tu cuenta.</p>
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                        {/* Primary Color Picker */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            <label style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--color-text)' }}>Color Primario</label>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <input 
+                                    type="color" 
+                                    value={primaryColor} 
+                                    onChange={(e) => handleColorChange('primary', e.target.value)} 
+                                    style={{ width: '50px', height: '50px', padding: '0', border: 'none', borderRadius: '8px', cursor: 'pointer', background: 'transparent' }} 
+                                />
+                                <span style={{ fontFamily: 'monospace', fontWeight: 700, background: 'var(--color-background)', padding: '0.4rem 0.8rem', borderRadius: '6px', border: '1px solid var(--color-border)' }}>{primaryColor.toUpperCase()}</span>
+                            </div>
+                            <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Usado para los botones principales y enlaces.</p>
+                        </div>
+
+                        {/* Secondary Color Picker */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            <label style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--color-text)' }}>Color Secundario</label>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <input 
+                                    type="color" 
+                                    value={secondaryColor} 
+                                    onChange={(e) => handleColorChange('secondary', e.target.value)} 
+                                    style={{ width: '50px', height: '50px', padding: '0', border: 'none', borderRadius: '8px', cursor: 'pointer', background: 'transparent' }} 
+                                />
+                                <span style={{ fontFamily: 'monospace', fontWeight: 700, background: 'var(--color-background)', padding: '0.4rem 0.8rem', borderRadius: '6px', border: '1px solid var(--color-border)' }}>{secondaryColor.toUpperCase()}</span>
+                            </div>
+                            <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Usado para acciones de éxito y alertas positivas.</p>
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                        <button onClick={resetColors} style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', background: 'transparent', border: '1px solid var(--color-border)', borderRadius: '8px', cursor: 'pointer', fontWeight: 700 }}>
+                            Restablecer a colores por defecto
+                        </button>
+                    </div>
                 </div>
 
                 {/* Info Box */}

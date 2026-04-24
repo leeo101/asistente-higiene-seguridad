@@ -41,7 +41,13 @@ export default function WorkPermit(): React.ReactElement | null {
             { id: 1, nombre: '', dni: '', firma: true }
         ],
         eppRequeridos: ['Casco', 'Calzado de Seguridad', 'Guantes', 'Anteojos'],
-        observacionesGenerales: ''
+        observacionesGenerales: '',
+        estado: 'Borrador', // 'Borrador' | 'Pendiente Supervisor' | 'Pendiente EHS' | 'Aprobado'
+        firmas: {
+            solicitante: null,
+            supervisor: null,
+            ehs: null
+        }
     }));
 
     const [professional, setProfessional] = useState({
@@ -236,6 +242,59 @@ export default function WorkPermit(): React.ReactElement | null {
                 <button onClick={handlePrint} className="btn-floating-action" style={{ background: '#FF8B00', color: '#ffffff' }}>
                     <Printer size={18} /> IMPRIMIR PDF
                 </button>
+            </div>
+
+            {/* Status Banner */}
+            <div className="no-print" style={{ marginBottom: '1.5rem', background: 'var(--color-surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                <h3 style={{ margin: '0 0 1rem', fontSize: '1rem', fontWeight: 900 }}>Estado de Aprobación</h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', overflowX: 'auto', paddingBottom: '10px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: 1 }}>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: formData.estado === 'Borrador' ? '#3b82f6' : '#10b981', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>1</div>
+                        <span style={{ fontSize: '0.7rem', marginTop: '5px', fontWeight: 'bold', color: 'var(--color-text)' }}>Borrador</span>
+                    </div>
+                    <div style={{ height: '2px', width: '40px', background: formData.estado !== 'Borrador' ? '#10b981' : '#ddd' }}></div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: formData.estado === 'Borrador' ? 0.4 : 1 }}>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: formData.estado === 'Pendiente Supervisor' ? '#f59e0b' : (['Pendiente EHS', 'Aprobado'].includes(formData.estado) ? '#10b981' : '#ddd'), color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>2</div>
+                        <span style={{ fontSize: '0.7rem', marginTop: '5px', fontWeight: 'bold', color: 'var(--color-text)' }}>Supervisor</span>
+                    </div>
+                    <div style={{ height: '2px', width: '40px', background: ['Pendiente EHS', 'Aprobado'].includes(formData.estado) ? '#10b981' : '#ddd' }}></div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: ['Borrador', 'Pendiente Supervisor'].includes(formData.estado) ? 0.4 : 1 }}>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: formData.estado === 'Pendiente EHS' ? '#f59e0b' : (formData.estado === 'Aprobado' ? '#10b981' : '#ddd'), color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>3</div>
+                        <span style={{ fontSize: '0.7rem', marginTop: '5px', fontWeight: 'bold', color: 'var(--color-text)' }}>Gerencia EHS</span>
+                    </div>
+                    <div style={{ height: '2px', width: '40px', background: formData.estado === 'Aprobado' ? '#10b981' : '#ddd' }}></div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: formData.estado === 'Aprobado' ? 1 : 0.4 }}>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: formData.estado === 'Aprobado' ? '#10b981' : '#ddd', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>✓</div>
+                        <span style={{ fontSize: '0.7rem', marginTop: '5px', fontWeight: 'bold', color: 'var(--color-text)' }}>Aprobado</span>
+                    </div>
+                </div>
+
+                <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                    {formData.estado === 'Borrador' && (
+                        <button onClick={() => {
+                            setFormData({...formData, estado: 'Pendiente Supervisor', firmas: {...formData.firmas, solicitante: { name: professional.name, sign: professional.signature, date: new Date().toLocaleString() }}});
+                            toast.success('Enviado a revisión de Supervisor');
+                        }} style={{ padding: '0.5rem 1rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Solicitar Aprobación</button>
+                    )}
+                    {formData.estado === 'Pendiente Supervisor' && (
+                        <button onClick={() => {
+                            setFormData({...formData, estado: 'Pendiente EHS', firmas: {...formData.firmas, supervisor: { name: professional.name, sign: professional.signature, date: new Date().toLocaleString() }}});
+                            toast.success('Firmado por Supervisor. Pendiente EHS');
+                        }} style={{ padding: '0.5rem 1rem', background: '#f59e0b', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Firmar como Supervisor</button>
+                    )}
+                    {formData.estado === 'Pendiente EHS' && (
+                        <button onClick={() => {
+                            setFormData({...formData, estado: 'Aprobado', firmas: {...formData.firmas, ehs: { name: professional.name, sign: professional.signature, date: new Date().toLocaleString() }}});
+                            toast.success('Permiso Aprobado Completamente');
+                        }} style={{ padding: '0.5rem 1rem', background: '#10b981', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Aprobar Definitivamente (EHS)</button>
+                    )}
+                    {formData.estado !== 'Borrador' && (
+                        <button onClick={() => {
+                            setFormData({...formData, estado: 'Borrador', firmas: { solicitante: null, supervisor: null, ehs: null }});
+                            toast.error('Permiso rechazado / devuelto a borrador');
+                        }} style={{ padding: '0.5rem 1rem', background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Rechazar / Reiniciar</button>
+                    )}
+                </div>
             </div>
 
             {/* Quick Templates + Progress */}
@@ -452,31 +511,70 @@ export default function WorkPermit(): React.ReactElement | null {
                 </div>
 
                 {/* Signatures */}
-                <div style={{ marginTop: '3rem' }}>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-10 print:gap-6">
-                        <div style={{ textAlign: 'center' }}>
-                            <div style={{ height: '60px' }}></div>
-                            <div style={{ borderTop: '2px solid #333', paddingTop: '10px' }}>
-                                <p style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem' }}>SUPERVISOR / RESPONSABLE</p>
-                                <p style={{ margin: 0, fontSize: '0.6rem', color: '#666' }}>Aclaración y Firma</p>
-                            </div>
-                        </div>
+                <div style={{ marginTop: '3rem', borderTop: '2px solid #ddd', paddingTop: '2rem' }}>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 900, marginBottom: '2rem', textAlign: 'center' }}>FIRMAS DE AUTORIZACIÓN</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-10">
+                        {/* Solicitante */}
                         <div style={{ textAlign: 'center' }}>
                             <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                {professional.signature && <img src={professional.signature} alt="Firma" style={{ height: '100%', objectFit: 'contain' }} />}
+                                {formData.firmas?.solicitante?.sign ? (
+                                    <img src={formData.firmas.solicitante.sign} alt="Firma" style={{ height: '100%', objectFit: 'contain' }} />
+                                ) : (
+                                    <span style={{ color: '#ccc' }}>Pendiente</span>
+                                )}
                             </div>
                             <div style={{ borderTop: '2px solid #333', paddingTop: '10px' }}>
-                                <p style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem' }}>{professional.name.toUpperCase()}</p>
-                                <p style={{ margin: 0, fontSize: '0.6rem', color: '#666' }}>Mat.: {professional.license}</p>
+                                <p style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem' }}>{formData.firmas?.solicitante?.name || 'SOLICITANTE'}</p>
+                                <p style={{ margin: 0, fontSize: '0.6rem', color: '#666' }}>{formData.firmas?.solicitante?.date || 'Firma Solicitante'}</p>
                             </div>
                         </div>
-                        <div style={{ textAlign: 'center' }} className="hidden sm:block print:block">
-                            <div style={{ height: '60px' }}></div>
+
+                        {/* Supervisor */}
+                        <div style={{ textAlign: 'center' }}>
+                            <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                {formData.firmas?.supervisor?.sign ? (
+                                    <img src={formData.firmas.supervisor.sign} alt="Firma" style={{ height: '100%', objectFit: 'contain' }} />
+                                ) : (
+                                    <span style={{ color: '#ccc' }}>Pendiente</span>
+                                )}
+                            </div>
                             <div style={{ borderTop: '2px solid #333', paddingTop: '10px' }}>
-                                <p style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem' }}>FECHA DE CIERRE</p>
-                                <p style={{ margin: 0, fontSize: '0.6rem', color: '#666' }}>Sello y Firma receptora</p>
+                                <p style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem' }}>{formData.firmas?.supervisor?.name || 'SUPERVISOR'}</p>
+                                <p style={{ margin: 0, fontSize: '0.6rem', color: '#666' }}>{formData.firmas?.supervisor?.date || 'Firma Supervisor'}</p>
                             </div>
                         </div>
+
+                        {/* EHS */}
+                        <div style={{ textAlign: 'center' }}>
+                            <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                {formData.firmas?.ehs?.sign ? (
+                                    <img src={formData.firmas.ehs.sign} alt="Firma" style={{ height: '100%', objectFit: 'contain' }} />
+                                ) : (
+                                    <span style={{ color: '#ccc' }}>Pendiente</span>
+                                )}
+                            </div>
+                            <div style={{ borderTop: '2px solid #333', paddingTop: '10px' }}>
+                                <p style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem' }}>{formData.firmas?.ehs?.name || 'GERENCIA EHS'}</p>
+                                <p style={{ margin: 0, fontSize: '0.6rem', color: '#666' }}>{formData.firmas?.ehs?.date || 'Sello y Firma receptora'}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {/* Sello de Estado */}
+                    <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+                         <span style={{ 
+                             display: 'inline-block',
+                             border: `3px solid ${formData.estado === 'Aprobado' ? '#10b981' : (formData.estado === 'Borrador' ? '#64748b' : '#f59e0b')}`, 
+                             color: formData.estado === 'Aprobado' ? '#10b981' : (formData.estado === 'Borrador' ? '#64748b' : '#f59e0b'),
+                             padding: '0.5rem 2rem', 
+                             fontWeight: 900, 
+                             fontSize: '1.2rem', 
+                             textTransform: 'uppercase',
+                             transform: 'rotate(-5deg)',
+                             opacity: 0.8
+                         }}>
+                             ESTADO: {formData.estado}
+                         </span>
                     </div>
                 </div>
 
