@@ -2667,3 +2667,5 @@ svg.ph-duotone [opacity="0.2"] {
 .scale-110 {
   transform: scale(1.15);
 }
+
+.force-pdf-print * { box-shadow: none !important; text-shadow: none !important; }

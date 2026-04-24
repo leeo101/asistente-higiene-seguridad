@@ -42,8 +42,9 @@ export async function generatePdfBlob(elementId, filename = 'reporte.pdf', isLan
         element.style.maxWidth = 'none';
         
         // Remove height constraints so it can expand naturally to content height
-        element.style.height = 'auto';
+        element.style.height = 'max-content';
         element.style.minHeight = '0';
+        element.style.overflow = 'visible';
         
         element.style.zIndex = '-9999';
         element.style.opacity = '1';
@@ -94,23 +95,38 @@ export async function generatePdfBlob(elementId, filename = 'reporte.pdf', isLan
         const ratioPxToMm = contentWidthMM / imgWidthPx;
         const contentHeightMM = imgHeightPx * ratioPxToMm;
 
-        if (contentHeightMM <= (pdfHeight - marginY * 2)) {
-            pdf.addImage(imgData, 'JPEG', marginX, marginY, contentWidthMM, contentHeightMM);
+        let finalRatio = ratioPxToMm;
+        let finalContentHeightMM = contentHeightMM;
+
+        // Auto-fit to 1 page if it slightly overflows (e.g., up to 30% overflow)
+        // This prevents the "se hacen varias hojas" issue for 1-page forms
+        const maxOnePageHeight = pdfHeight - (marginY * 2);
+        if (contentHeightMM > maxOnePageHeight && contentHeightMM <= maxOnePageHeight * 1.3) {
+            finalRatio = maxOnePageHeight / imgHeightPx;
+            finalContentHeightMM = maxOnePageHeight;
+        }
+
+        const finalContentWidthMM = imgWidthPx * finalRatio;
+        // Center horizontally if scaled down
+        const finalMarginX = marginX + (contentWidthMM - finalContentWidthMM) / 2;
+
+        if (finalContentHeightMM <= maxOnePageHeight) {
+            pdf.addImage(imgData, 'JPEG', finalMarginX, marginY, finalContentWidthMM, finalContentHeightMM);
         } else {
-            let heightLeft = contentHeightMM;
+            let heightLeft = finalContentHeightMM;
             let position = 0;
             let page = 1;
 
             // First page
-            pdf.addImage(imgData, 'JPEG', marginX, marginY, contentWidthMM, contentHeightMM);
-            heightLeft -= (pdfHeight - marginY * 2);
+            pdf.addImage(imgData, 'JPEG', finalMarginX, marginY, finalContentWidthMM, finalContentHeightMM);
+            heightLeft -= maxOnePageHeight;
 
             // Additional pages
             while (heightLeft > 0) {
-                position = heightLeft - contentHeightMM + marginY;
+                position = heightLeft - finalContentHeightMM + marginY;
                 pdf.addPage();
-                pdf.addImage(imgData, 'JPEG', marginX, position, contentWidthMM, contentHeightMM);
-                heightLeft -= (pdfHeight - marginY * 2);
+                pdf.addImage(imgData, 'JPEG', finalMarginX, position, finalContentWidthMM, finalContentHeightMM);
+                heightLeft -= maxOnePageHeight;
                 page++;
             }
         }
