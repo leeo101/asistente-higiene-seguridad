@@ -142,7 +142,7 @@ export default function FireLoadPdfGenerator({ data }: { data: any }): React.Rea
                     </div>
 
                     <div style={{ display: 'flex', gap: '1rem' }}>
-                        <div style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: '8px', padding: '1rem', background: '#f8fafc' }}>
+                        <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '1rem', background: '#f8fafc' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem', color: '#1e293b', fontWeight: 800, fontSize: '0.85rem' }}>
                                 <Info size={16} /> Data Técnica
                             </div>

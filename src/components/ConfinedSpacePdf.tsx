@@ -49,7 +49,7 @@ export default function ConfinedSpacePdf({ data }: { data: any }): React.ReactEl
         return { bg: '#f8fafc', color: '#64748b', border: '#e2e8f0' };
     };
 
-    const ventilationText = typeof data.ventilation === 'object'
+    const ventilationText = typeof data.ventilation === 'object' && data.ventilation !== null
         ? Object.entries(data.ventilation).filter(([_, v]) => v).map(([k]) =>
             k === 'forced' ? 'Forzada' : k === 'natural' ? 'Natural' : 'Extractiva'
           ).join(', ') || 'No especificada'
@@ -206,9 +206,9 @@ export default function ConfinedSpacePdf({ data }: { data: any }): React.ReactEl
                 </div>
 
                 {/* Firmas */}
-                <div style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem' }}>
+                <div style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem', justifyContent: 'center' }}>
 
-                    <div style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                         <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
                             <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Firma original</span>
                         </div>
@@ -216,7 +216,7 @@ export default function ConfinedSpacePdf({ data }: { data: any }): React.ReactEl
                         <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Control y monitoreo continuo</p>
                     </div>
 
-                    <div style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                         <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
                             {data.capatazSignature ? (
                                 <img src={data.capatazSignature} alt="Firma Trabajador" style={{ maxHeight: '50px', objectFit: 'contain' }} />
@@ -228,7 +228,7 @@ export default function ConfinedSpacePdf({ data }: { data: any }): React.ReactEl
                         <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Aceptación de condiciones</p>
                     </div>
 
-                    <div style={{ flex: 1, border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <div style={{ flex: '0 1 32%', border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                         <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #86efac', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
                             {actSignature ? (
                                 <img src={actSignature} alt="Firma Autorizante" style={{ maxHeight: '50px', objectFit: 'contain' }} />

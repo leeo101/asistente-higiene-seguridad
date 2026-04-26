@@ -179,7 +179,7 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                     </table>
 
                     {/* Area de Certificación final y firmas */}
-                    <div style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem' }}>
+                    <div style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem', justifyContent: 'center' }}>
                         
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                             <span style={{ fontSize: '0.7rem', fontWeight: 900, color: '#475569', display: 'block', marginBottom: '0.4rem', textTransform: 'uppercase' }}>CERTIFICACIÓN DE INSTRUCCIÓN</span>

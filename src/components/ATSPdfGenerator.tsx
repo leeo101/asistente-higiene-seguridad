@@ -44,6 +44,30 @@ export default function ATSPdfGenerator({ atsData }: ATSPdfGeneratorProps): Reac
   if (!atsData) return null;
 
   const data = atsData;
+
+    // Obtención segura de firma profesional desde localStorage
+    let actSignature = data.professionalSignature || data.signature || data.auditorSignature || null;
+    let actName = data.professionalName || data.leadAuditor || data.expositor || null;
+    let actLic = data.professionalLicense || data.license || null;
+    
+    // Si no trae firmas directas, intentar heredar de localStorage (fallback global pro)
+    if (!actSignature) {
+        try {
+            const lsPersonal = typeof window !== 'undefined' ? localStorage.getItem('personalData') : null;
+            const lsStamp = typeof window !== 'undefined' ? localStorage.getItem('signatureStampData') : null;
+            const legacySig = typeof window !== 'undefined' ? localStorage.getItem('capturedSignature') : null;
+            
+            if (lsStamp) { actSignature = JSON.parse(lsStamp).signature; }
+            else if (legacySig) { actSignature = legacySig; }
+            
+            if (lsPersonal) {
+                const pd = JSON.parse(lsPersonal);
+                actName = actName || pd.name;
+                actLic = actLic || pd.license;
+            }
+        } catch(e) {}
+    }
+
   const tareas = data.tareas || [];
   const checklist = data.checklist || [];
 
@@ -232,9 +256,9 @@ export default function ATSPdfGenerator({ atsData }: ATSPdfGeneratorProps): Reac
         })}
 
         {/* Firmas de Responsabilidad */}
-        <div style={{ marginTop: '3rem', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem' }}>
+        <div style={{ marginTop: '3rem', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem', justifyContent: 'center' }}>
           
-          <div style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #ndndnd', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
               <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Original</span>
             </div>
@@ -242,7 +266,7 @@ export default function ATSPdfGenerator({ atsData }: ATSPdfGeneratorProps): Reac
             <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Firma de conformidad técnica</p>
           </div>
 
-          <div style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #ndndnd', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
               {data.capatazSignature ? (
                 <img src={data.capatazSignature} alt="Firma Supervisor" style={{ maxHeight: '50px', objectFit: 'contain' }} />
@@ -254,20 +278,20 @@ export default function ATSPdfGenerator({ atsData }: ATSPdfGeneratorProps): Reac
             <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Aprobación y Liberación</p>
           </div>
 
-          <div style={{ flex: 1, border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{ flex: '0 1 32%', border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #86efac', paddingBottom: '0.25rem', marginBottom: '0.5rem', position: 'relative' }}>
-              {data.professionalSignature ? (
-                <img src={data.professionalSignature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain', zIndex: 2 }} />
+              {actSignature ? (
+                <img src={actSignature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain', zIndex: 2 }} />
               ) : (
                 <span style={{ fontSize: '0.6rem', color: '#86efac' }}>Sello y Firma Digital</span>
               )}
             </div>
             <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#166534' }}>PROFESIONAL ACTUANTE</p>
             <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#15803d', fontWeight: 600 }}>
-              {data.professionalName || 'Firma de Especialista'}
+              {actName || 'Firma de Especialista'}
             </p>
-            {data.professionalLicense && (
-              <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#16a34a' }}>Lic: {data.professionalLicense}</p>
+            {actLic && (
+              <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#16a34a' }}>Lic: {actLic}</p>
             )}
           </div>
 

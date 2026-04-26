@@ -37,6 +37,30 @@ interface Props {
 export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
     if (!data) return null;
 
+    // Obtención segura de firma profesional desde localStorage
+    let actSignature = data.professionalSignature || data.signature || data.auditorSignature || null;
+    let actName = data.professionalName || data.leadAuditor || data.expositor || null;
+    let actLic = data.professionalLicense || data.license || null;
+    
+    // Si no trae firmas directas, intentar heredar de localStorage (fallback global pro)
+    if (!actSignature) {
+        try {
+            const lsPersonal = typeof window !== 'undefined' ? localStorage.getItem('personalData') : null;
+            const lsStamp = typeof window !== 'undefined' ? localStorage.getItem('signatureStampData') : null;
+            const legacySig = typeof window !== 'undefined' ? localStorage.getItem('capturedSignature') : null;
+            
+            if (lsStamp) { actSignature = JSON.parse(lsStamp).signature; }
+            else if (legacySig) { actSignature = legacySig; }
+            
+            if (lsPersonal) {
+                const pd = JSON.parse(lsPersonal);
+                actName = actName || pd.name;
+                actLic = actLic || pd.license;
+            }
+        } catch(e) {}
+    }
+
+
     const validAttendees = data.asistentes.filter(a => a.nombre);
     const signedCount = data.asistentes.filter(a => a.firma).length;
 
@@ -188,7 +212,7 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
             {/* Firmas */}
             <div style={{ marginTop: 'auto', paddingTop: '1.2rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '0.8rem' }}>
 
-                <div style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <div style={{ height: '55px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.2rem', marginBottom: '0.4rem' }}>
                         <span style={{ fontSize: '0.55rem', color: '#cbd5e1' }}>Firma original</span>
                     </div>
@@ -196,7 +220,7 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
                     <p style={{ margin: '2px 0 0', fontSize: '0.55rem', color: '#64748b' }}>Toma de conocimiento</p>
                 </div>
 
-                <div style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <div style={{ height: '55px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.2rem', marginBottom: '0.4rem' }}>
                         <span style={{ fontSize: '0.55rem', color: '#cbd5e1' }}>Firma original</span>
                     </div>
@@ -204,7 +228,7 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
                     <p style={{ margin: '2px 0 0', fontSize: '0.55rem', color: '#64748b' }}>Aprobación y visado</p>
                 </div>
 
-                <div style={{ flex: 1, border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div style={{ flex: '0 1 32%', border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <div style={{ height: '55px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #86efac', paddingBottom: '0.2rem', marginBottom: '0.4rem' }}>
                         {professional?.signature ? (
                             <img src={professional.signature} alt="Firma Profesional" style={{ maxHeight: '48px', objectFit: 'contain' }} />
