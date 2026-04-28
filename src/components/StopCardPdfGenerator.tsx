@@ -464,28 +464,34 @@ export default function StopCardPdfGenerator({ card }: { card: any }): React.Rea
                 {/* Footer Signature - Mejorado visualmente */}
                 <div style={{ 
                     marginTop: 'auto', 
-                    paddingTop: '50px', 
+                    paddingTop: '1.5rem',
+                    borderTop: '2px dashed #cbd5e1',
                     display: 'flex', 
-                    justifyContent: 'flex-end',
+                    gap: '1rem',
+                    paddingBottom: '1rem',
+                    justifyContent: 'center',
                     pageBreakInside: 'avoid'
                 }}>
                     <div style={{ 
-                        width: '300px', 
-                        textAlign: 'center',
-                        background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-                        padding: '1.5rem',
-                        borderRadius: '12px',
-                        border: '2px solid #e2e8f0'
+                        flex: '0 1 32%',
+                        border: '1px solid #bbf7d0',
+                        background: '#f0fdf4',
+                        borderRadius: '6px',
+                        padding: '0.8rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center'
                     }}>
                         <div style={{ 
-                            height: '80px', 
+                            height: '80px',
+                            width: '100%',
                             display: 'flex', 
                             alignItems: 'center', 
                             justifyContent: 'center',
-                            marginBottom: '12px',
+                            marginBottom: '8px',
                             background: '#ffffff',
                             borderRadius: '8px',
-                            border: '1px dashed #cbd5e1'
+                            border: '1px dashed #86efac'
                         }}>
                             {card.signature && (
                                 <img 
@@ -500,35 +506,30 @@ export default function StopCardPdfGenerator({ card }: { card: any }): React.Rea
                             )}
                         </div>
                         <div style={{ 
-                            borderTop: '2px solid #1e293b', 
-                            paddingTop: '12px'
+                            fontSize: '0.65rem', 
+                            color: '#166534', 
+                            fontWeight: 800,
+                            marginBottom: '2px'
                         }}>
-                            <div style={{ 
-                                fontSize: '11pt', 
-                                color: '#1e293b', 
-                                fontWeight: 800,
-                                marginBottom: '4px'
-                            }}>
-                                👷 Observador / Prevencionista
-                            </div>
-                            <div style={{ 
-                                fontSize: '8.5pt', 
-                                color: '#64748b',
-                                fontWeight: 600
-                            }}>
-                                Firma Digitalizada - Asistente H&S
-                            </div>
-                            {card.observador && (
-                                <div style={{ 
-                                    fontSize: '9pt', 
-                                    color: '#475569',
-                                    fontWeight: 700,
-                                    marginTop: '6px'
-                                }}>
-                                    {card.observador}
-                                </div>
-                            )}
+                            👷 Observador / Prevencionista
                         </div>
+                        <div style={{ 
+                            fontSize: '0.55rem', 
+                            color: '#15803d',
+                            fontWeight: 600
+                        }}>
+                            Firma Digitalizada - Asistente H&S
+                        </div>
+                        {card.observador && (
+                            <div style={{ 
+                                fontSize: '0.55rem', 
+                                color: '#15803d',
+                                fontWeight: 700,
+                                marginTop: '4px'
+                            }}>
+                                {card.observador}
+                            </div>
+                        )}
                     </div>
                 </div>
 

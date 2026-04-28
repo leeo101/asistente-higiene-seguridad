@@ -399,26 +399,24 @@ export default function ThermalStressPdfGenerator({ data, onBack = () => window.
                 </div>
 
                 {/* Signatures Area */}
-                <div style={{ marginTop: 'auto', paddingTop: '50px', display: 'flex', justifyContent: 'flex-end', pageBreakInside: 'avoid' }}>
-                    <div style={{ width: '280px', textAlign: 'center' }}>
-                        <div style={{ height: '70px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '10px' }}>
+                <div style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem', justifyContent: 'center' }}>
+                    <div style={{ flex: '0 1 32%', border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <div style={{ height: '70px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #86efac', marginBottom: '10px' }}>
                             {report?.signature && (
                                 <img src={report.signature} alt="Firma" style={{ maxHeight: '60px', maxWidth: '150px' }} />
                             )}
                         </div>
-                        <div style={{ borderTop: '2px solid #1e293b', paddingTop: '10px' }}>
-                            <div style={{ fontSize: '10.5pt', color: '#1e293b', fontWeight: '800', marginBottom: '3px' }}>
-                                {report?.evaluador || 'Profesional H&S'}
-                            </div>
-                            <div style={{ fontSize: '8.5pt', color: '#64748b', fontWeight: '600' }}>
-                                Firma y Sello Profesional
-                            </div>
-                            {report?.matricula && (
-                                <div style={{ fontSize: '8pt', color: '#94a3b8', marginTop: '3px' }}>
-                                    Mat: {report.matricula}
-                                </div>
-                            )}
+                        <div style={{ fontSize: '0.65rem', color: '#166534', fontWeight: '800', marginBottom: '3px' }}>
+                            {report?.evaluador || 'Profesional H&S'}
                         </div>
+                        <div style={{ fontSize: '0.55rem', color: '#15803d', fontWeight: '600' }}>
+                            Firma y Sello Profesional
+                        </div>
+                        {report?.matricula && (
+                            <div style={{ fontSize: '0.55rem', color: '#16a34a', marginTop: '3px' }}>
+                                Mat: {report.matricula}
+                            </div>
+                        )}
                     </div>
                 </div>
 

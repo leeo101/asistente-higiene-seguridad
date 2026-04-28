@@ -122,20 +122,19 @@ export default function AiAdvisorPdfGenerator({ data }: { data: any }): React.Re
                 </div>
 
                 {/* Signature Row */}
-                <div style={{ marginTop: 'auto', paddingTop: '40px', display: 'flex', justifyContent: 'flex-end', pageBreakInside: 'avoid' }}>
-                    <div style={{ width: '250px', textAlign: 'center' }}>
+                <div style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem', justifyContent: 'center' }}>
+                    <div style={{ flex: '0 1 32%', border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                          {signature?.signature || signature?.stamp ? (
-                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', height: '60px' }}>
+                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', height: '60px', width: '100%', borderBottom: '1px solid #86efac' }}>
                                 {signature.signature && <img src={signature.signature} alt="Firma" style={{ maxWidth: '100px', maxHeight: '60px' }} />}
                                 {signature.stamp && <img src={signature.stamp} alt="Sello" style={{ maxWidth: '60px', maxHeight: '60px' }} />}
                             </div>
                         ) : (
-                            <div style={{ height: '60px' }}></div>
+                            <div style={{ height: '60px', width: '100%', borderBottom: '1px solid #86efac', marginBottom: '0.5rem' }}></div>
                         )}
-                        <div style={{ borderBottom: '1px solid #1e293b', height: '10px', marginBottom: '5px' }}></div>
-                        <div style={{ fontSize: '9pt', color: '#1e293b', fontWeight: 'bold' }}>{profName.toUpperCase()}</div>
-                        <div style={{ fontSize: '8pt', color: '#64748b' }}>{profTitle}</div>
-                        <div style={{ fontSize: '8pt', color: '#64748b' }}>Mat: {profMat}</div>
+                        <div style={{ fontSize: '0.65rem', color: '#166534', fontWeight: 'bold', marginTop: '0.5rem' }}>{profName.toUpperCase()}</div>
+                        <div style={{ fontSize: '0.55rem', color: '#15803d' }}>{profTitle}</div>
+                        <div style={{ fontSize: '0.55rem', color: '#15803d' }}>Mat: {profMat}</div>
                     </div>
                 </div>
 
