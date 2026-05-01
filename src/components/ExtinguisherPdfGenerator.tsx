@@ -143,11 +143,22 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
                         </tbody>
                     </table>
 
-                    {/* Signatures Area */}
-                    <div style={{ marginTop: '50px', display: 'flex', justifyContent: 'flex-start', pageBreakInside: 'avoid' }}>
-                        <div style={{ width: '250px', textAlign: 'center' }}>
-                            <div style={{ borderBottom: '1px solid #64748b', height: '40px', marginBottom: '5px' }}></div>
-                            <div style={{ fontSize: '8pt', color: '#64748b' }}>Firma y Sello Responsable H&S</div>
+                    {/* Firmas */}
+                    <div style={{ paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem', justifyContent: 'center' }}>
+                        <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', background: '#f8fafc', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #cbd5e1', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
+                                <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Firma original</span>
+                            </div>
+                            <p style={{ margin: 0, fontWeight: 700, fontSize: '0.7rem', color: '#334155' }}>RESPONSABLE / SUPERVISOR</p>
+                            <p style={{ margin: 0, fontSize: '0.6rem', color: '#64748b' }}>Aclaración y Firma</p>
+                        </div>
+
+                        <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', background: '#f8fafc', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #cbd5e1', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
+                                <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Firma original</span>
+                            </div>
+                            <p style={{ margin: 0, fontWeight: 700, fontSize: '0.7rem', color: '#334155' }}>RESPONSABLE H&S</p>
+                            <p style={{ margin: 0, fontSize: '0.6rem', color: '#64748b' }}>Aclaración y Firma</p>
                         </div>
                     </div>
 

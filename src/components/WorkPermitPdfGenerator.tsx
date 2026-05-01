@@ -180,32 +180,34 @@ export default function WorkPermitPdfGenerator({ data }: { data: any }): React.R
                     </div>
                 )}
 
-                {/* Signatures */}
-                <div style={{ marginTop: 'auto', paddingTop: '2rem', display: 'flex', justifyContent: 'space-between', pageBreakInside: 'avoid' }}>
-                    <div style={{ textAlign: 'center', width: '25%' }}>
-                        <div style={{ height: '60px' }}></div>
-                        <div style={{ borderTop: '2px solid #333', paddingTop: '10px' }}>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem' }}>SUPERVISOR / RESPONSABLE</p>
-                            <p style={{ margin: 0, fontSize: '0.65rem', color: '#666' }}>Aclaración y Firma</p>
+                {/* Firmas */}
+                <div style={{ paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem', justifyContent: 'center' }}>
+                    <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', background: '#f8fafc', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #cbd5e1', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
+                            <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Firma original</span>
                         </div>
+                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.7rem', color: '#334155' }}>SUPERVISOR / RESPONSABLE</p>
+                        <p style={{ margin: 0, fontSize: '0.6rem', color: '#64748b' }}>Aclaración y Firma</p>
                     </div>
 
-                    <div style={{ textAlign: 'center', width: '35%' }}>
-                        <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {data.professionalSignature && <img src={data.professionalSignature} alt="Firma" style={{ height: '100%', objectFit: 'contain' }} />}
+                    <div style={{ flex: '0 1 32%', border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #86efac', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
+                            {data.professionalSignature ? (
+                                <img src={data.professionalSignature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain' }} />
+                            ) : (
+                                <span style={{ fontSize: '0.6rem', color: '#86efac' }}>Sello y Firma Digital</span>
+                            )}
                         </div>
-                        <div style={{ borderTop: '2px solid #333', paddingTop: '10px' }}>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem' }}>{(data.professionalName || 'PROFESIONAL').toUpperCase()}</p>
-                            <p style={{ margin: 0, fontSize: '0.65rem', color: '#666' }}>Mat.: {data.professionalLicense || '-'}</p>
-                        </div>
+                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.7rem', color: '#166534' }}>{(data.professionalName || 'PROFESIONAL').toUpperCase()}</p>
+                        <p style={{ margin: 0, fontSize: '0.6rem', color: '#15803d' }}>Mat.: {data.professionalLicense || '-'}</p>
                     </div>
 
-                    <div style={{ textAlign: 'center', width: '25%' }}>
-                        <div style={{ height: '60px' }}></div>
-                        <div style={{ borderTop: '2px solid #333', paddingTop: '10px' }}>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem' }}>FECHA DE CIERRE</p>
-                            <p style={{ margin: 0, fontSize: '0.65rem', color: '#666' }}>Sello y Firma receptora</p>
+                    <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', background: '#f8fafc', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #cbd5e1', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
+                            <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Firma original</span>
                         </div>
+                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.7rem', color: '#334155' }}>FECHA DE CIERRE</p>
+                        <p style={{ margin: 0, fontSize: '0.6rem', color: '#64748b' }}>Sello y Firma receptora</p>
                     </div>
                 </div>
 

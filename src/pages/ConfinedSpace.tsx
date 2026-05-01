@@ -328,7 +328,7 @@ export default function ConfinedSpace(): React.ReactElement | null {
 
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                     <button
-                        onClick={() => navigate('/confined-space-form')}
+                        onClick={() => navigate('/confined-space/new')}
                         className="btn-primary"
                         style={{
                             width: 'auto',
@@ -493,7 +493,7 @@ export default function ConfinedSpace(): React.ReactElement | null {
                         <EmptyStateIllustrated 
                             title="Sin Permisos de Espacio Confinado"
                             description="Creá permisos de entrada según OSHA 1910.146 para asegurar el ingreso seguro."
-                            onAction={() => navigate('/confined-space-form')}
+                            onAction={() => navigate('/confined-space/new')}
                             icon={<Shield />}
                         />
                     ) : (
@@ -507,7 +507,7 @@ export default function ConfinedSpace(): React.ReactElement | null {
                                     onSuspend={() => suspendPermit(permit.id)}
                                     onComplete={() => completePermit(permit.id)}
                                     onView={() => setSelectedPermit(permit)}
-                                    onEdit={() => navigate('/confined-space-form', { state: { editData: permit } })}
+                                    onEdit={() => navigate('/confined-space/new', { state: { editData: permit } })}
                                     onShare={() => setShareItem(permit)}
                                     onDelete={() => deletePermit(permit.id)}
                                 />

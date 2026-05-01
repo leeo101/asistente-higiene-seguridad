@@ -135,20 +135,22 @@ export default function ProfessionalReportPdfGenerator({ currentReport }: { curr
                     </div>
                 )}
 
-                {/* Signatures */}
-                <div style={{ marginTop: 'auto', paddingTop: '3rem', display: 'flex', justifyContent: 'space-between', pageBreakInside: 'avoid' }}>
-                    <div style={{ textAlign: 'center', width: '40%' }}>
-                        <div style={{ borderTop: '2px dashed #94a3b8', paddingTop: '8px' }}>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>REPRESENTANTE EMPRESA</p>
-                            <p style={{ margin: 0, fontSize: '0.65rem', color: '#64748b' }}>Firma y Aclaración</p>
+                {/* Firmas */}
+                <div style={{ paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem', justifyContent: 'center' }}>
+                    <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', background: '#f8fafc', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #cbd5e1', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
+                            <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Firma original</span>
                         </div>
+                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.7rem', color: '#334155' }}>REPRESENTANTE EMPRESA</p>
+                        <p style={{ margin: 0, fontSize: '0.6rem', color: '#64748b' }}>Firma y Aclaración</p>
                     </div>
-                    
-                    <div style={{ textAlign: 'center', width: '40%' }}>
-                        <div style={{ borderTop: '2px dashed #94a3b8', paddingTop: '8px' }}>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>PROFESIONAL HYS</p>
-                            <p style={{ margin: 0, fontSize: '0.65rem', color: '#64748b' }}>Validación Profesional</p>
+
+                    <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', background: '#f8fafc', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #cbd5e1', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
+                            <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Firma original</span>
                         </div>
+                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.7rem', color: '#334155' }}>PROFESIONAL HYS</p>
+                        <p style={{ margin: 0, fontSize: '0.6rem', color: '#64748b' }}>Validación Profesional</p>
                     </div>
                 </div>
 
