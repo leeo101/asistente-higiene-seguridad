@@ -177,6 +177,26 @@ const isAdmin = (req, res, next) => {
     next();
 };
 
+// Firebase Auth Verification Middleware
+const verifyFirebaseToken = async (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        console.warn(`[SECURITY] Blocked unauthenticated AI API request from ${req.ip}`);
+        return res.status(401).json({ error: 'Falta el token de autenticación (Unauthorized)' });
+    }
+
+    const token = authHeader.split('Bearer ')[1];
+    try {
+        if (!admin.apps.length) throw new Error("Firebase Admin no inicializado en servidor");
+        const decodedToken = await admin.auth().verifyIdToken(token);
+        req.user = decodedToken; // Guardamos los datos del usuario verificado en la petición
+        next();
+    } catch (error) {
+        console.error('[SECURITY] Invalid Firebase Token:', error.message);
+        return res.status(403).json({ error: 'Token inválido o expirado (Forbidden)' });
+    }
+};
+
 // Payment endpoint - moderate limiter
 app.post('/api/create-subscription', adminLimiter, async (req, res) => {
     try {
@@ -216,7 +236,7 @@ app.post('/api/create-subscription', adminLimiter, async (req, res) => {
 // AI VISION API (Gemini)
 // ==========================================
 
-app.post('/api/analyze-image', aiLimiter, async (req, res) => {
+app.post('/api/analyze-image', aiLimiter, verifyFirebaseToken, async (req, res) => {
     try {
         const { image } = req.body;
         if (!image) return res.status(400).json({ error: 'No se envió imagen' });
@@ -343,7 +363,7 @@ app.post('/api/analyze-image', aiLimiter, async (req, res) => {
 // ==========================================
 // AI CONTRACTOR DOCUMENT ANALYSIS (Gemini)
 // ==========================================
-app.post('/api/analyze-contractor-doc', aiLimiter, async (req, res) => {
+app.post('/api/analyze-contractor-doc', aiLimiter, verifyFirebaseToken, async (req, res) => {
     try {
         const { image } = req.body;
         if (!image) return res.status(400).json({ error: 'No se envió imagen' });
@@ -428,7 +448,7 @@ app.post('/api/analyze-contractor-doc', aiLimiter, async (req, res) => {
     }
 });
 
-app.post('/api/daily-insight', aiLimiter, async (req, res) => {
+app.post('/api/daily-insight', aiLimiter, verifyFirebaseToken, async (req, res) => {
     try {
         const { country = 'argentina' } = req.body;
         const apiKey = process.env.GEMINI_API_KEY;
@@ -466,7 +486,7 @@ app.post('/api/daily-insight', aiLimiter, async (req, res) => {
     }
 });
 
-app.post('/api/ai-advisor', aiLimiter, async (req, res) => {
+app.post('/api/ai-advisor', aiLimiter, verifyFirebaseToken, async (req, res) => {
     try {
         const { taskDescription, country = 'argentina' } = req.body;
         if (!taskDescription) return res.status(400).json({ error: 'Falta la descripción de la tarea' });
@@ -534,7 +554,7 @@ app.post('/api/ai-advisor', aiLimiter, async (req, res) => {
 // ==========================================
 // AI ATS GENERATOR (Gemini)
 // ==========================================
-app.post('/api/ai-ats-generator', aiLimiter, async (req, res) => {
+app.post('/api/ai-ats-generator', aiLimiter, verifyFirebaseToken, async (req, res) => {
     try {
         const { taskTitle, country = 'argentina' } = req.body;
         if (!taskTitle) return res.status(400).json({ error: 'Falta el título de la tarea' });
@@ -602,7 +622,7 @@ app.post('/api/ai-ats-generator', aiLimiter, async (req, res) => {
 // ==========================================
 // AI REPORT CONCLUSION GENERATOR (Gemini)
 // ==========================================
-app.post('/api/ai-report-conclusion', aiLimiter, async (req, res) => {
+app.post('/api/ai-report-conclusion', aiLimiter, verifyFirebaseToken, async (req, res) => {
     try {
         const { reportType, reportData, country = 'argentina' } = req.body;
         if (!reportType || !reportData) return res.status(400).json({ error: 'Faltan datos del reporte' });
@@ -649,7 +669,7 @@ app.post('/api/ai-report-conclusion', aiLimiter, async (req, res) => {
 // ==========================================
 // AI LEGAL SUMMARY (Gemini)
 // ==========================================
-app.post('/api/ai-legal-summary', aiLimiter, async (req, res) => {
+app.post('/api/ai-legal-summary', aiLimiter, verifyFirebaseToken, async (req, res) => {
     try {
         const { leyTitle, leyDescription, country = 'argentina' } = req.body;
         if (!leyTitle) return res.status(400).json({ error: 'Faltan datos de la normativa' });
@@ -696,7 +716,7 @@ app.post('/api/ai-legal-summary', aiLimiter, async (req, res) => {
 // ==========================================
 // AI GENERAL RISKS VISION (Gemini)
 // ==========================================
-app.post('/api/ai-stopcard', aiLimiter, async (req, res) => {
+app.post('/api/ai-stopcard', aiLimiter, verifyFirebaseToken, async (req, res) => {
     try {
         const { transcript, country = 'argentina' } = req.body;
         if (!transcript) return res.status(400).json({ error: 'Falta transcripción' });
@@ -746,7 +766,7 @@ app.post('/api/ai-stopcard', aiLimiter, async (req, res) => {
 // ==========================================
 // AI GENERAL RISKS VISION (Gemini)
 // ==========================================
-app.post('/api/analyze-general-risks', aiLimiter, async (req, res) => {
+app.post('/api/analyze-general-risks', aiLimiter, verifyFirebaseToken, async (req, res) => {
     try {
         const { image } = req.body;
         if (!image) return res.status(400).json({ error: 'No se envió imagen' });

@@ -9,6 +9,7 @@ import {
 import { API_BASE_URL } from '../config';
 import { legislationData, countryList, regionalData, municipalData } from '../data/legislationData';
 import toast from 'react-hot-toast';
+import { auth } from '../firebase';
 
 export default function Legislation(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -129,7 +130,10 @@ export default function Legislation(): React.ReactElement | null {
         try {
             const res = await fetch(`${API_BASE_URL}/api/ai-legal-summary`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${await auth.currentUser?.getIdToken()}`
+                },
                 body: JSON.stringify({ ley: `${title}: ${subtitle}`, country: userCountry })
             });
 

@@ -8,6 +8,7 @@ import { ArrowLeft, Save, AlertTriangle, MapPin, Camera, User, Mic, MicOff, Spar
 import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../config';
 import { usePaywall } from '../hooks/usePaywall';
+import { auth } from '../firebase';
 
 export default function StopCards(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -79,7 +80,10 @@ export default function StopCards(): React.ReactElement | null {
                 try {
                     const response = await fetch(`${API_BASE_URL}/api/ai-stopcard`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${await auth.currentUser?.getIdToken()}`
+                        },
                         body: JSON.stringify({ transcript })
                     });
                     if (!response.ok) throw new Error('Error al conectar con IA');

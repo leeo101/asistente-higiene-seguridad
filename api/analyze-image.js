@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { verifyToken } from './_verifyToken.js';
 
 // Vercel Serverless Function for AI Image Analysis
 export default async function handler(req, res) {
@@ -17,7 +18,12 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
+    // 🔐 Firebase Auth verification
+    const user = await verifyToken(req, res);
+    if (!user) return;
+
     try {
+
         const { image } = req.body;
         if (!image) return res.status(400).json({ error: 'No se envió imagen' });
 

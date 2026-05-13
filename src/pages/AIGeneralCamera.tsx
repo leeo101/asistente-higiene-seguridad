@@ -5,6 +5,7 @@ import { ArrowLeft, Camera, RefreshCw, CheckCircle, TriangleAlert, ShieldCheck, 
 import { API_BASE_URL } from '../config';
 import { usePaywall } from '../hooks/usePaywall';
 import { useSync } from '../contexts/SyncContext';
+import { auth } from '../firebase';
 import toast from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
@@ -116,7 +117,10 @@ export default function AIGeneralCamera(): React.ReactElement | null {
             const fetchUrl = `${API_BASE_URL}/api/analyze-general-risks`;
             const response = await fetch(fetchUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${await auth.currentUser?.getIdToken()}`
+                },
                 body: JSON.stringify({ image: imageSrc })
             });
 

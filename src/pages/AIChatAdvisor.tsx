@@ -14,6 +14,7 @@ import { API_BASE_URL } from '../config';
 import AdBanner from '../components/AdBanner';
 import { toast } from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { auth } from '../firebase';
 
 // ── Subcomponent for history panel ─────────────────────────────────────────
 function HistoryPanel({ onLoad }) {
@@ -449,7 +450,10 @@ export default function AIChatAdvisor(): React.ReactElement | null {
             const contextData = getRecentContext();
             const response = await fetch(`${API_BASE_URL}/api/ai-advisor`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${await auth.currentUser?.getIdToken()}`
+                },
                 body: JSON.stringify({ taskDescription: task, contextData, country: userCountry })
             });
 

@@ -11,12 +11,28 @@ import {
   CreditCard, Crown, Image as ImageIconPh, UploadSimple,
   CheckCircle, Info, Bell, Pulse as Activity,
   Tent, Drop as Droplets, SpeakerHigh, Flask, MagnifyingGlass, TrendUp as TrendingUp, Truck, Crane, Timer
+import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import {
+  ClipboardText, House, ClockCounterClockwise, User, Users, GearSix,
+  Fire, ChartBar, CaretRight, Plus, Gavel, Siren,
+  PersonArmsSpread, Lock, UserPlus, SignIn, Sparkle as Sparkles,
+  Camera, CalendarCheck, Shield, Cpu, Lightbulb, ThermometerHot, MapTrifold,
+  ShieldCheck, Warning, Key, Scroll, Robot, FileText, HardHat, ShieldWarning, Pen,
+  ArrowRight, X, SignOut, CalendarBlank,
+  ChatText, Sun, Moon, Star, ChartPieSlice,
+  CreditCard, Crown, Image as ImageIconPh, UploadSimple,
+  CheckCircle, Info, Bell, Pulse as Activity,
+  Tent, Drop as Droplets, SpeakerHigh, Flask, MagnifyingGlass, TrendUp as TrendingUp, Truck, Crane, Timer
 } from '@phosphor-icons/react';
 import { User as FirebaseUser } from 'firebase/auth';
 import { getCountryNormativa } from '../data/legislationData';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { usePaywall } from '../hooks/usePaywall';
+import UserRankBadge from '../components/UserRankBadge';
+import { API_BASE_URL } from '../config';
+import { auth } from '../firebase';
 import AnimatedPage from '../components/AnimatedPage';
 import AdBanner from '../components/AdBanner';
 import StarryBackground from '../components/StarryBackground';
@@ -207,132 +223,6 @@ export default function Home(): React.ReactElement {
   const [activePreview, setActivePreview] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [isMobile, setIsMobile] = useState(false);
-
-  const categories = [
-    { id: 'all', label: 'Todos' },
-    { id: 'ia', label: 'IA y Automatización' },
-    { id: 'docs', label: 'Documentación' },
-    { id: 'critical', label: 'Trabajos Críticos' },
-    { id: 'management', label: 'Gestión y Auditoría' },
-    { id: 'specific', label: 'Específicos' }
-  ];
-
-  const filteredLinks = quickLinks.filter(link => {
-    const matchesCategory = activeCategory === 'all' || link.category === activeCategory;
-    const matchesSearch = link.label.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          link.sub.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
-
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if (!currentUser) {
-        setUserName('Profesional');
-        setIsSubscribed(false);
-        setDaysLeft(null);
-        setStats(prev => prev.map(s => ({ ...s, value: 0 })));
-        setRecentWorks([]);
-        return;
-      }
-
-      const savedData = localStorage.getItem('personalData');
-      if (savedData) {
-        const parsed = JSON.parse(savedData) as PersonalData;
-        let name = parsed.name || 'Profesional';
-        if (parsed.profession) {
-          const prof = parsed.profession.toLowerCase();
-          if (prof.includes('lic')) name = `Lic. ${name}`;
-          else if (prof.includes('téc')) name = `Téc. ${name}`;
-          else if (prof.includes('ing')) name = `Ing. ${name}`;
-        }
-        setUserName(name);
-      }
-
-      setIsSubscribed(isPro);
-      setDaysLeft(daysRemaining);
-    }
-
-    const loadStats = (): void => {
-      const newStats = stats.map(stat => {
-        try {
-          const history = localStorage.getItem(stat.key);
-          const count = history ? JSON.parse(history).length : 0;
-          return { ...stat, value: count };
-        } catch (e) {
-          console.error(`[HOME] Error parsing ${stat.key}:`, e);
-          return { ...stat, value: 0 };
-        }
-      });
-      setStats(newStats);
-    };
-
-    const loadRecent = (): void => {
-      try {
-        const safeParse = (key: string) => {
-          try {
-            return JSON.parse(localStorage.getItem(key) || '[]');
-          } catch (e) {
-            console.error(`[HOME] Error parsing ${key}:`, e);
-            return [];
-          }
-        };
-
-        const ats = safeParse('ats_history');
-        const fire = safeParse('fireload_history');
-        const insp = safeParse('inspections_history');
-        const matrix = safeParse('risk_matrix_history');
-        const reports = safeParse('reports_history');
-        const tools = safeParse('tool_checklists_history');
-        const lighting = safeParse('lighting_history');
-        const accidents = safeParse('accident_history');
-        const permits = safeParse('work_permits_history');
-        const riskAssessments = safeParse('risk_assessment_history');
-
-        const combined: WorkItem[] = [
-          ...ats.map((a: any) => ({ id: a.id, title: a.empresa, subtitle: a.obra, date: a.fecha, type: 'ATS' })),
-          ...fire.map((f: any) => ({ id: f.id, title: f.empresa, subtitle: f.sector, date: f.createdAt, type: 'Carga Fuego' })),
-          ...insp.map((i: any) => ({ id: i.id, title: i.name, subtitle: i.location, date: i.date, type: 'Inspección' })),
-          ...matrix.map((m: any) => ({ id: m.id, title: m.name, subtitle: m.location, date: m.createdAt, type: 'Matriz' })),
-          ...reports.map((r: any) => ({ id: r.id, title: r.title, subtitle: r.company, date: r.createdAt, type: 'Informe' })),
-          ...tools.map((t: any) => ({ id: t.id, title: t.equipo, subtitle: t.empresa, date: t.fecha, type: 'Checklist' })),
-          ...lighting.map((l: any) => ({ id: l.id, title: l.empresa, subtitle: l.sector, date: l.date, type: 'Iluminación' })),
-          ...permits.map((p: any) => ({ id: p.id, title: p.empresa, subtitle: p.obra, date: p.createdAt, type: 'Permiso' })),
-          ...riskAssessments.map((r: any) => ({ id: r.id, title: r.name, subtitle: r.location, date: r.date || r.createdAt, type: 'Eval. Riesgo' })),
-          ...accidents.map((acc: any) => ({ id: acc.id, title: acc.victimaNombre, subtitle: acc.empresa, date: acc.date, type: 'Accidente' })),
-        ]
-        .filter(item => item.date || item.fecha || item.createdAt)
-        .sort((a, b) => new Date(b.date || b.fecha || b.createdAt || 0).getTime() - new Date(a.date || a.fecha || a.createdAt || 0).getTime())
-        .slice(0, 4);
-
-        setRecentWorks(combined);
-      } catch (error) {
-        console.error('[HOME] Error loading recent works:', error);
-        setRecentWorks([]);
-      }
-    };
-
-    const loadDailyInsight = async (): Promise<void> => {
-      try {
-        const today = new Date().toDateString();
-        const cached = localStorage.getItem('daily_insight_cache');
-        if (cached) {
-          const { date, data } = JSON.parse(cached);
-          if (date === today) {
-            setDailyInsight(data);
-            return;
-          }
-        }
-
-        const response = await fetch('/api/daily-insight', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setDailyInsight(data);
-          localStorage.setItem('daily_insight_cache', JSON.stringify({ date: today, data }));
         }
       } catch (err) {
         console.error("Error fetching daily insight:", err);

@@ -5,6 +5,8 @@ import {
   Trash, ArrowLeft, DownloadSimple, ShieldCheck, Warning, FileText, Camera, Sparkle, Spinner
 } from '@phosphor-icons/react';
 import { Loader2 } from 'lucide-react';
+import DataTable from '../components/DataTable';
+import { auth } from '../firebase';
 import AnimatedPage from '../components/AnimatedPage';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
@@ -168,7 +170,10 @@ export default function ContractorManagement() {
               
               const response = await fetch(`${API_BASE_URL}/api/analyze-contractor-doc`, {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
+                  headers: { 
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${await auth.currentUser?.getIdToken()}`
+                  },
                   body: JSON.stringify({ image: base64Image })
               });
 

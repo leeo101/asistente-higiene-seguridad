@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { verifyToken } from './_verifyToken.js';
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Credentials', true)
@@ -15,7 +16,12 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
+    // 🔐 Firebase Auth verification
+    const user = await verifyToken(req, res);
+    if (!user) return;
+
     try {
+
         const { reportType, reportData } = req.body;
         if (!reportType || !reportData) return res.status(400).json({ error: 'Faltan datos del reporte' });
 

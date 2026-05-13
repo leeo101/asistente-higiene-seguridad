@@ -8,6 +8,8 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useSync } from '../contexts/SyncContext';
+import RiskLevelBadge from '../components/RiskLevelBadge';
+import { auth } from '../firebase';
 import ShareModal from '../components/ShareModal';
 import ATSPdfGenerator from '../components/ATSPdfGenerator';
 import Breadcrumbs from '../components/Breadcrumbs';
@@ -138,7 +140,10 @@ export default function ATS(): React.ReactElement | null {
         try {
             const res = await fetch(`${API_BASE_URL}/api/ai-ats-generator`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${await auth.currentUser?.getIdToken()}`
+                },
                 body: JSON.stringify({ taskTitle })
             });
 

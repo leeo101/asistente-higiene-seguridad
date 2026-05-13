@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { verifyToken } from './_verifyToken.js';
 
 export default async function handler(req, res) {
     // Enable CORS
@@ -16,7 +17,12 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
+    // 🔐 Firebase Auth verification
+    const user = await verifyToken(req, res);
+    if (!user) return;
+
     try {
+
         const { country = 'argentina' } = req.body;
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini (Serverless)' });

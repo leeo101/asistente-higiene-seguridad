@@ -15,6 +15,7 @@ import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import CompanyLogo from '../components/CompanyLogo';
 import { API_BASE_URL } from '../config';
 import { getCountryNormativa } from '../data/legislationData';
+import { auth } from '../firebase';
 
 // Tipos de tareas visuales basados en el Decreto 351/79 (Anexo IV) - Resumido
 const visualTasks = [
@@ -53,7 +54,10 @@ export default function LightingReport(): React.ReactElement | null {
         try {
             const res = await fetch(`${API_BASE_URL}/api/ai-report-conclusion`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${await auth.currentUser?.getIdToken()}`
+                },
                 body: JSON.stringify({
                     reportType: `Iluminación en Ambiente Laboral (${countryNorms.lighting})`,
                     reportData: {

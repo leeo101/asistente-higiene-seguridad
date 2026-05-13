@@ -9,6 +9,7 @@ import { useSync } from '../contexts/SyncContext';
 import CompanyLogo from '../components/CompanyLogo';
 import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../config';
+import { auth } from '../firebase';
 
 export default function ErgonomicsForm(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -90,7 +91,10 @@ export default function ErgonomicsForm(): React.ReactElement | null {
         try {
             const res = await fetch(`${API_BASE_URL}/api/ai-report-conclusion`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${await auth.currentUser?.getIdToken()}`
+                },
                 body: JSON.stringify({
                     reportType: 'Estudio de Ergonomía Res 886/15',
                     reportData: {

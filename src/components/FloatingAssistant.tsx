@@ -12,6 +12,7 @@ import { usePaywall } from '../hooks/usePaywall';
 import { API_BASE_URL } from '../config';
 import toast from 'react-hot-toast';
 import GlobalQRScanner from './GlobalQRScanner';
+import { auth } from '../firebase';
 
 export default function FloatingAssistant() {
     const navigate = useNavigate();
@@ -195,8 +196,11 @@ export default function FloatingAssistant() {
         try {
             const response = await fetch(`${API_BASE_URL}/api/ai-advisor`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${await auth.currentUser?.getIdToken()}`
+                },
+                body: JSON.stringify({
                     taskDescription: userMsg,
                     country: 'argentina',
                     isChat: true // Flag para que el backend sepa que es respuesta corta
