@@ -1,12 +1,12 @@
-锘縤mport React from 'react';
+import React from 'react';
 import { AlertTriangle, ShieldCheck, Activity } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 
 const TYPE_MAP = {
-    personal: 'Dosimetr铆a Personal',
-    area: 'Medici贸n de 脕rea',
+    personal: 'Dosimetr韆 Personal',
+    area: 'Medici髇 de 羠ea',
     peak: 'Ruido de Impacto',
-    octave: 'An谩lisis Octavas'
+    octave: 'An醠isis Octavas'
 };
 
 export default function NoiseAssessmentPdf({ data }: { data: any }): React.ReactElement | null {
@@ -39,7 +39,7 @@ export default function NoiseAssessmentPdf({ data }: { data: any }): React.React
                 {/* Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '3px solid #333', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
                     <div>
-                        <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900 }}>PLANILLA DE MEDICI脫N DE RUIDO</h1>
+                        <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900 }}>PLANILLA DE MEDICI覰 DE RUIDO</h1>
                         <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: '#666' }}>CONFORME A RES. SRT 85/12</p>
                     </div>
                     <CompanyLogo style={{ height: '50px', maxWidth: '150px', objectFit: 'contain' }} />
@@ -56,7 +56,7 @@ export default function NoiseAssessmentPdf({ data }: { data: any }): React.React
                             {isCritical ? <AlertTriangle size={24} /> : <ShieldCheck size={24} />}
                             <span style={{ fontWeight: 900, fontSize: '1.2rem' }}>{isCritical ? 'SUPERA LMPE' : 'CONFORME'}</span>
                          </div>
-                         <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.75rem' }}>* L铆mite M谩ximo Permitido para 8hs: 85 dBA</p>
+                         <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.75rem' }}>* L韒ite M醲imo Permitido para 8hs: 85 dBA</p>
                     </div>
                 </div>
 
@@ -71,7 +71,7 @@ export default function NoiseAssessmentPdf({ data }: { data: any }): React.React
                         <span style={{ fontWeight: 700 }}>{data.date ? new Date(data.date).toLocaleDateString('es-AR') : 'N/A'}</span>
                     </div>
                     <div style={{ padding: '0.5rem', borderRight: '1.5px solid #000' }}>
-                        <span style={{ fontSize: '0.6rem', fontWeight: 900, display: 'block' }}>UBICACI脫N / SECTOR</span>
+                        <span style={{ fontSize: '0.6rem', fontWeight: 900, display: 'block' }}>UBICACI覰 / SECTOR</span>
                         <span style={{ fontWeight: 700 }}>{data.location || 'No especificada'}</span>
                     </div>
                     <div style={{ padding: '0.5rem' }}>
@@ -86,16 +86,16 @@ export default function NoiseAssessmentPdf({ data }: { data: any }): React.React
                         <Activity size={16} /> DATOS DEL INSTRUMENTAL
                     </h4>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', fontSize: '0.8rem' }}>
-                        <div><span style={{ color: '#666' }}>Decibel铆metro:</span> <strong>{data.equipment || 'No especificado'}</strong></div>
+                        <div><span style={{ color: '#666' }}>Decibel韒etro:</span> <strong>{data.equipment || 'No especificado'}</strong></div>
                         <div><span style={{ color: '#666' }}>Tarea Evaluada:</span> <strong>{data.task || 'N/A'}</strong></div>
-                        <div><span style={{ color: '#666' }}>Duraci贸n:</span> <strong>{data.duration || '0'} hs</strong></div>
+                        <div><span style={{ color: '#666' }}>Duraci髇:</span> <strong>{data.duration || '0'} hs</strong></div>
                     </div>
                 </div>
 
                 {/* Recommendations */}
                 <div style={{ marginBottom: '1.5rem', border: '1px solid #000', padding: '0.8rem' }}>
                     <span style={{ fontSize: '0.7rem', fontWeight: 900, display: 'block', marginBottom: '0.4rem' }}>OBSERVACIONES / MEDIDAS DE CONTROL</span>
-                    <div style={{ fontSize: '0.85rem' }}>{data.observations || 'Se recomienda el uso obligatorio de protecci贸n auditiva y realizar rotaci贸n de personal para limitar exposici贸n.'}</div>
+                    <div style={{ fontSize: '0.85rem' }}>{data.observations || 'Se recomienda el uso obligatorio de protecci髇 auditiva y realizar rotaci髇 de personal para limitar exposici髇.'}</div>
                 </div>
 
                 {/* Signatures */}
@@ -103,7 +103,7 @@ export default function NoiseAssessmentPdf({ data }: { data: any }): React.React
                     <div className="signature-item-box">
                         <div className="signature-line" />
                         <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#1e293b' }}>TRABAJADOR / PUESTO</p>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#64748b' }}>Firma y Aclaraci贸n</p>
+                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#64748b' }}>Firma y Aclaraci髇</p>
                     </div>
 
                     <div className="signature-item-box">
@@ -114,8 +114,8 @@ export default function NoiseAssessmentPdf({ data }: { data: any }): React.React
                                 <span style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>Firma digital / original</span>
                             )}
                         </div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#1e293b' }}>RESPONSABLE DEL 脕REA</p>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#64748b' }}>Aprobaci贸n</p>
+                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#1e293b' }}>RESPONSABLE DEL 罵EA</p>
+                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#64748b' }}>Aprobaci髇</p>
                     </div>
 
                     <div className="signature-item-box">
@@ -137,7 +137,7 @@ export default function NoiseAssessmentPdf({ data }: { data: any }): React.React
                 </div>
 
                 <div style={{ marginTop: '2rem', fontSize: '0.6rem', color: '#999', textAlign: 'center' }}>
-                    ESTA PLANILLA TIENE VALIDEZ LEGAL SEG脷N LOS PROTOCOLOS DE LA SUPERINTENDENCIA DE RIESGOS DEL TRABAJO (SRT).
+                    ESTA PLANILLA TIENE VALIDEZ LEGAL SEG贜 LOS PROTOCOLOS DE LA SUPERINTENDENCIA DE RIESGOS DEL TRABAJO (SRT).
                 </div>
             </div>
         </div>

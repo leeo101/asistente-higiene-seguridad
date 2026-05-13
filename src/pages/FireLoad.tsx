@@ -201,7 +201,7 @@ export default function FireLoad(): React.ReactElement | null {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${await auth.currentUser?.getIdToken()}`
+                    'Authorization': `Bearer ${await auth.currentUser?.getIdToken(true)}`
                 },
                 body: JSON.stringify({
                     reportType: `Cálculo de Carga de Fuego (${countryNorms.fire})`,

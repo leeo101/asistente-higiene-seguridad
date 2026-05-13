@@ -132,7 +132,7 @@ export default function Legislation(): React.ReactElement | null {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${await auth.currentUser?.getIdToken()}`
+                    'Authorization': `Bearer ${await auth.currentUser?.getIdToken(true)}`
                 },
                 body: JSON.stringify({ ley: `${title}: ${subtitle}`, country: userCountry })
             });

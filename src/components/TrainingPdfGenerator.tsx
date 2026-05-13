@@ -1,4 +1,4 @@
-ï»¿import React, { useRef } from 'react';
+import React, { useRef } from 'react';
 import { ArrowLeft, Printer, Users, Calendar, MapPin, Clock, BookOpen, Briefcase, GraduationCap } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
@@ -13,7 +13,7 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
 
     const isLandscape = (training?.asistentes?.length || 0) > 20;
 
-    // ObtenciÃ³n segura de firma desde personalData
+    // Obtención segura de firma desde personalData
     let actSignature = null;
     let actName = training?.expositor || null;
     let actLic = null;
@@ -43,7 +43,7 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                     <button onClick={onBack} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)' }}>
                         <ArrowLeft size={20} />
                     </button>
-                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>PrevisualizaciÃ³n de Planilla</h1>
+                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Previsualización de Planilla</h1>
                 </div>
                 <div style={{ display: 'flex', gap: '0.8rem' }}>
                     <button onClick={handlePrint} className="btn-primary" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -88,8 +88,8 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                     {/* Header Sequence */}
                     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '3px solid #e2e8f0', paddingBottom: '1.2rem', marginBottom: '1.8rem', width: '100%' }}>
                         <div style={{ flex: 1, textAlign: 'left' }}>
-                            <p style={{ margin: 0, fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.08em' }}>Sistema de GestiÃ³n HSE</p>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem', textTransform: 'uppercase', color: '#2563eb' }}>Doc. Reg. CapacitaciÃ³n</p>
+                            <p style={{ margin: 0, fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.08em' }}>Sistema de Gestión HSE</p>
+                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem', textTransform: 'uppercase', color: '#2563eb' }}>Doc. Reg. Capacitación</p>
                         </div>
 
                         <div style={{ flex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
@@ -106,7 +106,7 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                         </div>
                     </div>
 
-                    {/* Datos de la CapacitaciÃ³n */}
+                    {/* Datos de la Capacitación */}
                     <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.5rem', width: '100%', overflow: 'hidden' }}>
                         <div style={{ padding: '1rem', background: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
                             <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
@@ -121,15 +121,15 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                                 <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.2rem' }}>{training?.fecha ? new Date(training.fecha + 'T12:00:00Z').toLocaleDateString('es-AR') : 'N/A'}</div>
                             </div>
                             <div style={{ padding: '0.8rem 1rem', borderRight: '1px solid #cbd5e1', borderBottom: '1px solid #cbd5e1' }}>
-                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Clock size={12}/> DURACIÃ“N</span>
+                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Clock size={12}/> DURACIÓN</span>
                                 <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.2rem' }}>{training.duracion || 0} Horas</div>
                             </div>
                             <div style={{ padding: '0.8rem 1rem', borderRight: '1px solid #cbd5e1', borderBottom: '1px solid #cbd5e1' }}>
-                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><MapPin size={12}/> LOCACIÃ“N</span>
+                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><MapPin size={12}/> LOCACIÓN</span>
                                 <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.2rem' }}>{training.ubicacion || 'No esp.'}</div>
                             </div>
                             <div style={{ padding: '0.8rem 1rem', borderBottom: '1px solid #cbd5e1' }}>
-                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Briefcase size={12}/> EMPRESA / RAZÃ“N SOCIAL</span>
+                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Briefcase size={12}/> EMPRESA / RAZÓN SOCIAL</span>
                                 <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.2rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{training.empresa || 'Aplicable al sitio'}</div>
                             </div>
                         </div>
@@ -138,9 +138,9 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                     {/* Texto Legal */}
                     <div style={{ marginBottom: '1.5rem', background: '#f1f5f9', borderLeft: '4px solid #94a3b8', padding: '1rem', borderRadius: '4px' }}>
                         <p style={{ margin: 0, fontSize: '0.8rem', color: '#334155', lineHeight: 1.5, fontStyle: 'italic', fontWeight: 600 }}>
-                            Los abajo firmantes declaran haber recibido, comprendido e internalizado la capacitaciÃ³n tÃ©cnica impartida en materia de Higiene y Seguridad Laboral 
-                            sobre el tema detallado arriba, recibiendo respuesta satisfactoria a las consultas realizadas y comprometiÃ©ndose irrevocablemente a aplicar 
-                            las normativas preventivas e instrucciones en sus labores diarias para salvaguardar su integridad fÃ­sica y la de sus compaÃ±eros.
+                            Los abajo firmantes declaran haber recibido, comprendido e internalizado la capacitación técnica impartida en materia de Higiene y Seguridad Laboral 
+                            sobre el tema detallado arriba, recibiendo respuesta satisfactoria a las consultas realizadas y comprometiéndose irrevocablemente a aplicar 
+                            las normativas preventivas e instrucciones en sus labores diarias para salvaguardar su integridad física y la de sus compañeros.
                         </p>
                     </div>
 
@@ -148,7 +148,7 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9pt', marginBottom: '2rem' }}>
                         <thead>
                             <tr style={{ background: '#1e293b', color: '#ffffff' }}>
-                                <th style={{ padding: '0.6rem 0.4rem', width: '5%', textAlign: 'center', fontWeight: 800, border: '1px solid #0f172a' }}>NÂ°</th>
+                                <th style={{ padding: '0.6rem 0.4rem', width: '5%', textAlign: 'center', fontWeight: 800, border: '1px solid #0f172a' }}>N°</th>
                                 <th style={{ padding: '0.6rem 0.8rem', width: '35%', textAlign: 'left', fontWeight: 800, border: '1px solid #0f172a' }}>Apellido y Nombres</th>
                                 <th style={{ padding: '0.6rem 0.8rem', width: '15%', textAlign: 'center', fontWeight: 800, border: '1px solid #0f172a' }}>DNI / CUIL</th>
                                 <th style={{ padding: '0.6rem 0.8rem', width: '25%', textAlign: 'left', fontWeight: 800, border: '1px solid #0f172a' }}>Puesto de Trabajo</th>
@@ -165,7 +165,7 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                                     <td style={{ border: '1px solid #cbd5e1', padding: '1rem 0.8rem', textAlign: 'center' }}></td>
                                 </tr>
                             ))}
-                            {/* Rendimiento de lÃ­neas vacÃ­as para rellenar */}
+                            {/* Rendimiento de líneas vacías para rellenar */}
                             {Array.from({ length: Math.max(0, 5 - (training?.asistentes?.length || 0)) }).map((_, i) => (
                                 <tr key={`empty-${i}`} style={{ pageBreakInside: 'avoid' }}>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '1.2rem 0.4rem' }}></td>
@@ -178,13 +178,13 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                         </tbody>
                     </table>
 
-                    {/* Area de CertificaciÃ³n final y firmas */}
+                    {/* Area de Certificación final y firmas */}
                     <div className="signature-container-row" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid' }}>
                         
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                            <span style={{ fontSize: '0.7rem', fontWeight: 900, color: '#475569', display: 'block', marginBottom: '0.4rem', textTransform: 'uppercase' }}>CERTIFICACIÃ“N DE INSTRUCCIÃ“N</span>
+                            <span style={{ fontSize: '0.7rem', fontWeight: 900, color: '#475569', display: 'block', marginBottom: '0.4rem', textTransform: 'uppercase' }}>CERTIFICACIÓN DE INSTRUCCIÓN</span>
                             <p style={{ margin: 0, fontSize: '0.8rem', color: '#334155', fontStyle: 'italic', fontWeight: 600, lineHeight: 1.5, maxWidth: '80%' }}>
-                                Por la presente, el instructor certifica que los empleados listados han completado el programa de capacitaciÃ³n, 
+                                Por la presente, el instructor certifica que los empleados listados han completado el programa de capacitación, 
                                 evaluando satisfactoriamente los contenidos y asumiendo la aptitud requerida.
                             </p>
                         </div>

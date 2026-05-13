@@ -113,10 +113,9 @@ const aiLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
     keyGenerator: (req) => {
-        // Prioritize explicit UID from body or headers, fallback to IP
-        const uid = req.body?.uid || req.headers['x-user-uid'];
-        if (uid) return uid;
-        return req.ip;
+        // Use verified UID from Firebase token (set by verifyFirebaseToken middleware).
+        // This cannot be spoofed by the client unlike req.body.uid.
+        return req.user?.uid || req.ip;
     }
 });
 

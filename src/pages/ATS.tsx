@@ -142,7 +142,7 @@ export default function ATS(): React.ReactElement | null {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${await auth.currentUser?.getIdToken()}`
+                    'Authorization': `Bearer ${await auth.currentUser?.getIdToken(true)}`
                 },
                 body: JSON.stringify({ taskTitle })
             });

@@ -1,15 +1,14 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { verifyToken } from './_verifyToken.js';
+import { verifyToken, setCorsHeaders } from './_verifyToken.js';
 
 export default async function handler(req, res) {
-    res.setHeader('Access-Control-Allow-Credentials', true)
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS,POST')
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    // CORS — restricted to known origins
+    const corsOk = setCorsHeaders(req, res);
+    if (!corsOk) return;
 
     if (req.method === 'OPTIONS') {
-        res.status(200).end()
-        return
+        res.status(200).end();
+        return;
     }
 
     if (req.method !== 'POST') {
@@ -24,6 +23,12 @@ export default async function handler(req, res) {
 
         const { image } = req.body;
         if (!image) return res.status(400).json({ error: 'No se envió imagen' });
+
+        // Validate image payload size (max ~3.5MB in base64 = ~2.6MB actual)
+        const MAX_BASE64_SIZE = 3.5 * 1024 * 1024; // 3.5 MB
+        if (image.length > MAX_BASE64_SIZE) {
+            return res.status(413).json({ error: 'La imagen excede el tamaño máximo permitido (3.5MB).' });
+        }
 
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) return res.status(500).json({ error: 'Falta API Key' });

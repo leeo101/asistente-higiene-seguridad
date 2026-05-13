@@ -1,24 +1,24 @@
-Ôªøimport React from 'react';
+import React from 'react';
 import { Users, ShieldCheck, HeartPulse, LifeBuoy } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
 
 const RISK_FACTORS_MAP = {
-    weather: 'Condiciones clim√°ticas adversas',
+    weather: 'Condiciones clim·ticas adversas',
     height: 'Altura superior a 2 metros',
-    electrical: 'Riesgo el√©ctrico cercano',
+    electrical: 'Riesgo elÈctrico cercano',
     unstable: 'Superficies inestables',
     load: 'Cargas suspendidas',
     confined: 'Espacios confinados',
-    heat: 'Estr√©s t√©rmico'
+    heat: 'EstrÈs tÈrmico'
 };
 
 const EQUIPMENT_MAP = {
-    harness: 'Arn√©s de Seguridad de cuerpo completo',
+    harness: 'ArnÈs de Seguridad de cuerpo completo',
     lanyard: 'Cabo de vida simple/doble con amortiguador',
     helmet: 'Casco con barboquejo',
-    carabiner: 'Mosquetones de seguridad con cierre autom√°tico',
-    rope: 'Cuerda de seguridad / L√≠nea de vida vertical',
+    carabiner: 'Mosquetones de seguridad con cierre autom·tico',
+    rope: 'Cuerda de seguridad / LÌnea de vida vertical',
     anchor: 'Punto de anclaje certificado',
     sling: 'Eslinga de anclaje de cinta'
 };
@@ -27,9 +27,9 @@ export default function WorkingAtHeightPdf({ data }: { data: any }): React.React
     if (!data) return null;
 
     const sections = [
-        { id: 'description', title: 'Descripci√≥n del Trabajo', icon: <Users size={18} />, value: data.workDescription },
-        { id: 'department', title: 'Departamento / √Årea', icon: <ShieldCheck size={18} />, value: data.department },
-        { id: 'medical', title: 'Aptitud M√©dica', icon: <HeartPulse size={18} />, value: data.medicalFitness ? 'Vigente' : 'No verificada' },
+        { id: 'description', title: 'DescripciÛn del Trabajo', icon: <Users size={18} />, value: data.workDescription },
+        { id: 'department', title: 'Departamento / ¡rea', icon: <ShieldCheck size={18} />, value: data.department },
+        { id: 'medical', title: 'Aptitud MÈdica', icon: <HeartPulse size={18} />, value: data.medicalFitness ? 'Vigente' : 'No verificada' },
         { id: 'rescue', title: 'Plan de Rescate', icon: <LifeBuoy size={18} />, value: data.rescuePlan }
     ];
 
@@ -40,10 +40,10 @@ export default function WorkingAtHeightPdf({ data }: { data: any }): React.React
 
     const mitigation = [];
     if (data.ppe) {
-        if (data.ppe.harness) mitigation.push('Arn√©s de Seguridad');
+        if (data.ppe.harness) mitigation.push('ArnÈs de Seguridad');
         if (data.ppe.lanyard) mitigation.push('Cola de Amarre');
         if (data.ppe.helmet) mitigation.push('Casco con Barbijo');
-        if (data.ppe.lifeline) mitigation.push('L√≠nea de Vida');
+        if (data.ppe.lifeline) mitigation.push('LÌnea de Vida');
     }
 
     return (
@@ -72,7 +72,7 @@ export default function WorkingAtHeightPdf({ data }: { data: any }): React.React
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '3px solid #333', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
                     <div>
                         <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900 }}>PERMISO DE TRABAJO EN ALTURA</h1>
-                        <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: '#666' }}>SISTEMA DE GESTI√ìN DE SEGURIDAD (RES. SRT 61/23)</p>
+                        <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: '#666' }}>SISTEMA DE GESTI”N DE SEGURIDAD (RES. SRT 61/23)</p>
                     </div>
                     <CompanyLogo style={{ height: '50px', maxWidth: '150px', objectFit: 'contain' }} />
                 </div>
@@ -84,7 +84,7 @@ export default function WorkingAtHeightPdf({ data }: { data: any }): React.React
                         <span style={{ fontWeight: 700 }}>{data.workerName || 'N/A'}</span>
                     </div>
                     <div style={{ padding: '0.5rem', borderBottom: '1px solid #000' }}>
-                        <span style={{ fontSize: '0.6rem', fontWeight: 900, display: 'block' }}>UBICACI√ìN / SECTOR</span>
+                        <span style={{ fontSize: '0.6rem', fontWeight: 900, display: 'block' }}>UBICACI”N / SECTOR</span>
                         <span style={{ fontWeight: 700 }}>{data.location}</span>
                     </div>
                     <div style={{ padding: '0.5rem', borderRight: '1.5px solid #000' }}>
@@ -112,26 +112,26 @@ export default function WorkingAtHeightPdf({ data }: { data: any }): React.React
 
                 {/* Hazards & Mitigation */}
                 <div style={{ marginBottom: '1.5rem' }}>
-                    <h3 style={{ fontSize: '0.9rem', fontWeight: 900, background: '#f8fafc', padding: '0.4rem', border: '1px solid #cbd5e1', marginBottom: '0.5rem', color: '#0f172a' }}>AN√ÅLISIS DE RIESGOS Y EPP REQUERIDO</h3>
+                    <h3 style={{ fontSize: '0.9rem', fontWeight: 900, background: '#f8fafc', padding: '0.4rem', border: '1px solid #cbd5e1', marginBottom: '0.5rem', color: '#0f172a' }}>AN¡LISIS DE RIESGOS Y EPP REQUERIDO</h3>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '8px', background: '#f8fafc' }}>
                         <div>
                             <span style={{ fontSize: '0.75rem', fontWeight: 900, display: 'block', color: '#475569', marginBottom: '0.5rem' }}>RIESGOS DETECTADOS</span>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                                 {hazards.length > 0 ? hazards.map((h, i) => (
                                     <span key={i} style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', padding: '4px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 700 }}>{h}</span>
-                                )) : <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Trabajo en altura est√°ndar.</span>}
+                                )) : <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Trabajo en altura est·ndar.</span>}
                             </div>
                         </div>
                         <div>
-                            <span style={{ fontSize: '0.75rem', fontWeight: 900, display: 'block', color: '#475569', marginBottom: '0.5rem' }}>EQUIPOS DE PROTECCI√ìN (EPP)</span>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 900, display: 'block', color: '#475569', marginBottom: '0.5rem' }}>EQUIPOS DE PROTECCI”N (EPP)</span>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
                                 {['harness', 'lanyard', 'helmet', 'lifeline'].map((key) => {
                                     const hasIt = data.ppe && data.ppe[key];
-                                    const labels = { harness: 'Arn√©s de Seguridad', lanyard: 'Cola de Amarre', helmet: 'Casco con Barbijo', lifeline: 'L√≠nea de Vida' };
+                                    const labels = { harness: 'ArnÈs de Seguridad', lanyard: 'Cola de Amarre', helmet: 'Casco con Barbijo', lifeline: 'LÌnea de Vida' };
                                     return (
                                         <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                             <div style={{ width: '14px', height: '14px', border: '1.5px solid #000', display: 'flex', alignItems: 'center', justifyContent: 'center', background: hasIt ? '#000' : '#fff' }}>
-                                                {hasIt && <span style={{ color: '#fff', fontSize: '10px', lineHeight: 1 }}>‚úì</span>}
+                                                {hasIt && <span style={{ color: '#fff', fontSize: '10px', lineHeight: 1 }}>?</span>}
                                             </div>
                                             <span style={{ fontSize: '0.8rem', fontWeight: hasIt ? 700 : 500, color: '#1e293b' }}>{labels[key as keyof typeof labels]}</span>
                                         </div>
@@ -147,12 +147,12 @@ export default function WorkingAtHeightPdf({ data }: { data: any }): React.React
           <div className="signature-item-box">
             <div className="signature-line" />
             <p style={{ margin: '0.3rem 0 0', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.08em' }}>OPERADOR / TRABAJADOR</p>
-            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>Firma y Aclaraci√≥n</p>
+            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>Firma y AclaraciÛn</p>
           </div>
           <div className="signature-item-box">
             <div className="signature-line" />
             <p style={{ margin: '0.3rem 0 0', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.08em' }}>SUPERVISOR H&S</p>
-            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>Aprobaci√≥n</p>
+            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>AprobaciÛn</p>
           </div>
           <div className="signature-item-box">
             {(data.professionalSignature || data.signature) ? (<div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}><img src={data.professionalSignature || data.signature} alt="Firma Profesional" style={{ maxHeight: '50px', maxWidth: '100%', objectFit: 'contain' }} /></div>) : null}

@@ -1,6 +1,48 @@
 import admin from 'firebase-admin';
 
-// Initialize Firebase Admin once (shared across warm instances)
+// ============================================================
+// PRODUCTION ALLOWED ORIGINS
+// ============================================================
+const ALLOWED_ORIGINS = [
+    'https://asistentehs-b594e.web.app',
+    'https://asistentehs-b594e.firebaseapp.com',
+    'http://localhost:5173',
+    'http://localhost:4173',
+];
+
+/**
+ * Sets CORS headers, restricting access to known production origins only.
+ * Returns false and sends 403 if the origin is not allowed.
+ */
+export function setCorsHeaders(req, res) {
+    const origin = req.headers?.origin;
+
+    // Allow same-origin requests (no Origin header, e.g. server-to-server or curl in dev)
+    if (!origin) {
+        res.setHeader('Access-Control-Allow-Methods', 'OPTIONS,POST');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+        return true;
+    }
+
+    if (ALLOWED_ORIGINS.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Methods', 'OPTIONS,POST');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+        res.setHeader('Vary', 'Origin');
+        return true;
+    }
+
+    // Unauthorized origin
+    console.warn(`[CORS] Blocked request from unauthorized origin: ${origin}`);
+    res.status(403).json({ error: 'Origen no autorizado.' });
+    return false;
+}
+
+// ============================================================
+// FIREBASE ADMIN INIT
+// ============================================================
 if (!admin.apps.length) {
     try {
         if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
@@ -17,9 +59,51 @@ if (!admin.apps.length) {
     }
 }
 
+// ============================================================
+// PER-USER RATE LIMITING (in-memory, per serverless instance)
+// ============================================================
+// Note: Vercel serverless instances are ephemeral and don't share memory.
+// This still provides meaningful protection against burst abuse within a single warm instance.
+const userRequestCounts = new Map(); // uid -> { count, resetAt }
+const AI_RATE_LIMIT = 20;           // max requests per window
+const RATE_WINDOW_MS = 60 * 1000;   // 1-minute window
+
+function checkUserRateLimit(uid) {
+    const now = Date.now();
+    const record = userRequestCounts.get(uid);
+
+    if (!record || now > record.resetAt) {
+        // First request or window expired — start fresh
+        userRequestCounts.set(uid, { count: 1, resetAt: now + RATE_WINDOW_MS });
+        return true;
+    }
+
+    if (record.count >= AI_RATE_LIMIT) {
+        return false; // Rate limit exceeded
+    }
+
+    record.count += 1;
+    return true;
+}
+
+// Clean up stale entries periodically to avoid memory leaks
+setInterval(() => {
+    const now = Date.now();
+    for (const [uid, record] of userRequestCounts.entries()) {
+        if (now > record.resetAt) {
+            userRequestCounts.delete(uid);
+        }
+    }
+}, RATE_WINDOW_MS * 2);
+
+// ============================================================
+// MAIN AUTH + RATE LIMIT VERIFICATION
+// ============================================================
+
 /**
- * Verifies the Firebase ID token from the Authorization header.
- * Returns the decoded token on success, or sends a 401/403 response and returns null.
+ * Verifies the Firebase ID token from the Authorization header,
+ * then applies per-user rate limiting.
+ * Returns the decoded token on success, or sends an error response and returns null.
  */
 export async function verifyToken(req, res) {
     const authHeader = req.headers?.authorization;
@@ -33,18 +117,29 @@ export async function verifyToken(req, res) {
     const idToken = authHeader.split('Bearer ')[1];
 
     if (!admin.apps.length) {
-        console.warn('[AUTH] Firebase Admin not initialized — skipping verification.');
-        // In case of missing config, block access to prevent unprotected endpoints
+        console.warn('[AUTH] Firebase Admin not initialized — blocking request.');
         res.status(503).json({ error: 'Servicio no disponible: autenticación no configurada.' });
         return null;
     }
 
+    let decodedToken;
     try {
-        const decodedToken = await admin.auth().verifyIdToken(idToken);
-        return decodedToken;
+        decodedToken = await admin.auth().verifyIdToken(idToken);
     } catch (error) {
         console.error('[AUTH] Token verification failed:', error.message);
         res.status(403).json({ error: 'Token inválido o expirado.' });
         return null;
     }
+
+    // Apply per-user rate limiting
+    const uid = decodedToken.uid;
+    if (!checkUserRateLimit(uid)) {
+        console.warn(`[RATE LIMIT] User ${uid} exceeded AI request limit.`);
+        res.status(429).json({
+            error: `Límite de ${AI_RATE_LIMIT} consultas por minuto alcanzado. Esperá un momento.`
+        });
+        return null;
+    }
+
+    return decodedToken;
 }

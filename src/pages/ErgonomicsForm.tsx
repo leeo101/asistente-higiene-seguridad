@@ -93,7 +93,7 @@ export default function ErgonomicsForm(): React.ReactElement | null {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${await auth.currentUser?.getIdToken()}`
+                    'Authorization': `Bearer ${await auth.currentUser?.getIdToken(true)}`
                 },
                 body: JSON.stringify({
                     reportType: 'Estudio de Ergonomía Res 886/15',

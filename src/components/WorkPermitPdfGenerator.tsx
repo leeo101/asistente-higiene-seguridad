@@ -1,4 +1,4 @@
-ï»¿import React from 'react';
+import React from 'react';
 import { permitTypes } from '../data/workPermits';
 import { ShieldCheck, Users } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
@@ -67,9 +67,9 @@ export default function WorkPermitPdfGenerator({ data }: { data: any }): React.R
                             }}
                         />
                         <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b' }}>SISTEMA DE GESTIÃ“N HYS</div>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b' }}>SISTEMA DE GESTIÓN HYS</div>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' }}>
-                                <span style={{ fontSize: '1.2rem', fontWeight: 900, color: '#1e293b' }}>NÂ°</span>
+                                <span style={{ fontSize: '1.2rem', fontWeight: 900, color: '#1e293b' }}>N°</span>
                                 <span style={{ fontSize: '1.2rem', fontWeight: 900, color: '#1e293b' }}>{data.numeroPermiso || 'S/N'}</span>
                             </div>
                         </div>
@@ -84,7 +84,7 @@ export default function WorkPermitPdfGenerator({ data }: { data: any }): React.R
                             <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>{data.empresa}</span>
                         </div>
                         <div style={{ padding: '0.8rem', borderLeft: '2px solid #ddd', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>OBRA / UBICACIÃ“N</span>
+                            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>OBRA / UBICACIÓN</span>
                             <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>{data.obra}</span>
                         </div>
                     </div>
@@ -112,7 +112,7 @@ export default function WorkPermitPdfGenerator({ data }: { data: any }): React.R
                 {checklist.length > 0 && (
                     <div style={{ marginBottom: '2rem', pageBreakInside: 'avoid' }}>
                         <h3 style={{ fontSize: '1rem', fontWeight: 900, margin: '0 0 1rem 0', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <ShieldCheck size={20} /> VERIFICACIÃ“N PREVENTIVA (CHECKLIST)
+                            <ShieldCheck size={20} /> VERIFICACIÓN PREVENTIVA (CHECKLIST)
                         </h3>
                         <div style={{ border: '1px solid #eee', borderRadius: '10px', overflow: 'hidden' }}>
                             <div style={{ display: 'grid', gridTemplateColumns: '2.5fr 80px 1.5fr', background: '#f8fafc', padding: '0.6rem 1rem', borderBottom: '2px solid #ddd', fontWeight: 800, fontSize: '0.75rem', color: '#64748b' }}>
@@ -142,7 +142,7 @@ export default function WorkPermitPdfGenerator({ data }: { data: any }): React.R
                                                     color: isSelected ? (label === 'SI' ? '#166534' : '#dc2626') : '#94a3b8',
                                                     background: isSelected ? (label === 'SI' ? '#f0fdf4' : '#fef2f2') : 'transparent'
                                                 }}>
-                                                    {isSelected ? (label === 'SI' ? 'âœ”' : 'âœ˜') : ''}
+                                                    {isSelected ? (label === 'SI' ? '?' : '?') : ''}
                                                     <span style={{ fontSize: '0.5rem', marginLeft: '2px', opacity: isSelected ? 1 : 0.6 }}>{label}</span>
                                                 </div>
                                             );
@@ -185,7 +185,7 @@ export default function WorkPermitPdfGenerator({ data }: { data: any }): React.R
                     <div className="signature-item-box">
                         <div className="signature-line" />
                         <p style={{ margin: 0, fontWeight: 700, fontSize: '0.7rem', color: '#334155' }}>SUPERVISOR / RESPONSABLE</p>
-                        <p style={{ margin: 0, fontSize: '0.6rem', color: '#64748b' }}>AclaraciÃ³n y Firma</p>
+                        <p style={{ margin: 0, fontSize: '0.6rem', color: '#64748b' }}>Aclaración y Firma</p>
                     </div>
 
                     <div className="signature-item-box">

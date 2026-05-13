@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { MessageSquare, Building2, MapPin, Calendar, User, Users, Briefcase, AlertCircle } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
@@ -37,7 +37,7 @@ interface Props {
 export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
     if (!data) return null;
 
-    // ObtenciÃ³n segura de firma profesional desde localStorage
+    // Obtención segura de firma profesional desde localStorage
     let actSignature = data.professionalSignature || data.signature || data.auditorSignature || null;
     let actName = data.professionalName || data.leadAuditor || data.expositor || null;
     let actLic = data.professionalLicense || data.license || null;
@@ -103,14 +103,14 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
             {/* Header Tripartito */}
             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '3px solid #e2e8f0', paddingBottom: '1.2rem', marginBottom: '1.5rem', width: '100%' }}>
                 <div style={{ flex: 1, textAlign: 'left' }}>
-                    <p style={{ margin: 0, fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.08em' }}>Sistema de GestiÃ³n HSE</p>
-                    <p style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem', textTransform: 'uppercase', color: '#0052CC' }}>Doc. InducciÃ³n / Entrenamiento</p>
+                    <p style={{ margin: 0, fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.08em' }}>Sistema de Gestión HSE</p>
+                    <p style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem', textTransform: 'uppercase', color: '#0052CC' }}>Doc. Inducción / Entrenamiento</p>
                 </div>
 
                 <div style={{ flex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
                     <h1 style={{ margin: 0, fontWeight: 900, fontSize: '2rem', letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1, color: '#0f172a' }}>CHARLA 5'</h1>
                     <div style={{ marginTop: '0.3rem', background: '#0052CC', color: 'white', padding: '0.2rem 0.8rem', borderRadius: '12px', fontSize: '0.6rem', fontWeight: 800, letterSpacing: '0.1em' }}>
-                        REGISTRO DE SEGURIDAD â€” CHARLA DE 5 MINUTOS
+                        REGISTRO DE SEGURIDAD — CHARLA DE 5 MINUTOS
                     </div>
                 </div>
 
@@ -138,7 +138,7 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
                         <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#1e293b', marginTop: '0.15rem' }}>{data.empresa || '-'}</div>
                     </div>
                     <div style={{ padding: '0.7rem 1rem' }}>
-                        <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><MapPin size={11}/> ÃREA / SECTOR</span>
+                        <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><MapPin size={11}/> ÁREA / SECTOR</span>
                         <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#1e293b', marginTop: '0.15rem' }}>{data.area || '-'}</div>
                     </div>
                 </div>
@@ -175,7 +175,7 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '8pt' }}>
                     <thead>
                         <tr style={{ background: '#0052CC', color: '#ffffff' }}>
-                            <th style={{ padding: '0.5rem 0.4rem', width: '5%', textAlign: 'center', fontWeight: 800, border: '1px solid #003d99' }}>NÂ°</th>
+                            <th style={{ padding: '0.5rem 0.4rem', width: '5%', textAlign: 'center', fontWeight: 800, border: '1px solid #003d99' }}>N°</th>
                             <th style={{ padding: '0.5rem 0.8rem', width: '48%', textAlign: 'left', fontWeight: 800, border: '1px solid #003d99' }}>Nombre y Apellido</th>
                             <th style={{ padding: '0.5rem 0.8rem', width: '22%', textAlign: 'center', fontWeight: 800, border: '1px solid #003d99' }}>DNI / CUIL</th>
                             <th style={{ padding: '0.5rem 0.8rem', width: '25%', textAlign: 'center', fontWeight: 800, border: '1px solid #003d99' }}>Firma del Participante</th>
@@ -188,7 +188,7 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
                                 <td style={{ border: '1px solid #cbd5e1', padding: '0.55rem 0.8rem', fontWeight: 700, color: '#1e293b' }}>{att.nombre}</td>
                                 <td style={{ border: '1px solid #cbd5e1', padding: '0.55rem 0.8rem', textAlign: 'center', color: '#334155' }}>{att.dni}</td>
                                 <td style={{ border: '1px solid #cbd5e1', padding: '0.9rem 0.8rem', textAlign: 'center' }}>
-                                    {att.firma ? <span style={{ color: '#10b981', fontWeight: 900, fontSize: '0.75rem' }}>âœ“ FIRMÃ“</span> : ''}
+                                    {att.firma ? <span style={{ color: '#10b981', fontWeight: 900, fontSize: '0.75rem' }}>✓ FIRMÓ</span> : ''}
                                 </td>
                             </tr>
                         ))}
@@ -213,13 +213,13 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
         <div className="signature-container-row" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1' }}>
           <div className="signature-item-box">
             <div className="signature-line" />
-            <p style={{ margin: '0.3rem 0 0', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.08em' }}>REPRESENTANTE DE ÃREA</p>
+            <p style={{ margin: '0.3rem 0 0', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.08em' }}>REPRESENTANTE DE ÁREA</p>
             <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>Toma de conocimiento</p>
           </div>
           <div className="signature-item-box">
             <div className="signature-line" />
             <p style={{ margin: '0.3rem 0 0', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.08em' }}>SUPERVISOR H&S</p>
-            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>AprobaciÃ³n y visado</p>
+            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>Aprobación y visado</p>
           </div>
           <div className="signature-item-box">
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>

@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { verifyToken } from './_verifyToken.js';
+import { verifyToken, setCorsHeaders } from './_verifyToken.js';
 
 // Vercel Serverless Function for AI Image Analysis
 export default async function handler(req, res) {
@@ -26,6 +26,12 @@ export default async function handler(req, res) {
 
         const { image } = req.body;
         if (!image) return res.status(400).json({ error: 'No se envió imagen' });
+
+        // Validate image payload size (max ~3.5MB in base64 = ~2.6MB actual)
+        const MAX_BASE64_SIZE = 3.5 * 1024 * 1024; // 3.5 MB
+        if (image.length > MAX_BASE64_SIZE) {
+            return res.status(413).json({ error: 'La imagen excede el tamaño máximo permitido (3.5MB).' });
+        }
 
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) {

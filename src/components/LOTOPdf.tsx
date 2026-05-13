@@ -1,23 +1,23 @@
-Ôªøimport React from 'react';
+import React from 'react';
 import { Lock, Zap, AlertTriangle } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 
 const ENERGY_MAP = {
-    electrical: { name: 'El√©ctrica', icon: '‚ö°', color: '#b45309', bg: '#fef3c7', border: '#fde68a' },
-    mechanical: { name: 'Mec√°nica', icon: 'üîß', color: '#334155', bg: '#f1f5f9', border: '#e2e8f0' },
-    hydraulic: { name: 'Hidr√°ulica', icon: 'üíß', color: '#1d4ed8', bg: '#dbeafe', border: '#bfdbfe' },
-    pneumatic: { name: 'Neum√°tica', icon: 'üí®', color: '#475569', bg: '#f8fafc', border: '#e2e8f0' },
-    thermal: { name: 'T√©rmica', icon: 'üî•', color: '#b91c1c', bg: '#fee2e2', border: '#fecaca' },
-    chemical: { name: 'Qu√≠mica', icon: 'üß™', color: '#15803d', bg: '#dcfce7', border: '#bbf7d0' },
-    potential: { name: 'Gravitatoria', icon: '‚¨áÔ∏è', color: '#5b21b6', bg: '#ede9fe', border: '#ddd6fe' }
+    electrical: { name: 'ElÈctrica', icon: '?', color: '#b45309', bg: '#fef3c7', border: '#fde68a' },
+    mechanical: { name: 'Mec·nica', icon: '??', color: '#334155', bg: '#f1f5f9', border: '#e2e8f0' },
+    hydraulic: { name: 'Hidr·ulica', icon: '??', color: '#1d4ed8', bg: '#dbeafe', border: '#bfdbfe' },
+    pneumatic: { name: 'Neum·tica', icon: '??', color: '#475569', bg: '#f8fafc', border: '#e2e8f0' },
+    thermal: { name: 'TÈrmica', icon: '??', color: '#b91c1c', bg: '#fee2e2', border: '#fecaca' },
+    chemical: { name: 'QuÌmica', icon: '??', color: '#15803d', bg: '#dcfce7', border: '#bbf7d0' },
+    potential: { name: 'Gravitatoria', icon: '??', color: '#5b21b6', bg: '#ede9fe', border: '#ddd6fe' }
 };
 
 const DEVICE_MAP = {
-    padlock: { name: 'Candado de seguridad', icon: 'üîí' },
-    hasp: { name: 'Aldaba (Hasp)', icon: 'üìé' },
-    valve_lock: { name: 'Bloqueo de v√°lvula', icon: 'üî©' },
-    breaker_lock: { name: 'Bloqueo de disyuntor', icon: '‚ö°' },
-    tag: { name: 'Etiqueta de peligro', icon: 'üè∑Ô∏è' }
+    padlock: { name: 'Candado de seguridad', icon: '??' },
+    hasp: { name: 'Aldaba (Hasp)', icon: '??' },
+    valve_lock: { name: 'Bloqueo de v·lvula', icon: '??' },
+    breaker_lock: { name: 'Bloqueo de disyuntor', icon: '?' },
+    tag: { name: 'Etiqueta de peligro', icon: '???' }
 };
 
 export default function LOTOPdf({ data }: { data: any }): React.ReactElement | null {
@@ -48,7 +48,7 @@ export default function LOTOPdf({ data }: { data: any }): React.ReactElement | n
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '3px solid #333', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
                     <div>
                         <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900 }}>PROCEDIMIENTO LOTO (BLOQUEO Y ETIQUETADO)</h1>
-                        <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: '#666' }}>SEG√öN EST√ÅNDAR OSHA 29 CFR 1910.147</p>
+                        <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: '#666' }}>SEG⁄N EST¡NDAR OSHA 29 CFR 1910.147</p>
                     </div>
                     <CompanyLogo style={{ height: '50px', maxWidth: '150px', objectFit: 'contain' }} />
                 </div>
@@ -56,7 +56,7 @@ export default function LOTOPdf({ data }: { data: any }): React.ReactElement | n
                 {/* Info Grid */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '0', border: '1.5px solid #000', marginBottom: '1.5rem' }}>
                     <div style={{ padding: '0.5rem', borderRight: '1.5px solid #000', borderBottom: '1px solid #000' }}>
-                        <span style={{ fontSize: '0.6rem', fontWeight: 900, display: 'block' }}>EQUIPO / M√ÅQUINA</span>
+                        <span style={{ fontSize: '0.6rem', fontWeight: 900, display: 'block' }}>EQUIPO / M¡QUINA</span>
                         <span style={{ fontWeight: 700 }}>{data.equipmentName || 'N/A'}</span>
                     </div>
                     <div style={{ padding: '0.5rem', borderBottom: '1px solid #000' }}>
@@ -64,7 +64,7 @@ export default function LOTOPdf({ data }: { data: any }): React.ReactElement | n
                         <span style={{ fontWeight: 700 }}>{data.createdAt ? new Date(data.createdAt).toLocaleDateString('es-AR') : 'N/A'}</span>
                     </div>
                     <div style={{ padding: '0.5rem', borderRight: '1.5px solid #000' }}>
-                        <span style={{ fontSize: '0.6rem', fontWeight: 900, display: 'block' }}>UBICACI√ìN</span>
+                        <span style={{ fontSize: '0.6rem', fontWeight: 900, display: 'block' }}>UBICACI”N</span>
                         <span style={{ fontWeight: 700 }}>{data.location || 'No especificada'}</span>
                     </div>
                     <div style={{ padding: '0.5rem' }}>
@@ -76,14 +76,14 @@ export default function LOTOPdf({ data }: { data: any }): React.ReactElement | n
                 {/* Energy Sources */}
                 <div style={{ marginBottom: '1.5rem' }}>
                     <h3 style={{ fontSize: '0.9rem', fontWeight: 900, background: '#1e293b', color: '#fff', padding: '0.5rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <Zap size={18} /> FUENTES DE ENERG√çA Y BLOQUEO
+                        <Zap size={18} /> FUENTES DE ENERGÕA Y BLOQUEO
                     </h3>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                         <div style={{ border: '1px solid #ddd', padding: '0.8rem', borderRadius: '6px' }}>
-                            <span style={{ fontSize: '0.7rem', fontWeight: 900, color: '#64748b', display: 'block', marginBottom: '0.3rem' }}>ENERG√çAS A BLOQUEAR</span>
+                            <span style={{ fontSize: '0.7rem', fontWeight: 900, color: '#64748b', display: 'block', marginBottom: '0.3rem' }}>ENERGÕAS A BLOQUEAR</span>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                                 {data.energyTypes?.length > 0 ? data.energyTypes.map((t, i) => {
-                                    const e = ENERGY_MAP[t as keyof typeof ENERGY_MAP] || { name: t, icon: '‚ö†Ô∏è', color: '#1e40af', bg: '#eff6ff', border: '#dbeafe' };
+                                    const e = ENERGY_MAP[t as keyof typeof ENERGY_MAP] || { name: t, icon: '??', color: '#1e40af', bg: '#eff6ff', border: '#dbeafe' };
                                     return (
                                         <span key={i} style={{ background: e.bg, border: `1px solid ${e.border}`, color: e.color, padding: '4px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '4px' }}>
                                             <span>{e.icon}</span> {e.name}
@@ -96,7 +96,7 @@ export default function LOTOPdf({ data }: { data: any }): React.ReactElement | n
                             <span style={{ fontSize: '0.7rem', fontWeight: 900, color: '#64748b', display: 'block', marginBottom: '0.3rem' }}>DISPOSITIVOS REQUERIDOS</span>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                                 {data.lotoDevices?.length > 0 ? data.lotoDevices.map((d, i) => {
-                                    const dev = DEVICE_MAP[d as keyof typeof DEVICE_MAP] || { name: d, icon: 'üîí' };
+                                    const dev = DEVICE_MAP[d as keyof typeof DEVICE_MAP] || { name: d, icon: '??' };
                                     return (
                                         <span key={i} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', color: '#334155', padding: '4px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '4px' }}>
                                             <span>{dev.icon}</span> {dev.name}
@@ -113,16 +113,16 @@ export default function LOTOPdf({ data }: { data: any }): React.ReactElement | n
                     <div style={{ border: '1px solid #fbd38d', background: '#fffaf0', borderRadius: '6px', padding: '0.8rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#c05621' }}>
                             <Lock size={18} />
-                            <span style={{ fontWeight: 900, fontSize: '0.85rem' }}>VERIFICACI√ìN DE ENERG√çA CERO</span>
+                            <span style={{ fontWeight: 900, fontSize: '0.85rem' }}>VERIFICACI”N DE ENERGÕA CERO</span>
                         </div>
-                        <p style={{ margin: 0, fontSize: '0.8rem' }}>{data.verificationSteps || 'Se han verificado todos los puntos de aislamiento y se procedi√≥ al intento de arranque para confirmar ausencia de energ√≠a residual.'}</p>
+                        <p style={{ margin: 0, fontSize: '0.8rem' }}>{data.verificationSteps || 'Se han verificado todos los puntos de aislamiento y se procediÛ al intento de arranque para confirmar ausencia de energÌa residual.'}</p>
                     </div>
                     <div style={{ border: '1px solid #feb2b2', background: '#fff5f5', borderRadius: '6px', padding: '0.8rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#c53030' }}>
                             <AlertTriangle size={18} />
-                            <span style={{ fontWeight: 900, fontSize: '0.85rem' }}>ADVERTENCIA CR√çTICA</span>
+                            <span style={{ fontWeight: 900, fontSize: '0.85rem' }}>ADVERTENCIA CRÕTICA</span>
                         </div>
-                        <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: 700 }}>PROHIBIDO RETIRAR BLOQUEOS SIN AUTORIZACI√ìN DEL RESPONSABLE DEL TRABAJO.</p>
+                        <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: 700 }}>PROHIBIDO RETIRAR BLOQUEOS SIN AUTORIZACI”N DEL RESPONSABLE DEL TRABAJO.</p>
                     </div>
                 </div>
 
@@ -131,13 +131,13 @@ export default function LOTOPdf({ data }: { data: any }): React.ReactElement | n
                     <div className="signature-item-box">
                         <div className="signature-line" />
                         <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#1e293b' }}>PERSONAL AFECTADO</p>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#64748b' }}>Firma y Aclaraci√≥n</p>
+                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#64748b' }}>Firma y AclaraciÛn</p>
                     </div>
 
                     <div className="signature-item-box">
                         <div className="signature-line" />
                         <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#1e293b' }}>ENCARGADO BLOQUEO</p>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#64748b' }}>Aprobaci√≥n</p>
+                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#64748b' }}>AprobaciÛn</p>
                     </div>
 
                     <div className="signature-item-box">
