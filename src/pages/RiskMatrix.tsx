@@ -216,22 +216,63 @@ export default function RiskMatrix(): React.ReactElement | null {
                 </div>
             </div>
 
-            {/* ─── SUMMARY CARDS ─── */}
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-                {[
-                    { label: 'Riesgos Bajos', count: summary.bajo, bg: '#dcfce7', color: '#16a34a', border: '#86efac' },
-                    { label: 'Riesgos Moderados', count: summary.moderado, bg: '#fef9c3', color: '#ca8a04', border: '#fde047' },
-                    { label: 'Riesgos Críticos', count: summary.critico, bg: '#fee2e2', color: '#dc2626', border: '#fca5a5' },
-                    { label: 'Total Evaluados', count: summary.total, bg: '#eff6ff', color: '#2563eb', border: '#bfdbfe' },
-                ].map(s => (
-                    <div key={s.label} style={{
-                        flex: '1 1 140px', background: s.bg, border: `2px solid ${s.border}`,
-                        borderRadius: '16px', padding: '1.2rem', textAlign: 'center'
-                    }}>
-                        <div style={{ fontSize: '2rem', fontWeight: 900, color: s.color, lineHeight: 1 }}>{s.count}</div>
-                        <div style={{ fontSize: '0.7rem', fontWeight: 700, color: s.color, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '0.3rem' }}>{s.label}</div>
+            {/* ─── DASHBOARD (Summary + Heatmap) ─── */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', alignContent: 'start' }}>
+                    {[
+                        { label: 'Riesgos Bajos', count: summary.bajo, bg: '#dcfce7', color: '#16a34a', border: '#86efac' },
+                        { label: 'Riesgos Moderados', count: summary.moderado, bg: '#fef9c3', color: '#ca8a04', border: '#fde047' },
+                        { label: 'Riesgos Críticos', count: summary.critico, bg: '#fee2e2', color: '#dc2626', border: '#fca5a5' },
+                        { label: 'Total Evaluados', count: summary.total, bg: '#eff6ff', color: '#2563eb', border: '#bfdbfe' },
+                    ].map(s => (
+                        <div key={s.label} style={{
+                            background: s.bg, border: `2px solid ${s.border}`,
+                            borderRadius: '16px', padding: '1.5rem 1rem', textAlign: 'center',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+                        }}>
+                            <div style={{ fontSize: '2.5rem', fontWeight: 900, color: s.color, lineHeight: 1 }}>{s.count}</div>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: s.color, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '0.5rem' }}>{s.label}</div>
+                        </div>
+                    ))}
+                </div>
+
+                <div style={{ background: 'var(--color-surface)', borderRadius: '16px', padding: '1.5rem', border: '1px solid var(--color-border)', display: 'flex', flexDirection: 'column' }}>
+                    <h3 style={{ margin: '0 0 1rem 0', fontSize: '0.9rem', fontWeight: 900, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Mapa de Calor (Probabilidad vs Severidad)</h3>
+                    <div style={{ display: 'flex', flex: 1, gap: '0.5rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', paddingBottom: '2rem', paddingRight: '0.5rem', borderRight: '1px solid var(--color-border)' }}>
+                            <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-text-muted)', transform: 'rotate(-90deg)', transformOrigin: 'left center', whiteSpace: 'nowrap', marginTop: 'auto', marginBottom: 'auto' }}>PROBABILIDAD</span>
+                        </div>
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: 'repeat(4, 1fr)', gap: '4px', flex: 1 }}>
+                                {[4, 3, 2, 1].map(p => (
+                                    [1, 2, 3, 4].map(s => {
+                                        const count = activeRows.filter(r => r.probability === p && r.severity === s).length;
+                                        const lvl = getRiskLevel(p, s);
+                                        return (
+                                            <div key={`${p}-${s}`} style={{
+                                                background: count > 0 ? lvl.color : 'var(--color-background)',
+                                                border: count > 0 ? 'none' : `1px dashed ${lvl.border}`,
+                                                borderRadius: '6px',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                color: count > 0 ? '#fff' : 'transparent',
+                                                fontWeight: 900, fontSize: '1.2rem',
+                                                transition: 'all 0.3s'
+                                            }}>
+                                                {count > 0 ? count : ''}
+                                            </div>
+                                        );
+                                    })
+                                ))}
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4px', marginTop: '0.5rem', textAlign: 'center' }}>
+                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--color-text-muted)' }}>S1</span>
+                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--color-text-muted)' }}>S2</span>
+                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--color-text-muted)' }}>S3</span>
+                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--color-text-muted)' }}>S4</span>
+                            </div>
+                        </div>
                     </div>
-                ))}
+                </div>
             </div>
 
             {/* ─── RISK ROWS ─── */}
@@ -320,15 +361,16 @@ export default function RiskMatrix(): React.ReactElement | null {
                                     <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
                                         {[1, 2, 3, 4].map(v => (
                                             <button key={v} onClick={() => updateRow(row.id, 'probability', v)} style={{
-                                                flex: 1, padding: '0.5rem 0.2rem', borderRadius: '8px', border: '2px solid',
-                                                borderColor: row.probability === v ? '#6366f1' : '#e2e8f0',
-                                                background: row.probability === v ? '#6366f1' : 'var(--color-background)',
+                                                flex: 1, padding: '0.6rem 0.2rem', borderRadius: '10px',
+                                                background: row.probability === v ? '#4f46e5' : 'var(--color-background)',
+                                                border: `2px solid ${row.probability === v ? '#4f46e5' : 'var(--color-border)'}`,
                                                 color: row.probability === v ? 'white' : 'var(--color-text-muted)',
-                                                fontWeight: 800, fontSize: '0.7rem', cursor: 'pointer',
-                                                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1px'
+                                                fontWeight: 900, fontSize: '0.7rem', cursor: 'pointer',
+                                                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px',
+                                                transition: 'all 0.2s', boxShadow: row.probability === v ? '0 4px 12px rgba(79, 70, 229, 0.3)' : 'none'
                                             }}>
-                                                <span style={{ fontSize: '1rem' }}>{v}</span>
-                                                <span style={{ fontSize: '0.55rem', textAlign: 'center', lineHeight: 1 }}>{PROB_LABELS[v]}</span>
+                                                <span style={{ fontSize: '1.1rem' }}>{v}</span>
+                                                <span style={{ fontSize: '0.55rem', textAlign: 'center', lineHeight: 1, opacity: row.probability === v ? 1 : 0.7 }}>{PROB_LABELS[v]}</span>
                                             </button>
                                         ))}
                                     </div>
@@ -338,15 +380,16 @@ export default function RiskMatrix(): React.ReactElement | null {
                                     <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
                                         {[1, 2, 3, 4].map(v => (
                                             <button key={v} onClick={() => updateRow(row.id, 'severity', v)} style={{
-                                                flex: 1, padding: '0.5rem 0.2rem', borderRadius: '8px', border: '2px solid',
-                                                borderColor: row.severity === v ? '#f59e0b' : '#e2e8f0',
-                                                background: row.severity === v ? '#f59e0b' : 'var(--color-background)',
+                                                flex: 1, padding: '0.6rem 0.2rem', borderRadius: '10px',
+                                                background: row.severity === v ? '#ea580c' : 'var(--color-background)',
+                                                border: `2px solid ${row.severity === v ? '#ea580c' : 'var(--color-border)'}`,
                                                 color: row.severity === v ? 'white' : 'var(--color-text-muted)',
-                                                fontWeight: 800, fontSize: '0.7rem', cursor: 'pointer',
-                                                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1px'
+                                                fontWeight: 900, fontSize: '0.7rem', cursor: 'pointer',
+                                                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px',
+                                                transition: 'all 0.2s', boxShadow: row.severity === v ? '0 4px 12px rgba(234, 88, 12, 0.3)' : 'none'
                                             }}>
-                                                <span style={{ fontSize: '1rem' }}>{v}</span>
-                                                <span style={{ fontSize: '0.55rem', textAlign: 'center', lineHeight: 1 }}>{SEV_LABELS[v]}</span>
+                                                <span style={{ fontSize: '1.1rem' }}>{v}</span>
+                                                <span style={{ fontSize: '0.55rem', textAlign: 'center', lineHeight: 1, opacity: row.severity === v ? 1 : 0.7 }}>{SEV_LABELS[v]}</span>
                                             </button>
                                         ))}
                                     </div>

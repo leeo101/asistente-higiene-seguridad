@@ -102,97 +102,120 @@ export default function ATSPdfGenerator({ atsData }: ATSPdfGeneratorProps): Reac
               border-top: 12px solid #2563eb !important;
               border-radius: 0 !important;
             }
-            .company-logo {
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
+            .signature-container-row {
+              display: flex !important;
+              flex-direction: row !important;
+              justify-content: space-between !important;
+              align-items: flex-start !important;
+              gap: 1rem !important;
+              width: 100% !important;
+              margin-top: 2rem !important;
+            }
+            .signature-item-box {
+              flex: 1 !important;
+              max-width: none !important;
+              padding: 1rem !important;
+              margin-top: 0 !important;
+              display: flex !important;
+              flex-direction: column !important;
+              align-items: center !important;
+              border-radius: 8px !important;
+              text-align: center !important;
+            }
+            .signature-line {
+              width: 100% !important;
+              border-bottom: 1.5px solid #cbd5e1 !important;
+              margin-bottom: 0.5rem !important;
+              margin-top: 0.5rem !important;
             }
           `}
         </style>
 
-        {/* Header Sequence */}
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '3px solid #e2e8f0', paddingBottom: '1.2rem', marginBottom: '1.8rem', width: '100%' }}>
+        {/* Professional Header */}
+        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottom: '4px solid #f1f5f9', paddingBottom: '1.2rem', marginBottom: '1.5rem', width: '100%', gap: '1rem' }}>
           
-          <div style={{ flex: 1, textAlign: 'left' }}>
-            <p style={{ margin: 0, fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.08em' }}>Sistema de Gestión HSE</p>
-            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem', textTransform: 'uppercase', color: '#2563eb' }}>Doc. Controlado</p>
+          <div style={{ flex: 1 }}>
+            <p style={{ margin: 0, fontWeight: 800, fontSize: '0.6rem', textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.1em' }}>Sistema de Gestión</p>
+            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', color: '#0f172a' }}>Control H&S</p>
           </div>
 
-          <div style={{ flex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-            <h1 style={{ margin: 0, fontWeight: 900, fontSize: '2.4rem', letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1, color: '#0f172a' }}>ATS</h1>
+          <div style={{ flex: 2, textAlign: 'center' }}>
+            <h1 style={{ margin: 0, fontWeight: 900, fontSize: '2.5rem', letterSpacing: '-0.03em', textTransform: 'uppercase', lineHeight: 0.9, color: '#0f172a' }}>A.T.S.</h1>
             <div style={{ marginTop: '0.3rem', background: '#3b82f6', color: 'white', padding: '0.2rem 0.8rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.1em' }}>
               ANÁLISIS DE TRABAJO SEGURO
             </div>
           </div>
 
-          <div style={{ flex: 1, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
-            <CompanyLogo
-              style={{
-                height: '38px',
-                width: 'auto',
-                objectFit: 'contain',
-                maxWidth: '120px'
-              }}
-            />
+          <div style={{ flex: 1, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.2rem' }}>
+            <CompanyLogo style={{ height: '35px', maxWidth: '120px' }} />
+            <div style={{ fontSize: '0.55rem', fontWeight: 900, color: '#94a3b8', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Doc. Controlado</div>
+
+
+
+
+
+
+
           </div>
         </div>
 
         {/* Primary Info Box - Professional Grid */}
-        <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '2rem', width: '100%', overflow: 'hidden' }}>
-          <div style={{ display: 'flex', borderBottom: '1px solid #cbd5e1', background: '#f8fafc' }}>
-            <div style={{ flex: '1.5', padding: '0.6rem 0.8rem', borderRight: '1px solid #cbd5e1' }}>
+        <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', marginBottom: '2.5rem', width: '100%', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)' }}>
+          <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
+            <div style={{ flex: '1.5', padding: '0.8rem 1rem', borderRight: '1px solid #e2e8f0' }}>
               <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '0.05em' }}>EMPRESA / CONTRATISTA</span>
-              <div style={{ fontWeight: 800, fontSize: '1rem', color: '#0f172a', marginTop: '0.2rem' }}>{data.empresa || '-'}</div>
+              <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#0f172a', marginTop: '0.2rem' }}>{data.empresa || '-'}</div>
             </div>
-            <div style={{ flex: '1', padding: '0.6rem 0.8rem' }}>
+            <div style={{ flex: '1', padding: '0.8rem 1rem' }}>
               <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '0.05em' }}>OBRA / UBICACIÓN</span>
-              <div style={{ fontWeight: 800, fontSize: '1rem', color: '#0f172a', marginTop: '0.2rem' }}>{data.obra || '-'}</div>
+              <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#0f172a', marginTop: '0.2rem' }}>{data.obra || '-'}</div>
             </div>
           </div>
           <div style={{ display: 'flex', background: '#ffffff' }}>
-            <div style={{ flex: '1', padding: '0.6rem 0.8rem', borderRight: '1px solid #cbd5e1' }}>
+            <div style={{ flex: '1', padding: '0.8rem 1rem', borderRight: '1px solid #e2e8f0' }}>
               <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>FECHA DE EJECUCIÓN</span>
-              <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#334155', marginTop: '0.1rem' }}>{data.fecha ? new Date(data.fecha).toLocaleDateString('es-AR') : '-'}</div>
+              <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.1rem' }}>{data.fecha ? new Date(data.fecha).toLocaleDateString('es-AR') : '-'}</div>
             </div>
-            <div style={{ flex: '1', padding: '0.6rem 0.8rem', borderRight: '1px solid #cbd5e1' }}>
+            <div style={{ flex: '1', padding: '0.8rem 1rem', borderRight: '1px solid #e2e8f0' }}>
               <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>RESPONSABLE / CAPATAZ</span>
-              <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#334155', marginTop: '0.1rem' }}>{data.capatazNombre || 'No definido'}</div>
+              <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.1rem' }}>{data.capatazNombre || 'No definido'}</div>
             </div>
-            <div style={{ flex: '1', padding: '0.6rem 0.8rem' }}>
+            <div style={{ flex: '1', padding: '0.8rem 1rem' }}>
               <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>SUPERVISOR H&S</span>
-              <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#334155', marginTop: '0.1rem' }}>{data.supervisor || '-'}</div>
+              <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.1rem' }}>{data.supervisor || '-'}</div>
             </div>
           </div>
-          <div style={{ borderTop: '1px solid #cbd5e1', padding: '0.6rem 0.8rem', background: '#ffffff' }}>
+          <div style={{ borderTop: '1px solid #e2e8f0', padding: '0.8rem 1rem', background: '#ffffff' }}>
               <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>TAREA A REALIZAR (DESCRIPCIÓN GENERAL)</span>
-              <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#0f172a', marginTop: '0.2rem' }}>{data.tarea || '-'}</div>
+              <div style={{ fontWeight: 700, fontSize: '1rem', color: '#0f172a', marginTop: '0.2rem', lineHeight: 1.4 }}>{data.tarea || '-'}</div>
           </div>
         </div>
 
         {/* Tareas */}
         {tareas.length > 0 && (
           <div style={{ marginBottom: '2.5rem' }}>
-            <h2 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.6rem', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.4rem', borderBottom: '2px solid #e2e8f0', paddingBottom: '0.3rem' }}>
-              Secuencia de Tareas y Análisis Quirúrgico
+            <h2 style={{ fontSize: '0.9rem', fontWeight: 900, color: '#0f172a', marginBottom: '0.8rem', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.5rem', borderLeft: '4px solid #3b82f6', paddingLeft: '0.8rem' }}>
+              Secuencia de Tareas y Análisis de Riesgos
             </h2>
-            <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden' }}>
+            <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
                 <thead>
-                  <tr style={{ background: '#f1f5f9', borderBottom: '1px solid #cbd5e1' }}>
-                    <th style={{ padding: '0.5rem 0.8rem', textAlign: 'center', fontWeight: 800, color: '#475569', width: '30px' }}>#</th>
-                    <th style={{ padding: '0.5rem 0.8rem', textAlign: 'left', fontWeight: 800, color: '#475569', width: '30%' }}>PASO DE LA TAREA</th>
-                    <th style={{ padding: '0.5rem 0.8rem', textAlign: 'left', fontWeight: 800, color: '#475569', width: '30%' }}>RIESGO IDENTIFICADO</th>
-                    <th style={{ padding: '0.5rem 0.8rem', textAlign: 'left', fontWeight: 800, color: '#475569', width: '40%' }}>MEDIDA PREVENTIVA / CONTROL</th>
+                  <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                    <th style={{ padding: '0.8rem 1rem', textAlign: 'center', fontWeight: 800, color: '#475569', width: '40px' }}>#</th>
+                    <th style={{ padding: '0.8rem 1rem', textAlign: 'left', fontWeight: 800, color: '#475569', width: '30%' }}>PASO DE LA TAREA</th>
+                    <th style={{ padding: '0.8rem 1rem', textAlign: 'left', fontWeight: 800, color: '#475569', width: '30%' }}>RIESGO IDENTIFICADO</th>
+                    <th style={{ padding: '0.8rem 1rem', textAlign: 'left', fontWeight: 800, color: '#475569', width: '40%' }}>MEDIDA PREVENTIVA / CONTROL</th>
                   </tr>
                 </thead>
                 <tbody>
                   {tareas.map((tarea: any, i: number) => {
                     const isObject = typeof tarea === 'object' && tarea !== null;
                     return (
-                      <tr key={i} style={{ borderBottom: i < tareas.length - 1 ? '1px solid #e2e8f0' : 'none', background: i % 2 !== 0 ? '#f8fafc' : '#ffffff' }}>
-                        <td style={{ padding: '0.6rem 0.8rem', textAlign: 'center', fontWeight: 700, color: '#64748b' }}>{i + 1}</td>
-                        <td style={{ padding: '0.6rem 0.8rem', fontWeight: 700, color: '#1e293b' }}>{isObject ? tarea.paso : tarea}</td>
-                        <td style={{ padding: '0.6rem 0.8rem', color: '#334155', fontStyle: 'italic' }}>{isObject ? tarea.riesgo : '-'}</td>
-                        <td style={{ padding: '0.6rem 0.8rem', color: '#10b981', fontWeight: 600 }}>{isObject ? tarea.control : '-'}</td>
+                      <tr key={i} style={{ borderBottom: i < tareas.length - 1 ? '1px solid #f1f5f9' : 'none', background: i % 2 !== 0 ? '#fcfdfe' : '#ffffff' }}>
+                        <td style={{ padding: '0.8rem 1rem', textAlign: 'center', fontWeight: 700, color: '#94a3b8' }}>{String(i + 1).padStart(2, '0')}</td>
+                        <td style={{ padding: '0.8rem 1rem', fontWeight: 700, color: '#1e293b', fontSize: '0.85rem' }}>{isObject ? tarea.paso : tarea}</td>
+                        <td style={{ padding: '0.8rem 1rem', color: '#64748b', fontSize: '0.75rem', lineHeight: 1.4 }}>{isObject ? tarea.riesgo : '-'}</td>
+                        <td style={{ padding: '0.8rem 1rem', color: '#059669', fontWeight: 700, fontSize: '0.8rem', lineHeight: 1.4 }}>{isObject ? tarea.control : '-'}</td>
                       </tr>
                     );
                   })}
@@ -208,42 +231,53 @@ export default function ATSPdfGenerator({ atsData }: ATSPdfGeneratorProps): Reac
           return (
             <div key={catIndex} style={{ marginBottom: '1.5rem', pageBreakInside: 'avoid' }}>
               <div style={{
-                background: '#1e293b',
+                background: '#0f172a',
                 color: '#ffffff',
-                padding: '0.4rem 0.8rem',
-                borderRadius: '6px 6px 0 0',
-                fontSize: '0.75rem',
-                fontWeight: 800,
+                padding: '0.6rem 1rem',
+                borderRadius: '8px 8px 0 0',
+                fontSize: '0.8rem',
+                fontWeight: 900,
                 textTransform: 'uppercase',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.4rem'
+                gap: '0.6rem',
+                letterSpacing: '0.05em'
               }}>
-                <ShieldCheck size={14} color="#ffffff" />
+                <ShieldCheck size={16} color="#3b82f6" />
                 {categoria?.toUpperCase() || 'GENERAL'}
               </div>
-              <div style={{ border: '1px solid #cbd5e1', borderTop: 'none', borderRadius: '0 0 6px 6px', overflow: 'hidden' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
+              <div style={{ border: '1px solid #e2e8f0', borderTop: 'none', borderRadius: '0 0 8px 8px', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
                   <tbody>
                     {categoryItems.map((item: ChecklistItem, itemIndex: number) => {
                       const finalStatus = item.estado || (item.cumple ? 'Cumple' : 'No Cumple');
                       let statusColor = '#94a3b8';
                       let bgStatus = '#f8fafc';
-                      if (finalStatus === 'Cumple' || finalStatus === 'SI') { statusColor = '#10b981'; bgStatus = '#ecfdf5'; }
-                      if (finalStatus === 'No Cumple' || finalStatus === 'NO') { statusColor = '#ef4444'; bgStatus = '#fef2f2'; }
+                      if (finalStatus === 'Cumple' || finalStatus === 'SI') { statusColor = '#059669'; bgStatus = '#ecfdf5'; }
+                      if (finalStatus === 'No Cumple' || finalStatus === 'NO') { statusColor = '#dc2626'; bgStatus = '#fef2f2'; }
 
                       return (
-                        <tr key={itemIndex} style={{ borderBottom: itemIndex < categoryItems.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
-                          <td style={{ padding: '0.5rem 0.8rem', verticalAlign: 'middle', width: '35px' }}>
-                            <div style={{ border: `1.5px solid ${statusColor}`, background: bgStatus, color: statusColor, fontSize: '0.55rem', fontWeight: 800, textAlign: 'center', padding: '0.2rem', borderRadius: '4px', minWidth: '24px' }}>
+                        <tr key={itemIndex} style={{ borderBottom: itemIndex < categoryItems.length - 1 ? '1px solid #f1f5f9' : 'none', background: itemIndex % 2 !== 0 ? '#fcfdfe' : '#ffffff' }}>
+                          <td style={{ padding: '0.6rem 1rem', verticalAlign: 'middle', width: '45px' }}>
+                            <div style={{ 
+                              border: `1.5px solid ${statusColor}`, 
+                              background: bgStatus, 
+                              color: statusColor, 
+                              fontSize: '0.6rem', 
+                              fontWeight: 900, 
+                              textAlign: 'center', 
+                              padding: '0.25rem', 
+                              borderRadius: '6px', 
+                              minWidth: '30px' 
+                            }}>
                               {finalStatus.toUpperCase() === 'CUMPLE' ? 'OK' : finalStatus.toUpperCase() === 'NO CUMPLE' ? 'NO' : finalStatus.toUpperCase()}
                             </div>
                           </td>
-                          <td style={{ padding: '0.5rem 0.8rem', verticalAlign: 'middle', fontWeight: 600, color: '#334155', width: '45%' }}>
+                          <td style={{ padding: '0.6rem 1rem', verticalAlign: 'middle', fontWeight: 600, color: '#334155', width: '45%', fontSize: '0.8rem' }}>
                             {item.pregunta}
                           </td>
-                          <td style={{ padding: '0.5rem 0.8rem', verticalAlign: 'middle', color: '#64748b', fontSize: '0.7rem', width: '50%', borderLeft: '1px dashed #e2e8f0' }}>
-                            {item.observaciones ? <><span style={{ fontWeight: 700 }}>Obs: </span>{item.observaciones}</> : <span style={{ color: '#cbd5e1' }}>Sin observaciones.</span>}
+                          <td style={{ padding: '0.6rem 1rem', verticalAlign: 'middle', color: '#64748b', fontSize: '0.75rem', width: '50%', borderLeft: '1px dashed #e2e8f0', fontStyle: item.observaciones ? 'normal' : 'italic' }}>
+                            {item.observaciones ? <><span style={{ fontWeight: 800, color: '#475569' }}>OBSERVACIONES: </span>{item.observaciones}</> : <span style={{ color: '#cbd5e1' }}>Sin observaciones registradas.</span>}
                           </td>
                         </tr>
                       );
@@ -255,43 +289,41 @@ export default function ATSPdfGenerator({ atsData }: ATSPdfGeneratorProps): Reac
           );
         })}
 
-        {/* Firmas de Responsabilidad */}
-        <div style={{ marginTop: '3rem', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem', justifyContent: 'center' }}>
+                {/* Firmas de Responsabilidad */}
+        <div className="signature-container-row" style={{ marginTop: '2.5rem', paddingTop: '1.5rem', borderTop: '2px solid #f1f5f9', pageBreakInside: 'avoid' }}>
           
-          <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #ndndnd', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-              <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Original</span>
-            </div>
-            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#1e293b' }}>OPERADOR / RESPONSABLE</p>
-            <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Firma de conformidad técnica</p>
+          <div className="signature-item-box" style={{ border: '1.5px solid #f1f5f9', background: '#fcfdfe' }}>
+            <div className="signature-line" style={{ borderBottomColor: '#e2e8f0' }} />
+            <p style={{ margin: '0.4rem 0 0', fontSize: '0.55rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.1em' }}>OPERADOR / RESPONSABLE</p>
+            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 900, color: '#0f172a' }}>{data.capatazNombre || 'Firma de Conformidad'}</p>
+            <p style={{ margin: 0, fontSize: '0.5rem', fontWeight: 700, color: '#3b82f6', textTransform: 'uppercase' }}>Validación Técnica</p>
           </div>
 
-          <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #ndndnd', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-              {data.capatazSignature ? (
-                <img src={data.capatazSignature} alt="Firma Supervisor" style={{ maxHeight: '50px', objectFit: 'contain' }} />
-              ) : (
-                <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Original</span>
-              )}
-            </div>
-            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#1e293b' }}>SUPERVISOR / PREVENCIONISTA</p>
-            <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Aprobación y Liberación</p>
+          <div className="signature-item-box" style={{ border: '1.5px solid #f1f5f9', background: '#fcfdfe' }}>
+            {data.capatazSignature ? (
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.3rem' }}>
+                <img src={data.capatazSignature} alt="Firma Supervisor" style={{ maxHeight: '45px', maxWidth: '100%', objectFit: 'contain' }} />
+              </div>
+            ) : <div style={{ height: '45px' }} />}
+            <div className="signature-line" style={{ borderBottomColor: '#e2e8f0' }} />
+            <p style={{ margin: '0.4rem 0 0', fontSize: '0.55rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.1em' }}>SUPERVISOR / JEFE OBRA</p>
+            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 900, color: '#0f172a' }}>Aprobación y Liberación</p>
+            <p style={{ margin: 0, fontSize: '0.5rem', fontWeight: 700, color: '#3b82f6', textTransform: 'uppercase' }}>Control Jerárquico</p>
           </div>
 
-          <div style={{ flex: '0 1 32%', border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #86efac', paddingBottom: '0.25rem', marginBottom: '0.5rem', position: 'relative' }}>
-              {actSignature ? (
-                <img src={actSignature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain', zIndex: 2 }} />
-              ) : (
-                <span style={{ fontSize: '0.6rem', color: '#86efac' }}>Sello y Firma Digital</span>
-              )}
-            </div>
-            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#166534' }}>PROFESIONAL ACTUANTE</p>
-            <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#15803d', fontWeight: 600 }}>
+          <div className="signature-item-box" style={{ border: '1.5px solid #dcfce7', background: '#f0fdf4' }}>
+            {actSignature ? (
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.3rem' }}>
+                <img src={actSignature} alt="Firma Profesional" style={{ maxHeight: '45px', maxWidth: '100%', objectFit: 'contain' }} />
+              </div>
+            ) : <div style={{ height: '45px' }} />}
+            <div className="signature-line" style={{ borderBottomColor: '#86efac' }} />
+            <p style={{ margin: '0.4rem 0 0', fontSize: '0.55rem', fontWeight: 900, textTransform: 'uppercase', color: '#16a34a', letterSpacing: '0.1em' }}>PROFESIONAL ACTUANTE</p>
+            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 900, color: '#0f172a' }}>
               {actName || 'Firma de Especialista'}
             </p>
             {actLic && (
-              <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#16a34a' }}>Lic: {actLic}</p>
+              <p style={{ margin: 0, fontSize: '0.65rem', color: '#16a34a', fontWeight: 700 }}>Mat: {actLic}</p>
             )}
           </div>
 
@@ -303,3 +335,4 @@ export default function ATSPdfGenerator({ atsData }: ATSPdfGeneratorProps): Reac
     </div>
   );
 }
+

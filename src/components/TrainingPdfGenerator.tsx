@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+﻿import React, { useRef } from 'react';
 import { ArrowLeft, Printer, Users, Calendar, MapPin, Clock, BookOpen, Briefcase, GraduationCap } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
@@ -179,7 +179,7 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                     </table>
 
                     {/* Area de Certificación final y firmas */}
-                    <div style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem', justifyContent: 'center' }}>
+                    <div className="signature-container-row" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid' }}>
                         
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                             <span style={{ fontSize: '0.7rem', fontWeight: 900, color: '#475569', display: 'block', marginBottom: '0.4rem', textTransform: 'uppercase' }}>CERTIFICACIÓN DE INSTRUCCIÓN</span>
@@ -189,14 +189,13 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                             </p>
                         </div>
 
-                        <div style={{ flex: '0 1 32%', border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                            <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #86efac', paddingBottom: '0.25rem', marginBottom: '0.5rem', position: 'relative' }}>
-                                {actSignature ? (
-                                    <img src={actSignature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain', zIndex: 2 }} />
-                                ) : (
-                                    <span style={{ fontSize: '0.6rem', color: '#86efac' }}>Sello y Firma Digital</span>
-                                )}
-                            </div>
+                        <div className="signature-item-box">
+                            {actSignature ? (
+                                <div style={{ display: "flex", justifyContent: "center", marginBottom: "0.5rem" }}>
+                                    <img src={actSignature} alt="Firma Profesional" style={{ maxHeight: "50px", maxWidth: "100%", objectFit: "contain" }} />
+                                </div>
+                            ) : null}
+                            <div className="signature-line" />
                             <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#166534' }}>REPRESENTANTE / INSTRUCTOR HSE</p>
                             <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#15803d', fontWeight: 600 }}>
                                 {actName}
@@ -213,3 +212,4 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
         </div>
     );
 }
+

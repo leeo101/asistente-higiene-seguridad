@@ -102,7 +102,7 @@ const authLimiter = rateLimit({
     message: { error: 'Demasiados intentos. Por seguridad, espera 15 minutos.' },
     standardHeaders: true,
     legacyHeaders: false,
-    keyGenerator: (req) => req.body.email || req.socket.remoteAddress || req.ip
+    keyGenerator: (req) => req.body?.email || req.ip
 });
 
 // AI endpoints limiter - 20 requests per minute (to control costs)
@@ -116,7 +116,7 @@ const aiLimiter = rateLimit({
         // Prioritize explicit UID from body or headers, fallback to IP
         const uid = req.body?.uid || req.headers['x-user-uid'];
         if (uid) return uid;
-        return req.socket?.remoteAddress || req.ip;
+        return req.ip;
     }
 });
 
@@ -127,7 +127,7 @@ const emailLimiter = rateLimit({
     message: { error: 'Demasiados emails solicitados. Espera 15 minutos.' },
     standardHeaders: true,
     legacyHeaders: false,
-    keyGenerator: (req) => req.body.email || req.socket.remoteAddress || req.ip
+    keyGenerator: (req) => req.body?.email || req.ip
 });
 
 // Admin endpoints limiter - 10 requests per minute

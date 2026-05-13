@@ -94,13 +94,32 @@ export default function StopCardPdfGenerator({ card }: { card: any }): React.Rea
                             padding: 10mm !important;
                             width: 100% !important;
                             max-width: none !important;
-                            border: none !important;
+                            border-top: 12px solid #2563eb !important;
                             border-radius: 0 !important;
                         }
-                        .company-logo {
-                            -webkit-print-color-adjust: exact !important;
-                            print-color-adjust: exact !important;
-                            color-adjust: exact !important;
+                        .signature-container-row {
+                            display: flex !important;
+                            flex-direction: row !important;
+                            justify-content: space-between !important;
+                            align-items: flex-start !important;
+                            gap: 1.5rem !important;
+                            width: 100% !important;
+                        }
+                        .signature-item-box {
+                            flex: 1 !important;
+                            max-width: none !important;
+                            padding: 1.2rem !important;
+                            margin-top: 0 !important;
+                            display: flex !important;
+                            flex-direction: column !important;
+                            align-items: center !important;
+                            border-radius: 12px !important;
+                            text-align: center !important;
+                        }
+                        .signature-line {
+                            width: 100% !important;
+                            border-bottom: 2px solid #cbd5e1 !important;
+                            margin-bottom: 0.8rem !important;
                         }
                         .gradient-header {
                             background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
@@ -153,19 +172,20 @@ export default function StopCardPdfGenerator({ card }: { card: any }): React.Rea
                         </div>
                     </div>
                     
-                    <div style={{ marginLeft: '20px', flexShrink: 0 }}>
+                    <div style={{ marginLeft: '20px', flexShrink: 0, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.4rem' }}>
                         <CompanyLogo 
                             style={{
-                                height: '55px',
+                                height: '45px',
                                 width: 'auto',
                                 objectFit: 'contain',
-                                maxWidth: '160px',
+                                maxWidth: '140px',
                                 background: '#ffffff',
-                                padding: '10px',
-                                borderRadius: '10px',
-                                boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                                padding: '8px',
+                                borderRadius: '8px',
+                                boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
                             }}
                         />
+                        <div style={{ fontSize: '0.55rem', fontWeight: 900, color: '#94a3b8', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Doc. Controlado</div>
                     </div>
                 </div>
 
@@ -462,74 +482,17 @@ export default function StopCardPdfGenerator({ card }: { card: any }): React.Rea
                 )}
 
                 {/* Footer Signature - Mejorado visualmente */}
-                <div style={{ 
-                    marginTop: 'auto', 
-                    paddingTop: '1.5rem',
-                    borderTop: '2px dashed #cbd5e1',
-                    display: 'flex', 
-                    gap: '1rem',
-                    paddingBottom: '1rem',
-                    justifyContent: 'center',
-                    pageBreakInside: 'avoid'
-                }}>
-                    <div style={{ 
-                        flex: '0 1 32%',
-                        border: '1px solid #bbf7d0',
-                        background: '#f0fdf4',
-                        borderRadius: '6px',
-                        padding: '0.8rem',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center'
-                    }}>
-                        <div style={{ 
-                            height: '80px',
-                            width: '100%',
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            justifyContent: 'center',
-                            marginBottom: '8px',
-                            background: '#ffffff',
-                            borderRadius: '8px',
-                            border: '1px dashed #86efac'
-                        }}>
-                            {card.signature && (
-                                <img 
-                                    src={card.signature} 
-                                    alt="Firma" 
-                                    style={{ 
-                                        maxHeight: '70px', 
-                                        maxWidth: '200px',
-                                        objectFit: 'contain'
-                                    }} 
-                                />
-                            )}
-                        </div>
-                        <div style={{ 
-                            fontSize: '0.65rem', 
-                            color: '#166534', 
-                            fontWeight: 800,
-                            marginBottom: '2px'
-                        }}>
-                            👷 Observador / Prevencionista
-                        </div>
-                        <div style={{ 
-                            fontSize: '0.55rem', 
-                            color: '#15803d',
-                            fontWeight: 600
-                        }}>
-                            Firma Digitalizada - Asistente H&S
-                        </div>
-                        {card.observador && (
-                            <div style={{ 
-                                fontSize: '0.55rem', 
-                                color: '#15803d',
-                                fontWeight: 700,
-                                marginTop: '4px'
-                            }}>
-                                {card.observador}
+                <div className="signature-container-row" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px solid #f1f5f9', pageBreakInside: 'avoid', justifyContent: 'center' }}>
+                    <div className="signature-item-box" style={{ border: '1.5px solid #f1f5f9', background: '#fcfdfe', maxWidth: '300px' }}>
+                        {card.signature ? (
+                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.3rem' }}>
+                                <img src={card.signature} alt="Firma Observador" style={{ maxHeight: '50px', maxWidth: '100%', objectFit: 'contain' }} />
                             </div>
-                        )}
+                        ) : <div style={{ height: '50px' }} />}
+                        <div className="signature-line" style={{ borderBottomColor: '#e2e8f0' }} />
+                        <p style={{ margin: '0.4rem 0 0', fontSize: '0.55rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.1em' }}>OBSERVADOR / PREVENCIONISTA</p>
+                        <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 900, color: '#0f172a' }}>{card.observador || 'Firma y Aclaración'}</p>
+                        <p style={{ margin: 0, fontSize: '0.5rem', fontWeight: 700, color: '#3b82f6', textTransform: 'uppercase' }}>Validación Técnica H&S</p>
                     </div>
                 </div>
 
@@ -573,3 +536,5 @@ export default function StopCardPdfGenerator({ card }: { card: any }): React.Rea
         </div>
     );
 }
+
+

@@ -5,6 +5,8 @@ import { ArrowLeft, Plus, Trash2, HardHat, TriangleAlert, CheckCircle, Clock, Sh
 import toast from 'react-hot-toast';
 import { useSync } from '../contexts/SyncContext';
 import { downloadCSV } from '../services/exportCsv';
+import { usePaywall } from '../hooks/usePaywall';
+import PPEReceiptPdfGenerator from '../components/PPEReceiptPdfGenerator';
 
 const EPP_TYPES = [
     'Casco de seguridad', 'Calzado de seguridad', 'Guantes de trabajo',
@@ -47,6 +49,7 @@ const EMPTY_FORM = { type: '', custom: '', responsible: '', purchaseDate: '', li
 export default function PPETracker(): React.ReactElement | null {
     const navigate = useNavigate();
     const { syncCollection } = useSync();
+    const { requirePro } = usePaywall();
     const [items, setItems] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [form, setForm] = useState(EMPTY_FORM);
@@ -108,9 +111,14 @@ export default function PPETracker(): React.ReactElement | null {
                     </div>
                 </div>
                 {items.length > 0 && (
-                    <button onClick={handleExport} style={{ background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
-                        <Download size={14} /> <span className="hidden sm:inline">EXCEL</span>
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button onClick={() => requirePro(() => window.print())} style={{ background: '#2563eb', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)' }}>
+                            <span className="hidden sm:inline">IMPRIMIR RES. 299/11</span><span className="inline sm:hidden">RES 299/11</span>
+                        </button>
+                        <button onClick={handleExport} style={{ background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
+                            <Download size={14} /> <span className="hidden sm:inline">EXCEL</span>
+                        </button>
+                    </div>
                 )}
             </div>
 
@@ -253,6 +261,10 @@ export default function PPETracker(): React.ReactElement | null {
                     })}
                 </div>
             )}
+            
+            <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+                <PPEReceiptPdfGenerator />
+            </div>
         </div>
     );
 }

@@ -245,10 +245,15 @@ export default function Dashboard(): React.ReactElement {
 
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedPeriod, setSelectedPeriod] = useState<string>('month');
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
     setLoading(true);
     loadDashboardData();
+    return () => window.removeEventListener('resize', handleResize);
   }, [syncPulse, selectedPeriod]);
 
   const loadDashboardData = (): void => {
@@ -392,56 +397,62 @@ export default function Dashboard(): React.ReactElement {
 
   return (
     <AnimatedPage>
-      <div className="container" style={{ paddingTop: '6rem', paddingBottom: '3rem' }}>
+      <div className="container" style={{ paddingTop: isMobile ? '7rem' : '6rem', paddingBottom: '3rem' }}>
         <Breadcrumbs />
 
       {/* Header */}
       <div style={{
         marginBottom: '2rem',
         display: 'flex',
-        alignItems: 'center',
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: isMobile ? 'flex-start' : 'center',
         justifyContent: 'space-between',
         gap: '1rem',
         flexWrap: 'wrap'
       }}>
         <div>
-          <h1 style={{ fontSize: 'clamp(1.5rem, 5vw, 2rem)', fontWeight: 900, margin: '0 0 0.5rem', color: 'var(--color-text)' }}>
+          <h1 style={{ fontSize: isMobile ? '1.8rem' : 'clamp(1.5rem, 5vw, 2rem)', fontWeight: 900, margin: '0 0 0.5rem', color: 'var(--color-text)' }}>
             Dashboard
           </h1>
-          <p style={{ fontSize: '0.95rem', color: 'var(--color-text-muted)', margin: 0 }}>
+          <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', margin: 0 }}>
             Vista general de tu sistema de gestión
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '0.8rem' }}>
+        <div style={{ display: 'flex', gap: '0.6rem', width: isMobile ? '100%' : 'auto' }}>
           <button
             onClick={() => navigate('/reports')}
             style={{
-              padding: '0.7rem 1.2rem',
+              flex: isMobile ? 1 : 'none',
+              padding: '0.7rem 1rem',
               background: 'var(--color-surface)',
               border: '1px solid var(--color-border)',
               borderRadius: '12px',
               fontWeight: 700,
-              fontSize: '0.9rem',
+              fontSize: '0.85rem',
               cursor: 'pointer',
               color: 'var(--color-text)',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.5rem'
+              justifyContent: 'center',
+              gap: '0.4rem'
             }}
           >
-            <Download size={18} /> Exportar
+            <Download size={18} /> {isMobile ? 'Exportar' : 'Exportar'}
           </button>
           <button
             onClick={() => navigate('/management-report')}
             className="btn-primary"
             style={{
-              padding: '0.7rem 1.2rem',
+              flex: isMobile ? 1 : 'none',
+              padding: '0.7rem 1rem',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.5rem'
+              justifyContent: 'center',
+              gap: '0.4rem',
+              fontSize: '0.85rem'
             }}
           >
-            <FileText size={18} /> Reporte Mensual
+            <FileText size={18} /> {isMobile ? 'Reporte' : 'Reporte Mensual'}
           </button>
         </div>
       </div>
@@ -449,7 +460,7 @@ export default function Dashboard(): React.ReactElement {
       {/* Header */}
 
       {/* KPI Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
         {loading ? (
           <> {[...Array(7)].map((_, i) => <KPISkeleton key={i} />)} </>
         ) : (
@@ -481,7 +492,7 @@ export default function Dashboard(): React.ReactElement {
       </div>
 
       {/* Charts */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
 
         {loading ? <><ChartSkeleton /><ChartSkeleton /></> : (<>
 
@@ -626,14 +637,25 @@ export default function Dashboard(): React.ReactElement {
               <BookOpen size={20} color="#8b5cf6" /> Novedades Normativas
             </h3>
             <span style={{ fontSize: '0.7rem', fontWeight: 800, padding: '0.3rem 0.6rem', borderRadius: '20px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-              Actualizado: 02/04/2026 ✨
+              Actualizado: 13/05/2026 ✨
             </span>
           </div>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-            {/* 2026 Update */}
+            {/* MAY 2026 Update */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.8rem', padding: '0.8rem', background: 'rgba(139, 92, 246, 0.05)', borderRadius: '10px', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
-              <div style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', background: '#8b5cf6', color: '#fff', fontSize: '0.65rem', fontWeight: 800, marginTop: '0.2rem' }}>ABR 2026</div>
+              <div style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', background: '#8b5cf6', color: '#fff', fontSize: '0.65rem', fontWeight: 800, marginTop: '0.2rem' }}>MAY 2026</div>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#8b5cf6' }}>Res. SRT 45/2026 (Declaración de Riesgos)</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.2rem', lineHeight: 1.4 }}>
+                  Nuevo Sistema Digital Integrado para la Declaración de Agentes de Riesgo (RAR) y Relevamiento General de Riesgos Laborales (RGRL). Obligatorio a partir de Junio.
+                </div>
+              </div>
+            </div>
+
+            {/* ABR 2026 Update */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.8rem', padding: '0.8rem', background: 'var(--color-background)', borderRadius: '10px', border: '1px solid var(--color-border)' }}>
+              <div style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', background: 'var(--color-text-muted)', color: '#fff', fontSize: '0.65rem', fontWeight: 800, marginTop: '0.2rem' }}>ABR 2026</div>
               <div>
                 <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#8b5cf6' }}>Res. SRT 7/2026 y 15/2026</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.2rem', lineHeight: 1.4 }}>

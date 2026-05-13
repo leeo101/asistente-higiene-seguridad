@@ -50,17 +50,56 @@ export default function EnvironmentalPdf({ data }: { data: any }): React.ReactEl
                         @page { size: A4 portrait; margin: 10mm; }
                         body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                         .no-print { display: none !important; }
-                        .print-area { box-shadow: none !important; margin: 0 !important; padding: 5mm !important; width: 100% !important; max-width: none !important; border: none !important; border-radius: 0 !important; min-height: auto !important; height: auto !important; }
+                        .print-area { 
+                            box-shadow: none !important; 
+                            margin: 0 !important; 
+                            padding: 5mm !important; 
+                            width: 100% !important; 
+                            max-width: none !important; 
+                            border-top: 12px solid #2563eb !important; 
+                            border-radius: 0 !important; 
+                            min-height: auto !important; 
+                            height: auto !important; 
+                        }
+                        .signature-container-row {
+                            display: flex !important;
+                            flex-direction: row !important;
+                            justify-content: space-between !important;
+                            align-items: flex-start !important;
+                            gap: 1rem !important;
+                            width: 100% !important;
+                            margin-top: 2rem !important;
+                        }
+                        .signature-item-box {
+                            flex: 1 !important;
+                            max-width: none !important;
+                            padding: 0.8rem !important;
+                            margin-top: 0 !important;
+                            display: flex !important;
+                            flex-direction: column !important;
+                            align-items: center !important;
+                            border-radius: 8px !important;
+                            text-align: center !important;
+                        }
+                        .signature-line {
+                            width: 100% !important;
+                            border-bottom: 1.5px solid #cbd5e1 !important;
+                            margin-bottom: 0.5rem !important;
+                            margin-top: 0.5rem !important;
+                        }
                     `}
                 </style>
 
                 {/* Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '3px solid #333', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
-                    <div>
-                        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900 }}>PROTOCOLO DE MONITOREO AMBIENTAL</h1>
-                        <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: '#666' }}>SISTEMA DE GESTIÓN ISO 14001 • LEY 19.587</p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '4px solid #f1f5f9', paddingBottom: '1.2rem', marginBottom: '1.5rem' }}>
+                    <div style={{ flex: 1 }}>
+                        <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, color: '#0f172a', letterSpacing: '-0.02em' }}>PROTOCOLO DE MONITOREO AMBIENTAL</h1>
+                        <p style={{ margin: '0.2rem 0 0', fontSize: '0.8rem', fontWeight: 800, color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '0.05em' }}>SISTEMA DE GESTIÓN ISO 14001 • LEY 19.587</p>
                     </div>
-                    <CompanyLogo style={{ height: '50px', maxWidth: '150px', objectFit: 'contain' }} />
+                    <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.2rem' }}>
+                        <CompanyLogo style={{ height: '40px', maxWidth: '140px' }} />
+                        <div style={{ fontSize: '0.55rem', fontWeight: 900, color: '#94a3b8', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Doc. Controlado</div>
+                    </div>
                 </div>
 
                 {/* Main Identity */}
@@ -157,41 +196,43 @@ export default function EnvironmentalPdf({ data }: { data: any }): React.ReactEl
                 </div>
 
                 {/* Signatures */}
-                <div style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem', justifyContent: 'center' }}>
-                    <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                            <span style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>Firma original</span>
-                        </div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#1e293b' }}>RESPONSABLE ÁREA</p>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#64748b' }}>Firma y Aclaración</p>
+                <div className="signature-container-row" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px solid #f1f5f9', pageBreakInside: 'avoid' }}>
+                    <div className="signature-item-box" style={{ border: '1.5px solid #f1f5f9', background: '#fcfdfe' }}>
+                        <div className="signature-line" style={{ borderBottomColor: '#e2e8f0' }} />
+                        <p style={{ margin: '0.4rem 0 0', fontSize: '0.55rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.1em' }}>RESPONSABLE ÁREA</p>
+                        <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 900, color: '#0f172a' }}>Firma y Aclaración</p>
+                        <p style={{ margin: 0, fontSize: '0.5rem', fontWeight: 700, color: '#3b82f6', textTransform: 'uppercase' }}>Validación Interna</p>
                     </div>
 
-                    <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                            {data.capatazSignature ? (
-                                <img src={data.capatazSignature} alt="Firma Supervisor" style={{ maxHeight: '50px', objectFit: 'contain' }} />
-                            ) : (
-                                <span style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>Firma digital / original</span>
-                            )}
-                        </div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#1e293b' }}>SUPERVISOR H&S</p>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#64748b' }}>Aprobación</p>
+                    <div className="signature-item-box" style={{ border: '1.5px solid #f1f5f9', background: '#fcfdfe' }}>
+                        {data.capatazSignature ? (
+                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.3rem' }}>
+                                <img src={data.capatazSignature} alt="Firma Supervisor" style={{ maxHeight: '45px', maxWidth: '100%', objectFit: 'contain' }} />
+                            </div>
+                        ) : (
+                            <div style={{ height: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1', fontSize: '0.65rem' }}>Firma digital / original</div>
+                        )}
+                        <div className="signature-line" style={{ borderBottomColor: '#e2e8f0' }} />
+                        <p style={{ margin: '0.4rem 0 0', fontSize: '0.55rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.1em' }}>SUPERVISOR H&S</p>
+                        <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 900, color: '#0f172a' }}>Aprobación y Control</p>
+                        <p style={{ margin: 0, fontSize: '0.5rem', fontWeight: 700, color: '#3b82f6', textTransform: 'uppercase' }}>Higiene y Seguridad</p>
                     </div>
 
-                    <div style={{ flex: '0 1 32%', border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #86efac', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                            {data.professionalSignature || data.signature ? (
-                                <img src={data.professionalSignature || data.signature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain' }} />
-                            ) : (
-                                <span style={{ fontSize: '0.65rem', color: '#86efac' }}>Sello y Firma Digital</span>
-                            )}
-                        </div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#166534' }}>TÉCNICO INTERVINIENTE</p>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#15803d', fontWeight: 600 }}>
+                    <div className="signature-item-box" style={{ border: '1.5px solid #dcfce7', background: '#f0fdf4' }}>
+                        {data.professionalSignature || data.signature ? (
+                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.3rem' }}>
+                                <img src={data.professionalSignature || data.signature} alt="Firma Profesional" style={{ maxHeight: '45px', maxWidth: '100%', objectFit: 'contain' }} />
+                            </div>
+                        ) : (
+                            <div style={{ height: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#86efac', fontSize: '0.65rem' }}>Sello y Firma Digital</div>
+                        )}
+                        <div className="signature-line" style={{ borderBottomColor: '#86efac' }} />
+                        <p style={{ margin: '0.4rem 0 0', fontSize: '0.55rem', fontWeight: 900, textTransform: 'uppercase', color: '#16a34a', letterSpacing: '0.1em' }}>TÉCNICO INTERVINIENTE</p>
+                        <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 900, color: '#0f172a' }}>
                             {data.professionalName || data.technician || 'Firma y Sello'}
                         </p>
                         {(data.professionalLicense || data.license) && (
-                            <p style={{ margin: '2px 0 0', fontSize: '0.55rem', color: '#16a34a' }}>Lic: {data.professionalLicense || data.license}</p>
+                            <p style={{ margin: 0, fontSize: '0.65rem', color: '#16a34a', fontWeight: 700 }}>Mat: {data.professionalLicense || data.license}</p>
                         )}
                     </div>
                 </div>
@@ -203,3 +244,4 @@ export default function EnvironmentalPdf({ data }: { data: any }): React.ReactEl
         </div>
     );
 }
+

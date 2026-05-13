@@ -48,6 +48,7 @@ export default function ChemicalSafety(): React.ReactElement | null {
     const [filterCategory, setFilterCategory] = useState('all');
     const [viewMode, setViewMode] = useState('grid'); // grid o list
     const [shareItem, setShareItem] = useState(null);
+    const [isMobile, setIsMobile] = useState(false);
 
     const [selectedChemical, setSelectedChemical] = useState(null);
     const [showShareModal, setShowShareModal] = useState(false);
@@ -87,6 +88,10 @@ export default function ChemicalSafety(): React.ReactElement | null {
 
         loadChemicals();
 
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        handleResize();
+        window.addEventListener('resize', handleResize);
+
         // Escuchar cambios en localStorage desde otras páginas
         const handleStorageChange = (e: any) => {
             if (e.key === 'chemical_safety_db') {
@@ -106,6 +111,7 @@ export default function ChemicalSafety(): React.ReactElement | null {
 
         return () => {
             window.removeEventListener('storage', handleStorageChange);
+            window.removeEventListener('resize', handleResize);
         };
     }, []);
 
@@ -259,10 +265,11 @@ export default function ChemicalSafety(): React.ReactElement | null {
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', width: isMobile ? '100%' : 'auto' }}>
                     <button
                         onClick={() => navigate('/chemical-safety-form')}
                         className="btn-primary"
+                        style={{ width: isMobile ? '100%' : 'auto', display: 'flex', justifyContent: 'center' }}
                     >
                         <Plus size={20} /> Nuevo Producto
                     </button>
@@ -378,6 +385,7 @@ export default function ChemicalSafety(): React.ReactElement | null {
                     ))}
                 </select>
 
+                {!isMobile && (
                 <div style={{
                     display: 'flex',
                     border: '1px solid var(--color-input-border)',
@@ -423,6 +431,7 @@ export default function ChemicalSafety(): React.ReactElement | null {
                         </svg>
                     </button>
                 </div>
+                )}
             </div>
 
             {/* Chemicals Grid/List */}
@@ -448,6 +457,7 @@ export default function ChemicalSafety(): React.ReactElement | null {
                             onShare={() => setShareItem(chemical)}
                             onEdit={() => navigate('/chemical-safety-form', { state: { editData: chemical } })}
                             onDelete={() => handleDelete(chemical.id)}
+                            isMobile={isMobile}
                         />
                     ))}
                 </div>
@@ -461,6 +471,7 @@ export default function ChemicalSafety(): React.ReactElement | null {
                             onView={() => setSelectedChemical(chemical)}
                             onShare={() => setShareItem(chemical)}
                             onDelete={() => handleDelete(chemical.id)}
+                            isMobile={isMobile}
                         />
                     ))}
                 </div>
@@ -711,12 +722,13 @@ function ChemicalCard({ chemical, hazardLevel, onView, onShare, onEdit, onDelete
     );
 }
 
-function ChemicalListItem({ chemical, hazardLevel, onView, onShare, onDelete }: any) {
+function ChemicalListItem({ chemical, hazardLevel, onView, onShare, onDelete, isMobile }: any) {
     return (
         <div className="card" style={{
             padding: '1rem 1.25rem',
             display: 'flex',
             alignItems: 'center',
+            flexWrap: isMobile ? 'wrap' : 'nowrap',
             gap: '1rem',
             transition: 'all var(--transition-fast)'
         }}>

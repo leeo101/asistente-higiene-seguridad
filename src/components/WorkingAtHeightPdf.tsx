@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Users, ShieldCheck, HeartPulse, LifeBuoy } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
@@ -14,7 +14,7 @@ const RISK_FACTORS_MAP = {
 };
 
 const EQUIPMENT_MAP = {
-    harness: 'Arnés de seguridad de cuerpo completo',
+    harness: 'Arnés de Seguridad de cuerpo completo',
     lanyard: 'Cabo de vida simple/doble con amortiguador',
     helmet: 'Casco con barboquejo',
     carabiner: 'Mosquetones de seguridad con cierre automático',
@@ -38,9 +38,13 @@ export default function WorkingAtHeightPdf({ data }: { data: any }): React.React
         ? data.riskFactors.map(h => RISK_FACTORS_MAP[h] || h)
         : (data.hazards || []);
 
-    const mitigation = Array.isArray(data.fallProtection)
-        ? data.fallProtection.filter(e => e.checked).map(e => e.name || EQUIPMENT_MAP[e.id] || e.id)
-        : (data.mitigation || []);
+    const mitigation = [];
+    if (data.ppe) {
+        if (data.ppe.harness) mitigation.push('Arnés de Seguridad');
+        if (data.ppe.lanyard) mitigation.push('Cola de Amarre');
+        if (data.ppe.helmet) mitigation.push('Casco con Barbijo');
+        if (data.ppe.lifeline) mitigation.push('Línea de Vida');
+    }
 
     return (
         <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
@@ -108,69 +112,61 @@ export default function WorkingAtHeightPdf({ data }: { data: any }): React.React
 
                 {/* Hazards & Mitigation */}
                 <div style={{ marginBottom: '1.5rem' }}>
-                    <h3 style={{ fontSize: '0.9rem', fontWeight: 900, background: '#f8fafc', padding: '0.4rem', border: '1px solid #cbd5e1', marginBottom: '0.5rem' }}>ANÁLISIS DE RIESGOS Y MITIGACIÓN</h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', border: '1px solid #eee', padding: '0.8rem', borderRadius: '6px' }}>
+                    <h3 style={{ fontSize: '0.9rem', fontWeight: 900, background: '#f8fafc', padding: '0.4rem', border: '1px solid #cbd5e1', marginBottom: '0.5rem', color: '#0f172a' }}>ANÁLISIS DE RIESGOS Y EPP REQUERIDO</h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '8px', background: '#f8fafc' }}>
                         <div>
-                            <span style={{ fontSize: '0.7rem', fontWeight: 900, display: 'block', color: '#64748b' }}>RIESGOS DETECTADOS</span>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 900, display: 'block', color: '#475569', marginBottom: '0.5rem' }}>RIESGOS DETECTADOS</span>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                                 {hazards.length > 0 ? hazards.map((h, i) => (
-                                    <span key={i} style={{ background: '#fef2f2', border: '1px solid #fee2e2', color: '#991b1b', padding: '2px 6px', borderRadius: '3px', fontSize: '0.75rem', fontWeight: 600 }}>{h}</span>
-                                )) : <span style={{ fontSize: '0.8rem', color: '#666' }}>Ninguno identificado</span>}
+                                    <span key={i} style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', padding: '4px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 700 }}>{h}</span>
+                                )) : <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Trabajo en altura estándar.</span>}
                             </div>
                         </div>
                         <div>
-                            <span style={{ fontSize: '0.7rem', fontWeight: 900, display: 'block', color: '#64748b' }}>MEDIDAS / EPP</span>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
-                                {mitigation.length > 0 ? mitigation.map((m, i) => (
-                                    <span key={i} style={{ background: '#f0fdf4', border: '1px solid #dcfce7', color: '#166534', padding: '2px 6px', borderRadius: '3px', fontSize: '0.75rem', fontWeight: 600 }}>{m}</span>
-                                )) : <span style={{ fontSize: '0.8rem', color: '#666' }}>Ninguna identificada</span>}
+                            <span style={{ fontSize: '0.75rem', fontWeight: 900, display: 'block', color: '#475569', marginBottom: '0.5rem' }}>EQUIPOS DE PROTECCIÓN (EPP)</span>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                                {['harness', 'lanyard', 'helmet', 'lifeline'].map((key) => {
+                                    const hasIt = data.ppe && data.ppe[key];
+                                    const labels = { harness: 'Arnés de Seguridad', lanyard: 'Cola de Amarre', helmet: 'Casco con Barbijo', lifeline: 'Línea de Vida' };
+                                    return (
+                                        <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            <div style={{ width: '14px', height: '14px', border: '1.5px solid #000', display: 'flex', alignItems: 'center', justifyContent: 'center', background: hasIt ? '#000' : '#fff' }}>
+                                                {hasIt && <span style={{ color: '#fff', fontSize: '10px', lineHeight: 1 }}>✓</span>}
+                                            </div>
+                                            <span style={{ fontSize: '0.8rem', fontWeight: hasIt ? 700 : 500, color: '#1e293b' }}>{labels[key as keyof typeof labels]}</span>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Signatures */}
-                <div style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem', justifyContent: 'center' }}>
-                    <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                            <span style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>Firma original</span>
-                        </div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#1e293b' }}>OPERADOR / TRABAJADOR</p>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#64748b' }}>Firma y Aclaración</p>
-                    </div>
-
-                    <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                            {data.capatazSignature ? (
-                                <img src={data.capatazSignature} alt="Firma Supervisor" style={{ maxHeight: '50px', objectFit: 'contain' }} />
-                            ) : (
-                                <span style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>Firma digital / original</span>
-                            )}
-                        </div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#1e293b' }}>SUPERVISOR H&S</p>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#64748b' }}>Aprobación</p>
-                    </div>
-
-                    <div style={{ flex: '0 1 32%', border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #86efac', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                            {data.professionalSignature || data.signature ? (
-                                <img src={data.professionalSignature || data.signature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain' }} />
-                            ) : (
-                                <span style={{ fontSize: '0.65rem', color: '#86efac' }}>Sello y Firma Digital</span>
-                            )}
-                        </div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#166534' }}>PROFESIONAL ACTUANTE</p>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#15803d', fontWeight: 600 }}>
-                            {data.professionalName || 'Firma y Sello'}
-                        </p>
-                        {(data.professionalLicense || data.license) && (
-                            <p style={{ margin: '2px 0 0', fontSize: '0.55rem', color: '#16a34a' }}>Lic: {data.professionalLicense || data.license}</p>
-                        )}
-                    </div>
-                </div>
+        <div className="signature-container-row" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1' }}>
+          <div className="signature-item-box">
+            <div className="signature-line" />
+            <p style={{ margin: '0.3rem 0 0', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.08em' }}>OPERADOR / TRABAJADOR</p>
+            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>Firma y Aclaración</p>
+          </div>
+          <div className="signature-item-box">
+            <div className="signature-line" />
+            <p style={{ margin: '0.3rem 0 0', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.08em' }}>SUPERVISOR H&S</p>
+            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>Aprobación</p>
+          </div>
+          <div className="signature-item-box">
+            {(data.professionalSignature || data.signature) ? (<div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}><img src={data.professionalSignature || data.signature} alt="Firma Profesional" style={{ maxHeight: '50px', maxWidth: '100%', objectFit: 'contain' }} /></div>) : null}
+            <div className="signature-line" />
+            <p style={{ margin: '0.3rem 0 0', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.08em' }}>PROFESIONAL ACTUANTE</p>
+            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>{data.professionalName || 'Firma y Sello'}</p>
+            <p style={{ margin: 0, fontSize: '0.65rem', color: '#64748b' }}>Lic: {data.professionalLicense || data.license}</p>
+          </div>
+        </div>
 
                 <PdfBrandingFooter />
             </div>
         </div>
     );
 }
+
+

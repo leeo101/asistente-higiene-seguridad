@@ -167,11 +167,31 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
                             <label style={labelStyle}>Nombre del Trabajador *</label>
                             <input type="text" value={permit.workerName} onChange={(e) => setPermit({ ...permit, workerName: e.target.value })} style={inputStyle} placeholder="Nombre completo" />
                         </div>
-                        <div>
+                        <div style={{ gridColumn: isMobile ? 'auto' : 'span 2' }}>
                             <label style={labelStyle}>Tipo de Trabajo</label>
-                            <select value={permit.workType} onChange={(e) => setPermit({ ...permit, workType: e.target.value })} style={inputStyle}>
-                                {WORK_TYPES.map(t => <option key={t.id} value={t.id}>{t.icon} {t.name}</option>)}
-                            </select>
+                            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: '1rem' }}>
+                                {WORK_TYPES.map(t => (
+                                    <button 
+                                        key={t.id} 
+                                        onClick={() => setPermit({ ...permit, workType: t.id })}
+                                        style={{ 
+                                            padding: '1rem', 
+                                            background: permit.workType === t.id ? 'rgba(59, 130, 246, 0.1)' : 'var(--color-background)', 
+                                            border: `2px solid ${permit.workType === t.id ? 'var(--color-primary)' : 'var(--color-border)'}`, 
+                                            borderRadius: 'var(--radius-xl)', 
+                                            cursor: 'pointer', 
+                                            display: 'flex', 
+                                            flexDirection: 'column', 
+                                            alignItems: 'center', 
+                                            gap: '0.5rem',
+                                            transition: 'all 0.2s'
+                                        }}
+                                    >
+                                        <span style={{ fontSize: '2rem' }}>{t.icon}</span>
+                                        <span style={{ fontSize: '0.8rem', fontWeight: 800, color: permit.workType === t.id ? 'var(--color-primary)' : 'var(--color-text-muted)' }}>{t.name}</span>
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                         <div>
                             <label style={labelStyle}>Alturaestimada (metros) *</label>
@@ -188,11 +208,34 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
                             <label style={labelStyle}>Supervisor a Cargo</label>
                             <input type="text" value={permit.supervisor} onChange={(e) => setPermit({ ...permit, supervisor: e.target.value })} style={inputStyle} placeholder="Nombre del supervisor" />
                         </div>
-                        <div>
+                        <div style={{ gridColumn: isMobile ? 'auto' : 'span 2' }}>
                             <label style={labelStyle}>Prioridad / Riesgo</label>
-                            <select value={permit.priority} onChange={(e) => setPermit({ ...permit, priority: e.target.value })} style={inputStyle}>
-                                {Object.entries(PRIORITY).map(([k, v]) => <option key={k} value={k}>{v.icon} {v.label}</option>)}
-                            </select>
+                            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)', gap: '1rem' }}>
+                                {Object.entries(PRIORITY).map(([k, v]) => (
+                                    <button
+                                        key={k}
+                                        onClick={() => setPermit({ ...permit, priority: k })}
+                                        style={{
+                                            padding: '1rem',
+                                            background: permit.priority === k ? `${v.color}15` : 'var(--color-background)',
+                                            border: `2px solid ${permit.priority === k ? v.color : 'var(--color-border)'}`,
+                                            borderRadius: 'var(--radius-xl)',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '0.5rem',
+                                            fontWeight: 800,
+                                            color: permit.priority === k ? v.color : 'var(--color-text-muted)',
+                                            transition: 'all 0.2s',
+                                            boxShadow: permit.priority === k ? `0 0 15px ${v.color}30` : 'none'
+                                        }}
+                                    >
+                                        <span style={{ fontSize: '1.2rem' }}>{v.icon}</span>
+                                        {v.label}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
 
@@ -201,24 +244,38 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
                             <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Validación Legal (Res. SRT 61/23)</h3>
                             
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                <button
-                                    onClick={() => setPermit({ ...permit, medicalFitness: !permit.medicalFitness })}
-                                    style={{
-                                        padding: '1rem',
-                                        background: permit.medicalFitness ? 'rgba(16, 185, 129, 0.1)' : 'var(--color-background)',
-                                        border: `2px solid ${permit.medicalFitness ? 'var(--color-success)' : 'var(--color-border)'}`,
-                                        borderRadius: 'var(--radius-lg)',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '0.75rem'
-                                    }}
-                                >
-                                    <div style={{ width: '20px', height: '20px', borderRadius: '4px', border: '2px solid var(--color-success)', background: permit.medicalFitness ? 'var(--color-success)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        {permit.medicalFitness && <CheckCircle2 size={14} color="#fff" />}
+                                <div style={{
+                                    padding: '1.5rem',
+                                    background: permit.medicalFitness ? 'rgba(16, 185, 129, 0.05)' : 'rgba(220, 38, 38, 0.05)',
+                                    border: `2px dashed ${permit.medicalFitness ? 'var(--color-success)' : '#dc2626'}`,
+                                    borderRadius: 'var(--radius-xl)',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: '1rem'
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                        <button
+                                            onClick={() => setPermit({ ...permit, medicalFitness: !permit.medicalFitness })}
+                                            style={{
+                                                width: '40px', height: '40px', borderRadius: '50%',
+                                                border: `3px solid ${permit.medicalFitness ? 'var(--color-success)' : '#dc2626'}`,
+                                                background: permit.medicalFitness ? 'var(--color-success)' : 'transparent',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                                                transition: 'all 0.2s', flexShrink: 0
+                                            }}
+                                        >
+                                            {permit.medicalFitness && <CheckCircle2 size={24} color="#fff" />}
+                                        </button>
+                                        <div>
+                                            <span style={{ fontSize: '1.1rem', fontWeight: 900, color: permit.medicalFitness ? 'var(--color-success)' : '#dc2626', display: 'block' }}>
+                                                Apto Médico Vigente
+                                            </span>
+                                            <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                                                {permit.medicalFitness ? 'Verificado y habilitado para tareas en altura' : '¡ATENCIÓN! No puede realizar tareas sin apto médico'}
+                                            </span>
+                                        </div>
                                     </div>
-                                    <span style={{ fontSize: '0.9rem', fontWeight: 700 }}>Apto Médico Vigente</span>
-                                </button>
+                                </div>
 
                                 <div>
                                     <label style={labelStyle}>Plan de Rescate (Resumen)</label>

@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Lightbulb, Sun, Layout, FileText, Building2, MapPin, Calendar, AlertTriangle, CheckCircle } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
@@ -64,16 +64,16 @@ export default function LightingPdfGenerator({ data }: { data: any }): React.Rea
                 {/* Header Tripartito */}
                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '3px solid #e2e8f0', paddingBottom: '1.2rem', marginBottom: '1.5rem', width: '100%' }}>
                     <div style={{ flex: 1, textAlign: 'left' }}>
-                        <p style={{ margin: 0, fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.08em' }}>Sistema de Gestión HSE</p>
+                        <p style={{ margin: 0, fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.08em' }}>Sistema de GestiÃ³n HSE</p>
                         <p style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem', textTransform: 'uppercase', color: cumple ? '#d97706' : '#dc2626' }}>
-                            {cumple ? 'Doc. Estudio de Iluminación' : '⚠ DEFICIENCIA DE ILUMINACIÓN'}
+                            {cumple ? 'Doc. Estudio de IluminaciÃ³n' : 'âš  DEFICIENCIA DE ILUMINACIÃ“N'}
                         </p>
                     </div>
 
                     <div style={{ flex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                        <h1 style={{ margin: 0, fontWeight: 900, fontSize: '2.4rem', letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1, color: '#0f172a' }}>ILUMINACIÓN</h1>
+                        <h1 style={{ margin: 0, fontWeight: 900, fontSize: '2.4rem', letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1, color: '#0f172a' }}>ILUMINACIÃ“N</h1>
                         <div style={{ marginTop: '0.3rem', background: cumple ? '#eab308' : '#dc2626', color: 'white', padding: '0.2rem 0.8rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.1em' }}>
-                            ESTUDIO DE NIVELES — {countryNorms.lighting}
+                            ESTUDIO DE NIVELES â€” {countryNorms.lighting}
                         </div>
                     </div>
 
@@ -90,7 +90,7 @@ export default function LightingPdfGenerator({ data }: { data: any }): React.Rea
                             <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a', marginTop: '0.2rem' }}>{empresa || '-'}</div>
                         </div>
                         <div style={{ padding: '0.8rem 1rem' }}>
-                            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={12}/> FECHA DE MEDICIÓN</span>
+                            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={12}/> FECHA DE MEDICIÃ“N</span>
                             <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.2rem' }}>{fecha ? new Date(fecha).toLocaleDateString('es-AR') : '-'}</div>
                         </div>
                     </div>
@@ -100,7 +100,7 @@ export default function LightingPdfGenerator({ data }: { data: any }): React.Rea
                             <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.2rem' }}>{sector || '-'}</div>
                         </div>
                         <div style={{ padding: '0.8rem 1rem' }}>
-                            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>DESCRIPCIÓN DE TAREAS</span>
+                            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>DESCRIPCIÃ“N DE TAREAS</span>
                             <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.2rem' }}>{descripcionActividad || '-'}</div>
                         </div>
                     </div>
@@ -115,7 +115,7 @@ export default function LightingPdfGenerator({ data }: { data: any }): React.Rea
                     <div style={{ flex: 1, padding: '1rem 1.2rem', display: 'flex', alignItems: 'center', gap: '0.8rem', background: '#fef3c7' }}>
                         <Sun size={28} color="#d97706" />
                         <div>
-                            <div style={{ fontSize: '0.6rem', fontWeight: 800, color: '#92400e', textTransform: 'uppercase' }}>ILUM. MÍNIMA EXIGIDA</div>
+                            <div style={{ fontSize: '0.6rem', fontWeight: 800, color: '#92400e', textTransform: 'uppercase' }}>ILUM. MÃNIMA EXIGIDA</div>
                             <div style={{ fontWeight: 900, fontSize: '1.5rem', color: '#d97706', lineHeight: 1 }}>{luxRequerido || 0} <span style={{ fontSize: '0.8rem', color: '#92400e' }}>Lux</span></div>
                         </div>
                     </div>
@@ -125,12 +125,12 @@ export default function LightingPdfGenerator({ data }: { data: any }): React.Rea
                 <div style={{ marginBottom: '1.5rem', border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden' }}>
                     <div style={{ background: '#1e293b', padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <Lightbulb size={15} color="#fbbf24" />
-                        <span style={{ fontWeight: 900, fontSize: '0.78rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em' }}>PUNTOS DE MEDICIÓN — {meds.length} REGISTRO{meds.length !== 1 ? 'S' : ''}</span>
+                        <span style={{ fontWeight: 900, fontSize: '0.78rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em' }}>PUNTOS DE MEDICIÃ“N â€” {meds.length} REGISTRO{meds.length !== 1 ? 'S' : ''}</span>
                     </div>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '8.5pt' }}>
                         <thead>
                             <tr style={{ background: '#f8fafc' }}>
-                                <th style={{ padding: '0.5rem 0.4rem', width: '5%', textAlign: 'center', fontWeight: 800, color: '#64748b', border: '1px solid #e2e8f0', fontSize: '0.65rem' }}>N°</th>
+                                <th style={{ padding: '0.5rem 0.4rem', width: '5%', textAlign: 'center', fontWeight: 800, color: '#64748b', border: '1px solid #e2e8f0', fontSize: '0.65rem' }}>NÂ°</th>
                                 <th style={{ padding: '0.5rem 0.8rem', textAlign: 'left', fontWeight: 800, color: '#64748b', border: '1px solid #e2e8f0', fontSize: '0.65rem' }}>PUNTO / PUESTO DE TRABAJO</th>
                                 <th style={{ padding: '0.5rem 0.8rem', width: '18%', textAlign: 'center', fontWeight: 800, color: '#64748b', border: '1px solid #e2e8f0', fontSize: '0.65rem' }}>LUX MEDIDO</th>
                                 <th style={{ padding: '0.5rem 0.8rem', width: '15%', textAlign: 'center', fontWeight: 800, color: '#64748b', border: '1px solid #e2e8f0', fontSize: '0.65rem' }}>ESTADO</th>
@@ -149,8 +149,8 @@ export default function LightingPdfGenerator({ data }: { data: any }): React.Rea
                                         <td style={{ border: '1px solid #e2e8f0', padding: '0.5rem 0.8rem', textAlign: 'center', fontWeight: 900, color: ok ? '#15803d' : '#dc2626', fontSize: '1rem' }}>{m.luxMedido}</td>
                                         <td style={{ border: '1px solid #e2e8f0', padding: '0.5rem 0.8rem', textAlign: 'center' }}>
                                             {ok
-                                                ? <span style={{ background: '#dcfce7', color: '#16a34a', padding: '0.15rem 0.5rem', borderRadius: '6px', fontWeight: 900, fontSize: '0.7rem' }}>✓ OK</span>
-                                                : <span style={{ background: '#fecaca', color: '#dc2626', padding: '0.15rem 0.5rem', borderRadius: '6px', fontWeight: 900, fontSize: '0.7rem' }}>✗ BAJO</span>
+                                                ? <span style={{ background: '#dcfce7', color: '#16a34a', padding: '0.15rem 0.5rem', borderRadius: '6px', fontWeight: 900, fontSize: '0.7rem' }}>âœ“ OK</span>
+                                                : <span style={{ background: '#fecaca', color: '#dc2626', padding: '0.15rem 0.5rem', borderRadius: '6px', fontWeight: 900, fontSize: '0.7rem' }}>âœ— BAJO</span>
                                             }
                                         </td>
                                     </tr>
@@ -160,7 +160,7 @@ export default function LightingPdfGenerator({ data }: { data: any }): React.Rea
                     </table>
                 </div>
 
-                {/* Evaluación normativa */}
+                {/* EvaluaciÃ³n normativa */}
                 <div style={{ border: `1.5px solid ${cumple ? '#86efac' : '#fca5a5'}`, borderRadius: '6px', marginBottom: '1.5rem', overflow: 'hidden', pageBreakInside: 'avoid' }}>
                     <div style={{ background: cumple ? '#f0fdf4' : '#fef2f2', padding: '1rem 1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
                         <div>
@@ -180,12 +180,12 @@ export default function LightingPdfGenerator({ data }: { data: any }): React.Rea
                     </div>
                 </div>
 
-                {/* Conclusión */}
+                {/* ConclusiÃ³n */}
                 {conclusion && (
                     <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.5rem', overflow: 'hidden', pageBreakInside: 'avoid' }}>
                         <div style={{ background: '#334155', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                             <FileText size={14} color="#fff" />
-                            <span style={{ fontWeight: 900, fontSize: '0.72rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>CONCLUSIÓN TÉCNICA PROFESIONAL</span>
+                            <span style={{ fontWeight: 900, fontSize: '0.72rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>CONCLUSIÃ“N TÃ‰CNICA PROFESIONAL</span>
                         </div>
                         <div style={{ padding: '0.9rem 1.2rem', fontSize: '0.83rem', color: '#334155', whiteSpace: 'pre-wrap', lineHeight: 1.6, background: '#f8fafc', fontWeight: 600 }}>
                             {conclusion}
@@ -194,36 +194,29 @@ export default function LightingPdfGenerator({ data }: { data: any }): React.Rea
                 )}
 
                 {/* Firmas */}
-                <div style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem', justifyContent: 'center' }}>
-                    <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                            <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Firma original</span>
-                        </div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#1e293b' }}>OPERADOR / RESPONSABLE</p>
-                        <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Toma de conocimiento</p>
-                    </div>
-
-                    <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                            <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Firma original</span>
-                        </div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#1e293b' }}>SUPERVISOR H&S</p>
-                        <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Aprobación del estudio</p>
-                    </div>
-
-                    <div style={{ flex: '0 1 32%', border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #86efac', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                            {actSignature ? (
-                                <img src={actSignature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain' }} />
-                            ) : (
-                                <span style={{ fontSize: '0.6rem', color: '#86efac' }}>Sello y Firma Digital</span>
-                            )}
-                        </div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#166534' }}>PROFESIONAL ACTUANTE HSE</p>
-                        <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#15803d', fontWeight: 600 }}>{actName || 'Especialista H&S'}</p>
-                        {actLic && <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#16a34a' }}>Mat: {actLic}</p>}
-                    </div>
-                </div>
+        <div className="signature-container-row" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1' }}>
+          <div className="signature-item-box">
+            <div className="signature-line" />
+            <p style={{ margin: '0.3rem 0 0', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.08em' }}>OPERADOR / RESPONSABLE</p>
+            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>Toma de conocimiento</p>
+          </div>
+          <div className="signature-item-box">
+            <div className="signature-line" />
+            <p style={{ margin: '0.3rem 0 0', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.08em' }}>SUPERVISOR H&S</p>
+            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>AprobaciÃ³n del estudio</p>
+          </div>
+          <div className="signature-item-box">
+            {actSignature ? (
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>
+                <img src={actSignature} alt="Firma Profesional" style={{ maxHeight: '50px', maxWidth: '100%', objectFit: 'contain' }} />
+              </div>
+            ) : null}
+            <div className="signature-line" />
+            <p style={{ margin: '0.3rem 0 0', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.08em' }}>PROFESIONAL ACTUANTE HSE</p>
+            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>{actName || 'Especialista H&S'}</p>
+            <p style={{ margin: 0, fontSize: '0.65rem', color: '#64748b' }}>Mat: {actLic}</p>
+          </div>
+        </div>
 
                 <PdfBrandingFooter />
             </div>

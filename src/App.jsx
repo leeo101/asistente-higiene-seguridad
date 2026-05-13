@@ -134,7 +134,12 @@ const NoiseAssessmentForm = lazyWithRetry(() => import('./pages/NoiseAssessmentF
 const WorkingAtHeightForm = lazyWithRetry(() => import('./pages/WorkingAtHeightForm'));
 const ConfinedSpaceForm = lazyWithRetry(() => import('./pages/ConfinedSpaceForm'));
 const ChemicalSafetyForm = lazyWithRetry(() => import('./pages/ChemicalSafetyForm'));
-
+const LiftingForm = lazyWithRetry(() => import('./pages/LiftingForm'));
+const LiftingHistory = lazyWithRetry(() => import('./pages/LiftingHistory'));
+const FleetForm = lazyWithRetry(() => import('./pages/FleetForm'));
+const FleetHistory = lazyWithRetry(() => import('./pages/FleetHistory'));
+const EvacuationSimulatorForm = lazyWithRetry(() => import('./pages/EvacuationSimulatorForm'));
+const EvacuationSimulatorHistory = lazyWithRetry(() => import('./pages/EvacuationSimulatorHistory'));
 
 
 function SubscriptionGuard({ children }) {
@@ -570,6 +575,12 @@ function App() {
                   <Route path="/stop-cards-history" element={<ProtectedRoute><StopCardsHistory /></ProtectedRoute>} />
                   <Route path="/logo-settings" element={<ProtectedRoute><LogoSettings /></ProtectedRoute>} />
                   <Route path="/contractors" element={<ProtectedRoute><ContractorManagement /></ProtectedRoute>} />
+                  <Route path="/lifting-form" element={<ModuleGuard><LiftingForm /></ModuleGuard>} />
+                  <Route path="/lifting-history" element={<ProtectedRoute><LiftingHistory /></ProtectedRoute>} />
+                  <Route path="/fleet-form" element={<ModuleGuard><FleetForm /></ModuleGuard>} />
+                  <Route path="/fleet-history" element={<ProtectedRoute><FleetHistory /></ProtectedRoute>} />
+                  <Route path="/evacuation-form" element={<ModuleGuard><EvacuationSimulatorForm /></ModuleGuard>} />
+                  <Route path="/evacuation-history" element={<ProtectedRoute><EvacuationSimulatorHistory /></ProtectedRoute>} />
 
                   <Route path="/risk-matrix-history" element={<ProtectedRoute><History view="matrices" /></ProtectedRoute>} />
                   <Route path="/reports-history" element={<ProtectedRoute><History view="reports" /></ProtectedRoute>} />

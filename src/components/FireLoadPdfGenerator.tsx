@@ -181,15 +181,24 @@ export default function FireLoadPdfGenerator({ data }: { data: any }): React.Rea
                     </div>
                 )}
 
-                <div style={{ marginTop: 'auto', paddingTop: '2rem', display: 'flex', justifyContent: 'space-between', pageBreakInside: 'avoid', borderTop: '2px solid #e2e8f0' }}>
-                    <div style={{ textAlign: 'center', width: '35%' }}>
-                        <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {data.professionalSignature && <img src={data.professionalSignature} alt="Firma Profesional" style={{ height: '100%', objectFit: 'contain' }} />}
+                <div className="signature-container-row" style={{ marginTop: 'auto', paddingTop: '2rem', borderTop: '2px solid #e2e8f0', pageBreakInside: 'avoid' }}>
+                    <div className="signature-item-box">
+                        <div className="signature-line"></div>
+                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>RESPONSABLE SECTOR</p>
+                        <p style={{ margin: '2px 0 0 0', fontSize: '0.65rem', color: '#64748b' }}>Firma y Aclaración en original</p>
+                    </div>
+
+                    <div className="signature-item-box" style={{ background: '#f0fdf4', borderColor: '#bbf7d0' }}>
+                        <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '5px' }}>
+                            {data.professionalSignature ? (
+                                <img src={data.professionalSignature} alt="Firma Profesional" style={{ maxHeight: '60px', objectFit: 'contain' }} />
+                            ) : (
+                                <div style={{ fontSize: '0.65rem', color: '#86efac' }}>Sello y Firma Digital</div>
+                            )}
                         </div>
-                        <div style={{ borderTop: '2px solid #1e293b', paddingTop: '8px' }}>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>{(data.professionalName || 'PROFESIONAL HYS').toUpperCase()}</p>
-                            <p style={{ margin: 0, fontSize: '0.65rem', color: '#64748b' }}>Mat.: {data.professionalLicense || '-'}</p>
-                        </div>
+                        <div className="signature-line" style={{ background: '#86efac' }}></div>
+                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e293b' }}>{(data.professionalName || 'PROFESIONAL HYS').toUpperCase()}</p>
+                        <p style={{ margin: 0, fontSize: '0.65rem', color: '#64748b' }}>Mat.: {data.professionalLicense || '-'}</p>
                     </div>
                 </div>
             </div>

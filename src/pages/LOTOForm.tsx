@@ -188,57 +188,72 @@ export default function LOTOForm(): React.ReactElement | null {
                     </div>
 
                     <div style={{ marginTop: '2.5rem' }}>
-                        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 800, color: 'var(--color-primary)' }}>Fuentes de Energía</h3>
-                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: '1rem' }}>
-                            {ENERGY_TYPES.map(type => (
-                                <button 
-                                    key={type.id} 
-                                    onClick={() => toggleEnergy(type.id)} 
-                                    style={{ 
-                                        padding: '1rem', 
-                                        background: procedure.energyTypes.includes(type.id) ? `${type.color}15` : 'var(--color-background)', 
-                                        border: `2px solid ${procedure.energyTypes.includes(type.id) ? type.color : 'var(--color-border)'}`, 
-                                        borderRadius: 'var(--radius-xl)', 
-                                        cursor: 'pointer', 
-                                        display: 'flex', 
-                                        flexDirection: 'column', 
-                                        alignItems: 'center', 
-                                        gap: '0.5rem',
-                                        transition: 'all 0.2s'
-                                    }}
-                                >
-                                    <span style={{ fontSize: '2rem' }}>{type.icon}</span>
-                                    <span style={{ fontSize: '0.75rem', fontWeight: 800, color: procedure.energyTypes.includes(type.id) ? type.color : 'var(--color-text-muted)' }}>{type.name}</span>
-                                </button>
-                            ))}
+                        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Paso 1: Identificar Fuentes de Energía a Bloquear</h3>
+                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: '1.2rem' }}>
+                            {ENERGY_TYPES.map(type => {
+                                const isSelected = procedure.energyTypes.includes(type.id);
+                                return (
+                                    <button 
+                                        key={type.id} 
+                                        onClick={() => toggleEnergy(type.id)} 
+                                        style={{ 
+                                            padding: '1.5rem 1rem', 
+                                            background: isSelected ? `${type.color}15` : 'var(--color-surface)', 
+                                            border: `2px solid ${isSelected ? type.color : 'var(--color-border)'}`, 
+                                            borderRadius: 'var(--radius-xl)', 
+                                            cursor: 'pointer', 
+                                            display: 'flex', 
+                                            flexDirection: 'column', 
+                                            alignItems: 'center', 
+                                            gap: '0.8rem',
+                                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                            boxShadow: isSelected ? `0 0 20px ${type.color}30` : '0 2px 4px rgba(0,0,0,0.02)',
+                                            transform: isSelected ? 'translateY(-2px)' : 'none'
+                                        }}
+                                    >
+                                        <div style={{ 
+                                            fontSize: '2.5rem', 
+                                            filter: isSelected ? `drop-shadow(0 0 10px ${type.color})` : 'grayscale(100%) opacity(60%)',
+                                            transition: 'all 0.3s'
+                                        }}>
+                                            {type.icon}
+                                        </div>
+                                        <span style={{ fontSize: '0.85rem', fontWeight: 900, color: isSelected ? type.color : 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{type.name}</span>
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
 
                     <div style={{ marginTop: '2.5rem' }}>
-                        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 800, color: 'var(--color-primary)' }}>Dispositivos de Bloqueo</h3>
+                        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Paso 2: Elementos de Bloqueo a Utilizar</h3>
                         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: '1rem' }}>
-                            {LOTO_DEVICES.map(device => (
-                                <button 
-                                    key={device.id} 
-                                    onClick={() => toggleDevice(device.id)} 
-                                    style={{ 
-                                        padding: '1rem', 
-                                        background: procedure.lotoDevices.includes(device.id) ? 'var(--color-primary)' : 'var(--color-background)', 
-                                        color: procedure.lotoDevices.includes(device.id) ? '#fff' : 'var(--color-text)', 
-                                        border: `2px solid ${procedure.lotoDevices.includes(device.id) ? 'var(--color-primary)' : 'var(--color-border)'}`, 
-                                        borderRadius: 'var(--radius-xl)', 
-                                        cursor: 'pointer', 
-                                        display: 'flex', 
-                                        alignItems: 'center', 
-                                        gap: '0.5rem', 
-                                        fontWeight: 700,
-                                        transition: 'all 0.2s'
-                                    }}
-                                >
-                                    <span style={{ fontSize: '1.5rem' }}>{device.icon}</span>
-                                    <span style={{ fontSize: '0.8rem' }}>{device.name}</span>
-                                </button>
-                            ))}
+                            {LOTO_DEVICES.map(device => {
+                                const isSelected = procedure.lotoDevices.includes(device.id);
+                                return (
+                                    <button 
+                                        key={device.id} 
+                                        onClick={() => toggleDevice(device.id)} 
+                                        style={{ 
+                                            padding: '1rem', 
+                                            background: isSelected ? 'var(--color-primary)' : 'var(--color-surface)', 
+                                            color: isSelected ? '#fff' : 'var(--color-text)', 
+                                            border: `2px solid ${isSelected ? 'var(--color-primary)' : 'var(--color-border)'}`, 
+                                            borderRadius: 'var(--radius-xl)', 
+                                            cursor: 'pointer', 
+                                            display: 'flex', 
+                                            alignItems: 'center', 
+                                            gap: '0.75rem', 
+                                            fontWeight: 800,
+                                            transition: 'all 0.2s',
+                                            boxShadow: isSelected ? '0 4px 12px rgba(59, 130, 246, 0.3)' : 'none'
+                                        }}
+                                    >
+                                        <span style={{ fontSize: '1.5rem', filter: isSelected ? 'none' : 'grayscale(100%)' }}>{device.icon}</span>
+                                        <span style={{ fontSize: '0.8rem' }}>{device.name}</span>
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
 
@@ -254,40 +269,50 @@ export default function LOTOForm(): React.ReactElement | null {
                     </div>
 
                     <div style={{ marginTop: '2.5rem' }}>
-                        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Verificación de Energía Cero</h3>
-                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem', background: 'var(--color-surface)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Paso 3: Verificación de Energía Cero</h3>
+                        <div style={{ 
+                            display: 'flex', flexDirection: 'column', gap: '1.5rem', 
+                            background: procedure.zeroEnergyVerification.tested ? 'rgba(16, 185, 129, 0.05)' : 'var(--color-surface)', 
+                            padding: '2rem', borderRadius: 'var(--radius-xl)', 
+                            border: `2px solid ${procedure.zeroEnergyVerification.tested ? 'var(--color-success)' : 'var(--color-border)'}`,
+                            transition: 'all 0.3s'
+                        }}>
+                            <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'center', gap: '1.5rem' }}>
                                 <button
                                     onClick={() => setProcedure({ ...procedure, zeroEnergyVerification: { ...procedure.zeroEnergyVerification, tested: !procedure.zeroEnergyVerification.tested } })}
                                     style={{
-                                        padding: '0.75rem 1rem',
-                                        background: procedure.zeroEnergyVerification.tested ? 'rgba(16, 185, 129, 0.1)' : 'var(--color-background)',
-                                        border: `2px solid ${procedure.zeroEnergyVerification.tested ? 'var(--color-success)' : 'var(--color-border)'}`,
-                                        borderRadius: 'var(--radius-md)',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '0.75rem',
-                                        flex: 1
+                                        width: '60px', height: '60px', borderRadius: '50%',
+                                        border: `3px solid ${procedure.zeroEnergyVerification.tested ? 'var(--color-success)' : 'var(--color-text-muted)'}`,
+                                        background: procedure.zeroEnergyVerification.tested ? 'var(--color-success)' : 'transparent',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        cursor: 'pointer', transition: 'all 0.3s', flexShrink: 0,
+                                        boxShadow: procedure.zeroEnergyVerification.tested ? '0 0 20px rgba(16, 185, 129, 0.4)' : 'none'
                                     }}
                                 >
-                                    <div style={{ width: '18px', height: '18px', borderRadius: '4px', border: '2px solid var(--color-success)', background: procedure.zeroEnergyVerification.tested ? 'var(--color-success)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        {procedure.zeroEnergyVerification.tested && <CheckCircle2 size={12} color="#fff" />}
-                                    </div>
-                                    <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>Energía Cero Verificada</span>
+                                    {procedure.zeroEnergyVerification.tested ? <CheckCircle2 size={32} color="#fff" /> : <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: '2px solid var(--color-text-muted)' }}></div>}
                                 </button>
+                                <div>
+                                    <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.2rem', fontWeight: 900, color: procedure.zeroEnergyVerification.tested ? 'var(--color-success)' : 'var(--color-text)' }}>
+                                        {procedure.zeroEnergyVerification.tested ? '¡Energía Cero Confirmada!' : 'Confirmar Estado de Energía Cero'}
+                                    </h4>
+                                    <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
+                                        Es obligatorio probar el arranque del equipo o medir la energía residual antes de iniciar cualquier trabajo.
+                                    </p>
+                                </div>
                             </div>
-                            <div>
-                                <label style={labelStyle}>Método de Verificación</label>
+                            
+                            <div style={{ paddingLeft: isMobile ? '0' : '5.5rem', opacity: procedure.zeroEnergyVerification.tested ? 1 : 0.5, transition: 'opacity 0.3s' }}>
+                                <label style={labelStyle}>Método Utilizado para Verificación</label>
                                 <select 
                                     value={procedure.zeroEnergyVerification.method} 
                                     onChange={(e) => setProcedure({ ...procedure, zeroEnergyVerification: { ...procedure.zeroEnergyVerification, method: e.target.value } })} 
-                                    style={inputStyle}
+                                    style={{ ...inputStyle, border: `1px solid ${procedure.zeroEnergyVerification.tested ? 'var(--color-success)' : 'var(--color-border)'}` }}
+                                    disabled={!procedure.zeroEnergyVerification.tested}
                                 >
-                                    <option value="try_start">Intento de Arranque Local</option>
-                                    <option value="tester">Medición con Instrumento (Tester)</option>
-                                    <option value="gauge">Verificación de Manómetro</option>
-                                    <option value="visual">Inspección Visual de Desconexión</option>
+                                    <option value="try_start">Intento de Arranque Local (Pulsador)</option>
+                                    <option value="tester">Medición con Instrumento (Multímetro/Tester)</option>
+                                    <option value="gauge">Verificación de Presión (Manómetro a cero)</option>
+                                    <option value="visual">Inspección Visual de Desconexión Física</option>
                                 </select>
                             </div>
                         </div>

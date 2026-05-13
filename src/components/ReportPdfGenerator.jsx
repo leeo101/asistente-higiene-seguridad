@@ -200,35 +200,31 @@ export default function ReportPdfGenerator({ initialData }) {
                 )}
 
                 {/* Signatures Section */}
-                <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem', justifyContent: 'center' }}>
-                    <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                            <span style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>Firma en original</span>
-                        </div>
+                <div className="signature-container-row" style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid' }}>
+                    <div className="signature-item-box">
+                        <div className="signature-line"></div>
                         <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#1e293b' }}>OPERADOR / RESPONSABLE</p>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#64748b' }}>Firma y Aclaración</p>
+                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#64748b' }}>Firma y Aclaración en original</p>
                     </div>
 
-                    <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                            {initialData?.capatazSignature ? (
-                                <img src={initialData.capatazSignature} alt="Firma Supervisor" style={{ maxHeight: '50px', objectFit: 'contain' }} />
-                            ) : (
-                                <span style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>Firma digital / original</span>
-                            )}
-                        </div>
+                    <div className="signature-item-box">
+                        {initialData?.capatazSignature ? (
+                            <img src={initialData.capatazSignature} alt="Firma Supervisor" style={{ maxHeight: '60px', objectFit: 'contain' }} />
+                        ) : (
+                            <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1', fontSize: '0.65rem' }}>Firma digital / original</div>
+                        )}
+                        <div className="signature-line"></div>
                         <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#1e293b' }}>SUPERVISOR H&S</p>
                         <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#64748b' }}>Validación de Inspección</p>
                     </div>
 
-                    <div style={{ flex: '0 1 32%', border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #86efac', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                            {initialData?.professionalSignature ? (
-                                <img src={initialData.professionalSignature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain' }} />
-                            ) : (
-                                <span style={{ fontSize: '0.65rem', color: '#86efac' }}>Sello y Firma Digital</span>
-                            )}
-                        </div>
+                    <div className="signature-item-box" style={{ background: '#f0fdf4', borderColor: '#bbf7d0' }}>
+                        {initialData?.professionalSignature ? (
+                            <img src={initialData.professionalSignature} alt="Firma Profesional" style={{ maxHeight: '60px', objectFit: 'contain' }} />
+                        ) : (
+                            <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#86efac', fontSize: '0.65rem' }}>Sello y Firma Digital</div>
+                        )}
+                        <div className="signature-line" style={{ background: '#86efac' }}></div>
                         <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#166534' }}>PROFESIONAL ACTUANTE</p>
                         <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#15803d', fontWeight: 600 }}>
                             {initialData?.professionalName || 'Firma y Sello'}

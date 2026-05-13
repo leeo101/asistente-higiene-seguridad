@@ -44,6 +44,14 @@ export function DataTable<T extends Record<string, any>>({
     direction: 'ascending',
   });
   const [currentPage, setCurrentPage] = useState(1);
+  const [isMobile, setIsMobile] = useState(false);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Sorting
   const requestSort = (key: keyof T | string) => {
@@ -102,9 +110,9 @@ export function DataTable<T extends Record<string, any>>({
 
   if (data.length === 0) {
     return (
-      <div style={{ textAlign: 'center', padding: '4rem 2rem', color: 'var(--color-text-muted)', background: 'var(--color-surface)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)' }}>
+      <div style={{ textAlign: 'center', padding: isMobile ? '2rem 1rem' : '4rem 2rem', color: 'var(--color-text-muted)', background: 'var(--color-surface)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)' }}>
         {emptyIcon && <div style={{ opacity: 0.2, marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>{emptyIcon}</div>}
-        <p style={{ marginBottom: '1.5rem', fontWeight: 600 }}>{emptyMessage}</p>
+        <p style={{ marginBottom: '1.5rem', fontWeight: 600, fontSize: isMobile ? '0.9rem' : '1rem' }}>{emptyMessage}</p>
         {onEmptyAction && emptyActionLabel && (
           <button onClick={onEmptyAction} className="btn-primary" style={{ margin: '0 auto' }}>
             {emptyActionLabel}
@@ -126,16 +134,16 @@ export function DataTable<T extends Record<string, any>>({
     }}>
       {/* Table Header Controls */}
       <div style={{
-        padding: '1.25rem',
+        padding: isMobile ? '1rem' : '1.25rem',
         display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
+        alignItems: isMobile ? 'stretch' : 'center',
         borderBottom: '1px solid var(--color-border)',
         gap: '1rem',
-        flexWrap: 'wrap',
         background: 'rgba(255, 255, 255, 0.02)'
       }}>
-        <div style={{ position: 'relative', flex: '1 1 300px', maxWidth: '400px' }}>
+        <div style={{ position: 'relative', flex: '1 1 auto', maxWidth: isMobile ? 'none' : '400px' }}>
           <Search size={18} color="var(--color-text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
           <input 
             type="text" 
@@ -144,7 +152,7 @@ export function DataTable<T extends Record<string, any>>({
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
               width: '100%',
-              padding: '0.6rem 1rem 0.6rem 2.8rem',
+              padding: '0.7rem 1rem 0.7rem 2.8rem',
               borderRadius: 'var(--radius-lg)',
               border: '1px solid var(--color-border)',
               background: 'var(--color-background)',
@@ -157,9 +165,10 @@ export function DataTable<T extends Record<string, any>>({
         <div style={{
           display: 'flex',
           alignItems: 'center',
+          justifyContent: isMobile ? 'flex-end' : 'flex-start',
           gap: '0.5rem',
           color: 'var(--color-text-muted)',
-          fontSize: '0.85rem'
+          fontSize: '0.8rem'
         }}>
           <Funnel size={16} />
           <span>{processedData.length} resultados</span>
@@ -224,19 +233,23 @@ export function DataTable<T extends Record<string, any>>({
           padding: '1rem 1.25rem',
           borderTop: '1px solid var(--color-border)',
           display: 'flex',
-          justifyContent: 'space-between',
+          justifyContent: isMobile ? 'center' : 'space-between',
           alignItems: 'center',
-          background: 'rgba(255, 255, 255, 0.02)'
+          background: 'rgba(255, 255, 255, 0.02)',
+          gap: '1rem',
+          flexWrap: 'wrap'
         }}>
-          <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-            Mostrando {(currentPage - 1) * itemsPerPage + 1} a {Math.min(currentPage * itemsPerPage, processedData.length)} de {processedData.length}
-          </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          {!isMobile && (
+            <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+              Mostrando {(currentPage - 1) * itemsPerPage + 1} a {Math.min(currentPage * itemsPerPage, processedData.length)} de {processedData.length}
+            </div>
+          )}
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             <button
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
               style={{
-                padding: '0.4rem 0.6rem',
+                padding: '0.5rem',
                 borderRadius: 'var(--radius-md)',
                 border: '1px solid var(--color-border)',
                 background: currentPage === 1 ? 'transparent' : 'var(--color-surface)',
@@ -245,16 +258,16 @@ export function DataTable<T extends Record<string, any>>({
                 display: 'flex', alignItems: 'center'
               }}
             >
-              <CaretLeft size={16} />
+              <CaretLeft size={18} />
             </button>
-            <div style={{ display: 'flex', alignItems: 'center', padding: '0 0.5rem', fontSize: '0.85rem', fontWeight: 600 }}>
-              {currentPage} / {totalPages}
+            <div style={{ display: 'flex', alignItems: 'center', padding: '0 1rem', fontSize: '0.85rem', fontWeight: 700, color: 'white' }}>
+              {currentPage} <span style={{ color: 'var(--color-text-muted)', margin: '0 0.4rem', fontWeight: 400 }}>de</span> {totalPages}
             </div>
             <button
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
               style={{
-                padding: '0.4rem 0.6rem',
+                padding: '0.5rem',
                 borderRadius: 'var(--radius-md)',
                 border: '1px solid var(--color-border)',
                 background: currentPage === totalPages ? 'transparent' : 'var(--color-surface)',
@@ -263,7 +276,7 @@ export function DataTable<T extends Record<string, any>>({
                 display: 'flex', alignItems: 'center'
               }}
             >
-              <CaretRight size={16} />
+              <CaretRight size={18} />
             </button>
           </div>
         </div>

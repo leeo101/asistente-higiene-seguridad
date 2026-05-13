@@ -143,32 +143,29 @@ export default function CAPAPdf({ data }: { data: any }): React.ReactElement | n
                 </div>
 
                 {/* Firmas de Responsabilidad */}
-                <div style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem', justifyContent: 'center' }}>
+                <div className="signature-container-row" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid' }}>
                     
-                    <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                            <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Gestión en sistema</span>
-                        </div>
+                    <div className="signature-item-box">
+                        <div className="signature-line"></div>
                         <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#1e293b' }}>RESPONSABLE DE EJECUCIÓN</p>
                         <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Aceptación de acción delegada</p>
                     </div>
 
-                    <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                            <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Original</span>
-                        </div>
+                    <div className="signature-item-box">
+                        <div className="signature-line"></div>
                         <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#1e293b' }}>SUPERVISOR ÁREA</p>
                         <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Verificación y conformidad</p>
                     </div>
 
-                    <div style={{ flex: '0 1 32%', border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #86efac', paddingBottom: '0.25rem', marginBottom: '0.5rem', position: 'relative' }}>
-                            {actSignature ? (
-                                <img src={actSignature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain', zIndex: 2 }} />
-                            ) : (
-                                <span style={{ fontSize: '0.6rem', color: '#86efac' }}>Sello y Firma Digital</span>
-                            )}
-                        </div>
+                    <div className="signature-item-box" style={{ background: '#f0fdf4', borderColor: '#bbf7d0' }}>
+                        {actSignature ? (
+                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>
+                                <img src={actSignature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain' }} />
+                            </div>
+                        ) : (
+                            <div style={{ height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#86efac', fontSize: '0.6rem' }}>Sello y Firma Digital</div>
+                        )}
+                        <div className="signature-line" style={{ background: '#86efac' }}></div>
                         <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#166534' }}>AUTORIDAD HSE</p>
                         <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#15803d', fontWeight: 600 }}>
                             {actName || 'Especialista a cargo'}

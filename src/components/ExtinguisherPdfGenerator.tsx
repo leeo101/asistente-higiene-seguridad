@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+﻿import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Printer, Flame, MapPin, Calendar, Building, CheckCircle2 } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
@@ -144,19 +144,15 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
                     </table>
 
                     {/* Firmas */}
-                    <div style={{ paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem', justifyContent: 'center' }}>
-                        <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', background: '#f8fafc', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                            <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #cbd5e1', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                                <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Firma original</span>
-                            </div>
+                    <div className="signature-container-row" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid' }}>
+                        <div className="signature-item-box">
+                            <div className="signature-line" />
                             <p style={{ margin: 0, fontWeight: 700, fontSize: '0.7rem', color: '#334155' }}>RESPONSABLE / SUPERVISOR</p>
                             <p style={{ margin: 0, fontSize: '0.6rem', color: '#64748b' }}>Aclaración y Firma</p>
                         </div>
 
-                        <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', background: '#f8fafc', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                            <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #cbd5e1', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                                <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Firma original</span>
-                            </div>
+                        <div className="signature-item-box">
+                            <div className="signature-line" />
                             <p style={{ margin: 0, fontWeight: 700, fontSize: '0.7rem', color: '#334155' }}>RESPONSABLE H&S</p>
                             <p style={{ margin: 0, fontSize: '0.6rem', color: '#64748b' }}>Aclaración y Firma</p>
                         </div>
@@ -167,3 +163,4 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
         </div>
     );
 }
+

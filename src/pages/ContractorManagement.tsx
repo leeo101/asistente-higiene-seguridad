@@ -53,11 +53,15 @@ export default function ContractorManagement() {
   const [contractorForm, setContractorForm] = useState<Partial<Contractor>>({});
   const [workerForm, setWorkerForm] = useState<Partial<Worker>>({});
 
-  // AI State
+  const [isMobile, setIsMobile] = useState(false);
   const [isAnalyzingContractor, setIsAnalyzingContractor] = useState(false);
   const [isAnalyzingWorker, setIsAnalyzingWorker] = useState(false);
 
   useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    
     // Load data from localStorage initially and listen to cloud updates
     try {
       const savedContractors = localStorage.getItem('contractors_data');
@@ -68,6 +72,8 @@ export default function ContractorManagement() {
     } catch (e) {
       console.error('Error loading contractor data', e);
     }
+    
+    return () => window.removeEventListener('resize', handleResize);
   }, [syncPulse]);
 
   const saveContractors = (data: Contractor[]) => {
@@ -206,51 +212,87 @@ export default function ContractorManagement() {
       <div className="page-transition" style={{ padding: '0 0 2rem 0', minHeight: '100vh', background: 'var(--color-background)' }}>
         
         {/* Header */}
-        <div style={{ background: 'var(--color-surface)', padding: '1.5rem', borderBottom: '1px solid var(--color-border)', position: 'sticky', top: 0, zIndex: 10 }}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <button onClick={() => navigate(-1)} className="icon-btn" style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: 'white', padding: '0.5rem', borderRadius: '8px', cursor: 'pointer' }}>
+        <div style={{ 
+          background: 'var(--color-surface)', 
+          padding: isMobile ? '1rem' : '1.5rem', 
+          borderBottom: '1px solid var(--color-border)', 
+          position: 'sticky', 
+          top: 0, 
+          zIndex: 10,
+          backdropFilter: 'blur(10px)'
+        }}>
+          <div style={{ 
+            maxWidth: '1200px', 
+            margin: '0 auto', 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: isMobile ? 'flex-start' : 'center', 
+            justifyContent: 'space-between',
+            gap: isMobile ? '1rem' : '0'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%' }}>
+              <button onClick={() => navigate(-1)} className="icon-btn" style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: 'white', padding: '0.5rem', borderRadius: '8px', cursor: 'pointer', flexShrink: 0 }}>
                 <ArrowLeft size={20} />
               </button>
-              <div>
-                <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-heading)' }}>Gestión de Contratistas</h1>
-                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Control documental y vencimientos</p>
+              <div style={{ flex: 1 }}>
+                <h1 style={{ margin: 0, fontSize: isMobile ? '1.2rem' : '1.5rem', fontWeight: 800, color: 'var(--color-heading)' }}>Contratistas</h1>
+                <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Control documental</p>
               </div>
             </div>
             
-            <div style={{ display: 'flex', gap: '0.8rem' }}>
+            <div style={{ 
+              display: 'flex', 
+              gap: '0.5rem', 
+              width: isMobile ? '100%' : 'auto',
+              flexDirection: isMobile ? 'column' : 'row'
+            }}>
               {!isPro && (
-                <div style={{ padding: '0.5rem 1rem', background: 'rgba(245,158,11,0.1)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 700, display: 'flex', alignItems: 'center' }}>
-                  Límite Freemium: {workers.length}/5 Trabajadores
+                <div style={{ padding: '0.4rem 0.8rem', background: 'rgba(245,158,11,0.1)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700, textAlign: 'center' }}>
+                  Límite Freemium: {workers.length}/5
                 </div>
               )}
-              <button className="primary-btn" onClick={() => setIsContractorModalOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', borderRadius: '8px', border: 'none', background: 'var(--color-primary)', color: 'white', fontWeight: 600, cursor: 'pointer' }}>
-                <Plus size={18} weight="bold" /> Nuevo Contratista
-              </button>
-              <button onClick={() => {
-                   if (contractors.length === 0) {
-                       alert("Debes agregar un contratista primero.");
-                       return;
-                   }
-                   setIsWorkerModalOpen(true);
-              }} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', borderRadius: '8px', border: '1px solid var(--color-primary)', background: 'rgba(59,130,246,0.1)', color: 'var(--color-primary)', fontWeight: 600, cursor: 'pointer' }}>
-                <UserPlus size={18} /> Nuevo Trabajador
-              </button>
+              <div style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
+                <button className="primary-btn" onClick={() => setIsContractorModalOpen(true)} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', padding: '0.6rem', borderRadius: '8px', border: 'none', background: 'var(--color-primary)', color: 'white', fontWeight: 600, cursor: 'pointer', fontSize: '0.85rem' }}>
+                  <Plus size={18} weight="bold" /> {isMobile ? 'Empresa' : 'Nuevo Contratista'}
+                </button>
+                <button onClick={() => {
+                     if (contractors.length === 0) {
+                         alert("Debes agregar un contratista primero.");
+                         return;
+                     }
+                     setIsWorkerModalOpen(true);
+                }} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--color-primary)', background: 'rgba(59,130,246,0.1)', color: 'var(--color-primary)', fontWeight: 600, cursor: 'pointer', fontSize: '0.85rem' }}>
+                  <UserPlus size={18} /> {isMobile ? 'Trabajador' : 'Nuevo Trabajador'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-        <div style={{ maxWidth: '1200px', margin: '2rem auto', padding: '0 1rem' }}>
+        <div style={{ maxWidth: '1200px', margin: isMobile ? '1rem auto' : '2rem auto', padding: '0 1rem' }}>
           
           {/* Tabs & Search */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-            <div style={{ display: 'flex', gap: '1rem' }}>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row',
+            justifyContent: 'space-between', 
+            alignItems: isMobile ? 'stretch' : 'center', 
+            marginBottom: '1.5rem', 
+            gap: '1rem' 
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              gap: '0.5rem',
+              width: isMobile ? '100%' : 'auto'
+            }}>
               <button 
                 onClick={() => setActiveTab('contractors')}
                 style={{
-                  padding: '0.5rem 1.2rem', borderRadius: '20px', fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+                  flex: isMobile ? 1 : 'none',
+                  padding: '0.6rem 1rem', borderRadius: '12px', fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'all 0.2s',
                   background: activeTab === 'contractors' ? 'var(--color-primary)' : 'rgba(255,255,255,0.05)',
-                  color: activeTab === 'contractors' ? 'white' : 'var(--color-text-muted)'
+                  color: activeTab === 'contractors' ? 'white' : 'var(--color-text-muted)',
+                  fontSize: '0.85rem'
                 }}
               >
                 Empresas ({contractors.length})
@@ -258,30 +300,32 @@ export default function ContractorManagement() {
               <button 
                 onClick={() => setActiveTab('workers')}
                 style={{
-                  padding: '0.5rem 1.2rem', borderRadius: '20px', fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+                  flex: isMobile ? 1 : 'none',
+                  padding: '0.6rem 1rem', borderRadius: '12px', fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'all 0.2s',
                   background: activeTab === 'workers' ? 'var(--color-primary)' : 'rgba(255,255,255,0.05)',
-                  color: activeTab === 'workers' ? 'white' : 'var(--color-text-muted)'
+                  color: activeTab === 'workers' ? 'white' : 'var(--color-text-muted)',
+                  fontSize: '0.85rem'
                 }}
               >
                 Trabajadores ({workers.length})
               </button>
             </div>
             
-            <div style={{ position: 'relative', minWidth: '250px' }}>
+            <div style={{ position: 'relative', width: '100%', maxWidth: isMobile ? 'none' : '300px' }}>
               <MagnifyingGlass size={18} color="var(--color-text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
               <input 
                 type="text" 
                 placeholder="Buscar..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                style={{ width: '100%', padding: '0.6rem 1rem 0.6rem 2.8rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'white', outline: 'none' }}
+                style={{ width: '100%', padding: '0.7rem 1rem 0.7rem 2.8rem', borderRadius: '12px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'white', outline: 'none', fontSize: '0.9rem' }}
               />
             </div>
           </div>
 
           {/* Contractors View */}
           {activeTab === 'contractors' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1rem' }}>
               {contractors.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.cuit.includes(searchQuery)).map(contractor => (
                 <div key={contractor.id} className="card hover-lift" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '12px', padding: '1.2rem', position: 'relative' }}>
                   <button onClick={() => handleDeleteContractor(contractor.id)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer' }}><Trash size={18} /></button>
@@ -321,55 +365,89 @@ export default function ContractorManagement() {
 
           {/* Workers View */}
           {activeTab === 'workers' && (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-                <thead>
-                  <tr style={{ background: 'var(--color-surface)', textAlign: 'left', borderBottom: '1px solid var(--color-border)' }}>
-                    <th style={{ padding: '1rem' }}>Trabajador</th>
-                    <th style={{ padding: '1rem' }}>Empresa</th>
-                    <th style={{ padding: '1rem' }}>Vto. ART</th>
-                    <th style={{ padding: '1rem' }}>Vto. Seguro Vida</th>
-                    <th style={{ padding: '1rem' }}>Inducción</th>
-                    <th style={{ padding: '1rem', width: '50px' }}></th>
-                  </tr>
-                </thead>
-                <tbody>
+            <div>
+              {isMobile ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {workers.filter(w => w.name.toLowerCase().includes(searchQuery.toLowerCase()) || w.dni.includes(searchQuery)).map(worker => {
                     const contractor = contractors.find(c => c.id === worker.contractorId);
                     return (
-                      <tr key={worker.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
-                        <td style={{ padding: '1rem' }}>
-                          <div style={{ fontWeight: 700, color: 'white' }}>{worker.name}</div>
-                          <div style={{ color: 'var(--color-text-muted)', fontSize: '0.75rem' }}>DNI: {worker.dni} | {worker.position}</div>
-                        </td>
-                        <td style={{ padding: '1rem', color: 'white' }}>{contractor?.name || 'Desconocida'}</td>
-                        <td style={{ padding: '1rem' }}>{getStatusBadge(checkExpiryStatus(worker.artExpiresAt))} <div style={{fontSize:'0.7rem', color:'#aaa', marginTop:'2px'}}>{worker.artExpiresAt}</div></td>
-                        <td style={{ padding: '1rem' }}>{getStatusBadge(checkExpiryStatus(worker.lifeInsuranceExpiresAt))}</td>
-                        <td style={{ padding: '1rem' }}>{getStatusBadge(checkExpiryStatus(worker.inductionExpiresAt))}</td>
-                        <td style={{ padding: '1rem' }}>
-                          <button onClick={() => handleDeleteWorker(worker.id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer' }}><Trash size={18} /></button>
-                        </td>
-                      </tr>
+                      <div key={worker.id} className="card" style={{ padding: '1rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '12px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                          <div>
+                            <div style={{ fontWeight: 800, color: 'white', fontSize: '1rem' }}>{worker.name}</div>
+                            <div style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem' }}>DNI: {worker.dni} | {worker.position}</div>
+                            <div style={{ color: 'var(--color-primary)', fontSize: '0.8rem', fontWeight: 700, marginTop: '0.2rem' }}>{contractor?.name || 'Desconocida'}</div>
+                          </div>
+                          <button onClick={() => handleDeleteWorker(worker.id)} style={{ background: 'none', border: 'none', color: '#ef4444', padding: '0.5rem' }}><Trash size={18} /></button>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                            <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>VTO. ART</span>
+                            {getStatusBadge(checkExpiryStatus(worker.artExpiresAt))}
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                            <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>VTO. SEGURO</span>
+                            {getStatusBadge(checkExpiryStatus(worker.lifeInsuranceExpiresAt))}
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                            <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>INDUCCIÓN</span>
+                            {getStatusBadge(checkExpiryStatus(worker.inductionExpiresAt))}
+                          </div>
+                        </div>
+                      </div>
                     )
                   })}
-                  {workers.length === 0 && (
-                    <tr>
-                      <td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
-                        <Users size={48} weight="duotone" style={{ opacity: 0.5, marginBottom: '1rem' }} />
-                        <p>No hay trabajadores registrados.</p>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                </div>
+              ) : (
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                    <thead>
+                      <tr style={{ background: 'var(--color-surface)', textAlign: 'left', borderBottom: '1px solid var(--color-border)' }}>
+                        <th style={{ padding: '1rem' }}>Trabajador</th>
+                        <th style={{ padding: '1rem' }}>Empresa</th>
+                        <th style={{ padding: '1rem' }}>Vto. ART</th>
+                        <th style={{ padding: '1rem' }}>Vto. Seguro Vida</th>
+                        <th style={{ padding: '1rem' }}>Inducción</th>
+                        <th style={{ padding: '1rem', width: '50px' }}></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {workers.filter(w => w.name.toLowerCase().includes(searchQuery.toLowerCase()) || w.dni.includes(searchQuery)).map(worker => {
+                        const contractor = contractors.find(c => c.id === worker.contractorId);
+                        return (
+                          <tr key={worker.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                            <td style={{ padding: '1rem' }}>
+                              <div style={{ fontWeight: 700, color: 'white' }}>{worker.name}</div>
+                              <div style={{ color: 'var(--color-text-muted)', fontSize: '0.75rem' }}>DNI: {worker.dni} | {worker.position}</div>
+                            </td>
+                            <td style={{ padding: '1rem', color: 'white' }}>{contractor?.name || 'Desconocida'}</td>
+                            <td style={{ padding: '1rem' }}>{getStatusBadge(checkExpiryStatus(worker.artExpiresAt))} <div style={{fontSize:'0.7rem', color:'#aaa', marginTop:'2px'}}>{worker.artExpiresAt}</div></td>
+                            <td style={{ padding: '1rem' }}>{getStatusBadge(checkExpiryStatus(worker.lifeInsuranceExpiresAt))}</td>
+                            <td style={{ padding: '1rem' }}>{getStatusBadge(checkExpiryStatus(worker.inductionExpiresAt))}</td>
+                            <td style={{ padding: '1rem' }}>
+                              <button onClick={() => handleDeleteWorker(worker.id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer' }}><Trash size={18} /></button>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              {workers.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
+                  <Users size={48} weight="duotone" style={{ opacity: 0.5, marginBottom: '1rem' }} />
+                  <p>No hay trabajadores registrados.</p>
+                </div>
+              )}
             </div>
           )}
         </div>
 
         {/* MODALS */}
         {isContractorModalOpen && (
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-            <div style={{ background: 'var(--color-surface)', width: '100%', maxWidth: '500px', borderRadius: '16px', padding: '1.5rem', border: '1px solid var(--color-border)' }}>
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 100, display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent: 'center', padding: isMobile ? 0 : '1rem' }}>
+            <div style={{ background: 'var(--color-surface)', width: '100%', maxWidth: '500px', borderRadius: isMobile ? '20px 20px 0 0' : '16px', padding: '1.5rem', border: '1px solid var(--color-border)', maxHeight: isMobile ? '95vh' : 'auto', overflowY: 'auto' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
                 <h2 style={{ margin: 0, fontSize: '1.2rem' }}>Añadir Contratista</h2>
                 <button onClick={() => setIsContractorModalOpen(false)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}><X size={20} /></button>
@@ -399,7 +477,7 @@ export default function ContractorManagement() {
               <form onSubmit={handleAddContractor} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div><label>Razón Social / Empresa</label><input required type="text" value={contractorForm.name || ''} onChange={e => setContractorForm({...contractorForm, name: e.target.value})} className="form-input" style={{ width: '100%' }} /></div>
                 <div><label>CUIT</label><input required type="text" value={contractorForm.cuit || ''} onChange={e => setContractorForm({...contractorForm, cuit: e.target.value})} className="form-input" style={{ width: '100%' }} /></div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem' }}>
                   <div><label>Email Contacto</label><input type="email" value={contractorForm.contactEmail || ''} onChange={e => setContractorForm({...contractorForm, contactEmail: e.target.value})} className="form-input" style={{ width: '100%' }} /></div>
                   <div><label>Teléfono</label><input type="tel" value={contractorForm.contactPhone || ''} onChange={e => setContractorForm({...contractorForm, contactPhone: e.target.value})} className="form-input" style={{ width: '100%' }} /></div>
                 </div>
@@ -411,8 +489,8 @@ export default function ContractorManagement() {
         )}
 
         {isWorkerModalOpen && (
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-            <div style={{ background: 'var(--color-surface)', width: '100%', maxWidth: '500px', borderRadius: '16px', padding: '1.5rem', border: '1px solid var(--color-border)', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 100, display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent: 'center', padding: isMobile ? 0 : '1rem' }}>
+            <div style={{ background: 'var(--color-surface)', width: '100%', maxWidth: '500px', borderRadius: isMobile ? '20px 20px 0 0' : '16px', padding: '1.5rem', border: '1px solid var(--color-border)', maxHeight: isMobile ? '95vh' : '90vh', overflowY: 'auto' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
                 <h2 style={{ margin: 0, fontSize: '1.2rem' }}>Añadir Trabajador</h2>
                 <button onClick={() => setIsWorkerModalOpen(false)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}><X size={20} /></button>
@@ -448,7 +526,7 @@ export default function ContractorManagement() {
                   </select>
                 </div>
                 <div><label>Nombre Completo</label><input required type="text" value={workerForm.name || ''} onChange={e => setWorkerForm({...workerForm, name: e.target.value})} className="form-input" style={{ width: '100%' }} /></div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem' }}>
                   <div><label>DNI</label><input required type="text" value={workerForm.dni || ''} onChange={e => setWorkerForm({...workerForm, dni: e.target.value})} className="form-input" style={{ width: '100%' }} /></div>
                   <div><label>Puesto</label><input required type="text" value={workerForm.position || ''} onChange={e => setWorkerForm({...workerForm, position: e.target.value})} className="form-input" style={{ width: '100%' }} /></div>
                 </div>

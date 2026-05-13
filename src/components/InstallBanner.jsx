@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { Smartphone, X } from 'lucide-react';
+import { Smartphone, X, Share } from 'lucide-react';
 
 /**
  * InstallBanner – Muestra un banner para instalar la PWA en el celular.
@@ -12,13 +11,11 @@ export default function InstallBanner() {
     const [visible, setVisible] = useState(false);
 
     useEffect(() => {
-        // No mostrar si ya fue descartado antes o si ya está instalado
         if (localStorage.getItem('pwa_banner_dismissed') === 'true') return;
         
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
         if (isStandalone) return;
 
-        // Detect iOS
         const isIos = /ipad|iphone|ipod/.test(navigator.userAgent.toLowerCase());
         const isSafari = /safari/.test(navigator.userAgent.toLowerCase()) && !/chrome|crios|fxios/.test(navigator.userAgent.toLowerCase());
         
@@ -39,10 +36,7 @@ export default function InstallBanner() {
     }, []);
 
     const handleInstall = async () => {
-        if (isIosPrompt) {
-            // En iOS no se puede abrir el prompt automáticamente, solo indicamos qué hacer.
-            return;
-        }
+        if (isIosPrompt) return;
         if (!deferredPrompt) return;
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
@@ -63,54 +57,69 @@ export default function InstallBanner() {
     return (
         <div style={{
             position: 'fixed',
-            bottom: '1.2rem',
+            bottom: '1.5rem',
             left: '50%',
             transform: 'translateX(-50%)',
-            zIndex: 9999,
+            zIndex: 99999,
             width: 'calc(100% - 2.4rem)',
             maxWidth: '480px',
-            background: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)',
-            borderRadius: '18px',
-            padding: '1rem 1.2rem',
+            background: 'rgba(30, 58, 138, 0.95)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            borderRadius: '24px',
+            padding: '1.2rem',
             display: 'flex',
             alignItems: 'center',
-            gap: '1rem',
-            boxShadow: '0 8px 32px rgba(37,99,235,0.45)',
-            animation: 'slideUp 0.4s ease',
+            gap: '1.2rem',
+            boxShadow: '0 12px 40px rgba(37,99,235,0.4)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            animation: 'slideUpBounce 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
         }}>
             <style>{`
-            @keyframes slideUp {
-                from { opacity: 0; transform: translateX(-50%) translateY(20px); }
-                to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+            @keyframes slideUpBounce {
+                0%   { opacity: 0; transform: translateX(-50%) translateY(40px); }
+                70%  { transform: translateX(-50%) translateY(-5px); }
+                100% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            }
+            .install-btn:hover {
+                transform: scale(1.05);
             }
         `}</style>
             <div style={{
-                width: '44px', height: '44px', flexShrink: 0,
-                background: 'rgba(255,255,255,0.15)', borderRadius: '12px',
-                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                width: '48px', height: '48px', flexShrink: 0,
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05))', 
+                borderRadius: '16px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.2)',
+                border: '1px solid rgba(255,255,255,0.1)'
             }}>
-                <Smartphone size={22} color="white" />
+                <Smartphone size={24} color="#60a5fa" strokeWidth={2.5} />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 800, fontSize: '0.9rem', color: '#ffffff', marginBottom: '0.15rem' }}>
+                <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#ffffff', marginBottom: '0.2rem' }}>
                     Instalá Asistente HYS
                 </div>
-                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.3 }}>
+                <div style={{ fontSize: '0.8rem', color: '#cbd5e1', lineHeight: 1.4 }}>
                     {isIosPrompt ? (
-                        <span>Tocá <strong style={{color:'white'}}>Compartir</strong> y luego <strong style={{color:'white'}}>"Agregar a inicio"</strong></span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                            Tocá <Share size={14} color="#fff" /> y elegí <strong style={{color:'white'}}>"Agregar a inicio"</strong>
+                        </div>
                     ) : (
-                        'Accedé sin internet y más rápido desde tu celular'
+                        'Acceso sin internet, más rápido y seguro.'
                     )}
                 </div>
             </div>
             {!isIosPrompt && (
                 <button
+                    className="install-btn"
                     onClick={handleInstall}
                     style={{
-                        background: 'var(--color-surface)', color: '#2563eb', border: 'none',
-                        borderRadius: '10px', padding: '0.5rem 1rem',
-                        fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer',
-                        flexShrink: 0, whiteSpace: 'nowrap'
+                        background: '#3b82f6', color: '#ffffff', border: 'none',
+                        borderRadius: '12px', padding: '0.6rem 1.2rem',
+                        fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer',
+                        flexShrink: 0, whiteSpace: 'nowrap',
+                        boxShadow: '0 4px 12px rgba(59,130,246,0.5)',
+                        transition: 'transform 0.2s ease'
                     }}
                 >
                     Instalar
@@ -119,12 +128,16 @@ export default function InstallBanner() {
             <button
                 onClick={handleDismiss}
                 style={{
-                    background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)',
-                    cursor: 'pointer', padding: '0.3rem', flexShrink: 0,
-                    display: 'flex', alignItems: 'center'
+                    background: 'transparent', border: 'none', color: '#94a3b8',
+                    cursor: 'pointer', padding: '0.4rem', flexShrink: 0,
+                    display: 'flex', alignItems: 'center',
+                    transition: 'color 0.2s ease',
+                    borderRadius: '50%'
                 }}
+                onMouseOver={(e) => e.currentTarget.style.color = '#fff'}
+                onMouseOut={(e) => e.currentTarget.style.color = '#94a3b8'}
             >
-                <X size={18} />
+                <X size={20} />
             </button>
         </div>
     );
