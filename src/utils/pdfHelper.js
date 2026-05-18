@@ -4,7 +4,7 @@ import { jsPDF } from 'jspdf';
 /**
  * Generates a PDF from an HTML element id and returns it as a Blob.
  */
-export async function generatePdfBlob(elementId, filename = 'reporte.pdf', isLandscape = false) {
+export async function generatePdfBlob(elementId, isLandscape = false) {
     const element = document.getElementById(elementId);
     if (!element) {
         throw new Error(`Element with id '${elementId}' not found.`);
@@ -115,7 +115,6 @@ export async function generatePdfBlob(elementId, filename = 'reporte.pdf', isLan
         } else {
             let heightLeft = finalContentHeightMM;
             let position = 0;
-            let page = 1;
 
             // First page
             pdf.addImage(imgData, 'JPEG', finalMarginX, marginY, finalContentWidthMM, finalContentHeightMM);
@@ -127,7 +126,6 @@ export async function generatePdfBlob(elementId, filename = 'reporte.pdf', isLan
                 pdf.addPage();
                 pdf.addImage(imgData, 'JPEG', finalMarginX, position, finalContentWidthMM, finalContentHeightMM);
                 heightLeft -= maxOnePageHeight;
-                page++;
             }
         }
 
