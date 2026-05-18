@@ -1,16 +1,44 @@
 import React from 'react';
 import { AlertTriangle, ShieldCheck, Activity } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import PdfSignatures from './PdfSignatures';
 
 const TYPE_MAP = {
-    personal: 'Dosimetr韆 Personal',
-    area: 'Medici髇 de 羠ea',
+    personal: 'Dosimetr铆a Personal',
+    area: 'Medici贸n de 脕rea',
     peak: 'Ruido de Impacto',
-    octave: 'An醠isis Octavas'
+    octave: 'An谩lisis Octavas'
 };
 
 export default function NoiseAssessmentPdf({ data }: { data: any }): React.ReactElement | null {
     if (!data) return null;
+
+    // Obtener firma profesional desde data o localStorage
+    let actSignature: string | null = data?.professionalSignature || null;
+    let actStamp: string | null = data?.professionalStamp || null;
+    let actName: string | null = data?.professionalName || null;
+    let actLic: string | null = data?.professionalLicense || data?.license || null;
+
+    if (!actSignature) {
+        try {
+            const lsStamp = localStorage.getItem('signatureStampData');
+            const legacySig = localStorage.getItem('capturedSignature');
+            const lsPersonal = localStorage.getItem('personalData');
+            if (lsStamp) {
+                const parsed = JSON.parse(lsStamp);
+                actSignature = parsed.signature;
+                actStamp = parsed.stamp;
+            }
+            else if (legacySig) {
+                actSignature = legacySig;
+            }
+            if (lsPersonal) {
+                const pd = JSON.parse(lsPersonal);
+                actName = actName || pd.name;
+                actLic = actLic || pd.license;
+            }
+        } catch (e) { }
+    }
 
     const level = parseFloat(data.levels?.lavg || 0);
     const isCritical = level > 85;
@@ -39,7 +67,7 @@ export default function NoiseAssessmentPdf({ data }: { data: any }): React.React
                 {/* Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '3px solid #333', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
                     <div>
-                        <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900 }}>PLANILLA DE MEDICI覰 DE RUIDO</h1>
+                        <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900 }}>PLANILLA DE MEDICI脫N DE RUIDO</h1>
                         <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: '#666' }}>CONFORME A RES. SRT 85/12</p>
                     </div>
                     <CompanyLogo style={{ height: '50px', maxWidth: '150px', objectFit: 'contain' }} />
@@ -56,7 +84,7 @@ export default function NoiseAssessmentPdf({ data }: { data: any }): React.React
                             {isCritical ? <AlertTriangle size={24} /> : <ShieldCheck size={24} />}
                             <span style={{ fontWeight: 900, fontSize: '1.2rem' }}>{isCritical ? 'SUPERA LMPE' : 'CONFORME'}</span>
                          </div>
-                         <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.75rem' }}>* L韒ite M醲imo Permitido para 8hs: 85 dBA</p>
+                         <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.75rem' }}>* L铆mite M谩ximo Permitido para 8hs: 85 dBA</p>
                     </div>
                 </div>
 
@@ -71,7 +99,7 @@ export default function NoiseAssessmentPdf({ data }: { data: any }): React.React
                         <span style={{ fontWeight: 700 }}>{data.date ? new Date(data.date).toLocaleDateString('es-AR') : 'N/A'}</span>
                     </div>
                     <div style={{ padding: '0.5rem', borderRight: '1.5px solid #000' }}>
-                        <span style={{ fontSize: '0.6rem', fontWeight: 900, display: 'block' }}>UBICACI覰 / SECTOR</span>
+                        <span style={{ fontSize: '0.6rem', fontWeight: 900, display: 'block' }}>UBICACI脫N / SECTOR</span>
                         <span style={{ fontWeight: 700 }}>{data.location || 'No especificada'}</span>
                     </div>
                     <div style={{ padding: '0.5rem' }}>
@@ -86,61 +114,44 @@ export default function NoiseAssessmentPdf({ data }: { data: any }): React.React
                         <Activity size={16} /> DATOS DEL INSTRUMENTAL
                     </h4>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', fontSize: '0.8rem' }}>
-                        <div><span style={{ color: '#666' }}>Decibel韒etro:</span> <strong>{data.equipment || 'No especificado'}</strong></div>
+                        <div><span style={{ color: '#666' }}>Decibel铆metro:</span> <strong>{data.equipment || 'No especificado'}</strong></div>
                         <div><span style={{ color: '#666' }}>Tarea Evaluada:</span> <strong>{data.task || 'N/A'}</strong></div>
-                        <div><span style={{ color: '#666' }}>Duraci髇:</span> <strong>{data.duration || '0'} hs</strong></div>
+                        <div><span style={{ color: '#666' }}>Duraci贸n:</span> <strong>{data.duration || '0'} hs</strong></div>
                     </div>
                 </div>
 
                 {/* Recommendations */}
                 <div style={{ marginBottom: '1.5rem', border: '1px solid #000', padding: '0.8rem' }}>
                     <span style={{ fontSize: '0.7rem', fontWeight: 900, display: 'block', marginBottom: '0.4rem' }}>OBSERVACIONES / MEDIDAS DE CONTROL</span>
-                    <div style={{ fontSize: '0.85rem' }}>{data.observations || 'Se recomienda el uso obligatorio de protecci髇 auditiva y realizar rotaci髇 de personal para limitar exposici髇.'}</div>
+                    <div style={{ fontSize: '0.85rem' }}>{data.observations || 'Se recomienda el uso obligatorio de protecci贸n auditiva y realizar rotaci贸n de personal para limitar exposici贸n.'}</div>
                 </div>
 
                 {/* Signatures */}
-                <div className="signature-container-row" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid' }}>
-                    <div className="signature-item-box">
-                        <div className="signature-line" />
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#1e293b' }}>TRABAJADOR / PUESTO</p>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#64748b' }}>Firma y Aclaraci髇</p>
-                    </div>
-
-                    <div className="signature-item-box">
-                        <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                            {data.capatazSignature ? (
-                                <img src={data.capatazSignature} alt="Firma Supervisor" style={{ maxHeight: '50px', objectFit: 'contain' }} />
-                            ) : (
-                                <span style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>Firma digital / original</span>
-                            )}
-                        </div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#1e293b' }}>RESPONSABLE DEL 罵EA</p>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#64748b' }}>Aprobaci髇</p>
-                    </div>
-
-                    <div className="signature-item-box">
-                        <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #86efac', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                            {data.professionalSignature || data.signature ? (
-                                <img src={data.professionalSignature || data.signature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain' }} />
-                            ) : (
-                                <span style={{ fontSize: '0.65rem', color: '#86efac' }}>Sello y Firma Digital</span>
-                            )}
-                        </div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#166534' }}>PROFESIONAL DE S&H</p>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#15803d', fontWeight: 600 }}>
-                            {data.professionalName || 'Firma y Sello'}
-                        </p>
-                        {(data.professionalLicense || data.license) && (
-                            <p style={{ margin: '2px 0 0', fontSize: '0.55rem', color: '#16a34a' }}>Mat: {data.professionalLicense || data.license}</p>
-                        )}
-                    </div>
-                </div>
-
-                <div style={{ marginTop: '2rem', fontSize: '0.6rem', color: '#999', textAlign: 'center' }}>
-                    ESTA PLANILLA TIENE VALIDEZ LEGAL SEG贜 LOS PROTOCOLOS DE LA SUPERINTENDENCIA DE RIESGOS DEL TRABAJO (SRT).
-                </div>
-            </div>
+                <PdfSignatures 
+                    data={data}
+                    box1={data.showSignatures?.operator !== false ? {
+                        title: 'TRABAJADOR EVALUADO',
+                        subtitle: 'Firma y Aclaraci贸n',
+                        signatureUrl: data.operatorSignature || null,
+                        isProfessional: false
+                    } : null}
+                    box2={data.showSignatures?.professional !== false ? {
+                        title: 'ESPECIALISTA H&S',
+                        subtitle: (actName || 'Firma de Especialista').toUpperCase(),
+                        signatureUrl: actSignature || null,
+                        stampUrl: data.professionalStamp || actStamp || null,
+                        isProfessional: true,
+                        license: actLic || null
+                    } : null}
+                    box3={data.showSignatures?.supervisor !== false ? {
+                        title: 'RESPONSABLE / AUDITOR',
+                        subtitle: 'Aprobaci贸n / Autoridad',
+                        signatureUrl: data.supervisorSignature || data.signature || null,
+                        isProfessional: false
+                    } : null}
+                />
         </div>
-    );
+                </div>
+);
 }
 

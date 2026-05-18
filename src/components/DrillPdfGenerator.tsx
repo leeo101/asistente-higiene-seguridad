@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { ArrowLeft, Printer, Calendar, MapPin, CheckSquare, Clock, Users, Flame } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import PdfSignatures from './PdfSignatures';
 
 export default function DrillPdfGenerator({ report, onBack, isHeadless = false }: { report: any, onBack?: any, isHeadless?: boolean }): React.ReactElement | null {
 
@@ -173,18 +174,7 @@ export default function DrillPdfGenerator({ report, onBack, isHeadless = false }
                     </div>
 
                     {/* Signatures Area */}
-                    <div className="signature-container-row" style={{ marginTop: 'auto', paddingTop: '3rem', pageBreakInside: 'avoid' }}>
-                        <div className="signature-item-box">
-                            <div className="signature-line"></div>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.85rem', color: '#1e293b' }}>{report?.evaluador || 'PROFESIONAL H&S'}</p>
-                            <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>Responsable Evaluación</p>
-                        </div>
-                        <div className="signature-item-box">
-                            <div className="signature-line"></div>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.85rem', color: '#1e293b' }}>REPRESENTANTE EMPRESA</p>
-                            <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>Firma y Aclaración en original</p>
-                        </div>
-                    </div>
+                    <PdfSignatures data={report} />
 
                 </div>
             </div>

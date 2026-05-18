@@ -3,14 +3,39 @@ import { permitTypes } from '../data/workPermits';
 import { ShieldCheck, Users } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
+import PdfSignatures from './PdfSignatures';
 
 export default function WorkPermitPdfGenerator({ data }: { data: any }): React.ReactElement | null {
     if (!data) return null;
 
+    // Obtener firma profesional desde data o localStorage
+    let actSignature: string | null = data?.professionalSignature || null;
+    let actStamp: string | null = data?.professionalStamp || null;
+    let actName: string | null = data?.professionalName || null;
+    let actLic: string | null = data?.professionalLicense || data?.license || null;
+
+    if (!actSignature) {
+        try {
+            const lsStamp = localStorage.getItem('signatureStampData');
+            const legacySig = localStorage.getItem('capturedSignature');
+            const lsPersonal = localStorage.getItem('personalData');
+            if (lsStamp) {
+                const parsed = JSON.parse(lsStamp);
+                actSignature = parsed.signature;
+                actStamp = parsed.stamp;
+            }
+            else if (legacySig) {
+                actSignature = legacySig;
+            }
+            if (lsPersonal) {
+                const pd = JSON.parse(lsPersonal);
+                actName = actName || pd.name;
+                actLic = actLic || pd.license;
+            }
+        } catch (e) { }
+    }
+
     const selectedTypeLabel = permitTypes.find(t => t.id === data.tipoPermiso)?.label || 'Permiso de Trabajo';
-
-// logo code removed
-
 
     // Ensure all arrays exist
     const checklist = data.checklist || [];
@@ -67,9 +92,9 @@ export default function WorkPermitPdfGenerator({ data }: { data: any }): React.R
                             }}
                         />
                         <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b' }}>SISTEMA DE GESTIÓN HYS</div>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b' }}>SISTEMA DE GESTIÃ“N HYS</div>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' }}>
-                                <span style={{ fontSize: '1.2rem', fontWeight: 900, color: '#1e293b' }}>N°</span>
+                                <span style={{ fontSize: '1.2rem', fontWeight: 900, color: '#1e293b' }}>NÂ°</span>
                                 <span style={{ fontSize: '1.2rem', fontWeight: 900, color: '#1e293b' }}>{data.numeroPermiso || 'S/N'}</span>
                             </div>
                         </div>
@@ -84,7 +109,7 @@ export default function WorkPermitPdfGenerator({ data }: { data: any }): React.R
                             <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>{data.empresa}</span>
                         </div>
                         <div style={{ padding: '0.8rem', borderLeft: '2px solid #ddd', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>OBRA / UBICACIÓN</span>
+                            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>OBRA / UBICACIÃ“N</span>
                             <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>{data.obra}</span>
                         </div>
                     </div>
@@ -112,7 +137,7 @@ export default function WorkPermitPdfGenerator({ data }: { data: any }): React.R
                 {checklist.length > 0 && (
                     <div style={{ marginBottom: '2rem', pageBreakInside: 'avoid' }}>
                         <h3 style={{ fontSize: '1rem', fontWeight: 900, margin: '0 0 1rem 0', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <ShieldCheck size={20} /> VERIFICACIÓN PREVENTIVA (CHECKLIST)
+                            <ShieldCheck size={20} /> VERIFICACIÃ“N PREVENTIVA (CHECKLIST)
                         </h3>
                         <div style={{ border: '1px solid #eee', borderRadius: '10px', overflow: 'hidden' }}>
                             <div style={{ display: 'grid', gridTemplateColumns: '2.5fr 80px 1.5fr', background: '#f8fafc', padding: '0.6rem 1rem', borderBottom: '2px solid #ddd', fontWeight: 800, fontSize: '0.75rem', color: '#64748b' }}>
@@ -120,7 +145,7 @@ export default function WorkPermitPdfGenerator({ data }: { data: any }): React.R
                                 <div style={{ textAlign: 'center' }}>ESTADO</div>
                                 <div>OBSERVACIONES</div>
                             </div>
-                            {checklist.map((item, idx) => (
+                            {checklist.map((item: any, idx: number) => (
                                 <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '2.5fr 80px 1.5fr', gap: '1rem', alignItems: 'center', padding: '0.8rem 1rem', borderBottom: '1px solid #f1f5f9', background: idx % 2 === 0 ? '#ffffff' : '#f8fafc', pageBreakInside: 'avoid' }}>
                                     <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#334155', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{item.pregunta}</div>
                                     <div style={{ display: 'flex', gap: '4px', flexShrink: 0, justifyContent: 'center' }}>
@@ -142,7 +167,7 @@ export default function WorkPermitPdfGenerator({ data }: { data: any }): React.R
                                                     color: isSelected ? (label === 'SI' ? '#166534' : '#dc2626') : '#94a3b8',
                                                     background: isSelected ? (label === 'SI' ? '#f0fdf4' : '#fef2f2') : 'transparent'
                                                 }}>
-                                                    {isSelected ? (label === 'SI' ? '?' : '?') : ''}
+                                                    {isSelected ? (label === 'SI' ? 'âœ“' : 'âœ—') : ''}
                                                     <span style={{ fontSize: '0.5rem', marginLeft: '2px', opacity: isSelected ? 1 : 0.6 }}>{label}</span>
                                                 </div>
                                             );
@@ -156,7 +181,7 @@ export default function WorkPermitPdfGenerator({ data }: { data: any }): React.R
                 )}
 
                 {/* Personnel Section */}
-                {personal.length > 0 && (
+                {checklist.length > 0 && personal.length > 0 && (
                     <div style={{ marginBottom: '2rem', pageBreakInside: 'avoid' }}>
                         <h3 style={{ fontSize: '1rem', fontWeight: 900, margin: '0 0 1rem 0', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <Users size={20} /> PERSONAL AUTORIZADO
@@ -167,7 +192,7 @@ export default function WorkPermitPdfGenerator({ data }: { data: any }): React.R
                                 <div>DNI</div>
                                 <div>FIRMA</div>
                             </div>
-                            {personal.map((p, idx) => (
+                            {personal.map((p: any) => (
                                 <div key={p.id} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '1rem', padding: '1rem', borderBottom: '1px solid #f1f5f9', pageBreakInside: 'avoid' }}>
                                     <div style={{ fontWeight: 600, fontSize: '0.9rem', color: '#334155' }}>{p.nombre}</div>
                                     <div style={{ fontSize: '0.9rem', color: '#64748b' }}>{p.dni}</div>
@@ -181,30 +206,32 @@ export default function WorkPermitPdfGenerator({ data }: { data: any }): React.R
                 )}
 
                 {/* Firmas */}
-                <div className="signature-container-row" style={{ paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid' }}>
-                    <div className="signature-item-box">
-                        <div className="signature-line" />
-                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.7rem', color: '#334155' }}>SUPERVISOR / RESPONSABLE</p>
-                        <p style={{ margin: 0, fontSize: '0.6rem', color: '#64748b' }}>Aclaración y Firma</p>
-                    </div>
+                <PdfSignatures 
+                    data={data}
+                    box1={data.showSignatures?.operator !== false ? {
+                        title: 'SOLICITANTE / OPERADOR',
+                        subtitle: 'AclaraciÃ³n y Firma',
+                        signatureUrl: data.operatorSignature || data.firmas?.solicitante?.sign || null,
+                        isProfessional: false
+                    } : null}
+                    box2={data.showSignatures?.professional !== false ? {
+                        title: 'GERENCIA EHS / EMISOR',
+                        subtitle: (actName || 'Firma y Sello H&S').toUpperCase(),
+                        signatureUrl: actSignature || data.professionalSignature || data.firmas?.ehs?.sign || null,
+                        stampUrl: data.professionalStamp || actStamp || null,
+                        isProfessional: true,
+                        license: actLic || null
+                    } : null}
+                    box3={data.showSignatures?.supervisor !== false ? {
+                        title: 'SUPERVISOR DE TRABAJO',
+                        subtitle: 'AprobaciÃ³n / AutorizaciÃ³n',
+                        signatureUrl: data.supervisorSignature || data.firmas?.supervisor?.sign || null,
+                        isProfessional: false
+                    } : null}
+                />
 
-                    <div className="signature-item-box">
-                        <div className="signature-line" />
-                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.7rem', color: '#166534' }}>{(data.professionalName || 'PROFESIONAL').toUpperCase()}</p>
-                        <p style={{ margin: 0, fontSize: '0.6rem', color: '#15803d' }}>Mat.: {data.professionalLicense || '-'}</p>
-                    </div>
-
-                    <div className="signature-item-box">
-                        <div className="signature-line" />
-                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.7rem', color: '#334155' }}>FECHA DE CIERRE</p>
-                        <p style={{ margin: 0, fontSize: '0.6rem', color: '#64748b' }}>Sello y Firma receptora</p>
-                    </div>
-                </div>
-
-                {/* Footer Notes */}
                 <PdfBrandingFooter />
             </div>
         </div>
     );
 }
-

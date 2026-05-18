@@ -1,6 +1,7 @@
 import React from 'react';
 import { Timer, Users, Target } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import PdfSignatures from './PdfSignatures';
 
 export default function EvacuationPdfGenerator({ data }: { data: any }): React.ReactElement | null {
     if (!data) return null;
@@ -105,28 +106,21 @@ export default function EvacuationPdfGenerator({ data }: { data: any }): React.R
                 </div>
 
                 {/* Signatures */}
-                <div className="signature-container-row" style={{ marginTop: 'auto' }}>
-                    <div className="signature-item-box">
-                        {data.signatures?.evaluator ? (
-                            <img src={data.signatures.evaluator} alt="Firma Evaluador" />
-                        ) : (
-                            <div style={{ height: '60px', display: 'flex', alignItems: 'center', color: '#94a3b8', fontSize: '0.7rem' }}>Sin Firma</div>
-                        )}
-                        <div style={{ width: '100%', height: '1px', background: '#e2e8f0', margin: '0.5rem 0' }}></div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem' }}>FIRMA EVALUADOR (H&S)</p>
-                        <p style={{ margin: 0, fontSize: '0.6rem', color: '#64748b' }}>{data.evaluator}</p>
-                    </div>
-
-                    <div className="signature-item-box">
-                        {data.signatures?.manager ? (
-                            <img src={data.signatures.manager} alt="Firma Responsable" />
-                        ) : (
-                            <div style={{ height: '60px', display: 'flex', alignItems: 'center', color: '#94a3b8', fontSize: '0.7rem' }}>Sin Firma</div>
-                        )}
-                        <div style={{ width: '100%', height: '1px', background: '#e2e8f0', margin: '0.5rem 0' }}></div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem' }}>FIRMA RESPONSABLE DEL SECTOR</p>
-                    </div>
-                </div>
+                <PdfSignatures 
+                    data={data} 
+                    box1={{
+                        title: 'EVALUADOR H&S',
+                        subtitle: 'Aclaración y Firma',
+                        signatureUrl: data.signatures?.evaluator || null,
+                        isProfessional: false
+                    }}
+                    box3={{
+                        title: 'RESPONSABLE SECTOR',
+                        subtitle: 'Aprobación y Cierre',
+                        signatureUrl: data.signatures?.manager || null,
+                        isProfessional: false
+                    }}
+                />
 
                 <div style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.65rem', color: '#94a3b8', borderTop: '1px solid #e2e8f0', paddingTop: '0.5rem' }}>
                     Documento generado por Asistente HYS | simulador teórico de evacuación basado en modelos estándar de dinámica peatonal.

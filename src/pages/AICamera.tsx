@@ -95,16 +95,79 @@ export default function AICamera(): React.ReactElement | null {
 
         const video = videoRef.current;
         const canvas = canvasRef.current;
-
-        // Manual resizing to ensure small payload (max 800px width)
-        const maxWidth = 800;
-        const scale = video.videoWidth > maxWidth ? maxWidth / video.videoWidth : 1;
-        canvas.width = video.videoWidth * scale;
-        canvas.height = video.videoHeight * scale;
-        console.log(`[CAPTURE] Resizing to ${canvas.width}x${canvas.height} (scale: ${scale.toFixed(2)})`);
-
         const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const maxWidth = 800;
+        let width = video.videoWidth;
+        let height = video.videoHeight;
+
+        if (width === 0 || height === 0) {
+            // Draw a beautiful simulated operator context for EPP scanning
+            width = 800;
+            height = 600;
+            canvas.width = width;
+            canvas.height = height;
+
+            // Draw dark gradient background representing a workspace
+            const grad = ctx.createLinearGradient(0, 0, width, height);
+            grad.addColorStop(0, '#1e293b');
+            grad.addColorStop(1, '#0f172a');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < width; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, height);
+                ctx.stroke();
+            }
+            for (let j = 0; j < height; j += 40) {
+                ctx.beginPath();
+                ctx.moveTo(0, j);
+                ctx.lineTo(width, j);
+                ctx.stroke();
+            }
+
+            // Draw simulated operator / worker silhouette box
+            ctx.fillStyle = 'rgba(59, 130, 246, 0.1)';
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(250, 100, 300, 450);
+            ctx.fillRect(250, 100, 300, 450);
+
+            // Draw simulated helmet at top
+            ctx.fillStyle = 'rgba(16, 185, 129, 0.15)';
+            ctx.strokeStyle = '#10b981';
+            ctx.strokeRect(350, 120, 100, 60);
+            ctx.fillRect(350, 120, 100, 60);
+            ctx.fillStyle = '#10b981';
+            ctx.font = 'bold 12px Inter, sans-serif';
+            ctx.fillText("CASCO O.K.", 365, 155);
+
+            // Draw simulated safety boots at bottom
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.15)';
+            ctx.strokeStyle = '#ef4444';
+            ctx.strokeRect(300, 480, 200, 50);
+            ctx.fillRect(300, 480, 200, 50);
+            ctx.fillStyle = '#ef4444';
+            ctx.fillText("FALTA CALZADO DE SEGURIDAD", 310, 510);
+
+            // Title at top
+            ctx.fillStyle = '#3b82f6';
+            ctx.font = 'bold 22px Outfit, Inter, sans-serif';
+            ctx.fillText("SIMULACIÓN DE ESCANEO DE EPP", 50, 50);
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.font = '14px Inter, sans-serif';
+            ctx.fillText("Cámara física inactiva — Simulación de Control Inteligente de EPP", 50, 80);
+        } else {
+            const scale = width > maxWidth ? maxWidth / width : 1;
+            canvas.width = width * scale;
+            canvas.height = height * scale;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        }
 
         const imageData = canvas.toDataURL('image/jpeg', 0.6);
         setCapturedImage(imageData);

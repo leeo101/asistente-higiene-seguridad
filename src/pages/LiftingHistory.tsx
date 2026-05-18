@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, Plus, Trash2, Calendar, FileText, Weight } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function LiftingHistory(): React.ReactElement | null {
+    useDocumentTitle('Historial de Izajes');
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [plans, setPlans] = useState([]);
@@ -33,7 +35,7 @@ export default function LiftingHistory(): React.ReactElement | null {
     );
 
     return (
-        <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem' }}>
+        <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem', paddingTop: '6rem' }}>
             <div style={{
                 background: 'var(--color-surface)',
                 borderBottom: '1px solid var(--color-border)',
@@ -92,8 +94,10 @@ export default function LiftingHistory(): React.ReactElement | null {
                             fontWeight: 700,
                             display: 'flex',
                             alignItems: 'center',
+                            justifyContent: 'center',
                             gap: '0.5rem',
-                            cursor: 'pointer'
+                            cursor: 'pointer',
+                            flex: '1 1 150px'
                         }}
                     >
                         <Plus size={20} /> Nuevo Plan

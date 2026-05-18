@@ -2,6 +2,7 @@ import React from 'react';
 import { Lightbulb, Sun, Layout, FileText, Building2, MapPin, Calendar, AlertTriangle, CheckCircle } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
+import PdfSignatures from './PdfSignatures';
 import { getCountryNormativa } from '../data/legislationData';
 
 export default function LightingPdfGenerator({ data }: { data: any }): React.ReactElement | null {
@@ -194,29 +195,7 @@ export default function LightingPdfGenerator({ data }: { data: any }): React.Rea
                 )}
 
                 {/* Firmas */}
-        <div className="signature-container-row" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1' }}>
-          <div className="signature-item-box">
-            <div className="signature-line" />
-            <p style={{ margin: '0.3rem 0 0', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.08em' }}>OPERADOR / RESPONSABLE</p>
-            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>Toma de conocimiento</p>
-          </div>
-          <div className="signature-item-box">
-            <div className="signature-line" />
-            <p style={{ margin: '0.3rem 0 0', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.08em' }}>SUPERVISOR H&S</p>
-            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>Aprobación del estudio</p>
-          </div>
-          <div className="signature-item-box">
-            {actSignature ? (
-              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>
-                <img src={actSignature} alt="Firma Profesional" style={{ maxHeight: '50px', maxWidth: '100%', objectFit: 'contain' }} />
-              </div>
-            ) : null}
-            <div className="signature-line" />
-            <p style={{ margin: '0.3rem 0 0', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.08em' }}>PROFESIONAL ACTUANTE HSE</p>
-            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>{actName || 'Especialista H&S'}</p>
-            <p style={{ margin: 0, fontSize: '0.65rem', color: '#64748b' }}>Mat: {actLic}</p>
-          </div>
-        </div>
+        <PdfSignatures data={data} />
 
                 <PdfBrandingFooter />
             </div>

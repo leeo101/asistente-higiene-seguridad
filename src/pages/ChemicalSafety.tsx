@@ -267,7 +267,7 @@ export default function ChemicalSafety(): React.ReactElement | null {
 
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', width: isMobile ? '100%' : 'auto' }}>
                     <button
-                        onClick={() => navigate('/chemical-safety-form')}
+                        onClick={() => navigate('/chemical-safety/new')}
                         className="btn-primary"
                         style={{ width: isMobile ? '100%' : 'auto', display: 'flex', justifyContent: 'center' }}
                     >
@@ -439,7 +439,7 @@ export default function ChemicalSafety(): React.ReactElement | null {
                 <EmptyStateIllustrated 
                     title="Sin Productos Químicos"
                     description="Registrá sustancias químicas según el Sistema Globalmente Armonizado (SGA/GHS)."
-                    onAction={() => navigate('/chemical-safety-form')}
+                    onAction={() => navigate('/chemical-safety/new')}
                     icon={<FlaskConical />}
                 />
             ) : viewMode === 'grid' ? (
@@ -455,7 +455,7 @@ export default function ChemicalSafety(): React.ReactElement | null {
                             hazardLevel={getHazardLevel(chemical)}
                             onView={() => setSelectedChemical(chemical)}
                             onShare={() => setShareItem(chemical)}
-                            onEdit={() => navigate('/chemical-safety-form', { state: { editData: chemical } })}
+                            onEdit={() => navigate('/chemical-safety/new', { state: { editData: chemical } })}
                             onDelete={() => handleDelete(chemical.id)}
                             isMobile={isMobile}
                         />

@@ -5,7 +5,7 @@ import {
   Trash, ArrowLeft, DownloadSimple, ShieldCheck, Warning, FileText, Camera, Sparkle, Spinner
 } from '@phosphor-icons/react';
 import { Loader2 } from 'lucide-react';
-import DataTable from '../components/DataTable';
+import { DataTable } from '../components/DataTable';
 import { auth } from '../firebase';
 import AnimatedPage from '../components/AnimatedPage';
 import { useAuth } from '../contexts/AuthContext';

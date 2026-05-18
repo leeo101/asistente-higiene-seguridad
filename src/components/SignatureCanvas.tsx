@@ -18,7 +18,7 @@ export default function SignatureCanvas({
     const [isDrawing, setIsDrawing] = useState(false);
     const [hasContent, setHasContent] = useState(false);
     const [image, setImage] = useState<string | null>(initialImage);
-    const [strokeWidth, setStrokeWidth] = useState(2);
+    const [strokeWidth, setStrokeWidth] = useState(2.5);
 
     useEffect(() => {
         setImage(initialImage);
@@ -42,8 +42,8 @@ export default function SignatureCanvas({
         const { x, y } = getPos(e, canvas);
         ctx.beginPath();
         ctx.moveTo(x, y);
-        ctx.strokeStyle = '#1e293b';
-        ctx.lineWidth = strokeWidth;
+        ctx.strokeStyle = '#0F172A'; // Premium dark ink color
+        ctx.lineWidth = strokeWidth * 1.5; // Scale for retina resolution
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         setIsDrawing(true);
@@ -64,7 +64,7 @@ export default function SignatureCanvas({
     const stopDrawing = () => {
         if (!isDrawing) return;
         setIsDrawing(false);
-        const dataUrl = canvasRef.current?.toDataURL();
+        const dataUrl = canvasRef.current?.toDataURL('image/png');
         if (dataUrl) onSave(dataUrl);
     };
 
@@ -137,8 +137,8 @@ export default function SignatureCanvas({
                         )}
                         <canvas
                             ref={canvasRef}
-                            width={500}
-                            height={height}
+                            width={800} // Retina smooth scaling
+                            height={height * 2} // Retina smooth scaling
                             style={{ 
                                 width: '100%', 
                                 height: '100%', 

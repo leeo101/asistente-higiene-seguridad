@@ -2,6 +2,7 @@ import React from 'react';
 import { Weight, AlertTriangle } from 'lucide-react';
 import { Crane } from '@phosphor-icons/react';
 import CompanyLogo from './CompanyLogo';
+import PdfSignatures from './PdfSignatures';
 
 export default function LiftingPdfGenerator({ data }: { data: any }): React.ReactElement | null {
     if (!data) return null;
@@ -115,27 +116,21 @@ export default function LiftingPdfGenerator({ data }: { data: any }): React.Reac
                 </div>
 
                 {/* Signatures */}
-                <div className="signature-container-row">
-                    <div className="signature-item-box">
-                        {data.signatures?.operator ? (
-                            <img src={data.signatures.operator} alt="Firma Operador" />
-                        ) : (
-                            <div style={{ height: '60px', display: 'flex', alignItems: 'center', color: '#94a3b8', fontSize: '0.7rem' }}>Sin Firma</div>
-                        )}
-                        <div style={{ width: '100%', height: '1px', background: '#e2e8f0', margin: '0.5rem 0' }}></div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem' }}>OPERADOR DEL EQUIPO</p>
-                    </div>
-
-                    <div className="signature-item-box">
-                        {data.signatures?.supervisor ? (
-                            <img src={data.signatures.supervisor} alt="Firma Supervisor" />
-                        ) : (
-                            <div style={{ height: '60px', display: 'flex', alignItems: 'center', color: '#94a3b8', fontSize: '0.7rem' }}>Sin Firma</div>
-                        )}
-                        <div style={{ width: '100%', height: '1px', background: '#e2e8f0', margin: '0.5rem 0' }}></div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem' }}>SUPERVISOR DE IZAJE</p>
-                    </div>
-                </div>
+                <PdfSignatures 
+                    data={data} 
+                    box1={{
+                        title: 'OPERADOR DEL EQUIPO',
+                        subtitle: 'Aclaración y Firma',
+                        signatureUrl: data.signatures?.operator || null,
+                        isProfessional: false
+                    }}
+                    box3={{
+                        title: 'SUPERVISOR DE IZAJE',
+                        subtitle: 'Aprobación y Cierre',
+                        signatureUrl: data.signatures?.supervisor || null,
+                        isProfessional: false
+                    }}
+                />
 
             </div>
         </div>

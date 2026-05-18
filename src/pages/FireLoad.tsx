@@ -14,6 +14,7 @@ import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
 import CompanyLogo from '../components/CompanyLogo';
+import PdfSignatures from '../components/PdfSignatures';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import PremiumHeader from '../components/PremiumHeader';
 import { API_BASE_URL } from '../config';
@@ -122,6 +123,9 @@ export default function FireLoad(): React.ReactElement | null {
     useEffect(() => {
         if (location.state?.editData) {
             setFormData(location.state.editData);
+            if (location.state.editData.showSignatures) {
+                setShowSignatures(location.state.editData.showSignatures);
+            }
         }
     }, [location.state]);
 
@@ -292,10 +296,11 @@ export default function FireLoad(): React.ReactElement | null {
 
             let newHistory;
             if (formData.id) {
-                newHistory = history.map(item => item.id === formData.id ? { ...formData, results, updatedAt: new Date().toISOString() } : item);
+                newHistory = history.map(item => item.id === formData.id ? { ...formData, showSignatures, results, updatedAt: new Date().toISOString() } : item);
             } else {
                 const newEntry = {
                     ...formData,
+                    showSignatures,
                     results,
                     id: Date.now().toString(),
                     createdAt: new Date().toISOString()
@@ -724,40 +729,28 @@ export default function FireLoad(): React.ReactElement | null {
                         </div>
                     </div>
 
-                    <div className="signature-container-row mt-10">
-                        {showSignatures.operator && (
-                            <div className="signature-item-box">
-                                <div className="signature-line"></div>
-                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
-                                <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words min-h-[0.8rem]">Aclaración y Firma</p>
-                            </div>
-                        )}
-
-                        {showSignatures.supervisor && (
-                            <div className="signature-item-box">
-                                <div className="signature-line"></div>
-                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR</p>
-                                <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words min-h-[0.8rem]">DNI / ACLARACIÓN</p>
-                            </div>
-                        )}
-
-                        {showSignatures.professional && (
-                            <div className="signature-item-box">
-                                {professional?.signature || professional?.stamp ? (
-                                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', height: '60px' }}>
-                                        {professional.signature && <img src={professional.signature} alt="Firma" style={{ maxWidth: '100px', maxHeight: '60px' }} />}
-                                        {professional.stamp && <img src={professional.stamp} alt="Sello" style={{ maxWidth: '60px', maxHeight: '60px' }} />}
-                                    </div>
-                                ) : (
-                                    <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', color: '#999', marginBottom: '0.5rem' }}>Sin Firma</div>
-                                )}
-                                <div className="signature-line"></div>
-                                <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL ACTUANTE</p>
-                                <p style={{ margin: 0, fontWeight: 700, fontSize: '0.8rem' }}>{professional?.name}</p>
-                                <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Matrícula: {professional?.license}</p>
-                            </div>
-                        )}
-                    </div>
+                    <PdfSignatures
+                        data={{
+                            ...formData,
+                            professionalSignature: professional?.signature,
+                            professionalStamp: professional?.stamp,
+                            professionalName: professional?.name,
+                            professionalLicense: professional?.license
+                        }}
+                        box1={showSignatures.operator ? {
+                            title: 'OPERADOR / DEPOSITARIO',
+                            subtitle: 'Aclaración y Firma',
+                            signatureUrl: null,
+                            isProfessional: false
+                        } : null}
+                        box3={showSignatures.supervisor ? {
+                            title: 'SUPERVISOR',
+                            subtitle: 'DNI / ACLARACIÓN',
+                            signatureUrl: null,
+                            isProfessional: false
+                        } : null}
+                        box2={showSignatures.professional ? undefined : null}
+                    />
                     <PdfBrandingFooter />
                 </div>
             </div>

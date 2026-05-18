@@ -8,7 +8,6 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useSync } from '../contexts/SyncContext';
-import RiskLevelBadge from '../components/RiskLevelBadge';
 import { auth } from '../firebase';
 import ShareModal from '../components/ShareModal';
 import ATSPdfGenerator from '../components/ATSPdfGenerator';
@@ -18,6 +17,8 @@ import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import CompanyLogo from '../components/CompanyLogo';
+import PdfSignatures from '../components/PdfSignatures';
+import SignatureCanvas from '../components/SignatureCanvas';
 import { API_BASE_URL } from '../config';
 
 const printStyles = `
@@ -94,9 +95,6 @@ export default function ATS(): React.ReactElement | null {
     const { syncCollection } = useSync();
     const editData = location.state?.editData;
     useDocumentTitle(editData ? 'Editar ATS' : 'Análisis de Trabajo Seguro (ATS)');
-    const capatazCanvasRef = useRef(null);
-    const [isDrawingCapataz, setIsDrawingCapataz] = useState(false);
-
     // State
     const [formData, setFormData] = useState({
         id: '',
@@ -106,6 +104,8 @@ export default function ATS(): React.ReactElement | null {
         tarea: '',
         fecha: new Date().toISOString().split('T')[0],
         capatazNombre: '',
+        operatorSignature: '',
+        capatazSignature: '',
         checklist: defaultChecklist,
         tareas: [
             { id: 1, paso: 'Preparación de área', riesgo: 'Caídas', control: 'Delimitación', realizado: true },
@@ -201,10 +201,11 @@ export default function ATS(): React.ReactElement | null {
             empresa: '', cuit: '', obra: '', tarea: '',
             fecha: new Date().toISOString().split('T')[0],
             capatazNombre: '',
+            operatorSignature: '',
+            capatazSignature: '',
             checklist: defaultChecklist,
             tareas: []
         });
-        clearCapatazSignature();
         toast.success('Formulario reiniciado');
     };
 
@@ -217,7 +218,14 @@ export default function ATS(): React.ReactElement | null {
     // Cargar datos de edición si existen
     useEffect(() => {
         if (location.state?.editData) {
-            setFormData(location.state.editData);
+            setFormData({
+                ...location.state.editData,
+                operatorSignature: location.state.editData.operatorSignature || '',
+                capatazSignature: location.state.editData.capatazSignature || ''
+            });
+            if (location.state.editData.showSignatures) {
+                setShowSignatures(location.state.editData.showSignatures);
+            }
         }
     }, [location.state]);
 
@@ -244,44 +252,6 @@ export default function ATS(): React.ReactElement | null {
             setProfessional(prev => ({ ...prev, signature }));
         }
     }, []);
-
-    const startDrawing = (e) => {
-        setIsDrawingCapataz(true);
-        draw(e);
-    };
-
-    const draw = (e) => {
-        if (!isDrawingCapataz) return;
-        const canvas = capatazCanvasRef.current;
-        const ctx = canvas.getContext('2d');
-        const rect = canvas.getBoundingClientRect();
-
-        let x, y;
-        if (e.touches) {
-            x = e.touches[0].clientX - rect.left;
-            y = e.touches[0].clientY - rect.top;
-        } else {
-            x = e.clientX - rect.left;
-            y = e.clientY - rect.top;
-        }
-
-        ctx.lineWidth = 2;
-        ctx.lineCap = 'round';
-        ctx.strokeStyle = 'var(--color-text)';
-
-        ctx.lineTo(x, y);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-    };
-
-    const clearCapatazSignature = () => {
-        const canvas = capatazCanvasRef.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.beginPath();
-    };
 
     const updateChecklist = (id, field, value) => {
         const newList = formData.checklist.map(item =>
@@ -338,7 +308,7 @@ export default function ATS(): React.ReactElement | null {
         const newEntry = {
             ...formData,
             id: entryId,
-            capatazSignature: capatazCanvasRef.current?.toDataURL() || null,
+            showSignatures: showSignatures,
             professionalSignature: professional.signature,
             professionalName: professional.name,
             professionalLicense: professional.license
@@ -408,7 +378,7 @@ export default function ATS(): React.ReactElement | null {
             />
 
                 <div className="no-print" style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
-                    <ATSPdfGenerator atsData={formData} />
+                    <ATSPdfGenerator atsData={{ ...formData, showSignatures }} />
                 </div>
 
                 {/* Floating Action Buttons */}
@@ -798,67 +768,65 @@ export default function ATS(): React.ReactElement | null {
                         </h3>
 
                         <div className="no-print mb-8 p-6 bg-slate-50/5 border border-[var(--color-border)] rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-sm font-bold text-slate-700">
-                            <div className="text-center">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                            <div className="text-center" style={{ color: 'var(--color-text)' }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
                             <div className="flex gap-4 flex-wrap justify-center">
-                                <label className="flex items-center gap-2 cursor-pointer">
+                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
                                     <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Operador
                                 </label>
-                                <label className="flex items-center gap-2 cursor-pointer">
+                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
                                     <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Supervisor
                                 </label>
-                                <label className="flex items-center gap-2 cursor-pointer">
+                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
                                     <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Profesional
                                 </label>
                             </div>
                         </div>
 
-                        <div className="signature-container-row">
+                        {/* On-Sheet Visual Preview of PDF signature blocks */}
+                        <PdfSignatures
+                            data={{
+                                ...formData,
+                                professionalSignature: professional.signature,
+                                professionalName: professional.name,
+                                professionalLicense: professional.license
+                            }}
+                            box1={showSignatures.operator ? {
+                                title: 'OPERADOR / CAPATAZ',
+                                subtitle: (formData.capatazNombre || 'Firma / Aclaración').toUpperCase(),
+                                signatureUrl: formData.operatorSignature || null,
+                                isProfessional: false
+                            } : null}
+                            box2={showSignatures.supervisor ? {
+                                title: 'SUPERVISOR / JEFE OBRA',
+                                subtitle: 'FIRMA DEL SUPERVISOR',
+                                signatureUrl: formData.capatazSignature || null,
+                                isProfessional: false
+                            } : null}
+                            box3={showSignatures.professional ? {
+                                title: 'PROFESIONAL ACTUANTE',
+                                subtitle: (professional.name || 'Firma y Sello').toUpperCase(),
+                                signatureUrl: professional.signature || null,
+                                isProfessional: true,
+                                license: professional.license
+                            } : null}
+                        />
+
+                        {/* Interactive Signature Drawing Pads */}
+                        <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 gap-8">
                             {showSignatures.operator && (
-                                <div className="signature-item-box">
-                                    <div className="signature-line"></div>
-                                    <p className="text-[0.6rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR / CAPATAZ</p>
-                                    <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words min-h-[0.8rem]">{formData.capatazNombre || ' '}</p>
-                                    <p className="text-[0.5rem] font-bold text-blue-600 uppercase tracking-tighter mt-1" style={{ color: 'var(--color-primary)' }}>Firma / Aclaración</p>
-                                </div>
+                                <SignatureCanvas 
+                                    onSave={(sig) => setFormData(prev => ({ ...prev, operatorSignature: sig || '' }))}
+                                    initialImage={formData.operatorSignature}
+                                    label="Firma del Operador / Responsable"
+                                />
                             )}
-
+                            
                             {showSignatures.supervisor && (
-                                <div className="signature-item-box">
-                                    <div className="no-print flex flex-col items-center w-full mb-4">
-                                        <label className="text-xs font-semibold mb-1 text-slate-400">Firma Digital (Supervisor)</label>
-                                        <canvas
-                                            ref={capatazCanvasRef}
-                                            width={400}
-                                            height={120}
-                                            className="w-full h-[100px] border border-dashed border-slate-200 rounded-lg bg-white touch-none"
-                                            onMouseDown={startDrawing}
-                                            onMouseMove={draw}
-                                            onMouseUp={() => setIsDrawingCapataz(false)}
-                                            onMouseLeave={() => setIsDrawingCapataz(false)}
-                                        />
-                                        <button type="button" onClick={clearCapatazSignature} className="mt-1 text-[0.6rem] text-red-500 underline hover:text-red-700 bg-transparent border-none cursor-pointer">Limpiar</button>
-                                    </div>
-                                    <div className="signature-line"></div>
-                                    <p className="text-[0.6rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR / JEFE OBRA</p>
-                                    <p className="text-[0.8rem] font-black uppercase text-black leading-none min-h-[0.8rem]">Firma del Supervisor</p>
-                                    <p className="text-[0.5rem] font-bold text-blue-600 uppercase tracking-tighter mt-1" style={{ color: 'var(--color-primary)' }}>Validación / Sello</p>
-                                </div>
-                            )}
-
-                            {showSignatures.professional && (
-                                <div className="signature-item-box">
-                                    <div className="flex flex-col items-center justify-center gap-2 mb-4 w-full h-[100px]">
-                                        {professional.signature ? (
-                                            <img src={professional.signature} alt="Firma Professional" className="max-h-16 max-w-full object-contain" />
-                                        ) : (
-                                            <div className="text-[0.6rem] text-slate-300 italic">Sin firma digital</div>
-                                        )}
-                                    </div>
-                                    <div className="signature-line"></div>
-                                    <p className="text-[0.6rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL ACTUANTE</p>
-                                    <p className="text-[0.8rem] font-black uppercase text-black leading-none break-words">{professional.name}</p>
-                                    <p className="text-[0.5rem] font-bold text-blue-600 uppercase tracking-tighter mt-1" style={{ color: 'var(--color-primary)' }}>Matrícula: {professional.license}</p>
-                                </div>
+                                <SignatureCanvas 
+                                    onSave={(sig) => setFormData(prev => ({ ...prev, capatazSignature: sig || '' }))}
+                                    initialImage={formData.capatazSignature}
+                                    label="Firma del Supervisor"
+                                />
                             )}
                         </div>
                     </div>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     MessageSquare, Plus, Trash2, Save, Share2, Printer,
     Users, Calendar, User, Building2, FileText, ChevronDown,
-    CheckCircle2, Clock, Search, Eye, Edit3, History
+    CheckCircle2, Clock, Search, Eye, Edit3, History, Pencil
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,6 +13,8 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import CompanyLogo from '../components/CompanyLogo';
 import ToolboxTalkPdfGenerator from '../components/ToolboxTalkPdfGenerator';
 import toast from 'react-hot-toast';
+import SignatureCanvas from '../components/SignatureCanvas';
+import PdfSignatures from '../components/PdfSignatures';
 
 const STORAGE_KEY = 'ehs_toolbox_talks';
 
@@ -53,6 +55,10 @@ interface ToolboxTalk {
     observaciones: string;
     asistentes: Attendee[];
     createdAt: string;
+    operatorSignature?: string;
+    signature?: string;
+    supervisorSignature?: string;
+    showSignatures?: { operator: boolean; professional: boolean; supervisor: boolean };
 }
 
 const emptyTalk = (): ToolboxTalk => ({
@@ -66,7 +72,11 @@ const emptyTalk = (): ToolboxTalk => ({
     desarrollo: '',
     observaciones: '',
     asistentes: [{ id: `att-${Date.now()}`, nombre: '', dni: '', firma: false }],
-    createdAt: ''
+    createdAt: '',
+    operatorSignature: '',
+    signature: '',
+    supervisorSignature: '',
+    showSignatures: { operator: false, professional: true, supervisor: false }
 });
 
 const printStyles = `
@@ -102,6 +112,27 @@ export default function ToolboxTalk(): React.ReactElement {
     const [editId, setEditId] = useState<string | null>(null);
     const [professional, setProfessional] = useState({ name: '', license: '', signature: null as string | null, stamp: null as string | null });
 
+    const [showSignatures, setShowSignatures] = useState({
+        operator: false,
+        professional: true,
+        supervisor: false
+    });
+
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    useEffect(() => {
+        if (form.showSignatures) {
+            setShowSignatures(form.showSignatures);
+        }
+    }, [form.showSignatures]);
+
     useEffect(() => {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) setTalks(JSON.parse(raw));
@@ -133,7 +164,8 @@ export default function ToolboxTalk(): React.ReactElement {
         const entry: ToolboxTalk = {
             ...form,
             id: editId || `talk-${Date.now()}`,
-            createdAt: form.createdAt || new Date().toISOString()
+            createdAt: form.createdAt || new Date().toISOString(),
+            showSignatures
         };
         let updated: ToolboxTalk[];
         if (editId) {
@@ -146,6 +178,7 @@ export default function ToolboxTalk(): React.ReactElement {
         save(updated);
         setEditId(null);
         setForm(emptyTalk());
+        setShowSignatures({ operator: false, professional: true, supervisor: false });
     };
 
     const handleDelete = (id: string) => {
@@ -156,6 +189,7 @@ export default function ToolboxTalk(): React.ReactElement {
     const handleEdit = (talk: ToolboxTalk) => {
         setForm(talk);
         setEditId(talk.id);
+        setShowSignatures(talk.showSignatures || { operator: false, professional: true, supervisor: false });
         setView('form');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -400,6 +434,88 @@ export default function ToolboxTalk(): React.ReactElement {
                                 ))}
                             </div>
                         </div>
+
+                        {/* Firmas y Autorizaciones */}
+                        <div className="card" style={{ marginTop: '1.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)', padding: '2rem' }}>
+                            <h3 style={{ marginTop: 0, marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                <Pencil size={24} /> Firmas y Autorizaciones
+                            </h3>
+
+                            <div className="no-print mb-8 p-6 bg-slate-50/5 border border-[var(--color-border)] rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-sm font-bold text-slate-700">
+                                <div className="text-center" style={{ color: 'var(--color-text)' }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                                <div className="flex gap-4 flex-wrap justify-center">
+                                    <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
+                                        <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Delegado / Operador
+                                    </label>
+                                    <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
+                                        <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Responsable / Expositor
+                                    </label>
+                                    <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
+                                        <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Supervisión / Verificador
+                                    </label>
+                                </div>
+                            </div>
+
+                            {/* On-Sheet Visual Preview of PDF signature blocks */}
+                            <div style={{ marginBottom: '2.5rem' }}>
+                                <PdfSignatures
+                                    data={{
+                                        ...form,
+                                        professionalSignature: professional.signature,
+                                        professionalName: professional.name,
+                                        professionalLicense: professional.license,
+                                        professionalStamp: professional.stamp
+                                    }}
+                                    box1={showSignatures.operator ? {
+                                        title: 'DELEGADO / OPERADOR',
+                                        subtitle: 'En representación de asistentes',
+                                        signatureUrl: form.operatorSignature || null,
+                                        isProfessional: false
+                                    } : null}
+                                    box2={showSignatures.professional ? {
+                                        title: 'RESPONSABLE / EXPOSITOR',
+                                        subtitle: (professional.name || 'Firma de Especialista').toUpperCase(),
+                                        signatureUrl: form.signature || professional.signature || null,
+                                        stampUrl: professional.stamp || null,
+                                        isProfessional: true,
+                                        license: professional.license
+                                    } : null}
+                                    box3={showSignatures.supervisor ? {
+                                        title: 'SUPERVISIÓN / VERIFICADOR',
+                                        subtitle: 'Cierre / Control de Charla',
+                                        signatureUrl: form.supervisorSignature || null,
+                                        isProfessional: false
+                                    } : null}
+                                />
+                            </div>
+
+                            {/* Interactive Signature Drawing Pads */}
+                            <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 gap-8" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '2rem' }}>
+                                {showSignatures.operator && (
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setForm(prev => ({ ...prev, operatorSignature: sig || '' }))}
+                                        initialImage={form.operatorSignature}
+                                        label="Firma de Delegado / Operador"
+                                    />
+                                )}
+                                
+                                {showSignatures.professional && (
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setForm(prev => ({ ...prev, signature: sig || '' }))}
+                                        initialImage={form.signature}
+                                        label="Firma de Responsable / Expositor"
+                                    />
+                                )}
+
+                                {showSignatures.supervisor && (
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setForm(prev => ({ ...prev, supervisorSignature: sig || '' }))}
+                                        initialImage={form.supervisorSignature}
+                                        label="Firma de Supervisión / Verificador"
+                                    />
+                                )}
+                            </div>
+                        </div>
                     </>
                 )}
 
@@ -458,7 +574,7 @@ export default function ToolboxTalk(): React.ReactElement {
             </div>
 
             <div className="print-area" style={{ position: 'fixed', left: 0, top: 0, opacity: 0.01, pointerEvents: 'none', zIndex: -1 }}>
-                <ToolboxTalkPdfGenerator data={form} professional={professional} />
+                <ToolboxTalkPdfGenerator data={{ ...form, showSignatures }} professional={professional} />
             </div>
         </>
     );

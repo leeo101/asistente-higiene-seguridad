@@ -281,11 +281,9 @@ export default function AIChatAdvisor(): React.ReactElement | null {
             doc.text(timeStr, pageWidth - 15, 21, { align: 'right' });
             doc.text(countryStr, pageWidth - 15, 27, { align: 'right' });
 
-            // Beautiful Underline in Header
-            doc.setDrawColor(255, 255, 255);
-            doc.setGlobalAlpha(0.3);
+            // Beautiful Underline in Header (Light white/blue tint, mixed manually)
+            doc.setDrawColor(Math.round(255 * 0.3 + 37 * 0.7), Math.round(255 * 0.3 + 99 * 0.7), Math.round(255 * 0.3 + 235 * 0.7));
             doc.line(15, 32, pageWidth - 15, 32);
-            doc.setGlobalAlpha(1.0);
 
             // Task Description Area
             let currentY = 50;
@@ -311,10 +309,12 @@ export default function AIChatAdvisor(): React.ReactElement | null {
                 // Section Title Box
                 doc.setFillColor(color[0], color[1], color[2]);
                 doc.rect(15, currentY, 5, 8, 'F');
-                doc.setFillColor(color[0], color[1], color[2]);
-                doc.setGlobalAlpha(0.1);
+                // Calculate 10% tint mixed with 90% white background
+                const bgR = Math.round(color[0] * 0.1 + 255 * 0.9);
+                const bgG = Math.round(color[1] * 0.1 + 255 * 0.9);
+                const bgB = Math.round(color[2] * 0.1 + 255 * 0.9);
+                doc.setFillColor(bgR, bgG, bgB);
                 doc.rect(20, currentY, pageWidth - 35, 8, 'F');
-                doc.setGlobalAlpha(1.0);
 
                 doc.setFont('helvetica', 'bold');
                 doc.setFontSize(11);
@@ -413,14 +413,15 @@ export default function AIChatAdvisor(): React.ReactElement | null {
             doc.text(profTitle, signX + signBoxWidth/2, currentY + 36, { align: 'center' });
             doc.text(`Mat: ${profMat}`, signX + signBoxWidth/2, currentY + 41, { align: 'center' });
 
-            // Add stamp text if needed
+            // Add stamp text if needed (manually blended 20% blue over white background)
             if (!userStamp && profName !== 'Profesional de HyS') {
-                doc.setTextColor(37, 99, 235);
+                const stampR = Math.round(37 * 0.2 + 255 * 0.8);
+                const stampG = Math.round(99 * 0.2 + 255 * 0.8);
+                const stampB = Math.round(235 * 0.2 + 255 * 0.8);
+                doc.setTextColor(stampR, stampG, stampB);
                 doc.setFontSize(8);
-                doc.setGlobalAlpha(0.2);
                 doc.setFont('helvetica', 'bolditalic');
                 doc.text('VALIDADO POR H&S', signX + 15, currentY + 12, { angle: -15 });
-                doc.setGlobalAlpha(1.0);
             }
 
             // Footer

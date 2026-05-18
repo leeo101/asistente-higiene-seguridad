@@ -2,24 +2,31 @@ import React from 'react';
 import { ClipboardCheck, CheckCircle2, AlertTriangle, User, Calendar, MapPin, ShieldCheck, Flag } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
+import PdfSignatures from './PdfSignatures';
 
 export default function AuditPdf({ data }: { data: any }): React.ReactElement | null {
     if (!data) return null;
 
     // Obtención segura de firma desde personalData o del dato en sí
     let actSignature = data.signature || null;
-    let actName = data.professionalName || data.leadAuditor || null;
+    let actName = data.professionalName || data.auditor || data.leadAuditor || null;
     let actLic = data.license || null;
+    let actStamp = data.professionalStamp || null;
     
     // Si no trae firmas directas, intentar heredar de localStorage (fallback global pro)
-    if (!actSignature) {
+    if (!actSignature || !actStamp) {
         try {
             const lsPersonal = localStorage.getItem('personalData');
             const lsStamp = localStorage.getItem('signatureStampData');
             const legacySig = localStorage.getItem('capturedSignature');
             
-            if (lsStamp) { actSignature = JSON.parse(lsStamp).signature; }
-            else if (legacySig) { actSignature = legacySig; }
+            if (lsStamp) { 
+                const parsed = JSON.parse(lsStamp);
+                if (!actSignature) actSignature = parsed.signature;
+                if (!actStamp) actStamp = parsed.stamp;
+            } else if (legacySig && !actSignature) { 
+                actSignature = legacySig; 
+            }
             
             if (lsPersonal) {
                 const pd = JSON.parse(lsPersonal);
@@ -156,40 +163,30 @@ export default function AuditPdf({ data }: { data: any }): React.ReactElement | 
                 </div>
 
                 {/* Firmas de Responsabilidad */}
-                <div className="signature-container-row" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid' }}>
-                    
-                    <div className="signature-item-box">
-                        <div className="signature-line"></div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#1e293b' }}>RESPONSABLE DEL ÁREA</p>
-                        <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Firma de notificación (Auditado)</p>
-                    </div>
+                <PdfSignatures 
+                  data={data}
+                  box1={!data.showSignatures || data.showSignatures.operator ? {
+                    title: 'PERSONA AUDITADA / RESPONSABLE',
+                    subtitle: 'Firma de Conformidad',
+                    signatureUrl: data.operatorSignature || null,
+                    isProfessional: false
+                  } : null}
+                  box2={!data.showSignatures || data.showSignatures.professional ? {
+                    title: 'AUDITOR LÍDER / ESPECIALISTA',
+                    subtitle: (actName || 'Firma de Especialista').toUpperCase(),
+                    signatureUrl: actSignature,
+                    stampUrl: actStamp,
+                    isProfessional: true,
+                    license: actLic
+                  } : null}
+                  box3={!data.showSignatures || data.showSignatures.supervisor ? {
+                    title: 'SUPERVISIÓN / CIERRE',
+                    subtitle: 'Aprobación de Informe',
+                    signatureUrl: data.supervisorSignature || null,
+                    isProfessional: false
+                  } : null}
+                />
 
-                    <div className="signature-item-box">
-                        <div className="signature-line"></div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#1e293b' }}>GERENCIA / DIRECCIÓN</p>
-                        <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Toma de conocimiento</p>
-                    </div>
-
-                    <div className="signature-item-box" style={{ background: '#f0fdf4', borderColor: '#bbf7d0' }}>
-                        {actSignature ? (
-                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>
-                                <img src={actSignature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain' }} />
-                            </div>
-                        ) : (
-                            <div style={{ height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#86efac', fontSize: '0.6rem' }}>Sello y Firma Digital</div>
-                        )}
-                        <div className="signature-line" style={{ background: '#86efac' }}></div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#166534' }}>AUDITOR LÍDER EHS</p>
-                        <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#15803d', fontWeight: 600 }}>
-                            {actName || 'Firma de Especialista'}
-                        </p>
-                        {actLic && (
-                            <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#16a34a' }}>Mat: {actLic}</p>
-                        )}
-                    </div>
-                </div>
-
-                {/* Footer informativo */}
                 <PdfBrandingFooter />
             </div>
         </div>

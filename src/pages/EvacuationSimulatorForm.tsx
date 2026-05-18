@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, Users, Target, ShieldCheck, Printer, Share2, Timer, PersonArmsSpread } from 'lucide-react';
+import { ArrowLeft, Save, Users, Target, ShieldCheck, Printer, Share2, Timer } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';

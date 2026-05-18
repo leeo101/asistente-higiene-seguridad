@@ -20,6 +20,20 @@ export default function RiskMapPdfGenerator({
 
     const componentRef = useRef<HTMLDivElement>(null);
 
+    // Retrieve professional digital signature stamp
+    let actSignature: string | null = null;
+    let actName: string | null = null;
+    try {
+        const lsStamp = localStorage.getItem('signatureStampData');
+        const legacySig = localStorage.getItem('capturedSignature');
+        const lsPersonal = localStorage.getItem('personalData');
+        if (lsStamp) actSignature = JSON.parse(lsStamp).signature;
+        else if (legacySig) actSignature = legacySig;
+        if (lsPersonal) {
+            actName = JSON.parse(lsPersonal).name;
+        }
+    } catch (e) { }
+
         
     const handlePrint = () => {
         window.print();
@@ -265,12 +279,16 @@ export default function RiskMapPdfGenerator({
                                     style={{ maxHeight: '35px', maxWidth: '100%', objectFit: 'contain' }}
                                 />
                             </div>
-                            <div style={{ borderTop: '1px solid #1e293b', padding: '4px 6px', textAlign: 'center', background: '#ffffff' }}>
-                                <div style={{ height: '20px' }}></div> {/* Signature space */}
-                                <div style={{ borderTop: '1px dashed #94a3b8', paddingTop: '2px' }}>
-                                    <strong style={{ fontSize: '7pt' }}>Firma Profesional RyS</strong>
-                                </div>
-                            </div>
+                             <div style={{ borderTop: '1px solid #1e293b', padding: '4px 6px', textAlign: 'center', background: '#ffffff', minHeight: '45px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                                 {actSignature ? (
+                                     <img src={actSignature} alt="Firma Profesional" style={{ maxHeight: '35px', objectFit: 'contain' }} />
+                                 ) : (
+                                     <div style={{ height: '20px' }}></div>
+                                 )}
+                                 <div style={{ borderTop: '1px dashed #94a3b8', paddingTop: '2px', width: '100%' }}>
+                                     <strong style={{ fontSize: '7pt' }}>{actName || 'Firma Profesional RyS'}</strong>
+                                 </div>
+                             </div>
                         </div>
 
                     </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Printer, MapPin, Calendar, ThermometerSun, Info, Droplets, Wind, Sun, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { getCountryNormativa } from '../data/legislationData';
+import PdfSignatures from './PdfSignatures';
 
 export default function ThermalStressPdfGenerator({ data, onBack = () => window.history.back(), isHeadless = false }: { data: any, onBack?: () => void, isHeadless?: boolean }): React.ReactElement | null {
     const report = data;
@@ -26,6 +27,31 @@ export default function ThermalStressPdfGenerator({ data, onBack = () => window.
     const savedData = localStorage.getItem('personalData');
     const userCountry = savedData ? (JSON.parse(savedData).country || 'argentina') : 'argentina';
     const countryNorms = getCountryNormativa(userCountry);
+
+    // Obtención segura de firma profesional desde localStorage
+    let actSignature = report?.professionalSignature || null;
+    let actStamp = report?.professionalStamp || null;
+    let actName = report?.professionalName || null;
+    let actLic = report?.professionalLicense || null;
+
+    if (!actSignature) {
+        try {
+            const lsPersonal = localStorage.getItem('personalData');
+            const lsStamp = localStorage.getItem('signatureStampData');
+            const legacySig = localStorage.getItem('capturedSignature');
+            if (lsStamp) { 
+                const parsed = JSON.parse(lsStamp);
+                actSignature = parsed.signature; 
+                actStamp = parsed.stamp;
+            }
+            else if (legacySig) { actSignature = legacySig; }
+            if (lsPersonal) {
+                const pd = JSON.parse(lsPersonal);
+                actName = actName || pd.name;
+                actLic = actLic || pd.license;
+            }
+        } catch (e) { }
+    }
 
     // Formatting helpers
     const getRitmoName = (rtm) => {
@@ -399,31 +425,29 @@ export default function ThermalStressPdfGenerator({ data, onBack = () => window.
                 </div>
 
                 {/* Signatures Area */}
-                <div className="signature-container-row" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid' }}>
-                    <div className="signature-item-box">
-                        <div className="signature-line"></div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#1e293b' }}>RESPONSABLE DEL ÁREA</p>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#64748b' }}>Firma y Aclaración en original</p>
-                    </div>
-
-                    <div className="signature-item-box" style={{ background: '#f0fdf4', borderColor: '#bbf7d0' }}>
-                        <div style={{ height: '70px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '5px' }}>
-                            {report?.signature ? (
-                                <img src={report.signature} alt="Firma" style={{ maxHeight: '60px', maxWidth: '150px' }} />
-                            ) : (
-                                <div style={{ fontSize: '0.65rem', color: '#86efac' }}>Sello y Firma Digital</div>
-                            )}
-                        </div>
-                        <div className="signature-line" style={{ background: '#86efac' }}></div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#166534' }}>PROFESIONAL ACTUANTE</p>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#15803d', fontWeight: 600 }}>
-                            {report?.evaluador || 'Firma y Sello Profesional'}
-                        </p>
-                        {report?.matricula && (
-                            <p style={{ margin: '2px 0 0', fontSize: '0.55rem', color: '#16a34a' }}>Mat: {report.matricula}</p>
-                        )}
-                    </div>
-                </div>
+                <PdfSignatures 
+                    data={report}
+                    box1={report.showSignatures?.operator ? {
+                        title: 'TRABAJADOR EVALUADO',
+                        subtitle: 'Firma de Conformidad',
+                        signatureUrl: report.operatorSignature || null,
+                        isProfessional: false
+                    } : null}
+                    box2={report.showSignatures?.professional ? {
+                        title: 'PROFESIONAL H&S',
+                        subtitle: (actName || 'Firma de Especialista').toUpperCase(),
+                        signatureUrl: actSignature || null,
+                        stampUrl: report.professionalStamp || actStamp || null,
+                        isProfessional: true,
+                        license: actLic || null
+                    } : null}
+                    box3={report.showSignatures?.supervisor ? {
+                        title: 'RESPONSABLE / SECTOR',
+                        subtitle: 'Validación de Medidas',
+                        signatureUrl: report.signature || report.supervisorSignature || null,
+                        isProfessional: false
+                    } : null}
+                />
 
                 {/* Footer */}
                 <div style={{ 

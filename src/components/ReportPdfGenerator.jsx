@@ -200,40 +200,7 @@ export default function ReportPdfGenerator({ initialData }) {
                 )}
 
                 {/* Signatures Section */}
-                <div className="signature-container-row" style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid' }}>
-                    <div className="signature-item-box">
-                        <div className="signature-line"></div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#1e293b' }}>OPERADOR / RESPONSABLE</p>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#64748b' }}>Firma y Aclaración en original</p>
-                    </div>
-
-                    <div className="signature-item-box">
-                        {initialData?.capatazSignature ? (
-                            <img src={initialData.capatazSignature} alt="Firma Supervisor" style={{ maxHeight: '60px', objectFit: 'contain' }} />
-                        ) : (
-                            <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1', fontSize: '0.65rem' }}>Firma digital / original</div>
-                        )}
-                        <div className="signature-line"></div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#1e293b' }}>SUPERVISOR H&S</p>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#64748b' }}>Validación de Inspección</p>
-                    </div>
-
-                    <div className="signature-item-box" style={{ background: '#f0fdf4', borderColor: '#bbf7d0' }}>
-                        {initialData?.professionalSignature ? (
-                            <img src={initialData.professionalSignature} alt="Firma Profesional" style={{ maxHeight: '60px', objectFit: 'contain' }} />
-                        ) : (
-                            <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#86efac', fontSize: '0.65rem' }}>Sello y Firma Digital</div>
-                        )}
-                        <div className="signature-line" style={{ background: '#86efac' }}></div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#166534' }}>PROFESIONAL ACTUANTE</p>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#15803d', fontWeight: 600 }}>
-                            {initialData?.professionalName || 'Firma y Sello'}
-                        </p>
-                        {initialData?.professionalLicense && (
-                            <p style={{ margin: '2px 0 0', fontSize: '0.55rem', color: '#16a34a' }}>Lic: {initialData.professionalLicense}</p>
-                        )}
-                    </div>
-                </div>
+                <PdfSignatures data={data} />
 
                 <PdfBrandingFooter />
             </div>

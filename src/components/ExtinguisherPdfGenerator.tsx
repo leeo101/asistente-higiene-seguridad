@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Printer, Flame, MapPin, Calendar, Building, CheckCircle2 } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import PdfSignatures from './PdfSignatures';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 // Copy calculation utils here for the report
@@ -18,7 +19,7 @@ const getStatus = (lastDate, monthsValid) => {
     const diffDays = Math.ceil((new Date(dueDate).getTime() - new Date(today).getTime()) / (1000 * 60 * 60 * 24));
 
     if (diffDays < 0) return { text: 'Vencido', color: '#dc2626', vto: new Date(dueDate).toLocaleDateString('es-AR') };
-    if (diffDays <= 30) return { text: 'Próximo', color: '#d97706', vto: new Date(dueDate).toLocaleDateString('es-AR') };
+    if (diffDays <= 30) return { text: 'Prï¿½ximo', color: '#d97706', vto: new Date(dueDate).toLocaleDateString('es-AR') };
     return { text: 'Vigente', color: '#166534', vto: new Date(dueDate).toLocaleDateString('es-AR') };
 };
 
@@ -98,7 +99,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
                         <thead>
                             <tr style={{ background: '#f1f5f9' }}>
                                 <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', width: '8%', fontWeight: 800 }}>Chapa</th>
-                                <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'left', width: '25%', fontWeight: 800 }}>Ubicación</th>
+                                <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'left', width: '25%', fontWeight: 800 }}>Ubicaciï¿½n</th>
                                 <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'left', width: '20%', fontWeight: 800 }}>Tipo y Capacidad</th>
                                 <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', width: '22%', fontWeight: 800 }}>Estado Carga</th>
                                 <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', width: '25%', fontWeight: 800 }}>Estado PH</th>
@@ -113,7 +114,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
                                     <tr key={idx} style={{ pageBreakInside: 'avoid' }}>
                                         <td style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', fontWeight: 'bold' }}>{ext?.chapa || '-'}</td>
                                         <td style={{ border: '1px solid #cbd5e1', padding: '8px' }}>
-                                            {ext?.ubicacion || 'Sin ubicación'}
+                                            {ext?.ubicacion || 'Sin ubicaciï¿½n'}
                                             {ext?.empresa && <div style={{ fontSize: '7.5pt', color: '#64748b' }}>{ext.empresa}</div>}
                                         </td>
                                         <td style={{ border: '1px solid #cbd5e1', padding: '8px' }}>
@@ -144,23 +145,10 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
                     </table>
 
                     {/* Firmas */}
-                    <div className="signature-container-row" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid' }}>
-                        <div className="signature-item-box">
-                            <div className="signature-line" />
-                            <p style={{ margin: 0, fontWeight: 700, fontSize: '0.7rem', color: '#334155' }}>RESPONSABLE / SUPERVISOR</p>
-                            <p style={{ margin: 0, fontSize: '0.6rem', color: '#64748b' }}>Aclaración y Firma</p>
-                        </div>
-
-                        <div className="signature-item-box">
-                            <div className="signature-line" />
-                            <p style={{ margin: 0, fontWeight: 700, fontSize: '0.7rem', color: '#334155' }}>RESPONSABLE H&S</p>
-                            <p style={{ margin: 0, fontSize: '0.6rem', color: '#64748b' }}>Aclaración y Firma</p>
-                        </div>
-                    </div>
-
+                    <PdfSignatures data={extinguishers[0] || {}} />
+        </div>
                 </div>
             </div>
-        </div>
-    );
+);
 }
 

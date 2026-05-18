@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, ClipboardCheck, Shield, AlertTriangle, Clock, CheckCircle2, User, MapPin, Calendar, FileText, Eye, Printer, Share2 } from 'lucide-react';
+import { ArrowLeft, Save, ClipboardCheck, Shield, AlertTriangle, Clock, CheckCircle2, User, MapPin, Calendar, FileText, Eye, Printer, Share2, Pencil } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import AuditPdf from '../components/AuditPdf';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
+import PdfSignatures from '../components/PdfSignatures';
+
 
 const AUDIT_TYPES = [
     { id: 'internal', name: 'Interna', icon: '📋' },
@@ -83,6 +85,19 @@ export default function AuditForm(): React.ReactElement | null {
     const { isPro, requirePro } = usePaywall();
     const [isEdit, setIsEdit] = useState(false);
 
+    const [showSignatures, setShowSignatures] = useState({
+        operator: true,
+        supervisor: true,
+        professional: true
+    });
+
+    const [professional, setProfessional] = useState({
+        name: '',
+        license: '',
+        signature: null as string | null,
+        stamp: null as string | null
+    });
+
     useDocumentTitle(isEdit ? 'Editar Auditoría EHS' : 'Nueva Auditoría EHS');
     const [audit, setAudit] = useState({
         id: `AUD-${Date.now()}`,
@@ -100,12 +115,56 @@ export default function AuditForm(): React.ReactElement | null {
             participants: '',
             conclusions: ''
         },
-        signature: ''
+        signature: '',
+        operatorSignature: '',
+        supervisorSignature: '',
+        showSignatures: {
+            operator: true,
+            supervisor: true,
+            professional: true
+        }
     });
+
+    // Cargar datos del profesional
+    useEffect(() => {
+        const savedData = localStorage.getItem('personalData');
+        const savedSigData = localStorage.getItem('signatureStampData');
+        const legacySignature = localStorage.getItem('capturedSignature');
+
+        let signature = legacySignature || null;
+        let stamp = null;
+        if (savedSigData) {
+            const parsed = JSON.parse(savedSigData);
+            signature = parsed.signature || signature;
+            stamp = parsed.stamp || null;
+        }
+
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            setProfessional({
+                name: data.name || '',
+                license: data.license || '',
+                signature: signature,
+                stamp: stamp
+            });
+        } else {
+            setProfessional(prev => ({ ...prev, signature, stamp }));
+        }
+    }, []);
 
     useEffect(() => {
         if (location.state?.editData) {
-            setAudit(location.state.editData);
+            const editData = location.state.editData;
+            setAudit({
+                ...editData,
+                operatorSignature: editData.operatorSignature || '',
+                supervisorSignature: editData.supervisorSignature || '',
+                signature: editData.signature || '',
+                showSignatures: editData.showSignatures || { operator: true, supervisor: true, professional: true }
+            });
+            if (editData.showSignatures) {
+                setShowSignatures(editData.showSignatures);
+            }
             setIsEdit(true);
         } else if (location.state?.selectedAreas) {
             // Build checklist from selected areas in Manager
@@ -153,11 +212,12 @@ export default function AuditForm(): React.ReactElement | null {
         let updated;
 
         if (isEdit) {
-            updated = saved.map((a: any) => a.id === audit.id ? audit : a);
+            updated = saved.map((a: any) => a.id === audit.id ? { ...audit, showSignatures } : a);
             toast.success('Auditoría actualizada');
         } else {
             const newAudit = {
                 ...audit,
+                showSignatures,
                 id: `AUD-${Date.now()}`,
                 createdAt: new Date().toISOString(),
                 status: 'planned'
@@ -169,6 +229,7 @@ export default function AuditForm(): React.ReactElement | null {
         localStorage.setItem('ehs_audits_db', JSON.stringify(updated));
         navigate('/audit');
     };
+
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem' }}>
@@ -321,13 +382,87 @@ export default function AuditForm(): React.ReactElement | null {
                         </div>
                     </div>
 
-                    <div style={{ marginTop: '2.5rem' }}>
-                        <SignatureCanvas 
-                            onSave={(sig) => setAudit({ ...audit, signature: sig || '' })}
-                            initialImage={audit.signature}
-                            label="Firma del Auditor Líder"
-                        />
+                    <div className="card" style={{ marginTop: '2.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)', padding: '2rem' }}>
+                        <h3 style={{ marginTop: 0, marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                            <Pencil size={24} /> Firmas y Autorizaciones
+                        </h3>
+
+                        <div className="no-print mb-8 p-6 bg-slate-50/5 border border-[var(--color-border)] rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-sm font-bold text-slate-700">
+                            <div className="text-center" style={{ color: 'var(--color-text)' }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                            <div className="flex gap-4 flex-wrap justify-center">
+                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
+                                    <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Persona Auditada
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
+                                    <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Auditor Líder
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
+                                    <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Supervisión / Cierre
+                                </label>
+                            </div>
+                        </div>
+
+                        {/* On-Sheet Visual Preview of PDF signature blocks */}
+                        <div style={{ marginBottom: '2.5rem' }}>
+                            <PdfSignatures
+                                data={{
+                                    ...audit,
+                                    professionalSignature: professional.signature,
+                                    professionalName: professional.name,
+                                    professionalLicense: professional.license,
+                                    professionalStamp: professional.stamp
+                                }}
+                                box1={showSignatures.operator ? {
+                                    title: 'PERSONA AUDITADA / RESPONSABLE',
+                                    subtitle: 'Firma de Conformidad',
+                                    signatureUrl: audit.operatorSignature || null,
+                                    isProfessional: false
+                                } : null}
+                                box2={showSignatures.professional ? {
+                                    title: 'AUDITOR LÍDER / ESPECIALISTA',
+                                    subtitle: (audit.auditor || professional.name || 'Firma de Especialista').toUpperCase(),
+                                    signatureUrl: audit.signature || professional.signature || null,
+                                    stampUrl: professional.stamp || null,
+                                    isProfessional: true,
+                                    license: professional.license
+                                } : null}
+                                box3={showSignatures.supervisor ? {
+                                    title: 'SUPERVISIÓN / CIERRE',
+                                    subtitle: 'Aprobación de Informe',
+                                    signatureUrl: audit.supervisorSignature || null,
+                                    isProfessional: false
+                                } : null}
+                            />
+                        </div>
+
+                        {/* Interactive Signature Drawing Pads */}
+                        <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 gap-8" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '2rem' }}>
+                            {showSignatures.operator && (
+                                <SignatureCanvas 
+                                    onSave={(sig) => setAudit(prev => ({ ...prev, operatorSignature: sig || '' }))}
+                                    initialImage={audit.operatorSignature}
+                                    label="Firma de Persona Auditada / Responsable"
+                                />
+                            )}
+                            
+                            {showSignatures.professional && (
+                                <SignatureCanvas 
+                                    onSave={(sig) => setAudit(prev => ({ ...prev, signature: sig || '' }))}
+                                    initialImage={audit.signature}
+                                    label="Firma de Auditor Líder"
+                                />
+                            )}
+
+                            {showSignatures.supervisor && (
+                                <SignatureCanvas 
+                                    onSave={(sig) => setAudit(prev => ({ ...prev, supervisorSignature: sig || '' }))}
+                                    initialImage={audit.supervisorSignature}
+                                    label="Firma de Supervisión / Cierre"
+                                />
+                            )}
+                        </div>
                     </div>
+
                 </div>
 
             </main>
@@ -368,7 +503,7 @@ export default function AuditForm(): React.ReactElement | null {
             />
 
             <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
-                <AuditPdf data={{ ...audit, createdAt: audit.createdAt || new Date().toISOString() }} />
+                <AuditPdf data={{ ...audit, showSignatures, createdAt: audit.createdAt || new Date().toISOString() }} />
             </div>
         </div>
     );

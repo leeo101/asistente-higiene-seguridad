@@ -1,4 +1,5 @@
 import React from 'react';
+import PdfSignatures from './PdfSignatures';
 import { ShieldCheck, Pencil, Info, LucideIcon } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
@@ -30,9 +31,15 @@ interface ATSData {
   tareas?: any[]; // Handle both string[] and TareaItem[]
   checklist?: ChecklistItem[];
   capatazSignature?: string | null;
+  operatorSignature?: string | null;
   professionalSignature?: string | null;
   professionalName?: string;
   professionalLicense?: string;
+  showSignatures?: {
+    operator: boolean;
+    supervisor: boolean;
+    professional: boolean;
+  };
   [key: string]: any;
 }
 
@@ -44,6 +51,7 @@ export default function ATSPdfGenerator({ atsData }: ATSPdfGeneratorProps): Reac
   if (!atsData) return null;
 
   const data = atsData;
+  const showSignatures = data.showSignatures || { operator: true, supervisor: true, professional: true };
 
     // Obtención segura de firma profesional desde localStorage
     let actSignature = data.professionalSignature || data.signature || data.auditorSignature || null;
@@ -149,7 +157,6 @@ export default function ATSPdfGenerator({ atsData }: ATSPdfGeneratorProps): Reac
           <div style={{ flex: 1, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.2rem' }}>
             <CompanyLogo style={{ height: '35px', maxWidth: '120px' }} />
             <div style={{ fontSize: '0.55rem', fontWeight: 900, color: '#94a3b8', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Doc. Controlado</div>
-
 
 
 
@@ -289,45 +296,31 @@ export default function ATSPdfGenerator({ atsData }: ATSPdfGeneratorProps): Reac
           );
         })}
 
-                {/* Firmas de Responsabilidad */}
-        <div className="signature-container-row" style={{ marginTop: '2.5rem', paddingTop: '1.5rem', borderTop: '2px solid #f1f5f9', pageBreakInside: 'avoid' }}>
-          
-          <div className="signature-item-box" style={{ border: '1.5px solid #f1f5f9', background: '#fcfdfe' }}>
-            <div className="signature-line" style={{ borderBottomColor: '#e2e8f0' }} />
-            <p style={{ margin: '0.4rem 0 0', fontSize: '0.55rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.1em' }}>OPERADOR / RESPONSABLE</p>
-            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 900, color: '#0f172a' }}>{data.capatazNombre || 'Firma de Conformidad'}</p>
-            <p style={{ margin: 0, fontSize: '0.5rem', fontWeight: 700, color: '#3b82f6', textTransform: 'uppercase' }}>Validación Técnica</p>
-          </div>
-
-          <div className="signature-item-box" style={{ border: '1.5px solid #f1f5f9', background: '#fcfdfe' }}>
-            {data.capatazSignature ? (
-              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.3rem' }}>
-                <img src={data.capatazSignature} alt="Firma Supervisor" style={{ maxHeight: '45px', maxWidth: '100%', objectFit: 'contain' }} />
-              </div>
-            ) : <div style={{ height: '45px' }} />}
-            <div className="signature-line" style={{ borderBottomColor: '#e2e8f0' }} />
-            <p style={{ margin: '0.4rem 0 0', fontSize: '0.55rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.1em' }}>SUPERVISOR / JEFE OBRA</p>
-            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 900, color: '#0f172a' }}>Aprobación y Liberación</p>
-            <p style={{ margin: 0, fontSize: '0.5rem', fontWeight: 700, color: '#3b82f6', textTransform: 'uppercase' }}>Control Jerárquico</p>
-          </div>
-
-          <div className="signature-item-box" style={{ border: '1.5px solid #dcfce7', background: '#f0fdf4' }}>
-            {actSignature ? (
-              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.3rem' }}>
-                <img src={actSignature} alt="Firma Profesional" style={{ maxHeight: '45px', maxWidth: '100%', objectFit: 'contain' }} />
-              </div>
-            ) : <div style={{ height: '45px' }} />}
-            <div className="signature-line" style={{ borderBottomColor: '#86efac' }} />
-            <p style={{ margin: '0.4rem 0 0', fontSize: '0.55rem', fontWeight: 900, textTransform: 'uppercase', color: '#16a34a', letterSpacing: '0.1em' }}>PROFESIONAL ACTUANTE</p>
-            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 900, color: '#0f172a' }}>
-              {actName || 'Firma de Especialista'}
-            </p>
-            {actLic && (
-              <p style={{ margin: 0, fontSize: '0.65rem', color: '#16a34a', fontWeight: 700 }}>Mat: {actLic}</p>
-            )}
-          </div>
-
-        </div>
+        {/* Firmas de Responsabilidad */}
+        <PdfSignatures 
+          data={data}
+          box1={showSignatures?.operator ? {
+            title: 'OPERADOR / RESPONSABLE',
+            subtitle: data.capatazNombre || 'Firma de Conformidad',
+            signatureUrl: data.operatorSignature || null,
+            isProfessional: false,
+            customContent: <p style={{ margin: 0, fontSize: '0.5rem', fontWeight: 700, color: '#3b82f6', textTransform: 'uppercase' }}>Validación Técnica</p>
+          } : null}
+          box2={showSignatures?.supervisor ? {
+            title: 'SUPERVISOR / JEFE OBRA',
+            subtitle: 'Aprobación y Liberación',
+            signatureUrl: data.capatazSignature || null,
+            isProfessional: false,
+            customContent: <p style={{ margin: 0, fontSize: '0.5rem', fontWeight: 700, color: '#3b82f6', textTransform: 'uppercase' }}>Control Jerárquico</p>
+          } : null}
+          box3={showSignatures?.professional ? {
+            title: 'PROFESIONAL ACTUANTE',
+            subtitle: (actName || 'Firma de Especialista').toUpperCase(),
+            signatureUrl: actSignature,
+            isProfessional: true,
+            license: actLic
+          } : null}
+        />
 
         {/* Footer informativo */}
         <PdfBrandingFooter />

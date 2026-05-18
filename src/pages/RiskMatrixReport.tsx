@@ -7,6 +7,7 @@ import { ArrowLeft, Printer, Share2, TriangleAlert, X, Copy, Check, Mail, CheckC
 import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
 import CompanyLogo from '../components/CompanyLogo';
+import PdfSignatures from '../components/PdfSignatures';
 import { usePaywall } from '../hooks/usePaywall';
 import { toast } from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
@@ -252,35 +253,28 @@ export default function RiskMatrixReport(): React.ReactElement | null {
                 </div>
 
                 {/* ─── Signatures ─── */}
-                <div className="signature-container-row">
-                    {showSignatures.operator && (
-                        <div className="signature-item-box">
-                            <div className="signature-line" />
-                            <p style={{ margin: '0.3rem 0 0', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.08em' }}>OPERADOR</p>
-                            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>Aclaración y Firma</p>
-                        </div>
-                    )}
-                    {showSignatures.supervisor && (
-                        <div className="signature-item-box">
-                            <div className="signature-line" />
-                            <p style={{ margin: '0.3rem 0 0', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.08em' }}>SUPERVISOR</p>
-                            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>Aclaración y Firma</p>
-                        </div>
-                    )}
-                    {showSignatures.professional && (
-                        <div className="signature-item-box">
-                            {signature?.signature && (
-                                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>
-                                    <img src={signature.signature} alt="Firma" style={{ maxHeight: '50px', maxWidth: '100%', objectFit: 'contain' }} />
-                                </div>
-                            )}
-                            <div className="signature-line" />
-                            <p style={{ margin: '0.3rem 0 0', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.08em' }}>PROFESIONAL ACTUANTE</p>
-                            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>{profile?.name}</p>
-                            <p style={{ margin: 0, fontSize: '0.65rem', color: '#64748b' }}>Mat: {profile?.license}</p>
-                        </div>
-                    )}
-                </div>
+                <PdfSignatures
+                    data={{
+                        ...matrix,
+                        professionalSignature: signature?.signature,
+                        professionalStamp: signature?.stamp,
+                        professionalName: profile?.name || matrix.responsable,
+                        professionalLicense: profile?.license
+                    }}
+                    box1={showSignatures.operator ? {
+                        title: 'OPERADOR',
+                        subtitle: 'Aclaración y Firma',
+                        signatureUrl: null,
+                        isProfessional: false
+                    } : null}
+                    box3={showSignatures.supervisor ? {
+                        title: 'SUPERVISOR',
+                        subtitle: 'Aclaración y Firma',
+                        signatureUrl: null,
+                        isProfessional: false
+                    } : null}
+                    box2={showSignatures.professional ? undefined : null}
+                />
                 <PdfBrandingFooter />
             </div>
             {/* Floating Action Buttons */}

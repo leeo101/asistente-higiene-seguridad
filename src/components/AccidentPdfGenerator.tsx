@@ -2,6 +2,7 @@ import React from 'react';
 import { ArrowLeft, Printer, MapPin, Calendar, Clock, TriangleAlert, User, FileText, Building2, Search, CheckCircle, AlertTriangle } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
+import PdfSignatures from './PdfSignatures';
 
 export default function AccidentPdfGenerator({ report, onBack, isHeadless = false }: { report: any, onBack?: any, isHeadless?: boolean }): React.ReactElement | null {
 
@@ -15,22 +16,32 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
 
     const sev = getSeverityStyle(report?.gravedad);
 
-    // Obtener firma profesional desde localStorage
-    let actSignature: string | null = null;
-    let actName: string | null = null;
-    let actLic: string | null = null;
-    try {
-        const lsStamp = localStorage.getItem('signatureStampData');
-        const legacySig = localStorage.getItem('capturedSignature');
-        const lsPersonal = localStorage.getItem('personalData');
-        if (lsStamp) actSignature = JSON.parse(lsStamp).signature;
-        else if (legacySig) actSignature = legacySig;
-        if (lsPersonal) {
-            const pd = JSON.parse(lsPersonal);
-            actName = pd.name;
-            actLic = pd.license;
-        }
-    } catch (e) { }
+    // Obtener firma profesional desde report o localStorage
+    let actSignature: string | null = report?.professionalSignature || null;
+    let actStamp: string | null = report?.professionalStamp || null;
+    let actName: string | null = report?.professionalName || null;
+    let actLic: string | null = report?.professionalLicense || null;
+
+    if (!actSignature) {
+        try {
+            const lsStamp = localStorage.getItem('signatureStampData');
+            const legacySig = localStorage.getItem('capturedSignature');
+            const lsPersonal = localStorage.getItem('personalData');
+            if (lsStamp) {
+                const parsed = JSON.parse(lsStamp);
+                actSignature = parsed.signature;
+                actStamp = parsed.stamp;
+            }
+            else if (legacySig) {
+                actSignature = legacySig;
+            }
+            if (lsPersonal) {
+                const pd = JSON.parse(lsPersonal);
+                actName = actName || pd.name;
+                actLic = actLic || pd.license;
+            }
+        } catch (e) { }
+    }
 
     return (
         <div className="container" style={{ paddingBottom: '3rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -262,36 +273,29 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
                     </div>
 
                     {/* Firmas */}
-                    <div style={{ paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem', justifyContent: 'center' }}>
-                        <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                            <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                                <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Firma original</span>
-                            </div>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#1e293b' }}>ACCIDENTADO / TESTIGO</p>
-                            <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Declaración y firma</p>
-                        </div>
-
-                        <div style={{ flex: '0 1 32%', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                            <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                                <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Firma original</span>
-                            </div>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#1e293b' }}>SUPERVISOR / EMPLEADOR</p>
-                            <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Validación del informe</p>
-                        </div>
-
-                        <div style={{ flex: '0 1 32%', border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                            <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #86efac', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                                {actSignature ? (
-                                    <img src={actSignature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain' }} />
-                                ) : (
-                                    <span style={{ fontSize: '0.6rem', color: '#86efac' }}>Sello y Firma Digital</span>
-                                )}
-                            </div>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#166534' }}>PROFESIONAL ACTUANTE H&S</p>
-                            <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#15803d', fontWeight: 600 }}>{actName || 'Especialista H&S'}</p>
-                            {actLic && <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#16a34a' }}>Mat: {actLic}</p>}
-                        </div>
-                    </div>
+                    <PdfSignatures 
+                        data={report} 
+                        box1={report.showSignatures?.operator ? {
+                            title: 'ACCIDENTADO / TESTIGO',
+                            subtitle: 'Declaración y firma',
+                            signatureUrl: report.operatorSignature || null,
+                            isProfessional: false
+                        } : null}
+                        box2={report.showSignatures?.professional ? {
+                            title: 'PROFESIONAL H&S',
+                            subtitle: (actName || 'Firma de Especialista').toUpperCase(),
+                            signatureUrl: actSignature || null,
+                            stampUrl: report.professionalStamp || actStamp || null,
+                            isProfessional: true,
+                            license: actLic || null
+                        } : null}
+                        box3={report.showSignatures?.supervisor ? {
+                            title: 'SUPERVISOR / EMPLEADOR',
+                            subtitle: 'Validación del informe',
+                            signatureUrl: report.signature || report.supervisorSignature || null,
+                            isProfessional: false
+                        } : null}
+                    />
 
                     <PdfBrandingFooter />
                 </div>

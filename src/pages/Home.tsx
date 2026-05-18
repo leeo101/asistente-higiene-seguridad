@@ -11,26 +11,12 @@ import {
   CreditCard, Crown, Image as ImageIconPh, UploadSimple,
   CheckCircle, Info, Bell, Pulse as Activity,
   Tent, Drop as Droplets, SpeakerHigh, Flask, MagnifyingGlass, TrendUp as TrendingUp, Truck, Crane, Timer
-import { Link, useNavigate } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
-import {
-  ClipboardText, House, ClockCounterClockwise, User, Users, GearSix,
-  Fire, ChartBar, CaretRight, Plus, Gavel, Siren,
-  PersonArmsSpread, Lock, UserPlus, SignIn, Sparkle as Sparkles,
-  Camera, CalendarCheck, Shield, Cpu, Lightbulb, ThermometerHot, MapTrifold,
-  ShieldCheck, Warning, Key, Scroll, Robot, FileText, HardHat, ShieldWarning, Pen,
-  ArrowRight, X, SignOut, CalendarBlank,
-  ChatText, Sun, Moon, Star, ChartPieSlice,
-  CreditCard, Crown, Image as ImageIconPh, UploadSimple,
-  CheckCircle, Info, Bell, Pulse as Activity,
-  Tent, Drop as Droplets, SpeakerHigh, Flask, MagnifyingGlass, TrendUp as TrendingUp, Truck, Crane, Timer
 } from '@phosphor-icons/react';
 import { User as FirebaseUser } from 'firebase/auth';
 import { getCountryNormativa } from '../data/legislationData';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { usePaywall } from '../hooks/usePaywall';
-import UserRankBadge from '../components/UserRankBadge';
 import { API_BASE_URL } from '../config';
 import { auth } from '../firebase';
 import AnimatedPage from '../components/AnimatedPage';
@@ -42,6 +28,11 @@ import StatsBar from '../components/StatsBar';
 import NewsWidget from '../components/NewsWidget';
 import MarketingLanding from '../components/MarketingLanding';
 import ModulePreview from '../components/ModulePreview';
+
+import InteractiveHeroDemo from '../components/landing/InteractiveHeroDemo';
+import BeforeAndAfter from '../components/landing/BeforeAndAfter';
+import WallOfLove from '../components/landing/WallOfLove';
+import RoiCalculator from '../components/landing/RoiCalculator';
 
 
 // Tipos
@@ -223,6 +214,130 @@ export default function Home(): React.ReactElement {
   const [activePreview, setActivePreview] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isMobile, setIsMobile] = useState(false);
+
+  const categories = [
+    { id: 'all', label: 'Todos' },
+    { id: 'ia', label: 'IA y Automatización' },
+    { id: 'docs', label: 'Documentación' },
+    { id: 'critical', label: 'Trabajos Críticos' },
+    { id: 'management', label: 'Gestión y Auditoría' },
+    { id: 'specific', label: 'Específicos' }
+  ];
+
+  const filteredLinks = quickLinks.filter(link => {
+    const matchesCategory = activeCategory === 'all' || link.category === activeCategory;
+    const matchesSearch = link.label.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          link.sub.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (!currentUser) {
+        setUserName('Profesional');
+        setIsSubscribed(false);
+        setDaysLeft(null);
+        setStats(prev => prev.map(s => ({ ...s, value: 0 })));
+        setRecentWorks([]);
+        return;
+      }
+
+      const savedData = localStorage.getItem('personalData');
+      if (savedData) {
+        const parsed = JSON.parse(savedData);
+        let name = parsed.name || 'Profesional';
+        if (parsed.profession) {
+          const prof = parsed.profession.toLowerCase();
+          if (prof.includes('lic')) name = `Lic. ${name}`;
+          else if (prof.includes('téc')) name = `Téc. ${name}`;
+          else if (prof.includes('ing')) name = `Ing. ${name}`;
+        }
+        setUserName(name);
+      }
+
+      setIsSubscribed(isPro);
+      setDaysLeft(daysRemaining);
+    }
+
+    const loadStats = (): void => {
+      const newStats = stats.map(stat => {
+        try {
+          const history = localStorage.getItem(stat.key);
+          const count = history ? JSON.parse(history).length : 0;
+          return { ...stat, value: count };
+        } catch (e) {
+          console.error(`[HOME] Error parsing ${stat.key}:`, e);
+          return { ...stat, value: 0 };
+        }
+      });
+      setStats(newStats);
+    };
+
+    const loadRecent = (): void => {
+      try {
+        const safeParse = (key: string) => {
+          try {
+            return JSON.parse(localStorage.getItem(key) || '[]');
+          } catch (e) {
+            return [];
+          }
+        };
+
+        const ats = safeParse('ats_history');
+        const fire = safeParse('fireload_history');
+        const insp = safeParse('inspections_history');
+        const matrix = safeParse('risk_matrix_history');
+        const reports = safeParse('reports_history');
+        const tools = safeParse('tool_checklists_history');
+        const lighting = safeParse('lighting_history');
+        const accidents = safeParse('accident_history');
+        const permits = safeParse('work_permits_history');
+        const riskAssessments = safeParse('risk_assessment_history');
+
+        const combined: any[] = [
+          ...ats.map((a: any) => ({ id: a.id, title: a.empresa, subtitle: a.obra, date: a.fecha, type: 'ATS' })),
+          ...fire.map((f: any) => ({ id: f.id, title: f.empresa, subtitle: f.sector, date: f.createdAt, type: 'Carga Fuego' })),
+          ...insp.map((i: any) => ({ id: i.id, title: i.name, subtitle: i.location, date: i.date, type: 'Inspección' })),
+          ...matrix.map((m: any) => ({ id: m.id, title: m.name, subtitle: m.location, date: m.createdAt, type: 'Matriz' })),
+          ...reports.map((r: any) => ({ id: r.id, title: r.title, subtitle: r.company, date: r.createdAt, type: 'Informe' })),
+          ...tools.map((t: any) => ({ id: t.id, title: t.equipo, subtitle: t.empresa, date: t.fecha, type: 'Checklist' })),
+          ...lighting.map((l: any) => ({ id: l.id, title: l.empresa, subtitle: l.sector, date: l.date, type: 'Iluminación' })),
+          ...permits.map((p: any) => ({ id: p.id, title: p.empresa, subtitle: p.obra, date: p.createdAt, type: 'Permiso' })),
+          ...riskAssessments.map((r: any) => ({ id: r.id, title: r.name, subtitle: r.location, date: r.date || r.createdAt, type: 'Eval. Riesgo' })),
+          ...accidents.map((acc: any) => ({ id: acc.id, title: acc.victimaNombre, subtitle: acc.empresa, date: acc.date, type: 'Accidente' })),
+        ]
+        .filter(item => item.date || item.fecha || item.createdAt)
+        .sort((a, b) => new Date(b.date || b.fecha || b.createdAt || 0).getTime() - new Date(a.date || a.fecha || a.createdAt || 0).getTime())
+        .slice(0, 4);
+
+        setRecentWorks(combined);
+      } catch (error) {
+        console.error('[HOME] Error loading recent works:', error);
+        setRecentWorks([]);
+      }
+    };
+
+    const loadDailyInsight = async (): Promise<void> => {
+      try {
+        const today = new Date().toDateString();
+        const cached = localStorage.getItem('daily_insight_cache');
+        if (cached) {
+          const { date, data } = JSON.parse(cached);
+          if (date === today) {
+            setDailyInsight(data);
+            return;
+          }
+        }
+
+        const response = await fetch(`${API_BASE_URL}/api/daily-insight`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setDailyInsight(data.insight);
+          localStorage.setItem('daily_insight_cache', JSON.stringify({ date: today, data: data.insight }));
         }
       } catch (err) {
         console.error("Error fetching daily insight:", err);
@@ -256,16 +371,37 @@ export default function Home(): React.ReactElement {
 
       {/* HERO BANNER / DASHBOARD HEADER */}
       {!currentUser ? (
-        <div className="home-hero-banner" style={{
-          padding: 'clamp(8rem, 12vw, 10rem) 1.2rem 6rem',
-          position: 'relative',
-          overflow: 'hidden',
-          marginBottom: '0',
-          borderBottom: '1px solid rgba(255,255,255,0.05)',
-          width: '100%',
-          boxSizing: 'border-box',
-          background: 'radial-gradient(circle at top right, #1e3a8a, #020617)'
-        }}>
+        <div 
+          className="home-hero-banner" 
+          onMouseMove={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            e.currentTarget.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+            e.currentTarget.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+          }}
+          style={{
+            padding: 'clamp(8rem, 12vw, 10rem) 1.2rem 6rem',
+            position: 'relative',
+            overflow: 'hidden',
+            marginBottom: '0',
+            borderBottom: '1px solid rgba(255,255,255,0.05)',
+            width: '100%',
+            boxSizing: 'border-box',
+            background: 'radial-gradient(circle at top right, #1e3a8a, #020617)'
+          }}
+        >
+          <div className="glow-cursor" style={{
+            position: 'absolute',
+            top: 'var(--mouse-y, 0)',
+            left: 'var(--mouse-x, 0)',
+            width: '600px',
+            height: '600px',
+            background: 'radial-gradient(circle, rgba(168,85,247,0.15) 0%, rgba(0,0,0,0) 50%)',
+            transform: 'translate(-50%, -50%)',
+            pointerEvents: 'none',
+            zIndex: 0,
+            transition: 'opacity 0.3s ease'
+          }} />
+
           <StarryBackground />
           <div style={{ position: 'relative', zIndex: 1, maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 1fr)', gap: '4rem', alignItems: 'center' }}>
             <div className="stagger-item" style={{ animationDelay: '0.1s' }}>
@@ -281,10 +417,13 @@ export default function Home(): React.ReactElement {
               </p>
               <div className="hero-buttons stagger-item" style={{ animationDelay: '0.3s', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
                 <button onClick={() => navigate('/login', { state: { view: 'register' } })} className="glow-button hover-lift" style={{ padding: '1.1rem 2.5rem', fontSize: '1.1rem' }}>
-                  Comenzar Gratis <ArrowRight size={20} style={{ display: 'inline', verticalAlign: 'middle', margin: '-2px 0 0 0.5rem' }} />
+                  Generar mi primer ATS Gratis <ArrowRight size={20} style={{ display: 'inline', verticalAlign: 'middle', margin: '-2px 0 0 0.5rem' }} />
                 </button>
-                <button onClick={() => navigate('/login', { state: { view: 'login' } })} style={{ padding: '1.1rem 2.5rem', borderRadius: 'var(--radius-xl)', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)', color: 'white', fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(12px)', fontSize: '1.1rem', transition: 'all 0.3s ease' }} onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}>
-                  Ingresar
+                <button onClick={() => {
+                  const demoInput = document.querySelector('.glass-mockup input') as HTMLInputElement;
+                  if (demoInput) demoInput.focus();
+                }} style={{ padding: '1.1rem 2.5rem', borderRadius: 'var(--radius-xl)', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)', color: 'white', fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(12px)', fontSize: '1.1rem', transition: 'all 0.3s ease' }} onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}>
+                  Ver Demo de IA
                 </button>
               </div>
               {/* Stats inline */}
@@ -294,73 +433,9 @@ export default function Home(): React.ReactElement {
               </div>
             </div>
             
-            {/* The Glass Mockup — Realistic ATS Preview */}
+            {/* Interactive Hero Demo */}
             <div className="stagger-item hidden-mobile" style={{ animationDelay: '0.4s', perspective: '1000px' }}>
-              <div className="glass-mockup" style={{ transform: 'rotateY(-12deg) rotateX(4deg)', transformStyle: 'preserve-3d', padding: '1.4rem', transition: 'transform 0.5s ease', maxWidth: '420px' }}
-                onMouseOver={e => e.currentTarget.style.transform = 'rotateY(0) rotateX(0)'}
-                onMouseOut={e => e.currentTarget.style.transform = 'rotateY(-12deg) rotateX(4deg)'}
-              >
-                {/* Header */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1rem', paddingBottom: '0.9rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                  <div style={{ width: '40px', height: '40px', background: 'linear-gradient(135deg,#1e40af,#3b82f6)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', flexShrink: 0 }}><ShieldCheck size={20} /></div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ color: 'white', fontWeight: 800, fontSize: '0.92rem', lineHeight: 1.2 }}>Análisis de Trabajo Seguro</div>
-                    <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.72rem', marginTop: '0.1rem' }}>⚡ Generado por IA en 1.2s</div>
-                  </div>
-                  <span style={{ background: 'rgba(16,185,129,0.2)', color: '#34d399', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 900, padding: '0.2rem 0.6rem', flexShrink: 0 }}>✓ Listo</span>
-                </div>
-
-                {/* Task info row */}
-                <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '10px', padding: '0.75rem 1rem', marginBottom: '0.9rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Tarea</div>
-                    <div style={{ fontSize: '0.88rem', fontWeight: 700, color: 'white', marginTop: '0.2rem' }}>Trabajos en altura — Andamios</div>
-                  </div>
-                  <span style={{ background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)', fontSize: '0.65rem', fontWeight: 900, padding: '0.25rem 0.6rem', borderRadius: '20px', flexShrink: 0 }}>🔴 ALTO</span>
-                </div>
-
-                {/* Steps list */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
-                  {[
-                    { step: '01', text: 'Verificar integridad del andamio y anclajes', done: true },
-                    { step: '02', text: 'Colocar arnés de seguridad certificado', done: true },
-                    { step: '03', text: 'Delimitar y señalizar área de trabajo', done: false },
-                  ].map(s => (
-                    <div key={s.step} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.55rem 0.8rem', borderRadius: '8px', background: s.done ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.04)', border: `1px solid ${s.done ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.07)'}` }}>
-                      <span style={{ fontSize: '0.62rem', fontWeight: 900, color: s.done ? '#34d399' : 'rgba(255,255,255,0.3)', background: s.done ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)', borderRadius: '6px', padding: '0.1rem 0.35rem', flexShrink: 0 }}>{s.step}</span>
-                      <span style={{ fontSize: '0.78rem', color: s.done ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.45)', fontWeight: 500, flex: 1, lineHeight: 1.3 }}>{s.text}</span>
-                      {s.done && <CheckCircle size={14} color="#34d399" style={{ flexShrink: 0 }} />}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Progress bar */}
-                <div style={{ marginBottom: '1rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
-                    <span style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>Progreso</span>
-                    <span style={{ fontSize: '0.68rem', color: '#34d399', fontWeight: 800 }}>2/3 pasos</span>
-                  </div>
-                  <div style={{ height: '6px', borderRadius: '10px', background: 'rgba(255,255,255,0.08)' }}>
-                    <div style={{ width: '66%', height: '100%', borderRadius: '10px', background: 'linear-gradient(90deg,#10b981,#34d399)', transition: 'width 1s ease' }} />
-                  </div>
-                </div>
-
-                {/* Action buttons */}
-                <div style={{ display: 'flex', gap: '0.6rem' }}>
-                  <div style={{ flex: 1, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', padding: '0.6rem', borderRadius: '10px', textAlign: 'center' }}>
-                    <CheckCircle weight="bold" color="#34d399" size={18} style={{ display: 'block', margin: '0 auto 0.3rem' }} />
-                    <div style={{ color: '#34d399', fontWeight: 800, fontSize: '0.72rem' }}>Normativa</div>
-                  </div>
-                  <div style={{ flex: 1, background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.25)', padding: '0.6rem', borderRadius: '10px', textAlign: 'center' }}>
-                    <FileText weight="bold" color="#60a5fa" size={18} style={{ display: 'block', margin: '0 auto 0.3rem' }} />
-                    <div style={{ color: '#60a5fa', fontWeight: 800, fontSize: '0.72rem' }}>PDF Listo</div>
-                  </div>
-                  <div style={{ flex: 1, background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.25)', padding: '0.6rem', borderRadius: '10px', textAlign: 'center' }}>
-                    <Sparkles weight="bold" color="#c084fc" size={18} style={{ display: 'block', margin: '0 auto 0.3rem' }} />
-                    <div style={{ color: '#c084fc', fontWeight: 800, fontSize: '0.72rem' }}>IA ✨</div>
-                  </div>
-                </div>
-              </div>
+              <InteractiveHeroDemo />
             </div>
           </div>
         </div>
@@ -447,6 +522,9 @@ export default function Home(): React.ReactElement {
       {/* Marketing Landing Content - Primary for visitors */}
       {!currentUser && (
         <div style={{ marginTop: '0' }}>
+          <WallOfLove />
+          <BeforeAndAfter />
+          <RoiCalculator />
           <MarketingLanding onStart={() => navigate('/login', { state: { view: 'register' } })} />
           
           <div style={{ marginTop: '4rem', maxWidth: '800px', margin: '4rem auto 0' }}>

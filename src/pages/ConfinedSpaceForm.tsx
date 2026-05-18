@@ -4,13 +4,14 @@ import {
     ArrowLeft, Save, Tent, ClipboardCheck, CheckCircle2,
     Eye, Printer, Share2, AlertTriangle, XCircle,
     User, Users, Shield, Wind, Droplets, Thermometer,
-    Activity, ShieldCheck, AlertCircle, Plus, Trash2
+    Activity, ShieldCheck, AlertCircle, Plus, Trash2, Pencil
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import ConfinedSpacePdf from '../components/ConfinedSpacePdf';
 import SignatureCanvas from '../components/SignatureCanvas';
+import PdfSignatures from '../components/PdfSignatures';
 
 // Constants from ConfinedSpace.tsx
 const CONFINED_SPACE_TYPES = [
@@ -66,7 +67,7 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
 
     useDocumentTitle(isEdit ? 'Editar Permiso Espacio Confinado' : 'Permiso Espacio Confinado');
 
-    const [permit, setPermit] = useState({
+    const [permit, setPermit] = useState<any>({
         id: '',
         spaceName: '',
         spaceType: 'tank',
@@ -86,19 +87,69 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
         status: 'pending',
         createdAt: new Date().toISOString(),
         observations: '',
-        signature: ''
+        signature: '',
+        operatorSignature: '',
+        supervisorSignature: '',
+        showSignatures: { operator: true, professional: true, supervisor: true }
     });
+
+    const [professional, setProfessional] = useState<any>({
+        name: '',
+        license: '',
+        signature: null,
+        stamp: null
+    });
+
+    const setShowSignatures = (updater: any) => {
+        setPermit((prev: any) => {
+            const updated = typeof updater === 'function' ? updater(prev.showSignatures) : updater;
+            return { ...prev, showSignatures: updated };
+        });
+    };
+
+    const showSignatures = permit.showSignatures || { operator: true, professional: true, supervisor: true };
+
+    useEffect(() => {
+        const savedData = localStorage.getItem('personalData');
+        const savedSigData = localStorage.getItem('signatureStampData');
+        const legacySignature = localStorage.getItem('capturedSignature');
+
+        let signature = legacySignature || null;
+        let stamp = null;
+        if (savedSigData) {
+            const parsed = JSON.parse(savedSigData);
+            signature = parsed.signature || signature;
+            stamp = parsed.stamp || null;
+        }
+
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            setProfessional({
+                name: data.name || '',
+                license: data.license || '',
+                signature: signature,
+                stamp: stamp
+            });
+        } else {
+            setProfessional((prev: any) => ({ ...prev, signature, stamp }));
+        }
+    }, []);
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener('resize', handleResize);
 
         if (location.state?.editData) {
+            const edit = location.state.editData;
             setPermit({
-                ...location.state.editData,
-                equipment: location.state.editData.equipment || EQUIPMENT_CHECKLIST.map(e => ({ ...e, checked: false })),
-                hazards: location.state.editData.hazards || [],
-                team: location.state.editData.team || { entrants: [], attendant: '', supervisor: '', rescue: '' }
+                ...edit,
+                equipment: edit.equipment || EQUIPMENT_CHECKLIST.map(e => ({ ...e, checked: false })),
+                hazards: edit.hazards || [],
+                team: edit.team || { entrants: [], attendant: '', supervisor: '', rescue: '' },
+                operatorSignature: edit.operatorSignature || '',
+                supervisorSignature: edit.supervisorSignature || edit.signature || '',
+                signature: edit.signature || edit.supervisorSignature || '',
+                showSignatures: edit.showSignatures || { operator: true, professional: true, supervisor: true }
             });
             setIsEdit(true);
         }
@@ -143,12 +194,18 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
         const saved = JSON.parse(localStorage.getItem('confined_space_permits_db') || '[]');
         let updated;
 
+        const saveObj = {
+            ...permit,
+            signature: permit.supervisorSignature || permit.signature || '',
+            supervisorSignature: permit.supervisorSignature || permit.signature || ''
+        };
+
         if (isEdit) {
-            updated = saved.map((p: any) => p.id === permit.id ? permit : p);
+            updated = saved.map((p: any) => p.id === permit.id ? saveObj : p);
             toast.success('Permiso actualizado');
         } else {
             const newEntry = {
-                ...permit,
+                ...saveObj,
                 id: `CS-${Date.now()}`,
                 createdAt: new Date().toISOString(),
                 status: permit.status || 'pending'
@@ -351,11 +408,82 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                     />
 
                     <div style={{ marginTop: '2.5rem' }}>
-                        <SignatureCanvas 
-                            onSave={(sig) => setPermit({ ...permit, signature: sig || '' })}
-                            initialImage={permit.signature}
-                            label="Firma de Supervisor de Entrada"
-                        />
+                        <SectionTitle icon={<Pencil size={20} />} title="Firmas y Autorizaciones" />
+
+                        <div className="no-print mb-8 p-6 bg-slate-50/5 border border-[var(--color-border)] rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-sm font-bold text-slate-700" style={{ marginBottom: '2rem', padding: '1.5rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '12px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '1.5rem', justifyContent: 'center', alignItems: 'center' }}>
+                            <div className="text-center" style={{ color: 'var(--color-text)', fontSize: '0.9rem', fontWeight: 700 }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                    <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures((s: any) => ({ ...s, operator: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Responsable / Entrante
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                    <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures((s: any) => ({ ...s, professional: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Profesional H&S
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                    <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures((s: any) => ({ ...s, supervisor: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Autorización de Ingreso
+                                </label>
+                            </div>
+                        </div>
+
+                        {/* On-Sheet Visual Preview of PDF signature blocks */}
+                        <div style={{ marginBottom: '2.5rem' }}>
+                            <PdfSignatures
+                                data={{
+                                    ...permit,
+                                    professionalSignature: professional.signature,
+                                    professionalName: professional.name,
+                                    professionalLicense: professional.license,
+                                    professionalStamp: professional.stamp
+                                }}
+                                box1={showSignatures.operator ? {
+                                    title: 'RESPONSABLE / ENTRANTE',
+                                    subtitle: 'Control de Ingreso',
+                                    signatureUrl: permit.operatorSignature || null,
+                                    isProfessional: false
+                                } : null}
+                                box2={showSignatures.professional ? {
+                                    title: 'PROFESIONAL H&S',
+                                    subtitle: (professional.name || 'Firma de Especialista').toUpperCase(),
+                                    signatureUrl: permit.professionalSignature || professional.signature || null,
+                                    stampUrl: permit.professionalStamp || professional.stamp || null,
+                                    isProfessional: true,
+                                    license: professional.license
+                                } : null}
+                                box3={showSignatures.supervisor ? {
+                                    title: 'AUTORIZACIÓN DE INGRESO',
+                                    subtitle: 'Firma del Autorizante',
+                                    signatureUrl: permit.supervisorSignature || permit.signature || null,
+                                    isProfessional: false
+                                } : null}
+                            />
+                        </div>
+
+                        {/* Interactive Signature Drawing Pads */}
+                        <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)]" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '2rem', marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--color-border)' }}>
+                            {showSignatures.operator && (
+                                <SignatureCanvas 
+                                    onSave={(sig) => setPermit((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
+                                    initialImage={permit.operatorSignature}
+                                    label="Firma de Responsable / Entrante"
+                                />
+                            )}
+                            
+                            {showSignatures.professional && (
+                                <SignatureCanvas 
+                                    onSave={(sig) => setPermit((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
+                                    initialImage={permit.professionalSignature || professional.signature}
+                                    label="Firma de Profesional H&S"
+                                />
+                            )}
+
+                            {showSignatures.supervisor && (
+                                <SignatureCanvas 
+                                    onSave={(sig) => setPermit((prev: any) => ({ ...prev, supervisorSignature: sig || '', signature: sig || '' }))}
+                                    initialImage={permit.supervisorSignature || permit.signature}
+                                    label="Firma de Autorización de Ingreso"
+                                />
+                            )}
+                        </div>
                     </div>
                 </div>
             </main>

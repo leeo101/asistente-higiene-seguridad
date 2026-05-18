@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, RefreshCw, Shield, AlertTriangle, Clock, CheckCircle2, User, Calendar, FileText, Target, Info, Eye, Printer, Share2 } from 'lucide-react';
+import { ArrowLeft, Save, RefreshCw, Shield, AlertTriangle, Clock, CheckCircle2, User, Calendar, FileText, Target, Info, Eye, Printer, Share2, Pencil } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import CAPAPdf from '../components/CAPAPdf';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
+import PdfSignatures from '../components/PdfSignatures';
 
 const CAPA_TYPES = [
     { id: 'corrective', name: 'Correctiva', icon: '🔧' },
@@ -53,6 +54,19 @@ export default function CAPAForm(): React.ReactElement | null {
     const [isEdit, setIsEdit] = useState(false);
     const { isPro, requirePro } = usePaywall();
 
+    const [showSignatures, setShowSignatures] = useState({
+        operator: true,
+        supervisor: true,
+        professional: true
+    });
+
+    const [professional, setProfessional] = useState({
+        name: '',
+        license: '',
+        signature: null as string | null,
+        stamp: null as string | null
+    });
+
     useDocumentTitle(isEdit ? 'Editar Acción CAPA' : 'Nueva Acción CAPA');
     const [capa, setCapa] = useState({
         id: `CAPA-${Date.now()}`,
@@ -78,12 +92,56 @@ export default function CAPAForm(): React.ReactElement | null {
             comments: ''
         },
         tags: [],
-        signature: ''
+        signature: '',
+        operatorSignature: '',
+        supervisorSignature: '',
+        showSignatures: {
+            operator: true,
+            supervisor: true,
+            professional: true
+        }
     });
+
+    // Cargar datos del profesional
+    useEffect(() => {
+        const savedData = localStorage.getItem('personalData');
+        const savedSigData = localStorage.getItem('signatureStampData');
+        const legacySignature = localStorage.getItem('capturedSignature');
+
+        let signature = legacySignature || null;
+        let stamp = null;
+        if (savedSigData) {
+            const parsed = JSON.parse(savedSigData);
+            signature = parsed.signature || signature;
+            stamp = parsed.stamp || null;
+        }
+
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            setProfessional({
+                name: data.name || '',
+                license: data.license || '',
+                signature: signature,
+                stamp: stamp
+            });
+        } else {
+            setProfessional(prev => ({ ...prev, signature, stamp }));
+        }
+    }, []);
 
     useEffect(() => {
         if (location.state?.editData) {
-            setCapa(location.state.editData);
+            const editData = location.state.editData;
+            setCapa({
+                ...editData,
+                operatorSignature: editData.operatorSignature || '',
+                supervisorSignature: editData.supervisorSignature || '',
+                signature: editData.signature || '',
+                showSignatures: editData.showSignatures || { operator: true, supervisor: true, professional: true }
+            });
+            if (editData.showSignatures) {
+                setShowSignatures(editData.showSignatures);
+            }
             setIsEdit(true);
         }
     }, [location.state]);
@@ -105,14 +163,15 @@ export default function CAPAForm(): React.ReactElement | null {
         let updated;
 
         if (isEdit) {
-            updated = saved.map((c: any) => c.id === capa.id ? capa : c);
+            updated = saved.map((c: any) => c.id === capa.id ? { ...capa, showSignatures } : c);
             toast.success('Acción CAPA actualizada');
         } else {
             const newCapa = {
                 ...capa,
                 id: `CAPA-${Date.now()}`,
                 createdAt: new Date().toISOString(),
-                status: 'open'
+                status: 'open',
+                showSignatures
             };
             updated = [newCapa, ...saved];
             toast.success('Acción CAPA guardada');
@@ -291,12 +350,85 @@ export default function CAPAForm(): React.ReactElement | null {
                         </div>
                     </div>
 
-                    <div style={{ marginTop: '2.5rem' }}>
-                        <SignatureCanvas 
-                            onSave={(sig) => setCapa({ ...capa, signature: sig || '' })}
-                            initialImage={capa.signature}
-                            label="Firma de Autoridad EHS / Verificador"
-                        />
+                    <div className="card" style={{ marginTop: '2.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)', padding: '2rem' }}>
+                        <h3 style={{ marginTop: 0, marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                            <Pencil size={24} /> Firmas y Autorizaciones
+                        </h3>
+
+                        <div className="no-print mb-8 p-6 bg-slate-50/5 border border-[var(--color-border)] rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-sm font-bold text-slate-700">
+                            <div className="text-center" style={{ color: 'var(--color-text)' }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                            <div className="flex gap-4 flex-wrap justify-center">
+                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
+                                    <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Responsable / Operador
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
+                                    <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Profesional Actuante
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
+                                    <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Supervisión / Cierre
+                                </label>
+                            </div>
+                        </div>
+
+                        {/* On-Sheet Visual Preview of PDF signature blocks */}
+                        <div style={{ marginBottom: '2.5rem' }}>
+                            <PdfSignatures
+                                data={{
+                                    ...capa,
+                                    professionalSignature: professional.signature,
+                                    professionalName: professional.name,
+                                    professionalLicense: professional.license,
+                                    professionalStamp: professional.stamp
+                                }}
+                                box1={showSignatures.operator ? {
+                                    title: 'RESPONSABLE / OPERADOR',
+                                    subtitle: 'Firma de Conformidad',
+                                    signatureUrl: capa.operatorSignature || null,
+                                    isProfessional: false
+                                } : null}
+                                box2={showSignatures.professional ? {
+                                    title: 'PROFESIONAL ACTUANTE',
+                                    subtitle: (professional.name || 'Firma de Especialista').toUpperCase(),
+                                    signatureUrl: capa.signature || professional.signature || null,
+                                    stampUrl: professional.stamp || null,
+                                    isProfessional: true,
+                                    license: professional.license
+                                } : null}
+                                box3={showSignatures.supervisor ? {
+                                    title: 'SUPERVISIÓN / CIERRE',
+                                    subtitle: 'Aprobación y Cierre CAPA',
+                                    signatureUrl: capa.supervisorSignature || null,
+                                    isProfessional: false
+                                } : null}
+                            />
+                        </div>
+
+                        {/* Interactive Signature Drawing Pads */}
+                        <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 gap-8" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '2rem' }}>
+                            {showSignatures.operator && (
+                                <SignatureCanvas 
+                                    onSave={(sig) => setCapa(prev => ({ ...prev, operatorSignature: sig || '' }))}
+                                    initialImage={capa.operatorSignature}
+                                    label="Firma de Responsable / Operador"
+                                />
+                            )}
+                            
+                            {showSignatures.professional && (
+                                <SignatureCanvas 
+                                    onSave={(sig) => setCapa(prev => ({ ...prev, signature: sig || '' }))}
+                                    initialImage={capa.signature}
+                                    label="Firma de Profesional Actuante"
+                                />
+                            )}
+
+                            {showSignatures.supervisor && (
+                                <SignatureCanvas 
+                                    onSave={(sig) => setCapa(prev => ({ ...prev, supervisorSignature: sig || '' }))}
+                                    initialImage={capa.supervisorSignature}
+                                    label="Firma de Supervisión / Cierre"
+                                />
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -339,7 +471,7 @@ export default function CAPAForm(): React.ReactElement | null {
             />
 
             <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
-                <CAPAPdf data={{ ...capa, createdAt: capa.createdAt || new Date().toISOString() }} />
+                <CAPAPdf data={{ ...capa, showSignatures, createdAt: capa.createdAt || new Date().toISOString() }} />
             </div>
         </div>
     );

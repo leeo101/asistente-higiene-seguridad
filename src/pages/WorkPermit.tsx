@@ -10,6 +10,8 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
+import PdfSignatures from '../components/PdfSignatures';
+import SignatureCanvas from '../components/SignatureCanvas';
 import { usePaywall } from '../hooks/usePaywall';
 import { permitTypes } from '../data/workPermits';
 import toast from 'react-hot-toast';
@@ -27,7 +29,7 @@ export default function WorkPermit(): React.ReactElement | null {
     useDocumentTitle(editData ? 'Editar Permiso de Trabajo' : 'Permiso de Trabajo');
 
     // Default state
-    const [formData, setFormData] = useState(() => ({
+    const [formData, setFormData] = useState<any>(() => ({
         id: null,
         numeroPermiso: '',
         empresa: '',
@@ -47,26 +49,42 @@ export default function WorkPermit(): React.ReactElement | null {
             solicitante: null,
             supervisor: null,
             ehs: null
-        }
+        },
+        operatorSignature: '',
+        professionalSignature: '',
+        supervisorSignature: '',
+        showSignatures: { operator: true, professional: true, supervisor: true }
     }));
 
-    const [professional, setProfessional] = useState({
+    const [professional, setProfessional] = useState<any>({
         name: 'Profesional',
         license: '',
-        signature: null
+        signature: null,
+        stamp: null
     });
 
-    const [showSignatures, setShowSignatures] = useState({
-        supervisor: true,
-        professional: true
-    });
+    const setShowSignatures = (updater: any) => {
+        setFormData((prev: any) => {
+            const updated = typeof updater === 'function' ? updater(prev.showSignatures) : updater;
+            return { ...prev, showSignatures: updated };
+        });
+    };
+
+    const showSignatures = formData.showSignatures || { operator: true, professional: true, supervisor: true };
 
     const [showShare, setShowShare] = useState(false);
 
     // Load data for editing
     useEffect(() => {
         if (location.state?.editData) {
-            setFormData(location.state.editData);
+            const ed = location.state.editData;
+            setFormData({
+                ...ed,
+                operatorSignature: ed.operatorSignature || ed.firmas?.solicitante?.sign || '',
+                professionalSignature: ed.professionalSignature || ed.firmas?.ehs?.sign || '',
+                supervisorSignature: ed.supervisorSignature || ed.firmas?.supervisor?.sign || '',
+                showSignatures: ed.showSignatures || { operator: true, professional: true, supervisor: true }
+            });
         }
     }, [location.state]);
 
@@ -74,17 +92,26 @@ export default function WorkPermit(): React.ReactElement | null {
     useEffect(() => {
         const savedData = localStorage.getItem('personalData');
         const savedSigData = localStorage.getItem('signatureStampData');
+        const legacySignature = localStorage.getItem('capturedSignature');
+
+        let signature = legacySignature || null;
+        let stamp = null;
+        if (savedSigData) {
+            const parsed = JSON.parse(savedSigData);
+            signature = parsed.signature || signature;
+            stamp = parsed.stamp || null;
+        }
+
         if (savedData) {
             const data = JSON.parse(savedData);
-            let signature = null;
-            if (savedSigData) {
-                signature = JSON.parse(savedSigData).signature;
-            }
             setProfessional({
                 name: data.name || 'Profesional',
                 license: data.license || '',
-                signature: signature
+                signature: signature,
+                stamp: stamp
             });
+        } else {
+            setProfessional((prev: any) => ({ ...prev, signature, stamp }));
         }
     }, []);
 
@@ -162,9 +189,10 @@ export default function WorkPermit(): React.ReactElement | null {
         const newEntry = {
             ...formData,
             id: entryId,
-            professionalName: professional.name,
-            professionalLicense: professional.license,
-            professionalSignature: professional.signature,
+            professionalName: formData.professionalName || professional.name,
+            professionalLicense: formData.professionalLicense || professional.license,
+            professionalSignature: formData.professionalSignature || professional.signature,
+            professionalStamp: formData.professionalStamp || professional.stamp,
             createdAt: (formData as any).createdAt || new Date().toISOString()
         };
 
@@ -512,51 +540,79 @@ export default function WorkPermit(): React.ReactElement | null {
 
                 {/* Signatures */}
                 <div style={{ marginTop: '3rem', borderTop: '2px solid #ddd', paddingTop: '2rem' }}>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 900, marginBottom: '2rem', textAlign: 'center' }}>FIRMAS DE AUTORIZACIÓN</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-10">
-                        {/* Solicitante */}
-                        <div style={{ textAlign: 'center' }}>
-                            <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                {formData.firmas?.solicitante?.sign ? (
-                                    <img src={formData.firmas.solicitante.sign} alt="Firma" style={{ height: '100%', objectFit: 'contain' }} />
-                                ) : (
-                                    <span style={{ color: '#ccc' }}>Pendiente</span>
-                                )}
-                            </div>
-                            <div style={{ borderTop: '2px solid #333', paddingTop: '10px' }}>
-                                <p style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem' }}>{formData.firmas?.solicitante?.name || 'SOLICITANTE'}</p>
-                                <p style={{ margin: 0, fontSize: '0.6rem', color: '#666' }}>{formData.firmas?.solicitante?.date || 'Firma Solicitante'}</p>
-                            </div>
+                    <div className="no-print mb-8 p-6 bg-slate-50/5 border border-[var(--color-border)] rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-sm font-bold text-slate-700" style={{ marginBottom: '2rem', padding: '1.5rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '1.5rem', justifyContent: 'center', alignItems: 'center' }}>
+                        <div className="text-center" style={{ color: 'var(--color-text)', fontSize: '0.9rem', fontWeight: 700 }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                        <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                            <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures((s: any) => ({ ...s, operator: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Solicitante
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures((s: any) => ({ ...s, professional: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Gerencia EHS
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures((s: any) => ({ ...s, supervisor: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Supervisor
+                            </label>
                         </div>
+                    </div>
 
-                        {/* Supervisor */}
-                        <div style={{ textAlign: 'center' }}>
-                            <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                {formData.firmas?.supervisor?.sign ? (
-                                    <img src={formData.firmas.supervisor.sign} alt="Firma" style={{ height: '100%', objectFit: 'contain' }} />
-                                ) : (
-                                    <span style={{ color: '#ccc' }}>Pendiente</span>
-                                )}
-                            </div>
-                            <div style={{ borderTop: '2px solid #333', paddingTop: '10px' }}>
-                                <p style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem' }}>{formData.firmas?.supervisor?.name || 'SUPERVISOR'}</p>
-                                <p style={{ margin: 0, fontSize: '0.6rem', color: '#666' }}>{formData.firmas?.supervisor?.date || 'Firma Supervisor'}</p>
-                            </div>
-                        </div>
+                    <div style={{ marginBottom: '2rem' }}>
+                        <PdfSignatures
+                            data={{
+                                ...formData,
+                                professionalSignature: professional.signature,
+                                professionalName: professional.name,
+                                professionalLicense: professional.license,
+                                professionalStamp: professional.stamp
+                            }}
+                            box1={showSignatures.operator ? {
+                                title: 'SOLICITANTE / OPERADOR',
+                                subtitle: 'Aclaración y Firma',
+                                signatureUrl: formData.operatorSignature || formData.firmas?.solicitante?.sign || null,
+                                isProfessional: false
+                            } : null}
+                            box2={showSignatures.professional ? {
+                                title: 'GERENCIA EHS / EMISOR',
+                                subtitle: (professional.name || 'Firma y Sello H&S').toUpperCase(),
+                                signatureUrl: formData.professionalSignature || professional.signature || formData.firmas?.ehs?.sign || null,
+                                stampUrl: formData.professionalStamp || professional.stamp || null,
+                                isProfessional: true,
+                                license: professional.license
+                            } : null}
+                            box3={showSignatures.supervisor ? {
+                                title: 'SUPERVISOR DE TRABAJO',
+                                subtitle: 'Aprobación / Autorización',
+                                signatureUrl: formData.supervisorSignature || formData.firmas?.supervisor?.sign || null,
+                                isProfessional: false
+                            } : null}
+                        />
+                    </div>
 
-                        {/* EHS */}
-                        <div style={{ textAlign: 'center' }}>
-                            <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                {formData.firmas?.ehs?.sign ? (
-                                    <img src={formData.firmas.ehs.sign} alt="Firma" style={{ height: '100%', objectFit: 'contain' }} />
-                                ) : (
-                                    <span style={{ color: '#ccc' }}>Pendiente</span>
-                                )}
-                            </div>
-                            <div style={{ borderTop: '2px solid #333', paddingTop: '10px' }}>
-                                <p style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem' }}>{formData.firmas?.ehs?.name || 'GERENCIA EHS'}</p>
-                                <p style={{ margin: 0, fontSize: '0.6rem', color: '#666' }}>{formData.firmas?.ehs?.date || 'Sello y Firma receptora'}</p>
-                            </div>
+                    {/* Signature Tactile Drawing Pads */}
+                    <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)]" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem', marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--color-border)' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '2rem' }}>
+                            {showSignatures.operator && (
+                                <SignatureCanvas 
+                                    onSave={(sig) => setFormData((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
+                                    initialImage={formData.operatorSignature || formData.firmas?.solicitante?.sign}
+                                    label="Firma de Solicitante"
+                                />
+                            )}
+                            
+                            {showSignatures.professional && (
+                                <SignatureCanvas 
+                                    onSave={(sig) => setFormData((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
+                                    initialImage={formData.professionalSignature || professional.signature || formData.firmas?.ehs?.sign}
+                                    label="Firma de Gerencia EHS"
+                                />
+                            )}
+
+                            {showSignatures.supervisor && (
+                                <SignatureCanvas 
+                                    onSave={(sig) => setFormData((prev: any) => ({ ...prev, supervisorSignature: sig || '' }))}
+                                    initialImage={formData.supervisorSignature || formData.firmas?.supervisor?.sign}
+                                    label="Firma de Supervisor"
+                                />
+                            )}
                         </div>
                     </div>
                     

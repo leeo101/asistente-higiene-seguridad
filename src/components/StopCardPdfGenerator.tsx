@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { MapPin, Calendar, Clock, User, AlertCircle, AlertTriangle, ShieldCheck, Camera, FileText, CheckCircle2 } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import PdfSignatures from './PdfSignatures';
 import { getCountryNormativa } from '../data/legislationData';
 
 export default function StopCardPdfGenerator({ card }: { card: any }): React.ReactElement | null {
@@ -482,59 +483,10 @@ export default function StopCardPdfGenerator({ card }: { card: any }): React.Rea
                 )}
 
                 {/* Footer Signature - Mejorado visualmente */}
-                <div className="signature-container-row" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px solid #f1f5f9', pageBreakInside: 'avoid', justifyContent: 'center' }}>
-                    <div className="signature-item-box" style={{ border: '1.5px solid #f1f5f9', background: '#fcfdfe', maxWidth: '300px' }}>
-                        {card.signature ? (
-                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.3rem' }}>
-                                <img src={card.signature} alt="Firma Observador" style={{ maxHeight: '50px', maxWidth: '100%', objectFit: 'contain' }} />
-                            </div>
-                        ) : <div style={{ height: '50px' }} />}
-                        <div className="signature-line" style={{ borderBottomColor: '#e2e8f0' }} />
-                        <p style={{ margin: '0.4rem 0 0', fontSize: '0.55rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.1em' }}>OBSERVADOR / PREVENCIONISTA</p>
-                        <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 900, color: '#0f172a' }}>{card.observador || 'Firma y Aclaración'}</p>
-                        <p style={{ margin: 0, fontSize: '0.5rem', fontWeight: 700, color: '#3b82f6', textTransform: 'uppercase' }}>Validación Técnica H&S</p>
-                    </div>
+                <PdfSignatures data={card} />
                 </div>
-
-                {/* Footer */}
-                <div style={{ 
-                    textAlign: 'center', 
-                    marginTop: '2.5rem', 
-                    paddingTop: '1.5rem',
-                    borderTop: '1px solid #e2e8f0',
-                    fontSize: '8pt', 
-                    color: '#94a3b8',
-                    lineHeight: '1.6'
-                }}>
-                    <div style={{ 
-                        fontWeight: 800, 
-                        color: '#64748b', 
-                        textTransform: 'uppercase', 
-                        letterSpacing: '1px', 
-                        marginBottom: '6px'
-                    }}>
-                        🛡️ Informe generado electrónicamente
-                    </div>
-                    <div style={{ color: '#64748b' }}>
-                        {new Date().toLocaleDateString('es-AR', { 
-                            weekday: 'long', 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric'
-                        })} a las {new Date().toLocaleTimeString('es-AR')}
-                    </div>
-                    <div style={{ 
-                        marginTop: '4px',
-                        fontSize: '7.5pt',
-                        color: '#cbd5e1'
-                    }}>
-                        {countryNorms.general} - {countryNorms.thermal}
-                    </div>
-                </div>
-
             </div>
-        </div>
-    );
+);
 }
 
 

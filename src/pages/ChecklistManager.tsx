@@ -4,7 +4,7 @@ import {
     ClipboardCheck, Printer, Plus,
     Settings, TriangleAlert, Building2, Calendar,
     Check, ShieldCheck, Trash2, Edit3, X,
-    Share2, Save, ArrowLeft, Info
+    Share2, Save, ArrowLeft, Info, Pencil
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../contexts/AuthContext';
@@ -14,6 +14,8 @@ import CompanyLogo from '../components/CompanyLogo';
 import ChecklistPdfGenerator from '../components/ChecklistPdfGenerator';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
+import SignatureCanvas from '../components/SignatureCanvas';
+import PdfSignatures from '../components/PdfSignatures';
 
 const DEFAULT_TEMPLATES = {
     'manual_tools': {
@@ -194,6 +196,33 @@ export default function ChecklistManager(): React.ReactElement | null {
     });
     const [actionPlan, setActionPlan] = useState([]);
     const [nextReview, setNextReview] = useState('');
+
+    const [operatorSignature, setOperatorSignature] = useState('');
+    const [signature, setSignature] = useState('');
+    const [supervisorSignature, setSupervisorSignature] = useState('');
+    const [professional, setProfessional] = useState({ name: '', license: '', signature: null as string | null, stamp: null as string | null });
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    useEffect(() => {
+        try {
+            const pd = localStorage.getItem('personalData');
+            const sd = localStorage.getItem('signatureStampData');
+            const lg = localStorage.getItem('capturedSignature');
+            let sig = lg || null;
+            let stamp = null as string | null;
+            if (sd) { const p = JSON.parse(sd); sig = p.signature || sig; stamp = p.stamp || null; }
+            const name = pd ? JSON.parse(pd).name || '' : '';
+            const license = pd ? JSON.parse(pd).license || '' : '';
+            setProfessional({ name, license, signature: sig, stamp });
+        } catch { }
+    }, []);
     const [newAction, setNewAction] = useState({ action: '', responsible: '', dueDate: '', priority: 'medio' });
     const [selectedNorms, setSelectedNorms] = useState([]);
     const [userCountry, setUserCountry] = useState('argentina');
@@ -226,6 +255,9 @@ export default function ChecklistManager(): React.ReactElement | null {
                 setNextReview(parsed.nextReview || '');
                 setSelectedNorms(parsed.selectedNorms || []);
                 if (parsed.showSignatures) setShowSignatures(parsed.showSignatures);
+                setOperatorSignature(parsed.operatorSignature || '');
+                setSignature(parsed.signature || '');
+                setSupervisorSignature(parsed.supervisorSignature || '');
             }
         }
     }, [searchParams]);
@@ -243,6 +275,9 @@ export default function ChecklistManager(): React.ReactElement | null {
             nextReview,
             selectedNorms,
             showSignatures,
+            operatorSignature,
+            signature,
+            supervisorSignature,
             updatedAt: new Date().toISOString()
         };
 
@@ -623,6 +658,91 @@ export default function ChecklistManager(): React.ReactElement | null {
                 </div>
             </div>
 
+            {/* Firmas y Autorizaciones */}
+            <div className="no-print card" style={{ marginTop: '1.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)', padding: '2rem' }}>
+                <h3 style={{ marginTop: 0, marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    <Pencil size={24} /> Firmas y Autorizaciones
+                </h3>
+
+                <div className="mb-8 p-6 bg-slate-50/5 border border-[var(--color-border)] rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-sm font-bold text-slate-700">
+                    <div className="text-center" style={{ color: 'var(--color-text)' }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                    <div className="flex gap-4 flex-wrap justify-center">
+                        <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
+                            <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Responsable / Operador
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
+                            <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Profesional / Inspector
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
+                            <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Supervisión / Verificador
+                        </label>
+                    </div>
+                </div>
+
+                {/* On-Sheet Visual Preview of PDF signature blocks */}
+                <div style={{ marginBottom: '2.5rem' }}>
+                    <PdfSignatures
+                        data={{
+                            operatorSignature,
+                            signature,
+                            supervisorSignature,
+                            showSignatures,
+                            professionalSignature: professional.signature,
+                            professionalName: professional.name,
+                            professionalLicense: professional.license,
+                            professionalStamp: professional.stamp
+                        }}
+                        box1={showSignatures.operator ? {
+                            title: 'RESPONSABLE / OPERADOR',
+                            subtitle: 'Control Operativo',
+                            signatureUrl: operatorSignature || null,
+                            isProfessional: false
+                        } : null}
+                        box2={showSignatures.professional ? {
+                            title: 'PROFESIONAL / INSTRUCTOR',
+                            subtitle: (professional.name || 'Firma de Especialista').toUpperCase(),
+                            signatureUrl: signature || professional.signature || null,
+                            stampUrl: professional.stamp || null,
+                            isProfessional: true,
+                            license: professional.license
+                        } : null}
+                        box3={showSignatures.supervisor ? {
+                            title: 'SUPERVISIÓN / VERIFICADOR',
+                            subtitle: 'Cierre de Inspección',
+                            signatureUrl: supervisorSignature || null,
+                            isProfessional: false
+                        } : null}
+                    />
+                </div>
+
+                {/* Interactive Signature Drawing Pads */}
+                <div className="mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 gap-8" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '2rem' }}>
+                    {showSignatures.operator && (
+                        <SignatureCanvas 
+                            onSave={(sig) => setOperatorSignature(sig || '')}
+                            initialImage={operatorSignature}
+                            label="Firma de Responsable / Operador"
+                        />
+                    )}
+                    
+                    {showSignatures.professional && (
+                        <SignatureCanvas 
+                            onSave={(sig) => setSignature(sig || '')}
+                            initialImage={signature}
+                            label="Firma de Profesional / Inspector"
+                        />
+                    )}
+
+                    {showSignatures.supervisor && (
+                        <SignatureCanvas 
+                            onSave={(sig) => setSupervisorSignature(sig || '')}
+                            initialImage={supervisorSignature}
+                            label="Firma de Supervisión / Verificador"
+                        />
+                    )}
+                </div>
+            </div>
+
             {/* PDF Generator - Fuera de pantalla, solo visible al imprimir o generar PDF */}
             <div
                 id="pdf-generator-container"
@@ -645,7 +765,14 @@ export default function ChecklistManager(): React.ReactElement | null {
                         nextReview,
                         selectedNorms,
                         showSignatures,
-                        availableNorms
+                        availableNorms,
+                        operatorSignature,
+                        signature,
+                        supervisorSignature,
+                        professionalSignature: professional.signature,
+                        professionalName: professional.name,
+                        professionalLicense: professional.license,
+                        professionalStamp: professional.stamp
                     }}
                 />
             </div>

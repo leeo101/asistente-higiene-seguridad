@@ -1,6 +1,7 @@
 import React from 'react';
 import { ShieldCheck, TriangleAlert, Info } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import PdfSignatures from './PdfSignatures';
 
 export default function AiReportPdfGenerator({ item }: { item: any }): React.ReactElement | null {
 // function body start
@@ -150,27 +151,7 @@ export default function AiReportPdfGenerator({ item }: { item: any }): React.Rea
                 )}
 
                 {/* Signature Row */}
-                <div className="signature-container-row" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid' }}>
-                    <div className="signature-item-box">
-                        <div className="signature-line"></div>
-                        <p style={{ margin: 0, fontWeight: 800, fontSize: '0.75rem', color: '#1e293b' }}>RESPONSABLE DE ÁREA</p>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '0.65rem', color: '#64748b' }}>Firma y Aclaración en original</p>
-                    </div>
-
-                    <div className="signature-item-box" style={{ background: '#f0fdf4', borderColor: '#bbf7d0' }}>
-                        {signature?.signature || signature?.stamp ? (
-                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', height: '60px', width: '100%' }}>
-                                {signature.signature && <img src={signature.signature} alt="Firma" style={{ maxWidth: '100px', maxHeight: '60px' }} />}
-                                {signature.stamp && <img src={signature.stamp} alt="Sello" style={{ maxWidth: '60px', maxHeight: '60px' }} />}
-                            </div>
-                        ) : (
-                            <div style={{ height: '60px', width: '100%', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#86efac', fontSize: '0.6rem' }}>Sello y Firma Digital</div>
-                        )}
-                        <div className="signature-line" style={{ background: '#86efac' }}></div>
-                        <div style={{ fontSize: '0.65rem', color: '#166534', fontWeight: 'bold' }}>{profile?.name || 'Profesional Actuante'}</div>
-                        <div style={{ fontSize: '0.55rem', color: '#15803d' }}>Mat: {profile?.license || '-'}</div>
-                    </div>
-                </div>
+                <PdfSignatures data={data} />
 
             </div>
         </div>

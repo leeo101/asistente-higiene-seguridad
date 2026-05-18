@@ -2,6 +2,7 @@ import React from 'react';
 import { ShieldCheck, AlertTriangle, Clock, CheckCircle2, Clipboard, User, Calendar, RefreshCw } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
+import PdfSignatures from './PdfSignatures';
 
 export default function CAPAPdf({ data }: { data: any }): React.ReactElement | null {
     if (!data) return null;
@@ -10,6 +11,7 @@ export default function CAPAPdf({ data }: { data: any }): React.ReactElement | n
     let actSignature = data.signature || null;
     let actName = data.professionalName || data.leadAuditor || null;
     let actLic = data.license || null;
+    let actStamp = data.stamp || null;
     
     // Si no trae firmas directas, intentar heredar de localStorage (fallback global pro)
     if (!actSignature) {
@@ -138,45 +140,35 @@ export default function CAPAPdf({ data }: { data: any }): React.ReactElement | n
                         <ShieldCheck size={18} /> 3. PLAN DE ACCIÓN DEFINITIVO (RESOLUCIÓN DE RAÍZ)
                     </h3>
                     <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#064e3b', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
-                        {data.plan || 'El plan definitivo no fue documentado al momento de la exportación del PDF.'}
+                        {data.actionPlan || 'El plan definitivo no fue documentado al momento de la exportación del PDF.'}
                     </div>
                 </div>
 
                 {/* Firmas de Responsabilidad */}
-                <div className="signature-container-row" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid' }}>
-                    
-                    <div className="signature-item-box">
-                        <div className="signature-line"></div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#1e293b' }}>RESPONSABLE DE EJECUCIÓN</p>
-                        <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Aceptación de acción delegada</p>
-                    </div>
+                <PdfSignatures
+                    data={data}
+                    box1={data.showSignatures?.operator !== false ? {
+                        title: 'RESPONSABLE / OPERADOR',
+                        subtitle: 'Firma de Conformidad',
+                        signatureUrl: data.operatorSignature || null,
+                        isProfessional: false
+                    } : null}
+                    box2={data.showSignatures?.professional !== false ? {
+                        title: 'PROFESIONAL ACTUANTE',
+                        subtitle: (actName || 'Firma de Especialista').toUpperCase(),
+                        signatureUrl: data.signature || actSignature || null,
+                        stampUrl: data.professionalStamp || actStamp || null,
+                        isProfessional: true,
+                        license: actLic
+                    } : null}
+                    box3={data.showSignatures?.supervisor !== false ? {
+                        title: 'SUPERVISIÓN / CIERRE',
+                        subtitle: 'Aprobación y Cierre CAPA',
+                        signatureUrl: data.supervisorSignature || null,
+                        isProfessional: false
+                    } : null}
+                />
 
-                    <div className="signature-item-box">
-                        <div className="signature-line"></div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#1e293b' }}>SUPERVISOR ÁREA</p>
-                        <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Verificación y conformidad</p>
-                    </div>
-
-                    <div className="signature-item-box" style={{ background: '#f0fdf4', borderColor: '#bbf7d0' }}>
-                        {actSignature ? (
-                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>
-                                <img src={actSignature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain' }} />
-                            </div>
-                        ) : (
-                            <div style={{ height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#86efac', fontSize: '0.6rem' }}>Sello y Firma Digital</div>
-                        )}
-                        <div className="signature-line" style={{ background: '#86efac' }}></div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#166534' }}>AUTORIDAD HSE</p>
-                        <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#15803d', fontWeight: 600 }}>
-                            {actName || 'Especialista a cargo'}
-                        </p>
-                        {actLic && (
-                            <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#16a34a' }}>Mat: {actLic}</p>
-                        )}
-                    </div>
-                </div>
-
-                {/* Footer informativo */}
                 <PdfBrandingFooter />
             </div>
         </div>

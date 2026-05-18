@@ -127,7 +127,7 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
         }
         
         localStorage.setItem('chemical_safety_db', JSON.stringify(updated));
-        navigate('/chemical-safety-history');
+        navigate('/chemical-safety?created=true');
     };
 
     const togglePictogram = (pictoId) => {

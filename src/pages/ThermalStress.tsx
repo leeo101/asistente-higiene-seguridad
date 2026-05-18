@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
-    Calculator, Info, RefreshCw, Printer, Search, Settings2, CheckCircle2, TriangleAlert, Share2, Save, ArrowLeft, ThermometerSun
+    Calculator, Info, RefreshCw, Printer, Search, Settings2, CheckCircle2, TriangleAlert, Share2, Save, ArrowLeft, ThermometerSun, Pencil
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import ThermalStressPdfGenerator from '../components/ThermalStressPdfGenerator';
+import PdfSignatures from '../components/PdfSignatures';
+import SignatureCanvas from '../components/SignatureCanvas';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -50,27 +52,93 @@ export default function ThermalStress(): React.ReactElement | null {
     const editData = location.state?.editData;
     useDocumentTitle(editData ? 'Editar Estrés Térmico' : 'Cálculo Estrés Térmico');
 
-    const [formData, setFormData] = useState(editData || {
-        puesto: '',
-        sector: '',
-        tarea: '',
-        fecha: new Date().toISOString().split('T')[0],
+    const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
 
-        // Mediciones ambientales
-        cargaSolar: false,
-        tbh: '',     // Temperatura Bulbo Húmedo natural
-        tg: '',      // Temperatura de Globo
-        tbs: '',     // Temperatura Bulbo Seco (solo con carga solar)
-        viento: '',  // Velocidad del aire m/s — Res. 30/2023
+    const [formData, setFormData] = useState(() => {
+        if (editData) {
+            return {
+                ...editData,
+                operatorSignature: editData.operatorSignature || '',
+                supervisorSignature: editData.supervisorSignature || editData.signature || '',
+                signature: editData.signature || editData.supervisorSignature || '',
+                showSignatures: editData.showSignatures || { operator: true, professional: true, supervisor: true }
+            };
+        }
+        return {
+            puesto: '',
+            sector: '',
+            tarea: '',
+            fecha: new Date().toISOString().split('T')[0],
 
-        // Condiciones del trabajador
-        aptaMedica: false,  // Apto médico específico — obligatorio Res. 30/2023
-        aclimatado: false,  // Aclimatación 5-14 días — Res. 30/2023
+            // Mediciones ambientales
+            cargaSolar: false,
+            tbh: '',     // Temperatura Bulbo Húmedo natural
+            tg: '',      // Temperatura de Globo
+            tbs: '',     // Temperatura Bulbo Seco (solo con carga solar)
+            viento: '',  // Velocidad del aire m/s — Res. 30/2023
 
-        // Exigencia física
-        ritmo: 'moderado',   // liviano, moderado, pesado
-        ciclo: 'continuo',   // continuo, 75_25, 50_50, 25_75
+            // Condiciones del trabajador
+            aptaMedica: false,  // Apto médico específico — obligatorio Res. 30/2023
+            aclimatado: false,  // Aclimatación 5-14 días — Res. 30/2023
+
+            // Exigencia física
+            ritmo: 'moderado',   // liviano, moderado, pesado
+            ciclo: 'continuo',   // continuo, 75_25, 50_50, 25_75
+            
+            // Firmas
+            operatorSignature: '',
+            supervisorSignature: '',
+            signature: '',
+            showSignatures: { operator: true, professional: true, supervisor: true }
+        };
     });
+
+    const [professional, setProfessional] = useState<any>({
+        name: '',
+        license: '',
+        signature: null,
+        stamp: null
+    });
+
+    const setShowSignatures = (updater: any) => {
+        setFormData((prev: any) => {
+            const updated = typeof updater === 'function' ? updater(prev.showSignatures) : updater;
+            return { ...prev, showSignatures: updated };
+        });
+    };
+
+    const showSignatures = formData.showSignatures || { operator: true, professional: true, supervisor: true };
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+
+        const savedData = localStorage.getItem('personalData');
+        const savedSigData = localStorage.getItem('signatureStampData');
+        const legacySignature = localStorage.getItem('capturedSignature');
+
+        let signature = legacySignature || null;
+        let stamp = null;
+        if (savedSigData) {
+            const parsed = JSON.parse(savedSigData);
+            signature = parsed.signature || signature;
+            stamp = parsed.stamp || null;
+        }
+
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            setProfessional({
+                name: data.name || '',
+                license: data.license || '',
+                signature: signature,
+                stamp: stamp
+            });
+        } else {
+            setProfessional((prev: any) => ({ ...prev, signature, stamp }));
+        }
+
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const [resultados, setResultados] = useState({
         tgbh: null as number | null,
@@ -148,6 +216,10 @@ export default function ThermalStress(): React.ReactElement | null {
             evaluador: editData?.evaluador || currentUser?.displayName || 'Profesional HSE',
             normativa: 'Res. SRT 30/2023',
             ...formData,
+            professionalSignature: formData.professionalSignature || professional.signature,
+            professionalName: formData.professionalName || professional.name,
+            professionalLicense: formData.professionalLicense || professional.license,
+            professionalStamp: formData.professionalStamp || professional.stamp,
             resultados
         };
 
@@ -448,6 +520,88 @@ export default function ThermalStress(): React.ReactElement | null {
                                 VLA = VLE &minus; 1.5°C &nbsp;(criterio ACGIH adoptado)
                             </code>
                         </div>
+                    </div>
+                </div>
+
+                {/* Firmas y Autorizaciones */}
+                <div className="card" style={{ marginTop: '2rem', padding: '1.5rem' }}>
+                    <h2 style={{ fontSize: '1.1rem', margin: '0 0 1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-primary)' }}>
+                        <Pencil size={20} /> Firmas y Autorizaciones
+                    </h2>
+
+                    <div className="no-print mb-8 p-6 bg-slate-50/5 border border-[var(--color-border)] rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-sm font-bold text-slate-700" style={{ marginBottom: '2rem', padding: '1.5rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '12px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '1.5rem', justifyContent: 'center', alignItems: 'center' }}>
+                        <div className="text-center" style={{ color: 'var(--color-text)', fontSize: '0.9rem', fontWeight: 700 }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                        <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                            <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures((s: any) => ({ ...s, operator: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Trabajador Evaluado
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures((s: any) => ({ ...s, professional: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Profesional Actuante
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures((s: any) => ({ ...s, supervisor: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Responsable / Sector
+                            </label>
+                        </div>
+                    </div>
+
+                    {/* On-Sheet Visual Preview of PDF signature blocks */}
+                    <div style={{ marginBottom: '2.5rem' }}>
+                        <PdfSignatures
+                            data={{
+                                ...formData,
+                                professionalSignature: professional.signature,
+                                professionalName: professional.name,
+                                professionalLicense: professional.license,
+                                professionalStamp: professional.stamp
+                            }}
+                            box1={showSignatures.operator ? {
+                                title: 'TRABAJADOR EVALUADO',
+                                subtitle: 'Firma de Conformidad',
+                                signatureUrl: formData.operatorSignature || null,
+                                isProfessional: false
+                            } : null}
+                            box2={showSignatures.professional ? {
+                                title: 'PROFESIONAL H&S',
+                                subtitle: (professional.name || 'Firma de Especialista').toUpperCase(),
+                                signatureUrl: formData.professionalSignature || professional.signature || null,
+                                stampUrl: formData.professionalStamp || professional.stamp || null,
+                                isProfessional: true,
+                                license: professional.license
+                            } : null}
+                            box3={showSignatures.supervisor ? {
+                                title: 'RESPONSABLE / SECTOR',
+                                subtitle: 'Validación de Medidas',
+                                signatureUrl: formData.supervisorSignature || formData.signature || null,
+                                isProfessional: false
+                            } : null}
+                        />
+                    </div>
+
+                    {/* Interactive Signature Drawing Pads */}
+                    <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)]" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: '2rem', marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--color-border)' }}>
+                        {showSignatures.operator && (
+                            <SignatureCanvas 
+                                onSave={(sig) => setFormData((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
+                                initialImage={formData.operatorSignature}
+                                label="Firma del Trabajador Evaluado"
+                            />
+                        )}
+                        
+                        {showSignatures.professional && (
+                            <SignatureCanvas 
+                                onSave={(sig) => setFormData((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
+                                initialImage={formData.professionalSignature || professional.signature}
+                                label="Firma de Profesional Actuante"
+                            />
+                        )}
+
+                        {showSignatures.supervisor && (
+                            <SignatureCanvas 
+                                onSave={(sig) => setFormData((prev: any) => ({ ...prev, supervisorSignature: sig || '', signature: sig || '' }))}
+                                initialImage={formData.supervisorSignature || formData.signature}
+                                label="Firma de Responsable / Sector"
+                            />
+                        )}
                     </div>
                 </div>
             </div>

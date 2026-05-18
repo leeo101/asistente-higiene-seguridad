@@ -1,31 +1,11 @@
 
 import React from 'react';
 import { 
-  Shield, Zap, CheckCircle2, Star, 
+  Shield, Zap, CheckCircle2, 
   Users, BarChart3, Globe, Sparkles,
   ArrowRight
 } from 'lucide-react';
 
-const testimonials = [
-  {
-    name: "Lic. Carlos Méndez",
-    role: "Especialista en H&S - Argentina",
-    content: "Asistente HYS transformó mi flujo de trabajo. Generar un ATS que antes me tomaba 20 minutos ahora me lleva 2 gracias a la IA.",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Carlos"
-  },
-  {
-    name: "Ing. Lucía Rojas",
-    role: "Gestión de Riesgos - Chile",
-    content: "La precisión en los cálculos de Carga de Fuego y el cumplimiento con el DS 594 es impecable. Una herramienta indispensable.",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Lucia"
-  },
-  {
-    name: "Téc. Roberto Silva",
-    role: "Inspector de Obra - Uruguay",
-    content: "Poder usar la Cámara IA para detectar EPP en tiempo real es el futuro de la prevención. Mis reportes son mucho más profesionales.",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Roberto"
-  }
-];
 
 const valueProps = [
   {
@@ -177,45 +157,6 @@ export default function MarketingLanding({ onStart }) {
         </div>
       </section>
 
-      {/* 3. Social Proof & Testimonials */}
-      <section className="stagger-item" style={{ padding: '5rem 0' }}>
-        <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-           <h2 style={{ fontSize: 'clamp(2rem, 5vw, 2.5rem)', fontWeight: 900, marginBottom: '1rem', fontFamily: 'var(--font-heading)' }}>
-            Lo que dicen los expertos
-          </h2>
-        </div>
-        <div style={{ 
-          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
-          gap: '2rem'
-        }}>
-          {testimonials.map((t, i) => (
-            <div key={i} className="glass-card hover-lift" style={{ 
-              padding: '2.5rem', 
-              borderRadius: '24px',
-              display: 'flex', flexDirection: 'column', gap: '1.5rem',
-              border: '1px solid var(--color-border)'
-            }}>
-              <div style={{ display: 'flex', color: '#f59e0b', gap: '4px' }}>
-                <Star size={18} fill="#f59e0b" />
-                <Star size={18} fill="#f59e0b" />
-                <Star size={18} fill="#f59e0b" />
-                <Star size={18} fill="#f59e0b" />
-                <Star size={18} fill="#f59e0b" />
-              </div>
-              <p style={{ fontSize: '1.05rem', fontStyle: 'italic', lineHeight: 1.7, color: 'var(--color-text)', flex: 1 }}>
-                "{t.content}"
-              </p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '1rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem' }}>
-                <img src={t.avatar} alt={t.name} style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(0,0,0,0.05)' }} />
-                <div>
-                  <div style={{ fontSize: '1rem', fontWeight: 800 }}>{t.name}</div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--color-primary)', fontWeight: 600 }}>{t.role}</div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
 
       {/* 4. Plans / Pricing */}
       <section className="stagger-item" style={{ padding: '5rem 0 3rem' }}>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Building2, MapPin, Calendar } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import PdfSignatures from './PdfSignatures';
 import { getCountryNormativa } from '../data/legislationData';
 
 export default function ProfessionalReportPdfGenerator({ currentReport }: { currentReport: any }): React.ReactElement | null {
@@ -136,19 +137,7 @@ export default function ProfessionalReportPdfGenerator({ currentReport }: { curr
                 )}
 
                 {/* Firmas */}
-                <div className="signature-container-row" style={{ paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid' }}>
-                    <div className="signature-item-box">
-                        <div className="signature-line"></div>
-                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.7rem', color: '#334155' }}>REPRESENTANTE EMPRESA</p>
-                        <p style={{ margin: 0, fontSize: '0.6rem', color: '#64748b' }}>Firma y Aclaración en original</p>
-                    </div>
-
-                    <div className="signature-item-box">
-                        <div className="signature-line"></div>
-                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.7rem', color: '#334155' }}>PROFESIONAL HYS</p>
-                        <p style={{ margin: 0, fontSize: '0.6rem', color: '#64748b' }}>Validación Profesional</p>
-                    </div>
-                </div>
+                <PdfSignatures data={report} />
 
                 {/* Footer Legal */}
                 <div style={{ width: '100%', textAlign: 'center', fontSize: '0.7rem', color: '#94a3b8', marginTop: '3rem', fontStyle: 'italic', borderTop: '1px solid #e2e8f0', paddingTop: '1rem' }}>

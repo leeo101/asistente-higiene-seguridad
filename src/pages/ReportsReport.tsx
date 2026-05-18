@@ -5,6 +5,7 @@ import { ArrowLeft, Printer, Share2, Download, CheckCircle2, Info, Building2, Us
 import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
 import CompanyLogo from '../components/CompanyLogo';
+import PdfSignatures from '../components/PdfSignatures';
 import { usePaywall } from '../hooks/usePaywall';
 import { toast } from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
@@ -174,40 +175,28 @@ export default function ReportsReport(): React.ReactElement | null {
                     </div>
                 </div>
 
-                <div className="signature-container-row mt-12 pt-8 border-t-2 border-dashed border-[#e2e8f0]">
-                    {showSignatures.operator && (
-                        <div className="signature-item-box">
-                            <div className="signature-line"></div>
-                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">OPERADOR</p>
-                            <p className="text-[0.8rem] font-black uppercase text-black leading-none min-h-[0.8rem]">Firma y DNI</p>
-                        </div>
-                    )}
-
-                    {showSignatures.supervisor && (
-                        <div className="signature-item-box">
-                            <div className="signature-line"></div>
-                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR / RESPONSABLE</p>
-                            <p className="text-[0.8rem] font-black uppercase text-black leading-none min-h-[0.8rem]">Firma y DNI</p>
-                        </div>
-                    )}
-
-                    {showSignatures.professional && (
-                        <div className="signature-item-box">
-                            {signature?.signature || signature?.stamp ? (
-                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', height: '60px' }}>
-                                    {signature.signature && <img src={signature.signature} alt="Firma" style={{ maxWidth: '100px', maxHeight: '60px' }} />}
-                                    {signature.stamp && <img src={signature.stamp} alt="Sello" style={{ maxWidth: '60px', maxHeight: '60px' }} />}
-                                </div>
-                            ) : (
-                                <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', color: '#999', marginBottom: '0.5rem' }}>Sin Firma</div>
-                            )}
-                            <div className="signature-line"></div>
-                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">{profile?.name || report.responsable}</p>
-                            <p style={{ margin: 0, fontWeight: 700, fontSize: '0.8rem' }}>PROFESIONAL ACTUANTE</p>
-                            {profile?.license && <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--color-primary)', fontWeight: 700 }}>Mat: {profile.license}</p>}
-                        </div>
-                    )}
-                </div>
+                <PdfSignatures
+                    data={{
+                        ...report,
+                        professionalSignature: signature?.signature,
+                        professionalStamp: signature?.stamp,
+                        professionalName: profile?.name || report.responsable,
+                        professionalLicense: profile?.license
+                    }}
+                    box1={showSignatures.operator ? {
+                        title: 'OPERADOR',
+                        subtitle: 'Firma y DNI',
+                        signatureUrl: null,
+                        isProfessional: false
+                    } : null}
+                    box3={showSignatures.supervisor ? {
+                        title: 'SUPERVISOR / RESPONSABLE',
+                        subtitle: 'Firma y DNI',
+                        signatureUrl: null,
+                        isProfessional: false
+                    } : null}
+                    box2={showSignatures.professional ? undefined : null}
+                />
 
                 {/* Footer Legal */}
                 <div style={{ width: '100%', textAlign: 'center', fontSize: '0.7rem', color: '#94a3b8', marginTop: '3rem', fontStyle: 'italic' }}>

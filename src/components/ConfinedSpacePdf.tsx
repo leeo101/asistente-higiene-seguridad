@@ -2,6 +2,7 @@ import React from 'react';
 import { ShieldCheck, Wind, AlertTriangle, Activity, Clock, MapPin, Building2, Calendar, User } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
+import PdfSignatures from './PdfSignatures';
 
 export default function ConfinedSpacePdf({ data }: { data: any }): React.ReactElement | null {
     if (!data) return null;
@@ -9,7 +10,8 @@ export default function ConfinedSpacePdf({ data }: { data: any }): React.ReactEl
     const gasReadings = data.gasMonitoring || { o2: '', lel: '', co: '', h2s: '', time: '' };
 
     // Obtención segura de firma profesional desde localStorage
-    let actSignature = data.professionalSignature || data.signature || null;
+    let actSignature = data.professionalSignature || null;
+    let actStamp = data.professionalStamp || null;
     let actName = data.professionalName || null;
     let actLic = data.professionalLicense || data.license || null;
 
@@ -18,7 +20,11 @@ export default function ConfinedSpacePdf({ data }: { data: any }): React.ReactEl
             const lsPersonal = localStorage.getItem('personalData');
             const lsStamp = localStorage.getItem('signatureStampData');
             const legacySig = localStorage.getItem('capturedSignature');
-            if (lsStamp) { actSignature = JSON.parse(lsStamp).signature; }
+            if (lsStamp) {
+                const parsed = JSON.parse(lsStamp);
+                actSignature = parsed.signature;
+                actStamp = parsed.stamp;
+            }
             else if (legacySig) { actSignature = legacySig; }
             if (lsPersonal) {
                 const pd = JSON.parse(lsPersonal);
@@ -206,29 +212,29 @@ export default function ConfinedSpacePdf({ data }: { data: any }): React.ReactEl
                 </div>
 
                 {/* Firmas */}
-        <div className="signature-container-row" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1' }}>
-          <div className="signature-item-box">
-            <div className="signature-line" />
-            <p style={{ margin: '0.3rem 0 0', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.08em' }}>VIGÍA DE SEGURIDAD</p>
-            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>Control y monitoreo continuo</p>
-          </div>
-          <div className="signature-item-box">
-            <div className="signature-line" />
-            <p style={{ margin: '0.3rem 0 0', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.08em' }}>TRABAJADOR ENTRANTE</p>
-            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>Aceptación de condiciones</p>
-          </div>
-          <div className="signature-item-box">
-            {actLic ? (
-              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>
-                <img src={actLic} alt="Firma Autorizante" style={{ maxHeight: '50px', maxWidth: '100%', objectFit: 'contain' }} />
-              </div>
-            ) : null}
-            <div className="signature-line" />
-            <p style={{ margin: '0.3rem 0 0', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.08em' }}>AUTORIZANTE / PROFESIONAL HSE</p>
-            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>{actName || 'Especialista H&S'}</p>
-            <p style={{ margin: 0, fontSize: '0.65rem', color: '#64748b' }}>Mat: {actLic}</p>
-          </div>
-        </div>
+                <PdfSignatures
+                    data={data}
+                    box1={data.showSignatures?.operator ? {
+                        title: 'RESPONSABLE / ENTRANTE',
+                        subtitle: 'Control de Ingreso',
+                        signatureUrl: data.operatorSignature || null,
+                        isProfessional: false
+                    } : null}
+                    box2={data.showSignatures?.professional ? {
+                        title: 'PROFESIONAL H&S',
+                        subtitle: (actName || 'Firma de Especialista').toUpperCase(),
+                        signatureUrl: actSignature || null,
+                        stampUrl: data.professionalStamp || actStamp || null,
+                        isProfessional: true,
+                        license: actLic || null
+                    } : null}
+                    box3={data.showSignatures?.supervisor ? {
+                        title: 'AUTORIZACIÓN DE INGRESO',
+                        subtitle: 'Firma del Autorizante',
+                        signatureUrl: data.signature || data.supervisorSignature || null,
+                        isProfessional: false
+                    } : null}
+                />
 
                 <PdfBrandingFooter />
             </div>

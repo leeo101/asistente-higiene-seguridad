@@ -2,6 +2,7 @@ import React from 'react';
 import { MessageSquare, Building2, MapPin, Calendar, User, Users, Briefcase, AlertCircle } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
+import PdfSignatures from './PdfSignatures';
 
 interface Attendee {
     id: string;
@@ -20,6 +21,10 @@ interface ToolboxTalkData {
     desarrollo: string;
     observaciones: string;
     asistentes: Attendee[];
+    operatorSignature?: string;
+    signature?: string;
+    supervisorSignature?: string;
+    showSignatures?: { operator: boolean; professional: boolean; supervisor: boolean };
 }
 
 interface ProfessionalData {
@@ -38,9 +43,10 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
     if (!data) return null;
 
     // Obtención segura de firma profesional desde localStorage
-    let actSignature = data.professionalSignature || data.signature || data.auditorSignature || null;
-    let actName = data.professionalName || data.leadAuditor || data.expositor || null;
-    let actLic = data.professionalLicense || data.license || null;
+    let actSignature = (data as any).professionalSignature || (data as any).signature || (data as any).auditorSignature || null;
+    let actStamp = (data as any).professionalStamp || null;
+    let actName = (data as any).professionalName || (data as any).leadAuditor || (data as any).expositor || null;
+    let actLic = (data as any).professionalLicense || (data as any).license || null;
     
     // Si no trae firmas directas, intentar heredar de localStorage (fallback global pro)
     if (!actSignature) {
@@ -49,7 +55,11 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
             const lsStamp = typeof window !== 'undefined' ? localStorage.getItem('signatureStampData') : null;
             const legacySig = typeof window !== 'undefined' ? localStorage.getItem('capturedSignature') : null;
             
-            if (lsStamp) { actSignature = JSON.parse(lsStamp).signature; }
+            if (lsStamp) {
+                const parsed = JSON.parse(lsStamp);
+                actSignature = parsed.signature;
+                actStamp = parsed.stamp;
+            }
             else if (legacySig) { actSignature = legacySig; }
             
             if (lsPersonal) {
@@ -210,29 +220,31 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
             )}
 
             {/* Firmas */}
-        <div className="signature-container-row" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1' }}>
-          <div className="signature-item-box">
-            <div className="signature-line" />
-            <p style={{ margin: '0.3rem 0 0', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.08em' }}>REPRESENTANTE DE ÁREA</p>
-            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>Toma de conocimiento</p>
-          </div>
-          <div className="signature-item-box">
-            <div className="signature-line" />
-            <p style={{ margin: '0.3rem 0 0', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.08em' }}>SUPERVISOR H&S</p>
-            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>Aprobación y visado</p>
-          </div>
-          <div className="signature-item-box">
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>
-              <img src={professional.signature} alt="Firma Profesional" style={{ maxHeight: '50px', maxWidth: '100%', objectFit: 'contain' }} />
-            </div>
-            <div className="signature-line" />
-            <p style={{ margin: '0.3rem 0 0', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.08em' }}>PROFESIONAL ACTUANTE HSE</p>
-            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>{professional?.name || 'Especialista H&S'}</p>
-            <p style={{ margin: 0, fontSize: '0.65rem', color: '#64748b' }}>Mat: {professional.license}</p>
-          </div>
-        </div>
+            <PdfSignatures
+                data={data}
+                box1={(data as any).showSignatures?.operator ? {
+                    title: 'DELEGADO / OPERADOR',
+                    subtitle: 'En representación de asistentes',
+                    signatureUrl: (data as any).operatorSignature || null,
+                    isProfessional: false
+                } : null}
+                box2={(data as any).showSignatures?.professional ? {
+                    title: 'RESPONSABLE / EXPOSITOR',
+                    subtitle: (actName || 'Firma de Especialista').toUpperCase(),
+                    signatureUrl: (data as any).signature || actSignature || null,
+                    stampUrl: (data as any).professionalStamp || actStamp || null,
+                    isProfessional: true,
+                    license: (data as any).professionalLicense || actLic || null
+                } : null}
+                box3={(data as any).showSignatures?.supervisor ? {
+                    title: 'SUPERVISIÓN / VERIFICADOR',
+                    subtitle: 'Cierre / Control de Charla',
+                    signatureUrl: (data as any).supervisorSignature || null,
+                    isProfessional: false
+                } : null}
+            />
 
-            <PdfBrandingFooter />
+                <PdfBrandingFooter />
         </div>
     );
 }

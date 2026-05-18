@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import { verifyToken, setCorsHeaders } from './_verifyToken.js';
 
 export default async function handler(req, res) {
@@ -35,32 +35,41 @@ export default async function handler(req, res) {
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const models = [
+            "gemini-flash-latest",
             "gemini-2.0-flash",
             "gemini-1.5-flash-latest",
             "gemini-1.5-pro-latest",
             "gemini-1.5-flash",
             "models/gemini-1.5-flash",
-            "gemini-flash-latest",
             "gemini-1.5-pro"
         ];
 
         const base64Data = image.split(',')[1];
         const mimeType = image.split(';')[0].split(':')[1] || 'image/jpeg';
 
-        const prompt = `Analiza detalladamente esta imagen de un entorno laboral y detecta riesgos generales de Higiene y Seguridad.
-Busca desorden, falta de protección, riesgos eléctricos, mecánicos, de caída, etc.
-Devuelve ÚNICAMENTE un objeto JSON estricto con este formato:
-{
-    "detections": [
-        {
-            "label": "Riesgo: [Descripción corta]",
-            "box_2d": [ymin, xmin, ymax, xmax],
-            "recommendation": "Acción correctiva"
-        }
-    ],
-    "generalAssessment": "Evaluación general del entorno"
-}
-Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de 0 a 1000.`;
+        const prompt = `Analiza detalladamente esta imagen de un entorno laboral para detección general de evidentes riesgos laborales.`;
+
+        const responseSchema = {
+            type: SchemaType.OBJECT,
+            properties: {
+                personDetected: { type: SchemaType.BOOLEAN },
+                generalAssessment: { type: SchemaType.STRING },
+                foundRisks: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+                recommendations: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+                detections: {
+                    type: SchemaType.ARRAY,
+                    items: {
+                        type: SchemaType.OBJECT,
+                        properties: {
+                            label: { type: SchemaType.STRING },
+                            box_2d: { type: SchemaType.ARRAY, items: { type: SchemaType.NUMBER } }
+                        },
+                        required: ["label", "box_2d"]
+                    }
+                }
+            },
+            required: ["personDetected", "generalAssessment", "foundRisks", "recommendations", "detections"]
+        };
 
         const imagePart = {
             inlineData: {
@@ -80,7 +89,15 @@ Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de 0 a 1000.`;
         let lastError;
         for (const modelName of models) {
             try {
-                const model = genAI.getGenerativeModel({ model: modelName, safetySettings });
+                const model = genAI.getGenerativeModel({ 
+                    model: modelName, 
+                    safetySettings,
+                    systemInstruction: "Detector maestro de riesgos. Encuentra condiciones subestándar (desorden, máquinas sin guardia, extintores bloqueados). Entrega recuadros de detección normalizados de 0 a 1000 en formato [ymin, xmin, ymax, xmax] alrededor de los riesgos graves.",
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: responseSchema
+                    }
+                });
                 result = await model.generateContent([prompt, imagePart]);
                 if (result) break;
             } catch (err) {
@@ -92,14 +109,7 @@ Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de 0 a 1000.`;
         if (!result) throw new Error(lastError?.message || 'Modelos de Visión IA fallaron');
 
         const responseText = result.response.text();
-        let cleanedJson = responseText.trim();
-        if (cleanedJson.startsWith('```json')) {
-            cleanedJson = cleanedJson.replace(/```json/, '').replace(/```$/, '').trim();
-        } else if (cleanedJson.startsWith('```')) {
-            cleanedJson = cleanedJson.replace(/```/, '').replace(/```$/, '').trim();
-        }
-
-        const parsedData = JSON.parse(cleanedJson);
+        const parsedData = JSON.parse(responseText);
         return res.status(200).json(parsedData);
     } catch (error) {
         console.error("Error analyzing general risks:", error);

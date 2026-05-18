@@ -1,6 +1,7 @@
 import React from 'react';
 import { ShieldCheck } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import PdfSignatures from './PdfSignatures';
 
 const GHS_CONFIG = {
     explosive: { icon: '🧨', name: 'Explosivo' },
@@ -130,44 +131,8 @@ export default function ChemicalSafetyPdf({ data }: { data: any }): React.ReactE
                 </div>
 
                 {/* Signatures */}
-                <div className="signature-container-row" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid' }}>
-                    <div className="signature-item-box">
-                        <div className="signature-line" />
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#1e293b' }}>OPERADOR / MANIPULADOR</p>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#64748b' }}>Firma y Aclaración</p>
-                    </div>
-
-                    <div className="signature-item-box">
-                        {data.capatazSignature ? (
-                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>
-                                <img src={data.capatazSignature} alt="Firma Supervisor" style={{ maxHeight: '50px', objectFit: 'contain' }} />
-                            </div>
-                        ) : (
-                            <div style={{ height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1', fontSize: '0.65rem' }}>Firma digital / original</div>
-                        )}
-                        <div className="signature-line" />
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#1e293b' }}>SUPERVISOR H&S</p>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#64748b' }}>Aprobación</p>
-                    </div>
-
-                    <div className="signature-item-box" style={{ background: '#f0fdf4', borderColor: '#bbf7d0' }}>
-                        {data.professionalSignature || data.signature ? (
-                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>
-                                <img src={data.professionalSignature || data.signature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain' }} />
-                            </div>
-                        ) : (
-                            <div style={{ height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#86efac', fontSize: '0.65rem' }}>Sello y Firma Digital</div>
-                        )}
-                        <div className="signature-line" style={{ background: '#86efac' }} />
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#166534' }}>PROFESIONAL ACTUANTE</p>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#15803d', fontWeight: 600 }}>
-                            {data.professionalName || 'Firma y Sello'}
-                        </p>
-                        {(data.professionalLicense || data.license) && (
-                            <p style={{ margin: '2px 0 0', fontSize: '0.55rem', color: '#16a34a' }}>Lic: {data.professionalLicense || data.license}</p>
-                        )}
-                    </div>
-                </div>
+                <PdfSignatures data={data}
+ />
 
                 <div style={{ marginTop: '1.5rem', fontSize: '0.6rem', color: '#666', textAlign: 'center' }}>
                     DOCUMENTO OBLIGATORIO SEGÚN RES. SRT 801/15 (SGA). DEBE ESTAR DISPONIBLE EN EL ÁREA DE TRABAJO.

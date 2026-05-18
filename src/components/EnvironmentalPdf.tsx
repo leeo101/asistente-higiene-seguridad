@@ -1,4 +1,5 @@
 import React from 'react';
+import PdfSignatures from './PdfSignatures';
 import { Activity, Wind, Clipboard } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 
@@ -29,6 +30,33 @@ const UNITS_MAP = {
 
 export default function EnvironmentalPdf({ data }: { data: any }): React.ReactElement | null {
     if (!data) return null;
+
+    // Obtener firma profesional desde data o localStorage
+    let actSignature: string | null = data?.professionalSignature || null;
+    let actStamp: string | null = data?.professionalStamp || null;
+    let actName: string | null = data?.professionalName || null;
+    let actLic: string | null = data?.professionalLicense || data?.license || null;
+
+    if (!actSignature) {
+        try {
+            const lsStamp = localStorage.getItem('signatureStampData');
+            const legacySig = localStorage.getItem('capturedSignature');
+            const lsPersonal = localStorage.getItem('personalData');
+            if (lsStamp) {
+                const parsed = JSON.parse(lsStamp);
+                actSignature = parsed.signature;
+                actStamp = parsed.stamp;
+            }
+            else if (legacySig) {
+                actSignature = legacySig;
+            }
+            if (lsPersonal) {
+                const pd = JSON.parse(lsPersonal);
+                actName = actName || pd.name;
+                actLic = actLic || pd.license;
+            }
+        } catch (e) { }
+    }
 
     const typeConfig = MONITORING_TYPES.find(t => t.id === data.monitoringType) || MONITORING_TYPES[0];
     const statusColor = data.status === 'critical' ? '#dc2626' : data.status === 'warning' ? '#f59e0b' : '#16a34a';
@@ -196,46 +224,29 @@ export default function EnvironmentalPdf({ data }: { data: any }): React.ReactEl
                 </div>
 
                 {/* Signatures */}
-                <div className="signature-container-row" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px solid #f1f5f9', pageBreakInside: 'avoid' }}>
-                    <div className="signature-item-box" style={{ border: '1.5px solid #f1f5f9', background: '#fcfdfe' }}>
-                        <div className="signature-line" style={{ borderBottomColor: '#e2e8f0' }} />
-                        <p style={{ margin: '0.4rem 0 0', fontSize: '0.55rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.1em' }}>RESPONSABLE ÁREA</p>
-                        <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 900, color: '#0f172a' }}>Firma y Aclaración</p>
-                        <p style={{ margin: 0, fontSize: '0.5rem', fontWeight: 700, color: '#3b82f6', textTransform: 'uppercase' }}>Validación Interna</p>
-                    </div>
-
-                    <div className="signature-item-box" style={{ border: '1.5px solid #f1f5f9', background: '#fcfdfe' }}>
-                        {data.capatazSignature ? (
-                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.3rem' }}>
-                                <img src={data.capatazSignature} alt="Firma Supervisor" style={{ maxHeight: '45px', maxWidth: '100%', objectFit: 'contain' }} />
-                            </div>
-                        ) : (
-                            <div style={{ height: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1', fontSize: '0.65rem' }}>Firma digital / original</div>
-                        )}
-                        <div className="signature-line" style={{ borderBottomColor: '#e2e8f0' }} />
-                        <p style={{ margin: '0.4rem 0 0', fontSize: '0.55rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.1em' }}>SUPERVISOR H&S</p>
-                        <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 900, color: '#0f172a' }}>Aprobación y Control</p>
-                        <p style={{ margin: 0, fontSize: '0.5rem', fontWeight: 700, color: '#3b82f6', textTransform: 'uppercase' }}>Higiene y Seguridad</p>
-                    </div>
-
-                    <div className="signature-item-box" style={{ border: '1.5px solid #dcfce7', background: '#f0fdf4' }}>
-                        {data.professionalSignature || data.signature ? (
-                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.3rem' }}>
-                                <img src={data.professionalSignature || data.signature} alt="Firma Profesional" style={{ maxHeight: '45px', maxWidth: '100%', objectFit: 'contain' }} />
-                            </div>
-                        ) : (
-                            <div style={{ height: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#86efac', fontSize: '0.65rem' }}>Sello y Firma Digital</div>
-                        )}
-                        <div className="signature-line" style={{ borderBottomColor: '#86efac' }} />
-                        <p style={{ margin: '0.4rem 0 0', fontSize: '0.55rem', fontWeight: 900, textTransform: 'uppercase', color: '#16a34a', letterSpacing: '0.1em' }}>TÉCNICO INTERVINIENTE</p>
-                        <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 900, color: '#0f172a' }}>
-                            {data.professionalName || data.technician || 'Firma y Sello'}
-                        </p>
-                        {(data.professionalLicense || data.license) && (
-                            <p style={{ margin: 0, fontSize: '0.65rem', color: '#16a34a', fontWeight: 700 }}>Mat: {data.professionalLicense || data.license}</p>
-                        )}
-                    </div>
-                </div>
+                <PdfSignatures 
+                    data={data}
+                    box1={data.showSignatures?.operator !== false ? {
+                        title: 'TÉCNICO DE CAMPO',
+                        subtitle: 'Firma y Aclaración',
+                        signatureUrl: data.operatorSignature || null,
+                        isProfessional: false
+                    } : null}
+                    box2={data.showSignatures?.professional !== false ? {
+                        title: 'ESPECIALISTA H&S',
+                        subtitle: (actName || 'Firma de Especialista').toUpperCase(),
+                        signatureUrl: actSignature || null,
+                        stampUrl: data.professionalStamp || actStamp || null,
+                        isProfessional: true,
+                        license: actLic || null
+                    } : null}
+                    box3={data.showSignatures?.supervisor !== false ? {
+                        title: 'RESPONSABLE AMBIENTAL',
+                        subtitle: 'Aprobación / Autoridad',
+                        signatureUrl: data.signature || data.supervisorSignature || null,
+                        isProfessional: false
+                    } : null}
+                />
 
                 <div style={{ marginTop: '1.5rem', fontSize: '0.6rem', color: '#64748b', textAlign: 'center' }}>
                     DOCUMENTO OBLIGATORIO PARA EL SEGUIMIENTO AMBIENTAL SEGÚN ISO 14001:2015.

@@ -2,6 +2,7 @@ import React from 'react';
 import { ClipboardCheck, Check, X, AlertTriangle, Calendar, MapPin, User, Building2, Hash } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
+import PdfSignatures from './PdfSignatures';
 
 export default function ChecklistPdfGenerator({
     checklistData,
@@ -28,13 +29,18 @@ export default function ChecklistPdfGenerator({
     let actSignature = fullData.professionalSignature || null;
     let actName = fullData.professionalName || null;
     let actLic = fullData.professionalLicense || null;
+    let actStamp = fullData.professionalStamp || null;
 
     if (!actSignature) {
         try {
             const lsPersonal = localStorage.getItem('personalData');
             const lsStamp = localStorage.getItem('signatureStampData');
             const legacySig = localStorage.getItem('capturedSignature');
-            if (lsStamp) { actSignature = JSON.parse(lsStamp).signature; }
+            if (lsStamp) {
+                const parsed = JSON.parse(lsStamp);
+                actSignature = parsed.signature;
+                actStamp = parsed.stamp;
+            }
             else if (legacySig) { actSignature = legacySig; }
             if (lsPersonal) {
                 const pd = JSON.parse(lsPersonal);
@@ -287,48 +293,33 @@ export default function ChecklistPdfGenerator({
                                     </div>
                                 );
                             })}
-                        </div>                {/* Firmas */}
-                <div className="signature-container-row" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid' }}>
-
-                    {showSignatures.operator && (
-                        <div className="signature-item-box">
-                            <div className="signature-line"></div>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#1e293b' }}>OPERADOR / RESPONSABLE</p>
-                            <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Firma y Aclaración en original</p>
                         </div>
-                    )}
-
-                    {showSignatures.supervisor && (
-                        <div className="signature-item-box">
-                            {fullData.capatazSignature ? (
-                                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>
-                                    <img src={fullData.capatazSignature} alt="Firma Supervisor" style={{ maxHeight: '50px', objectFit: 'contain' }} />
-                                </div>
-                            ) : (
-                                <div style={{ height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1', fontSize: '0.6rem' }}>Firma digital / original</div>
-                            )}
-                            <div className="signature-line"></div>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#1e293b' }}>SUPERVISOR H&S</p>
-                            <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Aprobación del relevamiento</p>
-                        </div>
-                    )}
-
-                    {showSignatures.professional && (
-                        <div className="signature-item-box" style={{ background: '#f0fdf4', borderColor: '#bbf7d0' }}>
-                            {actSignature ? (
-                                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>
-                                    <img src={actSignature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain' }} />
-                                </div>
-                            ) : (
-                                <div style={{ height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#86efac', fontSize: '0.6rem' }}>Sello y Firma Digital</div>
-                            )}
-                            <div className="signature-line" style={{ background: '#86efac' }}></div>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#166534' }}>PROFESIONAL ACTUANTE</p>
-                            <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#15803d', fontWeight: 600 }}>{actName || 'Especialista H&S'}</p>
-                            {actLic && <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#16a34a' }}>Mat: {actLic}</p>}
-                        </div>
-                    )}
-                </div>
+                    </div>
+                )}
+                {/* Firmas */}
+                <PdfSignatures
+                    data={fullData}
+                    box1={fullData.showSignatures?.operator ? {
+                        title: 'RESPONSABLE / OPERADOR',
+                        subtitle: 'Control Operativo',
+                        signatureUrl: fullData.operatorSignature || null,
+                        isProfessional: false
+                    } : null}
+                    box2={fullData.showSignatures?.professional ? {
+                        title: 'PROFESIONAL / INSTRUCTOR',
+                        subtitle: (actName || 'Firma de Especialista').toUpperCase(),
+                        signatureUrl: fullData.signature || actSignature || null,
+                        stampUrl: fullData.professionalStamp || actStamp || null,
+                        isProfessional: true,
+                        license: fullData.professionalLicense || actLic || null
+                    } : null}
+                    box3={fullData.showSignatures?.supervisor ? {
+                        title: 'SUPERVISIÓN / VERIFICADOR',
+                        subtitle: 'Cierre de Inspección',
+                        signatureUrl: fullData.supervisorSignature || null,
+                        isProfessional: false
+                    } : null}
+                />
 
                 <PdfBrandingFooter />
             </div>

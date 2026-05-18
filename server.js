@@ -17,6 +17,9 @@ if (!admin.apps.length) {
     try {
         if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
             const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+            if (serviceAccount.private_key) {
+                serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+            }
             admin.initializeApp({
                 credential: admin.credential.cert(serviceAccount)
             });
@@ -804,22 +807,51 @@ app.post('/api/analyze-general-risks', aiLimiter, verifyFirebaseToken, async (re
 
         const imagePart = { inlineData: { data: base64Data, mimeType } };
 
-        const model = genAI.getGenerativeModel({ 
-            model: "gemini-2.0-flash",
-            systemInstruction: "Detector maestro de riesgos. Encuentra condiciones subestándar (desorden, máquinas sin guardia, extintores bloqueados). Entrega recuadros de detección normalizados de 0 a 1000 en format [ymin, xmin, ymax, xmax] alrededor de los riesgos graves.",
-            generationConfig: {
-                responseMimeType: "application/json",
-                responseSchema: responseSchema
+        const models = [
+            "gemini-flash-latest",
+            "gemini-2.0-flash",
+            "gemini-1.5-flash-latest",
+            "gemini-1.5-pro-latest",
+            "gemini-1.5-flash",
+            "models/gemini-1.5-flash",
+            "gemini-1.5-pro"
+        ];
+
+        let result;
+        let lastError;
+        for (const modelName of models) {
+            try {
+                process.stdout.write(`[AI GENERAL RISKS] Intentando con ${modelName}... `);
+                const model = genAI.getGenerativeModel({ 
+                    model: modelName,
+                    systemInstruction: "Detector maestro de riesgos. Encuentra condiciones subestándar (desorden, máquinas sin guardia, extintores bloqueados). Entrega recuadros de detección normalizados de 0 a 1000 en formato [ymin, xmin, ymax, xmax] alrededor de los riesgos graves.",
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: responseSchema
+                    }
+                });
+                
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout de 25s local expiro')), 25000));
+                result = await Promise.race([model.generateContent([prompt, imagePart]), timeoutPromise]);
+                if (result) {
+                    console.log("ÉXITO ✅");
+                    break;
+                }
+            } catch (err) {
+                lastError = err;
+                console.log(`FALLÓ ❌ (${err.message})`);
+                continue;
             }
-        });
-        
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout de 25s local expiro')), 25000));
-        let result = await Promise.race([model.generateContent([prompt, imagePart]), timeoutPromise]);
+        }
+
+        if (!result) {
+            throw new Error(lastError?.message || 'Todos los modelos de visión de riesgos fallaron');
+        }
 
         res.json(JSON.parse(result.response.text()));
     } catch (error) {
         console.error("Error analyzing general risks:", error.message);
-        res.status(500).json({ error: 'Error en análisis de riesgos' });
+        res.status(500).json({ error: 'Error en análisis de riesgos', details: error.message });
     }
 });
 

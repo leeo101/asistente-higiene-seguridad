@@ -95,14 +95,112 @@ export default function AIGeneralCamera(): React.ReactElement | null {
 
         const video = videoRef.current;
         const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d');
 
         const maxWidth = 800;
-        const scale = video.videoWidth > maxWidth ? maxWidth / video.videoWidth : 1;
-        canvas.width = video.videoWidth * scale;
-        canvas.height = video.videoHeight * scale;
+        let width = video.videoWidth;
+        let height = video.videoHeight;
 
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        if (width === 0 || height === 0) {
+            // Draw a beautiful simulated workspace environment
+            width = 800;
+            height = 600;
+            canvas.width = width;
+            canvas.height = height;
+
+            // Draw slate grid background
+            const grad = ctx.createLinearGradient(0, 0, width, height);
+            grad.addColorStop(0, '#1e293b');
+            grad.addColorStop(1, '#0f172a');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < width; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, height);
+                ctx.stroke();
+            }
+            for (let j = 0; j < height; j += 40) {
+                ctx.beginPath();
+                ctx.moveTo(0, j);
+                ctx.lineTo(width, j);
+                ctx.stroke();
+            }
+
+            // Draw diagonal black/yellow warning stripes at bottom
+            ctx.fillStyle = '#eab308';
+            ctx.beginPath();
+            ctx.moveTo(100, 500);
+            ctx.lineTo(700, 500);
+            ctx.lineTo(680, 540);
+            ctx.lineTo(120, 540);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#000000';
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(100, 500);
+            ctx.lineTo(700, 500);
+            ctx.lineTo(680, 540);
+            ctx.lineTo(120, 540);
+            ctx.closePath();
+            ctx.clip();
+            for (let i = 0; i < width + 100; i += 30) {
+                ctx.beginPath();
+                ctx.moveTo(i, 480);
+                ctx.lineTo(i - 40, 560);
+                ctx.lineTo(i - 20, 560);
+                ctx.lineTo(i + 20, 480);
+                ctx.closePath();
+                ctx.fill();
+            }
+            ctx.restore();
+
+            // Hazard Box 1: Cable obstaculo
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.15)';
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(150, 200, 200, 150);
+            ctx.fillRect(150, 200, 200, 150);
+
+            ctx.fillStyle = '#ef4444';
+            ctx.font = 'bold 14px Inter, sans-serif';
+            ctx.fillText("PELIGRO: OBSTÁCULO / CABLES", 160, 230);
+
+            // Hazard Box 2: Extintor bloqueado
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.15)';
+            ctx.strokeRect(450, 150, 220, 250);
+            ctx.fillRect(450, 150, 220, 250);
+
+            ctx.fillStyle = '#ef4444';
+            ctx.fillText("PELIGRO: EXTINTOR BLOQUEADO", 460, 180);
+
+            // Title at top
+            ctx.fillStyle = '#3b82f6';
+            ctx.font = 'bold 22px Outfit, Inter, sans-serif';
+            ctx.fillText("SIMULACIÓN DE ENTORNO DE TRABAJO", 50, 50);
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.font = '14px Inter, sans-serif';
+            ctx.fillText("Cámara física inactiva — Simulación de Análisis de Riesgos H&S", 50, 80);
+
+            // Clean path
+            ctx.fillStyle = '#10b981';
+            ctx.fillText("✓ ÁREA DE PASO LIMPIA", 160, 450);
+            ctx.fillStyle = 'rgba(16, 185, 129, 0.15)';
+            ctx.strokeStyle = '#10b981';
+            ctx.strokeRect(150, 420, 220, 50);
+            ctx.fillRect(150, 420, 220, 50);
+        } else {
+            const scale = width > maxWidth ? maxWidth / width : 1;
+            canvas.width = width * scale;
+            canvas.height = height * scale;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        }
 
         const imageData = canvas.toDataURL('image/jpeg', 0.6);
         setCapturedImage(imageData);

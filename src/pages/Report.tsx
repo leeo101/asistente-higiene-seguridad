@@ -12,6 +12,7 @@ import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
 import CompanyLogo from '../components/CompanyLogo';
+import PdfSignatures from '../components/PdfSignatures';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 export default function Report(): React.ReactElement | null {
@@ -396,40 +397,27 @@ export default function Report(): React.ReactElement | null {
                 )}
 
                 {/* Firmas Enterprise */}
-                <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem' }}>
-                    {showSignatures.operator && (
-                        <div style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                            <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                                <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Firma original</span>
-                            </div>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#1e293b' }}>OPERADOR / RESPONSABLE</p>
-                            <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Firma y Aclaración</p>
-                        </div>
-                    )}
-                    {showSignatures.supervisor && (
-                        <div style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                            <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                                <span style={{ fontSize: '0.6rem', color: '#cbd5e1' }}>Firma original</span>
-                            </div>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#1e293b' }}>SUPERVISOR / JEFE DE OBRA</p>
-                            <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Validación de Auditoría</p>
-                        </div>
-                    )}
-                    {showSignatures.professional && (
-                        <div style={{ flex: 1, border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                            <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #86efac', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                                {professional?.signature ? (
-                                    <img src={professional.signature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain' }} />
-                                ) : (
-                                    <span style={{ fontSize: '0.6rem', color: '#86efac' }}>Sello y Firma Digital</span>
-                                )}
-                            </div>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#166534' }}>PROFESIONAL ACTUANTE H&S</p>
-                            <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#15803d', fontWeight: 600 }}>{professional?.name || 'Especialista H&S'}</p>
-                            {professional?.license && <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#16a34a' }}>Mat: {professional.license}</p>}
-                        </div>
-                    )}
-                </div>
+                <PdfSignatures
+                    data={{
+                        ...inspectionData,
+                        professionalSignature: professional?.signature,
+                        professionalName: professional?.name,
+                        professionalLicense: professional?.license
+                    }}
+                    box1={showSignatures.operator ? {
+                        title: 'OPERADOR / RESPONSABLE',
+                        subtitle: 'Firma y Aclaración',
+                        signatureUrl: null,
+                        isProfessional: false
+                    } : null}
+                    box3={showSignatures.supervisor ? {
+                        title: 'SUPERVISOR / JEFE DE OBRA',
+                        subtitle: 'Validación de Auditoría',
+                        signatureUrl: null,
+                        isProfessional: false
+                    } : null}
+                    box2={showSignatures.professional ? undefined : null}
+                />
                 <PdfBrandingFooter />
             </div>
         </div>

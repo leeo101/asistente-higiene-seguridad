@@ -1,6 +1,7 @@
 import React from 'react';
 import { CarFront, ClipboardList, ShieldCheck } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import PdfSignatures from './PdfSignatures';
 
 export default function FleetPdfGenerator({ data, checklistItems }: { data: any, checklistItems: any[] }): React.ReactElement | null {
     if (!data) return null;
@@ -113,27 +114,21 @@ export default function FleetPdfGenerator({ data, checklistItems }: { data: any,
                 </div>
 
                 {/* Signatures */}
-                <div className="signature-container-row" style={{ marginTop: 'auto' }}>
-                    <div className="signature-item-box">
-                        {data.signatures?.driver ? (
-                            <img src={data.signatures.driver} alt="Firma Conductor" />
-                        ) : (
-                            <div style={{ height: '60px', display: 'flex', alignItems: 'center', color: '#94a3b8', fontSize: '0.7rem' }}>Sin Firma</div>
-                        )}
-                        <div style={{ width: '100%', height: '1px', background: '#e2e8f0', margin: '0.5rem 0' }}></div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem' }}>FIRMA DEL CONDUCTOR</p>
-                    </div>
-
-                    <div className="signature-item-box">
-                        {data.signatures?.inspector ? (
-                            <img src={data.signatures.inspector} alt="Firma Inspector" />
-                        ) : (
-                            <div style={{ height: '60px', display: 'flex', alignItems: 'center', color: '#94a3b8', fontSize: '0.7rem' }}>Sin Firma</div>
-                        )}
-                        <div style={{ width: '100%', height: '1px', background: '#e2e8f0', margin: '0.5rem 0' }}></div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem' }}>FIRMA INSPECTOR / SUPERVISOR</p>
-                    </div>
-                </div>
+                <PdfSignatures 
+                    data={data} 
+                    box1={{
+                        title: 'CONDUCTOR ASIGNADO',
+                        subtitle: 'Firma del Conductor',
+                        signatureUrl: data.signatures?.driver || null,
+                        isProfessional: false
+                    }}
+                    box3={{
+                        title: 'INSPECTOR / CONTROL',
+                        subtitle: 'Firma del Inspector',
+                        signatureUrl: data.signatures?.inspector || null,
+                        isProfessional: false
+                    }}
+                />
 
             </div>
         </div>

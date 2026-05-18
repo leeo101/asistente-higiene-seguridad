@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import CompanyLogo from '../components/CompanyLogo';
+import PdfSignatures from '../components/PdfSignatures';
 import { toast } from 'react-hot-toast';
 
 export default function AIReport(): React.ReactElement | null {
@@ -137,7 +138,7 @@ export default function AIReport(): React.ReactElement | null {
                 </div>
 
                 {/* Analysis Results */}
-                <div style={{ marginBottom: '2.5rem' }}>
+                <div style={{ marginBottom: '2.5rem', pageBreakInside: 'avoid', breakInside: 'avoid' }} className="no-break">
                     <h3 style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem', marginBottom: '1rem', color: '#1e293b' }}>
                         {data.type === 'general_risks' ? 'Resumen de Riesgos Detectados' : 'Evaluación de EPP Detectada'}
                     </h3>
@@ -176,7 +177,7 @@ export default function AIReport(): React.ReactElement | null {
 
                 {/* Findings Legend (Numbered) */}
                 {data.analysis?.detections && data.analysis.detections.length > 0 && (
-                    <div style={{ marginBottom: '2.5rem' }}>
+                    <div style={{ marginBottom: '2.5rem', pageBreakInside: 'avoid', breakInside: 'avoid' }} className="no-break">
                         <h4 style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem', marginBottom: '1rem', color: '#1e293b' }}>Leyenda de Hallazgos</h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-3">
                             {data.analysis.detections.map((det, i) => {
@@ -201,7 +202,7 @@ export default function AIReport(): React.ReactElement | null {
 
                 {/* Additional Findings */}
                 {(data.analysis?.foundRisks?.length > 0 || data.analysis?.detections?.some(d => d.recommendation)) && (
-                    <div style={{ marginBottom: '3rem' }}>
+                    <div style={{ marginBottom: '3rem', pageBreakInside: 'avoid', breakInside: 'avoid' }} className="no-break">
                         <h4 style={{ color: '#b91c1c', marginBottom: '0.8rem' }}>Riesgos y Observaciones Detalladas:</h4>
                         <ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#1e293b' }}>
                             {data.analysis?.foundRisks?.map((risk, i) => (
@@ -231,40 +232,28 @@ export default function AIReport(): React.ReactElement | null {
                     </div>
                 </div>
 
-                <div className="signature-container-row mt-10">
-                    {showSignatures.operator && (
-                        <div className="signature-item-box">
-                            <div className="signature-line"></div>
-                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">TRABAJADOR / OPERADOR</p>
-                            <p className="text-[0.8rem] font-black uppercase text-black leading-none min-h-[0.8rem]">Aclaración y Firma</p>
-                        </div>
-                    )}
-
-                    {showSignatures.supervisor && (
-                        <div className="signature-item-box">
-                            <div className="signature-line"></div>
-                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">SUPERVISOR / TESTIGO</p>
-                            <p className="text-[0.8rem] font-black uppercase text-black leading-none min-h-[0.8rem]">Aclaración y Firma</p>
-                        </div>
-                    )}
-
-                    {showSignatures.professional && (
-                        <div className="signature-item-box">
-                            {signature?.signature || signature?.stamp ? (
-                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', height: '60px' }}>
-                                    {signature.signature && <img src={signature.signature} alt="Firma" style={{ maxWidth: '100px', maxHeight: '60px' }} />}
-                                    {signature.stamp && <img src={signature.stamp} alt="Sello" style={{ maxWidth: '60px', maxHeight: '60px' }} />}
-                                </div>
-                            ) : (
-                                <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', color: '#999', marginBottom: '0.5rem' }}>Sin Firma</div>
-                            )}
-                            <div className="signature-line"></div>
-                            <p className="text-[0.65rem] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">PROFESIONAL ACTUANTE</p>
-                            <p style={{ margin: 0, fontWeight: 700, fontSize: '0.8rem' }}>{profile?.name}</p>
-                            <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Mat: {profile?.license}</p>
-                        </div>
-                    )}
-                </div>
+                <PdfSignatures
+                    data={{
+                        ...data,
+                        professionalSignature: signature?.signature,
+                        professionalStamp: signature?.stamp,
+                        professionalName: profile?.name,
+                        professionalLicense: profile?.license
+                    }}
+                    box1={showSignatures.operator ? {
+                        title: 'TRABAJADOR / OPERADOR',
+                        subtitle: 'Aclaración y Firma',
+                        signatureUrl: null,
+                        isProfessional: false
+                    } : null}
+                    box3={showSignatures.supervisor ? {
+                        title: 'SUPERVISOR / TESTIGO',
+                        subtitle: 'Aclaración y Firma',
+                        signatureUrl: null,
+                        isProfessional: false
+                    } : null}
+                    box2={showSignatures.professional ? undefined : null}
+                />
 
                 {/* Footer Content (Static in report) */}
                 <div style={{ position: 'relative', marginTop: '30px', paddingBottom: '30px', width: '100%', textAlign: 'center', fontSize: '0.7rem', color: '#94a3b8' }}>
@@ -297,6 +286,10 @@ export default function AIReport(): React.ReactElement | null {
                         margin: 0 !important;
                         box-shadow: none !important;
                         border: none !important;
+                    }
+                    .no-break {
+                        page-break-inside: avoid !important;
+                        break-inside: avoid !important;
                     }
                 }
                 `}

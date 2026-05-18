@@ -226,49 +226,25 @@ export default function FleetForm(): React.ReactElement | null {
                                     <div style={{ flex: '1 1 200px' }}>
                                         <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{item.label}</span>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <div className="checklist-status-buttons" style={{ minWidth: '180px' }}>
                                         <button
+                                            type="button"
                                             onClick={() => updateChecklist(item.id, 'ok')}
-                                            style={{
-                                                padding: '0.4rem 1rem',
-                                                borderRadius: '6px',
-                                                border: '1px solid #16a34a',
-                                                background: (form.checklist as any)[item.id] === 'ok' ? '#16a34a' : 'transparent',
-                                                color: (form.checklist as any)[item.id] === 'ok' ? '#fff' : '#16a34a',
-                                                fontWeight: 700,
-                                                fontSize: '0.8rem',
-                                                cursor: 'pointer'
-                                            }}
+                                            className={`status-btn ${form.checklist?.[item.id] === 'ok' ? 'active-ok' : ''}`}
                                         >
                                             OK
                                         </button>
                                         <button
+                                            type="button"
                                             onClick={() => updateChecklist(item.id, 'fail')}
-                                            style={{
-                                                padding: '0.4rem 1rem',
-                                                borderRadius: '6px',
-                                                border: '1px solid #dc2626',
-                                                background: (form.checklist as any)[item.id] === 'fail' ? '#dc2626' : 'transparent',
-                                                color: (form.checklist as any)[item.id] === 'fail' ? '#fff' : '#dc2626',
-                                                fontWeight: 700,
-                                                fontSize: '0.8rem',
-                                                cursor: 'pointer'
-                                            }}
+                                            className={`status-btn ${form.checklist?.[item.id] === 'fail' ? 'active-fail' : ''}`}
                                         >
                                             FALLA
                                         </button>
                                         <button
+                                            type="button"
                                             onClick={() => updateChecklist(item.id, 'na')}
-                                            style={{
-                                                padding: '0.4rem 1rem',
-                                                borderRadius: '6px',
-                                                border: '1px solid #64748b',
-                                                background: (form.checklist as any)[item.id] === 'na' ? '#64748b' : 'transparent',
-                                                color: (form.checklist as any)[item.id] === 'na' ? '#fff' : '#64748b',
-                                                fontWeight: 700,
-                                                fontSize: '0.8rem',
-                                                cursor: 'pointer'
-                                            }}
+                                            className={`status-btn ${form.checklist?.[item.id] === 'na' ? 'active-na' : ''}`}
                                         >
                                             N/A
                                         </button>

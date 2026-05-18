@@ -1,10 +1,10 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import {
     ArrowLeft, Save, Users, Calendar, Clock, BookOpen,
     UserPlus, Trash2, CheckCircle2, FileText, Briefcase,
-    Plus, Share2, Printer, ChevronLeft, ChevronRight
+    Plus, Share2, Printer, ChevronLeft, ChevronRight, Pencil
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import TrainingPdfGenerator from '../components/TrainingPdfGenerator';
@@ -14,6 +14,8 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import toast from 'react-hot-toast';
 import { usePaywall } from '../hooks/usePaywall';
 import AdBanner from '../components/AdBanner';
+import SignatureCanvas from '../components/SignatureCanvas';
+import PdfSignatures from '../components/PdfSignatures';
 
 export default function TrainingManagement(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -34,8 +36,51 @@ export default function TrainingManagement(): React.ReactElement | null {
         observaciones: '',
         asistentes: [
             { nombre: '', dni: '', puesto: '' }
-        ]
+        ],
+        operatorSignature: '',
+        signature: '',
+        supervisorSignature: '',
+        showSignatures: { operator: false, professional: true, supervisor: false }
     });
+
+    const [showSignatures, setShowSignatures] = useState(formData.showSignatures || {
+        operator: false,
+        professional: true,
+        supervisor: false
+    });
+
+    const [professional, setProfessional] = useState({
+        name: '',
+        license: '',
+        signature: '',
+        stamp: ''
+    });
+
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    useEffect(() => {
+        try {
+            const personal = localStorage.getItem('personalData');
+            const stamp = localStorage.getItem('signatureStampData');
+            if (personal) {
+                const p = JSON.parse(personal);
+                setProfessional(prev => ({ ...prev, name: p.name || '', license: p.license || '' }));
+            }
+            if (stamp) {
+                const s = JSON.parse(stamp);
+                setProfessional(prev => ({ ...prev, signature: s.signature || '', stamp: s.stamp || '' }));
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }, []);
 
     const [viewMode, setViewMode] = useState('edit'); // 'edit' or 'report'
     const [showShareModal, setShowShareModal] = useState(false);
@@ -86,6 +131,7 @@ export default function TrainingManagement(): React.ReactElement | null {
             id: editData?.id || Date.now(),
             date: editData?.date || new Date().toISOString(),
             ...formData,
+            showSignatures,
             asistentes: asistentesValidos
         };
 
@@ -324,6 +370,87 @@ export default function TrainingManagement(): React.ReactElement | null {
                         <UserPlus size={18} /> Añadir Fila de Asistente
                     </button>
                 </div>
+
+                <div className="card" style={{ marginTop: '1.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)', padding: '2rem' }}>
+                    <h3 style={{ marginTop: 0, marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                        <Pencil size={24} /> Firmas y Autorizaciones
+                    </h3>
+
+                    <div className="no-print mb-8 p-6 bg-slate-50/5 border border-[var(--color-border)] rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-sm font-bold text-slate-700">
+                        <div className="text-center" style={{ color: 'var(--color-text)' }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                        <div className="flex gap-4 flex-wrap justify-center">
+                            <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
+                                <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Delegado / Asistente
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
+                                <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Instructor / Expositor
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
+                                <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Supervisión / Verificador
+                            </label>
+                        </div>
+                    </div>
+
+                    {/* On-Sheet Visual Preview of PDF signature blocks */}
+                    <div style={{ marginBottom: '2.5rem' }}>
+                        <PdfSignatures
+                            data={{
+                                ...formData,
+                                professionalSignature: professional.signature,
+                                professionalName: professional.name,
+                                professionalLicense: professional.license,
+                                professionalStamp: professional.stamp
+                            }}
+                            box1={showSignatures.operator ? {
+                                title: 'DELEGADO / ASISTENTE',
+                                subtitle: 'En representación de asistentes',
+                                signatureUrl: formData.operatorSignature || null,
+                                isProfessional: false
+                            } : null}
+                            box2={showSignatures.professional ? {
+                                title: 'INSTRUCTOR / EXPOSITOR',
+                                subtitle: (professional.name || 'Firma de Especialista').toUpperCase(),
+                                signatureUrl: formData.signature || professional.signature || null,
+                                stampUrl: professional.stamp || null,
+                                isProfessional: true,
+                                license: professional.license
+                            } : null}
+                            box3={showSignatures.supervisor ? {
+                                title: 'SUPERVISIÓN / VERIFICADOR',
+                                subtitle: 'Verificación de Capacitación',
+                                signatureUrl: formData.supervisorSignature || null,
+                                isProfessional: false
+                            } : null}
+                        />
+                    </div>
+
+                    {/* Interactive Signature Drawing Pads */}
+                    <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 gap-8" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '2rem' }}>
+                        {showSignatures.operator && (
+                            <SignatureCanvas 
+                                onSave={(sig) => setFormData(prev => ({ ...prev, operatorSignature: sig || '' }))}
+                                initialImage={formData.operatorSignature}
+                                label="Firma de Delegado / Asistente"
+                            />
+                        )}
+                        
+                        {showSignatures.professional && (
+                            <SignatureCanvas 
+                                onSave={(sig) => setFormData(prev => ({ ...prev, signature: sig || '' }))}
+                                initialImage={formData.signature}
+                                label="Firma de Instructor / Expositor"
+                            />
+                        )}
+
+                        {showSignatures.supervisor && (
+                            <SignatureCanvas 
+                                onSave={(sig) => setFormData(prev => ({ ...prev, supervisorSignature: sig || '' }))}
+                                initialImage={formData.supervisorSignature}
+                                label="Firma de Supervisión / Verificador"
+                            />
+                        )}
+                    </div>
+                </div>
             </div>
 
             {/* PRO upgrade banner for free users */}
@@ -331,7 +458,7 @@ export default function TrainingManagement(): React.ReactElement | null {
 
             {/* Hidden report for direct printing */}
             <div className="print-only">
-                <TrainingPdfGenerator data={formData} onBack={() => { }} />
+                <TrainingPdfGenerator data={{ ...formData, showSignatures }} onBack={() => { }} />
             </div>
 
         </div>

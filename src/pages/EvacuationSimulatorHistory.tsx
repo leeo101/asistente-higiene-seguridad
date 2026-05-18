@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Plus, Trash2, Calendar, FileText, Timer, PersonArmsSpread } from 'lucide-react';
+import { ArrowLeft, Search, Plus, Trash2, Calendar, FileText, Timer } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 export default function EvacuationSimulatorHistory(): React.ReactElement | null {
