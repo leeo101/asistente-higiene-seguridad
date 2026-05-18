@@ -233,12 +233,12 @@ function ThemeApplier() {
 
     if (currentUser?.uid) {
         import('./services/cloudSync').then(({ listenToValue }) => {
-            const unsubPrimary = listenToValue(currentUser.uid, 'primaryColor', (val) => {
+            listenToValue(currentUser.uid, 'primaryColor', (val) => {
                 if (val) localStorage.setItem('primaryColor', val);
                 else localStorage.removeItem('primaryColor');
                 applyColors(val, localStorage.getItem('secondaryColor'));
             });
-            const unsubSecondary = listenToValue(currentUser.uid, 'secondaryColor', (val) => {
+            listenToValue(currentUser.uid, 'secondaryColor', (val) => {
                 if (val) localStorage.setItem('secondaryColor', val);
                 else localStorage.removeItem('secondaryColor');
                 applyColors(localStorage.getItem('primaryColor'), val);

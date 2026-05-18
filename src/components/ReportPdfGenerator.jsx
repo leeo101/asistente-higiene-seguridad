@@ -200,7 +200,7 @@ export default function ReportPdfGenerator({ initialData }) {
                 )}
 
                 {/* Signatures Section */}
-                <PdfSignatures data={data} />
+                <PdfSignatures data={initialData} />
 
                 <PdfBrandingFooter />
             </div>

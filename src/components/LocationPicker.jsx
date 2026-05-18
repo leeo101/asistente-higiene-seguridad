@@ -12,7 +12,6 @@ import toast from 'react-hot-toast';
 export default function LocationPicker({ onLocationSelect, initialLocation }) {
     const { latitude, longitude, accuracy, address, loading, error, getLocation } = useGeolocation();
     const [manualLocation, setManualLocation] = useState(initialLocation || { latitude: '', longitude: '' });
-    const [showMap, setShowMap] = useState(false);
 
     const handleGetLocation = async () => {
         try {

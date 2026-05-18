@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { X, AlertCircle, User } from 'lucide-react';
 
-export default function ProfileCompletionBanner({ onComplete }) {
+export default function ProfileCompletionBanner() {
     const navigate = useNavigate();
     const [visible, setVisible] = useState(false);
     
