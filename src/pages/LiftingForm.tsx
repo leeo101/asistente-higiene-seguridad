@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, AlertTriangle, ShieldCheck, Weight, ArrowDownToLine, Users, Printer, Share2 } from 'lucide-react';
+import { ArrowLeft, Save, AlertTriangle, ShieldCheck, Weight, ArrowDownToLine, Users, Printer, Share2, Pencil } from 'lucide-react';
 import { Crane } from '@phosphor-icons/react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
+import PdfSignatures from '../components/PdfSignatures';
 import LiftingPdfGenerator from '../components/LiftingPdfGenerator';
 
 const labelStyle: React.CSSProperties = {
@@ -40,7 +41,7 @@ export default function LiftingForm(): React.ReactElement | null {
 
     useDocumentTitle(isEdit ? 'Editar Plan de Izaje' : 'Nuevo Plan de Izaje');
     
-    const [plan, setPlan] = useState({
+    const [plan, setPlan] = useState<any>({
         location: '',
         date: new Date().toISOString().split('T')[0],
         time: '',
@@ -71,12 +72,65 @@ export default function LiftingForm(): React.ReactElement | null {
         signatures: {
             operator: '',
             supervisor: ''
-        }
+        },
+        operatorSignature: '',
+        professionalSignature: '',
+        supervisorSignature: '',
+        showSignatures: { operator: true, professional: true, supervisor: true }
     });
+
+    const [professional, setProfessional] = useState<any>({
+        name: '',
+        license: '',
+        signature: null,
+        stamp: null
+    });
+
+    const setShowSignatures = (updater: any) => {
+        setPlan((prev: any) => {
+            const updated = typeof updater === 'function' ? updater(prev.showSignatures) : updater;
+            return { ...prev, showSignatures: updated };
+        });
+    };
+
+    const showSignatures = plan.showSignatures || { operator: true, professional: true, supervisor: true };
+
+    useEffect(() => {
+        const savedData = localStorage.getItem('personalData');
+        const savedSigData = localStorage.getItem('signatureStampData');
+        const legacySignature = localStorage.getItem('capturedSignature');
+
+        let signature = legacySignature || null;
+        let stamp = null;
+        if (savedSigData) {
+            const parsed = JSON.parse(savedSigData);
+            signature = parsed.signature || signature;
+            stamp = parsed.stamp || null;
+        }
+
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            setProfessional({
+                name: data.name || '',
+                license: data.license || '',
+                signature: signature,
+                stamp: stamp
+            });
+        } else {
+            setProfessional((prev: any) => ({ ...prev, signature, stamp }));
+        }
+    }, []);
 
     useEffect(() => {
         if (location.state?.editData) {
-            setPlan(location.state.editData);
+            const editData = location.state.editData;
+            setPlan({
+                ...editData,
+                operatorSignature: editData.operatorSignature || editData.signatures?.operator || '',
+                professionalSignature: editData.professionalSignature || '',
+                supervisorSignature: editData.supervisorSignature || editData.signatures?.supervisor || '',
+                showSignatures: editData.showSignatures || { operator: true, professional: true, supervisor: true }
+            });
             setIsEdit(true);
         }
     }, [location.state]);
@@ -104,12 +158,24 @@ export default function LiftingForm(): React.ReactElement | null {
         const saved = JSON.parse(localStorage.getItem('lifting_plans_db') || '[]');
         let updated;
 
+        const planWithSignatures = {
+            ...plan,
+            professionalSignature: plan.professionalSignature || professional.signature,
+            professionalName: plan.professionalName || professional.name,
+            professionalLicense: plan.professionalLicense || professional.license,
+            professionalStamp: plan.professionalStamp || professional.stamp,
+            signatures: {
+                operator: plan.operatorSignature,
+                supervisor: plan.supervisorSignature
+            }
+        };
+
         if (isEdit) {
-            updated = saved.map((p: any) => p.id === (plan as any).id ? plan : p);
+            updated = saved.map((p: any) => p.id === (plan as any).id ? planWithSignatures : p);
             toast.success('Plan de Izaje actualizado');
         } else {
             const newPlan = {
-                ...plan,
+                ...planWithSignatures,
                 id: `LIFT-${Date.now()}`,
                 createdAt: new Date().toISOString(),
                 status: 'active'
@@ -133,13 +199,13 @@ export default function LiftingForm(): React.ReactElement | null {
     const isCritical = parseFloat(loadPercentage as string) >= 75;
 
     return (
-        <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem' }}>
+        <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem', paddingTop: isMobile ? '7.5rem' : '6.5rem' }}>
             <div style={{
                 background: 'var(--color-surface)',
                 borderBottom: '1px solid var(--color-border)',
                 padding: '1rem 1.5rem',
                 position: 'sticky',
-                top: '5.5rem',
+                top: isMobile ? '6.5rem' : '5.5rem',
                 zIndex: 100,
                 backdropFilter: 'blur(20px)',
                 display: 'flex',
@@ -296,17 +362,88 @@ export default function LiftingForm(): React.ReactElement | null {
                         />
                     </div>
 
-                    <div style={{ marginTop: '2.5rem', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '2rem' }}>
-                        <SignatureCanvas 
-                            onSave={(sig) => setPlan({ ...plan, signatures: { ...plan.signatures, operator: sig || '' } })}
-                            initialImage={plan.signatures.operator}
-                            label="Firma del Operador"
-                        />
-                        <SignatureCanvas 
-                            onSave={(sig) => setPlan({ ...plan, signatures: { ...plan.signatures, supervisor: sig || '' } })}
-                            initialImage={plan.signatures.supervisor}
-                            label="Firma del Supervisor"
-                        />
+                    {/* Firmas y Autorizaciones */}
+                    <div style={{ marginTop: '2.5rem' }}>
+                        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <Pencil size={20} /> Firmas y Autorizaciones del Plan
+                        </h3>
+
+                        <div className="no-print" style={{ marginBottom: '2rem', padding: '1.5rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '12px', display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '1.5rem', justifyContent: 'center', alignItems: 'center' }}>
+                            <div style={{ color: 'var(--color-text)', fontSize: '0.9rem', fontWeight: 700 }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                                <label style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                    <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures((s: any) => ({ ...s, operator: e.target.checked }))} style={{ width: '20px', height: '20px' }} /> Operador
+                                </label>
+                                <label style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                    <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures((s: any) => ({ ...s, professional: e.target.checked }))} style={{ width: '20px', height: '20px' }} /> Especialista H&S
+                                </label>
+                                <label style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                    <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures((s: any) => ({ ...s, supervisor: e.target.checked }))} style={{ width: '20px', height: '20px' }} /> Supervisor de Izaje
+                                </label>
+                            </div>
+                        </div>
+
+                        {/* On-Sheet Visual Preview of PDF signature blocks */}
+                        <div style={{ marginBottom: '2.5rem' }}>
+                            <PdfSignatures
+                                data={{
+                                    ...plan,
+                                    professionalSignature: professional.signature,
+                                    professionalName: professional.name,
+                                    professionalLicense: professional.license,
+                                    professionalStamp: professional.stamp
+                                }}
+                                box1={showSignatures.operator ? {
+                                    title: 'OPERADOR DEL EQUIPO',
+                                    subtitle: (plan.personnel?.operator || 'Firma del Operador').toUpperCase(),
+                                    signatureUrl: plan.operatorSignature || null,
+                                    isProfessional: false
+                                } : null}
+                                box2={showSignatures.professional ? {
+                                    title: 'PROFESIONAL H&S',
+                                    subtitle: (professional.name || 'Firma de Especialista').toUpperCase(),
+                                    signatureUrl: plan.professionalSignature || professional.signature || null,
+                                    stampUrl: plan.professionalStamp || professional.stamp || null,
+                                    isProfessional: true,
+                                    license: professional.license
+                                } : null}
+                                box3={showSignatures.supervisor ? {
+                                    title: 'SUPERVISOR DE IZAJE',
+                                    subtitle: (plan.personnel?.supervisor || 'Firma del Supervisor').toUpperCase(),
+                                    signatureUrl: plan.supervisorSignature || null,
+                                    isProfessional: false
+                                } : null}
+                            />
+                        </div>
+
+                        {/* Interactive Signature Drawing Pads */}
+                        <div className="no-print" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem', marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--color-border)' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+                                {showSignatures.operator && (
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setPlan((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
+                                        initialImage={plan.operatorSignature}
+                                        label="Firma del Operador"
+                                    />
+                                )}
+                                
+                                {showSignatures.professional && (
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setPlan((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
+                                        initialImage={plan.professionalSignature || professional.signature}
+                                        label="Firma de Especialista H&S"
+                                    />
+                                )}
+
+                                {showSignatures.supervisor && (
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setPlan((prev: any) => ({ ...prev, supervisorSignature: sig || '' }))}
+                                        initialImage={plan.supervisorSignature}
+                                        label="Firma del Supervisor de Izaje"
+                                    />
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>
@@ -347,7 +484,17 @@ export default function LiftingForm(): React.ReactElement | null {
             />
 
             <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
-                <LiftingPdfGenerator data={plan} />
+                <LiftingPdfGenerator data={{
+                    ...plan,
+                    professionalSignature: plan.professionalSignature || professional.signature,
+                    professionalName: plan.professionalName || professional.name,
+                    professionalLicense: plan.professionalLicense || professional.license,
+                    professionalStamp: plan.professionalStamp || professional.stamp,
+                    signatures: {
+                        operator: plan.operatorSignature || plan.signatures?.operator || '',
+                        supervisor: plan.supervisorSignature || plan.signatures?.supervisor || ''
+                    }
+                }} />
             </div>
         </div>
     );

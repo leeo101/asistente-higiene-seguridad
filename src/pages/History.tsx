@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Search, Calendar, ChevronRight,
     ClipboardList, Flame, BarChart3, ShieldAlert, Plus, Sparkles, Trash2, Camera, Lightbulb, HardHat, Share2,
     ClipboardCheck, CheckCircle2, ScrollText, ShieldCheck, KeySquare, Bot, TriangleAlert, FileText, Shield, ThermometerSun, Siren, Map, BookOpen,
-    FlaskConical, Volume2, Lock, Tent, Droplets, MessageSquare, Download
+    FlaskConical, Volume2, Lock, Tent, Droplets, MessageSquare, Download, CarFront, Weight, Timer
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useSync } from '../contexts/SyncContext';
@@ -125,13 +125,16 @@ export default function History(): React.ReactElement | null {
             chemicalSafety: safeGetList('chemical_safety_db').length,
             noise: safeGetList('noise_assessments_db').length,
             loto: safeGetList('loto_procedures_db').length,
-            confinedSpace: safeGetList('confined_space_permits').length,
-            workHeight: safeGetList('working_at_height_permits').length,
+            confinedSpace: safeGetList('confined_space_permits_db').length,
+            workHeight: safeGetList('working_height_permits_db').length,
             audits: safeGetList('ehs_audits_db').length,
             capa: safeGetList('ehs_capa_db').length,
             environmental: safeGetList('environmental_measurements_db').length,
             safetyKPIs: safeGetList('ehs_kpi_data').length,
             toolboxTalks: safeGetList('ehs_toolbox_talks').length,
+            fleetInspections: safeGetList('fleet_inspections_db').length,
+            liftingPlans: safeGetList('lifting_plans_db').length,
+            evacuationSimulator: safeGetList('evacuation_simulator_db').length,
         });
     };
 
@@ -211,7 +214,7 @@ export default function History(): React.ReactElement | null {
         { title: 'Consultas Asesor IA', icon: <Bot size={24} />, color: '#a855f7', bg: 'rgba(168,85,247,0.1)', path: '/ai-history', countKey: 'ai' },
         { title: 'Control de EPP', icon: <HardHat size={24} />, color: '#10b981', bg: 'rgba(16,185,129,0.1)', path: '/ppe-tracker', countKey: 'ppeTracker' },
         { title: 'Control de Extintores', icon: <Flame size={24} />, color: '#f97316', bg: 'rgba(249,115,22,0.1)', path: '/extinguishers-history', countKey: 'extinguishers' },
-        { title: 'Estrés Térmico', icon: <ThermometerSun size={24} />, color: '#f97316', bg: 'rgba(249,115,22,0.1)', path: '/thermal-stress-history', countKey: 'thermal', view: 'thermal' },
+        { title: 'Estrés Térmico', icon: <ThermometerSun size={24} />, color: '#f97316', bg: 'rgba(249,115,22,0.1)', path: '/thermal-stress-history', countKey: 'thermal' },
         { title: 'Evaluaciones de Riesgo', icon: <Shield size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/risk-assessment-history', countKey: 'riskAssessments' },
         { title: 'Iluminación', icon: <Lightbulb size={24} />, color: '#eab308', bg: 'rgba(234,179,8,0.1)', path: '/lighting-history', countKey: 'lighting' },
         { title: 'Informes Profesionales', icon: <ScrollText size={24} />, color: '#ec4899', bg: 'rgba(236,72,153,0.1)', path: '/reports-history', countKey: 'reports', view: 'reports' },
@@ -222,16 +225,19 @@ export default function History(): React.ReactElement | null {
         { title: 'Permisos de Trabajo', icon: <KeySquare size={24} />, color: '#2563eb', bg: 'rgba(37,99,235,0.1)', path: '/work-permit-history', countKey: 'workPermits' },
         { title: 'Simulacros', icon: <Siren size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/drills-history', countKey: 'drills' },
         { title: 'Tarjetas STOP', icon: <TriangleAlert size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/stop-cards-history', countKey: 'stopCards' },
-        { title: 'Auditorías de Seguridad', icon: <ClipboardCheck size={24} />, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', path: '/audit-history', countKey: 'audits' },
-        { title: 'Gestión CAPA', icon: <CheckCircle2 size={24} />, color: '#10b981', bg: 'rgba(16,185,129,0.1)', path: '/capa-history', countKey: 'capa' },
-        { title: 'LOTO - Bloqueo/Etiquetado', icon: <Lock size={24} />, color: '#dc2626', bg: 'rgba(220,38,38,0.1)', path: '/loto-history', countKey: 'loto' },
-        { title: 'Mediciones de Ruido', icon: <Volume2 size={24} />, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', path: '/noise-assessment-history', countKey: 'noise' },
-        { title: 'Monitoreo Ambiental', icon: <Droplets size={24} />, color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', path: '/environmental-history', countKey: 'environmental' },
-        { title: 'Permisos de Espacios Confinados', icon: <Tent size={24} />, color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', path: '/confined-space-history', countKey: 'confinedSpace' },
-        { title: 'Permisos Trabajo en Altura', icon: <HardHat size={24} />, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', path: '/working-at-height-history', countKey: 'workHeight' },
+        { title: 'Auditorías de Seguridad', icon: <ClipboardCheck size={24} />, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', path: '/audit', countKey: 'audits' },
+        { title: 'Gestión CAPA', icon: <CheckCircle2 size={24} />, color: '#10b981', bg: 'rgba(16,185,129,0.1)', path: '/capa', countKey: 'capa' },
+        { title: 'LOTO - Bloqueo/Etiquetado', icon: <Lock size={24} />, color: '#dc2626', bg: 'rgba(220,38,38,0.1)', path: '/loto', countKey: 'loto' },
+        { title: 'Mediciones de Ruido', icon: <Volume2 size={24} />, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', path: '/noise-assessment', countKey: 'noise' },
+        { title: 'Monitoreo Ambiental', icon: <Droplets size={24} />, color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', path: '/environmental', countKey: 'environmental' },
+        { title: 'Permisos de Espacios Confinados', icon: <Tent size={24} />, color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', path: '/confined-space', countKey: 'confinedSpace' },
+        { title: 'Permisos Trabajo en Altura', icon: <HardHat size={24} />, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', path: '/working-at-height', countKey: 'workHeight' },
         { title: 'Seguridad Química (SGA)', icon: <FlaskConical size={24} />, color: '#ec4899', bg: 'rgba(236,72,153,0.1)', path: '/chemical-safety', countKey: 'chemicalSafety' },
         { title: 'KPIs de Seguridad', icon: <BarChart3 size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/safety-kpis', countKey: 'safetyKPIs' },
         { title: 'Charlas de 5 Minutos', icon: <MessageSquare size={24} />, color: '#0052CC', bg: 'rgba(0,82,204,0.1)', path: '/toolbox-talk', countKey: 'toolboxTalks' },
+        { title: 'Control de Flota y Vehículos', icon: <CarFront size={24} />, color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', path: '/fleet-history', countKey: 'fleetInspections' },
+        { title: 'Planes de Izaje', icon: <Weight size={24} />, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', path: '/lifting-history', countKey: 'liftingPlans' },
+        { title: 'Simulador de Evacuación', icon: <Timer size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/evacuation-history', countKey: 'evacuationSimulator' },
     ];
 
     // ─── HUB ──────────────────────────────────────────────────────

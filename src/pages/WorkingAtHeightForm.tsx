@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, ArrowDown, Shield, AlertTriangle, Clock, CheckCircle2, User, MapPin, Ruler, Eye, Printer, Share2 } from 'lucide-react';
+import { ArrowLeft, Save, ArrowDown, Shield, AlertTriangle, Clock, CheckCircle2, User, MapPin, Ruler, Eye, Printer, Share2, Pencil } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import WorkingAtHeightPdf from '../components/WorkingAtHeightPdf';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
+import PdfSignatures from '../components/PdfSignatures';
 
 const WORK_TYPES = [
     { id: 'scaffolding', name: 'Andamios', icon: '🏗️' },
@@ -33,7 +34,8 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
     const { isPro, requirePro } = usePaywall();
 
     useDocumentTitle(isEdit ? 'Editar Permiso en Altura' : 'Permiso de Trabajo en Altura');
-    const [permit, setPermit] = useState({
+    
+    const [permit, setPermit] = useState<any>({
         workerName: '',
         workType: 'scaffolding',
         location: '',
@@ -54,15 +56,70 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
             helmet: true,
             lifeline: false
         },
-        signature: ''
+        signature: '',
+        operatorSignature: '',
+        professionalSignature: '',
+        supervisorSignature: '',
+        showSignatures: { operator: true, professional: true, supervisor: true }
     });
+
+    const [professional, setProfessional] = useState<any>({
+        name: '',
+        license: '',
+        signature: null,
+        stamp: null
+    });
+
+    const setShowSignatures = (updater: any) => {
+        setPermit((prev: any) => {
+            const updated = typeof updater === 'function' ? updater(prev.showSignatures) : updater;
+            return { ...prev, showSignatures: updated };
+        });
+    };
+
+    const showSignatures = permit.showSignatures || { operator: true, professional: true, supervisor: true };
+
+    useEffect(() => {
+        const savedData = localStorage.getItem('personalData');
+        const savedSigData = localStorage.getItem('signatureStampData');
+        const legacySignature = localStorage.getItem('capturedSignature');
+
+        let signature = legacySignature || null;
+        let stamp = null;
+        if (savedSigData) {
+            const parsed = JSON.parse(savedSigData);
+            signature = parsed.signature || signature;
+            stamp = parsed.stamp || null;
+        }
+
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            setProfessional({
+                name: data.name || '',
+                license: data.license || '',
+                signature: signature,
+                stamp: stamp
+            });
+        } else {
+            setProfessional((prev: any) => ({ ...prev, signature, stamp }));
+        }
+    }, []);
 
     useEffect(() => {
         if (location.state?.editData) {
-            setPermit(location.state.editData);
+            const editData = location.state.editData;
+            setPermit({
+                ...editData,
+                operatorSignature: editData.operatorSignature || '',
+                professionalSignature: editData.professionalSignature || '',
+                supervisorSignature: editData.supervisorSignature || editData.signature || '',
+                signature: editData.signature || editData.supervisorSignature || '',
+                showSignatures: editData.showSignatures || { operator: true, professional: true, supervisor: true }
+            });
             setIsEdit(true);
         }
     }, [location.state]);
+
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -77,26 +134,42 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
             return;
         }
 
-        const saved = JSON.parse(localStorage.getItem('working_at_height_db') || '[]');
+        const saved = JSON.parse(localStorage.getItem('working_height_permits_db') || '[]');
         let updated;
 
+        const permitWithSignatures = {
+            ...permit,
+            professionalSignature: permit.professionalSignature || professional.signature,
+            professionalName: permit.professionalName || professional.name,
+            professionalLicense: permit.professionalLicense || professional.license,
+            professionalStamp: permit.professionalStamp || professional.stamp
+        };
+
         if (isEdit) {
-            updated = saved.map((p: any) => p.id === (permit as any).id ? permit : p);
+            updated = saved.map((p: any) => p.id === (permit as any).id ? permitWithSignatures : p);
             toast.success('Permiso actualizado');
         } else {
             const newPermit = {
-                ...permit,
+                ...permitWithSignatures,
                 id: `WAH-${Date.now()}`,
                 createdAt: new Date().toISOString(),
-                status: 'open'
+                status: 'pending'
             };
             updated = [newPermit, ...saved];
             toast.success('Permiso guardado');
         }
 
-        localStorage.setItem('working_at_height_db', JSON.stringify(updated));
+        localStorage.setItem('working_height_permits_db', JSON.stringify(updated));
+
+        if (isEdit && (permit as any).status === 'active') {
+            const activeSaved = JSON.parse(localStorage.getItem('working_height_active_db') || '[]');
+            const updatedActive = activeSaved.map((p: any) => p.id === (permit as any).id ? permitWithSignatures : p);
+            localStorage.setItem('working_height_active_db', JSON.stringify(updatedActive));
+        }
+
         navigate('/working-at-height');
     };
+
 
     const labelStyle = {
         display: 'block',
@@ -363,12 +436,88 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
                         />
                     </div>
 
+                    {/* Firmas y Autorizaciones */}
                     <div style={{ marginTop: '2.5rem' }}>
-                        <SignatureCanvas 
-                            onSave={(sig) => setPermit({ ...permit, signature: sig || '' })}
-                            initialImage={permit.signature}
-                            label="Firma del Supervisor de Altura"
-                        />
+                        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <Pencil size={20} /> Firmas y Autorizaciones del Permiso
+                        </h3>
+
+                        <div className="no-print" style={{ marginBottom: '2rem', padding: '1.5rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '12px', display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '1.5rem', justifyContent: 'center', alignItems: 'center' }}>
+                            <div style={{ color: 'var(--color-text)', fontSize: '0.9rem', fontWeight: 700 }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                                <label style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                    <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures((s: any) => ({ ...s, operator: e.target.checked }))} style={{ width: '20px', height: '20px' }} /> Operador / Trabajador
+                                </label>
+                                <label style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                    <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures((s: any) => ({ ...s, professional: e.target.checked }))} style={{ width: '20px', height: '20px' }} /> Especialista H&S
+                                </label>
+                                <label style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                    <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures((s: any) => ({ ...s, supervisor: e.target.checked }))} style={{ width: '20px', height: '20px' }} /> Supervisor / Autorizante
+                                </label>
+                            </div>
+                        </div>
+
+                        {/* On-Sheet Visual Preview of PDF signature blocks */}
+                        <div style={{ marginBottom: '2.5rem' }}>
+                            <PdfSignatures
+                                data={{
+                                    ...permit,
+                                    professionalSignature: professional.signature,
+                                    professionalName: professional.name,
+                                    professionalLicense: professional.license,
+                                    professionalStamp: professional.stamp
+                                }}
+                                box1={showSignatures.operator ? {
+                                    title: 'OPERADOR / TRABAJADOR',
+                                    subtitle: (permit.workerName || 'Firma del Operador').toUpperCase(),
+                                    signatureUrl: permit.operatorSignature || null,
+                                    isProfessional: false
+                                } : null}
+                                box2={showSignatures.professional ? {
+                                    title: 'PROFESIONAL H&S',
+                                    subtitle: (professional.name || 'Firma de Especialista').toUpperCase(),
+                                    signatureUrl: permit.professionalSignature || professional.signature || null,
+                                    stampUrl: permit.professionalStamp || professional.stamp || null,
+                                    isProfessional: true,
+                                    license: professional.license
+                                } : null}
+                                box3={showSignatures.supervisor ? {
+                                    title: 'SUPERVISOR / AUTORIZANTE',
+                                    subtitle: (permit.supervisor || 'Firma del Supervisor').toUpperCase(),
+                                    signatureUrl: permit.supervisorSignature || permit.signature || null,
+                                    isProfessional: false
+                                } : null}
+                            />
+                        </div>
+
+                        {/* Interactive Signature Drawing Pads */}
+                        <div className="no-print" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem', marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--color-border)' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+                                {showSignatures.operator && (
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setPermit((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
+                                        initialImage={permit.operatorSignature}
+                                        label="Firma del Operador / Trabajador"
+                                    />
+                                )}
+                                
+                                {showSignatures.professional && (
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setPermit((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
+                                        initialImage={permit.professionalSignature || professional.signature}
+                                        label="Firma de Especialista H&S"
+                                    />
+                                )}
+
+                                {showSignatures.supervisor && (
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setPermit((prev: any) => ({ ...prev, supervisorSignature: sig || '', signature: sig || '' }))}
+                                        initialImage={permit.supervisorSignature || permit.signature}
+                                        label="Firma del Supervisor / Autorizante"
+                                    />
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
 

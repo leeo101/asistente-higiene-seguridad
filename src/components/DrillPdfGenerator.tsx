@@ -174,7 +174,29 @@ export default function DrillPdfGenerator({ report, onBack, isHeadless = false }
                     </div>
 
                     {/* Signatures Area */}
-                    <PdfSignatures data={report} />
+                    <PdfSignatures 
+                        data={report} 
+                        box1={report.showSignatures?.operator !== false ? {
+                            title: 'RESPONSABLE EVACUACIÓN',
+                            subtitle: 'Brigada / Responsable',
+                            signatureUrl: report.operatorSignature || null,
+                            isProfessional: false
+                        } : null}
+                        box2={report.showSignatures?.professional !== false ? {
+                            title: 'PROFESIONAL H&S',
+                            subtitle: (report.professionalName || 'Firma de Especialista').toUpperCase(),
+                            signatureUrl: report.professionalSignature || null,
+                            stampUrl: report.professionalStamp || null,
+                            isProfessional: true,
+                            license: report.professionalLicense || null
+                        } : null}
+                        box3={report.showSignatures?.supervisor !== false ? {
+                            title: 'SUPERVISIÓN / CIERRE',
+                            subtitle: 'Aprobación de Simulacro',
+                            signatureUrl: report.supervisorSignature || report.signature || null,
+                            isProfessional: false
+                        } : null}
+                    />
 
                 </div>
             </div>

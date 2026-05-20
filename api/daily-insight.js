@@ -26,7 +26,13 @@ export default async function handler(req, res) {
         if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini (Serverless)' });
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const models = [
+            "gemini-2.5-flash",
+            "gemini-flash-latest",
+            "gemini-2.0-flash",
+            "gemini-1.5-flash-latest",
+            "gemini-1.5-flash"
+        ];
 
         const prompt = `Actúa como un Asesor Senior en Higiene y Seguridad Laboral en ${country}. 
 Genera un "Consejo del Día" breve y profesional para otros profesionales del área.
@@ -39,7 +45,20 @@ Formato de respuesta JSON estricto:
 }
 IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON. Sea conciso y valioso.`;
 
-        const result = await model.generateContent(prompt);
+        let result;
+        let lastError;
+        for (const modelName of models) {
+            try {
+                const model = genAI.getGenerativeModel({ model: modelName });
+                result = await model.generateContent(prompt);
+                if (result) break;
+            } catch (err) {
+                lastError = err;
+                continue;
+            }
+        }
+
+        if (!result) throw new Error(lastError?.message || 'Modelos de Texto IA fallaron');
         const responseText = result.response.text();
 
         let cleanedJson = responseText.trim();

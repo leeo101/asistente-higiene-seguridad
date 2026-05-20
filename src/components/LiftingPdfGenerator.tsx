@@ -118,18 +118,26 @@ export default function LiftingPdfGenerator({ data }: { data: any }): React.Reac
                 {/* Signatures */}
                 <PdfSignatures 
                     data={data} 
-                    box1={{
+                    box1={data.showSignatures?.operator !== false ? {
                         title: 'OPERADOR DEL EQUIPO',
-                        subtitle: 'Aclaración y Firma',
-                        signatureUrl: data.signatures?.operator || null,
+                        subtitle: (data.personnel?.operator || 'Firma del Operador').toUpperCase(),
+                        signatureUrl: data.operatorSignature || data.signatures?.operator || null,
                         isProfessional: false
-                    }}
-                    box3={{
+                    } : null}
+                    box2={data.showSignatures?.professional !== false ? {
+                        title: 'PROFESIONAL H&S',
+                        subtitle: (data.professionalName || 'Firma de Especialista').toUpperCase(),
+                        signatureUrl: data.professionalSignature || null,
+                        stampUrl: data.professionalStamp || null,
+                        isProfessional: true,
+                        license: data.professionalLicense || null
+                    } : null}
+                    box3={data.showSignatures?.supervisor !== false ? {
                         title: 'SUPERVISOR DE IZAJE',
-                        subtitle: 'Aprobación y Cierre',
-                        signatureUrl: data.signatures?.supervisor || null,
+                        subtitle: (data.personnel?.supervisor || 'Firma del Supervisor').toUpperCase(),
+                        signatureUrl: data.supervisorSignature || data.signatures?.supervisor || null,
                         isProfessional: false
-                    }}
+                    } : null}
                 />
 
             </div>

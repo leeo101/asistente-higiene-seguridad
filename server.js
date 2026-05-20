@@ -295,13 +295,8 @@ app.post('/api/analyze-image', aiLimiter, verifyFirebaseToken, async (req, res) 
 
         let result;
         const models = [
-            "gemini-2.0-flash",
-            "gemini-1.5-flash-latest",
-            "gemini-1.5-pro-latest",
-            "gemini-1.5-flash",
-            "models/gemini-1.5-flash",
-            "gemini-flash-latest",
-            "gemini-1.5-pro"
+            "gemini-2.5-flash",
+            "gemini-flash-latest"
         ];
         const safetySettings = [
             { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
@@ -405,9 +400,8 @@ app.post('/api/analyze-contractor-doc', aiLimiter, verifyFirebaseToken, async (r
         };
 
         const models = [
-            "gemini-2.0-flash",
-            "gemini-1.5-flash-latest",
-            "gemini-1.5-pro-latest"
+            "gemini-2.5-flash",
+            "gemini-flash-latest"
         ];
 
         let result;
@@ -468,7 +462,7 @@ app.post('/api/daily-insight', aiLimiter, verifyFirebaseToken, async (req, res) 
         };
 
         const model = genAI.getGenerativeModel({ 
-            model: "gemini-2.0-flash",
+            model: "gemini-2.5-flash",
             systemInstruction: `Actúa como un Asesor Senior en Higiene y Seguridad Laboral en ${country}. Genera un "Consejo del Día" breve y profesional. Devuelve obligatoriamente la categoría "Normativa", "Técnico", "Prevención" o "IA".`,
             generationConfig: {
                 responseMimeType: "application/json",
@@ -498,11 +492,8 @@ app.post('/api/ai-advisor', aiLimiter, verifyFirebaseToken, async (req, res) => 
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const models = [
-            "gemini-2.0-flash",
-            "gemini-1.5-flash-latest",
-            "gemini-1.5-pro-latest",
-            "gemini-1.5-flash",
-            "models/gemini-1.5-flash"
+            "gemini-2.5-flash",
+            "gemini-flash-latest"
         ];
 
         const responseSchema = {
@@ -566,10 +557,8 @@ app.post('/api/ai-ats-generator', aiLimiter, verifyFirebaseToken, async (req, re
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const models = [
-            "gemini-2.0-flash",
-            "gemini-1.5-flash-latest",
-            "gemini-1.5-pro-latest",
-            "gemini-1.5-flash"
+            "gemini-2.5-flash",
+            "gemini-flash-latest"
         ];
 
         const responseSchema = {
@@ -633,7 +622,7 @@ app.post('/api/ai-report-conclusion', aiLimiter, verifyFirebaseToken, async (req
         if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini' });
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const models = ["gemini-2.0-flash", "gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-1.5-flash"];
+        const models = ["gemini-2.5-flash", "gemini-flash-latest"];
 
         const responseSchema = {
             type: SchemaType.OBJECT,
@@ -680,7 +669,7 @@ app.post('/api/ai-legal-summary', aiLimiter, verifyFirebaseToken, async (req, re
         if (!apiKey) return res.status(500).json({ error: 'Falta API Key' });
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const models = ["gemini-2.0-flash", "gemini-1.5-flash-latest"];
+        const models = ["gemini-2.5-flash", "gemini-flash-latest"];
 
         const responseSchema = {
             type: SchemaType.OBJECT,
@@ -727,7 +716,7 @@ app.post('/api/ai-stopcard', aiLimiter, verifyFirebaseToken, async (req, res) =>
         if (!apiKey) return res.status(500).json({ error: 'Falta API Key' });
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const models = ["gemini-2.0-flash", "gemini-1.5-flash-latest"];
+        const models = ["gemini-2.5-flash", "gemini-flash-latest"];
 
         const responseSchema = {
             type: SchemaType.OBJECT,
@@ -808,13 +797,8 @@ app.post('/api/analyze-general-risks', aiLimiter, verifyFirebaseToken, async (re
         const imagePart = { inlineData: { data: base64Data, mimeType } };
 
         const models = [
-            "gemini-flash-latest",
-            "gemini-2.0-flash",
-            "gemini-1.5-flash-latest",
-            "gemini-1.5-pro-latest",
-            "gemini-1.5-flash",
-            "models/gemini-1.5-flash",
-            "gemini-1.5-pro"
+            "gemini-2.5-flash",
+            "gemini-flash-latest"
         ];
 
         let result;

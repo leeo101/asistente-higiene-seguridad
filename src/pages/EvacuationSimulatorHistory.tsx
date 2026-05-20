@@ -7,6 +7,14 @@ export default function EvacuationSimulatorHistory(): React.ReactElement | null 
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [simulations, setSimulations] = useState([]);
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         const saved = JSON.parse(localStorage.getItem('evacuation_simulator_db') || '[]');
@@ -33,13 +41,13 @@ export default function EvacuationSimulatorHistory(): React.ReactElement | null 
     );
 
     return (
-        <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem' }}>
+        <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem', paddingTop: isMobile ? '7.5rem' : '6.5rem' }}>
             <div style={{
                 background: 'var(--color-surface)',
                 borderBottom: '1px solid var(--color-border)',
                 padding: '1rem 1.5rem',
                 position: 'sticky',
-                top: '5.5rem',
+                top: isMobile ? '6.5rem' : '5.5rem',
                 zIndex: 100,
                 display: 'flex',
                 alignItems: 'center',

@@ -116,19 +116,28 @@ export default function FleetPdfGenerator({ data, checklistItems }: { data: any,
                 {/* Signatures */}
                 <PdfSignatures 
                     data={data} 
-                    box1={{
+                    box1={data.showSignatures?.operator !== false ? {
                         title: 'CONDUCTOR ASIGNADO',
-                        subtitle: 'Firma del Conductor',
-                        signatureUrl: data.signatures?.driver || null,
+                        subtitle: (data.driver || 'Firma del Conductor').toUpperCase(),
+                        signatureUrl: data.driverSignature || data.signatures?.driver || null,
                         isProfessional: false
-                    }}
-                    box3={{
+                    } : null}
+                    box2={data.showSignatures?.professional !== false ? {
+                        title: 'PROFESIONAL H&S',
+                        subtitle: (data.professionalName || 'Firma de Especialista').toUpperCase(),
+                        signatureUrl: data.professionalSignature || null,
+                        stampUrl: data.professionalStamp || null,
+                        isProfessional: true,
+                        license: data.professionalLicense || null
+                    } : null}
+                    box3={data.showSignatures?.supervisor !== false ? {
                         title: 'INSPECTOR / CONTROL',
-                        subtitle: 'Firma del Inspector',
-                        signatureUrl: data.signatures?.inspector || null,
+                        subtitle: (data.inspector || 'Firma del Inspector').toUpperCase(),
+                        signatureUrl: data.supervisorSignature || data.signatures?.inspector || null,
                         isProfessional: false
-                    }}
+                    } : null}
                 />
+
 
             </div>
         </div>

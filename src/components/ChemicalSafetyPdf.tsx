@@ -113,11 +113,11 @@ export default function ChemicalSafetyPdf({ data }: { data: any }): React.ReactE
                     <div style={{ padding: '1rem' }}>
                         <div style={{ marginBottom: '1rem' }}>
                              <span style={{ fontWeight: 900, fontSize: '0.75rem', display: 'block', color: '#991b1b' }}>⚠️ INDICACIONES DE PELIGRO:</span>
-                             <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.85rem' }}>{formatPhrases(data.riskPhrases)}</p>
+                             <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.85rem' }}>{formatPhrases(data.riskPhrases || data.hazardStatements)}</p>
                         </div>
                         <div>
                              <span style={{ fontWeight: 900, fontSize: '0.75rem', display: 'block', color: '#111827' }}>🛡️ CONSEJOS DE PRUDENCIA:</span>
-                             <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.85rem' }}>{formatPhrases(data.safetyPhrases)}</p>
+                             <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.85rem' }}>{formatPhrases(data.safetyPhrases || data.precautionaryStatements)}</p>
                         </div>
                     </div>
                 </div>
@@ -131,8 +131,29 @@ export default function ChemicalSafetyPdf({ data }: { data: any }): React.ReactE
                 </div>
 
                 {/* Signatures */}
-                <PdfSignatures data={data}
- />
+                <PdfSignatures 
+                    data={data}
+                    box1={data.showSignatures?.operator !== false ? {
+                        title: 'PERSONAL AFECTADO',
+                        subtitle: 'Firma y Aclaración',
+                        signatureUrl: data.operatorSignature || null,
+                        isProfessional: false
+                    } : null}
+                    box2={data.showSignatures?.professional !== false ? {
+                        title: 'PROFESIONAL H&S',
+                        subtitle: (data.professionalName || 'Firma de Especialista').toUpperCase(),
+                        signatureUrl: data.professionalSignature || null,
+                        stampUrl: data.professionalStamp || null,
+                        isProfessional: true,
+                        license: data.professionalLicense || null
+                    } : null}
+                    box3={data.showSignatures?.supervisor !== false ? {
+                        title: 'SUPERVISIÓN / CIERRE',
+                        subtitle: 'Sello y Firma receptora',
+                        signatureUrl: data.supervisorSignature || data.signature || null,
+                        isProfessional: false
+                    } : null}
+                />
 
                 <div style={{ marginTop: '1.5rem', fontSize: '0.6rem', color: '#666', textAlign: 'center' }}>
                     DOCUMENTO OBLIGATORIO SEGÚN RES. SRT 801/15 (SGA). DEBE ESTAR DISPONIBLE EN EL ÁREA DE TRABAJO.
@@ -141,4 +162,3 @@ export default function ChemicalSafetyPdf({ data }: { data: any }): React.ReactE
         </div>
     );
 }
-

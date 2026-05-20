@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
     ArrowLeft, Save, Play, Square, TimerReset,
     Building2, Flame, Users, FileText, CheckCircle2,
-    Clock, Search, Share2, Printer, Plus
+    Clock, Search, Share2, Printer, Plus, Pencil
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import DrillPdfGenerator from '../components/DrillPdfGenerator';
@@ -14,6 +14,8 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import toast from 'react-hot-toast';
 import { usePaywall } from '../hooks/usePaywall';
 import AdBanner from '../components/AdBanner';
+import SignatureCanvas from '../components/SignatureCanvas';
+import PdfSignatures from '../components/PdfSignatures';
 
 export default function Drills(): React.ReactElement | null {
     const location = useLocation();
@@ -49,11 +51,72 @@ export default function Drills(): React.ReactElement | null {
 
         alarmaSonó: 'Sí',
         rolCumplido: 'Sí',
-        observaciones: ''
+        observaciones: '',
+
+        signature: '',
+        operatorSignature: '',
+        supervisorSignature: '',
+        professionalSignature: '',
+        showSignatures: { operator: true, professional: true, supervisor: true }
     });
+
+    const [professional, setProfessional] = useState<any>({
+        name: '',
+        license: '',
+        signature: null,
+        stamp: null
+    });
+
+    const setShowSignatures = (updater: any) => {
+        setFormData((prev: any) => {
+            const updated = typeof updater === 'function' ? updater(prev.showSignatures) : updater;
+            return { ...prev, showSignatures: updated };
+        });
+    };
+
+    const showSignatures = formData.showSignatures || { operator: true, professional: true, supervisor: true };
 
     const [showShareModal, setShowShareModal] = useState(false);
     const [viewMode, setViewMode] = useState('edit'); // 'edit' or 'report'
+
+    useEffect(() => {
+        if (editData) {
+            setFormData({
+                ...editData,
+                operatorSignature: editData.operatorSignature || '',
+                professionalSignature: editData.professionalSignature || '',
+                supervisorSignature: editData.supervisorSignature || editData.signature || '',
+                signature: editData.signature || editData.supervisorSignature || '',
+                showSignatures: editData.showSignatures || { operator: true, professional: true, supervisor: true }
+            });
+        }
+    }, [editData]);
+
+    useEffect(() => {
+        const savedData = localStorage.getItem('personalData');
+        const savedSigData = localStorage.getItem('signatureStampData');
+        const legacySignature = localStorage.getItem('capturedSignature');
+
+        let signature = legacySignature || null;
+        let stamp = null;
+        if (savedSigData) {
+            const parsed = JSON.parse(savedSigData);
+            signature = parsed.signature || signature;
+            stamp = parsed.stamp || null;
+        }
+
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            setProfessional({
+                name: data.name || '',
+                license: data.license || '',
+                signature: signature,
+                stamp: stamp
+            });
+        } else {
+            setProfessional((prev: any) => ({ ...prev, signature, stamp }));
+        }
+    }, []);
 
 
 
@@ -113,7 +176,11 @@ export default function Drills(): React.ReactElement | null {
             evaluador: editData?.evaluador || currentUser?.displayName || 'Profesional HSE',
             tiempoVisual: `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`,
             tiempoTotalSegundos: (mins * 60) + secs,
-            ...formData
+            ...formData,
+            professionalSignature: formData.professionalSignature || professional.signature,
+            professionalName: formData.professionalName || professional.name,
+            professionalLicense: formData.professionalLicense || professional.license,
+            professionalStamp: formData.professionalStamp || professional.stamp,
         };
 
         let history = JSON.parse(localStorage.getItem('drills_history') || '[]');
@@ -328,6 +395,90 @@ export default function Drills(): React.ReactElement | null {
                                 <label>Oportunidades de Mejora / Observaciones Críticas</label>
                                 <textarea value={formData.observaciones} onChange={e => handleInput('observaciones', e.target.value)} rows={3} placeholder="Ej. Se detectó puerta de emergencia trabada en sector Archivo..."></textarea>
                             </div>
+                    </div>
+                </div>
+            </div>
+
+                {/* Firmas y Autorizaciones */}
+                <div className="card" style={{ marginTop: '2rem', padding: '1.5rem' }}>
+                    <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Pencil size={20} /> Firmas y Autorizaciones de Simulacro
+                    </h3>
+
+                    <div className="no-print mb-8 p-6 bg-slate-50/5 border border-[var(--color-border)] rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-sm font-bold text-slate-700" style={{ marginBottom: '2rem', padding: '1.5rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '12px', display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '1.5rem', justifyContent: 'center', alignItems: 'center' }}>
+                        <div className="text-center" style={{ color: 'var(--color-text)', fontSize: '0.9rem', fontWeight: 700 }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                        <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                            <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures((s: any) => ({ ...s, operator: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Responsable Evacuación
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures((s: any) => ({ ...s, professional: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Especialista Higiene y Seguridad
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures((s: any) => ({ ...s, supervisor: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Supervisor / Cierre
+                            </label>
+                        </div>
+                    </div>
+
+                    {/* On-Sheet Visual Preview of PDF signature blocks */}
+                    <div style={{ marginBottom: '2.5rem' }}>
+                        <PdfSignatures
+                            data={{
+                                ...formData,
+                                professionalSignature: professional.signature,
+                                professionalName: professional.name,
+                                professionalLicense: professional.license,
+                                professionalStamp: professional.stamp
+                            }}
+                            box1={showSignatures.operator ? {
+                                title: 'RESPONSABLE EVACUACIÓN',
+                                subtitle: 'Brigada / Responsable',
+                                signatureUrl: formData.operatorSignature || null,
+                                isProfessional: false
+                            } : null}
+                            box2={showSignatures.professional ? {
+                                title: 'PROFESIONAL H&S',
+                                subtitle: (professional.name || 'Firma de Especialista').toUpperCase(),
+                                signatureUrl: formData.professionalSignature || professional.signature || null,
+                                stampUrl: formData.professionalStamp || professional.stamp || null,
+                                isProfessional: true,
+                                license: professional.license
+                            } : null}
+                            box3={showSignatures.supervisor ? {
+                                title: 'SUPERVISIÓN / CIERRE',
+                                subtitle: 'Aprobación de Simulacro',
+                                signatureUrl: formData.supervisorSignature || formData.signature || null,
+                                isProfessional: false
+                            } : null}
+                        />
+                    </div>
+
+                    {/* Interactive Signature Drawing Pads */}
+                    <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)]" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem', marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--color-border)' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+                            {showSignatures.operator && (
+                                <SignatureCanvas 
+                                    onSave={(sig) => setFormData((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
+                                    initialImage={formData.operatorSignature}
+                                    label="Firma del Responsable de Evacuación"
+                                />
+                            )}
+                            
+                            {showSignatures.professional && (
+                                <SignatureCanvas 
+                                    onSave={(sig) => setFormData((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
+                                    initialImage={formData.professionalSignature || professional.signature}
+                                    label="Firma de Especialista H&S"
+                                />
+                            )}
+
+                            {showSignatures.supervisor && (
+                                <SignatureCanvas 
+                                    onSave={(sig) => setFormData((prev: any) => ({ ...prev, supervisorSignature: sig || '', signature: sig || '' }))}
+                                    initialImage={formData.supervisorSignature || formData.signature}
+                                    label="Firma del Supervisor de Cierre"
+                                />
+                            )}
                         </div>
                     </div>
                 </div>
@@ -345,7 +496,11 @@ export default function Drills(): React.ReactElement | null {
                         evaluador: currentUser?.displayName || 'Profesional HSE',
                         tiempoVisual: `${(parseInt(formData.manualMinutes || 0)).toString().padStart(2, '0')}:${(parseInt(formData.manualSeconds || 0)).toString().padStart(2, '0')}`,
                         tiempoTotalSegundos: (parseInt(formData.manualMinutes || 0) * 60) + parseInt(formData.manualSeconds || 0),
-                        ...formData
+                        ...formData,
+                        professionalSignature: formData.professionalSignature || professional.signature,
+                        professionalName: formData.professionalName || professional.name,
+                        professionalLicense: formData.professionalLicense || professional.license,
+                        professionalStamp: formData.professionalStamp || professional.stamp,
                     }}
                     onBack={() => { }}
                 />

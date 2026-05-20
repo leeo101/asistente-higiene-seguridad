@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, FlaskConical, Shield, AlertTriangle, Droplets, Flame, Skull, Zap, Wind, Thermometer, Radio, CheckCircle2, Eye, Printer, Share2 } from 'lucide-react';
+import { ArrowLeft, Save, FlaskConical, Shield, AlertTriangle, Droplets, Flame, Skull, Zap, Wind, Thermometer, Radio, CheckCircle2, Eye, Printer, Share2, Pencil } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import ChemicalSafetyPdf from '../components/ChemicalSafetyPdf';
+import PdfSignatures from '../components/PdfSignatures';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
 
@@ -58,7 +59,7 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
     const { isPro, requirePro } = usePaywall();
 
     useDocumentTitle(isEdit ? 'Editar Producto Químico' : 'Nuevo Producto Químico');
-    const [chemical, setChemical] = useState({
+    const [chemical, setChemical] = useState<any>({
         name: '',
         casNumber: '',
         unNumber: '',
@@ -86,12 +87,40 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
             eyes: '',
             ingestion: ''
         },
-        signature: ''
+        signature: '',
+        operatorSignature: '',
+        supervisorSignature: '',
+        professionalSignature: '',
+        showSignatures: { operator: true, professional: true, supervisor: true }
     });
+
+    const [professional, setProfessional] = useState<any>({
+        name: '',
+        license: '',
+        signature: null,
+        stamp: null
+    });
+
+    const setShowSignatures = (updater: any) => {
+        setChemical((prev: any) => {
+            const updated = typeof updater === 'function' ? updater(prev.showSignatures) : updater;
+            return { ...prev, showSignatures: updated };
+        });
+    };
+
+    const showSignatures = chemical.showSignatures || { operator: true, professional: true, supervisor: true };
 
     useEffect(() => {
         if (location.state?.editData) {
-            setChemical(location.state.editData);
+            const ed = location.state.editData;
+            setChemical({
+                ...ed,
+                operatorSignature: ed.operatorSignature || '',
+                professionalSignature: ed.professionalSignature || '',
+                supervisorSignature: ed.supervisorSignature || ed.signature || '',
+                signature: ed.signature || ed.supervisorSignature || '',
+                showSignatures: ed.showSignatures || { operator: true, professional: true, supervisor: true }
+            });
             setIsEdit(true);
         }
     }, [location.state]);
@@ -100,6 +129,31 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         handleResize();
         window.addEventListener('resize', handleResize);
+
+        const savedData = localStorage.getItem('personalData');
+        const savedSigData = localStorage.getItem('signatureStampData');
+        const legacySignature = localStorage.getItem('capturedSignature');
+
+        let signature = legacySignature || null;
+        let stamp = null;
+        if (savedSigData) {
+            const parsed = JSON.parse(savedSigData);
+            signature = parsed.signature || signature;
+            stamp = parsed.stamp || null;
+        }
+
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            setProfessional({
+                name: data.name || '',
+                license: data.license || '',
+                signature: signature,
+                stamp: stamp
+            });
+        } else {
+            setProfessional((prev: any) => ({ ...prev, signature, stamp }));
+        }
+
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
@@ -112,16 +166,28 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
         const saved = JSON.parse(localStorage.getItem('chemical_safety_db') || '[]');
         let updated;
 
+        const newChemical = {
+            ...chemical,
+            id: Date.now().toString(),
+            createdAt: new Date().toISOString(),
+            status: 'active',
+            professionalSignature: chemical.professionalSignature || professional.signature,
+            professionalName: chemical.professionalName || professional.name,
+            professionalLicense: chemical.professionalLicense || professional.license,
+            professionalStamp: chemical.professionalStamp || professional.stamp,
+        };
+
         if (isEdit) {
-            updated = saved.map((c: any) => c.id === (chemical as any).id ? chemical : c);
+            const entryToSave = {
+                ...chemical,
+                professionalSignature: chemical.professionalSignature || professional.signature,
+                professionalName: chemical.professionalName || professional.name,
+                professionalLicense: chemical.professionalLicense || professional.license,
+                professionalStamp: chemical.professionalStamp || professional.stamp,
+            };
+            updated = saved.map((c: any) => c.id === (chemical as any).id ? entryToSave : c);
             toast.success('Ficha actualizada');
         } else {
-            const newChemical = {
-                ...chemical,
-                id: Date.now().toString(),
-                createdAt: new Date().toISOString(),
-                status: 'active'
-            };
             updated = [newChemical, ...saved];
             toast.success('Ficha guardada');
         }
@@ -314,12 +380,86 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
                         />
                     </div>
 
-                    <div style={{ marginTop: '2.5rem' }}>
-                        <SignatureCanvas 
-                            onSave={(sig) => setChemical({ ...chemical, signature: sig || '' })}
-                            initialImage={chemical.signature}
-                            label="Firma de Responsable de Seguridad Química"
-                        />
+                    {/* Firmas y Autorizaciones */}
+                    <div style={{ marginTop: '3rem', borderTop: '2px dashed var(--color-border)', paddingTop: '2.5rem' }}>
+                        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <Pencil size={20} /> Firmas y Autorizaciones de Seguridad Química
+                        </h3>
+
+                        <div className="no-print mb-8 p-6 bg-slate-50/5 border border-[var(--color-border)] rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-sm font-bold text-slate-700" style={{ marginBottom: '2rem', padding: '1.5rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '12px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '1.5rem', justifyContent: 'center', alignItems: 'center' }}>
+                            <div className="text-center" style={{ color: 'var(--color-text)', fontSize: '0.9rem', fontWeight: 700 }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                    <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures((s: any) => ({ ...s, operator: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Personal Afectado
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                    <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures((s: any) => ({ ...s, professional: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Especialista Higiene y Seguridad
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                    <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures((s: any) => ({ ...s, supervisor: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Encargado / Supervisor
+                                </label>
+                            </div>
+                        </div>
+
+                        {/* On-Sheet Visual Preview of PDF signature blocks */}
+                        <div style={{ marginBottom: '2.5rem' }}>
+                            <PdfSignatures
+                                data={{
+                                    ...chemical,
+                                    professionalSignature: professional.signature,
+                                    professionalName: professional.name,
+                                    professionalLicense: professional.license,
+                                    professionalStamp: professional.stamp
+                                }}
+                                box1={showSignatures.operator ? {
+                                    title: 'PERSONAL AFECTADO',
+                                    subtitle: 'Firma y Aclaración',
+                                    signatureUrl: chemical.operatorSignature || null,
+                                    isProfessional: false
+                                } : null}
+                                box2={showSignatures.professional ? {
+                                    title: 'PROFESIONAL H&S',
+                                    subtitle: (professional.name || 'Firma de Especialista').toUpperCase(),
+                                    signatureUrl: chemical.professionalSignature || professional.signature || null,
+                                    stampUrl: chemical.professionalStamp || professional.stamp || null,
+                                    isProfessional: true,
+                                    license: professional.license
+                                } : null}
+                                box3={showSignatures.supervisor ? {
+                                    title: 'SUPERVISIÓN / CIERRE',
+                                    subtitle: 'Sello y Firma receptora',
+                                    signatureUrl: chemical.supervisorSignature || chemical.signature || null,
+                                    isProfessional: false
+                                } : null}
+                            />
+                        </div>
+
+                        {/* Interactive Signature Drawing Pads */}
+                        <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)]" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: '2rem', marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--color-border)' }}>
+                            {showSignatures.operator && (
+                                <SignatureCanvas 
+                                    onSave={(sig) => setChemical((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
+                                    initialImage={chemical.operatorSignature}
+                                    label="Firma de Personal Afectado"
+                                />
+                            )}
+                            
+                            {showSignatures.professional && (
+                                <SignatureCanvas 
+                                    onSave={(sig) => setChemical((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
+                                    initialImage={chemical.professionalSignature || professional.signature}
+                                    label="Firma de Especialista H&S"
+                                />
+                            )}
+
+                            {showSignatures.supervisor && (
+                                <SignatureCanvas 
+                                    onSave={(sig) => setChemical((prev: any) => ({ ...prev, supervisorSignature: sig || '', signature: sig || '' }))}
+                                    initialImage={chemical.supervisorSignature || chemical.signature}
+                                    label="Firma de Supervisor / Cierre"
+                                />
+                            )}
+                        </div>
                     </div>
                 </div>
 

@@ -42,6 +42,7 @@ const MODULES = [
   { nav: '/ai-camera',              icon: <Camera size={17}/>,           label: 'Cámara IA',                   sub: 'EPP',           color: '#0ea5e9', bg: 'rgba(14,165,233,0.12)' },
   { nav: '/ai-advisor',             icon: <Bot size={17}/>,              label: 'Asesor IA',                   sub: 'Consultas',     color: '#a855f7', bg: 'rgba(168,85,247,0.12)' },
   { nav: '/reports',                icon: <ScrollText size={17}/>,       label: 'Informes Técnicos',           sub: 'Reportes',      color: '#ec4899', bg: 'rgba(236,72,153,0.12)' },
+  { nav: '/contractors',            icon: <Users size={17}/>,            label: 'Contratistas y Legajos',      sub: 'Empresas y Operarios', color: '#3b82f6', bg: 'rgba(59,130,246,0.12)' },
   { nav: '/ppe-tracker',            icon: <HardHat size={17}/>,          label: 'Control EPP',                 sub: 'Entregas',      color: '#10b981', bg: 'rgba(16,185,129,0.12)' },
   { nav: '/confined-space',         icon: <ShieldAlert size={17}/>,      label: 'Espacios Confinados',         sub: 'OSHA 1910.146', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
   { nav: '/stop-cards',             icon: <AlertTriangle size={17}/>,    label: 'Stop Cards',                  sub: 'Observaciones', color: '#f43f5e', bg: 'rgba(244,63,94,0.12)' },

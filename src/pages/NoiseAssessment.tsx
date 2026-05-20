@@ -252,7 +252,7 @@ export default function NoiseAssessment(): React.ReactElement | null {
                         Nueva Medición
                     </button>
                     <button
-                        onClick={() => navigate('/noise-assessment-history')}
+                        onClick={() => navigate('/history')}
                         className="btn-outline"
                         style={{
                             padding: '0.75rem 1rem'

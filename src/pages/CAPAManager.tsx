@@ -370,7 +370,7 @@ export default function CAPAManager(): React.ReactElement | null {
                         Nueva CAPA
                     </button>
                     <button
-                        onClick={() => navigate('/capa-history')}
+                        onClick={() => navigate('/history')}
                         className="btn-outline"
                         style={{
                             padding: '0.75rem 1rem'

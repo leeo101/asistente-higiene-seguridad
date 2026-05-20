@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, CarFront, AlertTriangle, ShieldCheck, Printer, Share2, ClipboardList, Wrench, FileText } from 'lucide-react';
+import { ArrowLeft, Save, CarFront, AlertTriangle, ShieldCheck, Printer, Share2, ClipboardList, Wrench, FileText, Pencil } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
+import PdfSignatures from '../components/PdfSignatures';
 import FleetPdfGenerator from '../components/FleetPdfGenerator';
 
 const labelStyle: React.CSSProperties = {
@@ -61,7 +62,7 @@ export default function FleetForm(): React.ReactElement | null {
     // Initialize checklist state with "ok" (others: "fail", "na")
     const initialChecklist = CHECKLIST_ITEMS.reduce((acc, item) => ({ ...acc, [item.id]: 'ok' }), {});
 
-    const [form, setForm] = useState({
+    const [form, setForm] = useState<any>({
         vehicleId: '',
         vehicleType: 'Camioneta',
         brandModel: '',
@@ -76,12 +77,65 @@ export default function FleetForm(): React.ReactElement | null {
         signatures: {
             driver: '',
             inspector: ''
-        }
+        },
+        driverSignature: '',
+        professionalSignature: '',
+        supervisorSignature: '',
+        showSignatures: { operator: true, professional: true, supervisor: true }
     });
+
+    const [professional, setProfessional] = useState<any>({
+        name: '',
+        license: '',
+        signature: null,
+        stamp: null
+    });
+
+    const setShowSignatures = (updater: any) => {
+        setForm((prev: any) => {
+            const updated = typeof updater === 'function' ? updater(prev.showSignatures) : updater;
+            return { ...prev, showSignatures: updated };
+        });
+    };
+
+    const showSignatures = form.showSignatures || { operator: true, professional: true, supervisor: true };
+
+    useEffect(() => {
+        const savedData = localStorage.getItem('personalData');
+        const savedSigData = localStorage.getItem('signatureStampData');
+        const legacySignature = localStorage.getItem('capturedSignature');
+
+        let signature = legacySignature || null;
+        let stamp = null;
+        if (savedSigData) {
+            const parsed = JSON.parse(savedSigData);
+            signature = parsed.signature || signature;
+            stamp = parsed.stamp || null;
+        }
+
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            setProfessional({
+                name: data.name || '',
+                license: data.license || '',
+                signature: signature,
+                stamp: stamp
+            });
+        } else {
+            setProfessional((prev: any) => ({ ...prev, signature, stamp }));
+        }
+    }, []);
 
     useEffect(() => {
         if (location.state?.editData) {
-            setForm(location.state.editData);
+            const editData = location.state.editData;
+            setForm({
+                ...editData,
+                driverSignature: editData.driverSignature || editData.signatures?.driver || '',
+                professionalSignature: editData.professionalSignature || '',
+                supervisorSignature: editData.supervisorSignature || editData.signatures?.inspector || '',
+                showSignatures: editData.showSignatures || { operator: true, professional: true, supervisor: true }
+            });
             setIsEdit(true);
         }
     }, [location.state]);
@@ -114,12 +168,24 @@ export default function FleetForm(): React.ReactElement | null {
         const saved = JSON.parse(localStorage.getItem('fleet_inspections_db') || '[]');
         let updated;
 
+        const formWithSignatures = {
+            ...form,
+            professionalSignature: form.professionalSignature || professional.signature,
+            professionalName: form.professionalName || professional.name,
+            professionalLicense: form.professionalLicense || professional.license,
+            professionalStamp: form.professionalStamp || professional.stamp,
+            signatures: {
+                driver: form.driverSignature,
+                inspector: form.supervisorSignature
+            }
+        };
+
         if (isEdit) {
-            updated = saved.map((p: any) => p.id === (form as any).id ? form : p);
+            updated = saved.map((p: any) => p.id === (form as any).id ? formWithSignatures : p);
             toast.success('Inspección actualizada');
         } else {
             const newForm = {
-                ...form,
+                ...formWithSignatures,
                 id: `FLEET-${Date.now()}`,
                 createdAt: new Date().toISOString()
             };
@@ -132,13 +198,13 @@ export default function FleetForm(): React.ReactElement | null {
     };
 
     return (
-        <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem' }}>
+        <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem', paddingTop: isMobile ? '7.5rem' : '6.5rem' }}>
             <div style={{
                 background: 'var(--color-surface)',
                 borderBottom: '1px solid var(--color-border)',
                 padding: '1rem 1.5rem',
                 position: 'sticky',
-                top: '5.5rem',
+                top: isMobile ? '6.5rem' : '5.5rem',
                 zIndex: 100,
                 backdropFilter: 'blur(20px)',
                 display: 'flex',
@@ -264,17 +330,88 @@ export default function FleetForm(): React.ReactElement | null {
                         />
                     </div>
 
-                    <div style={{ marginTop: '2.5rem', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '2rem' }}>
-                        <SignatureCanvas 
-                            onSave={(sig) => setForm({ ...form, signatures: { ...form.signatures, driver: sig || '' } })}
-                            initialImage={form.signatures.driver}
-                            label="Firma del Conductor"
-                        />
-                        <SignatureCanvas 
-                            onSave={(sig) => setForm({ ...form, signatures: { ...form.signatures, inspector: sig || '' } })}
-                            initialImage={form.signatures.inspector}
-                            label="Firma del Inspector / Supervisor"
-                        />
+                    {/* Firmas y Autorizaciones */}
+                    <div style={{ marginTop: '2.5rem' }}>
+                        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <Pencil size={20} /> Firmas y Autorizaciones del Permiso
+                        </h3>
+
+                        <div className="no-print" style={{ marginBottom: '2rem', padding: '1.5rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '12px', display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '1.5rem', justifyContent: 'center', alignItems: 'center' }}>
+                            <div style={{ color: 'var(--color-text)', fontSize: '0.9rem', fontWeight: 700 }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                                <label style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                    <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures((s: any) => ({ ...s, operator: e.target.checked }))} style={{ width: '20px', height: '20px' }} /> Conductor
+                                </label>
+                                <label style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                    <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures((s: any) => ({ ...s, professional: e.target.checked }))} style={{ width: '20px', height: '20px' }} /> Especialista H&S
+                                </label>
+                                <label style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                    <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures((s: any) => ({ ...s, supervisor: e.target.checked }))} style={{ width: '20px', height: '20px' }} /> Inspector / Control
+                                </label>
+                            </div>
+                        </div>
+
+                        {/* On-Sheet Visual Preview of PDF signature blocks */}
+                        <div style={{ marginBottom: '2.5rem' }}>
+                            <PdfSignatures
+                                data={{
+                                    ...form,
+                                    professionalSignature: professional.signature,
+                                    professionalName: professional.name,
+                                    professionalLicense: professional.license,
+                                    professionalStamp: professional.stamp
+                                }}
+                                box1={showSignatures.operator ? {
+                                    title: 'CONDUCTOR ASIGNADO',
+                                    subtitle: (form.driver || 'Firma del Conductor').toUpperCase(),
+                                    signatureUrl: form.driverSignature || null,
+                                    isProfessional: false
+                                } : null}
+                                box2={showSignatures.professional ? {
+                                    title: 'PROFESIONAL H&S',
+                                    subtitle: (professional.name || 'Firma de Especialista').toUpperCase(),
+                                    signatureUrl: form.professionalSignature || professional.signature || null,
+                                    stampUrl: form.professionalStamp || professional.stamp || null,
+                                    isProfessional: true,
+                                    license: professional.license
+                                } : null}
+                                box3={showSignatures.supervisor ? {
+                                    title: 'INSPECTOR / CONTROL',
+                                    subtitle: (form.inspector || 'Firma del Inspector').toUpperCase(),
+                                    signatureUrl: form.supervisorSignature || null,
+                                    isProfessional: false
+                                } : null}
+                            />
+                        </div>
+
+                        {/* Interactive Signature Drawing Pads */}
+                        <div className="no-print" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem', marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--color-border)' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+                                {showSignatures.operator && (
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setForm((prev: any) => ({ ...prev, driverSignature: sig || '' }))}
+                                        initialImage={form.driverSignature}
+                                        label="Firma del Conductor"
+                                    />
+                                )}
+                                
+                                {showSignatures.professional && (
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setForm((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
+                                        initialImage={form.professionalSignature || professional.signature}
+                                        label="Firma de Especialista H&S"
+                                    />
+                                )}
+
+                                {showSignatures.supervisor && (
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setForm((prev: any) => ({ ...prev, supervisorSignature: sig || '' }))}
+                                        initialImage={form.supervisorSignature}
+                                        label="Firma del Inspector / Supervisor"
+                                    />
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>
@@ -315,7 +452,17 @@ export default function FleetForm(): React.ReactElement | null {
             />
 
             <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
-                <FleetPdfGenerator data={form} checklistItems={CHECKLIST_ITEMS} />
+                <FleetPdfGenerator data={{
+                    ...form,
+                    professionalSignature: form.professionalSignature || professional.signature,
+                    professionalName: form.professionalName || professional.name,
+                    professionalLicense: form.professionalLicense || professional.license,
+                    professionalStamp: form.professionalStamp || professional.stamp,
+                    signatures: {
+                        driver: form.driverSignature || form.signatures?.driver || '',
+                        inspector: form.supervisorSignature || form.signatures?.inspector || ''
+                    }
+                }} checklistItems={CHECKLIST_ITEMS} />
             </div>
         </div>
     );

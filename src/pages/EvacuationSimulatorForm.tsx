@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, Users, Target, ShieldCheck, Printer, Share2, Timer } from 'lucide-react';
+import { ArrowLeft, Save, Users, Target, ShieldCheck, Printer, Share2, Timer, Pencil } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
+import PdfSignatures from '../components/PdfSignatures';
 import EvacuationPdfGenerator from '../components/EvacuationPdfGenerator';
 
 const labelStyle: React.CSSProperties = {
@@ -39,7 +40,7 @@ export default function EvacuationSimulatorForm(): React.ReactElement | null {
 
     useDocumentTitle(isEdit ? 'Editar Simulador de Evacuación' : 'Simulador de Evacuación');
 
-    const [form, setForm] = useState({
+    const [form, setForm] = useState<any>({
         sector: '',
         date: new Date().toISOString().split('T')[0],
         evaluator: '',
@@ -55,12 +56,65 @@ export default function EvacuationSimulatorForm(): React.ReactElement | null {
         signatures: {
             evaluator: '',
             manager: ''
-        }
+        },
+        evaluatorSignature: '',
+        professionalSignature: '',
+        supervisorSignature: '',
+        showSignatures: { operator: true, professional: true, supervisor: true }
     });
+
+    const [professional, setProfessional] = useState<any>({
+        name: '',
+        license: '',
+        signature: null,
+        stamp: null
+    });
+
+    const setShowSignatures = (updater: any) => {
+        setForm((prev: any) => {
+            const updated = typeof updater === 'function' ? updater(prev.showSignatures) : updater;
+            return { ...prev, showSignatures: updated };
+        });
+    };
+
+    const showSignatures = form.showSignatures || { operator: true, professional: true, supervisor: true };
+
+    useEffect(() => {
+        const savedData = localStorage.getItem('personalData');
+        const savedSigData = localStorage.getItem('signatureStampData');
+        const legacySignature = localStorage.getItem('capturedSignature');
+
+        let signature = legacySignature || null;
+        let stamp = null;
+        if (savedSigData) {
+            const parsed = JSON.parse(savedSigData);
+            signature = parsed.signature || signature;
+            stamp = parsed.stamp || null;
+        }
+
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            setProfessional({
+                name: data.name || '',
+                license: data.license || '',
+                signature: signature,
+                stamp: stamp
+            });
+        } else {
+            setProfessional((prev: any) => ({ ...prev, signature, stamp }));
+        }
+    }, []);
 
     useEffect(() => {
         if (location.state?.editData) {
-            setForm(location.state.editData);
+            const editData = location.state.editData;
+            setForm({
+                ...editData,
+                evaluatorSignature: editData.evaluatorSignature || editData.signatures?.evaluator || '',
+                professionalSignature: editData.professionalSignature || '',
+                supervisorSignature: editData.supervisorSignature || editData.signatures?.manager || '',
+                showSignatures: editData.showSignatures || { operator: true, professional: true, supervisor: true }
+            });
             setIsEdit(true);
         }
     }, [location.state]);
@@ -105,7 +159,15 @@ export default function EvacuationSimulatorForm(): React.ReactElement | null {
 
         const dataToSave = {
             ...form,
-            calculatedTime: results.total
+            calculatedTime: results.total,
+            professionalSignature: form.professionalSignature || professional.signature,
+            professionalName: form.professionalName || professional.name,
+            professionalLicense: form.professionalLicense || professional.license,
+            professionalStamp: form.professionalStamp || professional.stamp,
+            signatures: {
+                evaluator: form.evaluatorSignature,
+                manager: form.supervisorSignature
+            }
         };
 
         if (isEdit) {
@@ -126,13 +188,13 @@ export default function EvacuationSimulatorForm(): React.ReactElement | null {
     };
 
     return (
-        <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem' }}>
+        <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem', paddingTop: isMobile ? '7.5rem' : '6.5rem' }}>
             <div style={{
                 background: 'var(--color-surface)',
                 borderBottom: '1px solid var(--color-border)',
                 padding: '1rem 1.5rem',
                 position: 'sticky',
-                top: '5.5rem',
+                top: isMobile ? '6.5rem' : '5.5rem',
                 zIndex: 100,
                 backdropFilter: 'blur(20px)',
                 display: 'flex',
@@ -252,17 +314,88 @@ export default function EvacuationSimulatorForm(): React.ReactElement | null {
                         />
                     </div>
 
-                    <div style={{ marginTop: '2.5rem', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '2rem' }}>
-                        <SignatureCanvas 
-                            onSave={(sig) => setForm({ ...form, signatures: { ...form.signatures, evaluator: sig || '' } })}
-                            initialImage={form.signatures.evaluator}
-                            label="Firma Evaluador H&S"
-                        />
-                        <SignatureCanvas 
-                            onSave={(sig) => setForm({ ...form, signatures: { ...form.signatures, manager: sig || '' } })}
-                            initialImage={form.signatures.manager}
-                            label="Firma Responsable Sector"
-                        />
+                    {/* Firmas y Autorizaciones */}
+                    <div style={{ marginTop: '2.5rem' }}>
+                        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <Pencil size={20} /> Firmas y Autorizaciones del Reporte
+                        </h3>
+
+                        <div className="no-print" style={{ marginBottom: '2rem', padding: '1.5rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '12px', display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '1.5rem', justifyContent: 'center', alignItems: 'center' }}>
+                            <div style={{ color: 'var(--color-text)', fontSize: '0.9rem', fontWeight: 700 }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                                <label style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                    <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures((s: any) => ({ ...s, operator: e.target.checked }))} style={{ width: '20px', height: '20px' }} /> Evaluador Técnico
+                                </label>
+                                <label style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                    <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures((s: any) => ({ ...s, professional: e.target.checked }))} style={{ width: '20px', height: '20px' }} /> Especialista H&S
+                                </label>
+                                <label style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                                    <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures((s: any) => ({ ...s, supervisor: e.target.checked }))} style={{ width: '20px', height: '20px' }} /> Responsable Sector
+                                </label>
+                            </div>
+                        </div>
+
+                        {/* On-Sheet Visual Preview of PDF signature blocks */}
+                        <div style={{ marginBottom: '2.5rem' }}>
+                            <PdfSignatures
+                                data={{
+                                    ...form,
+                                    professionalSignature: professional.signature,
+                                    professionalName: professional.name,
+                                    professionalLicense: professional.license,
+                                    professionalStamp: professional.stamp
+                                }}
+                                box1={showSignatures.operator ? {
+                                    title: 'EVALUADOR TÉCNICO',
+                                    subtitle: (form.evaluator || 'Firma del Evaluador').toUpperCase(),
+                                    signatureUrl: form.evaluatorSignature || null,
+                                    isProfessional: false
+                                } : null}
+                                box2={showSignatures.professional ? {
+                                    title: 'PROFESIONAL H&S',
+                                    subtitle: (professional.name || 'Firma de Especialista').toUpperCase(),
+                                    signatureUrl: form.professionalSignature || professional.signature || null,
+                                    stampUrl: form.professionalStamp || professional.stamp || null,
+                                    isProfessional: true,
+                                    license: professional.license
+                                } : null}
+                                box3={showSignatures.supervisor ? {
+                                    title: 'RESPONSABLE SECTOR',
+                                    subtitle: 'Firma de Responsable',
+                                    signatureUrl: form.supervisorSignature || null,
+                                    isProfessional: false
+                                } : null}
+                            />
+                        </div>
+
+                        {/* Interactive Signature Drawing Pads */}
+                        <div className="no-print" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem', marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--color-border)' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+                                {showSignatures.operator && (
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setForm((prev: any) => ({ ...prev, evaluatorSignature: sig || '' }))}
+                                        initialImage={form.evaluatorSignature}
+                                        label="Firma de Evaluador Técnico"
+                                    />
+                                )}
+                                
+                                {showSignatures.professional && (
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setForm((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
+                                        initialImage={form.professionalSignature || professional.signature}
+                                        label="Firma de Especialista H&S"
+                                    />
+                                )}
+
+                                {showSignatures.supervisor && (
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setForm((prev: any) => ({ ...prev, supervisorSignature: sig || '' }))}
+                                        initialImage={form.supervisorSignature}
+                                        label="Firma del Responsable del Sector"
+                                    />
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>
@@ -303,7 +436,20 @@ export default function EvacuationSimulatorForm(): React.ReactElement | null {
             />
 
             <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
-                <EvacuationPdfGenerator data={{...form, calculatedTime: results.total, flowTime: results.flowTime, travelTime: results.travelTime}} />
+                <EvacuationPdfGenerator data={{
+                    ...form,
+                    calculatedTime: results.total,
+                    flowTime: results.flowTime,
+                    travelTime: results.travelTime,
+                    professionalSignature: form.professionalSignature || professional.signature,
+                    professionalName: form.professionalName || professional.name,
+                    professionalLicense: form.professionalLicense || professional.license,
+                    professionalStamp: form.professionalStamp || professional.stamp,
+                    signatures: {
+                        evaluator: form.evaluatorSignature || form.signatures?.evaluator || '',
+                        manager: form.supervisorSignature || form.signatures?.manager || ''
+                    }
+                }} />
             </div>
         </div>
     );

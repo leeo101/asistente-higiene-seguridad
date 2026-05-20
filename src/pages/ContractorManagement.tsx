@@ -214,17 +214,15 @@ export default function ContractorManagement() {
 
   return (
     <AnimatedPage>
-      <div className="page-transition" style={{ padding: '0 0 2rem 0', minHeight: '100vh', background: 'var(--color-background)' }}>
+      <div className="page-transition" style={{ padding: isMobile ? '7.5rem 0 2rem 0' : '6.5rem 0 2rem 0', minHeight: '100vh', background: 'var(--color-background)' }}>
         
         {/* Header */}
         <div style={{ 
           background: 'var(--color-surface)', 
           padding: isMobile ? '1rem' : '1.5rem', 
           borderBottom: '1px solid var(--color-border)', 
-          position: 'sticky', 
-          top: 0, 
-          zIndex: 10,
-          backdropFilter: 'blur(10px)'
+          position: 'relative', 
+          zIndex: 10
         }}>
           <div style={{ 
             maxWidth: '1200px', 

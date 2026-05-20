@@ -347,7 +347,7 @@ export default function AuditManager(): React.ReactElement | null {
                         Nueva Auditoría
                     </button>
                     <button
-                        onClick={() => navigate('/audit-history')}
+                        onClick={() => navigate('/history')}
                         className="btn-outline"
                         style={{
                             padding: '0.75rem 1rem'

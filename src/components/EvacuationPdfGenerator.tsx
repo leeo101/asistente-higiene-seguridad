@@ -108,18 +108,26 @@ export default function EvacuationPdfGenerator({ data }: { data: any }): React.R
                 {/* Signatures */}
                 <PdfSignatures 
                     data={data} 
-                    box1={{
-                        title: 'EVALUADOR H&S',
-                        subtitle: 'Aclaración y Firma',
-                        signatureUrl: data.signatures?.evaluator || null,
+                    box1={data.showSignatures?.operator !== false ? {
+                        title: 'EVALUADOR TÉCNICO',
+                        subtitle: (data.evaluator || 'Firma del Evaluador').toUpperCase(),
+                        signatureUrl: data.evaluatorSignature || data.signatures?.evaluator || null,
                         isProfessional: false
-                    }}
-                    box3={{
+                    } : null}
+                    box2={data.showSignatures?.professional !== false ? {
+                        title: 'PROFESIONAL H&S',
+                        subtitle: (data.professionalName || 'Firma de Especialista').toUpperCase(),
+                        signatureUrl: data.professionalSignature || null,
+                        stampUrl: data.professionalStamp || null,
+                        isProfessional: true,
+                        license: data.professionalLicense || null
+                    } : null}
+                    box3={data.showSignatures?.supervisor !== false ? {
                         title: 'RESPONSABLE SECTOR',
-                        subtitle: 'Aprobación y Cierre',
-                        signatureUrl: data.signatures?.manager || null,
+                        subtitle: 'Firma de Responsable',
+                        signatureUrl: data.supervisorSignature || data.signatures?.manager || null,
                         isProfessional: false
-                    }}
+                    } : null}
                 />
 
                 <div style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.65rem', color: '#94a3b8', borderTop: '1px solid #e2e8f0', paddingTop: '0.5rem' }}>

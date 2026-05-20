@@ -137,12 +137,26 @@ export default function WorkingAtHeightPdf({ data }: { data: any }): React.React
                 {/* Signatures */}
                 <PdfSignatures 
                     data={data} 
-                    box3={{
-                        title: 'SUPERVISOR DE ALTURA',
-                        subtitle: 'Firma del Supervisor',
-                        signatureUrl: data.signature || null,
+                    box1={data.showSignatures?.operator !== false ? {
+                        title: 'OPERADOR / TRABAJADOR',
+                        subtitle: (data.workerName || 'Firma del Operador').toUpperCase(),
+                        signatureUrl: data.operatorSignature || null,
                         isProfessional: false
-                    }}
+                    } : null}
+                    box2={data.showSignatures?.professional !== false ? {
+                        title: 'PROFESIONAL H&S',
+                        subtitle: (data.professionalName || 'Firma de Especialista').toUpperCase(),
+                        signatureUrl: data.professionalSignature || null,
+                        stampUrl: data.professionalStamp || null,
+                        isProfessional: true,
+                        license: data.professionalLicense || null
+                    } : null}
+                    box3={data.showSignatures?.supervisor !== false ? {
+                        title: 'SUPERVISOR / AUTORIZANTE',
+                        subtitle: (data.supervisor || 'Firma del Supervisor').toUpperCase(),
+                        signatureUrl: data.supervisorSignature || data.signature || null,
+                        isProfessional: false
+                    } : null}
                 />
 
                 <PdfBrandingFooter />
