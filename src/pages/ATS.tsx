@@ -331,7 +331,18 @@ export default function ATS(): React.ReactElement | null {
     const handleShare = () => requirePro(() => setShowShare(true));
     const handlePrint = () => {
         requirePro(() => {
-            window.print();
+            const element = document.getElementById('pdf-content');
+            if (!element) {
+                toast.error('No se pudo generar el documento para imprimir.');
+                return;
+            }
+            document.body.classList.add('printing-isolated');
+            element.classList.add('isolated-print-target');
+            setTimeout(() => {
+                window.print();
+                document.body.classList.remove('printing-isolated');
+                element.classList.remove('isolated-print-target');
+            }, 350);
         });
     };
 
@@ -378,8 +389,16 @@ export default function ATS(): React.ReactElement | null {
                 fileName={`ATS_${formData.empresa || 'Reporte'}`}
             />
 
-                <div className="no-print" style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
-                    <ATSPdfGenerator atsData={{ ...formData, showSignatures }} />
+                <div className="ats-pdf-offscreen" aria-hidden="true">
+                    <ATSPdfGenerator
+                        atsData={{
+                            ...formData,
+                            showSignatures,
+                            professionalName: professional.name,
+                            professionalLicense: professional.license,
+                            professionalSignature: professional.signature,
+                        }}
+                    />
                 </div>
 
                 {/* Floating Action Buttons */}
@@ -474,7 +493,7 @@ export default function ATS(): React.ReactElement | null {
                     </div>
                 </div>
 
-                <div id="pdf-content" className="card print-area" style={{ width: '100%', maxWidth: '950px', boxSizing: 'border-box', padding: '1rem', margin: '0 auto' }}>
+                <div id="ats-editor-content" className="card ats-editor-panel" style={{ width: '100%', maxWidth: '950px', boxSizing: 'border-box', padding: '1rem', margin: '0 auto' }}>
 
                     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottom: '4px solid var(--color-border)', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
                         {/* Top Left Text */}
@@ -633,35 +652,34 @@ export default function ATS(): React.ReactElement | null {
                         </h3>
 
                         <div className="ats-sequence-container">
-                            {/* Table Header - Only Desktop/Print */}
-                            <div className="hidden sm:flex print:flex" style={{ background: 'rgba(var(--color-primary-rgb), 0.05)', borderBottom: '2px solid var(--color-border)', fontWeight: 900, textTransform: 'uppercase', fontSize: '0.75rem', color: 'var(--color-primary)' }}>
-                                <div style={{ padding: '1.2rem', flex: 3, borderRight: '1px solid var(--color-border)' }}>1. Paso a seguir</div>
-                                <div style={{ padding: '1.2rem', flex: 3, borderRight: '1px solid var(--color-border)' }}>2. Riesgos asociados</div>
-                                <div style={{ padding: '1.2rem', flex: 4 }}>3. Medidas de Control</div>
-                                <div className="no-print" style={{ width: '60px' }}></div>
+                            <div className="ats-seq-header no-print">
+                                <div className="ats-seq-head-num">#</div>
+                                <div>1. Paso a seguir</div>
+                                <div>2. Riesgos asociados</div>
+                                <div>3. Medidas de control</div>
+                                <div className="ats-seq-head-action" aria-hidden="true" />
                             </div>
 
-                            {/* Table Body / Mobile Cards */}
-                            <div className="flex flex-col">
+                            <div className="ats-seq-body">
                                 {formData.tareas.map((t, index) => (
-                                    <div key={t.id} className="ats-table-row flex flex-col sm:flex-row print:flex-row last:border-0 hover:bg-slate-50/20 dark:hover:bg-slate-900/10">
-                                        {/* Paso */}
-                                        <div className="flex-1 sm:flex-[3] print:flex-[3] px-3 py-4 sm:p-4 sm:border-r print:border-r border-[var(--color-border)]">
-                                            <div className="flex items-center justify-between mb-2 sm:mb-1.5 no-print">
-                                                <span className="sm:hidden block text-[0.65rem] font-black text-blue-600 uppercase">Paso:</span>
-                                                <span className="px-2 py-0.5 bg-blue-500/10 text-blue-500 text-[0.65rem] font-bold rounded-md">PASO {index + 1}</span>
-                                            </div>
+                                    <div key={t.id} className="ats-seq-row ats-table-row">
+                                        <div className="ats-seq-cell ats-seq-cell-num">
+                                            <span className="ats-seq-num-desktop">{index + 1}</span>
+                                            <span className="ats-seq-num-mobile">PASO {index + 1}</span>
+                                        </div>
+
+                                        <div className="ats-seq-cell ats-seq-cell-paso">
+                                            <span className="ats-seq-mobile-label">Paso a seguir</span>
                                             <textarea
                                                 rows={1}
                                                 value={t.paso}
                                                 onChange={(e) => updateTask(t.id, 'paso', e.target.value)}
-                                                onInput={(e) => { 
+                                                onInput={(e) => {
                                                     const target = e.target as HTMLTextAreaElement;
-                                                    target.style.height = 'auto'; 
-                                                    target.style.height = target.scrollHeight + 'px'; 
+                                                    target.style.height = 'auto';
+                                                    target.style.height = target.scrollHeight + 'px';
                                                 }}
-                                                className="no-print ats-textarea"
-                                                style={{ fontWeight: 800 }}
+                                                className="no-print ats-textarea ats-seq-textarea"
                                                 placeholder="Ej: Preparación de área..."
                                             />
                                             <div className="print-only font-bold text-slate-800 text-[0.85rem] whitespace-pre-wrap break-words">
@@ -669,21 +687,18 @@ export default function ATS(): React.ReactElement | null {
                                             </div>
                                         </div>
 
-                                        {/* Riesgo */}
-                                        <div className="flex-1 sm:flex-[3] print:flex-[3] px-3 py-4 sm:p-4 sm:border-r print:border-r border-[var(--color-border)]">
-                                            <div className="flex items-center justify-between mb-2 sm:mb-1.5 no-print">
-                                                <span className="sm:hidden block text-[0.65rem] font-black text-blue-600 uppercase">Riesgos asociados:</span>
-                                            </div>
+                                        <div className="ats-seq-cell ats-seq-cell-riesgo">
+                                            <span className="ats-seq-mobile-label">Riesgos asociados</span>
                                             <textarea
                                                 rows={1}
                                                 value={t.riesgo}
                                                 onChange={(e) => updateTask(t.id, 'riesgo', e.target.value)}
-                                                onInput={(e) => { 
+                                                onInput={(e) => {
                                                     const target = e.target as HTMLTextAreaElement;
-                                                    target.style.height = 'auto'; 
-                                                    target.style.height = target.scrollHeight + 'px'; 
+                                                    target.style.height = 'auto';
+                                                    target.style.height = target.scrollHeight + 'px';
                                                 }}
-                                                className="no-print ats-textarea"
+                                                className="no-print ats-textarea ats-seq-textarea"
                                                 placeholder="Ej: Caídas, Golpes..."
                                             />
                                             <div className="print-only text-slate-700 text-[0.8rem] whitespace-pre-wrap break-words">
@@ -691,21 +706,18 @@ export default function ATS(): React.ReactElement | null {
                                             </div>
                                         </div>
 
-                                        {/* Control */}
-                                        <div className="flex-1 sm:flex-[4] print:flex-[4] px-3 py-4 sm:p-4">
-                                            <div className="flex items-center justify-between mb-2 sm:mb-1.5 no-print">
-                                                <span className="sm:hidden block text-[0.65rem] font-black text-blue-600 uppercase">Medidas de Control:</span>
-                                            </div>
+                                        <div className="ats-seq-cell ats-seq-cell-control">
+                                            <span className="ats-seq-mobile-label">Medidas de control</span>
                                             <textarea
                                                 rows={1}
                                                 value={t.control}
                                                 onChange={(e) => updateTask(t.id, 'control', e.target.value)}
-                                                onInput={(e) => { 
+                                                onInput={(e) => {
                                                     const target = e.target as HTMLTextAreaElement;
-                                                    target.style.height = 'auto'; 
-                                                    target.style.height = target.scrollHeight + 'px'; 
+                                                    target.style.height = 'auto';
+                                                    target.style.height = target.scrollHeight + 'px';
                                                 }}
-                                                className="no-print ats-textarea"
+                                                className="no-print ats-textarea ats-seq-textarea"
                                                 placeholder="Ej: Delimitación, Uso EPP..."
                                             />
                                             <div className="print-only text-slate-700 text-[0.8rem] whitespace-pre-wrap break-words">
@@ -713,23 +725,11 @@ export default function ATS(): React.ReactElement | null {
                                             </div>
                                         </div>
 
-                                        {/* Remove Button */}
-                                        <div className="no-print flex items-center justify-end border-t sm:border-t-0 sm:border-l border-[var(--color-border)] px-4 py-2 sm:py-0" style={{ minWidth: '60px' }}>
+                                        <div className="ats-seq-cell ats-seq-cell-action no-print">
                                             <button
+                                                type="button"
                                                 onClick={() => removeTask(t.id)}
-                                                style={{ 
-                                                    background: 'rgba(239,68,68,0.08)', 
-                                                    border: '1px solid rgba(239,68,68,0.15)', 
-                                                    borderRadius: '12px', 
-                                                    cursor: 'pointer', 
-                                                    color: '#ef4444', 
-                                                    padding: '0.7rem', 
-                                                    display: 'flex', 
-                                                    alignItems: 'center', 
-                                                    justifyContent: 'center', 
-                                                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)' 
-                                                }}
-                                                className="hover:bg-red-500 hover:text-white hover:scale-105 active:scale-95 hover:shadow-md hover:shadow-red-500/20"
+                                                className="ats-seq-delete-btn"
                                                 title="Eliminar paso"
                                             >
                                                 <Trash2 size={18} />

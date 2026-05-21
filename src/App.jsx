@@ -16,9 +16,6 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SyncProvider, useSync } from './contexts/SyncContext';
 import { Toaster, toast } from 'react-hot-toast';
 import { usePaywall } from './hooks/usePaywall';
-import ModuleGuard from './components/ModuleGuard';
-
-
 // Custom lazy loader that catches chunk errors and reloads
 const lazyWithRetry = (componentImport) =>
   lazy(async () => {
@@ -482,8 +479,8 @@ function App() {
 
                   {/* Public Routes */}
                   <Route path="/" element={<Home />} />
-                  <Route path="/ats" element={<ModuleGuard><ATS /></ModuleGuard>} />
-                  <Route path="/fire-load" element={<ModuleGuard><FireLoad /></ModuleGuard>} />
+                  <Route path="/ats" element={<ProtectedRoute><ATS /></ProtectedRoute>} />
+                  <Route path="/fire-load" element={<ProtectedRoute><FireLoad /></ProtectedRoute>} />
 
                   <Route path="/legislation" element={<Legislation />} />
                   <Route path="/checklists" element={<ChecklistManager />} />
@@ -491,38 +488,38 @@ function App() {
                   <Route path="/checklist" element={<Checklist />} />
                   <Route path="/observation" element={<Observation />} />
                   <Route path="/photos" element={<Photos />} />
-                  <Route path="/ai-camera" element={<ModuleGuard><AICamera /></ModuleGuard>} />
-                  <Route path="/ai-general-camera" element={<ModuleGuard><AIGeneralCamera /></ModuleGuard>} />
-                  <Route path="/ai-advisor" element={<ModuleGuard><AIChatAdvisor /></ModuleGuard>} />
-                  <Route path="/ai-history" element={<ModuleGuard><AIHistory /></ModuleGuard>} />
-                  <Route path="/ai-report" element={<ModuleGuard><AIReport /></ModuleGuard>} />
-                  <Route path="/extinguisher-ai" element={<ModuleGuard><ExtinguisherAI /></ModuleGuard>} />
+                  <Route path="/ai-camera" element={<ProtectedRoute><AICamera /></ProtectedRoute>} />
+                  <Route path="/ai-general-camera" element={<ProtectedRoute><AIGeneralCamera /></ProtectedRoute>} />
+                  <Route path="/ai-advisor" element={<ProtectedRoute><AIChatAdvisor /></ProtectedRoute>} />
+                  <Route path="/ai-history" element={<ProtectedRoute><AIHistory /></ProtectedRoute>} />
+                  <Route path="/ai-report" element={<ProtectedRoute><AIReport /></ProtectedRoute>} />
+                  <Route path="/extinguisher-ai" element={<ProtectedRoute><ExtinguisherAI /></ProtectedRoute>} />
 
                   {/* Safety Modules */}
-                  <Route path="/audit" element={<ModuleGuard><AuditManager /></ModuleGuard>} />
-                  <Route path="/audit/new" element={<ModuleGuard><AuditForm /></ModuleGuard>} />
-                  <Route path="/audit/:id" element={<ModuleGuard><AuditDetail /></ModuleGuard>} />
+                  <Route path="/audit" element={<ProtectedRoute><AuditManager /></ProtectedRoute>} />
+                  <Route path="/audit/new" element={<ProtectedRoute><AuditForm /></ProtectedRoute>} />
+                  <Route path="/audit/:id" element={<ProtectedRoute><AuditDetail /></ProtectedRoute>} />
                   
-                  <Route path="/capa" element={<ModuleGuard><CAPAManager /></ModuleGuard>} />
-                  <Route path="/capa/new" element={<ModuleGuard><CAPAForm /></ModuleGuard>} />
+                  <Route path="/capa" element={<ProtectedRoute><CAPAManager /></ProtectedRoute>} />
+                  <Route path="/capa/new" element={<ProtectedRoute><CAPAForm /></ProtectedRoute>} />
                   
-                  <Route path="/environmental" element={<ModuleGuard><EnvironmentalMonitor /></ModuleGuard>} />
-                  <Route path="/environmental/new" element={<ModuleGuard><EnvironmentalForm /></ModuleGuard>} />
+                  <Route path="/environmental" element={<ProtectedRoute><EnvironmentalMonitor /></ProtectedRoute>} />
+                  <Route path="/environmental/new" element={<ProtectedRoute><EnvironmentalForm /></ProtectedRoute>} />
                   
-                  <Route path="/loto" element={<ModuleGuard><LOTOManager /></ModuleGuard>} />
-                  <Route path="/loto/new" element={<ModuleGuard><LOTOForm /></ModuleGuard>} />
+                  <Route path="/loto" element={<ProtectedRoute><LOTOManager /></ProtectedRoute>} />
+                  <Route path="/loto/new" element={<ProtectedRoute><LOTOForm /></ProtectedRoute>} />
                   
-                  <Route path="/noise-assessment" element={<ModuleGuard><NoiseAssessment /></ModuleGuard>} />
-                  <Route path="/noise-assessment/new" element={<ModuleGuard><NoiseAssessmentForm /></ModuleGuard>} />
+                  <Route path="/noise-assessment" element={<ProtectedRoute><NoiseAssessment /></ProtectedRoute>} />
+                  <Route path="/noise-assessment/new" element={<ProtectedRoute><NoiseAssessmentForm /></ProtectedRoute>} />
                   
-                  <Route path="/working-at-height" element={<ModuleGuard><WorkingAtHeight /></ModuleGuard>} />
-                  <Route path="/working-at-height/new" element={<ModuleGuard><WorkingAtHeightForm /></ModuleGuard>} />
+                  <Route path="/working-at-height" element={<ProtectedRoute><WorkingAtHeight /></ProtectedRoute>} />
+                  <Route path="/working-at-height/new" element={<ProtectedRoute><WorkingAtHeightForm /></ProtectedRoute>} />
                   
-                  <Route path="/confined-space" element={<ModuleGuard><ConfinedSpace /></ModuleGuard>} />
-                  <Route path="/confined-space/new" element={<ModuleGuard><ConfinedSpaceForm /></ModuleGuard>} />
+                  <Route path="/confined-space" element={<ProtectedRoute><ConfinedSpace /></ProtectedRoute>} />
+                  <Route path="/confined-space/new" element={<ProtectedRoute><ConfinedSpaceForm /></ProtectedRoute>} />
                   
-                  <Route path="/chemical-safety" element={<ModuleGuard><ChemicalSafety /></ModuleGuard>} />
-                  <Route path="/chemical-safety/new" element={<ModuleGuard><ChemicalSafetyForm /></ModuleGuard>} />
+                  <Route path="/chemical-safety" element={<ProtectedRoute><ChemicalSafety /></ProtectedRoute>} />
+                  <Route path="/chemical-safety/new" element={<ProtectedRoute><ChemicalSafetyForm /></ProtectedRoute>} />
 
                   <Route path="/safety-kpis" element={<ProtectedRoute><SafetyKPIs /></ProtectedRoute>} />
                   <Route path="/toolbox-talk" element={<ProtectedRoute><ToolboxTalk /></ProtectedRoute>} />
@@ -575,11 +572,11 @@ function App() {
                   <Route path="/stop-cards-history" element={<ProtectedRoute><StopCardsHistory /></ProtectedRoute>} />
                   <Route path="/logo-settings" element={<ProtectedRoute><LogoSettings /></ProtectedRoute>} />
                   <Route path="/contractors" element={<ProtectedRoute><ContractorManagement /></ProtectedRoute>} />
-                  <Route path="/lifting-form" element={<ModuleGuard><LiftingForm /></ModuleGuard>} />
+                  <Route path="/lifting-form" element={<ProtectedRoute><LiftingForm /></ProtectedRoute>} />
                   <Route path="/lifting-history" element={<ProtectedRoute><LiftingHistory /></ProtectedRoute>} />
-                  <Route path="/fleet-form" element={<ModuleGuard><FleetForm /></ModuleGuard>} />
+                  <Route path="/fleet-form" element={<ProtectedRoute><FleetForm /></ProtectedRoute>} />
                   <Route path="/fleet-history" element={<ProtectedRoute><FleetHistory /></ProtectedRoute>} />
-                  <Route path="/evacuation-form" element={<ModuleGuard><EvacuationSimulatorForm /></ModuleGuard>} />
+                  <Route path="/evacuation-form" element={<ProtectedRoute><EvacuationSimulatorForm /></ProtectedRoute>} />
                   <Route path="/evacuation-history" element={<ProtectedRoute><EvacuationSimulatorHistory /></ProtectedRoute>} />
 
                   <Route path="/risk-matrix-history" element={<ProtectedRoute><History view="matrices" /></ProtectedRoute>} />

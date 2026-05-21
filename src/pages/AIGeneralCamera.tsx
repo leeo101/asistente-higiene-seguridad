@@ -268,7 +268,16 @@ export default function AIGeneralCamera(): React.ReactElement | null {
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.error || `Error ${response.status}`);
+                const msg = errorData.error || `Error ${response.status}`;
+                if (response.status === 403 && /origen no autorizado/i.test(msg)) {
+                    throw new Error(
+                        'Origen no autorizado: abrí la app en http://localhost:5173 con npm run dev activo, o recargá la sesión.'
+                    );
+                }
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error(msg + ' Volvé a iniciar sesión e intentá de nuevo.');
+                }
+                throw new Error(msg);
             }
 
             const data = await response.json();

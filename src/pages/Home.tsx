@@ -27,8 +27,6 @@ import StatsBar from '../components/StatsBar';
 
 import NewsWidget from '../components/NewsWidget';
 import MarketingLanding from '../components/MarketingLanding';
-import ModulePreview from '../components/ModulePreview';
-
 import InteractiveHeroDemo from '../components/landing/InteractiveHeroDemo';
 import BeforeAndAfter from '../components/landing/BeforeAndAfter';
 import WallOfLove from '../components/landing/WallOfLove';
@@ -211,7 +209,6 @@ export default function Home(): React.ReactElement {
   const [recentWorks, setRecentWorks] = useState<WorkItem[]>([]);
   const [userName, setUserName] = useState<string>('Profesional');
   const [dailyInsight, setDailyInsight] = useState<DailyInsight | null>(null);
-  const [activePreview, setActivePreview] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isMobile, setIsMobile] = useState(false);
@@ -358,10 +355,6 @@ export default function Home(): React.ReactElement {
       }, 500);
     }
   }, [syncPulse, currentUser]);
-
-  if (!currentUser && activePreview) {
-    return <ModulePreview path={activePreview} onBack={() => setActivePreview(null)} />;
-  }
 
   return (
     <AnimatedPage>

@@ -1,16 +1,13 @@
 import React from 'react';
 import PdfSignatures from './PdfSignatures';
-import { ShieldCheck, Pencil, Info, LucideIcon } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
 
-// Tipos
 interface ChecklistItem {
   id: string | number;
   categoria: string;
   pregunta: string;
-  estado: string; // 'Cumple', 'No Cumple', 'N/A'
-  cumple?: boolean; // Keep for backward compatibility if needed
+  estado: string;
   observaciones?: string;
 }
 
@@ -19,19 +16,20 @@ interface TareaItem {
   paso: string;
   riesgo: string;
   control: string;
-  realizado: boolean;
+  realizado?: boolean;
 }
 
 interface ATSData {
-  id?: string | number;
   empresa?: string;
+  cuit?: string;
   obra?: string;
+  tarea?: string;
   fecha?: string;
-  supervisor?: string;
-  tareas?: any[]; // Handle both string[] and TareaItem[]
+  capatazNombre?: string;
+  tareas?: TareaItem[];
   checklist?: ChecklistItem[];
-  capatazSignature?: string | null;
   operatorSignature?: string | null;
+  capatazSignature?: string | null;
   professionalSignature?: string | null;
   professionalName?: string;
   professionalLicense?: string;
@@ -40,11 +38,162 @@ interface ATSData {
     supervisor: boolean;
     professional: boolean;
   };
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface ATSPdfGeneratorProps {
-  atsData: ATSData;
+  atsData: ATSData | null;
+}
+
+const PDF_STYLES = `
+  @page {
+    size: A4 portrait;
+    margin: 14mm 12mm 16mm 12mm;
+  }
+  .ats-pdf-root {
+    font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-size: 9.5pt;
+    line-height: 1.45;
+    color: #0f172a;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .ats-pdf-root * {
+    box-sizing: border-box;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+  .ats-pdf-section {
+    margin-bottom: 1rem;
+  }
+  .ats-pdf-section-compact {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .ats-pdf-category-block {
+    margin-bottom: 0.75rem;
+    break-inside: auto;
+    page-break-inside: auto;
+  }
+  .ats-pdf-category-header {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+  .ats-pdf-root .no-break {
+    margin-top: 1.25rem !important;
+  }
+  .ats-pdf-root > .ats-pdf-offscreen-wrap {
+    display: block !important;
+    width: 100% !important;
+  }
+  .ats-pdf-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  .ats-pdf-table th,
+  .ats-pdf-table td {
+    border: 1px solid #cbd5e1;
+    padding: 0.45rem 0.55rem;
+    vertical-align: top;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+  .ats-pdf-table thead th {
+    background: #f1f5f9;
+    font-size: 7.5pt;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #475569;
+    letter-spacing: 0.04em;
+  }
+  .ats-pdf-check-row td {
+    font-size: 8.5pt;
+  }
+  .ats-pdf-status {
+    width: 28px;
+    text-align: center;
+    font-weight: 900;
+    font-size: 8pt;
+    color: #0f172a;
+  }
+  .ats-pdf-status.is-on {
+    background: #ecfdf5;
+    border: 2px solid #059669 !important;
+  }
+  .ats-pdf-status.is-fail {
+    background: #fef2f2;
+    border: 2px solid #dc2626 !important;
+  }
+  .ats-pdf-status.is-na {
+    background: #f8fafc;
+    border: 2px solid #64748b !important;
+    color: #64748b;
+  }
+  @media print {
+    .ats-pdf-root {
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      min-height: 0 !important;
+      max-width: none !important;
+      width: 100% !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+  }
+`;
+
+function formatDate(fecha?: string): string {
+  if (!fecha) return '—';
+  try {
+    return new Date(fecha).toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' });
+  } catch {
+    return fecha;
+  }
+}
+
+function resolveProfessional(data: ATSData) {
+  let actSignature = data.professionalSignature || null;
+  let actName = data.professionalName || null;
+  let actLic = data.professionalLicense || null;
+
+  if (!actSignature || !actName) {
+    try {
+      const lsPersonal = typeof window !== 'undefined' ? localStorage.getItem('personalData') : null;
+      const lsStamp = typeof window !== 'undefined' ? localStorage.getItem('signatureStampData') : null;
+      const legacySig = typeof window !== 'undefined' ? localStorage.getItem('capturedSignature') : null;
+
+      if (!actSignature) {
+        if (lsStamp) actSignature = JSON.parse(lsStamp).signature;
+        else if (legacySig) actSignature = legacySig;
+      }
+      if (lsPersonal) {
+        const pd = JSON.parse(lsPersonal);
+        actName = actName || pd.name;
+        actLic = actLic || pd.license;
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+
+  return { actSignature, actName, actLic };
+}
+
+function statusClass(estado: string): string {
+  if (estado === 'Cumple' || estado === 'SI') return 'is-on';
+  if (estado === 'No Cumple' || estado === 'NO') return 'is-fail';
+  return 'is-na';
+}
+
+function StatusCell({ label, active }: { label: string; active: boolean }) {
+  const estado = label === 'SI' ? 'Cumple' : label === 'NO' ? 'No Cumple' : 'N/A';
+  return (
+    <td className={`ats-pdf-status ${active ? statusClass(estado) : ''}`}>
+      {active ? '✓' : ''}
+      <div style={{ fontSize: '6pt', fontWeight: 800, marginTop: '1px', color: active ? 'inherit' : '#94a3b8' }}>{label}</div>
+    </td>
+  );
 }
 
 export default function ATSPdfGenerator({ atsData }: ATSPdfGeneratorProps): React.ReactElement | null {
@@ -52,280 +201,234 @@ export default function ATSPdfGenerator({ atsData }: ATSPdfGeneratorProps): Reac
 
   const data = atsData;
   const showSignatures = data.showSignatures || { operator: true, supervisor: true, professional: true };
-
-    // Obtención segura de firma profesional desde localStorage
-    let actSignature = data.professionalSignature || data.signature || data.auditorSignature || null;
-    let actName = data.professionalName || data.leadAuditor || data.expositor || null;
-    let actLic = data.professionalLicense || data.license || null;
-    
-    // Si no trae firmas directas, intentar heredar de localStorage (fallback global pro)
-    if (!actSignature) {
-        try {
-            const lsPersonal = typeof window !== 'undefined' ? localStorage.getItem('personalData') : null;
-            const lsStamp = typeof window !== 'undefined' ? localStorage.getItem('signatureStampData') : null;
-            const legacySig = typeof window !== 'undefined' ? localStorage.getItem('capturedSignature') : null;
-            
-            if (lsStamp) { actSignature = JSON.parse(lsStamp).signature; }
-            else if (legacySig) { actSignature = legacySig; }
-            
-            if (lsPersonal) {
-                const pd = JSON.parse(lsPersonal);
-                actName = actName || pd.name;
-                actLic = actLic || pd.license;
-            }
-        } catch(e) {}
-    }
-
+  const { actSignature, actName, actLic } = resolveProfessional(data);
   const tareas = data.tareas || [];
   const checklist = data.checklist || [];
-
-  // Extract unique categories from checklist
-  const categories = [...new Set(checklist.map(item => item.categoria))];
+  const categories = [...new Set(checklist.map((item) => item.categoria))];
+  const docId = data.id ? String(data.id).slice(-8).toUpperCase() : 'BORRADOR';
 
   return (
-    <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+    <div className="ats-pdf-offscreen-wrap" style={{ width: '100%' }}>
       <div
         id="pdf-content"
-        className="pdf-container print-area"
+        className="pdf-container print-area ats-pdf-root"
         style={{
-          width: '100%', maxWidth: '210mm', minHeight: '297mm',
-          padding: '12mm 15mm', background: '#ffffff', color: '#1e293b',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.1)', borderRadius: '8px',
-          boxSizing: 'border-box', margin: '0 auto', fontSize: '9pt',
-          fontFamily: 'Helvetica, Arial, sans-serif',
-          borderTop: '12px solid #2563eb' // Brand color top bar
+          width: '100%',
+          maxWidth: '210mm',
+          padding: '10mm 12mm',
+          background: '#ffffff',
+          color: '#0f172a',
+          margin: '0 auto',
+          borderTop: '6px solid #1d4ed8',
         }}
       >
-        <style type="text/css" media="print">
-          {`
-            @page { size: A4 portrait; margin: 10mm; }
-            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; font-family: Helvetica, Arial, sans-serif; }
-            .no-print { display: none !important; }
-            .print-area {
-              box-shadow: none !important;
-              margin: 0 !important;
-              padding: 5mm !important;
-              width: 100% !important;
-              max-width: none !important;
-              border-top: 12px solid #2563eb !important;
-              border-radius: 0 !important;
-            }
-            .signature-container-row {
-              display: flex !important;
-              flex-direction: row !important;
-              justify-content: space-between !important;
-              align-items: flex-start !important;
-              gap: 1rem !important;
-              width: 100% !important;
-              margin-top: 2rem !important;
-            }
-            .signature-item-box {
-              flex: 1 !important;
-              max-width: none !important;
-              padding: 1rem !important;
-              margin-top: 0 !important;
-              display: flex !important;
-              flex-direction: column !important;
-              align-items: center !important;
-              border-radius: 8px !important;
-              text-align: center !important;
-            }
-            .signature-line {
-              width: 100% !important;
-              border-bottom: 1.5px solid #cbd5e1 !important;
-              margin-bottom: 0.5rem !important;
-              margin-top: 0.5rem !important;
-            }
-          `}
-        </style>
+        <style type="text/css">{PDF_STYLES}</style>
 
-        {/* Professional Header */}
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottom: '4px solid #f1f5f9', paddingBottom: '1.2rem', marginBottom: '1.5rem', width: '100%', gap: '1rem' }}>
-          
-          <div style={{ flex: 1 }}>
-            <p style={{ margin: 0, fontWeight: 800, fontSize: '0.6rem', textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.1em' }}>Sistema de Gestión</p>
-            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', color: '#0f172a' }}>Control H&S</p>
-          </div>
-
-          <div style={{ flex: 2, textAlign: 'center' }}>
-            <h1 style={{ margin: 0, fontWeight: 900, fontSize: '2.5rem', letterSpacing: '-0.03em', textTransform: 'uppercase', lineHeight: 0.9, color: '#0f172a' }}>A.T.S.</h1>
-            <div style={{ marginTop: '0.3rem', background: '#3b82f6', color: 'white', padding: '0.2rem 0.8rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.1em' }}>
-              ANÁLISIS DE TRABAJO SEGURO
+        {/* Encabezado */}
+        <div className="ats-pdf-section ats-pdf-section-compact" style={{ borderBottom: '3px solid #e2e8f0', paddingBottom: '1rem', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '7pt', fontWeight: 800, color: '#64748b', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                Sistema de Gestión · Higiene y Seguridad
+              </div>
+              <h1 style={{ margin: '0.35rem 0 0', fontSize: '22pt', fontWeight: 900, letterSpacing: '-0.02em', color: '#0f172a', lineHeight: 1 }}>
+                Análisis de Trabajo Seguro
+              </h1>
+              <div style={{ marginTop: '0.35rem', fontSize: '8pt', color: '#3b82f6', fontWeight: 800, letterSpacing: '0.08em' }}>
+                ATS · DOCUMENTO TÉCNICO
+              </div>
             </div>
-          </div>
-
-          <div style={{ flex: 1, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.2rem' }}>
-            <CompanyLogo style={{ height: '35px', maxWidth: '120px' }} />
-            <div style={{ fontSize: '0.55rem', fontWeight: 900, color: '#94a3b8', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Doc. Controlado</div>
-
-
-
-
-
-
+            <div style={{ textAlign: 'right', minWidth: '120px' }}>
+              <CompanyLogo style={{ height: '38px', maxWidth: '130px', marginLeft: 'auto' }} />
+              <div style={{ marginTop: '0.5rem', fontSize: '7pt', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>
+                Ref. {docId}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Primary Info Box - Professional Grid */}
-        <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', marginBottom: '2.5rem', width: '100%', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)' }}>
-          <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
-            <div style={{ flex: '1.5', padding: '0.8rem 1rem', borderRight: '1px solid #e2e8f0' }}>
-              <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '0.05em' }}>EMPRESA / CONTRATISTA</span>
-              <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#0f172a', marginTop: '0.2rem' }}>{data.empresa || '-'}</div>
-            </div>
-            <div style={{ flex: '1', padding: '0.8rem 1rem' }}>
-              <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '0.05em' }}>OBRA / UBICACIÓN</span>
-              <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#0f172a', marginTop: '0.2rem' }}>{data.obra || '-'}</div>
-            </div>
-          </div>
-          <div style={{ display: 'flex', background: '#ffffff' }}>
-            <div style={{ flex: '1', padding: '0.8rem 1rem', borderRight: '1px solid #e2e8f0' }}>
-              <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>FECHA DE EJECUCIÓN</span>
-              <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.1rem' }}>{data.fecha ? new Date(data.fecha).toLocaleDateString('es-AR') : '-'}</div>
-            </div>
-            <div style={{ flex: '1', padding: '0.8rem 1rem', borderRight: '1px solid #e2e8f0' }}>
-              <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>RESPONSABLE / CAPATAZ</span>
-              <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.1rem' }}>{data.capatazNombre || 'No definido'}</div>
-            </div>
-            <div style={{ flex: '1', padding: '0.8rem 1rem' }}>
-              <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>SUPERVISOR H&S</span>
-              <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.1rem' }}>{data.supervisor || '-'}</div>
-            </div>
-          </div>
-          <div style={{ borderTop: '1px solid #e2e8f0', padding: '0.8rem 1rem', background: '#ffffff' }}>
-              <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>TAREA A REALIZAR (DESCRIPCIÓN GENERAL)</span>
-              <div style={{ fontWeight: 700, fontSize: '1rem', color: '#0f172a', marginTop: '0.2rem', lineHeight: 1.4 }}>{data.tarea || '-'}</div>
-          </div>
+        {/* Datos del trabajo */}
+        <div className="ats-pdf-section ats-pdf-section-compact">
+          <table className="ats-pdf-table" style={{ marginBottom: 0 }}>
+            <tbody>
+              <tr>
+                <td style={{ width: '42%', background: '#f8fafc' }}>
+                  <div style={{ fontSize: '7pt', fontWeight: 800, color: '#3b82f6', textTransform: 'uppercase', marginBottom: '0.2rem' }}>Cliente / Empresa</div>
+                  <div style={{ fontWeight: 800, fontSize: '10.5pt' }}>{data.empresa || '—'}</div>
+                </td>
+                <td style={{ width: '22%', background: '#f8fafc' }}>
+                  <div style={{ fontSize: '7pt', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.2rem' }}>CUIT / CUIL</div>
+                  <div style={{ fontWeight: 700, fontSize: '9.5pt' }}>{data.cuit || '—'}</div>
+                </td>
+                <td style={{ width: '36%', background: '#f8fafc' }}>
+                  <div style={{ fontSize: '7pt', fontWeight: 800, color: '#3b82f6', textTransform: 'uppercase', marginBottom: '0.2rem' }}>Ubicación / Obra</div>
+                  <div style={{ fontWeight: 800, fontSize: '10.5pt' }}>{data.obra || '—'}</div>
+                </td>
+              </tr>
+              <tr>
+                <td colSpan={1}>
+                  <div style={{ fontSize: '7pt', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.2rem' }}>Fecha de ejecución</div>
+                  <div style={{ fontWeight: 700 }}>{formatDate(data.fecha)}</div>
+                </td>
+                <td colSpan={2}>
+                  <div style={{ fontSize: '7pt', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.2rem' }}>Responsable de tarea</div>
+                  <div style={{ fontWeight: 700 }}>{data.capatazNombre || '—'}</div>
+                </td>
+              </tr>
+              <tr>
+                <td colSpan={3}>
+                  <div style={{ fontSize: '7pt', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.2rem' }}>Descripción de la tarea</div>
+                  <div style={{ fontWeight: 700, fontSize: '10pt', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>{data.tarea || '—'}</div>
+                </td>
+              </tr>
+              <tr>
+                <td colSpan={3} style={{ background: '#eff6ff' }}>
+                  <div style={{ fontSize: '7pt', fontWeight: 800, color: '#1d4ed8', textTransform: 'uppercase', marginBottom: '0.2rem' }}>Profesional HyS actuante</div>
+                  <div style={{ fontWeight: 800 }}>{actName || '—'}{actLic ? ` · Mat. ${actLic}` : ''}</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-        {/* Tareas */}
+        {/* Secuencia de tareas */}
         {tareas.length > 0 && (
-          <div style={{ marginBottom: '2.5rem' }}>
-            <h2 style={{ fontSize: '0.9rem', fontWeight: 900, color: '#0f172a', marginBottom: '0.8rem', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.5rem', borderLeft: '4px solid #3b82f6', paddingLeft: '0.8rem' }}>
-              Secuencia de Tareas y Análisis de Riesgos
-            </h2>
-            <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
-                <thead>
-                  <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                    <th style={{ padding: '0.8rem 1rem', textAlign: 'center', fontWeight: 800, color: '#475569', width: '40px' }}>#</th>
-                    <th style={{ padding: '0.8rem 1rem', textAlign: 'left', fontWeight: 800, color: '#475569', width: '30%' }}>PASO DE LA TAREA</th>
-                    <th style={{ padding: '0.8rem 1rem', textAlign: 'left', fontWeight: 800, color: '#475569', width: '30%' }}>RIESGO IDENTIFICADO</th>
-                    <th style={{ padding: '0.8rem 1rem', textAlign: 'left', fontWeight: 800, color: '#475569', width: '40%' }}>MEDIDA PREVENTIVA / CONTROL</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tareas.map((tarea: any, i: number) => {
-                    const isObject = typeof tarea === 'object' && tarea !== null;
-                    return (
-                      <tr key={i} style={{ borderBottom: i < tareas.length - 1 ? '1px solid #f1f5f9' : 'none', background: i % 2 !== 0 ? '#fcfdfe' : '#ffffff' }}>
-                        <td style={{ padding: '0.8rem 1rem', textAlign: 'center', fontWeight: 700, color: '#94a3b8' }}>{String(i + 1).padStart(2, '0')}</td>
-                        <td style={{ padding: '0.8rem 1rem', fontWeight: 700, color: '#1e293b', fontSize: '0.85rem' }}>{isObject ? tarea.paso : tarea}</td>
-                        <td style={{ padding: '0.8rem 1rem', color: '#64748b', fontSize: '0.75rem', lineHeight: 1.4 }}>{isObject ? tarea.riesgo : '-'}</td>
-                        <td style={{ padding: '0.8rem 1rem', color: '#059669', fontWeight: 700, fontSize: '0.8rem', lineHeight: 1.4 }}>{isObject ? tarea.control : '-'}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+          <div className="ats-pdf-section ats-pdf-section-compact">
+            <div style={{ fontSize: '9pt', fontWeight: 900, textTransform: 'uppercase', color: '#0f172a', borderLeft: '4px solid #2563eb', paddingLeft: '0.6rem', marginBottom: '0.65rem' }}>
+              1. Secuencia de tareas y análisis de riesgos
             </div>
+            <table className="ats-pdf-table">
+              <thead>
+                <tr>
+                  <th style={{ width: '6%' }}>#</th>
+                  <th style={{ width: '30%' }}>Paso a seguir</th>
+                  <th style={{ width: '30%' }}>Riesgos asociados</th>
+                  <th style={{ width: '34%' }}>Medidas de control</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tareas.map((tarea, i) => (
+                  <tr key={tarea.id ?? i} style={{ background: i % 2 === 1 ? '#f8fafc' : '#fff' }}>
+                    <td style={{ textAlign: 'center', fontWeight: 800, color: '#64748b' }}>{i + 1}</td>
+                    <td style={{ fontWeight: 700, fontSize: '9pt' }}>{tarea.paso || '—'}</td>
+                    <td style={{ fontSize: '8.5pt', color: '#475569' }}>{tarea.riesgo || '—'}</td>
+                    <td style={{ fontSize: '8.5pt', fontWeight: 700, color: '#047857' }}>{tarea.control || '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
 
-        {/* Checklist por categorías */}
-        {categories.length > 0 && categories.map((categoria: string, catIndex: number) => {
-          const categoryItems = checklist.filter(item => item.categoria === categoria);
-          return (
-            <div key={catIndex} style={{ marginBottom: '1.5rem', pageBreakInside: 'avoid' }}>
-              <div style={{
-                background: '#0f172a',
-                color: '#ffffff',
-                padding: '0.6rem 1rem',
-                borderRadius: '8px 8px 0 0',
-                fontSize: '0.8rem',
-                fontWeight: 900,
-                textTransform: 'uppercase',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.6rem',
-                letterSpacing: '0.05em'
-              }}>
-                <ShieldCheck size={16} color="#3b82f6" />
-                {categoria?.toUpperCase() || 'GENERAL'}
-              </div>
-              <div style={{ border: '1px solid #e2e8f0', borderTop: 'none', borderRadius: '0 0 8px 8px', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
-                  <tbody>
-                    {categoryItems.map((item: ChecklistItem, itemIndex: number) => {
-                      const finalStatus = item.estado || (item.cumple ? 'Cumple' : 'No Cumple');
-                      let statusColor = '#94a3b8';
-                      let bgStatus = '#f8fafc';
-                      if (finalStatus === 'Cumple' || finalStatus === 'SI') { statusColor = '#059669'; bgStatus = '#ecfdf5'; }
-                      if (finalStatus === 'No Cumple' || finalStatus === 'NO') { statusColor = '#dc2626'; bgStatus = '#fef2f2'; }
-
-                      return (
-                        <tr key={itemIndex} style={{ borderBottom: itemIndex < categoryItems.length - 1 ? '1px solid #f1f5f9' : 'none', background: itemIndex % 2 !== 0 ? '#fcfdfe' : '#ffffff' }}>
-                          <td style={{ padding: '0.6rem 1rem', verticalAlign: 'middle', width: '45px' }}>
-                            <div style={{ 
-                              border: `1.5px solid ${statusColor}`, 
-                              background: bgStatus, 
-                              color: statusColor, 
-                              fontSize: '0.6rem', 
-                              fontWeight: 900, 
-                              textAlign: 'center', 
-                              padding: '0.25rem', 
-                              borderRadius: '6px', 
-                              minWidth: '30px' 
-                            }}>
-                              {finalStatus.toUpperCase() === 'CUMPLE' ? 'OK' : finalStatus.toUpperCase() === 'NO CUMPLE' ? 'NO' : finalStatus.toUpperCase()}
-                            </div>
-                          </td>
-                          <td style={{ padding: '0.6rem 1rem', verticalAlign: 'middle', fontWeight: 600, color: '#334155', width: '45%', fontSize: '0.8rem' }}>
-                            {item.pregunta}
-                          </td>
-                          <td style={{ padding: '0.6rem 1rem', verticalAlign: 'middle', color: '#64748b', fontSize: '0.75rem', width: '50%', borderLeft: '1px dashed #e2e8f0', fontStyle: item.observaciones ? 'normal' : 'italic' }}>
-                            {item.observaciones ? <><span style={{ fontWeight: 800, color: '#475569' }}>OBSERVACIONES: </span>{item.observaciones}</> : <span style={{ color: '#cbd5e1' }}>Sin observaciones registradas.</span>}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+        {/* Checklist */}
+        {categories.length > 0 && (
+          <div className="ats-pdf-section">
+            <div style={{ fontSize: '9pt', fontWeight: 900, textTransform: 'uppercase', color: '#0f172a', borderLeft: '4px solid #2563eb', paddingLeft: '0.6rem', marginBottom: '0.65rem', breakAfter: 'avoid', pageBreakAfter: 'avoid' }}>
+              2. Verificación de seguridad pre-operativa
             </div>
-          );
-        })}
+            {categories.map((categoria, catIndex) => {
+              const categoryItems = checklist.filter((item) => item.categoria === categoria);
+              return (
+                <div key={catIndex} className="ats-pdf-category-block">
+                  <div
+                    className="ats-pdf-category-header"
+                    style={{
+                      background: 'linear-gradient(90deg, #0f172a 0%, #1e3a8a 100%)',
+                      color: '#fff',
+                      padding: '0.45rem 0.75rem',
+                      fontSize: '8pt',
+                      fontWeight: 900,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.06em',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      borderRadius: '6px 6px 0 0',
+                    }}
+                  >
+                    <span style={{ color: '#60a5fa', fontSize: '9pt', lineHeight: 1 }}>■</span>
+                    {categoria}
+                  </div>
+                  <table className="ats-pdf-table" style={{ borderTop: 'none' }}>
+                    <thead>
+                      <tr>
+                        <th style={{ width: '5%' }}>SI</th>
+                        <th style={{ width: '5%' }}>NO</th>
+                        <th style={{ width: '5%' }}>N/A</th>
+                        <th style={{ width: '47%' }}>Ítem de verificación</th>
+                        <th style={{ width: '38%' }}>Observaciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {categoryItems.map((item, itemIndex) => {
+                        const isSI = item.estado === 'Cumple' || item.estado === 'SI';
+                        const isNO = item.estado === 'No Cumple' || item.estado === 'NO';
+                        const isNA = item.estado === 'N/A' || item.estado === 'NA';
+                        return (
+                          <tr key={item.id ?? itemIndex} className="ats-pdf-check-row" style={{ background: itemIndex % 2 === 1 ? '#f8fafc' : '#fff' }}>
+                            <StatusCell label="SI" active={isSI} />
+                            <StatusCell label="NO" active={isNO} />
+                            <StatusCell label="N/A" active={isNA} />
+                            <td style={{ fontWeight: 600, color: '#1e293b' }}>{item.pregunta}</td>
+                            <td style={{ fontSize: '8pt', color: '#64748b' }}>{item.observaciones || '—'}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
-        {/* Firmas de Responsabilidad */}
-        <PdfSignatures 
-          data={data}
-          box1={showSignatures?.operator ? {
-            title: 'OPERADOR / RESPONSABLE',
-            subtitle: data.capatazNombre || 'Firma de Conformidad',
-            signatureUrl: data.operatorSignature || null,
-            isProfessional: false,
-            customContent: <p style={{ margin: 0, fontSize: '0.5rem', fontWeight: 700, color: '#3b82f6', textTransform: 'uppercase' }}>Validación Técnica</p>
-          } : null}
-          box2={showSignatures?.supervisor ? {
-            title: 'SUPERVISOR / JEFE OBRA',
-            subtitle: 'Aprobación y Liberación',
-            signatureUrl: data.capatazSignature || null,
-            isProfessional: false,
-            customContent: <p style={{ margin: 0, fontSize: '0.5rem', fontWeight: 700, color: '#3b82f6', textTransform: 'uppercase' }}>Control Jerárquico</p>
-          } : null}
-          box3={showSignatures?.professional ? {
-            title: 'PROFESIONAL ACTUANTE',
-            subtitle: (actName || 'Firma de Especialista').toUpperCase(),
-            signatureUrl: actSignature,
-            isProfessional: true,
-            license: actLic
-          } : null}
-        />
+        {/* Firmas */}
+        <div className="ats-pdf-section ats-pdf-section-compact" style={{ marginTop: '0.75rem' }}>
+          <div style={{ fontSize: '9pt', fontWeight: 900, textTransform: 'uppercase', color: '#0f172a', borderLeft: '4px solid #2563eb', paddingLeft: '0.6rem', marginBottom: '0.75rem' }}>
+            3. Firmas y autorizaciones
+          </div>
+          <PdfSignatures
+            data={data}
+            box1={
+              showSignatures?.operator
+                ? {
+                    title: 'OPERADOR / CAPATAZ',
+                    subtitle: (data.capatazNombre || 'Firma y aclaración').toUpperCase(),
+                    signatureUrl: data.operatorSignature || null,
+                    isProfessional: false,
+                  }
+                : null
+            }
+            box2={
+              showSignatures?.supervisor
+                ? {
+                    title: 'SUPERVISOR / JEFE DE OBRA',
+                    subtitle: 'APROBACIÓN Y LIBERACIÓN',
+                    signatureUrl: data.capatazSignature || null,
+                    isProfessional: false,
+                  }
+                : null
+            }
+            box3={
+              showSignatures?.professional
+                ? {
+                    title: 'PROFESIONAL ACTUANTE',
+                    subtitle: (actName || 'Firma y sello').toUpperCase(),
+                    signatureUrl: actSignature,
+                    isProfessional: true,
+                    license: actLic,
+                  }
+                : null
+            }
+          />
+        </div>
 
-        {/* Footer informativo */}
+        <div style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid #e2e8f0', fontSize: '7pt', color: '#94a3b8', textAlign: 'center', fontWeight: 600 }}>
+          Documento generado por Asistente HYS · {formatDate(new Date().toISOString().split('T')[0])} · Uso exclusivo técnico-profesional
+        </div>
+
         <PdfBrandingFooter />
       </div>
     </div>
   );
 }
-

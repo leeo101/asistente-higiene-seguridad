@@ -60,35 +60,36 @@ app.use(helmet({
 }));
 
 
-// Allow CORS for development and for the production Firebase URL
-const allowedOrigins = [
-    'http://localhost:5173',
-    'https://asistentehs-b594e.web.app',
-    'https://asistentehs-b594e.firebaseapp.com'
-];
+// CORS — mismo criterio que funciones serverless (api/_cors.js)
+function isOriginAllowed(origin) {
+    if (!origin) return true;
+    const allowedOrigins = [
+        'http://localhost:5173',
+        'http://localhost:4173',
+        'https://asistentehs-b594e.web.app',
+        'https://asistentehs-b594e.firebaseapp.com'
+    ];
+    return (
+        allowedOrigins.includes(origin) ||
+        origin.startsWith('http://localhost:') ||
+        origin.startsWith('http://127.0.0.1:') ||
+        origin.startsWith('http://[::1]:') ||
+        /^http:\/\/192\.168\.\d{1,3}\.\d{1,3}(:\d+)?$/.test(origin) ||
+        /^http:\/\/10\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?$/.test(origin) ||
+        /^http:\/\/172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}(:\d+)?$/.test(origin)
+    );
+}
 
 app.use(cors({
     origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-        
-        // Dynamically allow local development and local network origins
-        const isAllowed = allowedOrigins.indexOf(origin) !== -1 ||
-            origin.startsWith('http://localhost:') ||
-            origin.startsWith('http://127.0.0.1:') ||
-            /^http:\/\/192\.168\.\d+\.\d+(:\d+)?$/.test(origin) ||
-            /^http:\/\/10\.\d+\.\d+\.\d+(:\d+)?$/.test(origin) ||
-            /^http:\/\/172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+(:\d+)?$/.test(origin);
-
-        if (isAllowed) {
+        if (isOriginAllowed(origin)) {
             return callback(null, true);
-        } else {
-            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-            return callback(new Error(msg), false);
         }
+        console.warn(`[CORS] Blocked request from unauthorized origin: ${origin}`);
+        return callback(new Error('Origen no autorizado.'), false);
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Admin-Key']
 }))
 app.use(express.json({ limit: '50mb' })) // Increase limit for images
 app.use(express.urlencoded({ limit: '50mb', extended: true }))

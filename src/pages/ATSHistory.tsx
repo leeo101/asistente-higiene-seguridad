@@ -120,7 +120,7 @@ export default function ATSHistory(): React.ReactElement | null {
             <div className="container" style={{ maxWidth: '900px', paddingBottom: '5rem' }}>
                 {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
                 <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`ATS - ${shareItem?.obra || ''}`} rawMessage={shareItem ? `📋 ATS\n🏗️ Empresa: ${shareItem.empresa}\n🚧 Obra: ${shareItem.obra}\n📅 Fecha: ${shareItem.fecha}` : ''} text={shareItem ? `📋 ATS\n🏗️ Empresa: ${shareItem.empresa}\n🚧 Obra: ${shareItem.obra}\n📅 Fecha: ${shareItem.fecha}` : ''} elementIdToPrint="pdf-content" fileName={`ATS_${shareItem?.empresa?.replace(/\s+/g, '_') || 'Reporte'}.pdf`} />
-                <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                <div className="ats-pdf-offscreen" aria-hidden="true">
                     <ATSPdfGenerator atsData={shareItem} />
                 </div>
 
