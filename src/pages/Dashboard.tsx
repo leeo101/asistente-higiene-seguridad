@@ -637,7 +637,7 @@ export default function Dashboard(): React.ReactElement {
               <BookOpen size={20} color="#8b5cf6" /> Novedades Normativas
             </h3>
             <span style={{ fontSize: '0.7rem', fontWeight: 800, padding: '0.3rem 0.6rem', borderRadius: '20px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-              Actualizado: 13/05/2026 ✨
+              Actualizado: 13/05/2026 ✓
             </span>
           </div>
           

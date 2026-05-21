@@ -48,7 +48,7 @@ export default async function handler(req, res) {
         const base64Data = image.split(',')[1];
         const mimeType = image.split(';')[0].split(':')[1] || 'image/jpeg';
 
-        const prompt = `Analiza detalladamente esta imagen de un entorno laboral para detección general de evidentes riesgos laborales.`;
+        const prompt = `Analiza detalladamente esta imagen de un entorno laboral para detección general de evidentes riesgos laborales. IMPORTANTE: Todas las respuestas, descripciones de riesgos, recomendaciones y etiquetas de las cajas delimitadoras de las detecciones deben ser entregadas obligatoriamente en idioma español.`;
 
         const responseSchema = {
             type: SchemaType.OBJECT,
@@ -93,7 +93,7 @@ export default async function handler(req, res) {
                 const model = genAI.getGenerativeModel({ 
                     model: modelName, 
                     safetySettings,
-                    systemInstruction: "Detector maestro de riesgos. Encuentra condiciones subestándar (desorden, máquinas sin guardia, extintores bloqueados). Entrega recuadros de detección normalizados de 0 a 1000 en formato [ymin, xmin, ymax, xmax] alrededor de los riesgos graves.",
+                    systemInstruction: "Detector maestro de riesgos en ESPAÑOL. Encuentra condiciones subestándar (desorden, máquinas sin guardia, extintores bloqueados). OBLIGATORIAMENTE todas las etiquetas (labels), riesgos (foundRisks), recomendaciones (recommendations) y evaluaciones (generalAssessment) deben estar completamente en ESPAÑOL (por ejemplo: 'Riesgo de tropiezo', 'Extintor bloqueado', 'Obstrucción en vía de escape', 'Falta de protección de máquina'). Jamás utilices inglés para los labels o descripciones.",
                     generationConfig: {
                         responseMimeType: "application/json",
                         responseSchema: responseSchema

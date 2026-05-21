@@ -209,6 +209,50 @@ export default function AIGeneralCamera(): React.ReactElement | null {
         analyzeImage(imageData);
     };
 
+    const saveToHistory = (imageSrc, data) => {
+        try {
+            const currentReport = JSON.parse(localStorage.getItem('current_report') || '{}');
+            const company  = currentReport.company  || currentReport.empresa   || 'Empresa Local';
+            const location = currentReport.location || currentReport.ubicacion || 'Inspección in situ';
+
+            const report = {
+                id: Date.now(),
+                image: imageSrc,
+                analysis: data,
+                date: new Date().toISOString(),
+                type: 'general_risks',
+                company,
+                location,
+                findingsCount: data?.detections?.length || 0
+            };
+
+            // Guardar el reporte completo (con imagen) para el detalle
+            localStorage.setItem(`ai_report_full_${report.id}`, JSON.stringify(report));
+            localStorage.setItem('current_ai_inspection', JSON.stringify(report));
+
+            // Guardar solo el resumen liviano en el historial (sin imagen)
+            const existing = JSON.parse(localStorage.getItem('ai_camera_history') || '[]');
+            if (!existing.find(h => h.id === report.id)) {
+                const summary = {
+                    id: report.id,
+                    date: report.date,
+                    type: report.type,
+                    company: report.company,
+                    location: report.location,
+                    findingsCount: report.findingsCount
+                };
+                const updated = [summary, ...existing];
+                localStorage.setItem('ai_camera_history', JSON.stringify(updated));
+                syncCollection('ai_camera_history', updated);
+            }
+
+            return report.id;
+        } catch (err) {
+            console.error('[RiesgosIA] Error guardando historial:', err);
+            return null;
+        }
+    };
+
     const analyzeImage = async (imageSrc) => {
         setIsAnalyzing(true);
         try {
@@ -229,14 +273,19 @@ export default function AIGeneralCamera(): React.ReactElement | null {
 
             const data = await response.json();
 
+            let finalImage = imageSrc;
             if (data.detections && data.detections.length > 0) {
-                const markedImage = await drawDetections(imageSrc, data.detections);
-                setCapturedImage(markedImage);
+                finalImage = await drawDetections(imageSrc, data.detections);
+                setCapturedImage(finalImage);
             } else {
                 toast("No se detectaron riesgos evidentes en esta escena.");
             }
 
+            // ✅ Guardar automáticamente al terminar el análisis
+            saveToHistory(finalImage, data);
+
             setAnalysisResult(data);
+            toast.success('Análisis guardado en historial');
         } catch (error) {
             console.error("Error en análisis de riesgos:", error);
             toast.error(`Error de IA: ${error.message}`);
@@ -303,42 +352,8 @@ export default function AIGeneralCamera(): React.ReactElement | null {
     };
 
     const handleSaveReport = () => {
-        const currentReport = JSON.parse(localStorage.getItem('current_report') || '{}');
-        const company = currentReport.company || currentReport.empresa || 'Empresa Local';
-        const location = currentReport.location || currentReport.ubicacion || 'Inspección in situ';
-
-        const report = {
-            id: Date.now(),
-            image: capturedImage,
-            analysis: analysisResult,
-            date: new Date().toISOString(),
-            type: 'general_risks',
-            company,
-            location,
-            findingsCount: analysisResult?.detections?.length || 0
-        };
-
-        // Save FULL report to a unique key for history detail views
-        localStorage.setItem(`ai_report_full_${report.id}`, JSON.stringify(report));
-
-        // Save FULL report for immediate detail view
-        localStorage.setItem('current_ai_inspection', JSON.stringify(report));
-
-        // Save ONLY lightweight summary to history (no image, no full analysis)
-        const history = JSON.parse(localStorage.getItem('ai_camera_history') || '[]');
-        if (!history.find(h => h.id === report.id)) {
-            history.unshift({
-                id: report.id,
-                date: report.date,
-                type: report.type,
-                company: report.company,
-                location: report.location,
-                findingsCount: report.findingsCount
-            });
-            localStorage.setItem('ai_camera_history', JSON.stringify(history));
-            syncCollection('ai_camera_history', history);
-        }
-
+        // El análisis ya se guardó automáticamente al recibirlo.
+        // Solo navegamos al detalle del reporte guardado.
         navigate('/ai-report');
     };
 

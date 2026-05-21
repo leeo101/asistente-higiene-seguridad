@@ -71,7 +71,16 @@ app.use(cors({
     origin: function (origin, callback) {
         // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) !== -1) {
+        
+        // Dynamically allow local development and local network origins
+        const isAllowed = allowedOrigins.indexOf(origin) !== -1 ||
+            origin.startsWith('http://localhost:') ||
+            origin.startsWith('http://127.0.0.1:') ||
+            /^http:\/\/192\.168\.\d+\.\d+(:\d+)?$/.test(origin) ||
+            /^http:\/\/10\.\d+\.\d+\.\d+(:\d+)?$/.test(origin) ||
+            /^http:\/\/172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+(:\d+)?$/.test(origin);
+
+        if (isAllowed) {
             return callback(null, true);
         } else {
             const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
@@ -259,7 +268,7 @@ app.post('/api/analyze-image', aiLimiter, verifyFirebaseToken, async (req, res) 
         }
         const mimeType = image.split(';')[0].split(':')[1] || 'image/jpeg';
 
-        const prompt = `Analiza detalladamente esta imagen de un entorno laboral y verifica el uso de Elementos de Protección Personal (EPP) y la existencia de riesgos evidentes.`;
+        const prompt = `Analiza detalladamente esta imagen de un entorno laboral y verifica el uso de Elementos de Protección Personal (EPP) y la existencia de riesgos evidentes. IMPORTANTE: Todas las respuestas, descripciones de riesgos y etiquetas de las cajas delimitadoras de las detecciones deben ser entregadas obligatoriamente en idioma español.`;
 
         const responseSchema = {
             type: SchemaType.OBJECT,
@@ -312,7 +321,7 @@ app.post('/api/analyze-image', aiLimiter, verifyFirebaseToken, async (req, res) 
                 const model = genAI.getGenerativeModel({
                     model: modelName,
                     safetySettings,
-                    systemInstruction: "Eres un experto prevencionista de riesgos laborales. Analiza las imágenes de los puestos de trabajo para detectar uso de EPP y riesgos. Identifica cajas delimitadoras [ymin, xmin, ymax, xmax] normalizadas de 0 a 1000.",
+                    systemInstruction: "Eres un experto prevencionista de riesgos laborales. Analiza las imágenes de los puestos de trabajo para detectar uso de EPP y riesgos. Identifica cajas delimitadoras [ymin, xmin, ymax, xmax] normalizadas de 0 a 1000. OBLIGATORIAMENTE todas las etiquetas (label) de las detecciones, riesgos (foundRisks) y textos deben estar en ESPAÑOL (por ejemplo: 'Casco de seguridad', 'Calzado de seguridad', 'Guantes de seguridad', 'Chaleco reflectivo', 'Sin casco', 'Sin chaleco', 'Riesgo eléctrico', etc.). Jamás utilices términos en inglés como 'Helmet', 'Safety Vest', 'Gloves', 'Shoes' o 'Workwear'.",
                     generationConfig: {
                         responseMimeType: "application/json",
                         responseSchema: responseSchema
@@ -770,7 +779,7 @@ app.post('/api/analyze-general-risks', aiLimiter, verifyFirebaseToken, async (re
         const base64Data = image.split(',')[1];
         const mimeType = image.split(';')[0].split(':')[1] || 'image/jpeg';
 
-        const prompt = `Analiza detalladamente esta imagen de un entorno laboral para detección general de evidentes riesgos laborales.`;
+        const prompt = `Analiza detalladamente esta imagen de un entorno laboral para detección general de evidentes riesgos laborales. IMPORTANTE: Todas las respuestas, descripciones de riesgos, recomendaciones y etiquetas de las cajas delimitadoras de las detecciones deben ser entregadas obligatoriamente en idioma español.`;
         
         const responseSchema = {
             type: SchemaType.OBJECT,
@@ -808,7 +817,7 @@ app.post('/api/analyze-general-risks', aiLimiter, verifyFirebaseToken, async (re
                 process.stdout.write(`[AI GENERAL RISKS] Intentando con ${modelName}... `);
                 const model = genAI.getGenerativeModel({ 
                     model: modelName,
-                    systemInstruction: "Detector maestro de riesgos. Encuentra condiciones subestándar (desorden, máquinas sin guardia, extintores bloqueados). Entrega recuadros de detección normalizados de 0 a 1000 en formato [ymin, xmin, ymax, xmax] alrededor de los riesgos graves.",
+                    systemInstruction: "Detector maestro de riesgos en ESPAÑOL. Encuentra condiciones subestándar (desorden, máquinas sin guardia, extintores bloqueados). OBLIGATORIAMENTE todas las etiquetas (labels), riesgos (foundRisks), recomendaciones (recommendations) y evaluaciones (generalAssessment) deben estar completamente en ESPAÑOL (por ejemplo: 'Riesgo de tropiezo', 'Extintor bloqueado', 'Obstrucción en vía de escape', 'Falta de protección de máquina'). Jamás utilices inglés para los labels o descripciones.",
                     generationConfig: {
                         responseMimeType: "application/json",
                         responseSchema: responseSchema

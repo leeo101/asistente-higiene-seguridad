@@ -25,7 +25,15 @@ export function setCorsHeaders(req, res) {
         return true;
     }
 
-    if (ALLOWED_ORIGINS.includes(origin)) {
+    // Dynamically allow production allowed origins, localhost on any port, and local network IPs
+    const isAllowed = ALLOWED_ORIGINS.includes(origin) ||
+        origin.startsWith('http://localhost:') ||
+        origin.startsWith('http://127.0.0.1:') ||
+        /^http:\/\/192\.168\.\d+\.\d+(:\d+)?$/.test(origin) ||
+        /^http:\/\/10\.\d+\.\d+\.\d+(:\d+)?$/.test(origin) ||
+        /^http:\/\/172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+(:\d+)?$/.test(origin);
+
+    if (isAllowed) {
         res.setHeader('Access-Control-Allow-Origin', origin);
         res.setHeader('Access-Control-Allow-Methods', 'OPTIONS,POST');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');

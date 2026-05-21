@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import {
   ClipboardText, House, ClockCounterClockwise, User, Users, GearSix,
   Fire, ChartBar, CaretRight, Plus, Gavel, Siren,
-  PersonArmsSpread, Lock, UserPlus, SignIn, Sparkle as Sparkles,
+  PersonArmsSpread, Lock, UserPlus, SignIn,
   Camera, CalendarCheck, Shield, Cpu, Lightbulb, ThermometerHot, MapTrifold,
   ShieldCheck, Warning, Key, Scroll, Robot, FileText, HardHat, ShieldWarning, Pen,
   ArrowRight, X, SignOut, CalendarBlank,
@@ -107,32 +107,31 @@ const getRegSub = (module: string): string => {
 };
 
 const quickLinks: QuickLink[] = [
-  { to: '/ai-advisor', icon: <Robot weight="duotone" size={26} />, label: 'Asesor IA', sub: 'Consultas de Seguridad', color: '#a855f7', bg: 'rgba(168,85,247,0.1)', premium: true, category: 'ia', featured: true, badge: 'IA ✨' },
+  { to: '/ai-advisor', icon: <Robot weight="duotone" size={26} />, label: 'Asesor IA', sub: 'Consultas de Seguridad', color: '#a855f7', bg: 'rgba(168,85,247,0.1)', premium: true, category: 'ia', featured: true, badge: 'IA' },
   { to: '/ats', icon: <ShieldCheck weight="duotone" size={26} />, label: 'ATS', sub: 'Análisis Trabajo Seguro', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true, category: 'docs', featured: true },
   { to: '/audit', icon: <ClipboardText weight="duotone" size={26} />, label: 'Auditorías', sub: 'Control Interno y EHS', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'management' },
-  { to: '/ai-camera', icon: <Camera weight="duotone" size={26} />, label: 'Cámara IA', sub: 'Detección EPP', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', premium: true, category: 'ia', featured: true, badge: 'IA ✨' },
+  { to: '/ai-camera', icon: <Camera weight="duotone" size={26} />, label: 'Cámara IA', sub: 'Detección EPP', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', premium: true, category: 'ia', featured: true, badge: 'IA' },
   { to: '/capa', icon: <CheckCircle weight="duotone" size={26} />, label: 'CAPA', sub: 'Acciones Correctivas', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true, category: 'management' },
   { to: '/training-management', icon: <Users weight="duotone" size={26} />, label: 'Capacitar', sub: 'Planillas y Asistencia', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'management' },
   { to: '/fire-load', icon: <Fire weight="duotone" size={26} />, label: 'Carga Fuego', sub: getRegSub('fire'), color: '#f97316', bg: 'rgba(249,115,22,0.1)', premium: true, category: 'specific' },
-  { to: '/toolbox-talk', icon: <ChatText weight="duotone" size={26} />, label: 'Charlas 5 Min', sub: 'Registro de Capacitación Diaria', color: '#0052CC', bg: 'rgba(0,82,204,0.1)', premium: true, category: 'management', badge: 'Nuevo ✨', featured: true },
+  { to: '/toolbox-talk', icon: <ChatText weight="duotone" size={26} />, label: 'Charlas 5 Min', sub: 'Registro de Capacitación Diaria', color: '#0052CC', bg: 'rgba(0,82,204,0.1)', premium: true, category: 'management', badge: 'Nuevo', featured: true },
   { to: '/checklists', icon: <ClipboardText weight="duotone" size={26} />, label: 'Checklists', sub: 'Herramientas y Equipos', color: '#14b8a6', bg: 'rgba(20,184,166,0.1)', premium: true, category: 'docs' },
-  { to: '/contractors', icon: <Users weight="duotone" size={26} />, label: 'Contratistas', sub: 'Control de Legajos y Contratistas', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'management' },
   { to: '/ppe-tracker', icon: <HardHat weight="duotone" size={26} />, label: 'Control EPP', sub: 'Vencimientos', color: '#10b981', bg: 'rgba(16,185,129,0.08)', premium: true, category: 'management' },
   { to: '/ergonomics', icon: <PersonArmsSpread weight="duotone" size={26} />, label: 'Ergonomía', sub: getRegSub('ergo'), color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'specific' },
   { to: '/confined-space', icon: <Tent weight="duotone" size={26} />, label: 'Espacios Confinados', sub: 'Permisos y Control', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', premium: true, category: 'critical' },
   { to: '/thermal-stress', icon: <ThermometerHot weight="duotone" size={26} />, label: 'Estrés Térmico', sub: getRegSub('thermal'), color: '#f97316', bg: 'rgba(249,115,22,0.1)', premium: true, category: 'specific' },
-  { to: '/extinguisher-ai', icon: <Fire weight="duotone" size={26} />, label: 'Extintores IA', sub: 'Reconocimiento', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true, category: 'ia', badge: 'IA ✨' },
+  { to: '/extinguisher-ai', icon: <Fire weight="duotone" size={26} />, label: 'Extintores IA', sub: 'Reconocimiento', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true, category: 'ia', badge: 'IA' },
   { to: '/lighting', icon: <Lightbulb weight="duotone" size={26} />, label: 'Iluminación', sub: getRegSub('lighting'), color: '#eab308', bg: 'rgba(234,179,8,0.1)', premium: true, category: 'specific' },
   { to: '/reports', icon: <Scroll weight="duotone" size={26} />, label: 'Informes', sub: 'Técnicos', color: '#ec4899', bg: 'rgba(236,72,153,0.1)', premium: true, category: 'docs' },
   { to: '/accident-investigation', icon: <Siren weight="duotone" size={26} />, label: 'Investigación', sub: 'Accidentes / Árbol', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management' },
-  { to: '/safety-kpis', icon: <ChartPieSlice weight="duotone" size={26} />, label: 'KPIs Seguridad', sub: 'Índices de Siniestralidad y Estadísticas', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management', badge: 'Nuevo ✨', featured: true },
+  { to: '/safety-kpis', icon: <ChartPieSlice weight="duotone" size={26} />, label: 'KPIs Seguridad', sub: 'Índices de Siniestralidad y Estadísticas', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management', badge: 'Nuevo', featured: true },
   { to: '/legislation', icon: <Gavel weight="duotone" size={26} />, label: 'Legislación', sub: 'Biblioteca Legal', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true, category: 'docs' },
   { to: '/loto', icon: <Lock weight="duotone" size={26} />, label: 'LOTO', sub: 'Bloqueo y Etiquetado', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true, category: 'critical' },
   { to: '/risk-maps', icon: <MapTrifold weight="duotone" size={26} />, label: 'Mapas', sub: 'Croquis de Riesgos', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true, category: 'docs' },
   { to: '/extinguishers', icon: <Fire weight="duotone" size={26} />, label: 'Matafuegos', sub: 'Control y Vencimientos', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true, category: 'management' },
   { to: '/environmental', icon: <Droplets weight="duotone" size={26} />, label: 'Medio Ambiente', sub: 'Monitoreo y Control', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', premium: true, category: 'specific' },
   { to: '/work-permit', icon: <Key weight="duotone" size={26} />, label: 'Permisos', sub: 'Tareas Críticas', color: '#2563eb', bg: 'rgba(37,99,235,0.1)', premium: true, category: 'critical', featured: true },
-  { to: '/ai-general-camera', icon: <ShieldWarning weight="duotone" size={26} />, label: 'Riesgos IA', sub: 'Análisis de Entorno', color: '#f43f5e', bg: 'rgba(244, 63, 94, 0.1)', premium: true, category: 'ia', badge: 'IA ✨' },
+  { to: '/ai-general-camera', icon: <ShieldWarning weight="duotone" size={26} />, label: 'Riesgos IA', sub: 'Análisis de Entorno', color: '#f43f5e', bg: 'rgba(244, 63, 94, 0.1)', premium: true, category: 'ia', badge: 'IA' },
   { to: '/noise-assessment', icon: <SpeakerHigh weight="duotone" size={26} />, label: 'Ruido', sub: 'Evaluación de Niveles Sonoros', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true, category: 'specific' },
   { to: '/chemical-safety', icon: <Flask weight="duotone" size={26} />, label: 'Seguridad Química', sub: 'Gestión de Sustancias y SGA', color: '#ec4899', bg: 'rgba(236,72,153,0.1)', premium: true, category: 'specific' },
   { to: '/drills', icon: <Siren weight="duotone" size={26} />, label: 'Simulacros', sub: 'Actas de Evacuación', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management' },
@@ -407,7 +406,7 @@ export default function Home(): React.ReactElement {
           <div style={{ position: 'relative', zIndex: 1, maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 1fr)', gap: '4rem', alignItems: 'center' }}>
             <div className="stagger-item" style={{ animationDelay: '0.1s' }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.5rem 1rem', background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '100px', marginBottom: '2rem' }}>
-                <Sparkles size={16} color="#60a5fa" />
+                <ShieldCheck size={16} color="#60a5fa" />
                 <span style={{ color: '#60a5fa', fontSize: '0.85rem', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase' }}>Plataforma H&S con IA</span>
               </div>
               <h1 style={{ fontSize: 'clamp(2.8rem, 6vw, 4.5rem)', fontWeight: 900, color: 'white', margin: '0 0 1.5rem', lineHeight: 1.1, letterSpacing: '-2px', fontFamily: 'var(--font-heading)' }}>
@@ -456,7 +455,7 @@ export default function Home(): React.ReactElement {
                 </div>
                 <div>
                   <h1 style={{ fontSize: 'clamp(2rem, 5vw, 2.8rem)', fontWeight: 900, color: 'white', margin: 0, lineHeight: 1.1, fontFamily: 'var(--font-heading)' }}>
-                    Hola, {userName} {isSubscribed && <Sparkles size={24} color="#f59e0b" fill="#f59e0b" style={{ display: 'inline', verticalAlign: 'middle', marginLeft: '0.5rem' }}/>}
+                    Hola, {userName} {isSubscribed && <Crown size={22} color="#f59e0b" weight="fill" style={{ display: 'inline', verticalAlign: 'middle', marginLeft: '0.5rem' }}/>}
                   </h1>
                   <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem', margin: '0.5rem 0 0', fontWeight: 500 }}>
                     Gestioná riesgos, ATS y cumplimiento normativo con IA.
@@ -504,7 +503,7 @@ export default function Home(): React.ReactElement {
                 animationDelay: '0.5s'
               }}>
                 <div style={{ background: 'var(--color-primary)', color: 'white', padding: '0.8rem', borderRadius: '15px', display: 'flex' }}>
-                  <Sparkles size={20} />
+                  <Lightbulb size={20} weight="fill" />
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>

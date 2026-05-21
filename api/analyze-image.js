@@ -51,6 +51,7 @@ export default async function handler(req, res) {
 
         const prompt = `Analiza detalladamente esta imagen de un entorno laboral. 
 Tu tarea es verificar el uso de Elementos de Protección Personal (EPP) y detectar riesgos.
+OBLIGATORIAMENTE todo el texto generado (incluyendo "foundRisks" y especialmente las etiquetas "label" de cada objeto detectado en "detections") debe estar en ESPAÑOL. No uses palabras en inglés como "Helmet", "Safety vest", "Gloves", "Safety shoes", "Risk" o "Danger". En su lugar, usa estrictamente términos en español, por ejemplo: "Casco de seguridad", "Guantes de seguridad", "Calzado de seguridad", "Chaleco reflectivo", "Riesgo de tropiezo", etc.
 Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguiente formato exacto:
 {
     "personDetected": true/false,
@@ -61,10 +62,10 @@ Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguie
     "ppeComplete": true/false, // Si tiene todos los EPP básicos listados antes
     "foundRisks": ["Descripción del riesgo 1", "Riesgo 2"],
     "detections": [
-        {"label": "Casco", "box_2d": [ymin, xmin, ymax, xmax]},
-        {"label": "Calzado", "box_2d": [ymin, xmin, ymax, xmax]},
-        {"label": "Guantes", "box_2d": [ymin, xmin, ymax, xmax]},
-        {"label": "Riesgo: [Nombre]", "box_2d": [ymin, xmin, ymax, xmax]}
+        {"label": "Casco de seguridad", "box_2d": [ymin, xmin, ymax, xmax]},
+        {"label": "Calzado de seguridad", "box_2d": [ymin, xmin, ymax, xmax]},
+        {"label": "Guantes de seguridad", "box_2d": [ymin, xmin, ymax, xmax]},
+        {"label": "Riesgo: [Nombre en español]", "box_2d": [ymin, xmin, ymax, xmax]}
     ]
 }
 Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de 0 a 1000.`;
@@ -101,7 +102,8 @@ Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de
                 process.stdout.write(`[AI RECOVERY] Intentando con ${modelName}... `);
                 const model = genAI.getGenerativeModel({
                     model: modelName,
-                    safetySettings
+                    safetySettings,
+                    systemInstruction: "Eres un experto prevencionista de riesgos laborales. Analiza las imágenes de los puestos de trabajo para detectar uso de EPP y riesgos. Identifica cajas delimitadoras [ymin, xmin, ymax, xmax] normalizadas de 0 a 1000. OBLIGATORIAMENTE todas las etiquetas (label) de las detecciones, riesgos (foundRisks) y textos deben estar en ESPAÑOL (por ejemplo: 'Casco de seguridad', 'Calzado de seguridad', 'Guantes de seguridad', 'Chaleco reflectivo', 'Sin casco', 'Sin chaleco', 'Riesgo eléctrico', etc.). Jamás utilices términos en inglés como 'Helmet', 'Safety Vest', 'Gloves', 'Shoes' o 'Workwear'."
                 });
 
                 const fetchPromise = model.generateContent([prompt, imagePart]);
