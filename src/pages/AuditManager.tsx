@@ -487,6 +487,7 @@ export default function AuditManager(): React.ReactElement | null {
                                 placeholder="Buscar por título, auditor, ubicación..."
                                 value={searchTerm}
                                 onChange={(e: any) => setSearchTerm(e.target.value)}
+                                className="input-professional"
                                 style={{
                                     width: '100%',
                                     padding: '0.85rem 1rem 0.85rem 3rem',
@@ -504,6 +505,7 @@ export default function AuditManager(): React.ReactElement | null {
                         <select
                             value={filterStatus}
                             onChange={(e: any) => setFilterStatus(e.target.value)}
+                            className="input-professional"
                             style={{
                                 padding: '0.85rem 1.25rem',
                                 borderRadius: 'var(--radius-lg)',
@@ -579,23 +581,39 @@ export default function AuditManager(): React.ReactElement | null {
 
 // Componentes Auxiliares
 function StatCard({ icon, label, value, color, gradient }: any) {
+    const [isHovered, setIsHovered] = useState(false);
     return (
-        <div className="card" style={{
-            padding: '1.25rem',
-            background: 'var(--gradient-card)',
-            border: '1px solid var(--glass-border-subtle)',
-            position: 'relative',
-            overflow: 'hidden'
-        }}>
+        <div 
+            className="card premium-glow-card" 
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            style={{
+                padding: '1.5rem 1.25rem',
+                background: 'var(--gradient-card)',
+                border: '1px solid var(--glass-border)',
+                position: 'relative',
+                overflow: 'hidden',
+                borderRadius: 'var(--radius-xl)',
+                backdropFilter: 'blur(20px)',
+                boxShadow: isHovered 
+                    ? `0 12px 25px ${color}25, var(--glass-shadow)`
+                    : 'var(--glass-shadow)',
+                transform: isHovered ? 'translateY(-4px) scale(1.02)' : 'translateY(0) scale(1)',
+                transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+                cursor: 'pointer'
+            }}
+        >
             <div style={{
                 position: 'absolute',
-                top: '-20px',
-                right: '-20px',
-                width: '80px',
-                height: '80px',
+                top: '-30px',
+                right: '-30px',
+                width: '100px',
+                height: '100px',
                 background: gradient,
                 borderRadius: '50%',
-                opacity: 0.1
+                filter: 'blur(20px)',
+                opacity: isHovered ? 0.25 : 0.12,
+                transition: 'all 0.5s ease'
             }} />
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
                 <div style={{
@@ -606,15 +624,31 @@ function StatCard({ icon, label, value, color, gradient }: any) {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: `0 4px 15px ${color}40`
+                    boxShadow: `0 4px 15px ${color}40`,
+                    transform: isHovered ? 'scale(1.1) rotate(5deg)' : 'scale(1) rotate(0)',
+                    transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
                 }}>
                     {React.cloneElement(icon, { color: '#ffffff', size: 24 })}
                 </div>
             </div>
-            <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--color-text)', lineHeight: 1 }}>
+            <div style={{ 
+                fontSize: '2.2rem', 
+                fontWeight: 900, 
+                color: 'var(--color-text)', 
+                lineHeight: 1,
+                fontFamily: 'var(--font-heading)',
+                letterSpacing: '-0.5px',
+                marginBottom: '0.25rem'
+            }}>
                 {value}
             </div>
-            <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>
+            <div style={{ 
+                fontSize: '0.82rem', 
+                fontWeight: 700, 
+                color: 'var(--color-text-muted)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+            }}>
                 {label}
             </div>
         </div>
@@ -622,34 +656,56 @@ function StatCard({ icon, label, value, color, gradient }: any) {
 }
 
 function TabButton({ active, onClick, icon, label, count, badge }: any) {
+    const [isHovered, setIsHovered] = useState(false);
     return (
         <button
             onClick={onClick}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
             style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.75rem 1.25rem',
-                background: active ? 'var(--color-primary)' : 'transparent',
-                color: active ? '#fff' : 'var(--color-text-muted)',
+                gap: '0.6rem',
+                padding: '0.85rem 1.5rem',
+                background: active 
+                    ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(124, 58, 237, 0.04))' 
+                    : isHovered 
+                        ? 'rgba(255, 255, 255, 0.03)' 
+                        : 'transparent',
+                color: active 
+                    ? '#8b5cf6' 
+                    : isHovered 
+                        ? 'var(--color-text)' 
+                        : 'var(--color-text-muted)',
                 border: 'none',
-                borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0',
+                borderBottom: `2.5px solid ${active ? '#8b5cf6' : 'transparent'}`,
                 cursor: 'pointer',
-                fontWeight: 700,
+                fontWeight: 800,
                 fontSize: '0.9rem',
-                transition: 'all var(--transition-fast)',
-                position: 'relative'
+                transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                position: 'relative',
+                boxShadow: active ? 'inset 0 -4px 10px rgba(139, 92, 246, 0.05)' : 'none',
+                letterSpacing: '0.3px'
             }}
         >
-            {icon}
-            {label}
+            <span style={{ 
+                transform: active ? 'scale(1.1)' : 'scale(1)', 
+                transition: 'transform 0.3s ease',
+                display: 'flex',
+                alignItems: 'center'
+            }}>
+                {icon}
+            </span>
+            <span>{label}</span>
             {count !== undefined && (
                 <span style={{
                     padding: '0.2rem 0.5rem',
-                    background: active ? 'rgba(255,255,255,0.2)' : 'var(--color-background)',
+                    background: active ? '#8b5cf6' : 'var(--color-border)',
+                    color: active ? '#ffffff' : 'var(--color-text-muted)',
                     borderRadius: 'var(--radius-full)',
                     fontSize: '0.75rem',
-                    fontWeight: 800
+                    fontWeight: 800,
+                    transition: 'all 0.3s ease'
                 }}>
                     {count}
                 </span>
@@ -657,18 +713,19 @@ function TabButton({ active, onClick, icon, label, count, badge }: any) {
             {badge > 0 && (
                 <span style={{
                     position: 'absolute',
-                    top: '-4px',
-                    right: '-4px',
-                    width: '20px',
-                    height: '20px',
+                    top: '4px',
+                    right: '6px',
+                    width: '18px',
+                    height: '18px',
                     background: '#ef4444',
                     color: '#fff',
                     borderRadius: '50%',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '0.7rem',
-                    fontWeight: 900
+                    fontSize: '0.65rem',
+                    fontWeight: 900,
+                    boxShadow: '0 0 6px rgba(239, 68, 68, 0.4)'
                 }}>
                     {badge}
                 </span>
@@ -681,53 +738,82 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
     const auditType = AUDIT_TYPES.find((t: any) => t.id === audit.auditType);
     const auditFindings = findings.filter((f: any) => f.auditId === audit.id);
     const openFindings = auditFindings.filter((f: any) => f.status === 'open').length;
+    const [isHovered, setIsHovered] = useState(false);
 
     return (
-        <div className="card" style={{
-            padding: '1.25rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem',
-            transition: 'all var(--transition-fast)',
-            borderLeft: `4px solid ${statusConfig.color}`
-        }}>
+        <div 
+            className="card premium-glow-card" 
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            style={{
+                padding: '1.5rem 1.25rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1.25rem',
+                background: 'var(--gradient-card)',
+                border: '1px solid var(--glass-border)',
+                borderLeft: `5px solid ${statusConfig.color}`,
+                borderRadius: 'var(--radius-xl)',
+                boxShadow: isHovered 
+                    ? `0 8px 20px rgba(0, 0, 0, 0.04), 0 0 1px 1px ${statusConfig.color}15, var(--glass-shadow)` 
+                    : 'var(--glass-shadow)',
+                transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
+                transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                position: 'relative',
+                overflow: 'hidden'
+            }}
+        >
+            <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                background: `linear-gradient(90deg, ${statusConfig.color}05, transparent)`,
+                opacity: isHovered ? 1 : 0,
+                transition: 'opacity 0.4s ease',
+                pointerEvents: 'none'
+            }} />
+
             {/* Icono */}
             <div style={{
                 width: '56px',
                 height: '56px',
-                background: `${statusConfig.color}15`,
+                background: `${statusConfig.color}10`,
+                border: `1px solid ${statusConfig.color}20`,
                 borderRadius: 'var(--radius-xl)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                flexShrink: 0
+                flexShrink: 0,
+                transform: isHovered ? 'scale(1.05) rotate(-3deg)' : 'scale(1) rotate(0)',
+                transition: 'all 0.3s ease'
             }}>
-                <ClipboardCheck size={28} color={statusConfig.color} strokeWidth={2.5} />
+                <ClipboardCheck size={28} color={statusConfig.color} strokeWidth={2} />
             </div>
 
             {/* Información */}
             <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
                     <h3 style={{ 
                         margin: 0, 
-                        fontSize: '1.1rem', 
-                        fontWeight: 800,
+                        fontSize: '1.15rem', 
+                        fontWeight: 950,
                         color: 'var(--color-text)',
+                        fontFamily: 'var(--font-heading)',
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis'
                     }}>
                         {auditType?.icon} {audit.title}
                     </h3>
-                    <span style={{
-                        padding: '0.35rem 0.75rem',
-                        background: statusConfig.bg,
+                    <span className="badge-status" style={{
+                        borderColor: `${statusConfig.color}30`,
+                        background: `${statusConfig.color}12`,
                         color: statusConfig.color,
-                        borderRadius: 'var(--radius-full)',
-                        fontSize: '0.7rem',
-                        fontWeight: 800,
-                        textTransform: 'uppercase',
-                        flexShrink: 0
+                        padding: '0.25rem 0.65rem',
+                        fontSize: '0.68rem',
+                        fontWeight: 900
                     }}>
                         {statusConfig.label}
                     </span>
@@ -736,32 +822,37 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
                     display: 'flex', 
                     flexWrap: 'wrap', 
                     gap: '1rem',
-                    fontSize: '0.85rem',
+                    rowGap: '0.4rem',
+                    fontSize: '0.82rem',
                     color: 'var(--color-text-muted)',
-                    fontWeight: 500
+                    fontWeight: 600
                 }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <User size={14} />
+                        <User size={13} style={{ color: 'var(--color-text-muted)' }} />
                         {audit.leadAuditor || 'Sin auditor'}
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <Calendar size={14} />
+                        <Calendar size={13} style={{ color: 'var(--color-text-muted)' }} />
                         {audit.scheduledDate ? new Date(audit.scheduledDate).toLocaleDateString('es-AR') : '-'}
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <Shield size={14} />
+                        <Shield size={13} style={{ color: 'var(--color-text-muted)' }} />
                         {audit.standard}
                     </span>
                     {openFindings > 0 && (
                         <span style={{
-                            padding: '0.25rem 0.5rem',
+                            padding: '0.2rem 0.5rem',
                             background: '#fef2f2',
+                            border: '1px solid #fecaca',
                             color: '#dc2626',
                             borderRadius: 'var(--radius-full)',
                             fontSize: '0.7rem',
-                            fontWeight: 700
+                            fontWeight: 800,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.25rem'
                         }}>
-                            <AlertTriangle size={12} style={{ display: 'inline', marginRight: '2px' }} />
+                            <AlertTriangle size={11} />
                             {openFindings} hallazgos abiertos
                         </span>
                     )}
@@ -769,39 +860,51 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
             </div>
 
             {/* Acciones */}
-            <div style={{ display: 'flex', gap: '0.4rem' }}>
+            <div style={{ display: 'flex', gap: '0.4rem', position: 'relative', zIndex: 2 }}>
                 <button
                     onClick={onEdit}
                     style={{
-                        padding: '0.6rem 0.75rem',
-                        background: 'var(--color-surface)',
+                        padding: '0.65rem',
+                        background: 'var(--color-background)',
                         border: '1px solid var(--color-border)',
-                        borderRadius: 'var(--radius-md)',
+                        borderRadius: 'var(--radius-lg)',
                         cursor: 'pointer',
-                        color: 'var(--color-primary)',
-                        transition: 'all var(--transition-fast)'
+                        color: '#6366f1',
+                        transition: 'all 0.2s',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
                     }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = '#6366f112'; e.currentTarget.style.borderColor = '#6366f130'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--color-background)'; e.currentTarget.style.borderColor = 'var(--color-border)'; }}
                     title="Editar Auditoría"
                 >
-                    <Edit3 size={18} />
+                    <Edit3 size={16} />
                 </button>
                 {audit.status === 'planned' && (
                     <button
                         onClick={onStart}
                         style={{
-                            padding: '0.6rem 0.75rem',
+                            padding: '0.65rem 0.85rem',
                             background: '#3b82f6',
                             border: 'none',
-                            borderRadius: 'var(--radius-md)',
+                            borderRadius: 'var(--radius-lg)',
                             cursor: 'pointer',
                             color: '#fff',
-                            fontWeight: 700,
-                            fontSize: '0.8rem',
-                            transition: 'all var(--transition-fast)'
+                            fontWeight: 800,
+                            fontSize: '0.75rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.35rem',
+                            transition: 'all 0.2s',
+                            boxShadow: '0 4px 10px rgba(59, 130, 246, 0.25)'
                         }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = '#2563eb'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = '#3b82f6'; }}
                         title="Iniciar Auditoría"
                     >
-                        <Clock size={18} />
+                        <Clock size={15} />
+                        <span>Iniciar</span>
                     </button>
                 )}
                 {audit.status === 'in_progress' && (
@@ -809,83 +912,112 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
                         <button
                             onClick={onAddFinding}
                             style={{
-                                padding: '0.6rem 0.75rem',
+                                padding: '0.65rem 0.85rem',
                                 background: '#f59e0b',
                                 border: 'none',
-                                borderRadius: 'var(--radius-md)',
+                                borderRadius: 'var(--radius-lg)',
                                 cursor: 'pointer',
                                 color: '#fff',
-                                fontWeight: 700,
-                                fontSize: '0.8rem',
-                                transition: 'all var(--transition-fast)'
+                                fontWeight: 800,
+                                fontSize: '0.75rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.35rem',
+                                transition: 'all 0.2s',
+                                boxShadow: '0 4px 10px rgba(245, 158, 11, 0.25)'
                             }}
+                            onMouseEnter={(e) => { e.currentTarget.style.background = '#d97706'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.background = '#f59e0b'; }}
                             title="Agregar Hallazgo"
                         >
-                            <AlertTriangle size={18} />
+                            <AlertTriangle size={15} />
+                            <span>Hallazgo</span>
                         </button>
                         <button
                             onClick={onComplete}
                             style={{
-                                padding: '0.6rem 0.75rem',
+                                padding: '0.65rem 0.85rem',
                                 background: '#16a34a',
                                 border: 'none',
-                                borderRadius: 'var(--radius-md)',
+                                borderRadius: 'var(--radius-lg)',
                                 cursor: 'pointer',
                                 color: '#fff',
-                                fontWeight: 700,
-                                fontSize: '0.8rem',
-                                transition: 'all var(--transition-fast)'
+                                fontWeight: 800,
+                                fontSize: '0.75rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.35rem',
+                                transition: 'all 0.2s',
+                                boxShadow: '0 4px 10px rgba(22, 163, 74, 0.25)'
                             }}
+                            onMouseEnter={(e) => { e.currentTarget.style.background = '#15803d'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.background = '#16a34a'; }}
                             title="Completar Auditoría"
                         >
-                            <CheckCircle2 size={18} />
+                            <CheckCircle2 size={15} />
+                            <span>Cerrar</span>
                         </button>
                     </>
                 )}
                 <button
                     onClick={onView}
                     style={{
-                        padding: '0.6rem 0.75rem',
+                        padding: '0.65rem',
                         background: 'var(--color-background)',
                         border: '1px solid var(--color-border)',
-                        borderRadius: 'var(--radius-md)',
+                        borderRadius: 'var(--radius-lg)',
                         cursor: 'pointer',
-                        color: 'var(--color-primary)',
-                        transition: 'all var(--transition-fast)'
+                        color: 'var(--color-text)',
+                        transition: 'all 0.2s',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
                     }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--color-border)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--color-background)'; }}
                     title="Ver detalle"
                 >
-                    <Eye size={18} />
+                    <Eye size={16} />
                 </button>
                 <button
                     onClick={onShare}
                     style={{
-                        padding: '0.6rem 0.75rem',
+                        padding: '0.65rem',
                         background: '#dcfce7',
-                        border: '1px solid #86efac',
-                        borderRadius: 'var(--radius-md)',
+                        border: '1px solid #bbf7d0',
+                        borderRadius: 'var(--radius-lg)',
                         cursor: 'pointer',
                         color: '#16a34a',
-                        transition: 'all var(--transition-fast)'
+                        transition: 'all 0.2s',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
                     }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = '#bbf7d0'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = '#dcfce7'; }}
                     title="Compartir PDF"
                 >
-                    <Share2 size={18} />
+                    <Share2 size={16} />
                 </button>
                 <button
                     onClick={onDelete}
                     style={{
-                        padding: '0.6rem 0.75rem',
+                        padding: '0.65rem',
                         background: 'var(--color-background)',
                         border: '1px solid var(--color-border)',
-                        borderRadius: 'var(--radius-md)',
+                        borderRadius: 'var(--radius-lg)',
                         cursor: 'pointer',
                         color: '#ef4444',
-                        transition: 'all var(--transition-fast)'
+                        transition: 'all 0.2s',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
                     }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.borderColor = '#fecaca'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--color-background)'; e.currentTarget.style.borderColor = 'var(--color-border)'; }}
                     title="Eliminar"
                 >
-                    <Trash2 size={18} />
+                    <Trash2 size={16} />
                 </button>
             </div>
         </div>

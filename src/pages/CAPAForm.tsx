@@ -182,10 +182,10 @@ export default function CAPAForm(): React.ReactElement | null {
     };
 
     return (
-        <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem' }}>
+        <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '4rem' }}>
             <div style={{
-                background: 'var(--color-surface)',
-                borderBottom: '1px solid var(--color-border)',
+                background: 'var(--glass-bg)',
+                borderBottom: '1px solid var(--glass-border-subtle)',
                 padding: '1rem 1.5rem',
                 position: 'sticky',
                 top: '5.5rem',
@@ -199,15 +199,17 @@ export default function CAPAForm(): React.ReactElement | null {
                     onClick={() => navigate(-1)}
                     style={{
                         padding: '0.5rem',
-                        background: 'var(--color-background)',
-                        border: '1px solid var(--color-border)',
+                        background: 'var(--color-surface-hover)',
+                        border: '1px solid var(--glass-border)',
                         borderRadius: 'var(--radius-lg)',
                         cursor: 'pointer',
                         color: 'var(--color-text)',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        transition: 'all 0.2s'
                     }}
+                    className="hover:scale-105"
                 >
                     <ArrowLeft size={20} />
                 </button>
@@ -217,125 +219,201 @@ export default function CAPAForm(): React.ReactElement | null {
                         {isEdit ? 'Editar Acción CAPA' : 'Nueva Acción CAPA'}
                     </h1>
                 </div>
-                {/* Header Buttons Removed as they are now in the floating bar */}
             </div>
 
             <main style={{ padding: '3.5rem 1.5rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
-                <div className="card" style={{ padding: '2rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)' }}>
+                <div className="capa-card" style={{ padding: '2rem', borderRadius: 'var(--radius-2xl)' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem' }}>
                         <div style={isMobile ? {} : { gridColumn: 'span 2' }}>
-                            <label style={labelStyle}>Título de la Acción *</label>
-                            <input type="text" value={capa.title} onChange={(e) => setCapa({ ...capa, title: e.target.value })} style={inputStyle} placeholder="Ej: Fugas detectadas en sector de químicos" />
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                <FileText size={16} style={{ color: 'var(--color-primary-light)' }} />
+                                <label style={{ ...labelStyle, margin: 0 }}>Título de la Acción *</label>
+                            </div>
+                            <input
+                                type="text"
+                                value={capa.title}
+                                onChange={(e) => setCapa({ ...capa, title: e.target.value })}
+                                style={inputStyle}
+                                className="capa-focus-glow"
+                                placeholder="Ej: Fugas detectadas en sector de químicos"
+                            />
                         </div>
                         <div>
-                            <label style={labelStyle}>Tipo de Acción</label>
-                            <select value={capa.capaType} onChange={(e) => setCapa({ ...capa, capaType: e.target.value })} style={inputStyle}>
-                                {CAPA_TYPES.map(t => <option key={t.id} value={t.id}>{t.icon} {t.name}</option>)}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                <Shield size={16} style={{ color: 'var(--color-primary-light)' }} />
+                                <label style={{ ...labelStyle, margin: 0 }}>Tipo de Acción</label>
+                            </div>
+                            <select
+                                value={capa.capaType}
+                                onChange={(e) => setCapa({ ...capa, capaType: e.target.value })}
+                                style={inputStyle}
+                                className="capa-focus-glow"
+                            >
+                                {CAPA_TYPES.map(t => (
+                                    <option key={t.id} value={t.id} style={{ background: 'var(--color-surface)', color: 'var(--color-text)' }}>
+                                        {t.icon} {t.name}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                         <div>
-                            <label style={labelStyle}>Prioridad</label>
-                            <select value={capa.priority} onChange={(e) => setCapa({ ...capa, priority: e.target.value })} style={inputStyle}>
-                                {Object.entries(PRIORITY).map(([k, v]) => <option key={k} value={k}>{v.icon} {v.label}</option>)}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                <AlertTriangle size={16} style={{ color: 'var(--color-primary-light)' }} />
+                                <label style={{ ...labelStyle, margin: 0 }}>Prioridad</label>
+                            </div>
+                            <select
+                                value={capa.priority}
+                                onChange={(e) => setCapa({ ...capa, priority: e.target.value })}
+                                style={inputStyle}
+                                className="capa-focus-glow"
+                            >
+                                {Object.entries(PRIORITY).map(([k, v]) => (
+                                    <option key={k} value={k} style={{ background: 'var(--color-surface)', color: 'var(--color-text)' }}>
+                                        {v.icon} {v.label}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                         <div>
-                            <label style={labelStyle}>Responsable</label>
-                            <input type="text" value={capa.responsible} onChange={(e) => setCapa({ ...capa, responsible: e.target.value })} style={inputStyle} placeholder="Nombre del responsable" />
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                <User size={16} style={{ color: 'var(--color-primary-light)' }} />
+                                <label style={{ ...labelStyle, margin: 0 }}>Responsable</label>
+                            </div>
+                            <input
+                                type="text"
+                                value={capa.responsible}
+                                onChange={(e) => setCapa({ ...capa, responsible: e.target.value })}
+                                style={inputStyle}
+                                className="capa-focus-glow"
+                                placeholder="Nombre del responsable"
+                            />
                         </div>
                         <div>
-                            <label style={labelStyle}>Fecha Límite</label>
-                            <input type="date" value={capa.dueDate} onChange={(e) => setCapa({ ...capa, dueDate: e.target.value })} style={inputStyle} />
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                <Calendar size={16} style={{ color: 'var(--color-primary-light)' }} />
+                                <label style={{ ...labelStyle, margin: 0 }}>Fecha Límite</label>
+                            </div>
+                            <input
+                                type="date"
+                                value={capa.dueDate}
+                                onChange={(e) => setCapa({ ...capa, dueDate: e.target.value })}
+                                style={inputStyle}
+                                className="capa-focus-glow"
+                            />
                         </div>
                     </div>
 
-                    <div style={{ marginTop: '2.5rem' }}>
-                        <label style={labelStyle}>Descripción del Problema / No Conformidad *</label>
+                    <div style={{ marginTop: '2rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                            <Info size={16} style={{ color: 'var(--color-primary-light)' }} />
+                            <label style={{ ...labelStyle, margin: 0 }}>Descripción del Problema / No Conformidad *</label>
+                        </div>
                         <textarea 
                             value={capa.description} 
                             onChange={(e) => setCapa({ ...capa, description: e.target.value })} 
-                            style={{ ...inputStyle, minHeight: '80px', paddingTop: '0.75rem' }} 
-                            placeholder="Describa brevemente la situación detectada..."
+                            style={{ ...inputStyle, minHeight: '100px', paddingTop: '0.75rem' }} 
+                            className="capa-focus-glow"
+                            placeholder="Describa de manera clara y precisa la no conformidad o problema detectado..."
                         />
                     </div>
 
-                    <div style={{ marginTop: '2.5rem' }}>
-                        <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Análisis de Causa Raíz (5 Porqués)</h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <div style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid var(--glass-border-subtle)' }}>
+                        <h3 style={{
+                            margin: '0 0 1.5rem 0',
+                            fontSize: '1.25rem',
+                            fontWeight: 900,
+                            color: 'var(--color-primary-light)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            letterSpacing: '0.5px'
+                        }}>
+                            <Clock size={20} /> ANÁLISIS DE CAUSA RAÍZ (5 PORQUÉS)
+                        </h3>
+                        <div className="capa-why-container">
+                            <div className="capa-why-timeline" />
                             {[1, 2, 3, 4, 5].map(num => (
-                                <div key={num} style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '0.8rem', fontWeight: 900, color: 'var(--color-primary)', width: '80px' }}>{num}° Porqué:</span>
-                                    <input 
-                                        type="text" 
-                                        value={capa.rootCause[`why${num}`]} 
-                                        onChange={(e) => setCapa({ ...capa, rootCause: { ...capa.rootCause, [`why${num}`]: e.target.value } })} 
-                                        style={{ ...inputStyle, padding: '0.5rem 0.75rem' }} 
-                                        placeholder={`Pregunta ${num}...`} 
-                                    />
+                                <div key={num} className="capa-why-node">
+                                    <div className="capa-why-badge">{num}</div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', width: '100%' }}>
+                                        <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>
+                                            {num}° Porqué
+                                        </label>
+                                        <input 
+                                            type="text" 
+                                            value={capa.rootCause[`why${num}` as keyof typeof capa.rootCause]} 
+                                            onChange={(e) => setCapa({ ...capa, rootCause: { ...capa.rootCause, [`why${num}`]: e.target.value } })} 
+                                            style={{ ...inputStyle, border: 'none', background: 'transparent', padding: '0.4rem 0', borderBottom: '1px solid var(--color-input-border)', borderRadius: 0 }} 
+                                            className="capa-focus-glow"
+                                            placeholder={`¿Por qué ocurrió el paso anterior?`} 
+                                        />
+                                    </div>
                                 </div>
                             ))}
-                            <div style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(59, 130, 246, 0.05)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-primary)' }}>
-                                <label style={labelStyle}>Causa Raíz Final Identificada</label>
-                                <input 
-                                    type="text" 
-                                    value={capa.rootCause.finalCause} 
-                                    onChange={(e) => setCapa({ ...capa, rootCause: { ...capa.rootCause, finalCause: e.target.value } })} 
-                                    style={inputStyle} 
-                                    placeholder="La causa fundamental es..." 
-                                />
+                        </div>
+                        
+                        <div className="capa-why-node capa-why-final-container" style={{ marginTop: '1.5rem', padding: '1.25rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                                <Target size={18} style={{ color: '#10b981' }} />
+                                <label style={{ ...labelStyle, margin: 0, color: '#10b981' }}>Causa Raíz Final Identificada</label>
                             </div>
+                            <input 
+                                type="text" 
+                                value={capa.rootCause.finalCause} 
+                                onChange={(e) => setCapa({ ...capa, rootCause: { ...capa.rootCause, finalCause: e.target.value } })} 
+                                style={{ ...inputStyle, background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(16, 185, 129, 0.3)' }} 
+                                className="capa-focus-glow"
+                                placeholder="La causa fundamental identificada es..." 
+                            />
                         </div>
                     </div>
 
-                    <div style={{ marginTop: '2.5rem' }}>
-                        <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Plan de Acción y Verificación</h3>
+                    <div style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid var(--glass-border-subtle)' }}>
+                        <h3 style={{
+                            margin: '0 0 1.5rem 0',
+                            fontSize: '1.25rem',
+                            fontWeight: 900,
+                            color: 'var(--color-primary-light)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            letterSpacing: '0.5px'
+                        }}>
+                            <Target size={20} /> PLAN DE ACCIÓN Y VERIFICACIÓN
+                        </h3>
                         <div style={{ marginBottom: '1.5rem' }}>
-                            <label style={labelStyle}>Acciones Correctivas / Preventivas Detalladas</label>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                <FileText size={16} style={{ color: 'var(--color-primary-light)' }} />
+                                <label style={{ ...labelStyle, margin: 0 }}>Acciones Correctivas / Preventivas Detalladas</label>
+                            </div>
                             <textarea 
                                 value={capa.actionPlan} 
                                 onChange={(e) => setCapa({ ...capa, actionPlan: e.target.value })} 
-                                style={{ ...inputStyle, minHeight: '100px' }} 
+                                style={{ ...inputStyle, minHeight: '120px' }} 
+                                className="capa-focus-glow"
                                 placeholder="1. Reparar... 2. Capacitar... 3. Modificar procedimiento..." 
                             />
                         </div>
                         
-                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem', background: 'var(--color-surface)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)', padding: '1.5rem', borderRadius: 'var(--radius-xl)' }}>
+                            <div className="capa-verify-pill-group">
                                 <button
+                                    type="button"
                                     onClick={() => setCapa({ ...capa, verification: { ...capa.verification, implemented: !capa.verification.implemented } })}
-                                    style={{
-                                        padding: '0.75rem',
-                                        background: capa.verification.implemented ? 'rgba(16, 185, 129, 0.1)' : 'var(--color-background)',
-                                        border: `2px solid ${capa.verification.implemented ? 'var(--color-success)' : 'var(--color-border)'}`,
-                                        borderRadius: 'var(--radius-md)',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '0.75rem'
-                                    }}
+                                    className={`capa-verify-pill ${capa.verification.implemented ? 'capa-verify-pill-active-imp' : ''}`}
+                                    style={{ border: '1px solid var(--glass-border)' }}
                                 >
-                                    <div style={{ width: '18px', height: '18px', borderRadius: '4px', border: '2px solid var(--color-success)', background: capa.verification.implemented ? 'var(--color-success)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        {capa.verification.implemented && <CheckCircle2 size={12} color="#fff" />}
-                                    </div>
-                                    <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>Implementación Verificada</span>
+                                    <CheckCircle2 size={18} style={{ color: capa.verification.implemented ? '#10b981' : 'var(--color-text-muted)' }} />
+                                    <span>Implementación Verificada</span>
                                 </button>
                                 <button
+                                    type="button"
                                     onClick={() => setCapa({ ...capa, verification: { ...capa.verification, effective: !capa.verification.effective } })}
-                                    style={{
-                                        padding: '0.75rem',
-                                        background: capa.verification.effective ? 'rgba(59, 130, 246, 0.1)' : 'var(--color-background)',
-                                        border: `2px solid ${capa.verification.effective ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                                        borderRadius: 'var(--radius-md)',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '0.75rem'
-                                    }}
+                                    className={`capa-verify-pill ${capa.verification.effective ? 'capa-verify-pill-active-eff' : ''}`}
+                                    style={{ border: '1px solid var(--glass-border)' }}
                                 >
-                                    <div style={{ width: '18px', height: '18px', borderRadius: '4px', border: '2px solid var(--color-primary)', background: capa.verification.effective ? 'var(--color-primary)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        {capa.verification.effective && <CheckCircle2 size={12} color="#fff" />}
-                                    </div>
-                                    <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>Eficacia Comprobada</span>
+                                    <CheckCircle2 size={18} style={{ color: capa.verification.effective ? '#3b82f6' : 'var(--color-text-muted)' }} />
+                                    <span>Eficacia Comprobada</span>
                                 </button>
                             </div>
                             <div>
@@ -343,30 +421,86 @@ export default function CAPAForm(): React.ReactElement | null {
                                 <textarea 
                                     value={capa.verification.comments} 
                                     onChange={(e) => setCapa({ ...capa, verification: { ...capa.verification, comments: e.target.value } })} 
-                                    style={{ ...inputStyle, minHeight: '80px', fontSize: '0.85rem' }} 
+                                    style={{ ...inputStyle, minHeight: '94px', fontSize: '0.85rem' }} 
+                                    className="capa-focus-glow"
                                     placeholder="Resultados de la verificación de eficacia..." 
                                 />
                             </div>
                         </div>
                     </div>
 
-                    <div className="card" style={{ marginTop: '2.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)', padding: '2rem' }}>
-                        <h3 style={{ marginTop: 0, marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    <div className="capa-card" style={{ marginTop: '3rem', borderRadius: 'var(--radius-2xl)', padding: '2rem' }}>
+                        <h3 style={{
+                            marginTop: 0,
+                            marginBottom: '2rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.7rem',
+                            color: 'var(--color-primary-light)',
+                            fontWeight: 900,
+                            fontSize: '1.25rem',
+                            textTransform: 'uppercase',
+                            letterSpacing: '1px'
+                        }}>
                             <Pencil size={24} /> Firmas y Autorizaciones
                         </h3>
 
-                        <div className="no-print mb-8 p-6 bg-slate-50/5 border border-[var(--color-border)] rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-sm font-bold text-slate-700">
-                            <div className="text-center" style={{ color: 'var(--color-text)' }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                            <div className="flex gap-4 flex-wrap justify-center">
-                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
-                                    <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Responsable / Operador
-                                </label>
-                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
-                                    <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Profesional Actuante
-                                </label>
-                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
-                                    <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Supervisión / Cierre
-                                </label>
+                        <div className="no-print" style={{
+                            marginBottom: '2.5rem',
+                            padding: '1.5rem',
+                            background: 'rgba(255, 255, 255, 0.02)',
+                            border: '1px solid var(--glass-border-subtle)',
+                            borderRadius: 'var(--radius-xl)',
+                            display: 'flex',
+                            flexDirection: isMobile ? 'column' : 'row',
+                            gap: '1.5rem',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}>
+                            <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                INCLUIR FIRMAS EN EL DOCUMENTO:
+                            </div>
+                            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                                {[
+                                    { id: 'operator', label: 'Responsable / Operador', active: showSignatures.operator },
+                                    { id: 'professional', label: 'Profesional Actuante', active: showSignatures.professional },
+                                    { id: 'supervisor', label: 'Supervisión / Cierre', active: showSignatures.supervisor }
+                                ].map(item => (
+                                    <button
+                                        key={item.id}
+                                        type="button"
+                                        onClick={() => setShowSignatures(s => ({ ...s, [item.id]: !s[item.id as keyof typeof showSignatures] }))}
+                                        style={{
+                                            padding: '0.5rem 1rem',
+                                            borderRadius: '20px',
+                                            border: '1px solid',
+                                            borderColor: item.active ? 'var(--color-primary)' : 'var(--color-border)',
+                                            background: item.active ? 'rgba(var(--color-primary-rgb), 0.1)' : 'transparent',
+                                            color: item.active ? 'var(--color-primary-light)' : 'var(--color-text-muted)',
+                                            cursor: 'pointer',
+                                            fontWeight: 700,
+                                            fontSize: '0.85rem',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.5rem',
+                                            transition: 'all 0.2s'
+                                        }}
+                                    >
+                                        <div style={{
+                                            width: '12px',
+                                            height: '12px',
+                                            borderRadius: '50%',
+                                            background: item.active ? 'var(--color-primary)' : 'rgba(255,255,255,0.1)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            transition: 'all 0.2s'
+                                        }}>
+                                            {item.active && <CheckCircle2 size={8} color="#fff" />}
+                                        </div>
+                                        {item.label}
+                                    </button>
+                                ))}
                             </div>
                         </div>
 
@@ -403,36 +537,47 @@ export default function CAPAForm(): React.ReactElement | null {
                             />
                         </div>
 
-                        {/* Interactive Signature Drawing Pads */}
-                        <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 gap-8" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '2rem' }}>
+                        {/* Interactive Signature Drawing Pads inside custom glass cards */}
+                        <div className="no-print" style={{
+                            marginTop: '2rem',
+                            paddingTop: '2rem',
+                            borderTop: '1px solid var(--glass-border-subtle)',
+                            display: 'grid',
+                            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))',
+                            gap: '1.5rem'
+                        }}>
                             {showSignatures.operator && (
-                                <SignatureCanvas 
-                                    onSave={(sig) => setCapa(prev => ({ ...prev, operatorSignature: sig || '' }))}
-                                    initialImage={capa.operatorSignature}
-                                    label="Firma de Responsable / Operador"
-                                />
+                                <div className="glass-card" style={{ padding: '1.25rem', borderRadius: 'var(--radius-xl)', border: '1px solid var(--glass-border)' }}>
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setCapa(prev => ({ ...prev, operatorSignature: sig || '' }))}
+                                        initialImage={capa.operatorSignature}
+                                        label="Firma de Responsable / Operador"
+                                    />
+                                </div>
                             )}
                             
                             {showSignatures.professional && (
-                                <SignatureCanvas 
-                                    onSave={(sig) => setCapa(prev => ({ ...prev, signature: sig || '' }))}
-                                    initialImage={capa.signature}
-                                    label="Firma de Profesional Actuante"
-                                />
+                                <div className="glass-card" style={{ padding: '1.25rem', borderRadius: 'var(--radius-xl)', border: '1px solid var(--glass-border)' }}>
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setCapa(prev => ({ ...prev, signature: sig || '' }))}
+                                        initialImage={capa.signature}
+                                        label="Firma de Profesional Actuante"
+                                    />
+                                </div>
                             )}
 
                             {showSignatures.supervisor && (
-                                <SignatureCanvas 
-                                    onSave={(sig) => setCapa(prev => ({ ...prev, supervisorSignature: sig || '' }))}
-                                    initialImage={capa.supervisorSignature}
-                                    label="Firma de Supervisión / Cierre"
-                                />
+                                <div className="glass-card" style={{ padding: '1.25rem', borderRadius: 'var(--radius-xl)', border: '1px solid var(--glass-border)' }}>
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setCapa(prev => ({ ...prev, supervisorSignature: sig || '' }))}
+                                        initialImage={capa.supervisorSignature}
+                                        label="Firma de Supervisión / Cierre"
+                                    />
+                                </div>
                             )}
                         </div>
                     </div>
                 </div>
-
-                {/* Botones de acción flotantes */}
             </main>
 
             <div className="no-print floating-action-bar">

@@ -31,6 +31,15 @@ export default function FireLoad(): React.ReactElement | null {
     const editData = location.state?.editData;
     useDocumentTitle(editData ? 'Editar Carga de Fuego' : 'Cálculo Carga de Fuego');
 
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     const [formData, setFormData] = useState({
         empresa: '',
         sector: '',
@@ -317,12 +326,21 @@ export default function FireLoad(): React.ReactElement | null {
         }
     };
 
+    const getThreatColors = () => {
+        const rf = results.rfRequerida || 'F0';
+        if (rf === 'F0') return { bg: 'rgba(34, 197, 94, 0.08)', border: '#22c55e', text: '#22c55e', label: 'Bajo' };
+        if (rf === 'F30' || rf === 'F60') return { bg: 'rgba(234, 179, 8, 0.08)', border: '#eab308', text: '#eab308', label: 'Moderado' };
+        if (rf === 'F90' || rf === 'F120') return { bg: 'rgba(249, 115, 22, 0.08)', border: '#f97316', text: '#f97316', label: 'Alto' };
+        return { bg: 'rgba(239, 68, 68, 0.08)', border: '#ef4444', text: '#ef4444', label: 'Crítico' };
+    };
+    const threat = getThreatColors();
+
     return (
-        <div className="container" style={{ maxWidth: '900px', paddingBottom: '8rem' }}>
+        <div className="container" style={{ maxWidth: '1000px', paddingBottom: '8rem' }}>
             <div className="no-print">
                 <PremiumHeader
                     title="Carga de Fuego"
-                    subtitle="Cálculo según Dec. 351/79"
+                    subtitle={`Cálculo según ${countryNorms.fire}`}
                     icon={<Flame size={36} />}
                 />
             </div>
@@ -345,21 +363,21 @@ export default function FireLoad(): React.ReactElement | null {
                 <button
                     onClick={handleSave}
                     className="btn-floating-action"
-                    style={{ background: '#36B37E', color: '#ffffff' }}
+                    style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: '#ffffff', fontWeight: 800 }}
                 >
                     <Save size={18} /> GUARDAR
                 </button>
                 <button
                     onClick={() => requirePro(() => setShowShare(true))}
                     className="btn-floating-action"
-                    style={{ background: '#0052CC', color: '#ffffff' }}
+                    style={{ background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#ffffff', fontWeight: 800 }}
                 >
                     <Share2 size={18} /> COMPARTIR
                 </button>
                 <button
                     onClick={handlePrint}
                     className="btn-floating-action"
-                    style={{ background: '#FF8B00', color: '#ffffff' }}
+                    style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)', color: '#ffffff', fontWeight: 800 }}
                 >
                     <Printer size={18} /> IMPRIMIR PDF
                 </button>
@@ -396,49 +414,80 @@ export default function FireLoad(): React.ReactElement | null {
                 </div>
 
                 <div className="no-print" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                    <button onClick={() => navigate('/#tools')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
-                        <ArrowLeft />
+                    <button onClick={() => navigate('/fire-load-history')} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>
+                        <ArrowLeft size={20} />
                     </button>
                     <div>
-                        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>{editData ? 'Editar Carga de Fuego' : 'Estudio de Carga de Fuego'}</h1>
-                        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Cálculo según {countryNorms.fire}</p>
+                        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-text)' }}>{editData ? 'Editar Carga de Fuego' : 'Estudio de Carga de Fuego'}</h1>
+                        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Cálculo según {countryNorms.fire}</p>
                     </div>
                 </div>
 
-                <div className="main-layout flex flex-col lg:flex-row gap-6" style={{ alignItems: 'start' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                        <div className="card">
-                            <h3 style={{ marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '1.1rem' }}>
-                                <Building2 size={20} color="var(--color-primary)" /> Datos del Sector de Incendio
+                <div className="main-layout flex flex-col lg:flex-row gap-6 no-print" style={{ alignItems: 'start' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', flex: 1, width: '100%' }}>
+                        <div className="glass-card" style={{ padding: '2rem', borderTop: '3px solid #f97316', borderRadius: 'var(--radius-2xl)', borderLeft: '1px solid var(--glass-border)', borderRight: '1px solid var(--glass-border)', borderBottom: '1px solid var(--glass-border)' }}>
+                            <h3 style={{ marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '1.15rem', fontWeight: 900, color: 'var(--color-text)' }}>
+                                <Building2 size={20} color="#f97316" style={{ filter: 'drop-shadow(0 0 8px rgba(249, 115, 22, 0.3))' }} /> Datos del Sector de Incendio
                             </h3>
-                            <div className="grid-res-2" style={{ marginBottom: '1rem' }}>
+                            <div className="grid-res-2" style={{ marginBottom: '1rem', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem' }}>
                                 <div>
-                                    <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Empresa / Establecimiento</label>
-                                    <input type="text" value={formData.empresa} onChange={e => setFormData({ ...formData, empresa: e.target.value })} placeholder="Ej: Planta Industrial Sur" />
+                                    <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '0.4rem' }}>Empresa / Establecimiento</label>
+                                    <div style={{ position: 'relative' }} className="no-print">
+                                        <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }}>
+                                            <Building2 size={16} />
+                                        </div>
+                                        <input 
+                                            type="text" 
+                                            value={formData.empresa} 
+                                            onChange={e => setFormData({ ...formData, empresa: e.target.value })} 
+                                            placeholder="Ej: Planta Industrial Sur" 
+                                            className="fireload-focus-glow"
+                                            style={{ width: '100%', padding: '0.7rem 0.7rem 0.7rem 2.5rem', borderRadius: '10px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)', transition: 'all 0.2s' }}
+                                        />
+                                    </div>
                                     <div className="print-only" style={{ padding: '8px', borderBottom: '1px solid #eee' }}>{formData.empresa || '-'}</div>
                                 </div>
                                 <div>
-                                    <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Sector / Depósito</label>
-                                    <input type="text" value={formData.sector} onChange={e => setFormData({ ...formData, sector: e.target.value })} placeholder="Ej: Salón de Ventas" />
+                                    <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '0.4rem' }}>Sector / Depósito</label>
+                                    <div style={{ position: 'relative' }} className="no-print">
+                                        <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }}>
+                                            <Layout size={16} />
+                                        </div>
+                                        <input 
+                                            type="text" 
+                                            value={formData.sector} 
+                                            onChange={e => setFormData({ ...formData, sector: e.target.value })} 
+                                            placeholder="Ej: Salón de Ventas" 
+                                            className="fireload-focus-glow"
+                                            style={{ width: '100%', padding: '0.7rem 0.7rem 0.7rem 2.5rem', borderRadius: '10px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)', transition: 'all 0.2s' }}
+                                        />
+                                    </div>
                                     <div className="print-only" style={{ padding: '8px', borderBottom: '1px solid #eee' }}>{formData.sector || '-'}</div>
                                 </div>
                             </div>
 
                             <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Actividad (Resumen para Encabezado)</label>
-                                <input
-                                    type="text"
-                                    value={formData.actividadResumen}
-                                    onChange={e => setFormData({ ...formData, actividadResumen: e.target.value })}
-                                    placeholder="Ej: Planta Industrial, Depósito de Telas..."
-                                    style={{ width: '100%', padding: '0.7rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)' }}
-                                />
+                                <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '0.4rem' }}>Actividad (Resumen para Encabezado)</label>
+                                <div style={{ position: 'relative' }} className="no-print">
+                                    <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }}>
+                                        <FileText size={16} />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={formData.actividadResumen}
+                                        onChange={e => setFormData({ ...formData, actividadResumen: e.target.value })}
+                                        placeholder="Ej: Planta Industrial, Depósito de Telas..."
+                                        className="fireload-focus-glow"
+                                        style={{ width: '100%', padding: '0.7rem 0.7rem 0.7rem 2.5rem', borderRadius: '10px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)', transition: 'all 0.2s' }}
+                                    />
+                                </div>
+                                <div className="print-only" style={{ padding: '8px', borderBottom: '1px solid #eee' }}>{formData.actividadResumen || '-'}</div>
                             </div>
 
                             <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Descripción de Actividad</label>
+                                <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '0.4rem' }}>Descripción de Actividad</label>
                                 <textarea
-                                    className="no-print"
+                                    className="no-print fireload-focus-glow"
                                     value={formData.descripcionActividad}
                                     onChange={e => setFormData({ ...formData, descripcionActividad: e.target.value })}
                                     onInput={e => {
@@ -446,220 +495,309 @@ export default function FireLoad(): React.ReactElement | null {
                                         target.style.height = 'auto';
                                         target.style.height = target.scrollHeight + 'px';
                                     }}
-
                                     placeholder="Detalle los procesos y actividades que se realizan en el sector..."
-                                    style={{ width: '100%', padding: '0.7rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)', minHeight: '80px', overflow: 'hidden', fontFamily: 'inherit' }}
+                                    style={{ width: '100%', padding: '0.7rem 0.7rem 0.7rem 0.7rem', borderRadius: '10px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)', minHeight: '80px', overflow: 'hidden', fontFamily: 'inherit', transition: 'all 0.2s' }}
                                 />
-                                <div className="print-text-box">{formData.descripcionActividad || 'Sin descripción detallada.'}</div>
+                                <div className="print-text-box" style={{ padding: '8px', borderBottom: '1px solid #eee' }}>{formData.descripcionActividad || 'Sin descripción detallada.'}</div>
                             </div>
-                            <div className="grid-res-2">
+
+                            <div className="grid-res-2" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem' }}>
                                 <div>
-                                    <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Superficie del Sector (m²)</label>
-                                    <input
-                                        type="number"
-                                        value={formData.superficie === 0 ? '' : formData.superficie}
-                                        onChange={e => setFormData({ ...formData, superficie: e.target.value === '' ? 0 : parseFloat(e.target.value) || 0 })}
-                                        onFocus={(e) => e.target.select()}
-                                        placeholder="0"
-                                    />
+                                    <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '0.4rem' }}>Superficie del Sector (m²)</label>
+                                    <div style={{ position: 'relative' }} className="no-print">
+                                        <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }}>
+                                            <Maximize2 size={16} />
+                                        </div>
+                                        <input
+                                            type="number"
+                                            value={formData.superficie === 0 ? '' : formData.superficie}
+                                            onChange={e => setFormData({ ...formData, superficie: e.target.value === '' ? 0 : parseFloat(e.target.value) || 0 })}
+                                            onFocus={(e) => e.target.select()}
+                                            placeholder="0"
+                                            className="fireload-focus-glow"
+                                            style={{ width: '100%', padding: '0.7rem 0.7rem 0.7rem 2.5rem', borderRadius: '10px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)', transition: 'all 0.2s' }}
+                                        />
+                                    </div>
                                     <div className="print-only" style={{ padding: '8px', borderBottom: '1px solid #eee' }}>{formData.superficie} m²</div>
                                 </div>
                                 <div>
-                                    <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Grupo de Actividad</label>
-                                    <input
-                                        list="activityList"
-                                        value={formData.actividadGrupo}
-                                        onChange={e => setFormData({ ...formData, actividadGrupo: e.target.value })}
-                                        placeholder="Ej: Industrial, Comercial..."
-                                    />
+                                    <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '0.4rem' }}>Grupo de Actividad</label>
+                                    <div style={{ position: 'relative' }} className="no-print">
+                                        <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }}>
+                                            <Flame size={16} />
+                                        </div>
+                                        <input
+                                            list="activityList"
+                                            value={formData.actividadGrupo}
+                                            onChange={e => setFormData({ ...formData, actividadGrupo: e.target.value })}
+                                            placeholder="Ej: Industrial, Comercial..."
+                                            className="fireload-focus-glow"
+                                            style={{ width: '100%', padding: '0.7rem 0.7rem 0.7rem 2.5rem', borderRadius: '10px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)', transition: 'all 0.2s' }}
+                                        />
+                                        <datalist id="activityList">
+                                            {(riskActivityGroups || []).map(g => <option key={g.id} value={g.label} />)}
+                                        </datalist>
+                                    </div>
                                     <div className="print-only" style={{ padding: '8px', borderBottom: '1px solid #eee' }}>{formData.actividadGrupo}</div>
-                                    <datalist id="activityList">
-                                        {(riskActivityGroups || []).map(g => <option key={g.id} value={g.label} />)}
-                                    </datalist>
                                 </div>
                             </div>
 
                             <div style={{ marginTop: '1rem' }}>
-                                <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Nivel de Riesgo ({countryNorms.fire.split(' ')[0]})</label>
-                                <select
-                                    value={formData.riesgo}
-                                    onChange={e => setFormData({ ...formData, riesgo: e.target.value })}
-                                    style={{ width: '100%', padding: '0.7rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)' }}
-                                    className="no-print"
-                                >
-                                    <option value="R1">Riesgo 1 (Explosivo)</option>
-                                    <option value="R2">Riesgo 2 (Inflamable)</option>
-                                    <option value="R3">Riesgo 3 (Muy Combustible)</option>
-                                    <option value="R4">Riesgo 4 (Combustible)</option>
-                                    <option value="R5">Riesgo 5 (Poco Combustible)</option>
-                                    <option value="R6">Riesgo 6 (Incombustible)</option>
-                                    <option value="R7">Riesgo 7 (Refractario)</option>
-                                </select>
+                                <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '0.4rem' }}>Nivel de Riesgo ({countryNorms.fire.split(' ')[0]})</label>
+                                <div style={{ position: 'relative' }} className="no-print">
+                                    <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }}>
+                                        <ShieldCheck size={16} />
+                                    </div>
+                                    <select
+                                        value={formData.riesgo}
+                                        onChange={e => setFormData({ ...formData, riesgo: e.target.value })}
+                                        className="fireload-focus-glow"
+                                        style={{ width: '100%', padding: '0.7rem 0.7rem 0.7rem 2.5rem', borderRadius: '10px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)', transition: 'all 0.2s', appearance: 'none', WebkitAppearance: 'none' }}
+                                    >
+                                        <option value="R1">Riesgo 1 (Explosivo)</option>
+                                        <option value="R2">Riesgo 2 (Inflamable)</option>
+                                        <option value="R3">Riesgo 3 (Muy Combustible)</option>
+                                        <option value="R4">Riesgo 4 (Combustible)</option>
+                                        <option value="R5">Riesgo 5 (Poco Combustible)</option>
+                                        <option value="R6">Riesgo 6 (Incombustible)</option>
+                                        <option value="R7">Riesgo 7 (Refractario)</option>
+                                    </select>
+                                </div>
                                 <div className="print-only" style={{ padding: '8px', borderBottom: '1px solid #eee', fontWeight: 'bold' }}>{formData.riesgo}</div>
-                                <p style={{ margin: '0.3rem 0 0 0', fontSize: '0.7rem', color: 'var(--color-text-muted)' }} className="no-print">
+                                <p style={{ margin: '0.4rem 0 0 0', fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 500 }} className="no-print">
                                     El riesgo afecta directamente el cálculo de la Resistencia al Fuego (RF) necesaria.
                                 </p>
                             </div>
                         </div>
 
-                        <div className="card">
-                            <h3 style={{ marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '1.1rem' }}>
-                                <Flame size={20} color="#f97316" /> Inventario de Materiales Combustibles
+                        <div className="glass-card" style={{ padding: '2rem', borderTop: '3px solid #ea580c', borderRadius: 'var(--radius-2xl)', borderLeft: '1px solid var(--glass-border)', borderRight: '1px solid var(--glass-border)', borderBottom: '1px solid var(--glass-border)' }}>
+                            <h3 style={{ marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '1.15rem', fontWeight: 900, color: 'var(--color-text)' }}>
+                                <Flame size={20} color="#ea580c" style={{ filter: 'drop-shadow(0 0 8px rgba(234, 88, 12, 0.3))' }} /> Inventario de Materiales Combustibles
                             </h3>
 
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                                <div className="print-only" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1.2fr 1fr', gap: '0.8rem', fontWeight: 'bold', borderBottom: '2px solid #000', paddingBottom: '5px', marginBottom: '5px' }}>
-                                    <div>Material</div>
-                                    <div>Peso (Kg)</div>
-                                    <div>Calor (Mcal/Kg)</div>
-                                    <div>Total Kcal</div>
-                                </div>
-                                {(formData.materiales || []).map((m, idx) => (
-                                    <React.Fragment key={idx}>
-                                        <div className="no-print" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1.2fr auto', gap: '0.8rem', alignItems: 'end', paddingBottom: '0.8rem', borderBottom: '1px solid var(--color-border)' }}>
+                                {/* VISTA EN PANTALLA (Formulario Interactivo) */}
+                                <div className="no-print" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                                    {(formData.materiales || []).map((m, idx) => (
+                                        <div key={idx} className="fireload-material-row" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr 1.2fr auto', gap: '0.8rem', alignItems: 'end' }}>
                                             <div>
-                                                <label style={{ fontSize: '0.75rem', fontWeight: 600 }}>Material</label>
+                                                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '0.3rem' }}>Material #{idx + 1}</label>
                                                 <input
                                                     list="materialList"
                                                     value={m.nombre}
                                                     onChange={e => handleMaterialChange(idx, 'nombre', e.target.value)}
-                                                    placeholder="Nombre..."
+                                                    placeholder="Ej: Madera, Plásticos, Papel..."
+                                                    className="fireload-focus-glow"
+                                                    style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-background)', color: 'var(--color-text)', transition: 'all 0.2s' }}
                                                 />
                                                 <datalist id="materialList">
                                                     {(fireMaterials || []).map((fm, i) => <option key={i} value={fm.nombre} />)}
                                                 </datalist>
                                             </div>
-                                            <div>
-                                                <label style={{ fontSize: '0.75rem', fontWeight: 600 }}>Peso (Kg)</label>
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.2rem' }}>
+                                                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Peso (Kg)</label>
                                                 <input
                                                     type="number"
                                                     value={m.peso === 0 ? '' : m.peso}
                                                     onChange={e => handleMaterialChange(idx, 'peso', e.target.value)}
                                                     onFocus={(e) => e.target.select()}
                                                     placeholder="0"
+                                                    className="fireload-focus-glow"
+                                                    style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-background)', color: 'var(--color-text)', transition: 'all 0.2s' }}
                                                 />
                                             </div>
-                                            <div>
-                                                <label style={{ fontSize: '0.75rem', fontWeight: 600 }}>Calor (Mcal/Kg)</label>
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.2rem' }}>
+                                                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Calor (Mcal/Kg)</label>
                                                 <input
                                                     type="number"
                                                     value={m.poderCalorifico === 0 ? '' : m.poderCalorifico}
                                                     onChange={e => handleMaterialChange(idx, 'poderCalorifico', e.target.value)}
                                                     onFocus={(e) => e.target.select()}
                                                     placeholder="0"
+                                                    className="fireload-focus-glow"
+                                                    style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-background)', color: 'var(--color-text)', transition: 'all 0.2s' }}
                                                 />
                                             </div>
-                                            <button onClick={() => removeMaterial(idx)} style={{ background: 'transparent', border: 'none', color: '#ef4444', padding: '0.5rem', cursor: 'pointer' }}>
-                                                <Trash2 size={18} />
+                                            <button 
+                                                onClick={() => removeMaterial(idx)} 
+                                                style={{ background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.15)', color: '#ef4444', padding: '0.6rem', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', alignSelf: 'end', height: '38px', minWidth: '38px' }}
+                                                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)'; e.currentTarget.style.transform = 'scale(1.05)'; }}
+                                                onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.05)'; e.currentTarget.style.transform = 'none'; }}
+                                            >
+                                                <Trash2 size={16} />
                                             </button>
                                         </div>
-                                        <div className="print-only material-row" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1.2fr 1fr', gap: '0.8rem' }}>
-                                            <div>{m.nombre || 'Sin nombre'}</div>
-                                            <div>{m.peso} Kg</div>
-                                            <div>{m.poderCalorifico} Mcal/Kg</div>
-                                            <div>{Math.round(m.totalKcal || 0).toLocaleString()} Kcal</div>
-                                        </div>
-                                    </React.Fragment>
-                                ))}
-                                <button onClick={addMaterial} className="no-print" style={{ borderStyle: 'dashed', padding: '0.8rem', width: '100%', background: 'transparent', border: '1px dashed var(--color-border)', color: 'var(--color-primary)', borderRadius: '8px', cursor: 'pointer' }}>
-                                    <Plus size={18} /> Agregar Material
-                                </button>
-                            </div>
+                                    ))}
+                                     <button 
+                                         onClick={addMaterial} 
+                                         style={{ borderStyle: 'dashed', padding: '1rem', width: '100%', background: 'rgba(249, 115, 22, 0.03)', border: '2px dashed var(--glass-border)', color: '#f97316', borderRadius: '12px', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', transition: 'all 0.2s' }}
+                                         onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(249, 115, 22, 0.08)'; e.currentTarget.style.borderColor = '#f97316'; }}
+                                         onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(249, 115, 22, 0.03)'; e.currentTarget.style.borderColor = 'var(--glass-border)'; }}
+                                     >
+                                         <Plus size={18} /> Agregar Material Combustible
+                                     </button>
+                                 </div>
+                             </div>
                         </div>
                     </div>
 
-                    <div style={{ position: 'sticky', top: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }} className="results-grid">
-                        <div className="card" style={{ background: 'var(--color-primary)', color: '#ffffff', textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.85rem', opacity: 0.9, marginBottom: '0.5rem' }}>Carga de Fuego Qf</div>
-                            <div style={{ fontSize: '2.5rem', fontWeight: 900 }}>{(results.cargaDeFuego || 0).toFixed(2)}</div>
-                            <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>Kg de Madera / m²</div>
+                    <div style={{ position: 'sticky', top: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', width: isMobile ? '100%' : '350px' }} className="results-grid no-print">
+                        <div className="glass-card" style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)', color: '#ffffff', textAlign: 'center', padding: '2rem', borderRadius: 'var(--radius-2xl)', border: 'none', boxShadow: '0 8px 30px rgba(249, 115, 22, 0.35)', position: 'relative', overflow: 'hidden' }}>
+                            <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at top right, rgba(255,255,255,0.15), transparent)', pointerEvents: 'none' }} />
+                            <div style={{ fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.9, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem' }}>
+                                <Flame size={14} /> Carga de Fuego Qf
+                            </div>
+                            <div style={{ fontSize: '3rem', fontWeight: 900, textShadow: '0 2px 10px rgba(0,0,0,0.2)', lineHeight: 1 }}>{(results.cargaDeFuego || 0).toFixed(2)}</div>
+                            <div style={{ fontSize: '0.85rem', fontWeight: 700, opacity: 0.95, marginTop: '0.5rem' }}>Kg de Madera / m²</div>
                         </div>
 
-                        <div className="card" style={{ borderLeft: '4px solid #f97316' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
-                                <span style={{ color: 'var(--color-text-muted)' }}>Riesgo Dominante:</span>
-                                <span style={{ fontWeight: 700 }}>{formData.riesgo}</span>
+                        <div className="glass-card" style={{ borderLeft: `5px solid ${threat.border}`, padding: '1.25rem', borderRadius: 'var(--radius-xl)', display: 'flex', flexDirection: 'column', gap: '0.75rem', background: 'var(--color-surface)', borderTop: '1px solid var(--glass-border-subtle)', borderRight: '1px solid var(--glass-border-subtle)', borderBottom: '1px solid var(--glass-border-subtle)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Riesgo Dominante:</span>
+                                <span style={{ fontWeight: 900, background: 'var(--color-background)', padding: '0.2rem 0.6rem', borderRadius: '8px', border: '1px solid var(--glass-border-subtle)', fontSize: '0.85rem', color: 'var(--color-text)' }}>{formData.riesgo}</span>
                             </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                                <span style={{ color: 'var(--color-text-muted)' }}>Resistencia RF:</span>
-                                <span style={{ fontWeight: 700, color: '#f97316' }}>{results.rfRequerida}</span>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Resistencia RF Requerida:</span>
+                                <span style={{ fontWeight: 900, color: threat.text, fontSize: '1.15rem' }}>{results.rfRequerida}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--glass-border-subtle)', paddingTop: '0.5rem', marginTop: '0.25rem' }}>
+                                <span style={{ color: 'var(--color-text-muted)', fontSize: '0.75rem', fontWeight: 700 }}>Nivel de Amenaza:</span>
+                                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: threat.text, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: threat.border, display: 'inline-block' }}></span>
+                                    {threat.label}
+                                </span>
                             </div>
                         </div>
 
-                        <div className="card print-area" style={{ display: 'block', padding: '2rem', marginTop: '2.5rem' }}>
-                            <h3 style={{ marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
-                                <ShieldCheck size={22} color="var(--color-primary)" /> Resultados Finales del Cálculo
-                            </h3>
-
-                            <div className="overflow-x-auto w-full mb-8">
-                                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
-                                    <thead style={{ background: 'var(--color-background)' }}>
-                                        <tr>
-                                            <th style={{ padding: '0.8rem', border: '1px solid var(--color-border)' }}>Parámetro</th>
-                                            <th style={{ padding: '0.8rem', border: '1px solid var(--color-border)' }}>Valor Obtenido</th>
-                                            <th style={{ padding: '0.8rem', border: '1px solid var(--color-border)' }}>Unidad</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td style={{ padding: '0.8rem', border: '1px solid var(--color-border)' }}>Carga de Fuego (Qf)</td>
-                                            <td style={{ padding: '0.8rem', border: '1px solid var(--color-border)', fontWeight: 700 }}>{results.cargaDeFuego.toFixed(2)}</td>
-                                            <td style={{ padding: '0.8rem', border: '1px solid var(--color-border)' }}>kg/m² (madera equiv.)</td>
-                                        </tr>
-                                        <tr>
-                                            <td style={{ padding: '0.8rem', border: '1px solid var(--color-border)' }}>Poder Calorífico Total</td>
-                                            <td style={{ padding: '0.8rem', border: '1px solid var(--color-border)', fontWeight: 700 }}>{Math.round(results.cargaTermicaTotal * 4.184).toLocaleString()}</td>
-                                            <td style={{ padding: '0.8rem', border: '1px solid var(--color-border)' }}>kJ</td>
-                                        </tr>
-                                        <tr>
-                                            <td style={{ padding: '0.8rem', border: '1px solid var(--color-border)' }}>Nivel de Riesgo</td>
-                                            <td style={{ padding: '0.8rem', border: '1px solid var(--color-border)', fontWeight: 800, color: 'var(--color-primary)' }}>{formData.riesgo}</td>
-                                            <td style={{ padding: '0.8rem', border: '1px solid var(--color-border)' }}>-</td>
-                                        </tr>
-                                        <tr>
-                                            <td style={{ padding: '0.8rem', border: '1px solid var(--color-border)' }}>Resistencia al Fuego (RF) Requerida</td>
-                                            <td style={{ padding: '0.8rem', border: '1px solid var(--color-border)', fontWeight: 800 }}>{results.rfRequerida}</td>
-                                            <td style={{ padding: '0.8rem', border: '1px solid var(--color-border)' }}>minutos</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div className="card" style={{ padding: '1rem' }}>
-                                <h4 style={{ margin: '0 0 0.8rem 0', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                    <Info size={16} /> Resumen Técnico
-                                </h4>
-                                <div style={{ fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span>Calor Total:</span>
-                                        <span>{Math.round(results.cargaTermicaTotal || 0).toLocaleString()} Kcal</span>
-                                    </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span>Madera Eq:</span>
-                                        <span>{(results.maderaEquivalente || 0).toFixed(2)} Kg</span>
-                                    </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '5px', paddingTop: '5px', borderTop: '1px solid var(--color-border)' }}>
-                                        <span style={{ fontWeight: 600 }}>Matafuegos Sugeridos:</span>
-                                        <span style={{ fontWeight: 700, color: 'var(--color-primary)' }}>{results.minMatafuegos} u. (Tipo ABC)</span>
-                                    </div>
+                        <div className="glass-card" style={{ padding: '1.5rem', borderRadius: 'var(--radius-xl)', border: '1px solid var(--glass-border)', background: 'var(--color-surface)' }}>
+                            <h4 style={{ margin: '0 0 1rem 0', fontSize: '0.95rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#ea580c' }}>
+                                <ShieldCheck size={18} /> Resultados del Cálculo
+                            </h4>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', fontSize: '0.85rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--glass-border-subtle)', paddingBottom: '0.4rem' }}>
+                                    <span style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>Carga Térmica Total</span>
+                                    <span style={{ fontWeight: 800, color: 'var(--color-text)' }}>{Math.round(results.cargaTermicaTotal || 0).toLocaleString()} Kcal</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--glass-border-subtle)', paddingBottom: '0.4rem' }}>
+                                    <span style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>Madera Equivalente</span>
+                                    <span style={{ fontWeight: 800, color: 'var(--color-text)' }}>{(results.maderaEquivalente || 0).toFixed(2)} Kg</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--glass-border-subtle)', paddingBottom: '0.4rem' }}>
+                                    <span style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>Superficie Sector</span>
+                                    <span style={{ fontWeight: 800, color: 'var(--color-text)' }}>{formData.superficie} m²</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--glass-border-subtle)', paddingBottom: '0.4rem' }}>
+                                    <span style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>Riesgo Dominante</span>
+                                    <span style={{ fontWeight: 800, color: '#f97316' }}>{formData.riesgo}</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--glass-border-subtle)', paddingBottom: '0.4rem' }}>
+                                    <span style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>RF Mínima Requerida</span>
+                                    <span style={{ fontWeight: 800, color: threat.text }}>{results.rfRequerida}</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem', background: 'rgba(249, 115, 22, 0.05)', padding: '0.6rem 0.8rem', borderRadius: '10px', border: '1px solid rgba(249,115,22,0.15)' }}>
+                                    <span style={{ fontWeight: 700, color: 'var(--color-text)', fontSize: '0.8rem' }}>Extintores ABC Sugeridos</span>
+                                    <span style={{ fontWeight: 900, color: '#f97316', fontSize: '0.85rem' }}>{results.minMatafuegos} u.</span>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
 
-                            <div className="card" style={{ padding: '1rem', border: '2px solid var(--color-primary)', background: 'rgba(59, 130, 246, 0.05)' }}>
-                                <h4 style={{ margin: '0 0 0.8rem 0', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-primary)' }}>
-                                    <ShieldCheck size={18} /> Requerimientos de Protección
-                                </h4>
-                                <div style={{ fontSize: '0.85rem' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                                        <span>Matafuegos (Mín.):</span>
-                                        <span style={{ fontWeight: 800 }}>{results.minMatafuegos} unidades</span>
-                                    </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--color-text-muted)' }} className="no-print">
-                                        <span>Tipo Sugerido:</span>
-                                        <span>ABC (Polvo)</span>
-                                    </div>
-                                    <p style={{ margin: '10px 0 0 0', fontSize: '0.7rem', fontStyle: 'italic', borderTop: '1px solid #ddd', paddingTop: '5px' }}>
-                                        * Cálculo basado en 1 unidad cada 200m² con un mínimo de 2 por sector.
-                                    </p>
+                {/* INVENTARIO PARA IMPRESIÓN */}
+                <div className="print-area print-only" style={{ display: 'block', padding: '2rem', marginTop: '1.5rem', border: '1px solid #000' }}>
+                    <h3 style={{ marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.7rem', color: '#000000', fontSize: '1.2rem', fontWeight: 900 }}>
+                        <Flame size={20} color="#000000" /> Inventario de Materiales Combustibles
+                    </h3>
+
+                    <div className="overflow-x-auto w-full">
+                        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
+                            <thead>
+                                <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #000' }}>
+                                    <th style={{ padding: '0.8rem', border: '1px solid #cbd5e1', fontWeight: 800, width: '40%' }}>Material</th>
+                                    <th style={{ padding: '0.8rem', border: '1px solid #cbd5e1', fontWeight: 800, width: '20%' }}>Peso (Kg)</th>
+                                    <th style={{ padding: '0.8rem', border: '1px solid #cbd5e1', fontWeight: 800, width: '20%' }}>Poder Calorífico</th>
+                                    <th style={{ padding: '0.8rem', border: '1px solid #cbd5e1', fontWeight: 800, width: '20%' }}>Total Calorías</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {(formData.materiales || []).map((m, idx) => (
+                                    <tr key={idx} style={{ borderBottom: '1px solid #cbd5e1' }}>
+                                        <td style={{ padding: '0.8rem', border: '1px solid #cbd5e1', fontWeight: 600 }}>{m.nombre || 'Sin nombre'}</td>
+                                        <td style={{ padding: '0.8rem', border: '1px solid #cbd5e1' }}>{m.peso} Kg</td>
+                                        <td style={{ padding: '0.8rem', border: '1px solid #cbd5e1' }}>{m.poderCalorifico} Mcal/Kg</td>
+                                        <td style={{ padding: '0.8rem', border: '1px solid #cbd5e1', fontWeight: 700 }}>{Math.round(m.totalKcal || 0).toLocaleString()} Kcal</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {/* TABLA DE RESULTADOS PARA IMPRESIÓN */}
+                <div className="print-area print-only" style={{ display: 'block', padding: '2rem', marginTop: '2.5rem', border: '1px solid #000' }}>
+                    <h3 style={{ marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.7rem', color: '#000000', fontSize: '1.2rem', fontWeight: 900 }}>
+                        Resultados Finales del Cálculo
+                    </h3>
+
+                    <div className="overflow-x-auto w-full mb-8">
+                        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
+                            <thead>
+                                <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #000' }}>
+                                    <th style={{ padding: '0.8rem', border: '1px solid #cbd5e1', fontWeight: 800 }}>Parámetro</th>
+                                    <th style={{ padding: '0.8rem', border: '1px solid #cbd5e1', fontWeight: 800 }}>Valor Obtenido</th>
+                                    <th style={{ padding: '0.8rem', border: '1px solid #cbd5e1', fontWeight: 800 }}>Unidad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style={{ padding: '0.8rem', border: '1px solid #cbd5e1' }}>Carga de Fuego (Qf)</td>
+                                    <td style={{ padding: '0.8rem', border: '1px solid #cbd5e1', fontWeight: 700 }}>{results.cargaDeFuego.toFixed(2)}</td>
+                                    <td style={{ padding: '0.8rem', border: '1px solid #cbd5e1' }}>kg/m² (madera equiv.)</td>
+                                </tr>
+                                <tr>
+                                    <td style={{ padding: '0.8rem', border: '1px solid #cbd5e1' }}>Poder Calorífico Total</td>
+                                    <td style={{ padding: '0.8rem', border: '1px solid #cbd5e1', fontWeight: 700 }}>{Math.round(results.cargaTermicaTotal * 4.184).toLocaleString()}</td>
+                                    <td style={{ padding: '0.8rem', border: '1px solid #cbd5e1' }}>kJ</td>
+                                </tr>
+                                <tr>
+                                    <td style={{ padding: '0.8rem', border: '1px solid #cbd5e1' }}>Nivel de Riesgo</td>
+                                    <td style={{ padding: '0.8rem', border: '1px solid #cbd5e1', fontWeight: 800 }}>{formData.riesgo}</td>
+                                    <td style={{ padding: '0.8rem', border: '1px solid #cbd5e1' }}>-</td>
+                                </tr>
+                                <tr>
+                                    <td style={{ padding: '0.8rem', border: '1px solid #cbd5e1' }}>Resistencia al Fuego (RF) Requerida</td>
+                                    <td style={{ padding: '0.8rem', border: '1px solid #cbd5e1', fontWeight: 800 }}>{results.rfRequerida}</td>
+                                    <td style={{ padding: '0.8rem', border: '1px solid #cbd5e1' }}>minutos</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+                        <div style={{ padding: '1rem', border: '1px solid #cbd5e1', borderRadius: '8px' }}>
+                            <h4 style={{ margin: '0 0 0.5rem 0', fontWeight: 800, fontSize: '0.9rem' }}>Resumen Técnico</h4>
+                            <div style={{ fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>Calor Total:</span>
+                                    <span style={{ fontWeight: 700 }}>{Math.round(results.cargaTermicaTotal || 0).toLocaleString()} Kcal</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>Madera Eq:</span>
+                                    <span style={{ fontWeight: 700 }}>{(results.maderaEquivalente || 0).toFixed(2)} Kg</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style={{ padding: '1rem', border: '1px solid #cbd5e1', borderRadius: '8px', background: '#f8fafc' }}>
+                            <h4 style={{ margin: '0 0 0.5rem 0', fontWeight: 800, fontSize: '0.9rem' }}>Protección Requerida</h4>
+                            <div style={{ fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>Matafuegos (Mín.):</span>
+                                    <span style={{ fontWeight: 800 }}>{results.minMatafuegos} unidades</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>Tipo Sugerido:</span>
+                                    <span style={{ fontWeight: 700 }}>ABC (Polvo)</span>
                                 </div>
                             </div>
                         </div>
@@ -667,65 +805,95 @@ export default function FireLoad(): React.ReactElement | null {
                 </div>
 
                 {/* SECCIÓN DE CONCLUSIÓN */}
-                <div className="card print-area" style={{ display: 'block', clear: 'both', padding: '2rem', marginTop: '2.5rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                        <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-primary)' }}>
-                            <FileText size={22} /> Conclusión Profesional
+                <div className="glass-card print-area" style={{ padding: '2rem', marginTop: '2.5rem', borderTop: '3px solid #a855f7', borderLeft: '1px solid var(--glass-border)', borderRight: '1px solid var(--glass-border)', borderBottom: '1px solid var(--glass-border)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+                        <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-text)', fontSize: '1.15rem', fontWeight: 900 }}>
+                            <FileText size={22} color="#a855f7" style={{ filter: 'drop-shadow(0 0 8px rgba(168, 85, 247, 0.3))' }} /> Conclusión Profesional
                         </h3>
                         <button
                             className="no-print"
                             onClick={handleGenerateConclusion}
                             disabled={isGeneratingConclusion}
-                            style={{ padding: '0.6rem 1rem', background: 'linear-gradient(135deg, #a855f7, #ec4899)', color: '#ffffff', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', cursor: isGeneratingConclusion ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', outline: 'none' }}
+                            style={{ 
+                                padding: '0.65rem 1.25rem', 
+                                background: 'linear-gradient(135deg, #a855f7, #ec4899)', 
+                                boxShadow: '0 4px 15px rgba(168, 85, 247, 0.25)', 
+                                color: '#ffffff', 
+                                border: 'none', 
+                                borderRadius: '12px', 
+                                fontWeight: 800, 
+                                fontSize: '0.75rem', 
+                                cursor: isGeneratingConclusion ? 'wait' : 'pointer', 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: '0.5rem', 
+                                transition: 'all 0.2s', 
+                                outline: 'none' 
+                            }}
+                            onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(168, 85, 247, 0.35)'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 15px rgba(168, 85, 247, 0.25)'; }}
                         >
                             {isGeneratingConclusion ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                            {isGeneratingConclusion ? 'REDACTANDO...' : 'REDACTAR CON IA'}
+                            {isGeneratingConclusion ? 'REDACTANDO CONCLUSIÓN IA...' : 'REDACTAR CON IA'}
                         </button>
                     </div>
 
                     <textarea
                         value={formData.conclusion || ''}
                         onChange={(e) => setFormData(prev => ({ ...prev, conclusion: e.target.value }))}
-                        className="form-input no-print"
+                        className="form-input no-print fireload-focus-glow"
                         style={{
                             width: '100%',
                             padding: '1rem',
                             borderRadius: '12px',
-                            border: '1px solid var(--color-border)',
+                            border: '1px solid var(--glass-border)',
                             background: 'var(--color-surface)',
                             color: 'var(--color-text)',
                             minHeight: '120px',
                             resize: 'vertical',
-                            fontFamily: 'inherit'
+                            fontFamily: 'inherit',
+                            transition: 'all 0.2s'
                         }}
                         placeholder="Escriba la conclusión del estudio o use el botón de IA para generarla..."
                     />
 
                     {formData.conclusion && (
-                        <div className="print-only text-slate-800 text-[0.85rem] whitespace-pre-wrap leading-relaxed">
+                        <div className="print-only text-slate-800 text-[0.85rem] whitespace-pre-wrap leading-relaxed" style={{ border: '1px solid #cbd5e1', padding: '1rem', borderRadius: '8px', marginTop: '1rem', background: '#f8fafc' }}>
                             {formData.conclusion}
                         </div>
                     )}
                 </div>
 
                 {/* SECCIÓN DE FIRMAS */}
-                <div className="card print-area" style={{ display: 'block', clear: 'both', padding: '2rem', marginTop: '2.5rem' }}>
-                    <h3 style={{ marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
-                        <ShieldCheck size={22} color="var(--color-primary)" /> Firmas y Validación
+                <div className="glass-card print-area" style={{ padding: '2rem', marginTop: '2.5rem', borderTop: '3px solid #22c55e', borderLeft: '1px solid var(--glass-border)', borderRight: '1px solid var(--glass-border)', borderBottom: '1px solid var(--glass-border)' }}>
+                    <h3 style={{ marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-text)', fontSize: '1.15rem', fontWeight: 900 }}>
+                        <ShieldCheck size={22} color="#22c55e" style={{ filter: 'drop-shadow(0 0 8px rgba(34, 197, 94, 0.3))' }} /> Firmas y Validación
                     </h3>
 
                     <div className="no-print mb-8 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 justify-between items-center text-xs font-bold text-slate-700">
                         <div>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
                         <div className="flex gap-4">
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-4 h-4 accent-orange-600" /> Operador
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-4 h-4 accent-orange-600" /> Supervisor
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-4 h-4 accent-orange-600" /> Profesional
-                            </label>
+                            <button
+                                onClick={() => setShowSignatures(s => ({ ...s, operator: !s.operator }))}
+                                className={`fireload-signature-pill ${showSignatures.operator ? 'fireload-signature-pill-active' : ''}`}
+                            >
+                                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: showSignatures.operator ? '#f97316' : '#94a3b8', display: 'inline-block' }}></span>
+                                Operador
+                            </button>
+                            <button
+                                onClick={() => setShowSignatures(s => ({ ...s, supervisor: !s.supervisor }))}
+                                className={`fireload-signature-pill ${showSignatures.supervisor ? 'fireload-signature-pill-active' : ''}`}
+                            >
+                                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: showSignatures.supervisor ? '#f97316' : '#94a3b8', display: 'inline-block' }}></span>
+                                Supervisor
+                            </button>
+                            <button
+                                onClick={() => setShowSignatures(s => ({ ...s, professional: !s.professional }))}
+                                className={`fireload-signature-pill ${showSignatures.professional ? 'fireload-signature-pill-active' : ''}`}
+                            >
+                                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: showSignatures.professional ? '#f97316' : '#94a3b8', display: 'inline-block' }}></span>
+                                Profesional
+                            </button>
                         </div>
                     </div>
 

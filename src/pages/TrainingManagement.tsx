@@ -205,189 +205,278 @@ export default function TrainingManagement(): React.ReactElement | null {
                         <Printer size={18} /> IMPRIMIR PDF
                     </button>
                 </div>
-
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <button onClick={() => navigate('/')} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)' }}>
+                        <button onClick={() => navigate('/training-history')} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <ArrowLeft size={20} />
                         </button>
                         <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>{editData ? 'Editar Capacitación' : 'Nueva Capacitación'}</h1>
                     </div>
                 </div>
 
-                <div className="card" style={{ padding: '2rem', marginBottom: '1.5rem' }}>
-                    <h2 style={{ fontSize: '1.1rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-primary)' }}>
+                {/* General Metadata Panel */}
+                <div className="glass-card" style={{ padding: '2rem', marginBottom: '1.5rem', borderRadius: 'var(--radius-2xl)', border: '1px solid var(--glass-border)', boxShadow: 'var(--glass-shadow)', backdropFilter: 'blur(12px)' }}>
+                    <h2 style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-primary)' }}>
                         <BookOpen size={20} /> Metadatos de la Charla
                     </h2>
 
-                    <div className="grid-2-cols">
-                        <div style={{ gridColumn: '1 / -1' }}>
-                            <label>Tema / Título de la Capacitación</label>
+                    <div className="grid-2-cols" style={{ gap: '1.5rem' }}>
+                        <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                <BookOpen size={16} /> Tema / Título de la Capacitación
+                            </label>
                             <input
                                 type="text"
                                 placeholder="Ej. Inducción de Seguridad, Uso de EPP, Primeros Auxilios..."
                                 value={formData.tema}
                                 onChange={e => handleInputChange('tema', e.target.value)}
-                                style={{ fontWeight: 'bold' }}
+                                className="input-professional capa-focus-glow"
+                                style={{ fontWeight: 'bold', height: '46px', borderRadius: '10px' }}
                             />
                         </div>
-                        <div>
-                            <label>Expositor / Instructor</label>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                <Users size={16} /> Expositor / Instructor
+                            </label>
                             <input
                                 type="text"
                                 value={formData.expositor}
                                 onChange={e => handleInputChange('expositor', e.target.value)}
+                                className="input-professional capa-focus-glow"
+                                style={{ height: '46px', borderRadius: '10px' }}
                             />
                         </div>
-                        <div>
-                            <label>Sector / Lugar de Dictado</label>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                <Briefcase size={16} /> Sector / Lugar de Dictado
+                            </label>
                             <input
                                 type="text"
                                 placeholder="Ej. Sala de Reuniones 1"
                                 value={formData.ubicacion}
                                 onChange={e => handleInputChange('ubicacion', e.target.value)}
+                                className="input-professional capa-focus-glow"
+                                style={{ height: '46px', borderRadius: '10px' }}
                             />
                         </div>
-                        <div>
-                            <label>Fecha</label>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                <Calendar size={16} /> Fecha
+                            </label>
                             <input
                                 type="date"
                                 value={formData.fecha}
                                 onChange={e => handleInputChange('fecha', e.target.value)}
+                                className="input-professional capa-focus-glow"
+                                style={{ height: '46px', borderRadius: '10px' }}
                             />
                         </div>
-                        <div>
-                            <label>Duración (Horas)</label>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                <Clock size={16} /> Duración (Horas)
+                            </label>
                             <input
                                 type="number"
                                 min="0.5"
                                 step="0.5"
                                 value={formData.duracion}
                                 onChange={e => handleInputChange('duracion', e.target.value)}
+                                className="input-professional capa-focus-glow"
+                                style={{ height: '46px', borderRadius: '10px' }}
                             />
                         </div>
-                        <div style={{ gridColumn: '1 / -1' }}>
-                            <label>Empresa / Contratista (Opcional)</label>
+
+                        <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                <FileText size={16} /> Empresa / Contratista (Opcional)
+                            </label>
                             <input
                                 type="text"
                                 placeholder="Si aplica a una subcontratista específica"
                                 value={formData.empresa}
                                 onChange={e => handleInputChange('empresa', e.target.value)}
+                                className="input-professional capa-focus-glow"
+                                style={{ height: '46px', borderRadius: '10px' }}
                             />
                         </div>
                     </div>
                 </div>
 
-                <div className="card" style={{ flex: 1, padding: '2rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                        <h2 style={{ fontSize: '1.1rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-primary)' }}>
+                {/* Attendee Planilla Panel */}
+                <div className="glass-card" style={{ flex: 1, padding: '2rem', borderRadius: 'var(--radius-2xl)', border: '1px solid var(--glass-border)', boxShadow: 'var(--glass-shadow)', backdropFilter: 'blur(12px)', marginBottom: '1.5rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                        <h2 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-primary)' }}>
                             <Users size={20} /> Planilla de Asistentes
                         </h2>
-                        <span style={{ fontSize: '0.85rem', fontWeight: 600, background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: '0.3rem 0.8rem', borderRadius: '20px' }}>
-                            {formData.asistentes.length} cargados
+                        <span style={{ fontSize: '0.8rem', fontWeight: 800, background: 'var(--color-primary)', color: 'white', padding: '0.3rem 0.8rem', borderRadius: '20px', boxShadow: '0 2px 8px rgba(var(--color-primary-rgb), 0.2)' }}>
+                            {formData.asistentes.length} {formData.asistentes.length === 1 ? 'asistente' : 'asistentes'}
                         </span>
                     </div>
 
-                    <div className="hidden sm:grid" style={{ gridTemplateColumns: '2fr 1fr 1.5fr 40px', gap: '1rem', marginBottom: '0.5rem', padding: '0 0.5rem', fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>
-                        <div>Apellido y Nombre</div>
-                        <div>DNI / CUIL</div>
-                        <div>Puesto / Sector</div>
-                        <div></div>
-                    </div>
-
-                    {formData.asistentes.map((asistente, i) => (
-                        <div key={i} className="responsive-list-card">
-
-                            <div className="responsive-card-row">
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: 2 }}>
-                                    <label className="sm:hidden" style={{ fontSize: '0.75rem', fontWeight: 700, margin: 0 }}>Apellido y Nombre</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Nombre completo"
-                                        value={asistente.nombre}
-                                        onChange={e => handleArrayChange(i, 'nombre', e.target.value)}
-                                        style={{ margin: 0, height: '44px' }}
-                                    />
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: 1 }}>
-                                    <label className="sm:hidden" style={{ fontSize: '0.75rem', fontWeight: 700, margin: 0 }}>DNI / CUIL</label>
-                                    <input
-                                        type="text"
-                                        placeholder="DNI..."
-                                        value={asistente.dni}
-                                        onChange={e => handleArrayChange(i, 'dni', e.target.value)}
-                                        style={{ margin: 0, height: '44px' }}
-                                    />
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: 1.5 }}>
-                                    <label className="sm:hidden" style={{ fontSize: '0.75rem', fontWeight: 700, margin: 0 }}>Puesto / Sector</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Ej. Soldador"
-                                        value={asistente.puesto}
-                                        onChange={e => handleArrayChange(i, 'puesto', e.target.value)}
-                                        style={{ margin: 0, height: '44px' }}
-                                    />
-                                </div>
-
-                                {/* Acción de Borrar (Móvil full, PC cuadrado 44px) */}
-                                {formData.asistentes.length > 1 ? (
-                                    <div style={{ display: 'flex' }} className="mt-2 sm:mt-0 sm:ml-2 sm:w-[44px] flex-none">
-                                        <style>{`
-                                            @media (min-width: 640px) {
-                                                .btn-del-${i} { width: 44px !important; flex: none !important; margin-top: 0 !important; }
-                                            }
-                                        `}</style>
-                                        <button
-                                            onClick={() => removeAsistente(i)}
-                                            className={`delete-asistente-btn btn-del-${i}`}
-                                            title="Eliminar Asistente"
-                                            style={{
-                                                width: '100%', height: '44px', borderRadius: '8px',
-                                                marginTop: '0.5rem', padding: 0, display: 'flex',
-                                                alignItems: 'center', justifyContent: 'center'
-                                            }}
-                                        >
-                                            <Trash2 size={20} />
-                                        </button>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {formData.asistentes.map((asistente, i) => (
+                            <div key={i} className="training-asistente-card">
+                                <span className="training-asistente-badge">
+                                    Asistente #{i + 1}
+                                </span>
+                                
+                                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '2fr 1.2fr 1.5fr auto', gap: '1.25rem', alignItems: 'end', marginTop: '0.5rem' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                                        <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Nombre Completo</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Apellido y Nombre"
+                                            value={asistente.nombre}
+                                            onChange={e => handleArrayChange(i, 'nombre', e.target.value)}
+                                            className="input-professional capa-focus-glow"
+                                            style={{ margin: 0, height: '44px', width: '100%', borderRadius: '10px' }}
+                                        />
                                     </div>
-                                ) : (
-                                    <div className="hidden sm:block" style={{ width: '44px', flex: 'none' }}></div>
-                                )}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                                        <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>DNI / CUIL</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Número de documento"
+                                            value={asistente.dni}
+                                            onChange={e => handleArrayChange(i, 'dni', e.target.value)}
+                                            className="input-professional capa-focus-glow"
+                                            style={{ margin: 0, height: '44px', width: '100%', borderRadius: '10px' }}
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                                        <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Puesto / Sector</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Ej. Operario de Depósito"
+                                            value={asistente.puesto}
+                                            onChange={e => handleArrayChange(i, 'puesto', e.target.value)}
+                                            className="input-professional capa-focus-glow"
+                                            style={{ margin: 0, height: '44px', width: '100%', borderRadius: '10px' }}
+                                        />
+                                    </div>
+
+                                    {formData.asistentes.length > 1 ? (
+                                        <div style={{ display: 'flex', justifyContent: isMobile ? 'flex-end' : 'center', width: isMobile ? '100%' : 'auto' }}>
+                                            <button
+                                                onClick={() => removeAsistente(i)}
+                                                className="delete-asistente-btn"
+                                                title="Eliminar Asistente"
+                                                style={{
+                                                    width: isMobile ? '100%' : '44px',
+                                                    height: '44px',
+                                                    borderRadius: '10px',
+                                                    background: 'rgba(239, 68, 68, 0.08)',
+                                                    border: '1px solid rgba(239, 68, 68, 0.2)',
+                                                    color: '#ef4444',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.2s',
+                                                    marginTop: isMobile ? '0.5rem' : '0'
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    e.currentTarget.style.background = '#ef4444';
+                                                    e.currentTarget.style.color = '#ffffff';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)';
+                                                    e.currentTarget.style.color = '#ef4444';
+                                                }}
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="hidden sm:block" style={{ width: '44px' }}></div>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
 
                     <button
                         className="btn-outline"
                         onClick={addAsistente}
                         style={{
-                            width: '100%', padding: '1rem', borderStyle: 'dashed',
-                            borderWidth: '2px', display: 'flex', alignItems: 'center',
-                            justifyContent: 'center', gap: '0.5rem', marginTop: '1rem'
+                            width: '100%',
+                            padding: '1.2rem',
+                            borderStyle: 'dashed',
+                            borderWidth: '2px',
+                            borderColor: 'var(--color-primary-light)',
+                            borderRadius: '12px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.5rem',
+                            marginTop: '1.5rem',
+                            color: 'var(--color-primary)',
+                            background: 'rgba(var(--color-primary-rgb), 0.03)',
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(var(--color-primary-rgb), 0.06)';
+                            e.currentTarget.style.transform = 'translateY(-1px)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'rgba(var(--color-primary-rgb), 0.03)';
+                            e.currentTarget.style.transform = 'translateY(0)';
                         }}
                     >
                         <UserPlus size={18} /> Añadir Fila de Asistente
                     </button>
                 </div>
 
-                <div className="card" style={{ marginTop: '1.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)', padding: '2rem' }}>
+                {/* Signatures & Approvals Panel */}
+                <div className="glass-card" style={{ marginTop: '1.5rem', borderRadius: 'var(--radius-2xl)', border: '1px solid var(--glass-border)', boxShadow: 'var(--glass-shadow)', backdropFilter: 'blur(12px)', padding: '2rem' }}>
                     <h3 style={{ marginTop: 0, marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
                         <Pencil size={24} /> Firmas y Autorizaciones
                     </h3>
 
-                    <div className="no-print mb-8 p-6 bg-slate-50/5 border border-[var(--color-border)] rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-sm font-bold text-slate-700">
-                        <div className="text-center" style={{ color: 'var(--color-text)' }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                        <div className="flex gap-4 flex-wrap justify-center">
-                            <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
-                                <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Delegado / Asistente
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
-                                <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Instructor / Expositor
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
-                                <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Supervisión / Verificador
-                            </label>
+                    {/* Premium capsule-style signature toggles */}
+                    <div className="no-print" style={{ 
+                        marginBottom: '2rem', 
+                        padding: '1.5rem', 
+                        background: 'var(--color-surface-hover)', 
+                        border: '1px solid var(--glass-border-subtle)', 
+                        borderRadius: '16px', 
+                        display: 'flex', 
+                        flexDirection: isMobile ? 'column' : 'row', 
+                        gap: '1rem', 
+                        alignItems: 'center', 
+                        justifyContent: 'space-between' 
+                    }}>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-text)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                            Incluir Firmas en el Documento:
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                            <button
+                                type="button"
+                                className={`training-signature-pill ${showSignatures.operator ? 'training-signature-pill-active' : ''}`}
+                                onClick={() => setShowSignatures(s => ({ ...s, operator: !s.operator }))}
+                            >
+                                <CheckCircle2 size={16} style={{ opacity: showSignatures.operator ? 1 : 0.4 }} /> Delegado / Asistente
+                            </button>
+                            <button
+                                type="button"
+                                className={`training-signature-pill ${showSignatures.professional ? 'training-signature-pill-active' : ''}`}
+                                onClick={() => setShowSignatures(s => ({ ...s, professional: !s.professional }))}
+                            >
+                                <CheckCircle2 size={16} style={{ opacity: showSignatures.professional ? 1 : 0.4 }} /> Instructor / Expositor
+                            </button>
+                            <button
+                                type="button"
+                                className={`training-signature-pill ${showSignatures.supervisor ? 'training-signature-pill-active' : ''}`}
+                                onClick={() => setShowSignatures(s => ({ ...s, supervisor: !s.supervisor }))}
+                            >
+                                <CheckCircle2 size={16} style={{ opacity: showSignatures.supervisor ? 1 : 0.4 }} /> Supervisión / Verificador
+                            </button>
                         </div>
                     </div>
 
@@ -424,32 +513,47 @@ export default function TrainingManagement(): React.ReactElement | null {
                         />
                     </div>
 
-                    {/* Interactive Signature Drawing Pads */}
-                    <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 gap-8" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '2rem' }}>
-                        {showSignatures.operator && (
-                            <SignatureCanvas 
-                                onSave={(sig) => setFormData(prev => ({ ...prev, operatorSignature: sig || '' }))}
-                                initialImage={formData.operatorSignature}
-                                label="Firma de Delegado / Asistente"
-                            />
-                        )}
-                        
-                        {showSignatures.professional && (
-                            <SignatureCanvas 
-                                onSave={(sig) => setFormData(prev => ({ ...prev, signature: sig || '' }))}
-                                initialImage={formData.signature}
-                                label="Firma de Instructor / Expositor"
-                            />
-                        )}
+                    {/* Interactive Signature Drawing Pads wrapped inside sleek glass containers */}
+                    {(showSignatures.operator || showSignatures.professional || showSignatures.supervisor) && (
+                        <div className="no-print" style={{ 
+                            marginTop: '2rem', 
+                            paddingTop: '2rem', 
+                            borderTop: '1px solid var(--color-border)', 
+                            display: 'grid', 
+                            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', 
+                            gap: '1.5rem' 
+                        }}>
+                            {showSignatures.operator && (
+                                <div className="glass-card" style={{ padding: '1rem', borderRadius: '16px', border: '1px solid var(--glass-border-subtle)' }}>
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setFormData(prev => ({ ...prev, operatorSignature: sig || '' }))}
+                                        initialImage={formData.operatorSignature}
+                                        label="Firma de Delegado / Asistente"
+                                    />
+                                </div>
+                            )}
+                            
+                            {showSignatures.professional && (
+                                <div className="glass-card" style={{ padding: '1rem', borderRadius: '16px', border: '1px solid var(--glass-border-subtle)' }}>
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setFormData(prev => ({ ...prev, signature: sig || '' }))}
+                                        initialImage={formData.signature}
+                                        label="Firma de Instructor / Expositor"
+                                    />
+                                </div>
+                            )}
 
-                        {showSignatures.supervisor && (
-                            <SignatureCanvas 
-                                onSave={(sig) => setFormData(prev => ({ ...prev, supervisorSignature: sig || '' }))}
-                                initialImage={formData.supervisorSignature}
-                                label="Firma de Supervisión / Verificador"
-                            />
-                        )}
-                    </div>
+                            {showSignatures.supervisor && (
+                                <div className="glass-card" style={{ padding: '1rem', borderRadius: '16px', border: '1px solid var(--glass-border-subtle)' }}>
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setFormData(prev => ({ ...prev, supervisorSignature: sig || '' }))}
+                                        initialImage={formData.supervisorSignature}
+                                        label="Firma de Supervisión / Verificador"
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
 

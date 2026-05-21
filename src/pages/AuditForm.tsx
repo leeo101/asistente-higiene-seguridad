@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, ClipboardCheck, Shield, AlertTriangle, Clock, CheckCircle2, User, MapPin, Calendar, FileText, Eye, Printer, Share2, Pencil } from 'lucide-react';
+import { ArrowLeft, Save, ClipboardCheck, Shield, AlertTriangle, Clock, CheckCircle2, User, MapPin, Calendar, FileText, Eye, Printer, Share2, Pencil, Award } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
@@ -8,7 +8,6 @@ import AuditPdf from '../components/AuditPdf';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
-
 
 const AUDIT_TYPES = [
     { id: 'internal', name: 'Interna', icon: '📋' },
@@ -56,25 +55,51 @@ const ISO_CHECKLIST_BASE: any = {
 
 const labelStyle = {
     display: 'block',
-    fontSize: '0.85rem',
+    fontSize: '0.8rem',
     fontWeight: 800,
     color: 'var(--color-text)',
     marginBottom: '0.5rem',
-    textTransform: 'uppercase',
+    textTransform: 'uppercase' as const,
     letterSpacing: '0.5px'
 };
 
-const inputStyle = {
-    width: '100%',
-    padding: '0.85rem 1rem',
-    borderRadius: 'var(--radius-lg)',
-    border: '1px solid var(--color-input-border)',
-    background: 'var(--color-surface)',
-    color: 'var(--color-text)',
-    fontSize: '0.95rem',
-    outline: 'none',
-    transition: 'all 0.2s',
-    boxSizing: 'border-box' as const
+const getStatusStyles = (status: string, isSelected: boolean) => {
+    if (!isSelected) {
+        return {
+            background: 'transparent',
+            color: 'var(--color-text-muted)',
+            borderColor: 'transparent',
+            opacity: 0.8,
+            boxShadow: 'none'
+        };
+    }
+    switch (status) {
+        case 'si':
+            return {
+                background: '#10b981',
+                color: '#ffffff',
+                borderColor: '#10b981',
+                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.4)',
+                opacity: 1
+            };
+        case 'no':
+            return {
+                background: '#ef4444',
+                color: '#ffffff',
+                borderColor: '#ef4444',
+                boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)',
+                opacity: 1
+            };
+        case 'na':
+        default:
+            return {
+                background: '#64748b',
+                color: '#ffffff',
+                borderColor: '#64748b',
+                boxShadow: '0 2px 8px rgba(100, 116, 139, 0.4)',
+                opacity: 1
+            };
+    }
 };
 
 export default function AuditForm(): React.ReactElement | null {
@@ -82,7 +107,7 @@ export default function AuditForm(): React.ReactElement | null {
     const location = useLocation();
     const [isMobile, setIsMobile] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
-    const { isPro, requirePro } = usePaywall();
+    const { requirePro } = usePaywall();
     const [isEdit, setIsEdit] = useState(false);
 
     const [showSignatures, setShowSignatures] = useState({
@@ -230,175 +255,409 @@ export default function AuditForm(): React.ReactElement | null {
         navigate('/audit');
     };
 
-
     return (
-        <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem' }}>
+        <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '7rem' }}>
             <div style={{
-                background: 'var(--color-surface)',
-                borderBottom: '1px solid var(--color-border)',
-                padding: '1rem 1.5rem',
+                background: 'rgba(var(--color-surface-rgb), 0.8)',
+                borderBottom: '1px solid var(--glass-border)',
+                padding: '0.85rem 1.5rem',
                 position: 'sticky',
                 top: '5.5rem',
                 zIndex: 100,
                 backdropFilter: 'blur(20px)',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '1rem'
+                gap: '1rem',
+                boxShadow: 'var(--shadow-sm)'
             }}>
                 <button
                     onClick={() => navigate(-1)}
                     style={{
-                        padding: '0.5rem',
-                        background: 'var(--color-background)',
-                        border: '1px solid var(--color-border)',
+                        padding: '0.6rem',
+                        background: 'rgba(30, 41, 59, 0.1)',
+                        border: '1px solid var(--glass-border)',
                         borderRadius: 'var(--radius-lg)',
                         cursor: 'pointer',
                         color: 'var(--color-text)',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        transition: 'all 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(30, 41, 59, 0.2)';
+                        e.currentTarget.style.transform = 'scale(1.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(30, 41, 59, 0.1)';
+                        e.currentTarget.style.transform = 'scale(1)';
                     }}
                 >
-                    <ArrowLeft size={20} />
+                    <ArrowLeft size={18} />
                 </button>
                 <div style={{ flex: 1 }}>
-                    <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.3rem', fontWeight: 900 }}>
-                        <ClipboardCheck size={20} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />
+                    <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.3rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <ClipboardCheck size={22} style={{ color: 'var(--color-primary)' }} />
                         {isEdit ? 'Editar Auditoría EHS' : 'Nueva Auditoría EHS'}
                     </h1>
                 </div>
-                {/* Header Buttons Removed as they are now in the floating bar */}
             </div>
 
-            <main style={{ padding: '3.5rem 1.5rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
-                <div className="card" style={{ padding: '2rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)' }}>
+            <main style={{ padding: '2rem 1.5rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
+                <div className="card animate-fade-in" style={{ padding: '2.5rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)', boxShadow: 'var(--shadow-lg)' }}>
+                    {/* Metadatos Principales */}
                     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem' }}>
                         <div style={isMobile ? {} : { gridColumn: 'span 2' }}>
                             <label style={labelStyle}>Título de la Auditoría *</label>
-                            <input type="text" value={audit.title} onChange={(e) => setAudit({ ...audit, title: e.target.value })} style={inputStyle} placeholder="Ej: Auditoría Interna Trimestral - Planta Norte" />
+                            <div style={{ position: 'relative' }}>
+                                <input
+                                    type="text"
+                                    className="input-professional"
+                                    style={{ paddingLeft: '2.5rem', marginBottom: 0 }}
+                                    value={audit.title}
+                                    onChange={(e) => setAudit({ ...audit, title: e.target.value })}
+                                    placeholder="Ej: Auditoría Interna Trimestral - Planta Norte"
+                                />
+                                <FileText size={16} color="var(--color-text-light)" style={{ position: 'absolute', left: '0.9rem', top: '1.05rem' }} />
+                            </div>
                         </div>
                         <div>
                             <label style={labelStyle}>Tipo de Auditoría</label>
-                            <select value={audit.auditType} onChange={(e) => setAudit({ ...audit, auditType: e.target.value })} style={inputStyle}>
-                                {AUDIT_TYPES.map(t => <option key={t.id} value={t.id}>{t.icon} {t.name}</option>)}
-                            </select>
+                            <div style={{ position: 'relative' }}>
+                                <select
+                                    value={audit.auditType}
+                                    onChange={(e) => setAudit({ ...audit, auditType: e.target.value })}
+                                    className="input-professional"
+                                    style={{ paddingLeft: '2.5rem', marginBottom: 0 }}
+                                >
+                                    {AUDIT_TYPES.map(t => <option key={t.id} value={t.id}>{t.icon} {t.name}</option>)}
+                                </select>
+                                <Shield size={16} color="var(--color-text-light)" style={{ position: 'absolute', left: '0.9rem', top: '1.05rem', pointerEvents: 'none' }} />
+                            </div>
                         </div>
                         <div>
                             <label style={labelStyle}>Fecha Planificada *</label>
-                            <input type="date" value={audit.date} onChange={(e) => setAudit({ ...audit, date: e.target.value })} style={inputStyle} />
+                            <div style={{ position: 'relative' }}>
+                                <input
+                                    type="date"
+                                    value={audit.date}
+                                    onChange={(e) => setAudit({ ...audit, date: e.target.value })}
+                                    className="input-professional"
+                                    style={{ paddingLeft: '2.5rem', marginBottom: 0 }}
+                                />
+                                <Calendar size={16} color="var(--color-text-light)" style={{ position: 'absolute', left: '0.9rem', top: '1.05rem', pointerEvents: 'none' }} />
+                            </div>
                         </div>
                         <div>
                             <label style={labelStyle}>Auditor Líder *</label>
-                            <input type="text" value={audit.auditor} onChange={(e) => setAudit({ ...audit, auditor: e.target.value })} style={inputStyle} placeholder="Nombre del auditor" />
+                            <div style={{ position: 'relative' }}>
+                                <input
+                                    type="text"
+                                    value={audit.auditor}
+                                    onChange={(e) => setAudit({ ...audit, auditor: e.target.value })}
+                                    className="input-professional"
+                                    style={{ paddingLeft: '2.5rem', marginBottom: 0 }}
+                                    placeholder="Nombre del auditor"
+                                />
+                                <User size={16} color="var(--color-text-light)" style={{ position: 'absolute', left: '0.9rem', top: '1.05rem' }} />
+                            </div>
                         </div>
                         <div>
                             <label style={labelStyle}>Ubicación / Sector</label>
-                            <input type="text" value={audit.location} onChange={(e) => setAudit({ ...audit, location: e.target.value })} style={inputStyle} placeholder="Ej: Nave de Producción" />
+                            <div style={{ position: 'relative' }}>
+                                <input
+                                    type="text"
+                                    value={audit.location}
+                                    onChange={(e) => setAudit({ ...audit, location: e.target.value })}
+                                    className="input-professional"
+                                    style={{ paddingLeft: '2.5rem', marginBottom: 0 }}
+                                    placeholder="Ej: Nave de Producción"
+                                />
+                                <MapPin size={16} color="var(--color-text-light)" style={{ position: 'absolute', left: '0.9rem', top: '1.05rem' }} />
+                            </div>
                         </div>
                     </div>
 
                     <div style={{ marginTop: '2.5rem' }}>
                         <label style={labelStyle}>Objetivo de la Auditoría</label>
-                        <textarea 
-                            value={audit.objective} 
-                            onChange={(e) => setAudit({ ...audit, objective: e.target.value })} 
-                            style={{ ...inputStyle, minHeight: '80px', paddingTop: '0.75rem' }} 
+                        <textarea
+                            className="input-professional"
+                            value={audit.objective}
+                            onChange={(e) => setAudit({ ...audit, objective: e.target.value })}
+                            style={{ minHeight: '80px', paddingTop: '0.75rem', marginBottom: 0 }}
                             placeholder="Describa el propósito de esta auditoría..."
                         />
                     </div>
 
-                    <div style={{ marginTop: '2.5rem' }}>
-                        <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Checklist de Cumplimiento Legal</h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {/* Checklist ISO */}
+                    <div style={{ marginTop: '3rem' }}>
+                        <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem', fontWeight: 900, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem', letterSpacing: '0.5px' }}>
+                            <ClipboardCheck size={22} /> Checklist de Cumplimiento Legal e ISO
+                        </h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                             {audit.checklist.map((item, idx) => (
-                                <div key={item.id} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: '1.25rem' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', marginBottom: '1rem', flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
-                                        <div style={{ flex: 1 }}>
-                                            <div style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--color-primary)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>{item.legal}</div>
-                                            <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{item.question}</div>
-                                        </div>
-                                        <div style={{ display: 'flex', gap: '0.5rem', height: 'fit-content' }}>
-                                            {['si', 'no', 'na'].map(status => (
-                                                <button
-                                                    key={status}
-                                                    onClick={() => {
-                                                        const newChecklist = [...audit.checklist];
-                                                        newChecklist[idx].status = status;
-                                                        setAudit({ ...audit, checklist: newChecklist });
-                                                    }}
-                                                    style={{
-                                                        padding: '0.4rem 0.8rem',
-                                                        fontSize: '0.75rem',
+                                <div
+                                    key={item.id}
+                                    className="stagger-item card"
+                                    style={{
+                                        background: 'rgba(var(--color-surface-rgb), 0.4)',
+                                        border: '1px solid var(--glass-border)',
+                                        borderRadius: 'var(--radius-xl)',
+                                        padding: '1.5rem',
+                                        boxShadow: 'var(--shadow-sm)',
+                                        position: 'relative',
+                                        overflow: 'hidden',
+                                        transition: 'all 0.25s ease'
+                                    }}
+                                >
+                                    {/* Left Accent indicator based on compliance status */}
+                                    <div style={{
+                                        position: 'absolute',
+                                        left: 0,
+                                        top: 0,
+                                        bottom: 0,
+                                        width: '4px',
+                                        background: item.status === 'si' ? '#10b981' : item.status === 'no' ? '#ef4444' : '#64748b',
+                                        transition: 'background 0.3s ease'
+                                    }} />
+
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', marginBottom: '1.25rem', flexWrap: isMobile ? 'wrap' : 'nowrap', alignItems: 'flex-start' }}>
+                                        <div style={{ flex: 1, paddingLeft: '0.5rem' }}>
+                                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '0.5rem' }}>
+                                                <span style={{
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    padding: '0.2rem 0.6rem',
+                                                    borderRadius: 'var(--radius-full)',
+                                                    fontSize: '0.65rem',
+                                                    fontWeight: 850,
+                                                    background: 'rgba(var(--color-primary-rgb), 0.1)',
+                                                    color: 'var(--color-primary)',
+                                                    border: '1px solid rgba(var(--color-primary-rgb), 0.2)',
+                                                    textTransform: 'uppercase',
+                                                    letterSpacing: '0.5px'
+                                                }}>
+                                                    {item.legal}
+                                                </span>
+
+                                                {item.status === 'si' && (
+                                                    <span style={{
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        gap: '0.25rem',
+                                                        padding: '0.2rem 0.6rem',
+                                                        borderRadius: 'var(--radius-full)',
+                                                        fontSize: '0.65rem',
                                                         fontWeight: 800,
-                                                        borderRadius: 'var(--radius-md)',
-                                                        border: '1px solid var(--color-border)',
-                                                        background: item.status === status ? 'var(--color-primary)' : 'transparent',
-                                                        color: item.status === status ? 'white' : 'var(--color-text)',
-                                                        cursor: 'pointer',
-                                                        textTransform: 'uppercase'
-                                                    }}
-                                                >
-                                                    {status}
-                                                </button>
-                                            ))}
+                                                        background: 'rgba(16, 185, 129, 0.1)',
+                                                        color: '#10b981',
+                                                        border: '1px solid rgba(16, 185, 129, 0.2)',
+                                                        textTransform: 'uppercase',
+                                                        letterSpacing: '0.5px'
+                                                    }}>
+                                                        <CheckCircle2 size={12} /> Conforme
+                                                    </span>
+                                                )}
+
+                                                {item.status === 'no' && (
+                                                    <span style={{
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        gap: '0.25rem',
+                                                        padding: '0.2rem 0.6rem',
+                                                        borderRadius: 'var(--radius-full)',
+                                                        fontSize: '0.65rem',
+                                                        fontWeight: 800,
+                                                        background: 'rgba(239, 68, 68, 0.1)',
+                                                        color: '#ef4444',
+                                                        border: '1px solid rgba(239, 68, 68, 0.2)',
+                                                        textTransform: 'uppercase',
+                                                        letterSpacing: '0.5px'
+                                                    }}>
+                                                        <AlertTriangle size={12} /> Desvío Detectado
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-text)', lineHeight: 1.4 }}>{item.question}</div>
+                                        </div>
+
+                                        {/* Segmented glows selector */}
+                                        <div style={{
+                                            display: 'flex',
+                                            background: 'var(--color-background)',
+                                            border: '1px solid var(--color-border)',
+                                            borderRadius: 'var(--radius-lg)',
+                                            padding: '0.25rem',
+                                            gap: '0.25rem',
+                                            height: 'fit-content'
+                                        }}>
+                                            {['si', 'no', 'na'].map(status => {
+                                                const isSelected = item.status === status;
+                                                const styles = getStatusStyles(status, isSelected);
+                                                return (
+                                                    <button
+                                                        key={status}
+                                                        onClick={() => {
+                                                            const newChecklist = [...audit.checklist];
+                                                            newChecklist[idx].status = status;
+                                                            setAudit({ ...audit, checklist: newChecklist });
+                                                        }}
+                                                        style={{
+                                                            padding: '0.45rem 1rem',
+                                                            fontSize: '0.75rem',
+                                                            fontWeight: 800,
+                                                            borderRadius: 'var(--radius-md)',
+                                                            border: '1px solid',
+                                                            borderColor: styles.borderColor,
+                                                            background: styles.background,
+                                                            color: styles.color,
+                                                            boxShadow: styles.boxShadow,
+                                                            opacity: styles.opacity,
+                                                            cursor: 'pointer',
+                                                            textTransform: 'uppercase',
+                                                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                                                        }}
+                                                    >
+                                                        {status === 'si' && '✓ si'}
+                                                        {status === 'no' && '✗ no'}
+                                                        {status === 'na' && '• n/a'}
+                                                    </button>
+                                                );
+                                            })}
                                         </div>
                                     </div>
-                                    <input 
-                                        type="text" 
-                                        value={item.observation} 
-                                        onChange={(e) => {
-                                            const newChecklist = [...audit.checklist];
-                                            newChecklist[idx].observation = e.target.value;
-                                            setAudit({ ...audit, checklist: newChecklist });
-                                        }} 
-                                        style={{ ...inputStyle, padding: '0.5rem 0.75rem', fontSize: '0.85rem' }} 
-                                        placeholder="Observaciones de hallazgo..." 
-                                    />
+
+                                    {/* Observación / Hallazgo */}
+                                    <div style={{ position: 'relative', marginTop: '0.5rem', paddingLeft: '0.5rem' }}>
+                                        <input
+                                            type="text"
+                                            className="input-professional"
+                                            value={item.observation}
+                                            onChange={(e) => {
+                                                const newChecklist = [...audit.checklist];
+                                                newChecklist[idx].observation = e.target.value;
+                                                setAudit({ ...audit, checklist: newChecklist });
+                                            }}
+                                            style={{
+                                                padding: '0.65rem 0.75rem 0.65rem 2.2rem',
+                                                fontSize: '0.85rem',
+                                                marginBottom: 0,
+                                                borderColor: item.status === 'no' && !item.observation ? 'rgba(239, 68, 68, 0.4)' : 'var(--color-border)',
+                                                background: item.status === 'no' && !item.observation ? 'rgba(239, 68, 68, 0.02)' : 'var(--color-surface)'
+                                            }}
+                                            placeholder={item.status === 'no' ? "Describa detalladamente el hallazgo o desvío crítico..." : "Observaciones opcionales..."}
+                                        />
+                                        <FileText size={14} color="var(--color-text-light)" style={{ position: 'absolute', left: '1.2rem', top: '0.85rem' }} />
+                                    </div>
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    <div style={{ marginTop: '2.5rem', background: 'var(--color-surface)', padding: '2rem', borderRadius: 'var(--radius-xl)', border: '2px dashed var(--color-border)' }}>
-                        <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Reunión de Cierre</h3>
+                    {/* Reunión de Cierre */}
+                    <div className="card" style={{ marginTop: '3.5rem', background: 'rgba(var(--color-primary-rgb), 0.02)', padding: '2rem', borderRadius: 'var(--radius-xl)', border: '1px solid var(--glass-border)', boxShadow: 'inset 0 0 20px rgba(var(--color-primary-rgb), 0.01)' }}>
+                        <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem', fontWeight: 900, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem', letterSpacing: '0.5px' }}>
+                            <Clock size={22} /> Minuta y Reunión de Cierre
+                        </h3>
                         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem' }}>
                             <div>
-                                <label style={labelStyle}>Participantes</label>
-                                <input type="text" value={audit.closingMeeting.participants} onChange={(e) => setAudit({ ...audit, closingMeeting: { ...audit.closingMeeting, participants: e.target.value } })} style={inputStyle} placeholder="Nombres de los presentes" />
+                                <label style={labelStyle}>Participantes en el Cierre</label>
+                                <div style={{ position: 'relative' }}>
+                                    <input
+                                        type="text"
+                                        value={audit.closingMeeting.participants}
+                                        onChange={(e) => setAudit({ ...audit, closingMeeting: { ...audit.closingMeeting, participants: e.target.value } })}
+                                        className="input-professional"
+                                        style={{ paddingLeft: '2.5rem', marginBottom: 0 }}
+                                        placeholder="Nombres de los presentes"
+                                    />
+                                    <User size={16} color="var(--color-text-light)" style={{ position: 'absolute', left: '0.9rem', top: '1.05rem' }} />
+                                </div>
                             </div>
                             <div>
-                                <label style={labelStyle}>Fecha de Cierre</label>
-                                <input type="date" value={audit.closingMeeting.date} onChange={(e) => setAudit({ ...audit, closingMeeting: { ...audit.closingMeeting, date: e.target.value } })} style={inputStyle} />
+                                <label style={labelStyle}>Fecha de Reunión de Cierre</label>
+                                <div style={{ position: 'relative' }}>
+                                    <input
+                                        type="date"
+                                        value={audit.closingMeeting.date}
+                                        onChange={(e) => setAudit({ ...audit, closingMeeting: { ...audit.closingMeeting, date: e.target.value } })}
+                                        className="input-professional"
+                                        style={{ paddingLeft: '2.5rem', marginBottom: 0 }}
+                                    />
+                                    <Calendar size={16} color="var(--color-text-light)" style={{ position: 'absolute', left: '0.9rem', top: '1.05rem', pointerEvents: 'none' }} />
+                                </div>
                             </div>
                             <div style={{ gridColumn: 'span 2' }}>
                                 <label style={labelStyle}>Conclusiones Generales</label>
-                                <textarea 
-                                    value={audit.closingMeeting.conclusions} 
-                                    onChange={(e) => setAudit({ ...audit, closingMeeting: { ...audit.closingMeeting, conclusions: e.target.value } })} 
-                                    style={{ ...inputStyle, minHeight: '80px' }} 
-                                    placeholder="Resumen de hallazgos críticos y cumplimiento general..." 
-                                />
+                                <div style={{ position: 'relative' }}>
+                                    <textarea
+                                        value={audit.closingMeeting.conclusions}
+                                        onChange={(e) => setAudit({ ...audit, closingMeeting: { ...audit.closingMeeting, conclusions: e.target.value } })}
+                                        className="input-professional"
+                                        style={{ minHeight: '100px', paddingLeft: '2.5rem', paddingTop: '0.75rem', marginBottom: 0 }}
+                                        placeholder="Resumen de hallazgos críticos, fortalezas detectadas y cumplimiento general de la norma..."
+                                    />
+                                    <Award size={16} color="var(--color-text-light)" style={{ position: 'absolute', left: '0.9rem', top: '1.05rem' }} />
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="card" style={{ marginTop: '2.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)', padding: '2rem' }}>
-                        <h3 style={{ marginTop: 0, marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                            <Pencil size={24} /> Firmas y Autorizaciones
+                    {/* Firmas y Autorizaciones */}
+                    <div className="card" style={{ marginTop: '3.5rem', background: 'rgba(var(--color-surface-rgb), 0.3)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', padding: '2rem' }}>
+                        <h3 style={{ marginTop: 0, marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.25rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                            <Pencil size={22} style={{ color: 'var(--color-primary)' }} /> Firmas y Autorizaciones EHS
                         </h3>
 
-                        <div className="no-print mb-8 p-6 bg-slate-50/5 border border-[var(--color-border)] rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-sm font-bold text-slate-700">
-                            <div className="text-center" style={{ color: 'var(--color-text)' }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                            <div className="flex gap-4 flex-wrap justify-center">
-                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
-                                    <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Persona Auditada
-                                </label>
-                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
-                                    <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Auditor Líder
-                                </label>
-                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
-                                    <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Supervisión / Cierre
-                                </label>
+                        {/* Custom visual switches */}
+                        <div className="no-print mb-8 p-6" style={{ background: 'rgba(30, 41, 59, 0.2)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', width: '100%', display: 'flex', flexDirection: 'column', gap: '1.25rem', justifyContent: 'center', alignItems: 'center' }}>
+                            <div style={{ color: 'var(--color-text)', fontWeight: 800, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                                {[
+                                    { id: 'operator', label: 'Persona Auditada' },
+                                    { id: 'professional', label: 'Auditor Líder' },
+                                    { id: 'supervisor', label: 'Supervisión / Cierre' }
+                                ].map(sig => {
+                                    const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
+                                    return (
+                                        <label
+                                            key={sig.id}
+                                            className="flex items-center gap-2 cursor-pointer select-none"
+                                            style={{
+                                                padding: '0.55rem 1.1rem',
+                                                borderRadius: 'var(--radius-full)',
+                                                border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
+                                                background: isChecked ? 'rgba(var(--color-primary-rgb), 0.15)' : 'transparent',
+                                                color: isChecked ? 'var(--color-primary)' : 'var(--color-text-light)',
+                                                fontWeight: 750,
+                                                fontSize: '0.8rem',
+                                                transition: 'all 0.2s ease',
+                                                boxShadow: isChecked ? '0 0 10px rgba(var(--color-primary-rgb), 0.15)' : 'none'
+                                            }}
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                checked={isChecked}
+                                                onChange={e => setShowSignatures(s => ({ ...s, [sig.id]: e.target.checked }))}
+                                                style={{ display: 'none' }}
+                                            />
+                                            <div style={{
+                                                width: '16px',
+                                                height: '16px',
+                                                borderRadius: '4px',
+                                                border: isChecked ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)',
+                                                background: isChecked ? 'var(--color-primary)' : 'transparent',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                transition: 'all 0.2s ease'
+                                            }}>
+                                                {isChecked && <CheckCircle2 size={12} color="white" />}
+                                            </div>
+                                            {sig.label}
+                                        </label>
+                                    );
+                                })}
                             </div>
                         </div>
 
@@ -436,35 +695,57 @@ export default function AuditForm(): React.ReactElement | null {
                         </div>
 
                         {/* Interactive Signature Drawing Pads */}
-                        <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 gap-8" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '2rem' }}>
+                        <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)]" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
                             {showSignatures.operator && (
-                                <SignatureCanvas 
-                                    onSave={(sig) => setAudit(prev => ({ ...prev, operatorSignature: sig || '' }))}
-                                    initialImage={audit.operatorSignature}
-                                    label="Firma de Persona Auditada / Responsable"
-                                />
+                                <div style={{
+                                    background: 'rgba(30, 41, 59, 0.1)',
+                                    border: '1px solid var(--glass-border)',
+                                    borderRadius: 'var(--radius-xl)',
+                                    padding: '1.25rem',
+                                    boxShadow: 'var(--shadow-sm)'
+                                }}>
+                                    <SignatureCanvas
+                                        onSave={(sig) => setAudit(prev => ({ ...prev, operatorSignature: sig || '' }))}
+                                        initialImage={audit.operatorSignature}
+                                        label="Firma de Persona Auditada / Responsable"
+                                    />
+                                </div>
                             )}
-                            
+
                             {showSignatures.professional && (
-                                <SignatureCanvas 
-                                    onSave={(sig) => setAudit(prev => ({ ...prev, signature: sig || '' }))}
-                                    initialImage={audit.signature}
-                                    label="Firma de Auditor Líder"
-                                />
+                                <div style={{
+                                    background: 'rgba(30, 41, 59, 0.1)',
+                                    border: '1px solid var(--glass-border)',
+                                    borderRadius: 'var(--radius-xl)',
+                                    padding: '1.25rem',
+                                    boxShadow: 'var(--shadow-sm)'
+                                }}>
+                                    <SignatureCanvas
+                                        onSave={(sig) => setAudit(prev => ({ ...prev, signature: sig || '' }))}
+                                        initialImage={audit.signature}
+                                        label="Firma de Auditor Líder"
+                                    />
+                                </div>
                             )}
 
                             {showSignatures.supervisor && (
-                                <SignatureCanvas 
-                                    onSave={(sig) => setAudit(prev => ({ ...prev, supervisorSignature: sig || '' }))}
-                                    initialImage={audit.supervisorSignature}
-                                    label="Firma de Supervisión / Cierre"
-                                />
+                                <div style={{
+                                    background: 'rgba(30, 41, 59, 0.1)',
+                                    border: '1px solid var(--glass-border)',
+                                    borderRadius: 'var(--radius-xl)',
+                                    padding: '1.25rem',
+                                    boxShadow: 'var(--shadow-sm)'
+                                }}>
+                                    <SignatureCanvas
+                                        onSave={(sig) => setAudit(prev => ({ ...prev, supervisorSignature: sig || '' }))}
+                                        initialImage={audit.supervisorSignature}
+                                        label="Firma de Supervisión / Cierre"
+                                    />
+                                </div>
                             )}
                         </div>
                     </div>
-
                 </div>
-
             </main>
 
             <div className="no-print floating-action-bar">
@@ -508,4 +789,3 @@ export default function AuditForm(): React.ReactElement | null {
         </div>
     );
 }
-

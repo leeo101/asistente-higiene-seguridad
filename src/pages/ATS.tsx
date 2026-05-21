@@ -3,7 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
     ArrowLeft, Save, Plus, Trash2, Printer,
     ShieldCheck, Building2, User, Calendar,
-    CheckCircle2, AlertCircle, HelpCircle, Pencil, Info, Share2, Sparkles, Loader2
+    CheckCircle2, AlertCircle, HelpCircle, Pencil, Info, Share2, Sparkles, Loader2,
+    MapPin, FileText
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -498,41 +499,78 @@ export default function ATS(): React.ReactElement | null {
                         </div>
                     </div>
 
-                    <div style={{ border: '2px solid var(--color-border)', borderRadius: '12px', marginBottom: '2.5rem', width: '100%', overflow: 'hidden' }}>
+                    <div style={{ border: '2px solid var(--color-border)', borderRadius: '16px', marginBottom: '2.5rem', width: '100%', overflow: 'hidden', background: 'var(--color-surface)', boxShadow: 'var(--shadow-sm)', transition: 'all 0.3s' }} className="hover:border-blue-400/50 hover:shadow-md">
                         <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ borderBottom: '2px solid var(--color-border)', width: '100%' }}>
-                            <div className="sm:col-span-2 print:col-span-2"><DocBox label="CLIENTE / EMPRESA" value={formData.empresa} onChange={v => setFormData({ ...formData, empresa: v })} large /></div>
-                            <div className="sm:col-span-1 print:col-span-1"><DocBox label="CUIT / CUIL" value={formData.cuit} onChange={v => setFormData({ ...formData, cuit: v })} borderLeft /></div>
-                            <div className="sm:col-span-1 print:col-span-1"><DocBox label="UBICACIÓN / OBRA" value={formData.obra} onChange={v => setFormData({ ...formData, obra: v })} borderLeft /></div>
+                            <div className="sm:col-span-2 print:col-span-2"><DocBox label="CLIENTE / EMPRESA" value={formData.empresa} onChange={v => setFormData({ ...formData, empresa: v })} large icon={<Building2 size={14} />} /></div>
+                            <div className="sm:col-span-1 print:col-span-1"><DocBox label="CUIT / CUIL" value={formData.cuit} onChange={v => setFormData({ ...formData, cuit: v })} borderLeft icon={<ShieldCheck size={14} />} /></div>
+                            <div className="sm:col-span-1 print:col-span-1"><DocBox label="UBICACIÓN / OBRA" value={formData.obra} onChange={v => setFormData({ ...formData, obra: v })} borderLeft icon={<MapPin size={14} />} /></div>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ width: '100%', borderBottom: '2px solid var(--color-border)' }}>
-                            <div className="sm:col-span-1 print:col-span-1"><DocBox label="FECHA" value={formData.fecha} onChange={v => setFormData({ ...formData, fecha: v })} type="date" /></div>
-                            <div className="sm:col-span-3 print:col-span-3"><DocBox label="DESCRIPCIÓN DE LA TAREA" value={formData.tarea} onChange={v => setFormData({ ...formData, tarea: v })} borderLeft /></div>
+                            <div className="sm:col-span-1 print:col-span-1"><DocBox label="FECHA" value={formData.fecha} onChange={v => setFormData({ ...formData, fecha: v })} type="date" icon={<Calendar size={14} />} /></div>
+                            <div className="sm:col-span-3 print:col-span-3"><DocBox label="DESCRIPCIÓN DE LA TAREA" value={formData.tarea} onChange={v => setFormData({ ...formData, tarea: v })} borderLeft icon={<FileText size={14} />} /></div>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ width: '100%' }}>
-                            <div className="sm:col-span-2 print:col-span-2"><DocBox label="RESPONSABLE" value={formData.capatazNombre} onChange={v => setFormData({ ...formData, capatazNombre: v })} /></div>
-                            <div className="sm:col-span-2 print:col-span-2"><DocBox label="PROFESIONAL HYS" value={professional.name} onChange={() => { }} borderLeft /></div>
+                            <div className="sm:col-span-2 print:col-span-2"><DocBox label="RESPONSABLE" value={formData.capatazNombre} onChange={v => setFormData({ ...formData, capatazNombre: v })} icon={<User size={14} />} /></div>
+                            <div className="sm:col-span-2 print:col-span-2"><DocBox label="PROFESIONAL HYS" value={professional.name} onChange={() => { }} borderLeft icon={<ShieldCheck size={14} />} /></div>
                         </div>
                     </div>
 
                     {/* Sección de Secuencia de Tareas */}
                     <div style={{ marginTop: '3rem', marginBottom: '3rem' }}>
                         <div className="no-print" style={{ marginBottom: '1.5rem' }}>
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3" style={{ marginBottom: '1rem' }}>
-                                <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                                    <Pencil size={22} /> Secuencia de Tareas
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3" style={{ marginBottom: '1.25rem' }}>
+                                <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                    <Pencil size={22} className="text-blue-600" /> Secuencia de Tareas
                                 </h3>
-                                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
                                     <button
                                         onClick={handleGenerateAI}
                                         disabled={isGeneratingATS}
-                                        style={{ flex: 1, minWidth: '120px', padding: '0.6rem 1rem', background: 'linear-gradient(135deg, #a855f7, #ec4899)', color: '#ffffff', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', cursor: isGeneratingATS ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: '0 4px 15px rgba(236,72,153,0.3)', opacity: isGeneratingATS ? 0.7 : 1 }}
+                                        style={{ 
+                                            flex: 1, 
+                                            minWidth: '120px', 
+                                            padding: '0.7rem 1.4rem', 
+                                            background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', 
+                                            color: '#ffffff', 
+                                            border: 'none', 
+                                            borderRadius: '14px', 
+                                            fontWeight: 900, 
+                                            fontSize: '0.8rem', 
+                                            cursor: isGeneratingATS ? 'wait' : 'pointer', 
+                                            display: 'flex', 
+                                            alignItems: 'center', 
+                                            justifyContent: 'center', 
+                                            gap: '0.5rem', 
+                                            boxShadow: '0 4px 18px rgba(139,92,246,0.35)', 
+                                            opacity: isGeneratingATS ? 0.7 : 1,
+                                            transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
+                                        }}
+                                        className="hover:scale-[1.03] active:scale-[0.97] hover:shadow-[0_6px_22px_rgba(139,92,246,0.5)]"
                                     >
                                         {isGeneratingATS ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
                                         {isGeneratingATS ? 'PENSANDO...' : 'IA MÁGICA'}
                                     </button>
                                     <button
                                         onClick={addTask}
-                                        style={{ flex: 1, minWidth: '120px', padding: '0.6rem 1.2rem', background: '#36B37E', color: '#ffffff', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                                        style={{ 
+                                            flex: 1, 
+                                            minWidth: '120px', 
+                                            padding: '0.7rem 1.4rem', 
+                                            background: '#10b981', 
+                                            color: '#ffffff', 
+                                            border: 'none', 
+                                            borderRadius: '14px', 
+                                            fontWeight: 900, 
+                                            fontSize: '0.8rem', 
+                                            cursor: 'pointer', 
+                                            display: 'flex', 
+                                            alignItems: 'center', 
+                                            justifyContent: 'center', 
+                                            gap: '0.5rem',
+                                            boxShadow: '0 4px 14px rgba(16,185,129,0.25)',
+                                            transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
+                                        }}
+                                        className="hover:scale-[1.03] active:scale-[0.97] hover:shadow-[0_6px_18px_rgba(16,185,129,0.35)]"
                                     >
                                         <Plus size={16} /> AGREGAR PASO
                                     </button>
@@ -540,19 +578,52 @@ export default function ATS(): React.ReactElement | null {
                             </div>
 
                             {/* Presets List */}
-                            <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', background: 'var(--color-surface)', padding: '1rem', borderRadius: '16px', border: '1px solid rgba(59,130,246,0.15)', boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.01)' }}>
-                                <span style={{ fontSize: '0.7rem', fontWeight: 900, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '1px', width: '100%', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                    <Sparkles size={14} /> Plantillas Rápidas para Tareas Críticas:
+                            <div style={{ 
+                                display: 'flex', 
+                                gap: '0.6rem', 
+                                flexWrap: 'wrap', 
+                                background: 'var(--glass-bg)', 
+                                backdropFilter: 'blur(12px)',
+                                padding: '1.25rem', 
+                                borderRadius: '18px', 
+                                border: '1px solid var(--glass-border-subtle)', 
+                                boxShadow: 'var(--shadow-sm)' 
+                            }}>
+                                <span style={{ 
+                                    fontSize: '0.75rem', 
+                                    fontWeight: 900, 
+                                    color: 'var(--color-primary)', 
+                                    textTransform: 'uppercase', 
+                                    letterSpacing: '1px', 
+                                    width: '100%', 
+                                    marginBottom: '0.5rem', 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    gap: '0.4rem' 
+                                }}>
+                                    <Sparkles size={14} className="text-purple-500" /> Plantillas Rápidas para Tareas Críticas:
                                 </span>
                                 {Object.keys(PRESETS).map(name => (
                                     <button
                                         key={name}
                                         onClick={() => handleApplyPreset(name)}
-                                        style={{ padding: '0.45rem 0.9rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'all 0.2s' }}
-                                        onMouseOver={e => { e.currentTarget.style.background = 'rgba(59,130,246,0.1)'; e.currentTarget.style.borderColor = 'rgba(59,130,246,0.5)'; e.currentTarget.style.color = 'var(--color-primary)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-                                        onMouseOut={e => { e.currentTarget.style.background = 'var(--color-background)'; e.currentTarget.style.borderColor = 'var(--color-border)'; e.currentTarget.style.color = 'var(--color-text)'; e.currentTarget.style.transform = 'none'; }}
+                                        style={{ 
+                                            padding: '0.5rem 1rem', 
+                                            background: 'var(--color-surface)', 
+                                            border: '1px solid var(--color-border)', 
+                                            borderRadius: '12px', 
+                                            fontSize: '0.75rem', 
+                                            fontWeight: 800, 
+                                            cursor: 'pointer', 
+                                            color: 'var(--color-text)', 
+                                            display: 'flex', 
+                                            alignItems: 'center', 
+                                            gap: '0.5rem', 
+                                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)' 
+                                        }}
+                                        className="hover:-translate-y-0.5 hover:bg-blue-50/50 dark:hover:bg-blue-950/20 hover:border-blue-400 hover:text-blue-500 hover:shadow-sm"
                                     >
-                                        <Plus size={14} /> {name}
+                                        <Plus size={14} className="text-blue-500" /> {name}
                                     </button>
                                 ))}
                             </div>
@@ -572,11 +643,14 @@ export default function ATS(): React.ReactElement | null {
 
                             {/* Table Body / Mobile Cards */}
                             <div className="flex flex-col">
-                                {formData.tareas.map((t) => (
-                                    <div key={t.id} className="ats-table-row flex flex-col sm:flex-row print:flex-row last:border-0">
+                                {formData.tareas.map((t, index) => (
+                                    <div key={t.id} className="ats-table-row flex flex-col sm:flex-row print:flex-row last:border-0 hover:bg-slate-50/20 dark:hover:bg-slate-900/10">
                                         {/* Paso */}
                                         <div className="flex-1 sm:flex-[3] print:flex-[3] px-3 py-4 sm:p-4 sm:border-r print:border-r border-[var(--color-border)]">
-                                            <span className="sm:hidden print:hidden block text-[0.6rem] font-black text-blue-600 uppercase mb-1">Paso:</span>
+                                            <div className="flex items-center justify-between mb-2 sm:mb-1.5 no-print">
+                                                <span className="sm:hidden block text-[0.65rem] font-black text-blue-600 uppercase">Paso:</span>
+                                                <span className="px-2 py-0.5 bg-blue-500/10 text-blue-500 text-[0.65rem] font-bold rounded-md">PASO {index + 1}</span>
+                                            </div>
                                             <textarea
                                                 rows={1}
                                                 value={t.paso}
@@ -597,7 +671,9 @@ export default function ATS(): React.ReactElement | null {
 
                                         {/* Riesgo */}
                                         <div className="flex-1 sm:flex-[3] print:flex-[3] px-3 py-4 sm:p-4 sm:border-r print:border-r border-[var(--color-border)]">
-                                            <span className="sm:hidden print:hidden block text-[0.6rem] font-black text-blue-600 uppercase mb-1">Riesgos:</span>
+                                            <div className="flex items-center justify-between mb-2 sm:mb-1.5 no-print">
+                                                <span className="sm:hidden block text-[0.65rem] font-black text-blue-600 uppercase">Riesgos asociados:</span>
+                                            </div>
                                             <textarea
                                                 rows={1}
                                                 value={t.riesgo}
@@ -617,7 +693,9 @@ export default function ATS(): React.ReactElement | null {
 
                                         {/* Control */}
                                         <div className="flex-1 sm:flex-[4] print:flex-[4] px-3 py-4 sm:p-4">
-                                            <span className="sm:hidden print:hidden block text-[0.6rem] font-black text-blue-600 uppercase mb-1">Controles:</span>
+                                            <div className="flex items-center justify-between mb-2 sm:mb-1.5 no-print">
+                                                <span className="sm:hidden block text-[0.65rem] font-black text-blue-600 uppercase">Medidas de Control:</span>
+                                            </div>
                                             <textarea
                                                 rows={1}
                                                 value={t.control}
@@ -639,8 +717,19 @@ export default function ATS(): React.ReactElement | null {
                                         <div className="no-print flex items-center justify-end border-t sm:border-t-0 sm:border-l border-[var(--color-border)] px-4 py-2 sm:py-0" style={{ minWidth: '60px' }}>
                                             <button
                                                 onClick={() => removeTask(t.id)}
-                                                style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', borderRadius: '10px', cursor: 'pointer', color: '#ef4444', padding: '0.6rem', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
-                                                className="hover:bg-red-500 hover:text-white"
+                                                style={{ 
+                                                    background: 'rgba(239,68,68,0.08)', 
+                                                    border: '1px solid rgba(239,68,68,0.15)', 
+                                                    borderRadius: '12px', 
+                                                    cursor: 'pointer', 
+                                                    color: '#ef4444', 
+                                                    padding: '0.7rem', 
+                                                    display: 'flex', 
+                                                    alignItems: 'center', 
+                                                    justifyContent: 'center', 
+                                                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)' 
+                                                }}
+                                                className="hover:bg-red-500 hover:text-white hover:scale-105 active:scale-95 hover:shadow-md hover:shadow-red-500/20"
                                                 title="Eliminar paso"
                                             >
                                                 <Trash2 size={18} />
@@ -652,16 +741,16 @@ export default function ATS(): React.ReactElement | null {
                         </div>
                     </div>
 
-                    <div style={{ marginTop: '2rem' }}>
+                    <div style={{ marginTop: '3rem' }}>
                         <h3 style={{ marginTop: 0, marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                            <ShieldCheck size={24} /> Verificación de Seguridad
+                            <ShieldCheck size={24} className="text-blue-600" /> Verificación de Seguridad
                         </h3>
 
                         {categories.map(cat => (
                             <div key={cat} className="ats-checklist-card">
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.8rem' }}>
                                     <h4 style={{ margin: 0, color: 'var(--color-primary)', fontWeight: 900, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                                        <div style={{ padding: '0.4rem', background: 'rgba(var(--color-primary-rgb), 0.1)', borderRadius: '8px' }}>
+                                        <div className="no-print" style={{ padding: '0.4rem', background: 'rgba(var(--color-primary-rgb), 0.1)', borderRadius: '8px', color: 'var(--color-primary)', display: 'flex', alignItems: 'center' }}>
                                             <Info size={16} />
                                         </div>
                                         <span
@@ -669,6 +758,7 @@ export default function ATS(): React.ReactElement | null {
                                             suppressContentEditableWarning
                                             onBlur={(e) => updateCategoryName(cat, e.target.innerText)}
                                             style={{ outline: 'none' }}
+                                            className="hover:bg-slate-100 dark:hover:bg-slate-800 px-2 py-0.5 rounded cursor-edit"
                                         >
                                             {cat}
                                         </span>
@@ -676,7 +766,9 @@ export default function ATS(): React.ReactElement | null {
                                     <button
                                         className="no-print"
                                         onClick={() => addQuestion(cat)}
-                                        style={{ padding: '0.4rem 0.8rem', background: 'var(--color-primary)', color: '#ffffff', border: 'none', borderRadius: '10px', fontWeight: 800, fontSize: '0.65rem', cursor: 'pointer', boxShadow: '0 4px 10px rgba(var(--color-primary-rgb), 0.2)' }}
+                                        style={{ padding: '0.5rem 1rem', background: '#10b981', color: '#ffffff', border: 'none', borderRadius: '10px', fontWeight: 800, fontSize: '0.7rem', cursor: 'pointer', boxShadow: '0 4px 10px rgba(16,185,129, 0.2)', transition: 'all 0.2s' }}
+                                        onMouseOver={e => e.currentTarget.style.transform = 'translateY(-1px)'}
+                                        onMouseOut={e => e.currentTarget.style.transform = 'none'}
                                     >
                                         + AGREGAR
                                     </button>
@@ -684,13 +776,13 @@ export default function ATS(): React.ReactElement | null {
 
                                 <div className="flex flex-col gap-3">
                                     {formData.checklist.filter(i => i.categoria === cat).map((item) => (
-                                        <div key={item.id} className="group p-4 bg-slate-50/50 rounded-xl border border-slate-100 hover:border-blue-200 transition-all">
+                                        <div key={item.id} className="group p-4 bg-[var(--color-background)] rounded-xl border border-[var(--color-border)] hover:border-blue-400 dark:hover:border-blue-500 transition-all hover:shadow-sm">
                                             {/* Question text */}
                                             <div
                                                 contentEditable
                                                 suppressContentEditableWarning
                                                 onBlur={(e) => updateChecklist(item.id, 'pregunta', e.target.innerText)}
-                                                className="font-bold text-slate-800 text-[0.95rem] outline-none border-b border-dashed border-transparent focus:border-[var(--color-primary)] leading-tight mb-2"
+                                                className="font-bold text-[var(--color-text)] text-[0.95rem] outline-none border-b border-dashed border-transparent focus:border-[var(--color-primary)] leading-tight mb-2 cursor-edit hover:bg-slate-100 dark:hover:bg-slate-800 px-1 py-0.5 rounded"
                                             >
                                                 {item.pregunta}
                                             </div>
@@ -707,7 +799,7 @@ export default function ATS(): React.ReactElement | null {
                                                     target.style.height = target.scrollHeight + 'px';
                                                 }}
                                                 onChange={(e) => updateChecklist(item.id, 'observaciones', e.target.value)}
-                                                style={{ background: 'white', border: '1px solid var(--color-border) !important', borderRadius: '8px', fontSize: '0.75rem', padding: '0.6rem !important' }}
+                                                style={{ marginTop: '0.5rem' }}
                                             />
                                             <div className="print-only text-[0.7rem] text-slate-500 whitespace-pre-wrap break-words mb-1">
                                                 {item.observaciones || ''}
@@ -762,23 +854,60 @@ export default function ATS(): React.ReactElement | null {
                         ))}
                     </div>
 
-                    <div className="card" style={{ marginTop: '2.5rem' }}>
-                        <h3 style={{ marginTop: 0, marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                            <Pencil size={24} /> Firmas y Autorizaciones
+                    <div className="card animate-fade-in" style={{ marginTop: '2.5rem', background: 'rgba(var(--color-surface-rgb), 0.3)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', padding: '2.5rem', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.08)' }}>
+                        <h3 style={{ marginTop: 0, marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.25rem', textTransform: 'uppercase', letterSpacing: '1.2px' }}>
+                            <Pencil size={22} style={{ color: 'var(--color-primary)' }} /> Firmas y Autorizaciones
                         </h3>
 
-                        <div className="no-print mb-8 p-6 bg-slate-50/5 border border-[var(--color-border)] rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-sm font-bold text-slate-700">
-                            <div className="text-center" style={{ color: 'var(--color-text)' }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                            <div className="flex gap-4 flex-wrap justify-center">
-                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
-                                    <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Operador
-                                </label>
-                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
-                                    <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Supervisor
-                                </label>
-                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
-                                    <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Profesional
-                                </label>
+                        {/* Custom visual switches */}
+                        <div className="no-print mb-8 p-6" style={{ background: 'rgba(30, 41, 59, 0.2)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', width: '100%', display: 'flex', flexDirection: 'column', gap: '1.25rem', justifyContent: 'center', alignItems: 'center' }}>
+                            <div style={{ color: 'var(--color-text)', fontWeight: 800, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                                {[
+                                    { id: 'operator', label: 'Operador / Capataz' },
+                                    { id: 'supervisor', label: 'Supervisor' },
+                                    { id: 'professional', label: 'Profesional' }
+                                ].map(sig => {
+                                    const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
+                                    return (
+                                        <label
+                                            key={sig.id}
+                                            className="flex items-center gap-2 cursor-pointer select-none"
+                                            style={{
+                                                padding: '0.55rem 1.1rem',
+                                                borderRadius: 'var(--radius-full)',
+                                                border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
+                                                background: isChecked ? 'rgba(var(--color-primary-rgb), 0.15)' : 'transparent',
+                                                color: isChecked ? 'var(--color-primary)' : 'var(--color-text-light)',
+                                                fontWeight: 750,
+                                                fontSize: '0.8rem',
+                                                transition: 'all 0.2s ease',
+                                                boxShadow: isChecked ? '0 0 10px rgba(var(--color-primary-rgb), 0.15)' : 'none'
+                                            }}
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                checked={isChecked}
+                                                onChange={e => setShowSignatures(s => ({ ...s, [sig.id]: e.target.checked }))}
+                                                style={{ display: 'none' }}
+                                            />
+                                            <div style={{
+                                                width: '16px',
+                                                height: '16px',
+                                                borderRadius: '4px',
+                                                border: isChecked ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)',
+                                                background: isChecked ? 'var(--color-primary)' : 'transparent',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                transition: 'all 0.2s ease'
+                                            }}>
+                                                {isChecked && <CheckCircle2 size={12} color="white" />}
+                                            </div>
+                                            {sig.label}
+                                        </label>
+                                    );
+                                })}
                             </div>
                         </div>
 
@@ -814,19 +943,23 @@ export default function ATS(): React.ReactElement | null {
                         {/* Interactive Signature Drawing Pads */}
                         <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 gap-8">
                             {showSignatures.operator && (
-                                <SignatureCanvas 
-                                    onSave={(sig) => setFormData(prev => ({ ...prev, operatorSignature: sig || '' }))}
-                                    initialImage={formData.operatorSignature}
-                                    label="Firma del Operador / Responsable"
-                                />
+                                <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setFormData(prev => ({ ...prev, operatorSignature: sig || '' }))}
+                                        initialImage={formData.operatorSignature}
+                                        label="Firma del Operador / Responsable"
+                                    />
+                                </div>
                             )}
                             
                             {showSignatures.supervisor && (
-                                <SignatureCanvas 
-                                    onSave={(sig) => setFormData(prev => ({ ...prev, capatazSignature: sig || '' }))}
-                                    initialImage={formData.capatazSignature}
-                                    label="Firma del Supervisor"
-                                />
+                                <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setFormData(prev => ({ ...prev, capatazSignature: sig || '' }))}
+                                        initialImage={formData.capatazSignature}
+                                        label="Firma del Supervisor"
+                                    />
+                                </div>
                             )}
                         </div>
                     </div>
@@ -910,7 +1043,7 @@ function StatusBtn({ active, type, onClick, label }) {
     );
 }
 
-function DocBox({ label, value, onChange, type = "text", large = false, borderLeft = false }) {
+function DocBox({ label, value, onChange, type = "text", large = false, borderLeft = false, icon }) {
     const [focused, setFocused] = useState(false);
     
     return (
@@ -922,10 +1055,10 @@ function DocBox({ label, value, onChange, type = "text", large = false, borderLe
             justifyContent: 'center',
             borderLeft: borderLeft ? '2px solid var(--color-border)' : 'none',
             borderTop: '0',
-            background: focused ? 'rgba(59, 130, 246, 0.03)' : 'transparent',
-            minHeight: '70px',
-            transition: 'background 0.3s ease',
-        }}>
+            background: focused ? 'rgba(var(--color-primary-rgb), 0.04)' : 'transparent',
+            minHeight: '75px',
+            transition: 'all 0.3s ease',
+        }} className={focused ? 'shadow-inner' : ''}>
             <span style={{
                 fontSize: '0.65rem',
                 fontWeight: 900,
@@ -933,8 +1066,14 @@ function DocBox({ label, value, onChange, type = "text", large = false, borderLe
                 textTransform: 'uppercase',
                 letterSpacing: '0.12em',
                 opacity: 0.9,
-                transition: 'color 0.3s ease'
-            }}>{label}</span>
+                transition: 'color 0.3s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem'
+            }}>
+                {icon && <span className="no-print" style={{ color: focused ? 'var(--color-primary)' : 'var(--color-text-muted)', opacity: focused ? 1 : 0.7, transition: 'all 0.3s', display: 'flex', alignItems: 'center' }}>{icon}</span>}
+                {label}
+            </span>
             <input
                 type={type}
                 value={value}
