@@ -1,42 +1,49 @@
 import React, { useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Printer, Flame, MapPin, Calendar, Building, CheckCircle2 } from 'lucide-react';
+import { Calendar, Flame, MapPin } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
-import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
-// Copy calculation utils here for the report
 const addMonths = (dateString, months) => {
-    const d = new Date(dateString + 'T12:00:00Z');
-    d.setMonth(d.getMonth() + months);
-    return d.toISOString().split('T')[0];
+    if (!dateString) return '';
+    try {
+        const d = new Date(dateString + 'T12:00:00Z');
+        if (isNaN(d.getTime())) return '';
+        d.setMonth(d.getMonth() + months);
+        return d.toISOString().split('T')[0];
+    } catch (e) {
+        return '';
+    }
 };
 
 const getStatus = (lastDate, monthsValid) => {
     if (!lastDate) return { text: 'Sin Dato', color: '#000000', vto: '-' };
     const dueDate = addMonths(lastDate, monthsValid);
+    if (!dueDate) return { text: 'Sin Dato', color: '#000000', vto: '-' };
     const today = new Date().toISOString().split('T')[0];
     const diffDays = Math.ceil((new Date(dueDate).getTime() - new Date(today).getTime()) / (1000 * 60 * 60 * 24));
 
+    if (isNaN(diffDays)) return { text: 'Sin Dato', color: '#000000', vto: '-' };
+
     if (diffDays < 0) return { text: 'Vencido', color: '#dc2626', vto: new Date(dueDate).toLocaleDateString('es-AR') };
-    if (diffDays <= 30) return { text: 'Pr�ximo', color: '#d97706', vto: new Date(dueDate).toLocaleDateString('es-AR') };
+    if (diffDays <= 30) return { text: 'Próximo', color: '#d97706', vto: new Date(dueDate).toLocaleDateString('es-AR') };
     return { text: 'Vigente', color: '#166534', vto: new Date(dueDate).toLocaleDateString('es-AR') };
 };
 
 export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguishers: any[] }): React.ReactElement | null {
-
-
     const componentRef = useRef<HTMLDivElement>(null);
     const isLandscape = (extinguishers || []).length > 15; // Auto rotate if many
 
     const stats = {
         total: extinguishers.length,
-        vencidos: extinguishers.filter(e => getStatus(e.ultimaCarga, 12).text === 'Vencido' || getStatus(e.ultimaPH, 60).text === 'Vencido').length
+        vencidos: extinguishers.filter(e => {
+            const cargaStatus = getStatus(e.ultimaCarga, 12).text;
+            const phStatus = getStatus(e.ultimaPH, 60).text;
+            return cargaStatus === 'Vencido' || phStatus === 'Vencido';
+        }).length
     };
 
     return (
         <div className="container" style={{ paddingBottom: '3rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center', overflowX: 'auto' }}>
                 <div
                     id="pdf-content"
@@ -99,39 +106,92 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
                         <thead>
                             <tr style={{ background: '#f1f5f9' }}>
                                 <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', width: '8%', fontWeight: 800 }}>Chapa</th>
-                                <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'left', width: '25%', fontWeight: 800 }}>Ubicaci�n</th>
-                                <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'left', width: '20%', fontWeight: 800 }}>Tipo y Capacidad</th>
-                                <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', width: '22%', fontWeight: 800 }}>Estado Carga</th>
-                                <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', width: '25%', fontWeight: 800 }}>Estado PH</th>
+                                <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'left', width: '20%', fontWeight: 800 }}>Ubicación</th>
+                                <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'left', width: '20%', fontWeight: 800 }}>Tipo / Cap. / Fabricación</th>
+                                <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', width: '20%', fontWeight: 800 }}>Vto. Mantenimiento</th>
+                                <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'left', width: '32%', fontWeight: 800 }}>Último Control Mensual</th>
                             </tr>
                         </thead>
                         <tbody>
                             {extinguishers?.map((ext, idx) => {
                                 const sCarga = getStatus(ext?.ultimaCarga, 12);
                                 const sPH = getStatus(ext?.ultimaPH, 60);
+                                const lastInspection = ext?.inspections && ext.inspections.length > 0 ? ext.inspections[ext.inspections.length - 1] : null;
 
                                 return (
                                     <tr key={idx} style={{ pageBreakInside: 'avoid' }}>
                                         <td style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', fontWeight: 'bold' }}>{ext?.chapa || '-'}</td>
                                         <td style={{ border: '1px solid #cbd5e1', padding: '8px' }}>
-                                            {ext?.ubicacion || 'Sin ubicaci�n'}
+                                            <strong>{ext?.ubicacion || 'Sin ubicación'}</strong>
                                             {ext?.empresa && <div style={{ fontSize: '7.5pt', color: '#64748b' }}>{ext.empresa}</div>}
                                         </td>
                                         <td style={{ border: '1px solid #cbd5e1', padding: '8px' }}>
                                             {ext?.tipo || 'N/A'} <br />
-                                            <span style={{ fontSize: '8pt', color: '#475569' }}>{ext?.capacidad || '-'}</span>
+                                            <span style={{ fontSize: '8pt', color: '#475569' }}>Cap: {ext?.capacidad || '-'}</span>
+                                            {ext?.fechaFabricacion && (
+                                                <div style={{ fontSize: '7.5pt', color: '#64748b', marginTop: '2px' }}>
+                                                    Fab: {new Date(ext.fechaFabricacion + 'T12:00:00Z').toLocaleDateString('es-AR')}
+                                                </div>
+                                            )}
                                         </td>
 
-                                        <td style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center' }}>
-                                            <div style={{ color: sCarga.color, fontWeight: 'bold' }}>{sCarga.text}</div>
-                                            <div style={{ fontSize: '8pt' }}>Vto: {sCarga.vto}</div>
+                                        <td style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', fontSize: '8pt' }}>
+                                            <div style={{ marginBottom: '4px' }}>
+                                                <strong>Recarga:</strong> <span style={{ color: sCarga.color }}>{sCarga.text}</span>
+                                                <div style={{ fontSize: '7pt', color: '#64748b' }}>Vto: {sCarga.vto}</div>
+                                            </div>
+                                            <div>
+                                                <strong>P.H.:</strong> <span style={{ color: sPH.color }}>{sPH.text}</span>
+                                                <div style={{ fontSize: '7pt', color: '#64748b' }}>Vto: {sPH.vto}</div>
+                                            </div>
                                         </td>
-                                        <td style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center' }}>
-                                            <div style={{ color: sPH.color, fontWeight: 'bold' }}>{sPH.text}</div>
-                                            <div style={{ fontSize: '8pt' }}>Vto: {sPH.vto}</div>
+
+                                        <td style={{ border: '1px solid #cbd5e1', padding: '8px', fontSize: '8pt' }}>
+                                            {lastInspection ? (
+                                                <div>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontWeight: 'bold' }}>
+                                                        <span>Insp: {new Date(lastInspection.fechaVisita + 'T12:00:00Z').toLocaleDateString('es-AR')}</span>
+                                                        <span style={{ color: lastInspection.resultado === 'C' ? '#166534' : '#dc2626' }}>
+                                                            {lastInspection.resultado === 'C' ? 'CUMPLE ✓' : 'NO CUMPLE ⚠️'}
+                                                        </span>
+                                                    </div>
+                                                    <div style={{ display: 'flex', gap: '3px', flexWrap: 'wrap', marginBottom: '4px' }}>
+                                                        {Object.entries(lastInspection.controles || {}).map(([key, value]) => {
+                                                            const labels = {
+                                                                manometro: 'Man.',
+                                                                acceso: 'Acc.',
+                                                                senalizacion: 'Señ.',
+                                                                manguera: 'Mang.',
+                                                                cilindro: 'Cil.'
+                                                            };
+                                                            const color = value === 'C' ? '#166534' : value === 'NC' ? '#dc2626' : '#64748b';
+                                                            const bg = value === 'C' ? '#dcfce7' : value === 'NC' ? '#fee2e2' : '#f1f5f9';
+                                                            return (
+                                                                <span key={key} style={{ padding: '1px 4px', borderRadius: '3px', fontSize: '7.5pt', background: bg, color, fontWeight: 'bold' }}>
+                                                                    {labels[key] || key}: {value}
+                                                                </span>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                    {lastInspection.observacion && (
+                                                        <div style={{ color: '#475569', fontStyle: 'italic', marginTop: '2px', fontSize: '7.5pt' }}>
+                                                            Obs: {lastInspection.observacion}
+                                                        </div>
+                                                    )}
+                                                    {lastInspection.fotos && lastInspection.fotos.length > 0 && (
+                                                        <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
+                                                            {lastInspection.fotos.map((img, i) => (
+                                                                <img key={i} src={img} alt="" style={{ width: '30px', height: '30px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <div style={{ color: '#64748b', fontStyle: 'italic' }}>Sin controles este período.</div>
+                                            )}
                                         </td>
                                     </tr>
-                                )
+                                );
                             })}
 
                             {extinguishers.length === 0 && (
@@ -146,9 +206,8 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
 
                     {/* Firmas */}
                     <PdfSignatures data={extinguishers[0] || {}} />
-        </div>
                 </div>
             </div>
-);
+        </div>
+    );
 }
-

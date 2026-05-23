@@ -126,7 +126,7 @@ const quickLinks: QuickLink[] = [
   { to: '/legislation', icon: <Gavel weight="duotone" size={26} />, label: 'Legislación', sub: 'Biblioteca Legal', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true, category: 'docs' },
   { to: '/loto', icon: <Lock weight="duotone" size={26} />, label: 'LOTO', sub: 'Bloqueo y Etiquetado', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true, category: 'critical' },
   { to: '/risk-maps', icon: <MapTrifold weight="duotone" size={26} />, label: 'Mapas', sub: 'Croquis de Riesgos', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true, category: 'docs' },
-  { to: '/extinguishers', icon: <Fire weight="duotone" size={26} />, label: 'Matafuegos', sub: 'Control y Vencimientos', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true, category: 'management' },
+  { to: '/extintores', icon: <Fire weight="duotone" size={26} />, label: 'Matafuegos', sub: 'Control y Vencimientos', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true, category: 'management' },
   { to: '/environmental', icon: <Droplets weight="duotone" size={26} />, label: 'Medio Ambiente', sub: 'Monitoreo y Control', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', premium: true, category: 'specific' },
   { to: '/work-permit', icon: <Key weight="duotone" size={26} />, label: 'Permisos', sub: 'Tareas Críticas', color: '#2563eb', bg: 'rgba(37,99,235,0.1)', premium: true, category: 'critical', featured: true },
   { to: '/ai-general-camera', icon: <ShieldWarning weight="duotone" size={26} />, label: 'Riesgos IA', sub: 'Análisis de Entorno', color: '#f43f5e', bg: 'rgba(244, 63, 94, 0.1)', premium: true, category: 'ia', badge: 'IA' },
@@ -212,6 +212,7 @@ export default function Home(): React.ReactElement {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isMobile, setIsMobile] = useState(false);
+  const [showRewardModal, setShowRewardModal] = useState<boolean>(false);
 
   const categories = [
     { id: 'all', label: 'Todos' },
@@ -255,6 +256,12 @@ export default function Home(): React.ReactElement {
 
       setIsSubscribed(isPro);
       setDaysLeft(daysRemaining);
+
+      if (currentUser?.email === 'arielalaniz9@gmail.com') {
+        if (!localStorage.getItem('saw_gift_modal')) {
+          setShowRewardModal(true);
+        }
+      }
     }
 
     const loadStats = (): void => {
@@ -791,6 +798,32 @@ export default function Home(): React.ReactElement {
         </div>
       )}
       {/* Removed legacy onboarding modal in favor of MarketingLanding */}
+
+      {/* Special Reward Modal */}
+      {showRewardModal && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)' }}>
+          <div className="card animate-fade-in" style={{ maxWidth: '450px', width: '90%', padding: '2.5rem', textAlign: 'center', position: 'relative', border: '2px solid #f59e0b', background: 'var(--color-surface)' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+              <Crown size={64} color="#f59e0b" weight="fill" />
+            </div>
+            <h2 style={{ fontSize: '1.8rem', fontWeight: 900, marginBottom: '1rem', color: 'var(--color-text)' }}>¡Gracias por tu sugerencia!</h2>
+            <p style={{ fontSize: '1rem', color: 'var(--color-text-muted)', lineHeight: 1.6, marginBottom: '2rem' }}>
+              En agradecimiento por ayudarnos a mejorar la plataforma, te hemos otorgado <strong>30 días de acceso PRO totalmente gratis</strong>. <br/><br/>
+              ¡Disfrutá de todas las funciones premium!
+            </p>
+            <button 
+              onClick={() => {
+                localStorage.setItem('saw_gift_modal', 'true');
+                setShowRewardModal(false);
+              }}
+              style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', background: 'linear-gradient(135deg, #f59e0b, #ea580c)', border: 'none', borderRadius: '12px', color: '#fff', fontWeight: 800, cursor: 'pointer', boxShadow: '0 8px 20px rgba(245, 158, 11, 0.3)' }}
+              className="hover-lift"
+            >
+              ¡Excelente, gracias!
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
     </AnimatedPage>

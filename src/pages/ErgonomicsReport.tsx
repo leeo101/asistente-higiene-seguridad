@@ -9,6 +9,8 @@ import { usePaywall } from '../hooks/usePaywall';
 import { toast } from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
+import Breadcrumbs from '../components/Breadcrumbs';
+
 export default function ErgonomicsReport(): React.ReactElement | null {
     const navigate = useNavigate();
     const { currentUser } = useAuth();
@@ -42,7 +44,7 @@ export default function ErgonomicsReport(): React.ReactElement | null {
     const handlePrint = () => requirePro(() => window.print());
 
     return (
-        <div className="container" style={{ paddingBottom: '3rem' }}>
+        <div className="container" style={{ paddingBottom: '8rem', maxWidth: '1000px' }}>
             <ShareModal
                 isOpen={showShare}
                 open={showShare}
@@ -53,13 +55,9 @@ export default function ErgonomicsReport(): React.ReactElement | null {
                 elementIdToPrint="pdf-content"
                 fileName={`Ergonomia_${data.empresa}.pdf`}
             />
-            <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', marginTop: '1rem' }}>
-                <button
-                    onClick={() => navigate('/ergonomics')}
-                    style={{ background: 'none', border: 'none', padding: 0, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                >
-                    <ArrowLeft size={24} /> Volver
-                </button>
+
+            <div className="no-print" style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
+                <Breadcrumbs />
             </div>
 
             <div id="pdf-content" className="report-print print:p-0 print:m-0 print:border-none print:shadow-none print:min-h-0" style={{
@@ -74,6 +72,21 @@ export default function ErgonomicsReport(): React.ReactElement | null {
                 fontSize: '9pt',
                 borderTop: data.riesgo === 'Moderado' || data.riesgo === 'Alto' ? '12px solid #dc2626' : '12px solid #2563eb'
             }}>
+                <style type="text/css" media="print">
+                    {`
+                        @page { size: A4 portrait; margin: 15mm; }
+                        body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                        .no-print { display: none !important; }
+                        .report-print { 
+                            box-shadow: none !important; 
+                            margin: 0 !important; 
+                            padding: 0 !important; 
+                            border: none !important;
+                            border-top: 12px solid ${data.riesgo === 'Moderado' || data.riesgo === 'Alto' ? '#dc2626' : '#2563eb'} !important;
+                        }
+                        .company-logo { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+                    `}
+                </style>
                 {/* Header Tripartito HSE */}
                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '3px solid #e2e8f0', paddingBottom: '1.2rem', marginBottom: '1.5rem', width: '100%' }}>
                     <div style={{ flex: 1, textAlign: 'left' }}>

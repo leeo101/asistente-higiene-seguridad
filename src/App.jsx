@@ -98,6 +98,8 @@ const TrainingHistory = lazyWithRetry(() => import('./pages/TrainingHistory'));
 const Extinguishers = lazyWithRetry(() => import('./pages/Extinguishers'));
 const ExtinguishersHistory = lazyWithRetry(() => import('./pages/ExtinguishersHistory'));
 const ExtinguisherPdfGenerator = lazyWithRetry(() => import('./components/ExtinguisherPdfGenerator'));
+const ExtintoresManager = lazyWithRetry(() => import('./pages/ExtintoresManager'));
+const ExtinguisherInspection = lazyWithRetry(() => import('./pages/ExtinguisherInspection'));
 const ThermalStress = lazyWithRetry(() => import('./pages/ThermalStress'));
 const ThermalStressHistory = lazyWithRetry(() => import('./pages/ThermalStressHistory'));
 const Drills = lazyWithRetry(() => import('./pages/Drills'));
@@ -562,6 +564,8 @@ function App() {
                   <Route path="/training-management" element={<ProtectedRoute><TrainingManagement /></ProtectedRoute>} />
                   <Route path="/training-history" element={<ProtectedRoute><TrainingHistory /></ProtectedRoute>} />
                   <Route path="/extinguishers" element={<ProtectedRoute><Extinguishers /></ProtectedRoute>} />
+                  <Route path="/extintores" element={<ProtectedRoute><ExtintoresManager /></ProtectedRoute>} />
+                  <Route path="/extintores/inspect/:id" element={<ProtectedRoute><ExtinguisherInspection /></ProtectedRoute>} />
                   <Route path="/thermal-stress" element={<ProtectedRoute><ThermalStress /></ProtectedRoute>} />
                   <Route path="/thermal-stress-history" element={<ProtectedRoute><ThermalStressHistory /></ProtectedRoute>} />
                   <Route path="/drills" element={<ProtectedRoute><Drills /></ProtectedRoute>} />

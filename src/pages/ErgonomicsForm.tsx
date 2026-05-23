@@ -2,14 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
-    ArrowLeft, ChevronRight, ChevronLeft,
-    Save, Accessibility, AlertCircle, Info, User, Building2, Sparkles, Loader2
+    ChevronRight, ChevronLeft,
+    Save, Accessibility, AlertCircle, Info, Building2, Sparkles, Loader2
 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
-import CompanyLogo from '../components/CompanyLogo';
 import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../config';
 import { auth } from '../firebase';
+import Breadcrumbs from '../components/Breadcrumbs';
+import PremiumHeader from '../components/PremiumHeader';
 
 export default function ErgonomicsForm(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -119,22 +120,14 @@ export default function ErgonomicsForm(): React.ReactElement | null {
     };
 
     return (
-        <div className="container print:pt-0 print:pb-0" style={{ paddingTop: '6rem', paddingBottom: '5rem', maxWidth: '1000px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', marginTop: '1rem' }}>
-                <button
-                    onClick={() => navigate('/ergonomics')}
-                    style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}
-                >
-                    <ArrowLeft />
-                </button>
-                <div style={{ flex: 1 }}>
-                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>
-                        {editData ? 'Editar Estudio Ergonómico' : 'Nuevo Estudio Ergonómico'}
-                    </h1>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Protocolo Res. SRT 886/15</p>
-                </div>
-                <CompanyLogo style={{ height: '32px', width: 'auto', maxWidth: '80px', objectFit: 'contain' }} />
-            </div>
+        <div className="container print:pt-0 print:pb-0" style={{ paddingBottom: '8rem', maxWidth: '1000px' }}>
+            <Breadcrumbs />
+
+            <PremiumHeader
+                title={editData ? 'Editar Estudio Ergonómico' : 'Nuevo Estudio Ergonómico'}
+                subtitle="Protocolo Res. SRT 886/15"
+                icon={<Accessibility size={36} />}
+            />
 
             {/* Stepper Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem', position: 'relative' }}>
@@ -358,13 +351,7 @@ export default function ErgonomicsForm(): React.ReactElement | null {
                     </div>
 
                     {/* Botones de acción estables (no fijos) para evitar saltos en móvil */}
-                    <div className="no-print" style={{
-                        marginTop: '2rem',
-                        display: 'flex',
-                        gap: '1rem',
-                        justifyContent: 'center',
-                        flexWrap: 'wrap'
-                    }}>
+                    <div className="no-print floating-action-bar" style={{ justifyContent: 'center' }}>
                         <button
                             className="btn-floating-action"
                             onClick={handleBack}

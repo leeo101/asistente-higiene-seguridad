@@ -192,32 +192,55 @@ export default function ChecklistPdfGenerator({
                             <div>
                                 {section.items.map((item, idx) => (
                                     <div key={idx} style={{
-                                        display: 'grid',
-                                        gridTemplateColumns: '32px 1fr 80px',
                                         borderBottom: idx === section.items.length - 1 ? 'none' : '1px solid #f1f5f9',
-                                        alignItems: 'stretch',
                                         pageBreakInside: 'avoid',
                                         background: item.status === 'FAIL' ? '#fef2f2' : idx % 2 === 0 ? '#ffffff' : '#f8fafc'
                                     }}>
-                                        <div style={{ padding: '0.6rem 0.4rem', display: 'flex', justifyContent: 'center', alignItems: 'center', borderRight: '1px solid #e2e8f0' }}>
-                                            <span style={{ background: '#e2e8f0', color: '#64748b', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px', fontSize: '0.6rem', fontWeight: 900 }}>
-                                                {idx + 1}
-                                            </span>
+                                        {/* Fila principal: número | texto | estado */}
+                                        <div style={{ display: 'grid', gridTemplateColumns: '32px 1fr 80px', alignItems: 'stretch' }}>
+                                            <div style={{ padding: '0.6rem 0.4rem', display: 'flex', justifyContent: 'center', alignItems: 'center', borderRight: '1px solid #e2e8f0' }}>
+                                                <span style={{ background: '#e2e8f0', color: '#64748b', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px', fontSize: '0.6rem', fontWeight: 900 }}>
+                                                    {idx + 1}
+                                                </span>
+                                            </div>
+
+                                            <div style={{ padding: '0.6rem 0.8rem', display: 'flex', alignItems: 'center', fontWeight: 600, fontSize: '0.8rem', color: item.status === 'FAIL' ? '#7f1d1d' : '#334155' }}>
+                                                {item.text}
+                                            </div>
+
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.6rem', borderLeft: '1px solid #e2e8f0' }}>
+                                                {item.status === 'OK' ? (
+                                                    <span style={{ background: '#dcfce7', color: '#16a34a', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 900, fontSize: '0.7rem' }}>C</span>
+                                                ) : item.status === 'FAIL' ? (
+                                                    <span style={{ background: '#fecaca', color: '#dc2626', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 900, fontSize: '0.7rem' }}>NC</span>
+                                                ) : (
+                                                    <span style={{ background: '#f1f5f9', color: '#94a3b8', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 900, fontSize: '0.7rem' }}>N/A</span>
+                                                )}
+                                            </div>
                                         </div>
 
-                                        <div style={{ padding: '0.6rem 0.8rem', display: 'flex', alignItems: 'center', fontWeight: 600, fontSize: '0.8rem', color: item.status === 'FAIL' ? '#7f1d1d' : '#334155' }}>
-                                            {item.text}
-                                        </div>
-
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.6rem', borderLeft: '1px solid #e2e8f0' }}>
-                                            {item.status === 'OK' ? (
-                                                <span style={{ background: '#dcfce7', color: '#16a34a', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 900, fontSize: '0.7rem' }}>OK</span>
-                                            ) : item.status === 'FAIL' ? (
-                                                <span style={{ background: '#fecaca', color: '#dc2626', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 900, fontSize: '0.7rem' }}>NO</span>
-                                            ) : (
-                                                <span style={{ background: '#f1f5f9', color: '#94a3b8', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 900, fontSize: '0.7rem' }}>N/A</span>
-                                            )}
-                                        </div>
+                                        {/* Observación e imágenes del ítem */}
+                                        {(item.observation || (item.photos && item.photos.length > 0)) && (
+                                            <div style={{ padding: '0.4rem 0.8rem 0.6rem 2.8rem', borderTop: '1px dashed #e2e8f0', background: item.status === 'FAIL' ? '#fef9f9' : '#f8fafc' }}>
+                                                {item.observation && (
+                                                    <p style={{ margin: '0 0 0.4rem 0', fontSize: '0.72rem', color: item.status === 'FAIL' ? '#991b1b' : '#475569', fontStyle: 'italic', fontWeight: 600 }}>
+                                                        📝 {item.observation}
+                                                    </p>
+                                                )}
+                                                {item.photos && item.photos.length > 0 && (
+                                                    <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                                                        {item.photos.map((photo: string, pIdx: number) => (
+                                                            <img
+                                                                key={pIdx}
+                                                                src={photo}
+                                                                alt={`Evidencia ${pIdx + 1}`}
+                                                                style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                             </div>

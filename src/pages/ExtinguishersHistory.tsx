@@ -13,16 +13,23 @@ import AnimatedPage from '../components/AnimatedPage';
 
 const addMonths = (dateString, months) => {
     if (!dateString) return null;
-    const d = new Date(dateString + 'T12:00:00Z');
-    d.setMonth(d.getMonth() + months);
-    return d;
+    try {
+        const d = new Date(dateString + 'T12:00:00Z');
+        if (isNaN(d.getTime())) return null;
+        d.setMonth(d.getMonth() + months);
+        return d;
+    } catch (e) {
+        return null;
+    }
 };
 
 const getStatus = (lastDate, monthsValid) => {
     if (!lastDate) return { status: 'unknown', color: '#64748b', text: 'Sin Dato' };
     const dueDate = addMonths(lastDate, monthsValid);
+    if (!dueDate || isNaN(dueDate.getTime())) return { status: 'unknown', color: '#64748b', text: 'Sin Dato' };
     const today = new Date();
     const diffDays = Math.ceil(((dueDate as any) - (today as any)) / (1000 * 60 * 60 * 24));
+    if (isNaN(diffDays)) return { status: 'unknown', color: '#64748b', text: 'Sin Dato' };
     if (diffDays < 0) return { status: 'expired', color: '#ef4444', text: 'Vencido' };
     if (diffDays <= 30) return { status: 'warning', color: '#f59e0b', text: 'Próx. a Vencer' };
     return { status: 'valid', color: '#10b981', text: 'Vigente' };
@@ -51,12 +58,31 @@ export default function ExtinguishersHistory(): React.ReactElement | null {
             render: (item: any) => {
                 const stCarga = getStatus(item.ultimaCarga, 12);
                 const isExpired = stCarga.status === 'expired' || getStatus(item.ultimaPH, 60).status === 'expired';
+                const lastInspection = item.inspections && item.inspections.length > 0 ? item.inspections[item.inspections.length - 1] : null;
                 return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                        <div style={{ background: isExpired ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)', padding: '0.5rem', borderRadius: '8px', color: isExpired ? '#ef4444' : '#10b981' }}>
-                            <Fire size={16} weight="fill" />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <div style={{ background: isExpired ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)', padding: '0.3rem', borderRadius: '6px', color: isExpired ? '#ef4444' : '#10b981' }}>
+                                <Fire size={14} weight="fill" />
+                            </div>
+                            <span style={{ fontWeight: 800 }}>#{item.chapa}</span>
                         </div>
-                        <span style={{ fontWeight: 800 }}>#{item.chapa}</span>
+                        {lastInspection && (
+                            <div style={{ 
+                                display: 'inline-flex', 
+                                alignItems: 'center', 
+                                gap: '0.1rem', 
+                                fontSize: '0.6rem', 
+                                fontWeight: 900, 
+                                padding: '0.05rem 0.2rem',
+                                borderRadius: '4px',
+                                background: lastInspection.resultado === 'C' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
+                                color: lastInspection.resultado === 'C' ? '#10b981' : '#ef4444',
+                                width: 'fit-content'
+                            }}>
+                                INSP: {lastInspection.resultado}
+                            </div>
+                        )}
                     </div>
                 );
             }
@@ -66,9 +92,16 @@ export default function ExtinguishersHistory(): React.ReactElement | null {
             accessor: 'tipo',
             sortable: true,
             render: (item: any) => (
-                <span style={{ padding: '0.2rem 0.6rem', background: 'var(--color-background)', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700 }}>
-                    {item.tipo} — {item.capacidad}
-                </span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
+                    <span style={{ padding: '0.2rem 0.6rem', background: 'var(--color-background)', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, width: 'fit-content' }}>
+                        {item.tipo} — {item.capacidad}
+                    </span>
+                    {item.fechaFabricacion && (
+                        <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>
+                            Fab: {new Date(item.fechaFabricacion + 'T12:00:00Z').toLocaleDateString('es-AR')}
+                        </span>
+                    )}
+                </div>
             )
         },
         {

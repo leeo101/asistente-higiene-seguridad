@@ -4,7 +4,7 @@ import {
   X, User, House, GearSix, ClockCounterClockwise, SignOut, CalendarBlank,
   ChatText, Sun, Moon, Sparkle as Sparkles, Star, ShieldCheck, HardHat, ChartPieSlice,
   Users, Warning, CreditCard, Crown, Image as ImageIconPh, UploadSimple,
-  CheckCircle, Info, FileText, Bell, ChartBar
+  CheckCircle, Info, FileText, Bell, ChartBar, Fire
 } from '@phosphor-icons/react';
 import { useExpiryNotifications } from '../hooks/useExpiryNotifications';
 
@@ -39,6 +39,7 @@ const navItems: NavItem[] = [
   { to: '/calendar', icon: <CalendarBlank weight="duotone" size={20} />, label: 'Calendario', always: true },
   { to: '/settings', icon: <GearSix weight="duotone" size={20} />, label: 'Configuración', auth: true },
   { to: '/dashboard', icon: <ChartPieSlice weight="duotone" size={20} color="#10b981" />, label: 'Dashboard', auth: true },
+  { to: '/extintores', icon: <Fire weight="duotone" size={20} color="#ef4444" />, label: 'Matafuegos', auth: true },
   { to: '/contractors', icon: <Users weight="duotone" size={20} color="#3b82f6" />, label: 'Contratistas', auth: true },
   { to: '/history', icon: <ClockCounterClockwise weight="duotone" size={20} />, label: 'Historiales', auth: true },
   { to: '/logo-settings', icon: <ImageIconPh weight="duotone" size={20} />, label: 'Logo de Empresa', auth: true },

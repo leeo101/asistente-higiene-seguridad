@@ -13,6 +13,7 @@ export interface ExpiryNotification {
 function getDaysLeft(dateStr: string, lifespanMonths?: number): number | null {
   if (!dateStr) return null;
   const base = new Date(dateStr);
+  if (isNaN(base.getTime())) return null;
   if (lifespanMonths) {
     base.setMonth(base.getMonth() + Number(lifespanMonths));
   }

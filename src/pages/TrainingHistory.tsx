@@ -28,7 +28,7 @@ function StatCard({ icon, label, value, color, gradient }: { icon: React.ReactNo
                     boxShadow: `0 8px 24px ${color}30`,
                     color: '#ffffff'
                 }}>
-                    {React.cloneElement(icon as React.ReactElement, { color: '#ffffff', size: 20 })}
+                    {React.cloneElement(icon as React.ReactElement<any>, { color: '#ffffff', size: 20 })}
                 </div>
             </div>
             <div style={{ position: 'relative', zIndex: 1, fontSize: '2rem', fontWeight: 900, color: 'var(--color-text)', lineHeight: 1, letterSpacing: '-1px', marginBottom: '0.25rem' }}>

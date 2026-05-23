@@ -4,7 +4,8 @@ import {
     ClipboardCheck, Printer, Plus,
     Settings, TriangleAlert, Building2, Calendar,
     Check, ShieldCheck, Trash2, Edit3, X,
-    Share2, Save, ArrowLeft, Info, Pencil
+    Share2, Save, ArrowLeft, Info, Pencil, Camera,
+    Flame, Zap, Siren, Lightbulb, Activity
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../contexts/AuthContext';
@@ -16,6 +17,8 @@ import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
+import Breadcrumbs from '../components/Breadcrumbs';
+import PremiumHeader from '../components/PremiumHeader';
 
 const DEFAULT_TEMPLATES = {
     'manual_tools': {
@@ -74,6 +77,90 @@ const DEFAULT_TEMPLATES = {
             'Plataforma de trabajo completa y trabada'
         ]
     },
+    'orden_limpieza': {
+        title: 'Orden y Limpieza',
+        icon: <Trash2 size={18} />,
+        items: [
+            'Pasillos, pasarelas y vias de circulacion libres de obstaculos',
+            'Residuos debidamente segregados y recipientes tapados e identificados',
+            'Herramientas y materiales correctamente almacenados en sus estantes/paneles',
+            'Suelos limpios, secos y libres de derrames (aceite, grasa, agua)',
+            'Apilamiento de materiales seguro, estable y respetando la altura maxima'
+        ]
+    },
+    'tableros_electricos': {
+        title: 'Tableros Eléctricos',
+        icon: <Zap size={18} />,
+        items: [
+            'Gabinete cerrado con llave, sin cables expuestos ni aberturas',
+            'Señalizacion de riesgo electrico visible en el exterior',
+            'Identificacion clara de llaves termicas, disyuntores y circuitos',
+            'Disyuntor diferencial operativo (prueba de boton de test satisfactoria)',
+            'Llave termomagnetica en buen estado (sin recalentamientos ni signos de cortocircuito)',
+            'Puesta a tierra conectada firmemente a la estructura metalica',
+            'Area frontal del tablero despejada (minimo 1 metro de espacio libre)'
+        ]
+    },
+    'salida_emergencia': {
+        title: 'Salidas de Emergencia',
+        icon: <Siren size={18} />,
+        items: [
+            'Via de evacuacion completamente despejada y libre de obstaculos en todo su recorrido',
+            'Puertas de emergencia abren hacia el exterior sin trabas ni picaportes con llave',
+            'Barral antipanico operativo y suave en su accionamiento',
+            'Carteleria de salida de emergencia / via de escape visible en la oscuridad (fotoluminiscente)',
+            'Salida exterior final libre de acumulaciones de materiales o vehiculos'
+        ]
+    },
+    'luces_emergencia': {
+        title: 'Luces de Emergencia',
+        icon: <Lightbulb size={18} />,
+        items: [
+            'Equipo encendido bajo tension de red (LED indicador de carga activo)',
+            'Prueba de corte de energia satisfactoria (enciende instantaneamente al simular corte)',
+            'Autonomia de bateria adecuada (minimo 1 hora de funcionamiento continuo)',
+            'Luminarias fijadas firmemente en la pared o techo',
+            'Direccionamiento de los focos hacia las vias de escape y salidas'
+        ]
+    },
+    'autoelevadores': {
+        title: 'Auto Elevadores',
+        icon: <Settings size={18} />,
+        items: [
+            'Luces delanteras, traseras, de giro y destellador operativo',
+            'Alarma sonora de retroceso y bocina funcionan correctamente',
+            'Cinturon de seguridad instalado, operativo y sin deshilacharse',
+            'Frenos de servicio y de mano (estacionamiento) responden eficazmente',
+            'Sistema hidraulico sin fugas de aceite en mangueras ni pistones',
+            'Uñas/horquillas sin fisuras, soldaduras precarias ni deformaciones',
+            'Neumaticos con presion adecuada, sin deformaciones ni desgaste excesivo'
+        ]
+    },
+    'botiquin': {
+        title: 'Botiquín de Emergencia',
+        icon: <Activity size={18} />,
+        items: [
+            'Botiquin señalizado, visible, accesible y libre de llave',
+            'Contenido completo segun listado obligatorio (gasa, apositos, vendas, antisepticos)',
+            'Medicamentos y desinfectantes dentro de su fecha de vencimiento vigente',
+            'Elementos limpios, secos y debidamente resguardados',
+            'Presencia de guantes descartables de latex/nitrilo listos para usar'
+        ]
+    },
+    'extintores_checklist': {
+        title: 'Matafuegos / Extintores',
+        icon: <Flame size={18} />,
+        items: [
+            'Extintor en su ubicacion asignada, suspendido en el soporte correspondiente',
+            'Señalizacion reglamentaria (chapa baliza) visible y numero de equipo legible',
+            'Manometro con aguja indicadora en la zona verde de presion',
+            'Fecha de recarga vigente (menos de 1 año desde el ultimo mantenimiento)',
+            'Prueba hidraulica (P.H.) vigente (menos de 5 años desde la ultima prueba)',
+            'Acceso al extintor completamente despejado de mercaderia u obstaculos',
+            'Estado fisico excelente (sin abolladuras, corrosion ni manguera cuarteada)',
+            'Precinto de seguridad y pasador metalico colocados intactos'
+        ]
+    },
     'audit_2026': {
         title: 'Auditoría Legal 2026',
         icon: <ShieldCheck size={18} />,
@@ -83,6 +170,23 @@ const DEFAULT_TEMPLATES = {
             'Se verifican los certificados médicos de "Apto Calor" (Res. SRT 30/2023)',
             'Monitoreo de estrés térmico con mediciones VLA y VLE actualizadas',
             'Los protocolos ergonómicos contemplan Res. SRT 7/2026 y Res. 886/15'
+        ]
+    },
+    'general_audit': {
+        title: 'Relevamiento General Empresa',
+        icon: <Building2 size={18} />,
+        items: [
+            'Orden y Limpieza: Pasillos, accesos y salidas libres de obstáculos',
+            'Orden y Limpieza: Residuos debidamente segregados y recipientes adecuados',
+            'Control de Tableros: Puertas cerradas, señalizados, matafuego cercano',
+            'Control de Tableros: Llaves térmicas y disyuntores operativos identificados',
+            'Salida de Emergencia: Puertas abren hacia afuera, barral antipánico operativo',
+            'Salida de Emergencia: Señalización luminosa y despejado su recorrido',
+            'Luces de Emergencia: Equipos encienden al corte, autonomía mínima 1h',
+            'Auto Elevadores: Luces, bocina, alarma retroceso, cinturón seguridad operativos',
+            'Auto Elevadores: Frenos, dirección, cubiertas en correcto estado',
+            'Botiquín de Primeros Auxilios: Contenido completo y elementos vigentes',
+            'Elementos de Protección Personal (EPP): Personal con calzado y casco obligatorio'
         ]
     }
 };
@@ -385,8 +489,28 @@ export default function ChecklistManager(): React.ReactElement | null {
         }));
     };
 
+    // Progress calculation
+    const progressItems = [
+        { label: 'Empresa', done: !!companyInfo.name?.trim() },
+        { label: 'Inspector', done: !!companyInfo.inspector?.trim() },
+        { label: 'Área / Equipo', done: !!inspectionInfo.item?.trim() },
+        { label: 'Puntos de Control', done: activeSections.length > 0 && activeSections.every(s => s.items.length > 0 && s.items.every(i => i.status !== null)) },
+        { label: 'Firmas', done: !!signature || !!operatorSignature || !!supervisorSignature }
+    ];
+    const completedCount = progressItems.filter(p => p.done).length;
+    const progressPct = Math.round((completedCount / progressItems.length) * 100);
+    const progressLabel = progressPct === 100 ? 'Listo para guardar y exportar ✅' : progressPct >= 66 ? 'Casi completo' : progressPct >= 33 ? 'En progreso' : 'Pendiente';
+    const progressColor = progressPct === 100 ? '#10b981' : progressPct >= 66 ? '#f59e0b' : progressPct >= 33 ? '#3b82f6' : '#94a3b8';
+
     return (
         <div className="container" style={{ maxWidth: '1100px', paddingBottom: '8rem' }}>
+            <Breadcrumbs />
+
+            <PremiumHeader
+                title="Generador de Checklist"
+                subtitle="Relevamiento preventivo y control de condiciones de seguridad"
+                icon={<ClipboardCheck size={36} />}
+            />
 
             <ShareModal
                 isOpen={showShare}
@@ -424,30 +548,104 @@ export default function ChecklistManager(): React.ReactElement | null {
                 </button>
             </div>
 
-            {/* Header - Responsive */}
+            {/* Progress Section */}
             <div className="no-print" style={{
-                marginBottom: '1.5rem',
-                padding: '1.5rem',
+                marginBottom: '2rem',
+                marginTop: '1.5rem',
+                padding: '2.5rem 2rem',
                 background: 'var(--color-surface)',
-                borderRadius: '20px',
-                border: '1px solid #EBECF0',
+                borderRadius: '24px',
+                border: '1px solid var(--color-border)',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '1rem',
-                alignItems: 'center',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
-                textAlign: 'center'
+                gap: '1.2rem',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.04)'
             }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', width: '100%', justifyContent: 'center' }}>
-                    <button onClick={() => navigate('/#tools')} style={{ padding: '0.5rem', background: 'var(--color-background)', borderRadius: '10px', border: 'none', cursor: 'pointer', color: 'var(--color-text)', display: 'flex' }}>
-                        <ArrowLeft size={20} />
-                    </button>
-                    <div style={{ flex: 1 }}>
-                        <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.5rem)', fontWeight: 900, color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                            <ClipboardCheck size={24} />
-                            Generador de Checklist
-                        </h1>
-                        <p style={{ margin: '0.25rem 0 0 0', color: 'var(--color-text-muted)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Control H&S</p>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1.5rem', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <button onClick={() => navigate('/#tools')} style={{ padding: '0.6rem', background: 'var(--color-background)', borderRadius: '12px', border: 'none', cursor: 'pointer', color: 'var(--color-text)', display: 'flex' }}>
+                            <ArrowLeft size={22} />
+                        </button>
+                        <div>
+                            <h2 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 900, color: 'var(--color-text)', letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                                <ShieldCheck className="text-blue-600" size={24} />
+                                Relevamiento de Condiciones
+                            </h2>
+                            <p style={{ margin: 0, color: 'var(--color-text-muted)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Progreso del Checklist</p>
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexShrink: 0 }}>
+                        <span style={{ fontSize: '1.4rem', fontWeight: 900, color: progressColor }}>{progressPct}%</span>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>{progressLabel}</span>
+                    </div>
+                </div>
+
+                {/* Progress Bar Graphic */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <div style={{ height: '8px', background: 'var(--color-background)', borderRadius: '999px', overflow: 'hidden' }}>
+                        <div style={{
+                            height: '100%',
+                            width: `${progressPct}%`,
+                            background: progressColor,
+                            borderRadius: '999px',
+                            transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                            boxShadow: `0 0 8px ${progressColor}88`
+                        }} />
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        {progressItems.map((item) => (
+                            <span key={item.label} style={{
+                                fontSize: '0.65rem', fontWeight: 700, padding: '0.2rem 0.5rem',
+                                borderRadius: '999px',
+                                background: item.done ? 'rgba(16,185,129,0.12)' : 'var(--color-background)',
+                                color: item.done ? '#10b981' : 'var(--color-text-muted)',
+                                border: `1px solid ${item.done ? 'rgba(16,185,129,0.3)' : 'var(--color-border)'}`,
+                                display: 'flex', alignItems: 'center', gap: '0.3rem'
+                            }}>
+                                {item.done ? '✓' : '○'} {item.label}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            <div id="checklist-editor-content" className="card ats-editor-panel" style={{ width: '100%', boxSizing: 'border-box', padding: '1rem', margin: '0 auto', marginBottom: '2rem' }}>
+                <div className="flex flex-col sm:flex-row justify-between items-center w-full gap-4 sm:gap-6 border-b-4 pb-6 mb-8" style={{ borderColor: 'var(--color-border)' }}>
+                    {/* Top Left Text */}
+                    <div className="w-full sm:w-auto sm:flex-1 text-center sm:text-left">
+                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', letterSpacing: '0.05em' }}>Sistema de Gestión</p>
+                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--color-text)' }}>Control HYS</p>
+                    </div>
+
+                    {/* Center Main Title */}
+                    <div className="w-full sm:w-auto sm:flex-1 flex flex-col items-center justify-center text-center">
+                        <h1 style={{ margin: 0, fontWeight: 900, fontSize: '2.5rem', letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1 }}>CHECKLIST</h1>
+                        <p style={{ margin: 0, color: 'var(--color-text-muted)', fontWeight: 900, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.4em', marginTop: '0.25rem' }}>Inspección de Seguridad</p>
+                    </div>
+
+                    {/* Right Document Counter + Logo */}
+                    <div className="w-full sm:w-auto sm:flex-1 flex flex-col items-center sm:items-end gap-2 text-center sm:text-right">
+                        <CompanyLogo style={{ height: '40px', maxWidth: '120px' }} />
+                        <div>
+                            <div style={{ fontSize: '0.6rem', fontWeight: 900, color: 'var(--color-border)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>PÁGINA</div>
+                            <div style={{ fontWeight: 900, fontSize: '1.5rem', color: 'var(--color-text)' }}>01 / 01</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style={{ border: '2px solid var(--color-border)', borderRadius: '16px', marginBottom: '2.5rem', width: '100%', overflow: 'hidden', background: 'var(--color-surface)', boxShadow: 'var(--shadow-sm)', transition: 'all 0.3s' }} className="hover:border-blue-400/50 hover:shadow-md">
+                    <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ borderBottom: '2px solid var(--color-border)', width: '100%' }}>
+                        <div className="sm:col-span-2 print:col-span-2"><DocBox label="CLIENTE / EMPRESA" value={companyInfo.name} onChange={v => setCompanyInfo({ ...companyInfo, name: v })} large /></div>
+                        <div className="sm:col-span-2 print:col-span-2"><DocBox label="UBICACIÓN / DIRECCIÓN" value={companyInfo.address} onChange={v => setCompanyInfo({ ...companyInfo, address: v })} /></div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ width: '100%', borderBottom: '2px solid var(--color-border)' }}>
+                        <div className="sm:col-span-1 print:col-span-1"><DocBox label="FECHA" value={inspectionInfo.date} onChange={v => setInspectionInfo({ ...inspectionInfo, date: v })} type="date" /></div>
+                        <div className="sm:col-span-2 print:col-span-2"><DocBox label="ÁREA / EQUIPO INSPECCIONADO" value={inspectionInfo.item} onChange={v => setInspectionInfo({ ...inspectionInfo, item: v })} /></div>
+                        <div className="sm:col-span-1 print:col-span-1"><DocBox label="Nº IDENTIFICACIÓN (SERIAL)" value={inspectionInfo.serial} onChange={v => setInspectionInfo({ ...inspectionInfo, serial: v })} /></div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ width: '100%' }}>
+                        <div className="sm:col-span-2 print:col-span-2"><DocBox label="INSPECTOR / RESPONSABLE" value={companyInfo.inspector} onChange={v => setCompanyInfo({ ...companyInfo, inspector: v })} /></div>
+                        <div className="sm:col-span-2 print:col-span-2"><DocBox label="PROFESIONAL HYS" value={professional.name} onChange={() => { }} /></div>
                     </div>
                 </div>
             </div>
@@ -560,12 +758,90 @@ export default function ChecklistManager(): React.ReactElement | null {
                                                 <Trash2 size={15} />
                                             </button>
                                         </div>
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.5rem', padding: '0.5rem 1rem', background: 'var(--color-background)', flexWrap: 'wrap' }}>
-                                            <div className="checklist-status-buttons" style={{ flexShrink: 0, display: 'flex', gap: '0.5rem' }}>
-                                                <StatusBtn active={item.status === 'OK'} type="OK" onClick={() => updateItem(section.id, idx, 'status', 'OK')} />
-                                                <StatusBtn active={item.status === 'FAIL'} type="FAIL" onClick={() => updateItem(section.id, idx, 'status', 'FAIL')} />
-                                                <StatusBtn active={item.status === 'NA'} type="NA" onClick={() => updateItem(section.id, idx, 'status', 'NA')} />
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0.5rem 1rem', background: 'var(--color-background)', borderTop: '1px dashed var(--color-border)' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+                                                <div className="ats-status-group" style={{ flexShrink: 0 }}>
+                                                    <StatusBtn active={item.status === 'OK'} type="OK" onClick={() => updateItem(section.id, idx, 'status', 'OK')} label="C" />
+                                                    <StatusBtn active={item.status === 'FAIL'} type="FAIL" onClick={() => updateItem(section.id, idx, 'status', 'FAIL')} label="NC" />
+                                                    <StatusBtn active={item.status === 'NA'} type="NA" onClick={() => updateItem(section.id, idx, 'status', 'NA')} label="N/A" />
+                                                </div>
+
+                                                <div style={{ flex: 1, display: 'flex', gap: '0.5rem', alignItems: 'center', minWidth: '280px' }}>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Observación / Anomalía..."
+                                                        value={item.observation || ''}
+                                                        onChange={e => updateItem(section.id, idx, 'observation', e.target.value)}
+                                                        style={{ flex: 1, padding: '0.4rem 0.8rem', border: '1px solid var(--color-border)', borderRadius: '8px', fontSize: '0.8rem', outline: 'none', background: 'var(--color-surface)', color: 'var(--color-text)' }}
+                                                    />
+
+                                                    <input 
+                                                        type="file" 
+                                                        id={`file-input-${section.id}-${idx}`}
+                                                        onChange={e => {
+                                                            const files = Array.from(e.target.files || []);
+                                                            let loadedCount = 0;
+                                                            const itemPhotos = [];
+                                                            files.forEach(file => {
+                                                                const reader = new FileReader();
+                                                                reader.onloadend = () => {
+                                                                    itemPhotos.push(reader.result);
+                                                                    loadedCount++;
+                                                                    if (loadedCount === files.length) {
+                                                                        updateItem(section.id, idx, 'photos', [...(item.photos || []), ...itemPhotos]);
+                                                                    }
+                                                                };
+                                                                reader.readAsDataURL(file);
+                                                            });
+                                                        }}
+                                                        accept="image/*" 
+                                                        capture="environment" 
+                                                        multiple 
+                                                        style={{ display: 'none' }} 
+                                                    />
+
+                                                    <button
+                                                        onClick={() => document.getElementById(`file-input-${section.id}-${idx}`)?.click()}
+                                                        style={{ 
+                                                            padding: '0.4rem 0.8rem', 
+                                                            background: 'rgba(37,99,235,0.1)', 
+                                                            border: '1px solid rgba(37,99,235,0.2)', 
+                                                            borderRadius: '8px', 
+                                                            cursor: 'pointer', 
+                                                            display: 'flex', 
+                                                            alignItems: 'center', 
+                                                            gap: '0.3rem', 
+                                                            color: 'var(--color-primary)', 
+                                                            fontSize: '0.75rem', 
+                                                            fontWeight: 'bold',
+                                                            margin: 0
+                                                        }}
+                                                        title="Capturar foto de evidencia"
+                                                    >
+                                                        <Camera size={14} />
+                                                        <span>{item.photos?.length || 0}</span>
+                                                    </button>
+                                                </div>
                                             </div>
+
+                                            {item.photos && item.photos.length > 0 && (
+                                                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginTop: '0.2rem' }}>
+                                                    {item.photos.map((photo, pIdx) => (
+                                                        <div key={pIdx} style={{ position: 'relative', width: '40px', height: '40px', borderRadius: '6px', overflow: 'hidden', border: '1px solid var(--color-border)' }}>
+                                                            <img src={photo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                            <button 
+                                                                onClick={() => {
+                                                                    const updatedPhotos = item.photos.filter((_, i) => i !== pIdx);
+                                                                    updateItem(section.id, idx, 'photos', updatedPhotos);
+                                                                }}
+                                                                style={{ position: 'absolute', top: 0, right: 0, background: '#ef4444', color: '#fff', border: 'none', width: '14px', height: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '0.55rem', padding: 0 }}
+                                                            >
+                                                                ✕
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
@@ -796,19 +1072,11 @@ function DocBox({ label, value, onChange, type = "text", large = false, highligh
     );
 }
 
-function StatusBtn({ active, type, onClick }) {
-    const config = {
-        OK: { label: 'SI', activeClass: 'active-ok' },
-        FAIL: { label: 'NO', activeClass: 'active-fail' },
-        NA: { label: 'NA', activeClass: 'active-na' }
-    };
-    const c = config[type];
+function StatusBtn({ active, type, onClick, label }) {
+    const classes = `ats-status-btn ${active ? (type === 'OK' ? 'active-ok' : type === 'FAIL' ? 'active-fail' : 'active-na') : ''}`;
     return (
-        <button
-            onClick={onClick}
-            className={`status-btn ${active ? c.activeClass : ''}`}
-        >
-            {c.label}
+        <button className={classes} onClick={onClick}>
+            {label}
         </button>
     );
 }
