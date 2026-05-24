@@ -940,18 +940,55 @@ export default function ChecklistManager(): React.ReactElement | null {
                     <Pencil size={24} /> Firmas y Autorizaciones
                 </h3>
 
-                <div className="mb-8 p-6 bg-slate-50/5 border border-[var(--color-border)] rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-sm font-bold text-slate-700">
-                    <div className="text-center" style={{ color: 'var(--color-text)' }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                    <div className="flex gap-4 flex-wrap justify-center">
-                        <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
-                            <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Responsable / Operador
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
-                            <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Profesional / Inspector
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)' }}>
-                            <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Supervisión / Verificador
-                        </label>
+                {/* Custom visual switches */}
+                <div className="no-print mb-8 p-6" style={{ background: 'rgba(30, 41, 59, 0.2)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', width: '100%', display: 'flex', flexDirection: 'column', gap: '1.25rem', justifyContent: 'center', alignItems: 'center' }}>
+                    <div style={{ color: 'var(--color-text)', fontWeight: 800, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                        {[
+                            { id: 'operator', label: 'Responsable / Operador' },
+                            { id: 'supervisor', label: 'Supervisión / Verificador' },
+                            { id: 'professional', label: 'Profesional / Inspector' }
+                        ].map(sig => {
+                            const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
+                            return (
+                                <label
+                                    key={sig.id}
+                                    className="flex items-center gap-2 cursor-pointer select-none"
+                                    style={{
+                                        padding: '0.55rem 1.1rem',
+                                        borderRadius: 'var(--radius-full)',
+                                        border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
+                                        background: isChecked ? 'rgba(var(--color-primary-rgb), 0.15)' : 'transparent',
+                                        color: isChecked ? 'var(--color-primary)' : 'var(--color-text-light)',
+                                        fontWeight: 750,
+                                        fontSize: '0.8rem',
+                                        transition: 'all 0.2s ease',
+                                        boxShadow: isChecked ? '0 0 10px rgba(var(--color-primary-rgb), 0.15)' : 'none'
+                                    }}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={e => setShowSignatures(s => ({ ...s, [sig.id]: e.target.checked }))}
+                                        style={{ display: 'none' }}
+                                    />
+                                    <div style={{
+                                        width: '16px',
+                                        height: '16px',
+                                        borderRadius: '4px',
+                                        border: isChecked ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)',
+                                        background: isChecked ? 'var(--color-primary)' : 'transparent',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        transition: 'all 0.2s ease'
+                                    }}>
+                                        {isChecked && <CheckCircle2 size={12} color="white" />}
+                                    </div>
+                                    {sig.label}
+                                </label>
+                            );
+                        })}
                     </div>
                 </div>
 
