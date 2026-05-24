@@ -538,23 +538,51 @@ export default function LightingReport(): React.ReactElement | null {
                 </div>
 
                 {/* SECCIÓN DE DATOS OBTENIDOS POR */}
-                <div className="bg-white text-black p-8 shadow-sm border-2 border-slate-200 rounded-2xl print:mb-0 mb-8 mt-10 print-area" style={{ display: 'block', clear: 'both' }}>
-                    <h3 style={{ marginTop: 0, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
+                <div className="card animate-fade-in print-area" style={{ marginTop: '2.5rem', background: 'rgba(var(--color-surface-rgb), 0.3)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', padding: '2.5rem', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.08)', clear: 'both' }}>
+                    <h3 style={{ marginTop: 0, marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.25rem', textTransform: 'uppercase', letterSpacing: '1.2px' }}>
                         <ShieldCheck size={22} color="var(--color-primary)" /> Firmas y Validación
                     </h3>
 
-                    <div className="no-print mb-8 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 justify-between items-center text-xs font-bold text-slate-700">
-                        <div>INCLUIR FIRMAS INCLUYENDO LOGO:</div>
-                        <div className="flex gap-4">
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-4 h-4 accent-orange-600" /> Operador
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-4 h-4 accent-orange-600" /> Supervisor
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-4 h-4 accent-orange-600" /> Profesional
-                            </label>
+                    {/* Custom visual switches */}
+                    <div className="no-print mb-8 p-6" style={{ background: 'rgba(30, 41, 59, 0.2)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', width: '100%', display: 'flex', flexDirection: 'column', gap: '1.25rem', justifyContent: 'center', alignItems: 'center' }}>
+                        <div style={{ color: 'var(--color-text)', fontWeight: 800, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                            {[
+                                { id: 'operator', label: 'Operador / Responsable' },
+                                { id: 'supervisor', label: 'Supervisor' },
+                                { id: 'professional', label: 'Profesional' }
+                            ].map(sig => {
+                                const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
+                                return (
+                                    <label
+                                        key={sig.id}
+                                        className="flex items-center gap-2 cursor-pointer select-none"
+                                        style={{
+                                            padding: '0.55rem 1.1rem',
+                                            borderRadius: 'var(--radius-full)',
+                                            border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
+                                            background: isChecked ? 'rgba(var(--color-primary-rgb), 0.1)' : 'transparent',
+                                            color: isChecked ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                                            transition: 'all 0.2s ease',
+                                            fontWeight: 700,
+                                            fontSize: '0.85rem'
+                                        }}
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={isChecked}
+                                            onChange={(e) => setShowSignatures(s => ({ ...s, [sig.id]: e.target.checked }))}
+                                            style={{
+                                                accentColor: 'var(--color-primary)',
+                                                width: '1.1rem',
+                                                height: '1.1rem',
+                                                cursor: 'pointer'
+                                            }}
+                                        />
+                                        {sig.label}
+                                    </label>
+                                );
+                            })}
                         </div>
                     </div>
 
