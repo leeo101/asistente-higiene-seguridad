@@ -188,6 +188,42 @@ const DEFAULT_TEMPLATES = {
             'Botiquín de Primeros Auxilios: Contenido completo y elementos vigentes',
             'Elementos de Protección Personal (EPP): Personal con calzado y casco obligatorio'
         ]
+    },
+    'trabajos_altura': {
+        title: 'Trabajos en Altura',
+        icon: <TriangleAlert size={18} />,
+        items: [
+            'Arnés de seguridad de cuerpo entero con correas y costuras íntegras',
+            'Cabo de vida (eslinga) con amortiguador de caídas en buen estado',
+            'Puntos de anclaje firmes, resistentes e independientes',
+            'Línea de vida (horizontal/vertical) correctamente tensada y fijada',
+            'Señalización y vallado preventivo en el nivel inferior',
+            'Permiso de trabajo en altura confeccionado y firmado'
+        ]
+    },
+    'trabajos_caliente': {
+        title: 'Trabajos en Caliente',
+        icon: <Flame size={18} />,
+        items: [
+            'Permiso de trabajo en caliente (soldadura/corte) autorizado',
+            'Extintor de incendios operativo a menos de 5 metros de distancia',
+            'Área libre de materiales combustibles o inflamables (radio de 10m)',
+            'Uso de mantas ignífugas o biombos para contención de chispas',
+            'Equipos de soldadura/oxicorte en buenas condiciones (cables, mangueras, válvulas arrestallamas)',
+            'El soldador utiliza EPP completo (máscara, delantal, guantes, polainas de descarne)'
+        ]
+    },
+    'productos_quimicos': {
+        title: 'Sustancias Químicas',
+        icon: <Activity size={18} />,
+        items: [
+            'Hojas/Fichas de Datos de Seguridad (FDS) disponibles y accesibles',
+            'Todos los envases correctamente rotulados según sistema SGA/GHS',
+            'Productos químicos almacenados sobre bateas antiderrame o pallets de contención',
+            'Almacenamiento respetando matrices de incompatibilidad química',
+            'Kit de control de derrames cercano y completo (absorbentes, barreras)',
+            'Duchas de emergencia y lavaojos operativos y sin obstrucciones'
+        ]
     }
 };
 
@@ -215,10 +251,16 @@ const MANDATORY_SECTIONS = [
 const NORMS_BY_COUNTRY = {
     argentina: [
         { id: 'ley19587', name: 'Ley 19.587 - Higiene y Seguridad en el Trabajo', category: 'Nacional' },
-        { id: 'dec351', name: 'Decreto 351/79 - Reglamento General', category: 'Nacional' },
+        { id: 'dec351', name: 'Decreto 351/79 - Reglamento General de H&S', category: 'Nacional' },
+        { id: 'ley24557', name: 'Ley 24.557 - Riesgos del Trabajo (LRT)', category: 'Nacional' },
+        { id: 'dec911', name: 'Decreto 911/96 - Industria de la Construcción', category: 'Nacional' },
+        { id: 'dec1338', name: 'Decreto 1338/96 - Servicios de Medicina y de H&S', category: 'Nacional' },
+        { id: 'res905', name: 'Res. SRT 905/15 - Funciones Servicios H&S', category: 'SRT' },
+        { id: 'res886', name: 'Res. SRT 886/15 - Protocolo de Ergonomía', category: 'SRT' },
+        { id: 'res85_84', name: 'Res. SRT 85/12 y 84/12 - Protocolos Ruido/Iluminación', category: 'SRT' },
         { id: 'res481', name: 'Res. SRT 481/16 - Estiba y Desestiba', category: 'SRT' },
-        { id: 'res299', name: 'Res. SRT 299/11 - Trabajo en Altura', category: 'SRT' },
-        { id: 'res295', name: 'Res. SRT 295/11 - Espacios Confinados', category: 'SRT' },
+        { id: 'res299', name: 'Res. SRT 299/11 - Trabajo en Altura / EPP', category: 'SRT' },
+        { id: 'res295', name: 'Res. SRT 295/03 - Espacios Confinados / Contaminantes', category: 'SRT' },
         { id: 'res101', name: 'Res. SRT 101/17 - Soldadura', category: 'SRT' },
         { id: 'res594', name: 'Res. SRT 594/15 - Agentes Químicos', category: 'SRT' },
         { id: 'art_reglamento', name: 'Reglamento Interno de ART', category: 'ART' }
@@ -234,7 +276,7 @@ const NORMS_BY_COUNTRY = {
         { id: 'mutual', name: 'Reglamento Mutual de Seguridad', category: 'Mutual' }
     ],
     uruguay: [
-        { id: 'dec351', name: 'Decreto 351/007 - Reglamento de Higiene y Seguridad', category: 'Nacional' },
+        { id: 'dec351_uy', name: 'Decreto 351/007 - Reglamento de Higiene y Seguridad', category: 'Nacional' },
         { id: 'ley18320', name: 'Ley 18.320 - Accidentes de Trabajo', category: 'Nacional' },
         { id: 'dec488', name: 'Decreto 488/013 - Trabajo en Altura', category: 'MTSS' },
         { id: 'dec182', name: 'Decreto 182/018 - Espacios Confinados', category: 'MTSS' },
@@ -258,8 +300,12 @@ const NORMS_BY_COUNTRY = {
         { id: 'iso14001', name: 'ISO 14001 - Gestión Ambiental', category: 'ISO' },
         { id: 'iso9001', name: 'ISO 9001 - Gestión de Calidad', category: 'ISO' },
         { id: 'nfpa10', name: 'NFPA 10 - Extintores Portátiles', category: 'NFPA' },
+        { id: 'nfpa30', name: 'NFPA 30 - Líquidos Inflamables y Combustibles', category: 'NFPA' },
         { id: 'nfpa70e', name: 'NFPA 70E - Seguridad Eléctrica', category: 'NFPA' },
-        { id: 'oshact', name: 'OSHA Act - Seguridad y Salud Ocupacional', category: 'OSHA' }
+        { id: 'nfpa101', name: 'NFPA 101 - Código de Seguridad Humana', category: 'NFPA' },
+        { id: 'oshact', name: 'OSHA Act - Seguridad y Salud Ocupacional', category: 'OSHA' },
+        { id: 'ansi_z89', name: 'ANSI Z89.1 - Requisitos para cascos', category: 'ANSI' },
+        { id: 'ansi_z87', name: 'ANSI Z87.1 - Protección ocular y facial', category: 'ANSI' }
     ]
 };
 
@@ -328,9 +374,17 @@ export default function ChecklistManager(): React.ReactElement | null {
         } catch { }
     }, []);
     const [newAction, setNewAction] = useState({ action: '', responsible: '', dueDate: '', priority: 'medio' });
+    const [checklistTitle, setChecklistTitle] = useState('CHECKLIST');
     const [selectedNorms, setSelectedNorms] = useState([]);
     const [userCountry, setUserCountry] = useState('argentina');
     const [availableNorms, setAvailableNorms] = useState([]);
+    const [showTutorialBanner, setShowTutorialBanner] = useState(false);
+
+    useEffect(() => {
+        if (!localStorage.getItem('checklist_tutorial_seen')) {
+            setShowTutorialBanner(true);
+        }
+    }, []);
 
     useEffect(() => {
         // Obtener país del usuario desde personalData
@@ -351,6 +405,7 @@ export default function ChecklistManager(): React.ReactElement | null {
             const savedData = localStorage.getItem(`checklist_${id}`);
             if (savedData) {
                 const parsed = JSON.parse(savedData);
+                if (parsed.checklistTitle) setChecklistTitle(parsed.checklistTitle);
                 setCompanyInfo(parsed.companyInfo);
                 setInspectionInfo(parsed.inspectionInfo);
                 setActiveSections(parsed.activeSections);
@@ -371,6 +426,7 @@ export default function ChecklistManager(): React.ReactElement | null {
 
         const data = {
             id,
+            checklistTitle,
             companyInfo,
             inspectionInfo,
             activeSections,
@@ -437,6 +493,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                 items: template.items.map(text => ({ text, status: null }))
             };
             setActiveSections(prev => [...prev, newSection]);
+            setChecklistTitle(`CHECKLIST DE ${template.title}`.toUpperCase());
         }
     };
 
@@ -511,6 +568,31 @@ export default function ChecklistManager(): React.ReactElement | null {
                 subtitle="Relevamiento preventivo y control de condiciones de seguridad"
                 icon={<ClipboardCheck size={36} />}
             />
+
+            {showTutorialBanner && (
+                <div className="no-print" style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', color: '#fff', padding: '1rem 1.5rem', borderRadius: '16px', marginBottom: '1.5rem', marginTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 8px 30px rgba(37,99,235,0.2)', position: 'relative', flexWrap: 'wrap', gap: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', flex: 1 }}>
+                        <div style={{ background: 'rgba(255,255,255,0.2)', padding: '0.6rem', borderRadius: '12px' }}>
+                            <Info size={24} />
+                        </div>
+                        <div>
+                            <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900 }}>¡Todo es editable!</h4>
+                            <p style={{ margin: '0.3rem 0 0 0', fontSize: '0.85rem', fontWeight: 600, color: 'rgba(255,255,255,0.9)', lineHeight: 1.4 }}>
+                                Recuerda que puedes hacer clic en el <strong>Título Principal</strong>, en los <strong>Títulos de las Secciones</strong> o en las <strong>Preguntas</strong> para modificarlas y adaptarlas a la inspección que necesites.
+                            </p>
+                        </div>
+                    </div>
+                    <button 
+                        onClick={() => {
+                            setShowTutorialBanner(false);
+                            localStorage.setItem('checklist_tutorial_seen', 'true');
+                        }}
+                        style={{ background: '#ffffff', color: '#2563eb', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '10px', fontWeight: 900, cursor: 'pointer', flexShrink: 0, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                    >
+                        Entendido
+                    </button>
+                </div>
+            )}
 
             <ShareModal
                 isOpen={showShare}
@@ -619,7 +701,12 @@ export default function ChecklistManager(): React.ReactElement | null {
 
                     {/* Center Main Title */}
                     <div className="w-full sm:w-auto sm:flex-1 flex flex-col items-center justify-center text-center">
-                        <h1 style={{ margin: 0, fontWeight: 900, fontSize: '2.5rem', letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1 }}>CHECKLIST</h1>
+                        <input
+                            value={checklistTitle}
+                            onChange={(e) => setChecklistTitle(e.target.value)}
+                            style={{ margin: 0, fontWeight: 900, fontSize: 'clamp(1.5rem, 4vw, 2.5rem)', letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1, textAlign: 'center', background: 'transparent', border: 'none', borderBottom: '1px dashed var(--color-border)', outline: 'none', color: 'var(--color-text)', width: '100%', maxWidth: '500px' }}
+                            title="Haz clic para editar el título"
+                        />
                         <p style={{ margin: 0, color: 'var(--color-text-muted)', fontWeight: 900, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.4em', marginTop: '0.25rem' }}>Inspección de Seguridad</p>
                     </div>
 
@@ -1070,6 +1157,7 @@ export default function ChecklistManager(): React.ReactElement | null {
             >
                 <ChecklistPdfGenerator
                     checklistData={{
+                        checklistTitle,
                         companyInfo,
                         inspectionInfo,
                         activeSections,

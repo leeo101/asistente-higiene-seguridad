@@ -64,6 +64,8 @@ app.use(helmet({
 function isOriginAllowed(origin) {
     if (!origin) return true;
     const allowedOrigins = [
+        'https://asistentehs.com',
+        'https://www.asistentehs.com',
         'http://localhost:5173',
         'http://localhost:4173',
         'https://asistentehs-b594e.web.app',

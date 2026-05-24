@@ -1,4 +1,6 @@
 const ALLOWED_ORIGINS = [
+  'https://asistentehs.com',
+  'https://www.asistentehs.com',
   'https://asistentehs-b594e.web.app',
   'https://asistentehs-b594e.firebaseapp.com',
   'http://localhost:5173',

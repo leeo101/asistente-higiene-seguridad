@@ -40,12 +40,31 @@ export default function Checklist(): React.ReactElement | null {
 
     const flatItems = Object.values(items).flat();
     const [responses, setResponses] = useState<Record<string, string>>({});
+    const [title, setTitle] = useState('Control de Inspección');
+    const [isEditingTitle, setIsEditingTitle] = useState(false);
+
+    const updateTitleInStorage = (newTitle: string) => {
+        const current = localStorage.getItem('current_inspection');
+        if (current) {
+            try {
+                const inspection = JSON.parse(current);
+                inspection.title = newTitle;
+                inspection.type = newTitle;
+                localStorage.setItem('current_inspection', JSON.stringify(inspection));
+            } catch (e) {
+                console.error('Error saving title:', e);
+            }
+        }
+    };
 
     // Load responses on mount
     useEffect(() => {
         const current = localStorage.getItem('current_inspection');
         if (current) {
             const inspection = JSON.parse(current);
+            if (inspection.title || inspection.type) {
+                setTitle(inspection.title || inspection.type);
+            }
             if (inspection.responses) {
                 setResponses(inspection.responses);
             }
@@ -133,11 +152,44 @@ export default function Checklist(): React.ReactElement | null {
                     }}>
                         <ClipboardCheck size={30} color="#fff" strokeWidth={2.5} />
                     </div>
-                    <div>
-                        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.5px' }}>
-                            Control de Inspección
-                        </h1>
-                        <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem', fontWeight: 600, letterSpacing: '0.3px' }}>
+                    <div style={{ flex: 1, minWidth: '200px' }}>
+                        {isEditingTitle ? (
+                            <input 
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                                onBlur={() => {
+                                    setIsEditingTitle(false);
+                                    updateTitleInStorage(title);
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        setIsEditingTitle(false);
+                                        updateTitleInStorage(title);
+                                    }
+                                }}
+                                autoFocus
+                                style={{
+                                    margin: 0, fontSize: '1.5rem', fontWeight: 900, color: '#fff', 
+                                    background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.4)', 
+                                    borderRadius: '8px', padding: '0 0.5rem', outline: 'none',
+                                    letterSpacing: '-0.5px', width: '100%', boxSizing: 'border-box'
+                                }}
+                            />
+                        ) : (
+                            <h1 
+                                onClick={() => setIsEditingTitle(true)}
+                                style={{ 
+                                    margin: 0, fontSize: '1.5rem', fontWeight: 900, color: '#fff', 
+                                    letterSpacing: '-0.5px', cursor: 'text', 
+                                    borderBottom: '1px dashed rgba(255,255,255,0.4)',
+                                    display: 'inline-block'
+                                }}
+                                title="Click para editar el título"
+                            >
+                                {title}
+                            </h1>
+                        )}
+                        <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem', fontWeight: 600, letterSpacing: '0.3px', marginTop: '0.2rem' }}>
                             Relevamiento de condiciones de seguridad
                         </p>
                     </div>

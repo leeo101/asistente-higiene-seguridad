@@ -101,7 +101,7 @@ export default function ChecklistPdfGenerator({
                     </div>
 
                     <div style={{ flex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                        <h1 style={{ margin: 0, fontWeight: 900, fontSize: '2.4rem', letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1, color: '#0f172a' }}>CHECK LIST</h1>
+                        <h1 style={{ margin: 0, fontWeight: 900, fontSize: '2.4rem', letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1, color: '#0f172a' }}>{checklistData.checklistTitle || 'CHECK LIST'}</h1>
                         <div style={{ marginTop: '0.3rem', background: hasCritical ? '#dc2626' : '#3b82f6', color: 'white', padding: '0.2rem 0.8rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.1em' }}>
                             {hasCritical ? `⚠ ${failCount} NO CONFORMIDAD${failCount > 1 ? 'ES' : ''} DETECTADA${failCount > 1 ? 'S' : ''}` : 'INSPECCIÓN DE HIGIENE Y SEGURIDAD'}
                         </div>
