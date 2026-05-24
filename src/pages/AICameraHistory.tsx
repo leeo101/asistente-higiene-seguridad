@@ -321,7 +321,12 @@ export default function AICameraHistory(): React.ReactElement | null {
                                     <QrCode size={16} />
                                 </button>
                                 <button
-                                    onClick={() => setShareItem(item)}
+                                    onClick={() => {
+                                        const fullReportKey = `ai_report_full_${item.id}`;
+                                        const savedFull = localStorage.getItem(fullReportKey);
+                                        const reportToLoad = savedFull ? JSON.parse(savedFull) : item;
+                                        setShareItem(reportToLoad);
+                                    }}
                                     style={{ padding: '0.6rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '8px', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', minWidth: '40px' }}
                                     title="Compartir"
                                 >

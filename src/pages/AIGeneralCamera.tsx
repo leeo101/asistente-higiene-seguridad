@@ -96,15 +96,14 @@ export default function AIGeneralCamera(): React.ReactElement | null {
         const video = videoRef.current;
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
-
-        const maxWidth = 800;
+        const maxWidth = 600;
         let width = video.videoWidth;
         let height = video.videoHeight;
 
         if (width === 0 || height === 0) {
             // Draw a beautiful simulated workspace environment
-            width = 800;
-            height = 600;
+            width = 600;
+            height = 450;
             canvas.width = width;
             canvas.height = height;
 
@@ -133,28 +132,28 @@ export default function AIGeneralCamera(): React.ReactElement | null {
             // Draw diagonal black/yellow warning stripes at bottom
             ctx.fillStyle = '#eab308';
             ctx.beginPath();
-            ctx.moveTo(100, 500);
-            ctx.lineTo(700, 500);
-            ctx.lineTo(680, 540);
-            ctx.lineTo(120, 540);
+            ctx.moveTo(50, 400);
+            ctx.lineTo(550, 400);
+            ctx.lineTo(530, 440);
+            ctx.lineTo(70, 440);
             ctx.closePath();
             ctx.fill();
 
             ctx.fillStyle = '#000000';
             ctx.save();
             ctx.beginPath();
-            ctx.moveTo(100, 500);
-            ctx.lineTo(700, 500);
-            ctx.lineTo(680, 540);
-            ctx.lineTo(120, 540);
+            ctx.moveTo(50, 400);
+            ctx.lineTo(550, 400);
+            ctx.lineTo(530, 440);
+            ctx.lineTo(70, 440);
             ctx.closePath();
             ctx.clip();
             for (let i = 0; i < width + 100; i += 30) {
                 ctx.beginPath();
-                ctx.moveTo(i, 480);
-                ctx.lineTo(i - 40, 560);
-                ctx.lineTo(i - 20, 560);
-                ctx.lineTo(i + 20, 480);
+                ctx.moveTo(i, 380);
+                ctx.lineTo(i - 40, 460);
+                ctx.lineTo(i - 20, 460);
+                ctx.lineTo(i + 20, 380);
                 ctx.closePath();
                 ctx.fill();
             }
@@ -164,37 +163,37 @@ export default function AIGeneralCamera(): React.ReactElement | null {
             ctx.fillStyle = 'rgba(239, 68, 68, 0.15)';
             ctx.strokeStyle = '#ef4444';
             ctx.lineWidth = 3;
-            ctx.strokeRect(150, 200, 200, 150);
-            ctx.fillRect(150, 200, 200, 150);
+            ctx.strokeRect(100, 150, 150, 120);
+            ctx.fillRect(100, 150, 150, 120);
 
             ctx.fillStyle = '#ef4444';
-            ctx.font = 'bold 14px Inter, sans-serif';
-            ctx.fillText("PELIGRO: OBSTÁCULO / CABLES", 160, 230);
+            ctx.font = 'bold 12px Inter, sans-serif';
+            ctx.fillText("PELIGRO: OBSTÁCULO / CABLES", 110, 175);
 
             // Hazard Box 2: Extintor bloqueado
             ctx.fillStyle = 'rgba(239, 68, 68, 0.15)';
-            ctx.strokeRect(450, 150, 220, 250);
-            ctx.fillRect(450, 150, 220, 250);
+            ctx.strokeRect(350, 120, 180, 200);
+            ctx.fillRect(350, 120, 180, 200);
 
             ctx.fillStyle = '#ef4444';
-            ctx.fillText("PELIGRO: EXTINTOR BLOQUEADO", 460, 180);
+            ctx.fillText("PELIGRO: EXTINTOR BLOQUEADO", 360, 145);
 
             // Title at top
             ctx.fillStyle = '#3b82f6';
-            ctx.font = 'bold 22px Outfit, Inter, sans-serif';
-            ctx.fillText("SIMULACIÓN DE ENTORNO DE TRABAJO", 50, 50);
+            ctx.font = 'bold 18px Outfit, Inter, sans-serif';
+            ctx.fillText("SIMULACIÓN DE ENTORNO DE TRABAJO", 30, 30);
 
             ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-            ctx.font = '14px Inter, sans-serif';
-            ctx.fillText("Cámara física inactiva — Simulación de Análisis de Riesgos H&S", 50, 80);
+            ctx.font = '12px Inter, sans-serif';
+            ctx.fillText("Cámara física inactiva — Simulación de Análisis de Riesgos H&S", 30, 50);
 
             // Clean path
             ctx.fillStyle = '#10b981';
-            ctx.fillText("✓ ÁREA DE PASO LIMPIA", 160, 450);
+            ctx.fillText("✓ ÁREA DE PASO LIMPIA", 110, 350);
             ctx.fillStyle = 'rgba(16, 185, 129, 0.15)';
             ctx.strokeStyle = '#10b981';
-            ctx.strokeRect(150, 420, 220, 50);
-            ctx.fillRect(150, 420, 220, 50);
+            ctx.strokeRect(100, 320, 180, 40);
+            ctx.fillRect(100, 320, 180, 40);
         } else {
             const scale = width > maxWidth ? maxWidth / width : 1;
             canvas.width = width * scale;
@@ -202,7 +201,7 @@ export default function AIGeneralCamera(): React.ReactElement | null {
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         }
 
-        const imageData = canvas.toDataURL('image/jpeg', 0.6);
+        const imageData = canvas.toDataURL('image/jpeg', 0.4);
         setCapturedImage(imageData);
 
         stopStream();

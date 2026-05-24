@@ -97,14 +97,14 @@ export default function AICamera(): React.ReactElement | null {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
 
-        const maxWidth = 800;
+        const maxWidth = 600;
         let width = video.videoWidth;
         let height = video.videoHeight;
 
         if (width === 0 || height === 0) {
             // Draw a beautiful simulated operator context for EPP scanning
-            width = 800;
-            height = 600;
+            width = 600;
+            height = 450;
             canvas.width = width;
             canvas.height = height;
 
@@ -134,34 +134,34 @@ export default function AICamera(): React.ReactElement | null {
             ctx.fillStyle = 'rgba(59, 130, 246, 0.1)';
             ctx.strokeStyle = '#3b82f6';
             ctx.lineWidth = 3;
-            ctx.strokeRect(250, 100, 300, 450);
-            ctx.fillRect(250, 100, 300, 450);
+            ctx.strokeRect(180, 80, 240, 350);
+            ctx.fillRect(180, 80, 240, 350);
 
             // Draw simulated helmet at top
             ctx.fillStyle = 'rgba(16, 185, 129, 0.15)';
             ctx.strokeStyle = '#10b981';
-            ctx.strokeRect(350, 120, 100, 60);
-            ctx.fillRect(350, 120, 100, 60);
+            ctx.strokeRect(250, 90, 100, 50);
+            ctx.fillRect(250, 90, 100, 50);
             ctx.fillStyle = '#10b981';
             ctx.font = 'bold 12px Inter, sans-serif';
-            ctx.fillText("CASCO O.K.", 365, 155);
+            ctx.fillText("CASCO O.K.", 265, 120);
 
             // Draw simulated safety boots at bottom
             ctx.fillStyle = 'rgba(239, 68, 68, 0.15)';
             ctx.strokeStyle = '#ef4444';
-            ctx.strokeRect(300, 480, 200, 50);
-            ctx.fillRect(300, 480, 200, 50);
+            ctx.strokeRect(200, 380, 200, 40);
+            ctx.fillRect(200, 380, 200, 40);
             ctx.fillStyle = '#ef4444';
-            ctx.fillText("FALTA CALZADO DE SEGURIDAD", 310, 510);
+            ctx.fillText("FALTA CALZADO DE SEGURIDAD", 210, 405);
 
             // Title at top
             ctx.fillStyle = '#3b82f6';
-            ctx.font = 'bold 22px Outfit, Inter, sans-serif';
-            ctx.fillText("SIMULACIÓN DE ESCANEO DE EPP", 50, 50);
+            ctx.font = 'bold 18px Outfit, Inter, sans-serif';
+            ctx.fillText("SIMULACIÓN DE ESCANEO DE EPP", 30, 40);
 
             ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-            ctx.font = '14px Inter, sans-serif';
-            ctx.fillText("Cámara física inactiva — Simulación de Control Inteligente de EPP", 50, 80);
+            ctx.font = '12px Inter, sans-serif';
+            ctx.fillText("Cámara física inactiva — Simulación de Control Inteligente de EPP", 30, 60);
         } else {
             const scale = width > maxWidth ? maxWidth / width : 1;
             canvas.width = width * scale;
@@ -169,7 +169,7 @@ export default function AICamera(): React.ReactElement | null {
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         }
 
-        const imageData = canvas.toDataURL('image/jpeg', 0.6);
+        const imageData = canvas.toDataURL('image/jpeg', 0.4);
         setCapturedImage(imageData);
 
         stopStream();
