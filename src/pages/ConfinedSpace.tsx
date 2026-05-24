@@ -10,6 +10,8 @@ import {
 import ShareModal from '../components/ShareModal';
 import ConfinedSpacePdf from '../components/ConfinedSpacePdf';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
+import Breadcrumbs from '../components/Breadcrumbs';
+import PremiumHeader from '../components/PremiumHeader';
 
 // Límites atmosféricos según OSHA 1910.146
 const ATMOSPHERIC_LIMITS = {
@@ -277,73 +279,29 @@ export default function ConfinedSpace(): React.ReactElement | null {
             <div style={{ position: 'fixed', left: '-9999px', top: 0, pointerEvents: 'none' }}>
                 {shareItem && <ConfinedSpacePdf data={shareItem} />}
             </div>
-            {/* Header Premium */}
-            <div style={{
-                marginBottom: '2rem',
-                padding: '1.5rem',
-                background: 'var(--gradient-card)',
-                borderRadius: 'var(--radius-2xl)',
-                border: '1px solid var(--glass-border)',
-                boxShadow: 'var(--glass-shadow)',
-                backdropFilter: 'blur(20px)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '1rem'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div style={{
-                        width: '56px',
-                        height: '56px',
-                        background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                        borderRadius: 'var(--radius-lg)',
+            <Breadcrumbs />
+
+            <PremiumHeader
+                title="Espacios Confinados"
+                subtitle={`OSHA 1910.146 • ${activePermits.length} activos`}
+                icon={<Tent size={36} />}
+            >
+                <button
+                    onClick={() => navigate('/confined-space/new')}
+                    className="btn-primary"
+                    style={{
+                        width: 'auto',
+                        margin: 0,
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center',
-                        boxShadow: '0 4px 20px rgba(245, 158, 11, 0.3)'
-                    }}>
-                        <Tent size={32} color="#ffffff" strokeWidth={2} />
-                    </div>
-                    <div>
-                        <h1 style={{ 
-                            margin: 0, 
-                            fontSize: '1.5rem', 
-                            fontWeight: 900,
-                            color: 'var(--color-text)',
-                            letterSpacing: '-0.5px'
-                        }}>
-                            Espacios Confinados
-                        </h1>
-                        <p style={{ 
-                            margin: '0.25rem 0 0 0', 
-                            color: 'var(--color-text-muted)',
-                            fontSize: '0.85rem',
-                            fontWeight: 600
-                        }}>
-                            OSHA 1910.146 • {activePermits.length} activos
-                        </p>
-                    </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                    <button
-                        onClick={() => navigate('/confined-space/new')}
-                        className="btn-primary"
-                        style={{
-                            width: 'auto',
-                            margin: 0,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            padding: '0.75rem 1.25rem'
-                        }}
-                    >
-                        <Plus size={20} strokeWidth={2.5} />
-                        Nuevo Permiso
-                    </button>
-                </div>
-            </div>
+                        gap: '0.5rem',
+                        padding: '0.75rem 1.25rem'
+                    }}
+                >
+                    <Plus size={20} strokeWidth={2.5} />
+                    Nuevo Permiso
+                </button>
+            </PremiumHeader>
 
             {/* Stats Cards */}
             <div style={{
