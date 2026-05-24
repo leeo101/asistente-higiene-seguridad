@@ -14,6 +14,7 @@ import toast from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import CompanyLogo from '../components/CompanyLogo';
 import PdfSignatures from '../components/PdfSignatures';
+import SignatureCanvas from '../components/SignatureCanvas';
 import { API_BASE_URL } from '../config';
 import { getCountryNormativa } from '../data/legislationData';
 import { auth } from '../firebase';
@@ -42,6 +43,8 @@ export default function LightingReport(): React.ReactElement | null {
         tipoTarea: '',
         luxRequerido: 500,
         conclusion: '',
+        operatorSignature: '',
+        supervisorSignature: '',
         mediciones: [
             { id: Date.now().toString(), ubicacion: 'Puesto 1', luxMedido: 0 as any }
         ]
@@ -565,17 +568,41 @@ export default function LightingReport(): React.ReactElement | null {
                     box1={showSignatures.operator ? {
                         title: 'OPERADOR / RESPONSABLE',
                         subtitle: 'Toma de conocimiento',
-                        signatureUrl: null,
+                        signatureUrl: formData.operatorSignature || null,
                         isProfessional: false
                     } : null}
                     box3={showSignatures.supervisor ? {
                         title: 'SUPERVISOR H&S',
                         subtitle: 'Aprobación del estudio',
-                        signatureUrl: null,
+                        signatureUrl: formData.supervisorSignature || null,
                         isProfessional: false
                     } : null}
                     box2={showSignatures.professional ? undefined : null}
                 />
+
+                    {/* Interactive Signature Drawing Pads */}
+                    <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {showSignatures.operator && (
+                            <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                                <SignatureCanvas 
+                                    onSave={(sig) => setFormData(prev => ({ ...prev, operatorSignature: sig || '' }))}
+                                    initialImage={formData.operatorSignature}
+                                    label="Firma del Operador / Responsable"
+                                />
+                            </div>
+                        )}
+                        
+                        {showSignatures.supervisor && (
+                            <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                                <SignatureCanvas 
+                                    onSave={(sig) => setFormData(prev => ({ ...prev, supervisorSignature: sig || '' }))}
+                                    initialImage={formData.supervisorSignature}
+                                    label="Firma del Supervisor"
+                                />
+                            </div>
+                        )}
+                    </div>
+
                     <PdfBrandingFooter />
                 </div>
             </div>
