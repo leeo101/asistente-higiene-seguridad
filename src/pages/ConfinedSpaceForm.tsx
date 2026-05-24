@@ -12,6 +12,8 @@ import ShareModal from '../components/ShareModal';
 import ConfinedSpacePdf from '../components/ConfinedSpacePdf';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
+import Breadcrumbs from '../components/Breadcrumbs';
+import PremiumHeader from '../components/PremiumHeader';
 
 // Constants from ConfinedSpace.tsx
 const CONFINED_SPACE_TYPES = [
@@ -243,39 +245,13 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem' }}>
-            <div style={{
-                background: 'var(--color-surface)',
-                borderBottom: '1px solid var(--color-border)',
-                padding: '1rem 1.5rem',
-                position: 'sticky',
-                top: isMobile ? '0' : '5.5rem',
-                zIndex: 100,
-                backdropFilter: 'blur(20px)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem'
-            }}>
-                <button
-                    onClick={() => navigate(-1)}
-                    style={{
-                        padding: '0.5rem',
-                        background: 'var(--color-background)',
-                        border: '1px solid var(--color-border)',
-                        borderRadius: 'var(--radius-lg)',
-                        cursor: 'pointer',
-                        color: 'var(--color-text)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center'
-                    }}
-                >
-                    <ArrowLeft size={20} />
-                </button>
-                <div style={{ flex: 1 }}>
-                    <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.3rem', fontWeight: 900 }}>
-                        <Tent size={24} style={{ display: 'inline', marginRight: '0.75rem', verticalAlign: 'middle', color: '#f59e0b' }} />
-                        {isEdit ? 'Editar Permiso Espacio Confinado' : 'Nuevo Permiso OSHA 1910.146'}
-                    </h1>
-                </div>
-            </div>
+            <Breadcrumbs />
+
+            <PremiumHeader
+                title={isEdit ? 'Editar Permiso Espacio Confinado' : 'Nuevo Permiso OSHA 1910.146'}
+                subtitle="Registro de ingreso y condiciones de seguridad"
+                icon={<Tent size={36} />}
+            />
 
             <main style={{ padding: '2rem 1rem', maxWidth: '1000px', margin: '0 auto' }}>
                 <div className="card" style={{ padding: isMobile ? '1.5rem' : '2.5rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)' }}>
