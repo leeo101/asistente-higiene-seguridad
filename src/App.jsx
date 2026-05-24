@@ -111,6 +111,7 @@ const StopCardsHistory = lazyWithRetry(() => import('./pages/StopCardsHistory'))
 const LogoSettings = lazyWithRetry(() => import('./pages/LogoSettings'));
 const PublicView = lazyWithRetry(() => import('./pages/PublicView'));
 const ExtinguisherAI = lazyWithRetry(() => import('./pages/ExtinguisherAI'));
+const ExtinguisherAIHistory = lazyWithRetry(() => import('./pages/ExtinguisherAIHistory'));
 const ChemicalSafety = lazyWithRetry(() => import('./pages/ChemicalSafety'));
 const NoiseAssessment = lazyWithRetry(() => import('./pages/NoiseAssessment'));
 const LOTOManager = lazyWithRetry(() => import('./pages/LOTOManager'));
@@ -496,6 +497,7 @@ function App() {
                   <Route path="/ai-history" element={<ProtectedRoute><AIHistory /></ProtectedRoute>} />
                   <Route path="/ai-report" element={<ProtectedRoute><AIReport /></ProtectedRoute>} />
                   <Route path="/extinguisher-ai" element={<ProtectedRoute><ExtinguisherAI /></ProtectedRoute>} />
+                  <Route path="/extinguisher-ai-history" element={<ProtectedRoute><ExtinguisherAIHistory /></ProtectedRoute>} />
 
                   {/* Safety Modules */}
                   <Route path="/audit" element={<ProtectedRoute><AuditManager /></ProtectedRoute>} />

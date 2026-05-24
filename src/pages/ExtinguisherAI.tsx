@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera, RefreshCw, CheckCircle, AlertTriangle, Flame, Loader2, Zap, FlipHorizontal, Info } from 'lucide-react';
+import { ArrowLeft, Camera, RefreshCw, CheckCircle, AlertTriangle, Flame, Loader2, Zap, FlipHorizontal, Info, Search } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { usePaywall } from '../hooks/usePaywall';
 import { useSync } from '../contexts/SyncContext';
@@ -191,29 +191,39 @@ export default function ExtinguisherAI(): React.ReactElement | null {
             <div style={{ 
                 display: 'flex', 
                 alignItems: 'center', 
+                justifyContent: 'space-between',
                 gap: '1rem', 
                 marginBottom: '1.5rem'
             }}>
-                <button 
-                    onClick={() => navigate('/#tools')} 
-                    style={{ 
-                        padding: '0.5rem', 
-                        background: 'transparent', 
-                        border: 'none', 
-                        cursor: 'pointer',
-                        color: 'var(--color-text)'
-                    }}
-                >
-                    <ArrowLeft size={24} />
-                </button>
-                <div>
-                    <h1 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 900 }}>
-                        🧯 Reconocimiento de Extintores IA
-                    </h1>
-                    <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-                        Identificá el tipo y estado del extintor
-                    </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <button 
+                        onClick={() => navigate('/#tools')} 
+                        style={{ 
+                            padding: '0.5rem', 
+                            background: 'transparent', 
+                            border: 'none', 
+                            cursor: 'pointer',
+                            color: 'var(--color-text)'
+                        }}
+                    >
+                        <ArrowLeft size={24} />
+                    </button>
+                    <div>
+                        <h1 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 900 }}>
+                            🧯 Reconocimiento de Extintores IA
+                        </h1>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+                            Identificá el tipo y estado del extintor
+                        </p>
+                    </div>
                 </div>
+                <button 
+                    onClick={() => navigate('/extinguisher-ai-history')}
+                    className="btn-outline"
+                    style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', fontSize: '0.85rem' }}
+                >
+                    <Search size={16} /> <span className="hidden sm:inline">Historial</span>
+                </button>
             </div>
 
             {/* Camera / Image Display */}
