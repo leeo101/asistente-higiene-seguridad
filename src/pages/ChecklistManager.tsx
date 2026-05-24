@@ -5,7 +5,7 @@ import {
     Settings, TriangleAlert, Building2, Calendar,
     Check, ShieldCheck, Trash2, Edit3, X,
     Share2, Save, ArrowLeft, Info, Pencil, Camera,
-    Flame, Zap, Siren, Lightbulb, Activity
+    Flame, Zap, Siren, Lightbulb, Activity, CheckCircle2
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../contexts/AuthContext';
