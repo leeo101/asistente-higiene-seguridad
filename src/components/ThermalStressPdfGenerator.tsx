@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Printer, MapPin, Calendar, ThermometerSun, Info, Droplets, Wind, Sun, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { getCountryNormativa } from '../data/legislationData';
 import PdfSignatures from './PdfSignatures';
+import PdfBrandingFooter from './PdfBrandingFooter';
+import CompanyLogo from './CompanyLogo';
 
 export default function ThermalStressPdfGenerator({ data, onBack = () => window.history.back(), isHeadless = false }: { data: any, onBack?: () => void, isHeadless?: boolean }): React.ReactElement | null {
     const report = data;
@@ -145,24 +147,9 @@ export default function ThermalStressPdfGenerator({ data, onBack = () => window.
                         </div>
                     </div>
                     
-                    {companyLogo && showLogo && (
-                        <div style={{ marginLeft: '20px', flexShrink: 0 }}>
-                            <img
-                                className="company-logo"
-                                src={companyLogo}
-                                alt="Logo de empresa"
-                                style={{
-                                    height: '50px',
-                                    width: 'auto',
-                                    objectFit: 'contain',
-                                    maxWidth: '150px',
-                                    background: '#ffffff',
-                                    padding: '8px',
-                                    borderRadius: '8px'
-                                }}
-                            />
-                        </div>
-                    )}
+                    <div style={{ marginLeft: '20px', flexShrink: 0 }}>
+                        <CompanyLogo style={{ height: '50px', maxWidth: '150px', background: '#ffffff', padding: '8px', borderRadius: '8px' }} />
+                    </div>
                 </div>
 
                 {/* Base Legal */}
@@ -452,8 +439,8 @@ export default function ThermalStressPdfGenerator({ data, onBack = () => window.
                 {/* Footer */}
                 <div style={{ 
                     textAlign: 'center', 
-                    marginTop: '3rem', 
-                    paddingTop: '1.5rem',
+                    marginTop: '2rem', 
+                    paddingTop: '1rem',
                     borderTop: '1px solid #e2e8f0',
                     fontSize: '7.5pt', 
                     color: '#94a3b8',
@@ -467,6 +454,8 @@ export default function ThermalStressPdfGenerator({ data, onBack = () => window.
                         Asistente H&S - Sistema de Gestión
                     </div>
                 </div>
+                
+                <PdfBrandingFooter />
 
             </div>
         </div>
