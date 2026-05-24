@@ -244,7 +244,7 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
     };
 
     return (
-        <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem' }}>
+        <div className="container" style={{ minHeight: '100vh', paddingBottom: '8rem' }}>
             <Breadcrumbs />
 
             <PremiumHeader
