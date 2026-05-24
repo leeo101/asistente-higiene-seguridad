@@ -12,6 +12,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import toast from 'react-hot-toast';
+import Breadcrumbs from '../components/Breadcrumbs';
+import PremiumHeader from '../components/PremiumHeader';
 import { usePaywall } from '../hooks/usePaywall';
 import AdBanner from '../components/AdBanner';
 import { getCountryNormativa } from '../data/legislationData';
@@ -281,8 +283,10 @@ export default function ThermalStress(): React.ReactElement | null {
                 elementIdToPrint="pdf-content"
             />
 
-            {/* Floating Action Bar */}
             <div className="no-print floating-action-bar">
+                <button onClick={() => navigate('/thermal-stress-history')} className="btn-floating-action" style={{ background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}>
+                    <Search size={18} /> HISTORIAL
+                </button>
                 <button onClick={handleSave} className="btn-floating-action" style={{ background: '#36B37E', color: '#ffffff' }}>
                     <Save size={18} /> GUARDAR
                 </button>
@@ -295,23 +299,14 @@ export default function ThermalStress(): React.ReactElement | null {
             </div>
 
             <div className="no-print">
-                {/* Header */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10, flexWrap: 'wrap', gap: '1rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <button onClick={() => navigate('/#tools')} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)' }}>
-                            <ArrowLeft size={20} />
-                        </button>
-                        <div>
-                            <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>{editData ? 'Editar Estrés Térmico' : 'Estrés Térmico Calculadora'}</h1>
-                            <p style={{ margin: '0.2rem 0 0', fontSize: '0.78rem', color: '#f97316', fontWeight: 700 }}>Res. SRT 30/2023 — reemplaza Res. 295/03 (derogada)</p>
-                        </div>
-                    </div>
-                    <button onClick={() => navigate('/thermal-stress-history')} className="btn-outline" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1.2rem' }}>
-                        <Search size={18} /> Historial
-                    </button>
-                </div>
+                <Breadcrumbs />
+                <PremiumHeader
+                    title={editData ? 'Editar Estrés Térmico' : 'Estrés Térmico Calculadora'}
+                    subtitle="Res. SRT 30/2023 — reemplaza Res. 295/03 (derogada)"
+                    icon={<ThermometerSun size={36} />}
+                />
 
-                <div className="grid-2-cols" style={{ gap: '1.5rem' }}>
+                <div className="grid-2-cols" style={{ gap: '1.5rem', marginTop: '2rem' }}>
 
                     {/* ─── Columna Izquierda: Formulario ─── */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -529,18 +524,54 @@ export default function ThermalStress(): React.ReactElement | null {
                         <Pencil size={20} /> Firmas y Autorizaciones
                     </h2>
 
-                    <div className="no-print mb-8 p-6 bg-slate-50/5 border border-[var(--color-border)] rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-sm font-bold text-slate-700" style={{ marginBottom: '2rem', padding: '1.5rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '12px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '1.5rem', justifyContent: 'center', alignItems: 'center' }}>
-                        <div className="text-center" style={{ color: 'var(--color-text)', fontSize: '0.9rem', fontWeight: 700 }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                        <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-                            <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
-                                <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures((s: any) => ({ ...s, operator: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Trabajador Evaluado
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
-                                <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures((s: any) => ({ ...s, professional: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Profesional Actuante
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
-                                <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures((s: any) => ({ ...s, supervisor: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Responsable / Sector
-                            </label>
+                    <div className="no-print mb-8 p-6" style={{ background: 'rgba(30, 41, 59, 0.2)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', width: '100%', display: 'flex', flexDirection: 'column', gap: '1.25rem', justifyContent: 'center', alignItems: 'center' }}>
+                        <div style={{ color: 'var(--color-text)', fontWeight: 800, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                            {[
+                                { id: 'operator', label: 'Trabajador Evaluado' },
+                                { id: 'professional', label: 'Profesional Actuante' },
+                                { id: 'supervisor', label: 'Responsable / Sector' }
+                            ].map(sig => {
+                                const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
+                                return (
+                                    <label
+                                        key={sig.id}
+                                        className="flex items-center gap-2 cursor-pointer select-none"
+                                        style={{
+                                            padding: '0.55rem 1.1rem',
+                                            borderRadius: 'var(--radius-full)',
+                                            border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
+                                            background: isChecked ? 'rgba(var(--color-primary-rgb), 0.15)' : 'transparent',
+                                            color: isChecked ? 'var(--color-primary)' : 'var(--color-text-light)',
+                                            fontWeight: 750,
+                                            fontSize: '0.8rem',
+                                            transition: 'all 0.2s ease',
+                                            boxShadow: isChecked ? '0 0 10px rgba(var(--color-primary-rgb), 0.15)' : 'none'
+                                        }}
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={isChecked}
+                                            onChange={e => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))}
+                                            style={{ display: 'none' }}
+                                        />
+                                        <div style={{
+                                            width: '16px',
+                                            height: '16px',
+                                            borderRadius: '4px',
+                                            border: isChecked ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)',
+                                            background: isChecked ? 'var(--color-primary)' : 'transparent',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            transition: 'all 0.2s ease'
+                                        }}>
+                                            {isChecked && <CheckCircle2 size={12} color="white" />}
+                                        </div>
+                                        {sig.label}
+                                    </label>
+                                );
+                            })}
                         </div>
                     </div>
 
