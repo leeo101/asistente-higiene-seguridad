@@ -368,11 +368,20 @@ export default function AIGeneralCamera(): React.ReactElement | null {
 
     return (
         <div className="container" style={{ paddingBottom: '3rem', position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', zIndex: 10 }}>
-                <button onClick={() => navigate('/#tools')} style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.1)', border: 'none', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-primary)' }}>
-                    <ArrowLeft />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <button onClick={() => navigate('/#tools')} style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.1)', border: 'none', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-primary)' }}>
+                        <ArrowLeft />
+                    </button>
+                    <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Detector de Riesgos IA</h1>
+                </div>
+                <button 
+                    onClick={() => navigate('/ai-history')}
+                    className="btn-outline"
+                    style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', fontSize: '0.85rem' }}
+                >
+                    <span className="hidden sm:inline">Historial</span>
                 </button>
-                <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Detector de Riesgos IA</h1>
             </div>
 
             <div style={{ flex: 1, position: 'relative', borderRadius: '24px', overflow: 'hidden', background: 'var(--color-text)', border: '4px solid var(--color-border)', boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
