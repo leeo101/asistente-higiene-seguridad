@@ -39,6 +39,7 @@
     "helmet": "^8.1.0",
     "html2canvas": "^1.4.1",
     "html5-qrcode": "^2.3.8",
+    "jsonwebtoken": "^9.0.3",
     "jspdf": "^4.2.0",
     "jspdf-autotable": "^5.0.7",
     "lucide-react": "^0.574.0",

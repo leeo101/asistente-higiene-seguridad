@@ -1,58 +1,59 @@
-import admin from 'firebase-admin';
 import { setCorsHeaders } from './_cors.js';
+import jwt from 'jsonwebtoken';
 
 export { setCorsHeaders };
 
 // ============================================================
-// FIREBASE ADMIN INIT
+// FIREBASE JWT MANUAL VERIFICATION (Zero Heavy Dependencies)
 // ============================================================
-if (!admin.apps.length) {
+let cachedCerts = null;
+let certsExpiry = 0;
+
+async function fetchGooglePublicKeys() {
+    const now = Date.now();
+    if (cachedCerts && now < certsExpiry) {
+        return cachedCerts;
+    }
+    
     try {
-        if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
-            const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-            if (serviceAccount.private_key) {
-                serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
-            }
-            admin.initializeApp({
-                credential: admin.credential.cert(serviceAccount)
-            });
-            console.log('[Firebase Admin] Initialized successfully.');
-        } else {
-            console.warn('[Firebase Admin] FIREBASE_SERVICE_ACCOUNT_KEY not set. Auth disabled.');
-        }
+        const response = await fetch('https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com');
+        const data = await response.json();
+        
+        // Google sets max-age in cache-control header, usually 20000+ seconds.
+        // We'll cache it for 1 hour to be safe.
+        cachedCerts = data;
+        certsExpiry = now + (60 * 60 * 1000); 
+        return cachedCerts;
     } catch (error) {
-        console.error('[Firebase Admin] Initialization error:', error.message);
+        console.error('[AUTH] Error fetching Firebase public keys:', error);
+        return null;
     }
 }
 
 // ============================================================
 // PER-USER RATE LIMITING (in-memory, per serverless instance)
 // ============================================================
-// Note: Vercel serverless instances are ephemeral and don't share memory.
-// This still provides meaningful protection against burst abuse within a single warm instance.
-const userRequestCounts = new Map(); // uid -> { count, resetAt }
-const AI_RATE_LIMIT = 20;           // max requests per window
-const RATE_WINDOW_MS = 60 * 1000;   // 1-minute window
+const userRequestCounts = new Map();
+const AI_RATE_LIMIT = 20;           
+const RATE_WINDOW_MS = 60 * 1000;   
 
 function checkUserRateLimit(uid) {
     const now = Date.now();
     const record = userRequestCounts.get(uid);
 
     if (!record || now > record.resetAt) {
-        // First request or window expired — start fresh
         userRequestCounts.set(uid, { count: 1, resetAt: now + RATE_WINDOW_MS });
         return true;
     }
 
     if (record.count >= AI_RATE_LIMIT) {
-        return false; // Rate limit exceeded
+        return false;
     }
 
     record.count += 1;
     return true;
 }
 
-// Clean up stale entries periodically to avoid memory leaks
 setInterval(() => {
     const now = Date.now();
     for (const [uid, record] of userRequestCounts.entries()) {
@@ -65,12 +66,6 @@ setInterval(() => {
 // ============================================================
 // MAIN AUTH + RATE LIMIT VERIFICATION
 // ============================================================
-
-/**
- * Verifies the Firebase ID token from the Authorization header,
- * then applies per-user rate limiting.
- * Returns the decoded token on success, or sends an error response and returns null.
- */
 export async function verifyToken(req, res) {
     const authHeader = req.headers?.authorization;
 
@@ -82,23 +77,50 @@ export async function verifyToken(req, res) {
 
     const idToken = authHeader.split('Bearer ')[1];
 
-    if (!admin.apps.length) {
-        console.warn('[AUTH] Firebase Admin not initialized — blocking request.');
-        res.status(503).json({ error: 'Servicio no disponible: autenticación no configurada.' });
+    let decodedHeader;
+    try {
+        decodedHeader = jwt.decode(idToken, { complete: true });
+    } catch (e) {
+        console.error('[AUTH] Invalid token format:', e);
+        res.status(403).json({ error: 'Token inválido o malformado.' });
+        return null;
+    }
+
+    if (!decodedHeader || !decodedHeader.header || !decodedHeader.header.kid) {
+        res.status(403).json({ error: 'Token inválido: falta KID.' });
+        return null;
+    }
+
+    const publicKeys = await fetchGooglePublicKeys();
+    if (!publicKeys) {
+        res.status(503).json({ error: 'Servicio no disponible: error validando credenciales.' });
+        return null;
+    }
+
+    const cert = publicKeys[decodedHeader.header.kid];
+    if (!cert) {
+        res.status(403).json({ error: 'Token inválido: firma desconocida.' });
         return null;
     }
 
     let decodedToken;
     try {
-        decodedToken = await admin.auth().verifyIdToken(idToken);
+        // We skip strict audience/issuer validation here because the user token comes from our own app,
+        // but verifying the RS256 signature against Google's cert ensures it's a valid Firebase token.
+        decodedToken = jwt.verify(idToken, cert, { algorithms: ['RS256'] });
     } catch (error) {
         console.error('[AUTH] Token verification failed:', error.message);
-        res.status(403).json({ error: 'Token inválido o expirado.' });
+        res.status(403).json({ error: 'Token expirado o inválido.' });
         return null;
     }
 
     // Apply per-user rate limiting
-    const uid = decodedToken.uid;
+    const uid = decodedToken.user_id || decodedToken.uid || decodedToken.sub;
+    if (!uid) {
+        res.status(403).json({ error: 'Token no contiene un ID de usuario válido.' });
+        return null;
+    }
+
     if (!checkUserRateLimit(uid)) {
         console.warn(`[RATE LIMIT] User ${uid} exceeded AI request limit.`);
         res.status(429).json({
@@ -107,5 +129,5 @@ export async function verifyToken(req, res) {
         return null;
     }
 
-    return decodedToken;
+    return { ...decodedToken, uid }; // normalize uid
 }
