@@ -59,7 +59,7 @@ export default function Legajos() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 pt-24 px-4 pb-12">
-      <div className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
             <Building2 className="w-8 h-8 text-blue-600" />
@@ -75,9 +75,8 @@ export default function Legajos() {
             }
             navigate('/legajos/nuevo');
           }}
-          className="group relative flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl hover:from-amber-400 hover:to-orange-400 transition-all duration-300 font-bold shadow-xl shadow-orange-500/30 hover:shadow-orange-500/50 hover:-translate-y-1 active:translate-y-0 overflow-hidden"
+          className="glow-button flex items-center gap-2 px-5 py-2.5 rounded-xl shadow-lg hover:-translate-y-1 transition-all"
         >
-          <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
           <Plus className="w-5 h-5 relative z-10" />
           <span className="relative z-10">Nuevo Legajo</span>
         </button>
