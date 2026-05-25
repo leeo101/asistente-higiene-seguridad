@@ -11,11 +11,19 @@ import toast from 'react-hot-toast';
  *   maxPhotos: number  — default 5
  *   label: string      — encabezado de sección
  */
-export default function PhotoAttachments({ photos = [], onChange, maxPhotos = 5, label = 'Fotos de Evidencia' }) {
-    const fileInputRef = useRef(null);
-    const [preview, setPreview] = useState(null); // lightbox
+export interface PhotoAttachmentsProps {
+    photos?: string[];
+    onChange: (photos: string[]) => void;
+    maxPhotos?: number;
+    label?: string;
+}
 
-    const handleFileSelect = (e) => {
+export default function PhotoAttachments({ photos = [], onChange, maxPhotos = 5, label = 'Fotos de Evidencia' }: PhotoAttachmentsProps) {
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [preview, setPreview] = useState<string | null>(null); // lightbox
+
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files) return;
         const files = Array.from(e.target.files);
         if (!files.length) return;
 
@@ -24,9 +32,9 @@ export default function PhotoAttachments({ photos = [], onChange, maxPhotos = 5,
             return;
         }
 
-        const readers = files.map(file => new Promise((resolve) => {
+        const readers = files.map(file => new Promise<string>((resolve) => {
             const reader = new FileReader();
-            reader.onload = ev => resolve(ev.target.result);
+            reader.onload = ev => resolve(ev.target?.result as string);
             reader.readAsDataURL(file);
         }));
 
@@ -38,7 +46,7 @@ export default function PhotoAttachments({ photos = [], onChange, maxPhotos = 5,
         e.target.value = '';
     };
 
-    const removePhoto = (idx) => {
+    const removePhoto = (idx: number) => {
         const updated = photos.filter((_, i) => i !== idx);
         onChange(updated);
     };
