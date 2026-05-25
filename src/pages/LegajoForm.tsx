@@ -26,6 +26,8 @@ const TABS = [
 export default function LegajoForm() {
   const { id } = useParams();
   const { user, isPro } = useAuth();
+  const isAdmin = user?.email === 'arielalaniz9@gmail.com';
+  const hasAccess = isPro || isAdmin;
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('empresa');
   const [loading, setLoading] = useState(false);
@@ -137,7 +139,7 @@ export default function LegajoForm() {
   };
 
   const handleGeneratePDF = async () => {
-    if (!isPro) {
+    if (!hasAccess) {
       alert("La exportación a PDF requiere una suscripción PRO");
       navigate('/subscription');
       return;

@@ -18,6 +18,8 @@ export default function Legajos() {
   const [legajos, setLegajos] = useState<Legajo[]>([]);
   const [loading, setLoading] = useState(true);
   const { user, isPro } = useAuth();
+  const isAdmin = user?.email === 'arielalaniz9@gmail.com';
+  const hasAccess = isPro || isAdmin;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -65,7 +67,7 @@ export default function Legajos() {
         </div>
         <button
           onClick={() => {
-            if (!isPro) {
+            if (!hasAccess) {
               navigate('/subscription');
               return;
             }
@@ -78,7 +80,7 @@ export default function Legajos() {
         </button>
       </div>
 
-      {!isPro && (
+      {!hasAccess && (
         <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4 flex gap-3 items-start">
           <AlertCircle className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
           <div>
