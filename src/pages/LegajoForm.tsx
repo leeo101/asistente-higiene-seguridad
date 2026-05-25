@@ -179,46 +179,44 @@ export default function LegajoForm() {
   if (loading) return <div className="text-center p-12 pt-32">Cargando datos del legajo...</div>;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-20 pt-24 px-4">
-      {/* Header */}
-      <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 sticky top-4 z-10">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <button 
+    <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem' }}>
+      <div style={{
+          background: 'var(--color-surface)',
+          borderBottom: '1px solid var(--color-border)',
+          padding: '1rem 1.5rem',
+          position: 'sticky',
+          top: '5.5rem',
+          zIndex: 100,
+          backdropFilter: 'blur(20px)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1rem'
+      }}>
+          <button
               onClick={() => navigate('/legajos')}
-              className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-            >
-              <ArrowLeft className="w-6 h-6 text-slate-600" />
-            </button>
-            <div>
-              <h1 className="text-2xl font-bold text-slate-800">
-                {id ? 'Editar Legajo Técnico' : 'Nuevo Legajo Técnico'}
+              style={{
+                  padding: '0.5rem',
+                  background: 'var(--color-background)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-lg)',
+                  cursor: 'pointer',
+                  color: 'var(--color-text)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+              }}
+          >
+              <ArrowLeft size={20} />
+          </button>
+          <div style={{ flex: 1 }}>
+              <h1 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 900 }}>
+                  {id ? 'Editar Legajo Técnico' : 'Nuevo Legajo Técnico'}
               </h1>
-              <p className="text-sm text-slate-500">Decreto 351/79</p>
-            </div>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Decreto 351/79</p>
           </div>
-          
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-slate-800 to-slate-900 text-white rounded-xl hover:from-slate-700 hover:to-slate-800 transition-all duration-300 font-semibold shadow-lg shadow-slate-900/20 hover:shadow-slate-900/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:hover:translate-y-0"
-            >
-              {isSaved ? <CheckCircle2 className="w-5 h-5 text-emerald-400" /> : <Save className="w-5 h-5" />}
-              {saving ? 'Guardando...' : isSaved ? 'Guardado' : 'Guardar Datos'}
-            </button>
-            
-            {id && (
-              <button
-                onClick={handleGeneratePDF}
-                className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-500 hover:to-indigo-500 transition-all duration-300 font-semibold shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-0.5 active:translate-y-0 ring-1 ring-white/20"
-              >
-                Generar PDF Final
-              </button>
-            )}
-          </div>
-        </div>
       </div>
+
+      <main style={{ padding: '2rem 1.5rem', maxWidth: '1000px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
       {/* Tabs */}
       <div className="flex overflow-x-auto gap-2 bg-white p-2 rounded-xl border border-slate-200 shadow-sm scrollbar-hide">
@@ -613,6 +611,7 @@ export default function LegajoForm() {
         )}
       </div>
 
+      </main>
       <div className="no-print floating-action-bar" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'var(--color-header-bg)', backdropFilter: 'blur(10px)', borderTop: '1px solid var(--color-border)', padding: '1rem', display: 'flex', justifyContent: 'center', gap: '1rem', zIndex: 100 }}>
           {id && (
             <button
