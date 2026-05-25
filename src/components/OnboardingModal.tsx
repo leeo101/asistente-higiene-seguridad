@@ -36,12 +36,16 @@ const STEPS = [
     },
 ];
 
-export default function OnboardingModal({ onClose }) {
+interface OnboardingModalProps {
+    onClose: () => void;
+}
+
+export default function OnboardingModal({ onClose }: OnboardingModalProps) {
     const navigate = useNavigate();
     const [step, setStep] = useState(0);
     const [animating, setAnimating] = useState(false);
 
-    const handleNavigate = (path) => {
+    const handleNavigate = (path: string) => {
         onClose();
         navigate(path);
     };
