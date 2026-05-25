@@ -14,6 +14,7 @@ Sentry.init({
     Sentry.browserTracingIntegration(),
   ],
   tracesSampleRate: 1.0,
+  sendDefaultPii: true,
 });
 
 createRoot(document.getElementById('root')!).render(
