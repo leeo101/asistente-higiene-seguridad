@@ -10,7 +10,27 @@ const BTN = (active, color = 'var(--color-primary)') => ({
     color: active ? '#fff' : 'var(--color-text)'
 });
 
-export default function MapPropertiesPanel({ element, onUpdate, onDelete, onDuplicate }) {
+export interface MapElement {
+    id?: string | number;
+    type: string;
+    strokeWidth?: number;
+    opacity?: number;
+    color?: string;
+    fillColor?: string | null;
+    lineStyle?: string;
+    rotation?: number;
+    locked?: boolean;
+    [key: string]: any;
+}
+
+export interface MapPropertiesPanelProps {
+    element: MapElement | null;
+    onUpdate: (updates: Partial<MapElement>) => void;
+    onDelete: () => void;
+    onDuplicate: () => void;
+}
+
+export default function MapPropertiesPanel({ element, onUpdate, onDelete, onDuplicate }: MapPropertiesPanelProps) {
     if (!element) return (
         <div style={{ padding: '1.5rem 1rem', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.8rem' }}>
             <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🖊️</div>
