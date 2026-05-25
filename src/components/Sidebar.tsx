@@ -1,24 +1,17 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import React, { useEffect, useState, ChangeEvent } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   X, User, House, GearSix, ClockCounterClockwise, SignOut, CalendarBlank,
-  ChatText, Sun, Moon, Sparkle as Sparkles, Star, ShieldCheck, HardHat, ChartPieSlice,
-  Users, Warning, CreditCard, Crown, Image as ImageIconPh, UploadSimple,
-  CheckCircle, Info, FileText, Bell, ChartBar, Fire
+  ChatText, ShieldCheck, ChartPieSlice,
+  Users, Crown, Image as ImageIconPh, ChartBar
 } from '@phosphor-icons/react';
-import { useExpiryNotifications } from '../hooks/useExpiryNotifications';
 import { useNotificationScheduler } from '../hooks/useNotificationScheduler';
-import {
-    requestNotificationPermission,
-    getPermissionStatus,
-    sendTestNotification,
-} from '../services/notificationService';
 
-import { User as FirebaseUser } from 'firebase/auth';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
-import { listenToValue } from '../services/cloudSync';
 import AdBanner from './AdBanner';
+import SidebarNotifications from './sidebar/SidebarNotifications';
+import SidebarUserProfile from './sidebar/SidebarUserProfile';
 
 // Tipos
 interface NavItem {
@@ -58,37 +51,15 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
   const { isPro, daysRemaining } = usePaywall();
-  const { notifications, dismiss, dismissAll } = useExpiryNotifications();
-  const [showAlerts, setShowAlerts] = useState(false);
-  const [notifPermission, setNotifPermission] = useState(() => getPermissionStatus());
 
   // Dispara notificaciones nativas del sistema una vez al día
   useNotificationScheduler();
+  
   const [userInfo, setUserInfo] = useState<UserInfo>({
     name: currentUser?.displayName || currentUser?.email || 'Usuario',
     photo: null,
     profession: ''
   });
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    return typeof document !== 'undefined' ? document.documentElement.classList.contains('dark') : false;
-  });
-
-  // Logo Management State
-  const [logo, setLogo] = useState<string | null>(null);
-  const [showLogo, setShowLogo] = useState<boolean>(true);
-  const [isUploading, setIsUploading] = useState<boolean>(false);
-
-  const toggleTheme = (): void => {
-    const newDark = !isDarkMode;
-    setIsDarkMode(newDark);
-    if (newDark) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  };
 
   useEffect(() => {
     if (!currentUser) {
@@ -119,69 +90,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
       document.body.classList.remove('sidebar-open-lock');
     };
   }, [isOpen, currentUser]);
-
-  // Load logo data
-  useEffect(() => {
-    const savedLogo = localStorage.getItem('companyLogo');
-    const savedShowLogo = localStorage.getItem('showCompanyLogo');
-    if (savedLogo) setLogo(savedLogo);
-    if (savedShowLogo !== null) setShowLogo(savedShowLogo === 'true');
-
-    if (currentUser?.uid && isOpen) {
-      const unsubscribeLogo = listenToValue<string>(currentUser.uid, 'companyLogo', (val) => {
-        setLogo(val);
-        if (val) localStorage.setItem('companyLogo', val);
-        else localStorage.removeItem('companyLogo');
-      });
-
-      const unsubscribeShow = listenToValue<boolean>(currentUser.uid, 'showCompanyLogo', (val) => {
-        const normalized = val === null ? true : val;
-        setShowLogo(normalized);
-        localStorage.setItem('showCompanyLogo', String(normalized));
-      });
-
-      return () => {
-        unsubscribeLogo();
-        unsubscribeShow();
-      };
-    }
-  }, [isOpen, currentUser]);
-
-  const handleLogoUpload = (e: ChangeEvent<HTMLInputElement>): void => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setIsUploading(true);
-
-    if (!file.type.startsWith('image/')) {
-      setIsUploading(false);
-      return;
-    }
-
-    if (file.size > 500 * 1024) {
-      setIsUploading(false);
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64 = event.target?.result as string;
-      setLogo(base64);
-      localStorage.setItem('companyLogo', base64);
-      setIsUploading(false);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const toggleShowLogo = (): void => {
-    const newValue = !showLogo;
-    setShowLogo(newValue);
-    localStorage.setItem('showCompanyLogo', String(newValue));
-  };
-
-  const removeLogo = (): void => {
-    setLogo(null);
-    localStorage.removeItem('companyLogo');
-  };
 
   const handleLogout = async (): Promise<void> => {
     try {
@@ -253,37 +161,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
               <span style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--color-hero-text)', letterSpacing: '-0.8px', fontFamily: 'var(--font-heading)' }}>Asistente HYS</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              {/* 🔔 Notification Bell */}
-              {currentUser && (
-                <button
-                  onClick={() => setShowAlerts(v => !v)}
-                  style={{
-                    padding: 0, position: 'relative',
-                    background: notifications.length > 0 ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.1)',
-                    border: notifications.length > 0 ? '1px solid rgba(239,68,68,0.4)' : '1px solid rgba(255,255,255,0.15)',
-                    width: '36px', height: '36px', borderRadius: '10px',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'pointer', color: notifications.length > 0 ? '#fca5a5' : '#ffffff',
-                    transition: 'all 0.2s ease',
-                  }}
-                  title={`${notifications.length} alerta${notifications.length !== 1 ? 's' : ''} de vencimiento`}
-                >
-                  <Bell weight="duotone" size={20} />
-                  {notifications.length > 0 && (
-                    <span style={{
-                      position: 'absolute', top: '-5px', right: '-5px',
-                      background: '#ef4444', color: '#fff',
-                      borderRadius: '50%', width: '18px', height: '18px',
-                      fontSize: '0.6rem', fontWeight: 900,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      border: '2px solid var(--color-hero-bg, #0f172a)',
-                      animation: 'pulse 2s infinite',
-                    }}>
-                      {notifications.length > 9 ? '9+' : notifications.length}
-                    </span>
-                  )}
-                </button>
-              )}
+              
+              <SidebarNotifications currentUser={currentUser} />
+
               <button onClick={onClose} style={{ padding: 0, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#ffffff', backdropFilter: 'blur(10px)', transition: 'all 0.3s ease' }}
                 onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; e.currentTarget.style.transform = 'rotate(90deg)'; }}
                 onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.transform = 'rotate(0)'; }}
@@ -293,153 +173,13 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
             </div>
           </div>
 
-          {/* 🔔 Alerts Panel */}
-          {showAlerts && currentUser && (
-            <div style={{
-              background: 'rgba(0,0,0,0.25)', borderRadius: '14px',
-              padding: '0.8rem', marginBottom: '0.8rem',
-              border: '1px solid rgba(239,68,68,0.2)',
-              animation: 'slideDown 0.2s ease',
-              maxHeight: '260px', overflowY: 'auto',
-            }}>
-              {/* Permiso de notificaciones */}
-              {notifPermission === 'default' && (
-                <div style={{ marginBottom: '0.8rem', padding: '0.7rem 0.8rem', borderRadius: '10px', background: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
-                  <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.75rem', color: 'rgba(255,255,255,0.9)', fontWeight: 700 }}>🔔 Activar notificaciones del sistema</p>
-                  <p style={{ margin: '0 0 0.6rem 0', fontSize: '0.7rem', color: 'rgba(255,255,255,0.65)', lineHeight: 1.4 }}>Recibí alertas aunque la app esté cerrada</p>
-                  <button
-                    onClick={async () => {
-                      const ok = await requestNotificationPermission();
-                      setNotifPermission(getPermissionStatus());
-                      if (ok) sendTestNotification();
-                    }}
-                    style={{ width: '100%', padding: '0.5rem', borderRadius: '8px', background: 'rgba(56, 189, 248, 0.8)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 800 }}
-                  >
-                    Activar ahora
-                  </button>
-                </div>
-              )}
-
-              {notifPermission === 'denied' && (
-                <div style={{ marginBottom: '0.8rem', padding: '0.6rem 0.8rem', borderRadius: '10px', background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)' }}>
-                  <p style={{ margin: 0, fontSize: '0.72rem', color: '#fca5a5', lineHeight: 1.4 }}>🚫 Notificaciones bloqueadas. Habilitá los permisos desde la configuración de tu navegador.</p>
-                </div>
-              )}
-
-              {notifications.length === 0 && notifPermission === 'granted' ? (
-                <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', padding: '0.5rem' }}>
-                  ✅ Sin vencimientos próximos
-                </div>
-              ) : notifications.length === 0 ? (
-                <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', padding: '0.3rem' }}>
-                  No hay alertas pendientes
-                </div>
-              ) : (
-                <>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                    <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase' }}>Alertas de Vencimiento</span>
-                    <button onClick={dismissAll} style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer', padding: '0.1rem 0.3rem', fontWeight: 700 }}>Descartar todo</button>
-                  </div>
-                  {notifications.map(n => (
-                    <div key={n.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.5rem', borderRadius: '8px', background: n.isExpired ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)', marginBottom: '0.3rem' }}>
-                      <span style={{ fontSize: '0.75rem', flex: 1, color: n.isExpired ? '#fca5a5' : '#fde68a', fontWeight: 600, lineHeight: 1.3 }}>
-                        {n.type === 'ppe' ? '🦺' : n.type === 'contractor' ? '🏢' : n.type === 'worker' ? '👷' : '🧯'} {n.label}
-                        <span style={{ display: 'block', fontSize: '0.65rem', opacity: 0.8 }}>
-                          {n.isExpired ? `Vencido hace ${Math.abs(n.daysLeft)}d` : `Vence en ${n.daysLeft}d`}
-                          {n.responsible ? ` · ${n.responsible}` : ''}
-                        </span>
-                      </span>
-                      <button onClick={() => dismiss(n.id)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', padding: '0.1rem', fontSize: '0.7rem', flexShrink: 0 }} title="Descartar">
-                        <X weight="bold" size={14} />
-                      </button>
-                    </div>
-                  ))}
-                </>
-              )}
-            </div>
-          )}
-
-          {/* User card */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.9rem' }}>
-            <div style={{
-              width: '46px', height: '46px', borderRadius: '50%',
-              background: 'var(--color-surface)',
-              border: '1px solid var(--color-border)',
-              overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
-            }}>
-              {userInfo.photo ? (
-                <img src={userInfo.photo} alt="Foto de Perfil" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              ) : (
-                <User weight="duotone" size={26} color="rgba(255,255,255,0.9)" />
-              )}
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--color-hero-text)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  {currentUser ? userInfo.name : 'Invitado'}
-                  {isPro && (
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.35rem',
-                        padding: '0.2rem 0.5rem',
-                        background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(251, 191, 36, 0.1))',
-                        border: '1px solid rgba(245, 158, 11, 0.3)',
-                        borderRadius: '20px',
-                        backdropFilter: 'blur(4px)'
-                      }}
-                      title={daysRemaining === Infinity ? "Plan Administrador - Acceso Total" : `Días PRO: ${daysRemaining}`}
-                    >
-                      <Crown weight="fill" size={12} color="#f59e0b" />
-                      <span style={{ fontSize: '0.6rem', color: '#fcd34d', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        {daysRemaining === Infinity ? 'Admin' : `PRO ${daysRemaining}d`}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <button
-                  onClick={(e) => { e.stopPropagation(); toggleTheme(); }}
-                  style={{
-                    padding: 0,
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '10px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    color: '#ffffff',
-                    flexShrink: 0,
-                    transition: 'all 0.2s ease',
-                    boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
-                    backdropFilter: 'blur(8px)'
-                  }}
-                  title={isDarkMode ? 'Activar Modo Claro' : 'Activar Modo Oscuro'}
-                  onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'; }}
-                  onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
-                >
-                  {isDarkMode ? (
-                    <Sun weight="bold" size={22} color="#ffffff" />
-                  ) : (
-                    <Moon weight="bold" size={22} color="#ffffff" />
-                  )}
-                </button>
-              </div>
-              {currentUser ? (
-                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)', marginTop: '0.1rem' }}>
-                  {userInfo.profession || 'Profesional H&S'}
-                </div>
-              ) : (
-                <Link to="/login" onClick={onClose} style={{ fontSize: '0.78rem', color: 'var(--color-primary)', textDecoration: 'none', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-                  Iniciar sesión →
-                </Link>
-              )}
-            </div>
-          </div>
+          <SidebarUserProfile 
+            currentUser={currentUser}
+            userInfo={userInfo}
+            isPro={isPro}
+            daysRemaining={daysRemaining}
+            onClose={onClose}
+          />
         </div>
 
         {/* ── NAVIGATION ── */}
