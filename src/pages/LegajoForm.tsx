@@ -4,8 +4,10 @@ import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
 import { db } from '../firebase';
 import { doc, setDoc, getDoc, serverTimestamp, collection } from 'firebase/firestore';
+import SignatureCanvas from '../components/SignatureCanvas';
 import { 
   Building2, 
+  PenTool, 
   Flame, 
   ShieldCheck, 
   AlertTriangle,
@@ -22,6 +24,7 @@ const TABS = [
   { id: 'incendio', label: 'Incendio', icon: Flame },
   { id: 'epp', label: 'EPP & Capacitación', icon: ShieldCheck },
   { id: 'ambiente', label: 'Medio Ambiente', icon: Wind },
+  { id: 'firmas', label: 'Firmas', icon: PenTool },
 ];
 
 export default function LegajoForm() {
@@ -78,6 +81,10 @@ export default function LegajoForm() {
       ruidoApto: true,
       puestaTierraFecha: '',
       puestaTierraApto: true
+    },
+    firmas: {
+      profesional: '',
+      representante: ''
     }
   });
 
@@ -101,6 +108,7 @@ export default function LegajoForm() {
           incendio: data.incendio || formData.incendio,
           epp: data.epp || formData.epp,
           ambiente: data.ambiente || formData.ambiente,
+          firmas: data.firmas || formData.firmas,
         });
       }
     } catch (error) {
@@ -246,7 +254,7 @@ export default function LegajoForm() {
                   type="text" 
                   value={formData.empresa.razonSocial}
                   onChange={e => handleChange('empresa', 'razonSocial', e.target.value)}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all shadow-sm"
                   placeholder="Ej: Metalúrgica San Martín S.A."
                 />
               </div>
@@ -256,7 +264,7 @@ export default function LegajoForm() {
                   type="text" 
                   value={formData.empresa.cuit}
                   onChange={e => handleChange('empresa', 'cuit', e.target.value)}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all shadow-sm"
                   placeholder="30-12345678-9"
                 />
               </div>
@@ -266,7 +274,7 @@ export default function LegajoForm() {
                   type="text" 
                   value={formData.empresa.domicilio}
                   onChange={e => handleChange('empresa', 'domicilio', e.target.value)}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all shadow-sm"
                   placeholder="Calle, Número, Piso, Dpto"
                 />
               </div>
@@ -276,7 +284,7 @@ export default function LegajoForm() {
                   type="text" 
                   value={formData.empresa.actividad}
                   onChange={e => handleChange('empresa', 'actividad', e.target.value)}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all shadow-sm"
                 />
               </div>
               <div>
@@ -285,7 +293,7 @@ export default function LegajoForm() {
                   type="text" 
                   value={formData.empresa.art}
                   onChange={e => handleChange('empresa', 'art', e.target.value)}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all shadow-sm"
                 />
               </div>
               <div>
@@ -294,7 +302,7 @@ export default function LegajoForm() {
                   type="number" 
                   value={formData.empresa.cantidadEmpleados}
                   onChange={e => handleChange('empresa', 'cantidadEmpleados', e.target.value)}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all shadow-sm"
                 />
               </div>
               <div>
@@ -303,7 +311,7 @@ export default function LegajoForm() {
                   type="number" 
                   value={formData.empresa.superficie}
                   onChange={e => handleChange('empresa', 'superficie', e.target.value)}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all shadow-sm"
                 />
               </div>
             </div>
@@ -321,7 +329,7 @@ export default function LegajoForm() {
                   rows={3}
                   value={formData.riesgos.fisicos}
                   onChange={e => handleChange('riesgos', 'fisicos', e.target.value)}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all shadow-sm resize-none"
                   placeholder="Ej: Ruido continuo en sector producción, carga térmica en hornos..."
                 />
               </div>
@@ -331,7 +339,7 @@ export default function LegajoForm() {
                   rows={3}
                   value={formData.riesgos.quimicos}
                   onChange={e => handleChange('riesgos', 'quimicos', e.target.value)}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all shadow-sm resize-none"
                   placeholder="Sustancias utilizadas, vapores, material particulado..."
                 />
               </div>
@@ -341,7 +349,7 @@ export default function LegajoForm() {
                   rows={4}
                   value={formData.riesgos.medidasPreventivas}
                   onChange={e => handleChange('riesgos', 'medidasPreventivas', e.target.value)}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all shadow-sm resize-none"
                   placeholder="Ej: Sistema de extracción localizada instalada. Guardas de seguridad mecánicas..."
                 />
               </div>
@@ -360,7 +368,7 @@ export default function LegajoForm() {
                   type="text" 
                   value={formData.incendio.cargaFuego}
                   onChange={e => handleChange('incendio', 'cargaFuego', e.target.value)}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all shadow-sm"
                 />
               </div>
               <div>
@@ -368,7 +376,7 @@ export default function LegajoForm() {
                 <select 
                   value={formData.incendio.riesgoIncendio}
                   onChange={e => handleChange('incendio', 'riesgoIncendio', e.target.value)}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all shadow-sm appearance-none"
                 >
                   <option value="">Seleccione...</option>
                   <option value="R1">Riesgo 1 (Explosivo)</option>
@@ -386,7 +394,7 @@ export default function LegajoForm() {
                   type="number" 
                   value={formData.incendio.cantidadExtintores}
                   onChange={e => handleChange('incendio', 'cantidadExtintores', e.target.value)}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all shadow-sm"
                 />
               </div>
               <div className="flex items-center gap-2 mt-6">
@@ -439,7 +447,7 @@ export default function LegajoForm() {
                   rows={2}
                   value={formData.epp.capacitacionRealizada}
                   onChange={e => handleChange('epp', 'capacitacionRealizada', e.target.value)}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all shadow-sm"
                   placeholder="Uso de extintores - 15/05/2024"
                 />
               </div>
@@ -449,9 +457,39 @@ export default function LegajoForm() {
                   rows={2}
                   value={formData.epp.proximaCapacitacion}
                   onChange={e => handleChange('epp', 'proximaCapacitacion', e.target.value)}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all shadow-sm"
                   placeholder="Riesgo Eléctrico - Octubre 2024"
                 />
+              </div>
+            </div>
+          </div>
+        )}
+
+
+        {/* FIRMAS TAB */}
+        {activeTab === 'firmas' && (
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+            <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">Firmas del Documento</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-3">
+                <label className="block text-sm font-semibold text-slate-700">Firma del Profesional</label>
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                  <SignatureCanvas 
+                    onSave={(sig) => handleChange('firmas', 'profesional', sig)}
+                    initialSignature={formData.firmas.profesional}
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <label className="block text-sm font-semibold text-slate-700">Firma Representante Empresa</label>
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                  <SignatureCanvas 
+                    onSave={(sig) => handleChange('firmas', 'representante', sig)}
+                    initialSignature={formData.firmas.representante}
+                  />
+                </div>
               </div>
             </div>
           </div>
