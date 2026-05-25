@@ -1,8 +1,31 @@
 import { TriangleAlert, CheckCircle2 } from 'lucide-react';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import CompanyLogo from './CompanyLogo';
+import PdfSignatures from './PdfSignatures';
+import React from 'react';
 
-export default function ReportPdfGenerator({ initialData }) {
+interface Observation {
+    itemId?: string;
+    category?: string;
+    description?: string;
+    severity?: string;
+    photo?: string;
+}
+
+interface ReportData {
+    name?: string;
+    date?: string | number | Date;
+    location?: string;
+    responses?: Record<string, string>;
+    observations?: Observation[];
+    [key: string]: any;
+}
+
+interface ReportPdfGeneratorProps {
+    initialData?: ReportData | null;
+}
+
+export default function ReportPdfGenerator({ initialData }: ReportPdfGeneratorProps) {
     if (!initialData) return null;
 
     const findings = initialData.observations || [];
@@ -62,8 +85,8 @@ export default function ReportPdfGenerator({ initialData }) {
                             }}
                         />
                         <div style={{ textAlign: 'right', fontSize: '0.85rem' }}>
-                            <p style={{ margin: '0 0 0.2rem 0' }}><strong>Fecha:</strong> {new Date(initialData.date).toLocaleDateString()}</p>
-                            <p style={{ margin: '0 0 0.2rem 0' }}><strong>Referencia:</strong> {initialData.name}</p>
+                            <p style={{ margin: '0 0 0.2rem 0' }}><strong>Fecha:</strong> {initialData.date ? new Date(initialData.date).toLocaleDateString() : '-'}</p>
+                            <p style={{ margin: '0 0 0.2rem 0' }}><strong>Referencia:</strong> {initialData.name || '-'}</p>
                             <p style={{ margin: 0 }}><strong>Ubicación:</strong> {initialData.location || '-'}</p>
                         </div>
                     </div>
