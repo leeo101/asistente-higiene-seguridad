@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Search, Calendar, ChevronRight,
     ClipboardList, Flame, BarChart3, ShieldAlert, Plus, Sparkles, Trash2, Camera, Lightbulb, HardHat, Share2,
     ClipboardCheck, CheckCircle2, ScrollText, ShieldCheck, KeySquare, Bot, TriangleAlert, FileText, Shield, ThermometerSun, Siren, Map, BookOpen,
-    FlaskConical, Volume2, Lock, Tent, Droplets, MessageSquare, Download, CarFront, Weight, Timer
+    FlaskConical, Volume2, Lock, Tent, Droplets, MessageSquare, Download, CarFront, Weight, Timer, Building2
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useSync } from '../contexts/SyncContext';
