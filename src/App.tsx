@@ -123,6 +123,8 @@ const EnvironmentalMonitor = lazyWithRetry(() => import('./pages/EnvironmentalMo
 const SafetyKPIs = lazyWithRetry(() => import('./pages/SafetyKPIs'));
 const ToolboxTalk = lazyWithRetry(() => import('./pages/ToolboxTalk'));
 const ContractorManagement = lazyWithRetry(() => import('./pages/ContractorManagement'));
+const Legajos = lazyWithRetry(() => import('./pages/Legajos'));
+const LegajoForm = lazyWithRetry(() => import('./pages/LegajoForm'));
 
 // SAFETY MODULE FORMS
 const AuditForm = lazyWithRetry(() => import('./pages/AuditForm'));
@@ -586,6 +588,9 @@ function App() {
                   <Route path="/fleet-history" element={<ProtectedRoute><FleetHistory /></ProtectedRoute>} />
                   <Route path="/evacuation-form" element={<ProtectedRoute><EvacuationSimulatorForm /></ProtectedRoute>} />
                   <Route path="/evacuation-history" element={<ProtectedRoute><EvacuationSimulatorHistory /></ProtectedRoute>} />
+                  <Route path="/legajos" element={<ProtectedRoute><Legajos /></ProtectedRoute>} />
+                  <Route path="/legajos/nuevo" element={<ProtectedRoute><LegajoForm /></ProtectedRoute>} />
+                  <Route path="/legajos/editar/:id" element={<ProtectedRoute><LegajoForm /></ProtectedRoute>} />
 
                   <Route path="/risk-matrix-history" element={<ProtectedRoute><History view="matrices" /></ProtectedRoute>} />
                   <Route path="/reports-history" element={<ProtectedRoute><History view="reports" /></ProtectedRoute>} />
