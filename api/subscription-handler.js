@@ -1,27 +1,8 @@
 import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 import { Resend } from 'resend';
-import admin from 'firebase-admin';
+import { getGoogleAccessToken } from './_googleAuth.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-
-// Initialize Firebase Admin
-if (!admin.apps.length) {
-    try {
-        if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
-            const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-            if (serviceAccount.private_key) {
-                serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
-            }
-            admin.initializeApp({
-                credential: admin.credential.cert(serviceAccount)
-            });
-        }
-    } catch (error) {
-        console.error("Firebase Admin initialization error:", error);
-    }
-}
-
-const db = admin.firestore();
 const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
 
 export default async function handler(req, res) {
@@ -55,26 +36,49 @@ export default async function handler(req, res) {
                     console.log(`Payment approved for user: ${userId}`);
 
                     if (userId && userId !== 'guest') {
-                        const userRef = db.collection('users').doc(userId).collection('data').doc('subscriptionData');
-                        const userDoc = await userRef.get();
-
+                        const projectId = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY).project_id;
+                        const accessToken = await getGoogleAccessToken();
+                        const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${userId}/data/subscriptionData`;
+                        
+                        // 1. Get current subscription data
+                        const userDocRes = await fetch(firestoreUrl, { 
+                            headers: { Authorization: `Bearer ${accessToken}` } 
+                        });
+                        
                         let currentExpiry = 0;
-                        if (userDoc.exists) {
-                            currentExpiry = parseInt(userDoc.data().expiry || '0', 10);
+                        if (userDocRes.ok) {
+                            const docData = await userDocRes.json();
+                            if (docData.fields && docData.fields.expiry && docData.fields.expiry.stringValue) {
+                                currentExpiry = parseInt(docData.fields.expiry.stringValue, 10);
+                            }
                         }
 
+                        // 2. Calculate new expiry
                         const baseDate = (currentExpiry && currentExpiry > Date.now()) ? new Date(currentExpiry) : new Date();
                         baseDate.setMonth(baseDate.getMonth() + 1);
-                        const newExpiry = baseDate.getTime();
+                        const newExpiry = String(baseDate.getTime());
 
-                        await userRef.set({
-                            status: 'active',
-                            expiry: String(newExpiry),
-                            updatedAt: Date.now(),
-                            lastPaymentId: webhookId
-                        }, { merge: true });
+                        // 3. Update subscription data via REST
+                        const patchUrl = `${firestoreUrl}?updateMask.fieldPaths=status&updateMask.fieldPaths=expiry&updateMask.fieldPaths=updatedAt&updateMask.fieldPaths=lastPaymentId`;
+                        const payload = {
+                            fields: {
+                                status: { stringValue: 'active' },
+                                expiry: { stringValue: newExpiry },
+                                updatedAt: { integerValue: String(Date.now()) },
+                                lastPaymentId: { stringValue: String(webhookId) }
+                            }
+                        };
 
-                        console.log(`User ${userId} updated to PRO until ${new Date(newExpiry).toLocaleDateString()}`);
+                        await fetch(patchUrl, {
+                            method: 'PATCH',
+                            headers: {
+                                'Authorization': `Bearer ${accessToken}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(payload)
+                        });
+
+                        console.log(`User ${userId} updated to PRO until ${new Date(parseInt(newExpiry, 10)).toLocaleDateString()}`);
                     }
                 }
             }

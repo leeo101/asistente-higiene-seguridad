@@ -1,22 +1,7 @@
 import { Resend } from 'resend';
-import admin from 'firebase-admin';
 
-// Initialize Firebase Admin if not already initialized
-if (!admin.apps.length) {
-    try {
-        if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
-            const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-            if (serviceAccount.private_key) {
-                serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
-            }
-            admin.initializeApp({
-                credential: admin.credential.cert(serviceAccount)
-            });
-        }
-    } catch (error) {
-        console.error("Firebase Admin initialization error in forgot-password:", error);
-    }
-}
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -36,20 +21,35 @@ export default async function handler(req, res) {
     try {
         const { email } = req.body;
 
-        if (!process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
-            throw new Error("Missing FIREBASE_SERVICE_ACCOUNT_KEY env var. Cannot generate Firebase token.");
+        if (!process.env.VITE_FIREBASE_API_KEY) {
+            throw new Error("Missing VITE_FIREBASE_API_KEY env var.");
         }
 
-        // Generate password reset link using Firebase Admin SDK
-        // By omitting actionCodeSettings, we bypass the "Domain not allowlisted" error.
+        // Generate password reset link using Firebase REST API
         let firebaseLink;
         try {
-            firebaseLink = await admin.auth().generatePasswordResetLink(email);
-        } catch (authErr) {
-            console.error("Error generating Firebase link:", authErr);
-            if (authErr.code === 'auth/user-not-found') {
-                return res.status(404).json({ error: "No existe ninguna cuenta registrada con este correo electrónico." });
+            const response = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${process.env.VITE_FIREBASE_API_KEY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    requestType: 'PASSWORD_RESET',
+                    email: email,
+                    returnOobLink: true
+                })
+            });
+
+            const data = await response.json();
+            
+            if (!response.ok) {
+                if (data.error && data.error.message === 'EMAIL_NOT_FOUND') {
+                    return res.status(404).json({ error: "No existe ninguna cuenta registrada con este correo electrónico." });
+                }
+                throw new Error(data.error ? data.error.message : 'Unknown Identity Toolkit Error');
             }
+            
+            firebaseLink = data.oobLink;
+        } catch (authErr) {
+            console.error("Error generating Firebase link via REST:", authErr);
             return res.status(400).json({
                 error: "Error interno en Firebase.",
                 details: authErr.message,
