@@ -1,5 +1,5 @@
 import { Routes, Route, useLocation, Navigate, Link } from 'react-router-dom';
-import React, { useEffect, useState, Suspense, lazy } from 'react';
+import React, { useEffect, useState, Suspense, lazy, ReactNode } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { List as Menu, MagnifyingGlass as Search, Cloud, CloudSlash as CloudOff } from '@phosphor-icons/react';
 import Sidebar from './components/Sidebar';
@@ -17,7 +17,7 @@ import { SyncProvider, useSync } from './contexts/SyncContext';
 import { Toaster, toast } from 'react-hot-toast';
 import { usePaywall } from './hooks/usePaywall';
 // Custom lazy loader that catches chunk errors and reloads
-const lazyWithRetry = (componentImport) =>
+const lazyWithRetry = (componentImport: () => Promise<any>) =>
   lazy(async () => {
     let pageHasAlreadyBeenForceRefreshed = false;
     try {
@@ -142,7 +142,7 @@ const EvacuationSimulatorForm = lazyWithRetry(() => import('./pages/EvacuationSi
 const EvacuationSimulatorHistory = lazyWithRetry(() => import('./pages/EvacuationSimulatorHistory'));
 
 
-function SubscriptionGuard({ children }) {
+function SubscriptionGuard({ children }: { children: ReactNode }) {
   const status = typeof window !== 'undefined' ? localStorage.getItem('subscriptionStatus') : null;
   const location = useLocation();
 
@@ -165,7 +165,7 @@ function GlobalPrintGuard() {
       }
     }
 
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       // Bloquear Ctrl+P y Cmd+P
       if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
         if (!isPro) {
@@ -205,7 +205,7 @@ function ThemeApplier() {
   const { currentUser } = useAuth();
 
   useEffect(() => {
-    const applyColors = (primary, secondary) => {
+    const applyColors = (primary: string | null, secondary: string | null) => {
         if (typeof document === 'undefined') return;
         if (primary) {
            document.documentElement.style.setProperty('--color-primary', primary);
@@ -233,15 +233,17 @@ function ThemeApplier() {
 
     if (currentUser?.uid) {
         import('./services/cloudSync').then(({ listenToValue }) => {
-            listenToValue(currentUser.uid, 'primaryColor', (val) => {
-                if (val) localStorage.setItem('primaryColor', val);
+            listenToValue<string>(currentUser.uid, 'primaryColor', (val) => {
+                const strVal = val ? String(val) : null;
+                if (strVal) localStorage.setItem('primaryColor', strVal);
                 else localStorage.removeItem('primaryColor');
-                applyColors(val, localStorage.getItem('secondaryColor'));
+                applyColors(strVal, localStorage.getItem('secondaryColor'));
             });
-            listenToValue(currentUser.uid, 'secondaryColor', (val) => {
-                if (val) localStorage.setItem('secondaryColor', val);
+            listenToValue<string>(currentUser.uid, 'secondaryColor', (val) => {
+                const strVal = val ? String(val) : null;
+                if (strVal) localStorage.setItem('secondaryColor', strVal);
                 else localStorage.removeItem('secondaryColor');
-                applyColors(localStorage.getItem('primaryColor'), val);
+                applyColors(localStorage.getItem('primaryColor'), strVal);
             });
             // We cannot easily unsubscribe here due to dynamic import, but that's ok for global app component
         });
@@ -251,7 +253,7 @@ function ThemeApplier() {
   return null;
 }
 
-function ProtectedRoute({ children }) {
+function ProtectedRoute({ children }: { children: ReactNode }) {
   const { currentUser } = useAuth();
   if (!currentUser) {
     return <Navigate to="/login" replace />;
@@ -359,7 +361,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const handler = (e) => {
+    const handler = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
         setIsSearchOpen(s => !s);
