@@ -4,7 +4,7 @@ import { jsPDF } from 'jspdf';
 /**
  * Generates a PDF from an HTML element id and returns it as a Blob.
  */
-export async function generatePdfBlob(elementId, isLandscape = false) {
+export async function generatePdfBlob(elementId: string, isLandscape: boolean = false): Promise<Blob> {
     const element = document.getElementById(elementId);
     if (!element) {
         throw new Error(`Element with id '${elementId}' not found.`);

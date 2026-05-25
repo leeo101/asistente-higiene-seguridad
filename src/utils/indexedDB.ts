@@ -23,7 +23,7 @@ let dbInstance = null;
  * Inicializa la base de datos IndexedDB
  * @returns {Promise<IDBDatabase>}
  */
-export function initDB() {
+export function initDB(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
         if (dbInstance) {
             resolve(dbInstance);
@@ -43,7 +43,7 @@ export function initDB() {
         };
 
         request.onupgradeneeded = (event) => {
-            const db = event.target.result;
+            const db = (event.target as IDBOpenDBRequest).result;
 
             // Crear stores si no existen
             if (!db.objectStoreNames.contains(STORES.ATS)) {
@@ -79,7 +79,7 @@ export function initDB() {
  * @param {Object} data - Datos a guardar
  * @returns {Promise<void>}
  */
-export async function saveToDB(storeName, data) {
+export async function saveToDB(storeName: string, data: any): Promise<void> {
     try {
         const db = await initDB();
         return new Promise((resolve, reject) => {
@@ -102,7 +102,7 @@ export async function saveToDB(storeName, data) {
  * @param {string} id - ID del item
  * @returns {Promise<Object|null>}
  */
-export async function getFromDB(storeName, id) {
+export async function getFromDB(storeName: string, id: string | number): Promise<any> {
     try {
         const db = await initDB();
         return new Promise((resolve, reject) => {
@@ -124,7 +124,7 @@ export async function getFromDB(storeName, id) {
  * @param {string} storeName - Nombre del store
  * @returns {Promise<Array>}
  */
-export async function getAllFromDB(storeName) {
+export async function getAllFromDB(storeName: string): Promise<any[]> {
     try {
         const db = await initDB();
         return new Promise((resolve, reject) => {
@@ -147,7 +147,7 @@ export async function getAllFromDB(storeName) {
  * @param {string} id - ID del item
  * @returns {Promise<void>}
  */
-export async function deleteFromDB(storeName, id) {
+export async function deleteFromDB(storeName: string, id: string | number): Promise<void> {
     try {
         const db = await initDB();
         return new Promise((resolve, reject) => {
@@ -169,7 +169,7 @@ export async function deleteFromDB(storeName, id) {
  * @param {Object} item - Item para sincronizar
  * @returns {Promise<void>}
  */
-export async function addToSyncQueue(item) {
+export async function addToSyncQueue(item: any): Promise<void> {
     return saveToDB(STORES.SYNC_QUEUE, {
         ...item,
         timestamp: Date.now()
@@ -180,7 +180,7 @@ export async function addToSyncQueue(item) {
  * Obtiene todos los items pendientes de sincronización
  * @returns {Promise<Array>}
  */
-export async function getSyncQueue() {
+export async function getSyncQueue(): Promise<any[]> {
     return getAllFromDB(STORES.SYNC_QUEUE);
 }
 
@@ -188,7 +188,7 @@ export async function getSyncQueue() {
  * Limpia la cola de sincronización después de sincronizar
  * @returns {Promise<void>}
  */
-export async function clearSyncQueue() {
+export async function clearSyncQueue(): Promise<void> {
     const db = await initDB();
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([STORES.SYNC_QUEUE], 'readwrite');
@@ -204,8 +204,8 @@ export async function clearSyncQueue() {
  * Exporta todos los datos para backup
  * @returns {Promise<Object>}
  */
-export async function exportAllData() {
-    const data = {};
+export async function exportAllData(): Promise<any> {
+    const data: any = {};
     for (const [key, value] of Object.entries(STORES)) {
         if (key !== 'SYNC_QUEUE') {
             data[value] = await getAllFromDB(value);
@@ -219,9 +219,9 @@ export async function exportAllData() {
  * @param {Object} data - Datos a importar
  * @returns {Promise<void>}
  */
-export async function importAllData(data) {
+export async function importAllData(data: any): Promise<void> {
     for (const [storeName, items] of Object.entries(data)) {
-        for (const item of items) {
+        for (const item of items as any[]) {
             await saveToDB(storeName, item);
         }
     }
