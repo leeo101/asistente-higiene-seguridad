@@ -258,7 +258,7 @@ export default function Home(): React.ReactElement {
       setIsSubscribed(isPro);
       setDaysLeft(daysRemaining);
 
-      if (currentUser?.email === 'arielalaniz9@gmail.com') {
+      if (currentUser?.email === 'enzorodriguez31@gmail.com') {
         if (!localStorage.getItem('saw_gift_modal')) {
           setShowRewardModal(true);
         }

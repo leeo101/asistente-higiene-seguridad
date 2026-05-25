@@ -18,7 +18,7 @@ export default function Legajos() {
   const [legajos, setLegajos] = useState<Legajo[]>([]);
   const [loading, setLoading] = useState(true);
   const { user, isPro } = useAuth();
-  const isAdmin = user?.email === 'arielalaniz9@gmail.com';
+  const isAdmin = user?.email === 'enzorodriguez31@gmail.com';
   const hasAccess = isPro || isAdmin;
   const navigate = useNavigate();
 

@@ -26,7 +26,7 @@ const TABS = [
 export default function LegajoForm() {
   const { id } = useParams();
   const { user, isPro } = useAuth();
-  const isAdmin = user?.email === 'arielalaniz9@gmail.com';
+  const isAdmin = user?.email === 'enzorodriguez31@gmail.com';
   const hasAccess = isPro || isAdmin;
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('empresa');
