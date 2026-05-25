@@ -6,14 +6,14 @@ import { Smartphone, X, Share } from 'lucide-react';
  * Detecta el evento `beforeinstallprompt` del navegador.
  */
 export default function InstallBanner() {
-    const [deferredPrompt, setDeferredPrompt] = useState(null);
+    const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
     const [isIosPrompt, setIsIosPrompt] = useState(false);
     const [visible, setVisible] = useState(false);
 
     useEffect(() => {
         if (localStorage.getItem('pwa_banner_dismissed') === 'true') return;
         
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
         if (isStandalone) return;
 
         const isIos = /ipad|iphone|ipod/.test(navigator.userAgent.toLowerCase());
@@ -25,7 +25,7 @@ export default function InstallBanner() {
             return;
         }
 
-        const handler = (e) => {
+        const handler = (e: Event) => {
             e.preventDefault();
             setDeferredPrompt(e);
             setVisible(true);
