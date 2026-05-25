@@ -18,7 +18,7 @@ import {
   ArrowLeft,
   CheckCircle2
 } from 'lucide-react';
-import { generateLegajoPDF } from '../utils/pdf/legajoPdfGenerator';
+import LegajoPdf from '../components/LegajoPdf';
 
 const TABS = [
   { id: 'empresa', label: 'Datos Empresa', icon: Building2 },
@@ -159,7 +159,9 @@ export default function LegajoForm() {
     }
     
     try {
-      await generateLegajoPDF(formData);
+      setTimeout(() => {
+          window.print();
+      }, 500);
     } catch (error) {
       console.error("Error generating PDF", error);
       alert("Hubo un error al generar el PDF");
@@ -179,7 +181,12 @@ export default function LegajoForm() {
   if (loading) return <div className="text-center p-12 pt-32">Cargando datos del legajo...</div>;
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem' }}>
+    <div className="pt-24 pb-20" style={{ minHeight: '100vh', background: 'var(--color-background)' }}>
+      <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+          <div id="pdf-content">
+              <LegajoPdf data={{ ...formData, professionalName: currentUser?.displayName || 'Profesional H&S' }} />
+          </div>
+      </div>
       <div style={{
           background: 'var(--color-surface)',
           borderBottom: '1px solid var(--color-border)',
