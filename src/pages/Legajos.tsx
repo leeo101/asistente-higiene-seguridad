@@ -75,10 +75,11 @@ export default function Legajos() {
             }
             navigate('/legajos/nuevo');
           }}
-          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-500 hover:to-indigo-500 transition-all duration-300 font-semibold shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-0.5 active:translate-y-0 ring-1 ring-white/20"
+          className="group relative flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl hover:from-amber-400 hover:to-orange-400 transition-all duration-300 font-bold shadow-xl shadow-orange-500/30 hover:shadow-orange-500/50 hover:-translate-y-1 active:translate-y-0 overflow-hidden"
         >
-          <Plus className="w-5 h-5" />
-          Nuevo Legajo
+          <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
+          <Plus className="w-5 h-5 relative z-10" />
+          <span className="relative z-10">Nuevo Legajo</span>
         </button>
       </div>
 
