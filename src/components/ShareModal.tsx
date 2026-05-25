@@ -34,6 +34,7 @@ export default function ShareModal({
     const [copied, setCopied] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 450);
+    const [pendingShareFile, setPendingShareFile] = useState<File | null>(null);
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 450);
@@ -115,10 +116,9 @@ export default function ShareModal({
                 toast.success('¡PDF generado! Descargando...', { id: 'pdf-gen' });
             };
 
+            const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
             const shareData = {
-                title: title,
-                text: message,
-                files: [new File([pdfBlob], fileName, { type: 'application/pdf' })]
+                files: [file]
             };
 
             const fallbackShare = () => {
@@ -141,7 +141,13 @@ export default function ShareModal({
                     toast.success('¡Compartido con éxito!', { id: 'pdf-gen' });
                 } catch (shareErr: any) {
                     console.warn("Native share failed, falling back to download/link:", shareErr);
-                    fallbackShare();
+                    // If it's a user gesture error due to async timeout, offer a retry button
+                    if (shareErr.name === 'NotAllowedError' || shareErr.message?.toLowerCase().includes('user gesture')) {
+                        setPendingShareFile(file);
+                        toast.success('PDF listo. Toca el botón para enviar.', { id: 'pdf-gen', duration: 4000 });
+                    } else {
+                        fallbackShare();
+                    }
                 }
             } else {
                 fallbackShare();
@@ -324,7 +330,29 @@ export default function ShareModal({
                             gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
                             gap: '1rem' 
                         }}>
-                            {options.map(opt => {
+                            {pendingShareFile ? (
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            await navigator.share({ files: [pendingShareFile] });
+                                            setPendingShareFile(null);
+                                        } catch (e) {
+                                            console.warn(e);
+                                        }
+                                    }}
+                                    className="share-item-button"
+                                    style={{
+                                        display: 'flex', alignItems: 'center', gap: '0.8rem',
+                                        padding: '1rem', background: '#22c55e',
+                                        borderRadius: '16px', border: `1px solid rgba(255,255,255,0.2)`,
+                                        color: '#ffffff', fontWeight: 800, fontSize: '1rem',
+                                        gridColumn: '1 / -1', justifyContent: 'center',
+                                        cursor: 'pointer', boxShadow: '0 4px 15px rgba(34, 197, 94, 0.4)'
+                                    }}
+                                >
+                                    ¡Compartir Ahora! 🚀
+                                </button>
+                            ) : options.map(opt => {
                                 const isHijacked = opt.hijack && elementIdToPrint;
                                 
                                 return (
