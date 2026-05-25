@@ -612,12 +612,12 @@ export default function LegajoForm() {
       </div>
 
       </main>
-      <div className="no-print floating-action-bar" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'var(--color-header-bg)', backdropFilter: 'blur(10px)', borderTop: '1px solid var(--color-border)', padding: '1rem', display: 'flex', justifyContent: 'center', gap: '1rem', zIndex: 100 }}>
+      <div className="no-print floating-action-bar">
           {id && (
             <button
                 onClick={handleGeneratePDF}
                 className="btn-floating-action"
-                style={{ background: '#FF8B00', color: '#ffffff', border: 'none', padding: '0.75rem 1.5rem', borderRadius: 'var(--radius-full)', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', boxShadow: '0 4px 12px rgba(255,139,0,0.3)' }}
+                style={{ background: '#FF8B00', color: '#ffffff' }}
             >
                 <Printer size={18} /> IMPRIMIR PDF
             </button>
@@ -625,7 +625,7 @@ export default function LegajoForm() {
           <button
               onClick={handleSave}
               className="btn-floating-action"
-              style={{ background: '#36B37E', color: '#ffffff', border: 'none', padding: '0.75rem 1.5rem', borderRadius: 'var(--radius-full)', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', boxShadow: '0 4px 12px rgba(54,179,126,0.3)' }}
+              style={{ background: '#36B37E', color: '#ffffff' }}
           >
               <Save size={18} /> GUARDAR LEGAJO
           </button>
