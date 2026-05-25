@@ -28,7 +28,7 @@ export default function LegajoForm() {
   const { id } = useParams();
   const { currentUser } = useAuth();
   const { isPro } = usePaywall();
-  const isAdmin = currentUser?.email === 'enzorodriguez31@gmail.com';
+  const isAdmin = currentUser?.email?.toLowerCase().trim() === 'enzorodriguez31@gmail.com';
   const hasAccess = isPro || isAdmin;
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('empresa');
@@ -166,10 +166,10 @@ export default function LegajoForm() {
     }));
   };
 
-  if (loading) return <div className="text-center p-12">Cargando datos del legajo...</div>;
+  if (loading) return <div className="text-center p-12 pt-32">Cargando datos del legajo...</div>;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-20">
+    <div className="max-w-4xl mx-auto space-y-6 pb-20 pt-24 px-4">
       {/* Header */}
       <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 sticky top-4 z-10">
         <div className="flex flex-wrap items-center justify-between gap-4">
