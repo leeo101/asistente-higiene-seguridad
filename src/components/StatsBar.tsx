@@ -74,7 +74,7 @@ export default function StatsBar() {
                 if (!item.purchaseDate || !item.lifeMonths) return false;
                 const expiry = new Date(item.purchaseDate);
                 expiry.setMonth(expiry.getMonth() + Number(item.lifeMonths));
-                const days = Math.ceil((expiry - new Date()) / (1000 * 60 * 60 * 24));
+                const days = Math.ceil((expiry.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
                 return days <= 30;
             }).length;
             setEppAlert(ppeUrgent);

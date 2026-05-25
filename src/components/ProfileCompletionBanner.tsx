@@ -91,7 +91,7 @@ export default function ProfileCompletionBanner() {
                 <User size={20} color="#ffffff" strokeWidth={2.5} />
             </div>
 
-            <div style={{ flex: 1, className: 'profile-banner-mobile' }}>
+            <div style={{ flex: 1 }} className="profile-banner-mobile">
                 <p style={{
                     margin: '0 0 0.3rem 0',
                     fontWeight: '800',
@@ -125,8 +125,8 @@ export default function ProfileCompletionBanner() {
                         whiteSpace: 'nowrap',
                         transition: 'background 0.2s'
                     }}
-                    onMouseEnter={(e) => e.target.style.background = '#2563eb'}
-                    onMouseLeave={(e) => e.target.style.background = '#3b82f6'}
+                    onMouseEnter={(e) => (e.currentTarget as HTMLButtonElement).style.background = '#2563eb'}
+                    onMouseLeave={(e) => (e.currentTarget as HTMLButtonElement).style.background = '#3b82f6'}
                 >
                     Completar
                 </button>

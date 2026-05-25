@@ -83,7 +83,7 @@ export default function StarryBackground() {
             target.current.y = Math.max(-1, Math.min(1, (e.beta - 45) / 35));
         };
         if (typeof DeviceOrientationEvent !== 'undefined' &&
-            typeof DeviceOrientationEvent.requestPermission !== 'function') {
+            typeof (DeviceOrientationEvent as any).requestPermission !== 'function') {
             window.addEventListener('deviceorientation', onOrientation, { passive: true });
         }
 
@@ -100,8 +100,8 @@ export default function StarryBackground() {
     }, []);
 
     // Wrapper style: full-size, GPU composited, parallax applied here
-    const wrapStyle = {
-        position: 'absolute',
+    const wrapStyle: React.CSSProperties = {
+        position: 'absolute' as const,
         inset: 0,
         willChange: 'transform',
     };
@@ -128,10 +128,10 @@ export default function StarryBackground() {
             </div>
 
             {/* Glowing orbs */}
-            <div style={{ position:'absolute', inset:0, background:'radial-gradient(circle at top right, rgba(255,255,255,0.05) 0%, transparent 60%)', pointerEvents:'none', zIndex:1 }} />
+            <div style={{ position:'absolute' as const, inset:0, background:'radial-gradient(circle at top right, rgba(255,255,255,0.05) 0%, transparent 60%)', pointerEvents:'none', zIndex:1 }} />
             <div className="hero-orb-right" style={{ zIndex:1, opacity:0.6 }} />
-            <div style={{ position:'absolute', top:'-40px', right:'-40px', width:'180px', height:'180px', borderRadius:'50%', background:'rgba(37,99,235,0.1)', pointerEvents:'none', zIndex:1 }} />
-            <div style={{ position:'absolute', bottom:'-60px', left:'60px', width:'220px', height:'220px', borderRadius:'50%', background:'rgba(37,99,235,0.15)', pointerEvents:'none', zIndex:1 }} />
+            <div style={{ position:'absolute' as const, top:'-40px', right:'-40px', width:'180px', height:'180px', borderRadius:'50%', background:'rgba(37,99,235,0.1)', pointerEvents:'none', zIndex:1 }} />
+            <div style={{ position:'absolute' as const, bottom:'-60px', left:'60px', width:'220px', height:'220px', borderRadius:'50%', background:'rgba(37,99,235,0.15)', pointerEvents:'none', zIndex:1 }} />
 
             {/* Shooting star */}
             <div className="shooting-star" />
