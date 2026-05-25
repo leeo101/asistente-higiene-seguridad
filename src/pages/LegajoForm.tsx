@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { usePaywall } from '../hooks/usePaywall';
 import { db } from '../firebase';
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp, collection } from 'firebase/firestore';
 import { 
   Building2, 
   Flame, 
@@ -25,8 +26,9 @@ const TABS = [
 
 export default function LegajoForm() {
   const { id } = useParams();
-  const { user, isPro } = useAuth();
-  const isAdmin = user?.email === 'enzorodriguez31@gmail.com';
+  const { currentUser } = useAuth();
+  const { isPro } = usePaywall();
+  const isAdmin = currentUser?.email === 'enzorodriguez31@gmail.com';
   const hasAccess = isPro || isAdmin;
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('empresa');
@@ -80,16 +82,16 @@ export default function LegajoForm() {
   });
 
   useEffect(() => {
-    if (id && user) {
+    if (id && currentUser) {
       loadLegajo(id);
     }
-  }, [id, user]);
+  }, [id, currentUser]);
 
   const loadLegajo = async (legajoId: string) => {
-    if (!user) return;
+    if (!currentUser) return;
     setLoading(true);
     try {
-      const docRef = doc(db, 'users', user.uid, 'legajos', legajoId);
+      const docRef = doc(db, 'users', currentUser.uid, 'legajos', legajoId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const data = docSnap.data();
@@ -109,11 +111,12 @@ export default function LegajoForm() {
   };
 
   const handleSave = async () => {
-    if (!user) return;
+    if (!currentUser) return;
     setSaving(true);
     try {
-      const docId = id || Date.now().toString();
-      const docRef = doc(db, 'users', user.uid, 'legajos', docId);
+      const docRef = id 
+        ? doc(db, 'users', currentUser.uid, 'legajos', id)
+        : doc(collection(db, 'users', currentUser.uid, 'legajos'));
       
       const legajoData = {
         ...formData,

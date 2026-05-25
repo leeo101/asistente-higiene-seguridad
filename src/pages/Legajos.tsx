@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, FileText, Download, Trash2, Edit, AlertCircle, Building2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { usePaywall } from '../hooks/usePaywall';
 import { db } from '../firebase';
 import { collection, query, getDocs, deleteDoc, doc, orderBy } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
@@ -17,20 +18,21 @@ interface Legajo {
 export default function Legajos() {
   const [legajos, setLegajos] = useState<Legajo[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user, isPro } = useAuth();
-  const isAdmin = user?.email === 'enzorodriguez31@gmail.com';
+  const { currentUser } = useAuth();
+  const { isPro } = usePaywall();
+  const isAdmin = currentUser?.email === 'enzorodriguez31@gmail.com';
   const hasAccess = isPro || isAdmin;
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchLegajos();
-  }, [user]);
+  }, [currentUser]);
 
   const fetchLegajos = async () => {
-    if (!user) return;
+    if (!currentUser) return;
     try {
       setLoading(true);
-      const q = query(collection(db, 'users', user.uid, 'legajos'), orderBy('updatedAt', 'desc'));
+      const q = query(collection(db, 'users', currentUser.uid, 'legajos'), orderBy('updatedAt', 'desc'));
       const snapshot = await getDocs(q);
       const data = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -45,9 +47,9 @@ export default function Legajos() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!user || !window.confirm('¿Estás seguro de eliminar este Legajo Técnico? Esta acción no se puede deshacer.')) return;
+    if (!currentUser || !window.confirm('¿Estás seguro de eliminar este Legajo Técnico? Esta acción no se puede deshacer.')) return;
     try {
-      await deleteDoc(doc(db, 'users', user.uid, 'legajos', id));
+      await deleteDoc(doc(db, 'users', currentUser.uid, 'legajos', id));
       setLegajos(legajos.filter(l => l.id !== id));
     } catch (error) {
       console.error("Error deleting legajo:", error);
