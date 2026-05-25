@@ -339,7 +339,7 @@ export default function AIGeneralCamera(): React.ReactElement | null {
                         ctx.arc(centerX + radius, centerY - radius, 15, 0, 2 * Math.PI);
                         ctx.fill();
 
-                        ctx.fillStyle = 'var(--color-surface)';
+                        ctx.fillStyle = '#ffffff';
                         ctx.font = 'bold 20px Inter, sans-serif';
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
@@ -426,12 +426,35 @@ export default function AIGeneralCamera(): React.ReactElement | null {
                         {analysisResult && (
                             <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', padding: '1.5rem', boxSizing: 'border-box', background: 'linear-gradient(transparent, rgba(0,0,0,0.95))', color: 'var(--color-surface)' }}>
                                 <div style={{ marginBottom: '1rem' }}>
-                                    <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>Hallazgos de IA:</h3>
-                                    <p style={{ margin: '0.2rem 0 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                        <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900 }}>Hallazgos IA</h3>
+                                        {analysisResult.riskLevel && (
+                                            <span style={{
+                                                padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 800,
+                                                background: analysisResult.riskLevel.toLowerCase() === 'crítico' ? '#ef4444' :
+                                                            analysisResult.riskLevel.toLowerCase() === 'alto' ? '#f97316' :
+                                                            analysisResult.riskLevel.toLowerCase() === 'medio' ? '#eab308' : '#10b981',
+                                                color: '#fff'
+                                            }}>
+                                                {analysisResult.riskLevel.toUpperCase()}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p style={{ margin: '0.2rem 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.9)' }}>
                                         {analysisResult.detections?.length > 0
                                             ? `Se detectaron ${analysisResult.detections.length} riesgos potenciales.`
-                                            : "No se identificaron riesgos críticos."}
+                                            : "No se identificaron riesgos críticos evidentes."}
                                     </p>
+                                    {analysisResult.immediateAction && (
+                                        <p style={{ margin: '0.5rem 0 0', fontSize: '0.8rem', color: '#fca5a5', fontWeight: 600 }}>
+                                            ⚠️ Acción Inmediata: {analysisResult.immediateAction}
+                                        </p>
+                                    )}
+                                    {analysisResult.applicableLegislation && analysisResult.applicableLegislation.length > 0 && (
+                                        <p style={{ margin: '0.5rem 0 0', fontSize: '0.8rem', color: '#6ee7b7', fontWeight: 600 }}>
+                                            ⚖️ Ley/Norma: {analysisResult.applicableLegislation.join(', ')}
+                                        </p>
+                                    )}
                                 </div>
                                 <div style={{ display: 'flex', gap: '0.6rem', width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
                                     <button onClick={handleRetry} className="btn-outline" style={{ flex: 1, minWidth: '130px', borderColor: 'var(--color-surface)', color: 'var(--color-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', height: '46px', margin: 0, padding: '0 0.5rem', fontSize: '0.85rem' }}>

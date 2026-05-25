@@ -29,83 +29,152 @@ export default function FleetPdfGenerator({ data, checklistItems }: { data: any,
                     `}
                 </style>
 
-                {/* Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '3px solid #333', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
-                    <div>
-                        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900 }}>INSPECCIÓN PRE-OPERACIONAL</h1>
-                        <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: '#666' }}>VEHÍCULOS Y FLOTA</p>
+                {/* Modern Gradient Header */}
+                <div style={{
+                    background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                    margin: '-15mm -15mm 15mm -15mm',
+                    padding: '15mm',
+                    color: 'white',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    borderBottom: '4px solid #38bdf8'
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                        <div style={{ background: 'rgba(56, 189, 248, 0.2)', padding: '12px', borderRadius: '12px' }}>
+                            <CarFront size={32} color="#38bdf8" />
+                        </div>
+                        <div>
+                            <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, letterSpacing: '-0.5px' }}>INSPECCIÓN PRE-OPERACIONAL</h1>
+                            <p style={{ margin: '4px 0 0 0', fontSize: '1rem', color: '#94a3b8', fontWeight: 600 }}>VEHÍCULOS Y FLOTA</p>
+                        </div>
                     </div>
-                    <CompanyLogo style={{ height: '50px', maxWidth: '150px', objectFit: 'contain' }} />
+                    <div style={{ background: 'white', padding: '10px', borderRadius: '8px' }}>
+                        <CompanyLogo style={{ height: '50px', maxWidth: '150px', objectFit: 'contain' }} />
+                    </div>
                 </div>
 
                 {/* Main Info */}
-                <div style={{ background: '#f8fafc', padding: '1.2rem', border: `2px solid ${isApto ? '#16a34a' : '#dc2626'}`, borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                <div style={{ background: '#f8fafc', padding: '1.2rem', border: `2px solid ${isApto ? '#16a34a' : '#dc2626'}`, borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
                     <div>
-                        <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', display: 'block' }}>DOMINIO / PATENTE</span>
-                        <h2 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, color: '#1e293b', textTransform: 'uppercase' }}>{data.plate || 'N/A'}</h2>
-                        <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>{data.vehicleType} | {data.brandModel}</span>
+                        <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', display: 'block', letterSpacing: '1px' }}>DOMINIO / PATENTE</span>
+                        <h2 style={{ margin: '4px 0', fontSize: '1.8rem', fontWeight: 900, color: '#1e293b', textTransform: 'uppercase' }}>{data.plate || 'N/A'}</h2>
+                        <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#475569', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <CarFront size={16} /> {data.vehicleType} | {data.brandModel}
+                        </span>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                        <span style={{ background: isApto ? '#f0fdf4' : '#fef2f2', color: isApto ? '#16a34a' : '#dc2626', padding: '0.5rem 1.5rem', borderRadius: 'var(--radius-full)', fontWeight: 900, fontSize: '1.1rem', border: `1px solid ${isApto ? '#bbf7d0' : '#fecaca'}` }}>
+                        <span style={{ background: isApto ? '#dcfce7' : '#fee2e2', color: isApto ? '#15803d' : '#b91c1c', padding: '0.6rem 2rem', borderRadius: '30px', fontWeight: 900, fontSize: '1.2rem', border: `2px solid ${isApto ? '#86efac' : '#fca5a5'}`, display: 'inline-block', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
                             {data.status?.toUpperCase() || 'N/A'}
                         </span>
                     </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0', border: '1.5px solid #000', marginBottom: '1.5rem' }}>
-                    <div style={{ padding: '0.5rem', borderRight: '1.5px solid #000', borderBottom: '1px solid #000' }}>
-                        <span style={{ fontSize: '0.6rem', fontWeight: 900, display: 'block' }}>FECHA DE INSPECCIÓN</span>
-                        <span style={{ fontWeight: 700 }}>{data.date ? new Date(data.date).toLocaleDateString('es-AR') : ''}</span>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
+                    <div style={{ background: '#f1f5f9', padding: '1rem', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                        <span style={{ fontSize: '0.65rem', fontWeight: 800, display: 'block', color: '#64748b', marginBottom: '4px' }}>FECHA DE INSPECCIÓN</span>
+                        <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.95rem' }}>{data.date ? new Date(data.date).toLocaleDateString('es-AR') : '-'}</span>
                     </div>
-                    <div style={{ padding: '0.5rem', borderBottom: '1px solid #000' }}>
-                        <span style={{ fontSize: '0.6rem', fontWeight: 900, display: 'block' }}>KILOMETRAJE / HORÓMETRO</span>
-                        <span style={{ fontWeight: 700 }}>{data.mileage || '-'}</span>
+                    <div style={{ background: '#f1f5f9', padding: '1rem', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                        <span style={{ fontSize: '0.65rem', fontWeight: 800, display: 'block', color: '#64748b', marginBottom: '4px' }}>KILOMETRAJE / HORÓMETRO</span>
+                        <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.95rem' }}>{data.mileage || '-'}</span>
                     </div>
-                    <div style={{ padding: '0.5rem', borderRight: '1.5px solid #000' }}>
-                        <span style={{ fontSize: '0.6rem', fontWeight: 900, display: 'block' }}>CONDUCTOR ASIGNADO</span>
-                        <span style={{ fontWeight: 700 }}>{data.driver || '-'}</span>
+                    <div style={{ background: '#f1f5f9', padding: '1rem', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                        <span style={{ fontSize: '0.65rem', fontWeight: 800, display: 'block', color: '#64748b', marginBottom: '4px' }}>CONDUCTOR ASIGNADO</span>
+                        <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.95rem' }}>{data.driver || '-'}</span>
                     </div>
-                    <div style={{ padding: '0.5rem' }}>
-                        <span style={{ fontSize: '0.6rem', fontWeight: 900, display: 'block' }}>INSPECTOR (Opcional)</span>
-                        <span style={{ fontWeight: 700 }}>{data.inspector || 'Mismo conductor'}</span>
+                    <div style={{ background: '#f1f5f9', padding: '1rem', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                        <span style={{ fontSize: '0.65rem', fontWeight: 800, display: 'block', color: '#64748b', marginBottom: '4px' }}>INSPECTOR</span>
+                        <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.95rem' }}>{data.inspector || 'Mismo conductor'}</span>
                     </div>
                 </div>
 
-                {/* Checklist Table */}
-                <div style={{ marginBottom: '1.5rem' }}>
-                    <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid #000', paddingBottom: '0.3rem' }}>
-                        <ClipboardList size={18} /> PUNTOS DE INSPECCIÓN
+                {/* Checklist Section */}
+                <div style={{ marginBottom: '2rem' }}>
+                    <h3 style={{ 
+                        margin: '0 0 1rem 0', 
+                        fontSize: '1.1rem', 
+                        fontWeight: 900, 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '0.5rem', 
+                        borderBottom: '2px solid #e2e8f0', 
+                        paddingBottom: '0.5rem',
+                        color: '#0f172a'
+                    }}>
+                        <ClipboardList size={20} color="#38bdf8" /> PUNTOS DE INSPECCIÓN
                     </h3>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ddd' }}>
-                        <thead>
-                            <tr style={{ background: '#f1f5f9' }}>
-                                <th style={{ border: '1px solid #ddd', padding: '0.4rem', textAlign: 'left', fontSize: '0.7rem' }}>ITEM A VERIFICAR</th>
-                                <th style={{ border: '1px solid #ddd', padding: '0.4rem', textAlign: 'center', fontSize: '0.7rem', width: '80px' }}>ESTADO</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {checklistItems.map((item, index) => {
-                                const val = data.checklist?.[item.id];
-                                let displayVal = '-';
-                                let color = '#000';
-                                if (val === 'ok') { displayVal = 'OK'; color = '#16a34a'; }
-                                else if (val === 'fail') { displayVal = 'FALLA'; color = '#dc2626'; }
-                                else if (val === 'na') { displayVal = 'N/A'; color = '#64748b'; }
-                                
-                                return (
-                                    <tr key={index}>
-                                        <td style={{ border: '1px solid #ddd', padding: '0.4rem', fontSize: '0.8rem' }}>
-                                            <span style={{ fontWeight: 800, color: '#64748b', marginRight: '0.5rem', fontSize: '0.7rem' }}>{item.category}:</span>
+                    
+                    <div style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: 'repeat(2, 1fr)', 
+                        gap: '0.8rem',
+                        background: '#f8fafc',
+                        padding: '1rem',
+                        borderRadius: '12px',
+                        border: '1px solid #e2e8f0'
+                    }}>
+                        {checklistItems.map((item, index) => {
+                            const val = data.checklist?.[item.id];
+                            const isOk = val === 'ok';
+                            const isFail = val === 'fail';
+                            
+                            let bgColor = '#f1f5f9';
+                            let icon = '-';
+                            let color = '#64748b';
+                            
+                            if (isOk) {
+                                bgColor = '#dcfce7';
+                                icon = '✓';
+                                color = '#16a34a';
+                            } else if (isFail) {
+                                bgColor = '#fee2e2';
+                                icon = '✗';
+                                color = '#dc2626';
+                            } else if (val === 'na') {
+                                bgColor = '#e2e8f0';
+                                icon = '-';
+                                color = '#64748b';
+                            }
+                            
+                            return (
+                                <div key={index} style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    justifyContent: 'space-between',
+                                    background: 'white',
+                                    padding: '0.6rem 0.8rem',
+                                    borderRadius: '8px',
+                                    border: '1px solid #e2e8f0',
+                                    boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                                }}>
+                                    <div style={{ paddingRight: '10px' }}>
+                                        <span style={{ fontWeight: 800, color: '#94a3b8', fontSize: '0.65rem', display: 'block', textTransform: 'uppercase', marginBottom: '2px' }}>
+                                            {item.category}
+                                        </span>
+                                        <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#334155' }}>
                                             {item.label}
-                                        </td>
-                                        <td style={{ border: '1px solid #ddd', padding: '0.4rem', textAlign: 'center', fontWeight: 900, fontSize: '0.8rem', color: color }}>
-                                            {displayVal}
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
+                                        </span>
+                                    </div>
+                                    <div style={{
+                                        width: '24px',
+                                        height: '24px',
+                                        borderRadius: '6px',
+                                        background: bgColor,
+                                        color: color,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontWeight: 900,
+                                        fontSize: '1rem',
+                                        flexShrink: 0
+                                    }}>
+                                        {icon}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
 
                 <div style={{ marginBottom: '1.5rem', border: '1.5px solid #000', padding: '0.8rem' }}>

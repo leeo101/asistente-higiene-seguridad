@@ -442,18 +442,46 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
                             <Pencil size={20} /> Firmas y Autorizaciones del Permiso
                         </h3>
 
-                        <div className="no-print" style={{ marginBottom: '2rem', padding: '1.5rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '12px', display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '1.5rem', justifyContent: 'center', alignItems: 'center' }}>
-                            <div style={{ color: 'var(--color-text)', fontSize: '0.9rem', fontWeight: 700 }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-                                <label style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
-                                    <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures((s: any) => ({ ...s, operator: e.target.checked }))} style={{ width: '20px', height: '20px' }} /> Operador / Trabajador
-                                </label>
-                                <label style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
-                                    <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures((s: any) => ({ ...s, professional: e.target.checked }))} style={{ width: '20px', height: '20px' }} /> Especialista H&S
-                                </label>
-                                <label style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
-                                    <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures((s: any) => ({ ...s, supervisor: e.target.checked }))} style={{ width: '20px', height: '20px' }} /> Supervisor / Autorizante
-                                </label>
+                        <div className="no-print" style={{ marginBottom: '2rem', padding: '1.5rem', background: 'rgba(var(--color-surface-rgb), 0.3)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.05)' }}>
+                            <div style={{ color: 'var(--color-text)', fontSize: '0.95rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                <span style={{ display: 'inline-block', borderBottom: '2px solid var(--color-primary)', paddingBottom: '2px' }}>Personalizar Firmas del Documento</span>
+                            </div>
+                            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                                {[
+                                    { id: 'operator', label: 'Operador / Trabajador' },
+                                    { id: 'professional', label: 'Especialista H&S' },
+                                    { id: 'supervisor', label: 'Supervisor' }
+                                ].map(role => (
+                                    <button
+                                        key={role.id}
+                                        onClick={() => setShowSignatures((s: any) => ({ ...s, [role.id]: !s[role.id] }))}
+                                        style={{
+                                            padding: '0.6rem 1.2rem',
+                                            borderRadius: 'var(--radius-full)',
+                                            border: `2px solid ${showSignatures[role.id] ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                                            background: showSignatures[role.id] ? 'var(--color-primary)' : 'transparent',
+                                            color: showSignatures[role.id] ? 'white' : 'var(--color-text-muted)',
+                                            fontWeight: 700,
+                                            fontSize: '0.9rem',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.5rem',
+                                            boxShadow: showSignatures[role.id] ? '0 4px 12px rgba(59, 130, 246, 0.3)' : 'none'
+                                        }}
+                                    >
+                                        <div style={{
+                                            width: '18px', height: '18px', borderRadius: '50%',
+                                            border: `2px solid ${showSignatures[role.id] ? 'white' : 'var(--color-border)'}`,
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            background: showSignatures[role.id] ? 'white' : 'transparent'
+                                        }}>
+                                            {showSignatures[role.id] && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--color-primary)' }} />}
+                                        </div>
+                                        {role.label}
+                                    </button>
+                                ))}
                             </div>
                         </div>
 
@@ -491,30 +519,36 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
                         </div>
 
                         {/* Interactive Signature Drawing Pads */}
-                        <div className="no-print" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem', marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--color-border)' }}>
+                        <div className="no-print animate-fade-in" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem', marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--color-border)' }}>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
                                 {showSignatures.operator && (
-                                    <SignatureCanvas 
-                                        onSave={(sig) => setPermit((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
-                                        initialImage={permit.operatorSignature}
-                                        label="Firma del Operador / Trabajador"
-                                    />
+                                    <div className="card" style={{ padding: '1rem', background: 'rgba(var(--color-surface-rgb), 0.3)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)' }}>
+                                        <SignatureCanvas 
+                                            onSave={(sig) => setPermit((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
+                                            initialImage={permit.operatorSignature}
+                                            label="Firma del Operador / Trabajador"
+                                        />
+                                    </div>
                                 )}
                                 
                                 {showSignatures.professional && (
-                                    <SignatureCanvas 
-                                        onSave={(sig) => setPermit((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
-                                        initialImage={permit.professionalSignature || professional.signature}
-                                        label="Firma de Especialista H&S"
-                                    />
+                                    <div className="card" style={{ padding: '1rem', background: 'rgba(var(--color-surface-rgb), 0.3)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)' }}>
+                                        <SignatureCanvas 
+                                            onSave={(sig) => setPermit((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
+                                            initialImage={permit.professionalSignature || professional.signature}
+                                            label="Firma de Especialista H&S"
+                                        />
+                                    </div>
                                 )}
 
                                 {showSignatures.supervisor && (
-                                    <SignatureCanvas 
-                                        onSave={(sig) => setPermit((prev: any) => ({ ...prev, supervisorSignature: sig || '', signature: sig || '' }))}
-                                        initialImage={permit.supervisorSignature || permit.signature}
-                                        label="Firma del Supervisor / Autorizante"
-                                    />
+                                    <div className="card" style={{ padding: '1rem', background: 'rgba(var(--color-surface-rgb), 0.3)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)' }}>
+                                        <SignatureCanvas 
+                                            onSave={(sig) => setPermit((prev: any) => ({ ...prev, supervisorSignature: sig || '', signature: sig || '' }))}
+                                            initialImage={permit.supervisorSignature || permit.signature}
+                                            label="Firma del Supervisor / Autorizante"
+                                        />
+                                    </div>
                                 )}
                             </div>
                         </div>

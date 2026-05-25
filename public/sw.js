@@ -1,5 +1,6 @@
 // ─── Asistente HYS Service Worker ───────────────────────────────────────────
 // Cache-first para assets estáticos, network-first para APIs y datos dinámicos.
+// Maneja clics en notificaciones nativas para abrir la ruta correcta.
 
 const CACHE_NAME = 'hys-v2';
 
@@ -9,6 +10,8 @@ const PRECACHE_URLS = [
     '/manifest.json',
     '/logo.png',
     '/og-image.png',
+    '/favicon-180.png',
+    '/favicon-32.png',
 ];
 
 // ── Install: precachear los assets clave ─────────────────────────────────────
@@ -73,5 +76,52 @@ self.addEventListener('fetch', (event) => {
                 return res;
             });
         })
+    );
+});
+
+// ── Notification Click: abre la app en la ruta correcta ─────────────────────
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+
+    const url = event.notification.data?.url ?? '/';
+    const fullUrl = new URL(url, self.location.origin).href;
+
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+            // Si la app ya está abierta, enfocarla y navegar
+            for (const client of clientList) {
+                if ('focus' in client) {
+                    client.focus();
+                    if ('navigate' in client) client.navigate(fullUrl);
+                    return;
+                }
+            }
+            // Si no está abierta, abrirla
+            if (clients.openWindow) {
+                return clients.openWindow(fullUrl);
+            }
+        })
+    );
+});
+
+// ── Push: para futuras notificaciones del servidor ───────────────────────────
+self.addEventListener('push', (event) => {
+    if (!event.data) return;
+
+    let payload;
+    try { payload = event.data.json(); }
+    catch { payload = { title: 'Asistente HYS', body: event.data.text() }; }
+
+    const options = {
+        body: payload.body ?? '',
+        icon: payload.icon ?? '/favicon-180.png',
+        badge: '/favicon-32.png',
+        tag: payload.tag ?? 'hys-push',
+        data: { url: payload.url ?? '/' },
+        requireInteraction: payload.urgent ?? false,
+    };
+
+    event.waitUntil(
+        self.registration.showNotification(payload.title ?? 'Asistente HYS', options)
     );
 });

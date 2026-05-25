@@ -34,7 +34,13 @@ export default function ReportsReport(): React.ReactElement | null {
         const prof = localStorage.getItem('personalData');
         const sig = localStorage.getItem('signatureStampData');
 
-        if (current) setReport(JSON.parse(current));
+        if (current) {
+            const parsed = JSON.parse(current);
+            setReport(parsed);
+            if (parsed.showSignatures) {
+                setShowSignatures(parsed.showSignatures);
+            }
+        }
         if (prof) setProfile(JSON.parse(prof));
         if (sig) setSignature(JSON.parse(sig));
     }, []);
@@ -159,43 +165,85 @@ export default function ReportsReport(): React.ReactElement | null {
                     </div>
                 )}
 
-                {/* THREE-COLUMN SIGNATURE GRID / CONTROLS */}
-                <div className="no-print mt-10 mb-8 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-xs font-bold text-slate-700">
-                    <div className="text-center">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                    <div className="flex gap-4 flex-wrap justify-center">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))} className="w-4 h-4 accent-emerald-600" /> Operador
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))} className="w-4 h-4 accent-emerald-600" /> Supervisor
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))} className="w-4 h-4 accent-emerald-600" /> Profesional
-                        </label>
+                {/* Custom visual switches */}
+                <div className="no-print mb-8 p-6" style={{ background: 'rgba(30, 41, 59, 0.2)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', width: '100%', display: 'flex', flexDirection: 'column', gap: '1.25rem', justifyContent: 'center', alignItems: 'center', marginTop: '2.5rem' }}>
+                    <div style={{ color: 'var(--color-text)', fontWeight: 800, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                        {[
+                            { id: 'operator', label: 'Operador / Empleado' },
+                            { id: 'supervisor', label: 'Supervisor / Responsable' },
+                            { id: 'professional', label: 'Profesional HYS' }
+                        ].map(sig => {
+                            const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
+                            return (
+                                <label
+                                    key={sig.id}
+                                    className="flex items-center gap-2 cursor-pointer select-none"
+                                    style={{
+                                        padding: '0.55rem 1.1rem',
+                                        borderRadius: 'var(--radius-full)',
+                                        border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
+                                        background: isChecked ? 'rgba(var(--color-primary-rgb), 0.15)' : 'transparent',
+                                        color: isChecked ? 'var(--color-primary)' : 'var(--color-text-light)',
+                                        fontWeight: 750,
+                                        fontSize: '0.8rem',
+                                        transition: 'all 0.2s ease',
+                                        boxShadow: isChecked ? '0 0 10px rgba(var(--color-primary-rgb), 0.15)' : 'none'
+                                    }}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={e => setShowSignatures(s => ({ ...s, [sig.id]: e.target.checked }))}
+                                        style={{ display: 'none' }}
+                                    />
+                                    <div style={{
+                                        width: '16px',
+                                        height: '16px',
+                                        borderRadius: '4px',
+                                        border: isChecked ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)',
+                                        background: isChecked ? 'var(--color-primary)' : 'transparent',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        transition: 'all 0.2s ease'
+                                    }}>
+                                        {isChecked && <CheckCircle2 size={12} color="white" />}
+                                    </div>
+                                    {sig.label}
+                                </label>
+                            );
+                        })}
                     </div>
                 </div>
 
                 <PdfSignatures
                     data={{
                         ...report,
-                        professionalSignature: signature?.signature,
+                        professionalSignature: report.signature || signature?.signature,
                         professionalStamp: signature?.stamp,
                         professionalName: profile?.name || report.responsable,
                         professionalLicense: profile?.license
                     }}
                     box1={showSignatures.operator ? {
                         title: 'OPERADOR',
-                        subtitle: 'Firma y DNI',
-                        signatureUrl: null,
+                        subtitle: 'Firma / Aclaración',
+                        signatureUrl: report.operatorSignature || null,
                         isProfessional: false
                     } : null}
-                    box3={showSignatures.supervisor ? {
-                        title: 'SUPERVISOR / RESPONSABLE',
-                        subtitle: 'Firma y DNI',
-                        signatureUrl: null,
+                    box2={showSignatures.supervisor ? {
+                        title: 'SUPERVISOR',
+                        subtitle: 'Firma / Aclaración',
+                        signatureUrl: report.supervisorSignature || null,
                         isProfessional: false
                     } : null}
-                    box2={showSignatures.professional ? undefined : null}
+                    box3={showSignatures.professional ? {
+                        title: 'PROFESIONAL ACTUANTE',
+                        subtitle: ((profile?.name || report.responsable) ? 'Firma y Sello' : 'Firma y Sello').toUpperCase(),
+                        signatureUrl: report.signature || signature?.signature || null,
+                        isProfessional: true,
+                        license: profile?.license
+                    } : null}
                 />
 
                 {/* Footer Legal */}

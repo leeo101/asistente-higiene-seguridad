@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera, RefreshCw, CheckCircle, AlertTriangle, Flame, Loader2, Zap, FlipHorizontal, Info, Search } from 'lucide-react';
+import { ArrowLeft, Camera, RefreshCw, CheckCircle, AlertTriangle, Flame, Loader2, Zap, FlipHorizontal, Info, Search, Download } from 'lucide-react';
 import { API_BASE_URL } from '../config';
+import { auth } from '../firebase';
 import { usePaywall } from '../hooks/usePaywall';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { generatePdfBlob } from '../utils/pdfHelper';
 
 // Tipos de extintores y sus características
 const EXTINTOR_INFO = {
@@ -117,17 +119,27 @@ export default function ExtinguisherAI(): React.ReactElement | null {
         setIsAnalyzing(true);
         requirePro(async () => {
             try {
+                const token = await auth.currentUser?.getIdToken(true);
                 const response = await fetch(`${API_BASE_URL}/api/analyze-extinguisher`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: JSON.stringify({ image: imageSrc })
                 });
 
                 if (!response.ok) {
-                    throw new Error('Error en el análisis');
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || 'Error en el análisis');
                 }
 
                 const data = await response.json();
+                
+                if (!data.extinguisherDetected) {
+                    throw new Error('No se detectó ningún extintor en la imagen. Por favor, enfoca claramente el matafuego.');
+                }
+                
                 setAnalysisResult(data);
                 
                 // Guardar en historial
@@ -147,15 +159,14 @@ export default function ExtinguisherAI(): React.ReactElement | null {
                 toast.success('✅ Extintor analizado correctamente');
             } catch (error) {
                 console.error('Analysis error:', error);
-                // Simulación para demo
-                simulateAnalysis();
+                toast.error(error.message || 'Error analizando la imagen');
+                setCapturedImage(null);
+                startCamera();
             } finally {
                 setIsAnalyzing(false);
             }
         });
     };
-
-    // Simulación cuando la API no está disponible
     const simulateAnalysis = () => {
         const types = Object.keys(EXTINTOR_INFO);
         const randomType = types[Math.floor(Math.random() * types.length)];
@@ -181,6 +192,28 @@ export default function ExtinguisherAI(): React.ReactElement | null {
         setCapturedImage(null);
         setAnalysisResult(null);
         startCamera();
+    };
+
+    const handleDownloadPdf = async () => {
+        try {
+            const toastId = toast.loading('Generando PDF...');
+            const blob = await generatePdfBlob('extinguisher-pdf-content');
+            toast.dismiss(toastId);
+            
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `reporte-extintor-${new Date().getTime()}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            toast.success('PDF descargado exitosamente');
+        } catch (error) {
+            console.error('Error generando PDF:', error);
+            toast.error('Hubo un error al generar el PDF');
+        }
     };
 
     const extintorData = analysisResult?.type ? EXTINTOR_INFO[analysisResult.type] : null;
@@ -227,14 +260,14 @@ export default function ExtinguisherAI(): React.ReactElement | null {
             </div>
 
             {/* Camera / Image Display */}
-            <div style={{
-                position: 'relative',
-                background: 'var(--color-surface)',
-                borderRadius: '16px',
-                overflow: 'hidden',
-                marginBottom: '1.5rem',
-                border: '1px solid var(--color-border)'
-            }}>
+            <div id="extinguisher-pdf-content" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <div style={{
+                    position: 'relative',
+                    background: 'var(--color-surface)',
+                    borderRadius: '16px',
+                    overflow: 'hidden',
+                    border: '1px solid var(--color-border)'
+                }}>
                 {!capturedImage ? (
                     <>
                         <video
@@ -516,6 +549,21 @@ export default function ExtinguisherAI(): React.ReactElement | null {
                             </ul>
                         </div>
                     )}
+                </div>
+            )}
+            
+            </div> {/* Cierra extinguisher-pdf-content */}
+            {/* Botones de Acción (Fuera del PDF) */}
+            {analysisResult && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1.5rem' }}>
+                    {/* Download PDF Button */}
+                    <button
+                        onClick={handleDownloadPdf}
+                        className="btn-outline"
+                        style={{ margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                    >
+                        <Download size={18} /> Descargar PDF
+                    </button>
 
                     {/* Save Button */}
                     <button
@@ -532,9 +580,9 @@ export default function ExtinguisherAI(): React.ReactElement | null {
                             navigate('/extinguishers-history');
                         }}
                         className="btn-primary"
-                        style={{ margin: 0 }}
+                        style={{ margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
                     >
-                        <CheckCircle size={18} /> Guardar en Historial
+                        <CheckCircle size={18} /> Guardar Registro
                     </button>
                 </div>
             )}

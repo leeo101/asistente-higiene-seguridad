@@ -259,7 +259,7 @@ export default function AICamera(): React.ReactElement | null {
                     ctx.arc(centerX + radius, centerY - radius, 15, 0, 2 * Math.PI);
                     ctx.fill();
 
-                    ctx.fillStyle = 'var(--color-surface)';
+                    ctx.fillStyle = '#ffffff';
                     ctx.font = 'bold 20px Inter, sans-serif';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
@@ -369,14 +369,44 @@ export default function AICamera(): React.ReactElement | null {
 
                         {analysisResult && (
                             <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', padding: '1.5rem', boxSizing: 'border-box', background: 'linear-gradient(transparent, rgba(0,0,0,0.95))', color: 'var(--color-surface)' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-                                    {analysisResult.helmetUsed ? (
-                                        <div style={{ background: '#10b981', padding: '0.6rem 1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                            <ShieldCheck size={18} /> <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>Casco Detectado</span>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', marginBottom: '1rem' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                                        {analysisResult.helmetUsed ? (
+                                            <div style={{ background: '#10b981', padding: '0.6rem 1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <ShieldCheck size={18} /> <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>Casco Detectado</span>
+                                            </div>
+                                        ) : (
+                                            <div style={{ background: '#ef4444', padding: '0.6rem 1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <TriangleAlert size={18} /> <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>⚠️ FALTA CASCO</span>
+                                            </div>
+                                        )}
+                                        {analysisResult.riskLevel && (
+                                            <div style={{
+                                                padding: '0.6rem 1rem', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 800,
+                                                background: analysisResult.riskLevel.toLowerCase() === 'crítico' ? '#ef4444' :
+                                                            analysisResult.riskLevel.toLowerCase() === 'alto' ? '#f97316' :
+                                                            analysisResult.riskLevel.toLowerCase() === 'medio' ? '#eab308' : '#10b981',
+                                                color: '#fff',
+                                                display: 'flex', alignItems: 'center'
+                                            }}>
+                                                RIESGO: {analysisResult.riskLevel.toUpperCase()}
+                                            </div>
+                                        )}
+                                    </div>
+                                    
+                                    {analysisResult.immediateAction && (
+                                        <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '0.8rem', borderRadius: '8px' }}>
+                                            <p style={{ margin: 0, fontSize: '0.8rem', color: '#fca5a5', fontWeight: 700 }}>
+                                                ⚠️ Acción Inmediata: {analysisResult.immediateAction}
+                                            </p>
                                         </div>
-                                    ) : (
-                                        <div style={{ background: '#ef4444', padding: '0.6rem 1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                            <TriangleAlert size={18} /> <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>⚠️ FALTA CASCO</span>
+                                    )}
+
+                                    {analysisResult.applicableLegislation && analysisResult.applicableLegislation.length > 0 && (
+                                        <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '0.8rem', borderRadius: '8px' }}>
+                                            <p style={{ margin: 0, fontSize: '0.8rem', color: '#6ee7b7', fontWeight: 700 }}>
+                                                ⚖️ Ley/Norma: {analysisResult.applicableLegislation.join(', ')}
+                                            </p>
                                         </div>
                                     )}
                                 </div>

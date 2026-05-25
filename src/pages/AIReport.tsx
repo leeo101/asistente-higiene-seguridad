@@ -159,18 +159,108 @@ export default function AIReport(): React.ReactElement | null {
                                 ))}
                             </div>
 
-                            <div style={{ marginTop: '1rem', padding: '1rem', borderRadius: '8px', background: data.analysis?.ppeComplete ? '#f0fdf4' : '#fff7ed', border: `1px solid ${data.analysis?.ppeComplete ? '#bbf7d0' : '#ffedd5'}`, display: 'flex', alignItems: 'center', gap: '0.8rem', color: data.analysis?.ppeComplete ? '#15803d' : '#c2410c' }}>
-                                {data.analysis?.ppeComplete ? <ShieldCheck /> : <TriangleAlert />}
-                                <span style={{ fontWeight: 800 }}>ESTADO GENERAL: {data.analysis?.ppeComplete ? 'ADECUADO' : 'REQUIERE ATENCIÓN INMEDIATA'}</span>
+                            <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', borderRadius: '8px', background: data.analysis?.ppeComplete ? '#f0fdf4' : '#fff7ed', border: `1px solid ${data.analysis?.ppeComplete ? '#bbf7d0' : '#ffedd5'}`, color: data.analysis?.ppeComplete ? '#15803d' : '#c2410c' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                                        {data.analysis?.ppeComplete ? <ShieldCheck /> : <TriangleAlert />}
+                                        <span style={{ fontWeight: 800 }}>ESTADO GENERAL: {data.analysis?.ppeComplete ? 'ADECUADO' : 'REQUIERE ATENCIÓN INMEDIATA'}</span>
+                                    </div>
+                                    {data.analysis?.riskLevel && (
+                                        <div style={{
+                                            padding: '0.4rem 1rem', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 900, textTransform: 'uppercase',
+                                            background: data.analysis.riskLevel.toLowerCase() === 'crítico' ? '#fef2f2' :
+                                                        data.analysis.riskLevel.toLowerCase() === 'alto' ? '#fff7ed' :
+                                                        data.analysis.riskLevel.toLowerCase() === 'medio' ? '#fefce8' : '#f0fdf4',
+                                            color: data.analysis.riskLevel.toLowerCase() === 'crítico' ? '#dc2626' :
+                                                   data.analysis.riskLevel.toLowerCase() === 'alto' ? '#ea580c' :
+                                                   data.analysis.riskLevel.toLowerCase() === 'medio' ? '#ca8a04' : '#16a34a',
+                                            border: `1px solid ${
+                                                   data.analysis.riskLevel.toLowerCase() === 'crítico' ? '#fecaca' :
+                                                   data.analysis.riskLevel.toLowerCase() === 'alto' ? '#ffedd5' :
+                                                   data.analysis.riskLevel.toLowerCase() === 'medio' ? '#fef08a' : '#bbf7d0'}`
+                                        }}>
+                                            Riesgo: {data.analysis.riskLevel}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {data.analysis?.immediateAction && (
+                                    <div style={{ padding: '1.2rem', borderRadius: '12px', background: '#fff1f2', border: '1px solid #fecaca', color: '#be123c' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.5rem' }}>
+                                            <TriangleAlert size={18} />
+                                            <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>ACCIÓN INMEDIATA REQUERIDA (24HS)</span>
+                                        </div>
+                                        <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: '1.5' }}>{data.analysis.immediateAction}</p>
+                                    </div>
+                                )}
+
+                                {data.analysis?.applicableLegislation && data.analysis.applicableLegislation.length > 0 && (
+                                    <div style={{ padding: '1.2rem', borderRadius: '12px', background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.5rem' }}>
+                                            <ShieldCheck size={18} />
+                                            <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>NORMATIVA APLICABLE (ARG)</span>
+                                        </div>
+                                        <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.85rem', lineHeight: '1.5' }}>
+                                            {data.analysis.applicableLegislation.map((leg, i) => (
+                                                <li key={i}>{leg}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
                             </div>
                         </>
                     ) : (
-                        <div style={{ padding: '1.2rem', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', color: '#334155' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.8rem', color: 'var(--color-primary)' }}>
-                                <Info size={20} />
-                                <span style={{ fontWeight: 800, fontSize: '1rem' }}>EVALUACIÓN GENERAL IA</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                            <div style={{ padding: '1.5rem', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', color: '#334155', position: 'relative' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--color-primary)' }}>
+                                        <Info size={20} />
+                                        <span style={{ fontWeight: 800, fontSize: '1rem' }}>EVALUACIÓN GENERAL IA</span>
+                                    </div>
+                                    {data.analysis?.riskLevel && (
+                                        <div style={{
+                                            padding: '0.4rem 1rem', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 900, textTransform: 'uppercase',
+                                            background: data.analysis.riskLevel.toLowerCase() === 'crítico' ? '#fef2f2' :
+                                                        data.analysis.riskLevel.toLowerCase() === 'alto' ? '#fff7ed' :
+                                                        data.analysis.riskLevel.toLowerCase() === 'medio' ? '#fefce8' : '#f0fdf4',
+                                            color: data.analysis.riskLevel.toLowerCase() === 'crítico' ? '#dc2626' :
+                                                   data.analysis.riskLevel.toLowerCase() === 'alto' ? '#ea580c' :
+                                                   data.analysis.riskLevel.toLowerCase() === 'medio' ? '#ca8a04' : '#16a34a',
+                                            border: `1px solid ${
+                                                   data.analysis.riskLevel.toLowerCase() === 'crítico' ? '#fecaca' :
+                                                   data.analysis.riskLevel.toLowerCase() === 'alto' ? '#ffedd5' :
+                                                   data.analysis.riskLevel.toLowerCase() === 'medio' ? '#fef08a' : '#bbf7d0'}`
+                                        }}>
+                                            Riesgo: {data.analysis.riskLevel}
+                                        </div>
+                                    )}
+                                </div>
+                                <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: '1.6' }}>{data.analysis?.generalAssessment || 'Análisis ambiental completado.'}</p>
                             </div>
-                            <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: '1.6' }}>{data.analysis?.generalAssessment || 'Análisis ambiental completado.'}</p>
+
+                            {data.analysis?.immediateAction && (
+                                <div style={{ padding: '1.2rem', borderRadius: '12px', background: '#fff1f2', border: '1px solid #fecaca', color: '#be123c' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.5rem' }}>
+                                        <TriangleAlert size={18} />
+                                        <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>ACCIÓN INMEDIATA REQUERIDA (24HS)</span>
+                                    </div>
+                                    <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: '1.5' }}>{data.analysis.immediateAction}</p>
+                                </div>
+                            )}
+
+                            {data.analysis?.applicableLegislation && data.analysis.applicableLegislation.length > 0 && (
+                                <div style={{ padding: '1.2rem', borderRadius: '12px', background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.5rem' }}>
+                                        <ShieldCheck size={18} />
+                                        <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>NORMATIVA APLICABLE (ARG)</span>
+                                    </div>
+                                    <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.85rem', lineHeight: '1.5' }}>
+                                        {data.analysis.applicableLegislation.map((leg, i) => (
+                                            <li key={i}>{leg}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
@@ -178,21 +268,29 @@ export default function AIReport(): React.ReactElement | null {
                 {/* Findings Legend (Numbered) */}
                 {data.analysis?.detections && data.analysis.detections.length > 0 && (
                     <div style={{ marginBottom: '2.5rem', pageBreakInside: 'avoid', breakInside: 'avoid' }} className="no-break">
-                        <h4 style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem', marginBottom: '1rem', color: '#1e293b' }}>Leyenda de Hallazgos</h4>
+                        <h4 style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem', marginBottom: '1rem', color: '#1e293b' }}>Leyenda de Hallazgos en Imagen</h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-3">
                             {data.analysis.detections.map((det, i) => {
-                                const isRisk = det.label.toLowerCase().includes('riesgo');
+                                const severity = (det.severity || '').toLowerCase();
+                                const badgeBg = severity === 'crítico' ? '#ef4444' :
+                                                severity === 'alto' ? '#f97316' :
+                                                severity === 'medio' ? '#eab308' :
+                                                severity === 'bajo' ? '#10b981' : '#3b82f6';
+                                
                                 return (
-                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', fontSize: '0.9rem' }}>
+                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', fontSize: '0.9rem', background: '#f8fafc', padding: '0.5rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                                         <div style={{
                                             width: '24px', height: '24px', borderRadius: '50%',
-                                            background: isRisk ? '#ef4444' : '#3b82f6', color: '#fff',
+                                            background: badgeBg, color: '#fff',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            fontWeight: 800, fontSize: '0.75rem', flexShrink: 0
+                                            fontWeight: 900, fontSize: '0.75rem', flexShrink: 0
                                         }}>
                                             {i + 1}
                                         </div>
-                                        <span style={{ color: '#475569' }}>{det.label}</span>
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                            <span style={{ color: '#1e293b', fontWeight: 600 }}>{det.label}</span>
+                                            {det.severity && <span style={{ fontSize: '0.7rem', color: badgeBg, fontWeight: 700, textTransform: 'uppercase' }}>{det.severity}</span>}
+                                        </div>
                                     </div>
                                 );
                             })}
@@ -203,17 +301,31 @@ export default function AIReport(): React.ReactElement | null {
                 {/* Additional Findings */}
                 {(data.analysis?.foundRisks?.length > 0 || data.analysis?.detections?.some(d => d.recommendation)) && (
                     <div style={{ marginBottom: '3rem', pageBreakInside: 'avoid', breakInside: 'avoid' }} className="no-break">
-                        <h4 style={{ color: '#b91c1c', marginBottom: '0.8rem' }}>Riesgos y Observaciones Detalladas:</h4>
-                        <ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#1e293b' }}>
-                            {data.analysis?.foundRisks?.map((risk, i) => (
-                                <li key={i} style={{ marginBottom: '0.4rem' }}>{risk}</li>
-                            ))}
-                            {data.analysis?.detections?.filter(d => d.recommendation).map((det, i) => (
-                                <li key={`rec-${i}`} style={{ marginBottom: '0.4rem' }}>
-                                    <strong>{det.label.replace('Riesgo: ', '')}:</strong> {det.recommendation}
-                                </li>
-                            ))}
-                        </ul>
+                        <h4 style={{ color: '#b91c1c', borderBottom: '1px solid #fca5a5', paddingBottom: '0.5rem', marginBottom: '1rem' }}>Riesgos y Observaciones Detalladas:</h4>
+                        
+                        {data.analysis?.foundRisks?.length > 0 && (
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <h5 style={{ margin: '0 0 0.5rem 0', color: '#334155', fontSize: '0.9rem', fontWeight: 700 }}>Riesgos Generales:</h5>
+                                <ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#1e293b', fontSize: '0.9rem', lineHeight: '1.6' }}>
+                                    {data.analysis.foundRisks.map((risk, i) => (
+                                        <li key={`risk-${i}`} style={{ marginBottom: '0.4rem' }}>{risk}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+
+                        {data.analysis?.detections?.filter(d => d.recommendation).length > 0 && (
+                            <div>
+                                <h5 style={{ margin: '0 0 0.5rem 0', color: '#334155', fontSize: '0.9rem', fontWeight: 700 }}>Recomendaciones por Hallazgo:</h5>
+                                <ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#1e293b', fontSize: '0.9rem', lineHeight: '1.6' }}>
+                                    {data.analysis.detections.filter(d => d.recommendation).map((det, i) => (
+                                        <li key={`rec-${i}`} style={{ marginBottom: '0.4rem' }}>
+                                            <strong>{det.label}:</strong> {det.recommendation}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
                     </div>
                 )}
 

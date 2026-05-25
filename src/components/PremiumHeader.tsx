@@ -8,12 +8,14 @@ interface PremiumHeaderProps {
   size?: string;
   color?: string;
   gradient?: string;
+  children?: React.ReactNode;
 }
 
 export default function PremiumHeader({
   title,
   subtitle,
-  icon
+  icon,
+  children
 }: PremiumHeaderProps): React.ReactElement {
   return (
     <div style={{
@@ -95,6 +97,7 @@ export default function PremiumHeader({
             {subtitle}
           </p>
         </div>
+        {children}
       </div>
 
       {/* Sparkle effect */}

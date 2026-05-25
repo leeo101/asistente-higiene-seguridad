@@ -45,13 +45,16 @@ export default async function handler(req, res) {
         const base64Data = image.split(',')[1];
         const mimeType = image.split(';')[0].split(':')[1] || 'image/jpeg';
 
-        const prompt = `Analiza detalladamente esta imagen de un entorno laboral para detección general de evidentes riesgos laborales. IMPORTANTE: Todas las respuestas, descripciones de riesgos, recomendaciones y etiquetas de las cajas delimitadoras de las detecciones deben ser entregadas obligatoriamente en idioma español.`;
+        const prompt = `Analiza detalladamente esta imagen de un entorno laboral para detección general de evidentes riesgos laborales y evaluación de seguridad. IMPORTANTE: Todas las respuestas, descripciones de riesgos, recomendaciones y etiquetas de las cajas delimitadoras de las detecciones deben ser entregadas obligatoriamente en idioma español.`;
 
         const responseSchema = {
             type: SchemaType.OBJECT,
             properties: {
                 personDetected: { type: SchemaType.BOOLEAN },
                 generalAssessment: { type: SchemaType.STRING },
+                riskLevel: { type: SchemaType.STRING, description: "Nivel de riesgo general: 'Bajo', 'Medio', 'Alto', o 'Crítico'" },
+                applicableLegislation: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING }, description: "Leyes o decretos aplicables de Argentina (ej. Ley 19587, Decreto 351/79)" },
+                immediateAction: { type: SchemaType.STRING, description: "Acción inmediata a tomar en las próximas 24 horas" },
                 foundRisks: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
                 recommendations: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
                 detections: {
@@ -60,13 +63,15 @@ export default async function handler(req, res) {
                         type: SchemaType.OBJECT,
                         properties: {
                             label: { type: SchemaType.STRING },
+                            severity: { type: SchemaType.STRING, description: "'Bajo', 'Medio', 'Alto', o 'Crítico'" },
+                            recommendation: { type: SchemaType.STRING },
                             box_2d: { type: SchemaType.ARRAY, items: { type: SchemaType.NUMBER } }
                         },
-                        required: ["label", "box_2d"]
+                        required: ["label", "box_2d", "severity"]
                     }
                 }
             },
-            required: ["personDetected", "generalAssessment", "foundRisks", "recommendations", "detections"]
+            required: ["personDetected", "generalAssessment", "riskLevel", "applicableLegislation", "immediateAction", "foundRisks", "recommendations", "detections"]
         };
 
         const imagePart = {
@@ -90,7 +95,7 @@ export default async function handler(req, res) {
                 const model = genAI.getGenerativeModel({ 
                     model: modelName, 
                     safetySettings,
-                    systemInstruction: "Detector maestro de riesgos en ESPAÑOL. Encuentra condiciones subestándar (desorden, máquinas sin guardia, extintores bloqueados). OBLIGATORIAMENTE todas las etiquetas (labels), riesgos (foundRisks), recomendaciones (recommendations) y evaluaciones (generalAssessment) deben estar completamente en ESPAÑOL (por ejemplo: 'Riesgo de tropiezo', 'Extintor bloqueado', 'Obstrucción en vía de escape', 'Falta de protección de máquina'). Jamás utilices inglés para los labels o descripciones.",
+                    systemInstruction: "Detector maestro de riesgos en ESPAÑOL. Encuentra condiciones subestándar (desorden, máquinas sin guardia, extintores bloqueados, trabajos en altura sin arnés, etc). OBLIGATORIAMENTE evalúa el nivel de riesgo global (riskLevel) y asigna un nivel de severidad (severity) a cada detección específica. Provee siempre legislación aplicable en Argentina (Ley 19.587, Dec 351/79, Resoluciones SRT). Define una acción inmediata prioritaria (immediateAction). Jamás utilices inglés para los labels o descripciones.",
                     generationConfig: {
                         responseMimeType: "application/json",
                         responseSchema: responseSchema

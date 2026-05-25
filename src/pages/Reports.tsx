@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ArrowLeft, Save, FileText, AlertCircle, GraduationCap, ClipboardCheck, Package, Plus, Trash2, History, Share2, Printer, Clock, Edit2 } from 'lucide-react';
+import { ArrowLeft, Save, FileText, AlertCircle, GraduationCap, ClipboardCheck, Package, Plus, Trash2, History, Share2, Printer, Clock, Edit2, CheckCircle2 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
 import PhotoAttachments from '../components/PhotoAttachments';
 import CompanyLogo from '../components/CompanyLogo';
+import SignatureCanvas from '../components/SignatureCanvas';
+import PdfSignatures from '../components/PdfSignatures';
 
 export default function Reports(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -35,6 +37,17 @@ export default function Reports(): React.ReactElement | null {
     const [extraFields, setExtraFields] = useState<Record<string, any>>({});
     const [personnel, setPersonnel] = useState(() => [{ id: Date.now(), name: '', dni: '' }]);
 
+    // Signature states
+    const [showSignatures, setShowSignatures] = useState({
+        operator: true,
+        supervisor: true,
+        professional: true
+    });
+    const [operatorSignature, setOperatorSignature] = useState('');
+    const [signature, setSignature] = useState('');
+    const [supervisorSignature, setSupervisorSignature] = useState('');
+    const [professional, setProfessional] = useState({ name: '', license: '', signature: null as string | null, stamp: null as string | null });
+
     useEffect(() => {
         if (location.state?.editData) {
             const data = location.state.editData;
@@ -53,11 +66,22 @@ export default function Reports(): React.ReactElement | null {
             if (data.personnel && data.personnel.length > 0) {
                 setPersonnel(data.personnel);
             }
+            if (data.showSignatures) setShowSignatures(data.showSignatures);
+            setOperatorSignature(data.operatorSignature || '');
+            setSignature(data.signature || '');
+            setSupervisorSignature(data.supervisorSignature || '');
         } else {
             const savedProfile = localStorage.getItem('personalData');
             if (savedProfile) {
                 const parsed = JSON.parse(savedProfile);
                 setProjectData(prev => ({ ...prev, responsable: parsed.name || '' }));
+                
+                const sd = localStorage.getItem('signatureStampData');
+                const lg = localStorage.getItem('capturedSignature');
+                let sig = lg || null;
+                let stamp = null;
+                if (sd) { const p = JSON.parse(sd); sig = p.signature || sig; stamp = p.stamp || null; }
+                setProfessional({ name: parsed.name, license: parsed.license, signature: sig, stamp });
             }
         }
         // Load recent reports
@@ -94,7 +118,11 @@ export default function Reports(): React.ReactElement | null {
             extraFields,
             photos,
             personnel: (template === 'training' || template === 'epp') ? personnel : [],
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            showSignatures,
+            operatorSignature,
+            signature,
+            supervisorSignature
         };
 
         const history = JSON.parse(localStorage.getItem('reports_history') || '[]');
@@ -138,7 +166,7 @@ export default function Reports(): React.ReactElement | null {
             </div>
 
             {/* Template Selector */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.8rem', marginBottom: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.8rem', marginBottom: '2.5rem' }}>
                 {templates.map(t => (
                     <div
                         key={t.id}
@@ -151,64 +179,72 @@ export default function Reports(): React.ReactElement | null {
                         className="card"
                         style={{
                             textAlign: 'center',
-                            padding: '1rem',
+                            padding: '1.5rem 1rem',
                             cursor: 'pointer',
                             border: template === t.id ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
                             background: template === t.id ? 'rgba(59, 130, 246, 0.05)' : 'var(--color-surface)',
-                            transition: 'all 0.2s'
+                            transition: 'all 0.3s ease',
+                            transform: template === t.id ? 'translateY(-3px)' : 'none',
+                            boxShadow: template === t.id ? '0 10px 20px -5px rgba(59, 130, 246, 0.15)' : 'none',
+                            borderRadius: '16px'
                         }}
                     >
-                        <div style={{ color: template === t.id ? 'var(--color-primary)' : 'var(--color-text-muted)', marginBottom: '0.5rem' }}>
-                            {React.cloneElement(t.icon, { size: 28 })}
+                        <div style={{ color: template === t.id ? 'var(--color-primary)' : 'var(--color-text-muted)', marginBottom: '0.8rem', display: 'flex', justifyContent: 'center' }}>
+                            {React.cloneElement(t.icon, { size: 32 })}
                         </div>
-                        <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{t.label}</div>
+                        <div style={{ fontSize: '0.9rem', fontWeight: 700, color: template === t.id ? 'var(--color-text)' : 'var(--color-text-muted)' }}>{t.label}</div>
                     </div>
                 ))}
             </div>
 
             {/* General Info */}
-            <div className="card" style={{ marginBottom: '1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="card" style={{ marginBottom: '2.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.2rem', padding: '1.8rem', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
                 <div style={{ gridColumn: 'span 2' }}>
-                    <label style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Título del Informe</label>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '0.4rem', display: 'block' }}>Título del Informe</label>
                     <input
                         type="text"
                         value={projectData.title}
                         onChange={(e) => setProjectData({ ...projectData, title: e.target.value })}
                         placeholder="Ej: Relevamiento de Condiciones de Seguridad"
+                        style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--color-border)', fontSize: '0.95rem' }}
                     />
                 </div>
                 <div>
-                    <label style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Empresa / Cliente</label>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '0.4rem', display: 'block' }}>Empresa / Cliente</label>
                     <input
                         type="text"
                         value={projectData.company}
                         onChange={(e) => setProjectData({ ...projectData, company: e.target.value })}
                         placeholder="Nombre de la empresa"
+                        style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--color-border)', fontSize: '0.95rem' }}
                     />
                 </div>
                 <div>
-                    <label style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Ubicación / Planta</label>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '0.4rem', display: 'block' }}>Ubicación / Planta</label>
                     <input
                         type="text"
                         value={projectData.location}
                         onChange={(e) => setProjectData({ ...projectData, location: e.target.value })}
                         placeholder="Ej: Sede Central"
+                        style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--color-border)', fontSize: '0.95rem' }}
                     />
                 </div>
                 <div>
-                    <label style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Fecha</label>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '0.4rem', display: 'block' }}>Fecha</label>
                     <input
                         type="date"
                         value={projectData.date}
                         onChange={(e) => setProjectData({ ...projectData, date: e.target.value })}
+                        style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--color-border)', fontSize: '0.95rem' }}
                     />
                 </div>
                 <div>
-                    <label style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Responsable</label>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '0.4rem', display: 'block' }}>Responsable</label>
                     <input
                         type="text"
                         value={projectData.responsable}
                         onChange={(e) => setProjectData({ ...projectData, responsable: e.target.value })}
+                        style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--color-border)', fontSize: '0.95rem' }}
                     />
                 </div>
             </div>
@@ -308,20 +344,141 @@ export default function Reports(): React.ReactElement | null {
                     </div>
                 )}
 
-                <label style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Contenido Principal / Observaciones</label>
+                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '0.4rem', display: 'block' }}>Contenido Principal / Observaciones</label>
                 <textarea
-                    style={{ minHeight: '300px', padding: '1rem' }}
+                    style={{ minHeight: '350px', padding: '1.2rem', borderRadius: '12px', border: '1px solid var(--color-border)', fontSize: '0.95rem', width: '100%', resize: 'vertical' }}
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     placeholder="Describa los hallazgos, recomendaciones o el cuerpo del informe..."
                 />
 
-                <PhotoAttachments
-                    photos={photos}
-                    onChange={setPhotos}
-                    maxPhotos={8}
-                    label="Fotos de Evidencia"
+                <div style={{ marginTop: '2rem' }}>
+                    <PhotoAttachments
+                        photos={photos}
+                        onChange={setPhotos}
+                        maxPhotos={8}
+                        label="Fotos de Evidencia"
+                    />
+                </div>
+            </div>
+
+            {/* Interactive Signature Drawing Pads */}
+            <div className="card animate-fade-in" style={{ marginTop: '2.5rem', background: 'rgba(var(--color-surface-rgb), 0.3)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', padding: '2.5rem', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.08)' }}>
+                <h3 style={{ marginTop: 0, marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.25rem', textTransform: 'uppercase', letterSpacing: '1.2px' }}>
+                    ✍️ Firmas y Autorizaciones
+                </h3>
+
+                {/* Custom visual switches */}
+                <div className="no-print mb-8 p-6" style={{ background: 'rgba(30, 41, 59, 0.2)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', width: '100%', display: 'flex', flexDirection: 'column', gap: '1.25rem', justifyContent: 'center', alignItems: 'center' }}>
+                    <div style={{ color: 'var(--color-text)', fontWeight: 800, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                        {[
+                            { id: 'operator', label: 'Operador / Empleado' },
+                            { id: 'supervisor', label: 'Supervisor / Responsable' },
+                            { id: 'professional', label: 'Profesional HYS' }
+                        ].map(sig => {
+                            const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
+                            return (
+                                <label
+                                    key={sig.id}
+                                    className="flex items-center gap-2 cursor-pointer select-none"
+                                    style={{
+                                        padding: '0.55rem 1.1rem',
+                                        borderRadius: 'var(--radius-full)',
+                                        border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
+                                        background: isChecked ? 'rgba(var(--color-primary-rgb), 0.15)' : 'transparent',
+                                        color: isChecked ? 'var(--color-primary)' : 'var(--color-text-light)',
+                                        fontWeight: 750,
+                                        fontSize: '0.8rem',
+                                        transition: 'all 0.2s ease',
+                                        boxShadow: isChecked ? '0 0 10px rgba(var(--color-primary-rgb), 0.15)' : 'none'
+                                    }}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={e => setShowSignatures(s => ({ ...s, [sig.id]: e.target.checked }))}
+                                        style={{ display: 'none' }}
+                                    />
+                                    <div style={{
+                                        width: '16px',
+                                        height: '16px',
+                                        borderRadius: '4px',
+                                        border: isChecked ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)',
+                                        background: isChecked ? 'var(--color-primary)' : 'transparent',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        transition: 'all 0.2s ease'
+                                    }}>
+                                        {isChecked && <CheckCircle2 size={12} color="white" />}
+                                    </div>
+                                    {sig.label}
+                                </label>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* On-Sheet Visual Preview of PDF signature blocks */}
+                <PdfSignatures
+                    data={{
+                        ...projectData,
+                        professionalSignature: professional.signature,
+                        professionalName: professional.name,
+                        professionalLicense: professional.license
+                    }}
+                    box1={showSignatures.operator ? {
+                        title: 'OPERADOR',
+                        subtitle: 'Firma / Aclaración',
+                        signatureUrl: operatorSignature || null,
+                        isProfessional: false
+                    } : null}
+                    box2={showSignatures.supervisor ? {
+                        title: 'SUPERVISOR',
+                        subtitle: 'Firma / Aclaración',
+                        signatureUrl: supervisorSignature || null,
+                        isProfessional: false
+                    } : null}
+                    box3={showSignatures.professional ? {
+                        title: 'PROFESIONAL ACTUANTE',
+                        subtitle: (professional.name || 'Firma y Sello').toUpperCase(),
+                        signatureUrl: signature || professional.signature || null,
+                        isProfessional: true,
+                        license: professional.license
+                    } : null}
                 />
+
+                {/* Interactive Signature Drawing Pads */}
+                <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {showSignatures.operator && (
+                        <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                            <SignatureCanvas 
+                                onSave={(sig) => setOperatorSignature(sig || '')} 
+                                initialImage={operatorSignature} 
+                                title="Firma Operador" 
+                            />
+                        </div>
+                    )}
+                    {showSignatures.supervisor && (
+                        <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                            <SignatureCanvas 
+                                onSave={(sig) => setSupervisorSignature(sig || '')} 
+                                initialImage={supervisorSignature} 
+                                title="Firma Supervisor" 
+                            />
+                        </div>
+                    )}
+                    {showSignatures.professional && (
+                        <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                            <SignatureCanvas 
+                                onSave={(sig) => setSignature(sig || '')} 
+                                initialImage={signature} 
+                                title="Firma Profesional" 
+                            />
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Recent Reports Mini-Panel */}

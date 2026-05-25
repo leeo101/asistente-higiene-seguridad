@@ -92,25 +92,49 @@ export default function AppSettings(): React.ReactElement | null {
     };
 
     return (
-        <div className="container" style={{ maxWidth: '600px' }}>
+        <div className="container animate-fade-in" style={{ maxWidth: '600px', paddingBottom: '4rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
-                    <ArrowLeft />
+                <button
+                    onClick={() => navigate(-1)}
+                    style={{
+                        padding: '0.6rem',
+                        background: 'var(--color-surface)',
+                        border: '1px solid var(--color-border)',
+                        borderRadius: '12px',
+                        cursor: 'pointer',
+                        color: 'var(--color-text)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-surface-hover)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'var(--color-surface)'}
+                >
+                    <ArrowLeft size={20} />
                 </button>
-                <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Configuración</h1>
+                <div>
+                    <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, letterSpacing: '-0.5px' }}>Configuración</h1>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>Personalización y sincronización</p>
+                </div>
             </div>
 
             {/* ── CLOUD SYNC PANEL ── */}
-            <div className="card" style={{ marginBottom: '1.5rem', border: currentUser ? '1px solid rgba(16,185,129,0.3)' : '1px solid var(--color-border)', background: currentUser ? 'rgba(16,185,129,0.04)' : 'var(--color-surface)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                    <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: currentUser ? 'rgba(16,185,129,0.12)' : 'rgba(100,116,139,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <Cloud size={24} color={currentUser ? '#10b981' : 'var(--color-text-muted)'} />
+            <div style={{ 
+                marginBottom: '1.5rem',
+                background: currentUser ? 'rgba(16, 185, 129, 0.05)' : 'rgba(var(--color-surface-rgb), 0.5)',
+                backdropFilter: 'blur(12px)',
+                border: currentUser ? '1px solid rgba(16,185,129,0.25)' : '1px solid var(--glass-border)',
+                borderRadius: '20px',
+                padding: '1.5rem'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.2rem' }}>
+                    <div style={{ width: '52px', height: '52px', borderRadius: '16px', background: currentUser ? 'rgba(16,185,129,0.15)' : 'rgba(100,116,139,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <Cloud size={26} color={currentUser ? '#10b981' : 'var(--color-text-secondary)'} />
                     </div>
                     <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 800, fontSize: '1rem' }}>
+                        <div style={{ fontWeight: 900, fontSize: '1.05rem' }}>
                             {currentUser ? 'Tus datos están en la nube ☁️' : 'Sincronización en la nube'}
                         </div>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.15rem' }}>
+                        <div style={{ fontSize: '0.82rem', color: 'var(--color-text-secondary)', marginTop: '0.15rem' }}>
                             {currentUser
                                 ? lastSync
                                     ? `Última sincronización: ${lastSync.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}`
@@ -119,7 +143,7 @@ export default function AppSettings(): React.ReactElement | null {
                         </div>
                     </div>
                     {currentUser && (
-                        <CheckCircle size={20} color="#10b981" style={{ flexShrink: 0 }} />
+                        <CheckCircle size={22} color="#10b981" style={{ flexShrink: 0 }} />
                     )}
                 </div>
 
@@ -199,42 +223,44 @@ export default function AppSettings(): React.ReactElement | null {
             </div>
 
             {/* ── PREFERENCIAS ── */}
-            <div className="card">
-                <h3 style={{ marginTop: 0, marginBottom: '1.5rem', fontSize: '1.1rem' }}>Preferencias</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                            <Bell size={20} color="var(--color-text-muted)" />
-                            <div>
-                                <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: 500 }}>Notificaciones</p>
-                                <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Alertas de inspecciones pendientes</p>
+            <div style={{ 
+                marginBottom: '1.5rem',
+                background: 'rgba(var(--color-surface-rgb), 0.5)',
+                backdropFilter: 'blur(12px)',
+                border: '1px solid var(--glass-border)',
+                borderRadius: '20px',
+                padding: '1.5rem'
+            }}>
+                <h3 style={{ marginTop: 0, marginBottom: '1.2rem', fontSize: '1.05rem', fontWeight: 900 }}>Preferencias</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+                    {[{ icon: <Bell size={20} />, title: 'Notificaciones', desc: 'Alertas de inspecciones pendientes' },
+                      { icon: <Smartphone size={20} />, title: 'Modo Offline', desc: 'Sincronizar datos al recuperar señal' }
+                    ].map(({ icon, title, desc }, idx) => (
+                        <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 0', borderBottom: '1px solid var(--color-border)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                                <div style={{ color: 'var(--color-text-secondary)', display: 'flex' }}>{icon}</div>
+                                <div>
+                                    <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700 }}>{title}</p>
+                                    <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--color-text-secondary)' }}>{desc}</p>
+                                </div>
                             </div>
+                            <input type="checkbox" defaultChecked style={{ width: 'auto', margin: 0, accentColor: 'var(--color-primary)', transform: 'scale(1.2)', cursor: 'pointer' }} />
                         </div>
-                        <input type="checkbox" defaultChecked style={{ width: 'auto', margin: 0 }} />
-                    </div>
+                    ))}
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                            <Smartphone size={20} color="var(--color-text-muted)" />
-                            <div>
-                                <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: 500 }}>Modo Offline</p>
-                                <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Sincronizar datos al recuperar señal</p>
+                            <div style={{ color: 'var(--color-text-secondary)', display: 'flex' }}>
+                                {theme === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
                             </div>
-                        </div>
-                        <input type="checkbox" defaultChecked style={{ width: 'auto', margin: 0 }} />
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.5rem', borderTop: '1px solid var(--color-border)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                            {theme === 'dark' ? <Moon size={20} color="var(--color-text-muted)" /> : <Sun size={20} color="var(--color-text-muted)" />}
                             <div>
-                                <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: 500 }}>Tema</p>
-                                <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Modo {theme === 'dark' ? 'oscuro' : 'claro'} activo</p>
+                                <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700 }}>Tema</p>
+                                <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--color-text-secondary)' }}>Modo {theme === 'dark' ? 'oscuro' : 'claro'} activo</p>
                             </div>
                         </div>
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
                             {['light', 'dark'].map(t => (
-                                <button key={t} onClick={() => toggleTheme(t)} style={{ padding: '0.4rem 0.7rem', borderRadius: '8px', cursor: 'pointer', border: theme === t ? '2px solid var(--color-primary)' : '1px solid var(--color-border)', background: theme === t ? 'rgba(59,130,246,0.1)' : 'transparent', color: theme === t ? 'var(--color-primary)' : 'var(--color-text-muted)', fontWeight: theme === t ? 700 : 500, fontSize: '0.78rem' }}>
+                                <button key={t} onClick={() => toggleTheme(t)} style={{ padding: '0.5rem 0.8rem', borderRadius: '10px', cursor: 'pointer', border: theme === t ? '2px solid var(--color-primary)' : '1px solid var(--color-border)', background: theme === t ? 'rgba(56, 189, 248, 0.1)' : 'var(--color-background)', color: theme === t ? 'var(--color-primary)' : 'var(--color-text-secondary)', fontWeight: theme === t ? 800 : 600, fontSize: '0.82rem', transition: 'all 0.2s' }}>
                                     {t === 'dark' ? '🌙 Oscuro' : '☀️ Claro'}
                                 </button>
                             ))}
@@ -244,18 +270,34 @@ export default function AppSettings(): React.ReactElement | null {
             </div>
 
             {/* ── SEGURIDAD ── */}
-            <div onClick={() => navigate('/security')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', borderRadius: '12px', background: 'rgba(59,130,246,0.05)', border: '1px solid var(--color-border)', cursor: 'pointer', marginTop: '1rem' }}>
+            <div
+                onClick={() => navigate('/security')}
+                style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '1.1rem 1.5rem', borderRadius: '16px',
+                    background: 'rgba(56, 189, 248, 0.06)',
+                    border: '1px solid rgba(56, 189, 248, 0.2)',
+                    cursor: 'pointer', marginTop: '1rem',
+                    transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(56, 189, 248, 0.1)';
+                    e.currentTarget.style.transform = 'translateX(4px)';
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(56, 189, 248, 0.06)';
+                    e.currentTarget.style.transform = 'none';
+                }}
+            >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                    <Shield size={20} color="var(--color-primary)" />
-                    <span style={{ fontWeight: 700 }}>Privacidad y Seguridad</span>
+                    <Shield size={22} color="var(--color-primary)" />
+                    <span style={{ fontWeight: 800, fontSize: '1.05rem' }}>Privacidad y Seguridad</span>
                 </div>
-                <ChevronRight size={18} color="var(--color-text-muted)" />
+                <ChevronRight size={20} color="var(--color-text-secondary)" />
             </div>
 
-            <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-text-muted)', fontSize: '0.8rem' }}>
-                    <Info size={14} /> Versión 1.3.0
-                </div>
+            <div style={{ textAlign: 'center', marginTop: '2rem', padding: '0.8rem', color: 'var(--color-text-secondary)', fontSize: '0.82rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
+                <Info size={14} /> Versión 1.3.0
             </div>
         </div>
     );

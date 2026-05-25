@@ -137,12 +137,12 @@ export default function StopCards(): React.ReactElement | null {
     };
 
     return (
-        <div className="container page-transition" style={{ paddingBottom: '4rem', maxWidth: '600px', margin: '0 auto' }}>
+        <div className="container page-transition" style={{ paddingBottom: '4rem', maxWidth: '800px', margin: '0 auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                <button onClick={() => navigate(editData ? '/stop-cards-history' : '/#tools')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer' }}>
-                    <ArrowLeft size={24} />
+                <button onClick={() => navigate(editData ? '/stop-cards-history' : '/#tools')} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '50%', cursor: 'pointer', color: 'var(--color-text)' }}>
+                    <ArrowLeft size={20} />
                 </button>
-                <h1 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800 }}>
+                <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>
                     {editData ? 'Editar Tarjeta STOP' : 'Tarjeta STOP'}
                 </h1>
                 
@@ -153,8 +153,8 @@ export default function StopCards(): React.ReactElement | null {
                         style={{ 
                             marginLeft: 'auto', padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem',
                             background: isListening ? '#ef4444' : 'var(--gradient-premium)', color: 'white', 
-                            border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer',
-                            boxShadow: '0 4px 12px rgba(59,130,246,0.3)', transition: 'all 0.2s'
+                            border: 'none', borderRadius: 'var(--radius-full)', fontWeight: 800, cursor: 'pointer',
+                            boxShadow: isListening ? '0 4px 12px rgba(239, 68, 68, 0.3)' : '0 4px 12px rgba(59,130,246,0.3)', transition: 'all 0.2s'
                         }}
                     >
                         {isListening ? <MicOff size={18} className="animate-pulse" /> : <Mic size={18} />}
@@ -164,21 +164,21 @@ export default function StopCards(): React.ReactElement | null {
                 )}
             </div>
 
-            <div className="card" style={{ padding: '1.5rem', opacity: isProcessingAI ? 0.6 : 1, pointerEvents: isProcessingAI ? 'none' : 'all' }}>
-                <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-                    <div className="form-group" style={{ flex: 1 }}>
-                        <label>Fecha</label>
-                        <input type="date" name="date" value={formData.date} onChange={handleChange} className="form-control" />
+            <div className="card animate-fade-in" style={{ padding: '2.5rem', background: 'rgba(var(--color-surface-rgb), 0.3)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.08)', opacity: isProcessingAI ? 0.6 : 1, pointerEvents: isProcessingAI ? 'none' : 'all' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                    <div className="form-group">
+                        <label style={{ fontWeight: 700, marginBottom: '0.5rem', display: 'block', color: 'var(--color-text)' }}>Fecha</label>
+                        <input type="date" name="date" value={formData.date} onChange={handleChange} className="form-control" style={{ borderRadius: '12px', padding: '0.8rem 1rem', border: '1px solid var(--color-border)', background: 'var(--color-background)', width: '100%' }} />
                     </div>
-                    <div className="form-group" style={{ flex: 1 }}>
-                        <label>Hora</label>
-                        <input type="time" name="time" value={formData.time} onChange={handleChange} className="form-control" />
+                    <div className="form-group">
+                        <label style={{ fontWeight: 700, marginBottom: '0.5rem', display: 'block', color: 'var(--color-text)' }}>Hora</label>
+                        <input type="time" name="time" value={formData.time} onChange={handleChange} className="form-control" style={{ borderRadius: '12px', padding: '0.8rem 1rem', border: '1px solid var(--color-border)', background: 'var(--color-background)', width: '100%' }} />
                     </div>
                 </div>
 
-                <div className="form-group" style={{ marginBottom: '1rem' }}>
-                    <label>Tipo de Observación</label>
-                    <select name="type" value={formData.type} onChange={handleChange} className="form-control">
+                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                    <label style={{ fontWeight: 700, marginBottom: '0.5rem', display: 'block', color: 'var(--color-text)' }}>Tipo de Observación</label>
+                    <select name="type" value={formData.type} onChange={handleChange} className="form-control" style={{ borderRadius: '12px', padding: '0.8rem 1rem', border: '1px solid var(--color-border)', background: 'var(--color-background)', width: '100%', fontWeight: 600 }}>
                         <option value="Condición Insegura">Condición Insegura</option>
                         <option value="Acto Inseguro">Acto Inseguro</option>
                         <option value="Casi Accidente">Casi Accidente</option>
@@ -186,44 +186,44 @@ export default function StopCards(): React.ReactElement | null {
                     </select>
                 </div>
 
-                <div className="form-group" style={{ marginBottom: '1rem' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><MapPin size={16} /> Ubicación / Sector</label>
-                    <input type="text" name="location" value={formData.location} onChange={handleChange} className="form-control" placeholder="Ej. Taller principal, Línea 2..." />
-                </div>
-
-                <div className="form-group" style={{ marginBottom: '1rem' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><AlertTriangle size={16} /> Descripción del Hallazgo</label>
-                    <textarea name="description" value={formData.description} onChange={handleChange} className="form-control" rows={3} placeholder="Describí exactamente qué viste..."></textarea>
-                </div>
-
-                <div className="form-group" style={{ marginBottom: '1rem' }}>
-                    <label>Acción Inmediata Tomada (opcional)</label>
-                    <textarea name="actionTaken" value={formData.actionTaken} onChange={handleChange} className="form-control" rows={2} placeholder="Ej. Se detuvo la tarea, se limpió el área..."></textarea>
+                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-text)' }}><MapPin size={18} color="var(--color-primary)" /> Ubicación / Sector</label>
+                    <input type="text" name="location" value={formData.location} onChange={handleChange} className="form-control" placeholder="Ej. Taller principal, Línea 2..." style={{ borderRadius: '12px', padding: '0.8rem 1rem', border: '1px solid var(--color-border)', background: 'var(--color-background)', width: '100%' }} />
                 </div>
 
                 <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><User size={16} /> Reportado por</label>
-                    <input type="text" name="observer" value={formData.observer} onChange={handleChange} className="form-control" />
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-text)' }}><AlertTriangle size={18} color="#f59e0b" /> Descripción del Hallazgo</label>
+                    <textarea name="description" value={formData.description} onChange={handleChange} className="form-control" rows={3} placeholder="Describí exactamente qué viste..." style={{ borderRadius: '12px', padding: '0.8rem 1rem', border: '1px solid var(--color-border)', background: 'var(--color-background)', width: '100%', resize: 'vertical' }}></textarea>
                 </div>
 
-                <div className="form-group" style={{ marginBottom: '2rem' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><Camera size={16} /> Evidencia Fotográfica (Opcional)</label>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
+                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                    <label style={{ fontWeight: 700, marginBottom: '0.5rem', display: 'block', color: 'var(--color-text)' }}>Acción Inmediata Tomada (opcional)</label>
+                    <textarea name="actionTaken" value={formData.actionTaken} onChange={handleChange} className="form-control" rows={2} placeholder="Ej. Se detuvo la tarea, se limpió el área..." style={{ borderRadius: '12px', padding: '0.8rem 1rem', border: '1px solid var(--color-border)', background: 'var(--color-background)', width: '100%', resize: 'vertical' }}></textarea>
+                </div>
+
+                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-text)' }}><User size={18} color="var(--color-primary)" /> Reportado por</label>
+                    <input type="text" name="observer" value={formData.observer} onChange={handleChange} className="form-control" style={{ borderRadius: '12px', padding: '0.8rem 1rem', border: '1px solid var(--color-border)', background: 'var(--color-background)', width: '100%' }} />
+                </div>
+
+                <div className="form-group" style={{ marginBottom: '2.5rem' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-text)' }}><Camera size={18} color="var(--color-primary)" /> Evidencia Fotográfica (Opcional)</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginTop: '0.5rem', background: 'rgba(30, 41, 59, 0.2)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
                         <label style={{
-                            padding: '0.8rem 1.2rem', background: 'var(--color-surface)', border: '1px dashed var(--color-border)',
+                            padding: '0.8rem 1.5rem', background: 'var(--color-surface)', border: '1px dashed var(--color-primary)',
                             borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem',
-                            fontWeight: 600, color: 'var(--color-text-muted)'
-                        }}>
+                            fontWeight: 700, color: 'var(--color-primary)', transition: 'all 0.2s', boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                        }} className="hover:bg-blue-50/10">
                             <Camera size={20} /> Capturar o Subir
                             <input type="file" accept="image/*" capture="environment" onChange={handlePhotoUpload} style={{ display: 'none' }} />
                         </label>
                         {formData.photoBase64 && (
-                            <img src={formData.photoBase64} alt="Evidencia" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: '2px solid var(--color-primary)' }} />
+                            <img src={formData.photoBase64} alt="Evidencia" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '2px solid var(--color-primary)', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
                         )}
                     </div>
                 </div>
 
-                <button onClick={handleSave} className="btn-primary" style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
+                <button onClick={handleSave} className="btn-primary" style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', display: 'flex', justifyContent: 'center', gap: '0.5rem', borderRadius: '12px', fontWeight: 800, background: 'var(--gradient-premium)' }}>
                     <Save size={20} /> {editData ? 'Actualizar Tarjeta' : 'Guardar Tarjeta STOP'}
                 </button>
             </div>

@@ -110,7 +110,7 @@ export default function ExtintoresManager() {
         if (!dateStr) return { color: 'gray', label: 'Sin Datos', icon: <AlertTriangle size={14} /> };
         const d = new Date(dateStr);
         const today = new Date();
-        const diffDays = Math.ceil((d - today) / (1000 * 60 * 60 * 24));
+        const diffDays = Math.ceil((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
         if (diffDays < 0) return { color: '#ef4444', label: 'Vencido', bg: '#fee2e2', icon: <AlertTriangle size={14} /> };
         if (diffDays <= 30) return { color: '#f59e0b', label: 'Por vencer', bg: '#fef3c7', icon: <AlertTriangle size={14} /> };
         return { color: '#10b981', label: 'Vigente', bg: '#d1fae5', icon: <CheckCircle2 size={14} /> };

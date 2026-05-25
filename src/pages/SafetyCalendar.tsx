@@ -12,7 +12,7 @@ import {
     scheduleReminder,
     cancelReminder,
     isNotificationDenied
-} from '../services/notifications';
+} from '../services/notificationService';
 import { getCountryNormativa } from '../data/legislationData';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 

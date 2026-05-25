@@ -331,23 +331,67 @@ export default function FleetForm(): React.ReactElement | null {
                     </div>
 
                     {/* Firmas y Autorizaciones */}
-                    <div style={{ marginTop: '2.5rem' }}>
-                        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <Pencil size={20} /> Firmas y Autorizaciones del Permiso
-                        </h3>
+                    <div style={{ marginTop: '3rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                            <div style={{ background: 'rgba(56, 189, 248, 0.1)', padding: '0.5rem', borderRadius: '8px' }}>
+                                <Pencil size={24} color="#38bdf8" />
+                            </div>
+                            <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 800, color: 'var(--color-primary)' }}>
+                                Firmas y Autorizaciones del Permiso
+                            </h3>
+                        </div>
 
-                        <div className="no-print" style={{ marginBottom: '2rem', padding: '1.5rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '12px', display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '1.5rem', justifyContent: 'center', alignItems: 'center' }}>
-                            <div style={{ color: 'var(--color-text)', fontSize: '0.9rem', fontWeight: 700 }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-                                <label style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
-                                    <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures((s: any) => ({ ...s, operator: e.target.checked }))} style={{ width: '20px', height: '20px' }} /> Conductor
-                                </label>
-                                <label style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
-                                    <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures((s: any) => ({ ...s, professional: e.target.checked }))} style={{ width: '20px', height: '20px' }} /> Especialista H&S
-                                </label>
-                                <label style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
-                                    <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures((s: any) => ({ ...s, supervisor: e.target.checked }))} style={{ width: '20px', height: '20px' }} /> Inspector / Control
-                                </label>
+                        {/* Signature Visibility Toggles (Pill style) */}
+                        <div className="no-print" style={{ 
+                            marginBottom: '2rem', 
+                            padding: '1.2rem', 
+                            background: 'var(--color-surface)', 
+                            border: '1px solid var(--color-border)', 
+                            borderRadius: '16px', 
+                            display: 'flex', 
+                            flexDirection: 'column', 
+                            gap: '1rem',
+                            boxShadow: '0 4px 6px rgba(0,0,0,0.02)'
+                        }}>
+                            <div style={{ color: 'var(--color-text)', fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                INCLUIR FIRMAS EN EL DOCUMENTO:
+                            </div>
+                            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                                {[
+                                    { id: 'operator', label: 'Conductor', checked: showSignatures.operator },
+                                    { id: 'professional', label: 'Especialista H&S', checked: showSignatures.professional },
+                                    { id: 'supervisor', label: 'Inspector / Control', checked: showSignatures.supervisor }
+                                ].map((sig) => (
+                                    <label key={sig.id} style={{ 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        gap: '0.5rem', 
+                                        cursor: 'pointer',
+                                        padding: '0.5rem 1rem',
+                                        background: sig.checked ? 'rgba(56, 189, 248, 0.1)' : 'var(--color-background)',
+                                        border: `1px solid ${sig.checked ? '#38bdf8' : 'var(--color-border)'}`,
+                                        borderRadius: '20px',
+                                        transition: 'all 0.2s ease'
+                                    }}>
+                                        <div style={{
+                                            width: '18px', height: '18px', borderRadius: '4px',
+                                            border: `2px solid ${sig.checked ? '#38bdf8' : 'var(--color-text-secondary)'}`,
+                                            background: sig.checked ? '#38bdf8' : 'transparent',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                        }}>
+                                            {sig.checked && <span style={{ color: '#fff', fontSize: '12px', fontWeight: 'bold' }}>✓</span>}
+                                        </div>
+                                        <input 
+                                            type="checkbox" 
+                                            checked={sig.checked} 
+                                            onChange={e => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))} 
+                                            style={{ display: 'none' }} 
+                                        /> 
+                                        <span style={{ fontSize: '0.9rem', fontWeight: sig.checked ? 700 : 500, color: sig.checked ? 'var(--color-text)' : 'var(--color-text-secondary)' }}>
+                                            {sig.label}
+                                        </span>
+                                    </label>
+                                ))}
                             </div>
                         </div>
 
@@ -384,33 +428,69 @@ export default function FleetForm(): React.ReactElement | null {
                             />
                         </div>
 
-                        {/* Interactive Signature Drawing Pads */}
-                        <div className="no-print" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem', marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--color-border)' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
-                                {showSignatures.operator && (
+                        {/* Interactive Signature Drawing Pads - Premium Glassmorphism */}
+                        <div className="no-print" style={{ 
+                            display: 'grid', 
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+                            gap: '2rem', 
+                            marginTop: '2rem' 
+                        }}>
+                            {showSignatures.operator && (
+                                <div className="animate-fade-in" style={{
+                                    background: 'rgba(var(--color-surface-rgb), 0.3)',
+                                    backdropFilter: 'blur(10px)',
+                                    borderRadius: '16px',
+                                    padding: '1.5rem',
+                                    border: '1px solid var(--glass-border)'
+                                }}>
+                                    <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-text-secondary)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                        Firma del Conductor
+                                    </div>
                                     <SignatureCanvas 
                                         onSave={(sig) => setForm((prev: any) => ({ ...prev, driverSignature: sig || '' }))}
                                         initialImage={form.driverSignature}
-                                        label="Firma del Conductor"
+                                        label=""
                                     />
-                                )}
-                                
-                                {showSignatures.professional && (
+                                </div>
+                            )}
+                            
+                            {showSignatures.professional && (
+                                <div className="animate-fade-in" style={{
+                                    background: 'rgba(var(--color-surface-rgb), 0.3)',
+                                    backdropFilter: 'blur(10px)',
+                                    borderRadius: '16px',
+                                    padding: '1.5rem',
+                                    border: '1px solid var(--glass-border)'
+                                }}>
+                                    <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-text-secondary)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                        Firma de Especialista H&S
+                                    </div>
                                     <SignatureCanvas 
                                         onSave={(sig) => setForm((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
                                         initialImage={form.professionalSignature || professional.signature}
-                                        label="Firma de Especialista H&S"
+                                        label=""
                                     />
-                                )}
+                                </div>
+                            )}
 
-                                {showSignatures.supervisor && (
+                            {showSignatures.supervisor && (
+                                <div className="animate-fade-in" style={{
+                                    background: 'rgba(var(--color-surface-rgb), 0.3)',
+                                    backdropFilter: 'blur(10px)',
+                                    borderRadius: '16px',
+                                    padding: '1.5rem',
+                                    border: '1px solid var(--glass-border)'
+                                }}>
+                                    <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-text-secondary)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                        Firma del Inspector
+                                    </div>
                                     <SignatureCanvas 
                                         onSave={(sig) => setForm((prev: any) => ({ ...prev, supervisorSignature: sig || '' }))}
                                         initialImage={form.supervisorSignature}
-                                        label="Firma del Inspector / Supervisor"
+                                        label=""
                                     />
-                                )}
-                            </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

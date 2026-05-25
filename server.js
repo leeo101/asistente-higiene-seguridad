@@ -557,6 +557,86 @@ app.post('/api/ai-advisor', aiLimiter, verifyFirebaseToken, async (req, res) => 
 });
 
 // ==========================================
+// AI EXTINGUISHER VISION (Gemini)
+// ==========================================
+app.post('/api/analyze-extinguisher', aiLimiter, verifyFirebaseToken, async (req, res) => {
+    try {
+        const { image } = req.body;
+        if (!image) return res.status(400).json({ error: 'No se envió imagen' });
+
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) return res.status(500).json({ error: 'Falta API Key' });
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+
+        const base64Data = image.split(',')[1];
+        const mimeType = image.split(';')[0].split(':')[1] || 'image/jpeg';
+
+        const prompt = `Analiza esta imagen y verifica si contiene un extintor de incendios (matafuegos). Si NO hay un extintor en la imagen, debes establecer "extinguisherDetected" en false. Si HAY un extintor, establece "extinguisherDetected" en true, identifica su tipo (ABC, CO2, Agua, Espuma, o K), lee la etiqueta para encontrar la capacidad (ej. 5kg, 10kg), el estado ("vigente" o "vencido"), la fecha de último control (lastCheck) y la de próximo vencimiento (nextCheck). También incluye algunas recomendaciones de seguridad. Usa formato YYYY-MM-DD para las fechas si las encuentras, o null si no se pueden leer.`;
+        
+        const responseSchema = {
+            type: SchemaType.OBJECT,
+            properties: {
+                extinguisherDetected: { type: SchemaType.BOOLEAN },
+                type: { type: SchemaType.STRING },
+                confidence: { type: SchemaType.NUMBER },
+                capacity: { type: SchemaType.STRING },
+                status: { type: SchemaType.STRING },
+                lastCheck: { type: SchemaType.STRING },
+                nextCheck: { type: SchemaType.STRING },
+                recommendations: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } }
+            },
+            required: ["extinguisherDetected", "type", "confidence", "capacity", "status", "recommendations"]
+        };
+
+        const imagePart = { inlineData: { data: base64Data, mimeType } };
+
+        const models = [
+            "gemini-2.0-flash",
+            "gemini-1.5-flash",
+            "gemini-2.5-flash",
+            "gemini-flash-latest"
+        ];
+
+        let result;
+        let lastError;
+        for (const modelName of models) {
+            try {
+                process.stdout.write(`[AI EXTINGUISHER] Intentando con ${modelName}... `);
+                const model = genAI.getGenerativeModel({ 
+                    model: modelName,
+                    systemInstruction: "Eres un inspector experto en extintores y seguridad contra incendios. Si en la imagen aparece el rostro de una persona o no hay un extintor claramente visible, recházala indicando que no hay extintor. Siempre responde en español.",
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: responseSchema
+                    }
+                });
+                
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout de 25s expiro')), 25000));
+                result = await Promise.race([model.generateContent([prompt, imagePart]), timeoutPromise]);
+                if (result) {
+                    console.log("ÉXITO ✅");
+                    break;
+                }
+            } catch (err) {
+                lastError = err;
+                console.log(`FALLÓ ❌ (${err.message})`);
+                continue;
+            }
+        }
+
+        if (!result) {
+            throw new Error(lastError?.message || 'Modelos fallaron');
+        }
+
+        res.json(JSON.parse(result.response.text()));
+    } catch (error) {
+        console.error("Error analyzing extinguisher:", error.message);
+        res.status(500).json({ error: 'Error en análisis de extintor', details: error.message });
+    }
+});
+
+// ==========================================
 // AI ATS GENERATOR (Gemini)
 // ==========================================
 app.post('/api/ai-ats-generator', aiLimiter, verifyFirebaseToken, async (req, res) => {

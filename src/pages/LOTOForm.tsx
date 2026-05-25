@@ -393,23 +393,60 @@ export default function LOTOForm(): React.ReactElement | null {
                     </div>
 
                     {/* Firmas y Autorizaciones */}
-                    <div style={{ marginTop: '3rem', borderTop: '2px dashed var(--color-border)', paddingTop: '2.5rem' }}>
-                        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <Pencil size={20} /> Firmas y Autorizaciones LOTO
+                    <div className="card animate-fade-in" style={{ marginTop: '2.5rem', background: 'rgba(var(--color-surface-rgb), 0.3)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', padding: '2.5rem', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.08)' }}>
+                        <h3 style={{ marginTop: 0, marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.25rem', textTransform: 'uppercase', letterSpacing: '1.2px' }}>
+                            <Pencil size={22} style={{ color: 'var(--color-primary)' }} /> Firmas y Autorizaciones LOTO
                         </h3>
 
-                        <div className="no-print mb-8 p-6 bg-slate-50/5 border border-[var(--color-border)] rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-sm font-bold text-slate-700" style={{ marginBottom: '2rem', padding: '1.5rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '12px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '1.5rem', justifyContent: 'center', alignItems: 'center' }}>
-                            <div className="text-center" style={{ color: 'var(--color-text)', fontSize: '0.9rem', fontWeight: 700 }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
-                                    <input type="checkbox" checked={showSignatures.operator} onChange={e => setShowSignatures((s: any) => ({ ...s, operator: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Personal Afectado
-                                </label>
-                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
-                                    <input type="checkbox" checked={showSignatures.professional} onChange={e => setShowSignatures((s: any) => ({ ...s, professional: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Especialista Higiene y Seguridad
-                                </label>
-                                <label className="flex items-center gap-2 cursor-pointer" style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
-                                    <input type="checkbox" checked={showSignatures.supervisor} onChange={e => setShowSignatures((s: any) => ({ ...s, supervisor: e.target.checked }))} className="w-5 h-5 accent-blue-600" /> Encargado Bloqueo
-                                </label>
+                        {/* Custom visual switches */}
+                        <div className="no-print mb-8 p-6" style={{ background: 'rgba(30, 41, 59, 0.2)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', width: '100%', display: 'flex', flexDirection: 'column', gap: '1.25rem', justifyContent: 'center', alignItems: 'center' }}>
+                            <div style={{ color: 'var(--color-text)', fontWeight: 800, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                                {[
+                                    { id: 'operator', label: 'Personal Afectado' },
+                                    { id: 'professional', label: 'Especialista Higiene y Seguridad' },
+                                    { id: 'supervisor', label: 'Encargado Bloqueo' }
+                                ].map(sig => {
+                                    const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
+                                    return (
+                                        <label
+                                            key={sig.id}
+                                            className="flex items-center gap-2 cursor-pointer select-none"
+                                            style={{
+                                                padding: '0.55rem 1.1rem',
+                                                borderRadius: 'var(--radius-full)',
+                                                border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
+                                                background: isChecked ? 'rgba(var(--color-primary-rgb), 0.15)' : 'transparent',
+                                                color: isChecked ? 'var(--color-primary)' : 'var(--color-text-light)',
+                                                fontWeight: 750,
+                                                fontSize: '0.8rem',
+                                                transition: 'all 0.2s ease',
+                                                boxShadow: isChecked ? '0 0 10px rgba(var(--color-primary-rgb), 0.15)' : 'none'
+                                            }}
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                checked={isChecked}
+                                                onChange={e => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))}
+                                                style={{ display: 'none' }}
+                                            />
+                                            <div style={{
+                                                width: '16px',
+                                                height: '16px',
+                                                borderRadius: '4px',
+                                                border: isChecked ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)',
+                                                background: isChecked ? 'var(--color-primary)' : 'transparent',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                transition: 'all 0.2s ease'
+                                            }}>
+                                                {isChecked && <CheckCircle2 size={12} color="white" />}
+                                            </div>
+                                            {sig.label}
+                                        </label>
+                                    );
+                                })}
                             </div>
                         </div>
 
@@ -447,29 +484,35 @@ export default function LOTOForm(): React.ReactElement | null {
                         </div>
 
                         {/* Interactive Signature Drawing Pads */}
-                        <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)]" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: '2rem', marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--color-border)' }}>
+                        <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {showSignatures.operator && (
-                                <SignatureCanvas 
-                                    onSave={(sig) => setProcedure((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
-                                    initialImage={procedure.operatorSignature}
-                                    label="Firma de Personal Afectado"
-                                />
+                                <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setProcedure((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
+                                        initialImage={procedure.operatorSignature}
+                                        title="Firma de Personal Afectado"
+                                    />
+                                </div>
                             )}
                             
                             {showSignatures.professional && (
-                                <SignatureCanvas 
-                                    onSave={(sig) => setProcedure((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
-                                    initialImage={procedure.professionalSignature || professional.signature}
-                                    label="Firma de Especialista H&S"
-                                />
+                                <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setProcedure((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
+                                        initialImage={procedure.professionalSignature || professional.signature}
+                                        title="Firma de Especialista H&S"
+                                    />
+                                </div>
                             )}
 
                             {showSignatures.supervisor && (
-                                <SignatureCanvas 
-                                    onSave={(sig) => setProcedure((prev: any) => ({ ...prev, supervisorSignature: sig || '', signature: sig || '' }))}
-                                    initialImage={procedure.supervisorSignature || procedure.signature}
-                                    label="Firma de Encargado Bloqueo"
-                                />
+                                <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setProcedure((prev: any) => ({ ...prev, supervisorSignature: sig || '', signature: sig || '' }))}
+                                        initialImage={procedure.supervisorSignature || procedure.signature}
+                                        title="Firma de Encargado Bloqueo"
+                                    />
+                                </div>
                             )}
                         </div>
                     </div>

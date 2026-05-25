@@ -7,6 +7,12 @@ import {
   CheckCircle, Info, FileText, Bell, ChartBar, Fire
 } from '@phosphor-icons/react';
 import { useExpiryNotifications } from '../hooks/useExpiryNotifications';
+import { useNotificationScheduler } from '../hooks/useNotificationScheduler';
+import {
+    requestNotificationPermission,
+    getPermissionStatus,
+    sendTestNotification,
+} from '../services/notificationService';
 
 import { User as FirebaseUser } from 'firebase/auth';
 import { useAuth } from '../contexts/AuthContext';
@@ -54,6 +60,10 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
   const { isPro, daysRemaining } = usePaywall();
   const { notifications, dismiss, dismissAll } = useExpiryNotifications();
   const [showAlerts, setShowAlerts] = useState(false);
+  const [notifPermission, setNotifPermission] = useState(() => getPermissionStatus());
+
+  // Dispara notificaciones nativas del sistema una vez al día
+  useNotificationScheduler();
   const [userInfo, setUserInfo] = useState<UserInfo>({
     name: currentUser?.displayName || currentUser?.email || 'Usuario',
     photo: null,
@@ -290,11 +300,39 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
               padding: '0.8rem', marginBottom: '0.8rem',
               border: '1px solid rgba(239,68,68,0.2)',
               animation: 'slideDown 0.2s ease',
-              maxHeight: '200px', overflowY: 'auto',
+              maxHeight: '260px', overflowY: 'auto',
             }}>
-              {notifications.length === 0 ? (
+              {/* Permiso de notificaciones */}
+              {notifPermission === 'default' && (
+                <div style={{ marginBottom: '0.8rem', padding: '0.7rem 0.8rem', borderRadius: '10px', background: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+                  <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.75rem', color: 'rgba(255,255,255,0.9)', fontWeight: 700 }}>🔔 Activar notificaciones del sistema</p>
+                  <p style={{ margin: '0 0 0.6rem 0', fontSize: '0.7rem', color: 'rgba(255,255,255,0.65)', lineHeight: 1.4 }}>Recibí alertas aunque la app esté cerrada</p>
+                  <button
+                    onClick={async () => {
+                      const ok = await requestNotificationPermission();
+                      setNotifPermission(getPermissionStatus());
+                      if (ok) sendTestNotification();
+                    }}
+                    style={{ width: '100%', padding: '0.5rem', borderRadius: '8px', background: 'rgba(56, 189, 248, 0.8)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 800 }}
+                  >
+                    Activar ahora
+                  </button>
+                </div>
+              )}
+
+              {notifPermission === 'denied' && (
+                <div style={{ marginBottom: '0.8rem', padding: '0.6rem 0.8rem', borderRadius: '10px', background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)' }}>
+                  <p style={{ margin: 0, fontSize: '0.72rem', color: '#fca5a5', lineHeight: 1.4 }}>🚫 Notificaciones bloqueadas. Habilitá los permisos desde la configuración de tu navegador.</p>
+                </div>
+              )}
+
+              {notifications.length === 0 && notifPermission === 'granted' ? (
                 <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', padding: '0.5rem' }}>
                   ✅ Sin vencimientos próximos
+                </div>
+              ) : notifications.length === 0 ? (
+                <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', padding: '0.3rem' }}>
+                  No hay alertas pendientes
                 </div>
               ) : (
                 <>

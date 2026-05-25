@@ -5,15 +5,18 @@ interface SignatureCanvasProps {
     onSave: (dataUrl: string | null) => void;
     initialImage?: string | null;
     label?: string;
+    title?: string;
     height?: number;
 }
 
 export default function SignatureCanvas({ 
     onSave, 
     initialImage = null, 
-    label = "Firma", 
+    label, 
+    title,
     height = 150 
 }: SignatureCanvasProps) {
+    const displayLabel = label || title;
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isDrawing, setIsDrawing] = useState(false);
     const [hasContent, setHasContent] = useState(false);
@@ -95,7 +98,7 @@ export default function SignatureCanvas({
 
     return (
         <div style={{ marginBottom: '1.5rem' }}>
-            {label && (
+            {displayLabel && (
                 <label style={{ 
                     display: 'block', 
                     fontSize: '0.8rem', 
@@ -104,7 +107,7 @@ export default function SignatureCanvas({
                     textTransform: 'uppercase', 
                     marginBottom: '0.5rem' 
                 }}>
-                    {label}
+                    {displayLabel}
                 </label>
             )}
             

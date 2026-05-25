@@ -541,22 +541,22 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                 </div>
 
                 {/* Metadata bar */}
-                <div className="card" style={{ padding: '0.75rem 1rem', marginBottom: '1rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
-                    <div style={{ flex: '1 1 180px' }}>
-                        <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>Empresa / Cliente</label>
-                        <input type="text" value={meta.empresa} onChange={e => setMeta({ ...meta, empresa: e.target.value })} placeholder="Ej. Planta Modelo" style={{ padding: '0.5rem', width: '100%' }} />
+                <div className="card animate-fade-in" style={{ padding: '1.25rem 1.5rem', marginBottom: '1.5rem', display: 'flex', gap: '1.5rem', flexWrap: 'wrap', alignItems: 'flex-end', background: 'rgba(var(--color-surface-rgb), 0.3)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.08)' }}>
+                    <div style={{ flex: '1 1 200px' }}>
+                        <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.5rem', display: 'block' }}>Empresa / Cliente *</label>
+                        <input type="text" value={meta.empresa} onChange={e => setMeta({ ...meta, empresa: e.target.value })} placeholder="Ej. Planta Modelo" style={{ padding: '0.75rem 1rem', width: '100%', borderRadius: '12px', border: '1px solid var(--color-border)', background: 'var(--color-background)', color: 'var(--color-text)', fontSize: '1rem', outline: 'none', transition: 'all 0.2s', boxSizing: 'border-box' }} />
                     </div>
-                    <div style={{ flex: '1 1 180px' }}>
-                        <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>Sector / Planta</label>
-                        <input type="text" value={meta.sector} onChange={e => setMeta({ ...meta, sector: e.target.value })} placeholder="Ej. Nave 1 - Producción" style={{ padding: '0.5rem', width: '100%' }} />
+                    <div style={{ flex: '1 1 200px' }}>
+                        <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.5rem', display: 'block' }}>Sector / Planta *</label>
+                        <input type="text" value={meta.sector} onChange={e => setMeta({ ...meta, sector: e.target.value })} placeholder="Ej. Nave 1 - Producción" style={{ padding: '0.75rem 1rem', width: '100%', borderRadius: '12px', border: '1px solid var(--color-border)', background: 'var(--color-background)', color: 'var(--color-text)', fontSize: '1rem', outline: 'none', transition: 'all 0.2s', boxSizing: 'border-box' }} />
                     </div>
-                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                        <button className="btn-outline" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 0.9rem', fontSize: '0.8rem' }}
+                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                        <button className="btn-primary" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.25rem', fontSize: '0.9rem', borderRadius: '12px', fontWeight: 700 }}
                             onClick={() => document.getElementById('bg-upload').click()}>
-                            <ImageIcon size={15} /> Subir Plano Base
+                            <ImageIcon size={18} /> Subir Plano Base
                         </button>
                         <input type="file" id="bg-upload" accept="image/*" style={{ display: 'none' }} onChange={handleImageUpload} />
-                        {backgroundImage && <button className="btn-outline" style={{ margin: 0, padding: '0.5rem 0.7rem', fontSize: '0.75rem' }} onClick={() => setBackgroundImage(null)}>✕ Quitar fondo</button>}
+                        {backgroundImage && <button className="btn-outline" style={{ margin: 0, padding: '0.75rem 1rem', fontSize: '0.85rem', borderRadius: '12px', fontWeight: 700, borderColor: '#ef4444', color: '#ef4444' }} onClick={() => setBackgroundImage(null)}>✕ Quitar plano</button>}
                     </div>
                 </div>
 
