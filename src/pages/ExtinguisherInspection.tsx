@@ -30,22 +30,30 @@ export default function ExtinguisherInspection() {
 
     useEffect(() => {
         // Cargar inventario y buscar el extintor
-        const dataRaw = localStorage.getItem('extinguishers_inventory');
-        if (dataRaw) {
-            const inventory = JSON.parse(dataRaw);
-            const found = inventory.find((e: any) => e.id === id);
-            if (found) {
-                setExtintor(found);
-            } else {
-                toast.error('Extintor no encontrado en el inventario');
-                navigate('/extintores');
-            }
+        // Se compara tanto como string como número para compatibilidad con IDs viejos y nuevos
+        const tryLoad = (storageKey: string) => {
+            const dataRaw = localStorage.getItem(storageKey);
+            if (!dataRaw) return null;
+            try {
+                const inventory = JSON.parse(dataRaw);
+                return inventory.find((e: any) => String(e.id) === String(id)) || null;
+            } catch { return null; }
+        };
+
+        // Primero busca en la BD unificada, luego en la vieja por si no migró
+        const found = tryLoad('extinguishers_inventory') || tryLoad('extintores_inventory');
+
+        if (found) {
+            setExtintor(found);
+        } else {
+            toast.error('Extintor no encontrado. Puede que no esté sincronizado.');
+            navigate('/extintores');
         }
         
         // Cargar nombre del inspector
         const pData = localStorage.getItem('personalData');
         if (pData) {
-            setInspectorName(JSON.parse(pData).name || '');
+            try { setInspectorName(JSON.parse(pData).name || ''); } catch {}
         }
     }, [id, navigate]);
 
