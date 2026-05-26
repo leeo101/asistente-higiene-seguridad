@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { ArrowLeft, Download, FileText, Calendar, TrendingUp, TriangleAlert, CheckCircle, Shield, FileSignature, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Download, FileText, Calendar, TrendingUp, ShieldCheck, Shield, ClipboardList, Users, Siren, Flame, Target, FileSignature, ChevronRight, HardHat, TriangleAlert, Building } from 'lucide-react';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { API_BASE_URL } from '../config';
 import toast from 'react-hot-toast';
 import { jsPDF } from 'jspdf';
@@ -14,12 +15,18 @@ export default function ManagementReport(): React.ReactElement | null {
     useDocumentTitle('Informe Mensual de Gestión');
 
     const [loading, setLoading] = useState(true);
-    const [monthOffset, setMonthOffset] = useState(0); // 0 = Current month, -1 = Last month, etc.
+    const [monthOffset, setMonthOffset] = useState(0); 
+
     const [metrics, setMetrics] = useState({
-        inspections: { total: 0, criticalFindings: 0 },
         ats: { total: 0 },
+        permits: { total: 0 },
+        inspections: { total: 0, critical: 0 },
         riskAssessments: { total: 0, highRisk: 0 },
-        permits: { total: 0, active: 0 }
+        training: { total: 0, attendees: 0 },
+        drills: { total: 0 },
+        accidents: { total: 0 },
+        fireload: { total: 0 },
+        audits: { total: 0 }
     });
 
     const getTargetDates = () => {
@@ -40,140 +47,212 @@ export default function ManagementReport(): React.ReactElement | null {
         setLoading(true);
         const { firstDay, lastDay } = getTargetDates();
 
-        const isWithinMonth = (dateString) => {
+        const isWithinMonth = (dateString: string | undefined) => {
             if (!dateString) return false;
             const d = new Date(dateString);
             return d >= firstDay && d <= lastDay;
         };
 
-        // 1. Inspections
-        const inspections = JSON.parse(localStorage.getItem('inspections_history') || '[]')
-            .filter(i => isWithinMonth(i.date || i.createdAt));
+        const safeParse = (key: string) => {
+            try { return JSON.parse(localStorage.getItem(key) || '[]'); } 
+            catch (e) { return []; }
+        };
 
-        // 2. ATS
-        const ats = JSON.parse(localStorage.getItem('atsHistory') || '[]')
-            .filter(a => isWithinMonth(a.fecha || a.createdAt));
-
-        // 3. Risk Assessments
-        const risks = JSON.parse(localStorage.getItem('risk_assessment_history') || '[]')
-            .filter(r => isWithinMonth(r.date || r.createdAt));
-
-        // 4. Work Permits
-        const permits = JSON.parse(localStorage.getItem('work_permits_history') || '[]')
-            .filter(p => isWithinMonth(p.date || p.createdAt));
+        const ats = safeParse('ats_history').filter((i: any) => isWithinMonth(i.fecha || i.createdAt || i.date));
+        const permits = safeParse('work_permits_history').filter((i: any) => isWithinMonth(i.createdAt || i.date));
+        const inspections = [...safeParse('inspections_history'), ...safeParse('tool_checklists_history')].filter((i: any) => isWithinMonth(i.date || i.createdAt || i.fecha));
+        const risks = safeParse('risk_assessment_history').filter((i: any) => isWithinMonth(i.date || i.createdAt));
+        const training = safeParse('training_history').filter((i: any) => isWithinMonth(i.date || i.createdAt));
+        const drills = safeParse('drills_history').filter((i: any) => isWithinMonth(i.date || i.createdAt));
+        const accidents = safeParse('accident_history').filter((i: any) => isWithinMonth(i.date || i.createdAt));
+        const fireload = safeParse('fireload_history').filter((i: any) => isWithinMonth(i.createdAt || i.date));
+        const audits = safeParse('ehs_audits_db').filter((i: any) => isWithinMonth(i.date || i.createdAt));
 
         setMetrics({
-            inspections: {
-                total: inspections.length,
-                criticalFindings: inspections.reduce((acc, curr) => curr.score < 50 ? acc + 1 : acc, 0)
+            ats: { total: ats.length },
+            permits: { total: permits.length },
+            inspections: { 
+                total: inspections.length, 
+                critical: inspections.filter(i => i.score < 50 || i.status === 'NC').length 
             },
-            ats: {
-                total: ats.length
+            riskAssessments: { 
+                total: risks.length, 
+                highRisk: risks.filter(r => (r.riskLevel || '').toLowerCase().includes('crítico') || (r.riskLevel || '').toLowerCase().includes('alto')).length 
             },
-            riskAssessments: {
-                total: risks.length,
-                highRisk: risks.filter(r => (r.riskLevel || '').toLowerCase().includes('crítico') || (r.riskLevel || '').toLowerCase().includes('alto')).length
+            training: {
+                total: training.length,
+                attendees: training.reduce((acc: number, curr: any) => acc + (curr.attendees?.length || curr.participants?.length || 0), 0)
             },
-            permits: {
-                total: permits.length,
-                active: permits.filter(p => p.status === 'approved' || p.status === 'active').length
-            }
+            drills: { total: drills.length },
+            accidents: { total: accidents.length },
+            fireload: { total: fireload.length },
+            audits: { total: audits.length }
         });
 
-        setTimeout(() => setLoading(false), 400); // Simulate processing time for UX
+        setTimeout(() => setLoading(false), 500); 
     };
 
     useEffect(() => {
         loadMetrics();
     }, [monthOffset]);
 
+    const { monthName } = getTargetDates();
+    const totalActions = Object.values(metrics).reduce((acc, curr) => acc + curr.total, 0);
+
+    const getChartData = () => {
+        const data = [
+            { name: 'ATS', value: metrics.ats.total, color: '#10b981' },
+            { name: 'Permisos', value: metrics.permits.total, color: '#3b82f6' },
+            { name: 'Inspecciones', value: metrics.inspections.total, color: '#8b5cf6' },
+            { name: 'Riesgos', value: metrics.riskAssessments.total, color: '#f59e0b' },
+            { name: 'Capacitaciones', value: metrics.training.total, color: '#ec4899' },
+            { name: 'Simulacros', value: metrics.drills.total, color: '#14b8a6' },
+            { name: 'Auditorías', value: metrics.audits.total, color: '#6366f1' },
+            { name: 'Carga de Fuego', value: metrics.fireload.total, color: '#f97316' }
+        ];
+        return data.filter(d => d.value > 0).sort((a, b) => b.value - a.value);
+    };
+    
+    const chartData = getChartData();
+
     const handleExportPDF = () => {
         try {
-            const { monthName } = getTargetDates();
             const personalData = JSON.parse(localStorage.getItem('personalData') || '{}');
             const profName = personalData.fullName || personalData.name || 'Profesional de HyS';
             const company = personalData.company || 'Empresa No Definida';
 
             const doc = new jsPDF();
             const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
 
             // Colors
-            const primaryColor: [number, number, number] = [37, 99, 235];
-            const darkText: [number, number, number] = [31, 41, 55];
+            const primaryColor: [number, number, number] = [30, 58, 138]; // Dark Blue
+            const secondaryColor: [number, number, number] = [59, 130, 246]; // Light Blue
+            const textDark: [number, number, number] = [31, 41, 55];
+            const textGray: [number, number, number] = [107, 114, 128];
 
-            // Header
+            // --- HEADER ---
             doc.setFillColor(...primaryColor);
-            doc.rect(0, 0, pageWidth, 40, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(22);
-            doc.setFont('helvetica', 'bold');
-            doc.text('INFORME MENSUAL DE GESTIÓN', 15, 20);
+            doc.rect(0, 0, pageWidth, 45, 'F');
+            doc.setFillColor(...secondaryColor);
+            doc.rect(0, 45, pageWidth, 5, 'F');
 
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(24);
+            doc.setFont('helvetica', 'bold');
+            doc.text('INFORME MENSUAL DE GESTIÓN H&S', 15, 25);
+            
             doc.setFontSize(12);
             doc.setFont('helvetica', 'normal');
-            doc.text(`Período: ${monthName.toUpperCase()}`, 15, 30);
+            doc.text(`PERÍODO: ${monthName.toUpperCase()}`, 15, 35);
 
-            // Subheader Data
-            doc.setTextColor(...darkText);
-
-            // --- ADD LOGO ---
+            // --- LOGO ---
             const companyLogo = localStorage.getItem('companyLogo');
             if (companyLogo && (companyLogo.startsWith('data:image/') || companyLogo.startsWith('http'))) {
                 try {
-                    // Try to add the logo if it's base64 or a valid image URL
-                    // Note: If it's a cross-origin URL, jsPDF might fail, but base64 works perfectly.
-                    doc.addImage(companyLogo, 'PNG', pageWidth - 45, 10, 30, 20);
-                } catch (err) {
-    
-                }
+                    doc.addImage(companyLogo, 'PNG', pageWidth - 55, 8, 40, 25);
+                } catch (err) {}
             }
-            // ----------------
 
-            doc.setFontSize(11);
+            // --- INFO BOX ---
+            doc.setFillColor(243, 244, 246);
+            doc.roundedRect(15, 60, pageWidth - 30, 25, 3, 3, 'F');
+            
+            doc.setTextColor(...textDark);
+            doc.setFontSize(10);
             doc.setFont('helvetica', 'bold');
-            doc.text('Datos Pormenorizados:', 15, 55);
-
+            doc.text('Empresa/Proyecto:', 20, 70);
+            doc.text('Elaborado por:', 20, 78);
+            
             doc.setFont('helvetica', 'normal');
-            doc.text(`Empresa/Proyecto: ${company}`, 15, 62);
-            doc.text(`Elaborado por: ${profName}`, 15, 68);
-            doc.text(`Fecha de Emisión: ${new Date().toLocaleDateString('es-AR')}`, 15, 74);
+            doc.text(company, 60, 70);
+            doc.text(profName, 60, 78);
+            doc.text(`Fecha de Emisión: ${new Date().toLocaleDateString('es-AR')}`, pageWidth - 70, 70);
 
-            // Metrics Table Content
+            // --- EJECUTIVO (SMART SUMMARY) ---
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(...primaryColor);
+            doc.text('Resumen Ejecutivo', 15, 100);
+
+            let mainFocus = 'diversas actividades preventivas';
+            if (chartData.length > 0) {
+                mainFocus = `la gestión de ${chartData[0].name.toLowerCase()} (con ${chartData[0].value} registros conformados)`;
+            }
+
+            const executiveSummary = `Durante el mes de ${monthName}, el servicio de Higiene y Seguridad completó un volumen total de ${totalActions} registros documentales a través de la plataforma. El mayor foco operativo estuvo centralizado en ${mainFocus}. Este seguimiento sistemático asegura el cumplimiento del marco legal vigente y fomenta la mejora continua en la cultura preventiva de la organización, mitigando activamente los riesgos laborales detectados.`;
+
+            doc.setTextColor(...textDark);
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            const splitSummary = doc.splitTextToSize(executiveSummary, pageWidth - 30);
+            doc.text(splitSummary, 15, 110);
+
+            // --- TABLA DETALLADA ---
+            const startY = 115 + (splitSummary.length * 5) + 5;
+            
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(...primaryColor);
+            doc.text('Desglose de Gestión Documental', 15, startY);
+
             const tableData = [
-                ['Evaluaciones de Riesgo (Identificación)', `${metrics.riskAssessments.total} tareas evaluadas`, `${metrics.riskAssessments.highRisk} con riesgo crítico/alto`],
-                ['Análisis de Trabajo Seguro (ATS)', `${metrics.ats.total} confeccionados`, '-'],
-                ['Permisos de Trabajo Especial', `${metrics.permits.total} emitidos`, `${metrics.permits.active} actualmente activos`],
-                ['Inspecciones de Seguridad', `${metrics.inspections.total} realizadas`, `${metrics.inspections.criticalFindings} con resultado crítico`]
-            ];
+                ['Análisis de Trabajo Seguro (ATS)', `${metrics.ats.total} confeccionados`, 'Evaluación de tareas rutinarias y no rutinarias.'],
+                ['Permisos de Trabajo Especial', `${metrics.permits.total} emitidos`, 'Gestión de trabajos en altura, caliente, etc.'],
+                ['Inspecciones y Checklists', `${metrics.inspections.total} realizadas`, `${metrics.inspections.critical} con observaciones críticas (NC).`],
+                ['Identificación de Riesgos', `${metrics.riskAssessments.total} tareas`, `${metrics.riskAssessments.highRisk} mapeadas como riesgo crítico/alto.`],
+                ['Capacitaciones (In Situ/Sala)', `${metrics.training.total} dictadas`, `${metrics.training.attendees} trabajadores entrenados en total.`],
+                ['Simulacros de Emergencia', `${metrics.drills.total} ejecutados`, 'Cumplimiento de plan anual de evacuación.'],
+                ['Auditorías EHS', `${metrics.audits.total} realizadas`, 'Verificación de estándares normativos.'],
+                ['Estudios de Carga de Fuego', `${metrics.fireload.total} estudios`, 'Decreto 351/79 Anexo VII.'],
+                ['Registro de Siniestralidad', `${metrics.accidents.total} reportes`, 'Investigación de accidentes/incidentes.']
+            ].filter(row => parseInt(row[1].split(' ')[0]) > 0); // Solo muestra modulos con actividad
+
+            if (tableData.length === 0) {
+                tableData.push(['Sin actividad', '0', 'No se registraron documentos en este período.']);
+            }
 
             autoTable(doc, {
-                startY: 85,
-                head: [['Módulo / Actividad', 'Volumen Total', 'Observaciones Críticas']],
+                startY: startY + 5,
+                head: [['Módulo / Actividad', 'Volumen', 'Detalle Técnico']],
                 body: tableData,
-                theme: 'striped',
+                theme: 'grid',
                 headStyles: { fillColor: primaryColor, textColor: 255, fontStyle: 'bold' },
+                alternateRowStyles: { fillColor: [249, 250, 251] },
                 styles: { fontSize: 10, cellPadding: 6 },
-                columnStyles: { 0: { fontStyle: 'bold', cellWidth: 70 } }
+                columnStyles: { 
+                    0: { fontStyle: 'bold', cellWidth: 65, textColor: [31, 41, 55] },
+                    1: { cellWidth: 35, textColor: [59, 130, 246], fontStyle: 'bold' }
+                }
             });
 
-            // Conclusions section
-            const finalY = (doc as any).lastAutoTable.finalY || 130;
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(12);
-            doc.text('Resumen Ejecutivo del Período', 15, finalY + 15);
+            // --- FOOTER AND SIGNATURE ---
+            const finalY = (doc as any).lastAutoTable.finalY || startY + 50;
+            
+            // Check page break for signature
+            if (finalY > pageHeight - 60) {
+                doc.addPage();
+                doc.setDrawColor(156, 163, 175);
+                doc.line(130, 50, 190, 50);
+                doc.setFontSize(9);
+                doc.setTextColor(...textGray);
+                doc.text('Firma del Profesional / Responsable', 135, 55);
+            } else {
+                doc.setDrawColor(156, 163, 175);
+                doc.line(130, finalY + 40, 190, finalY + 40);
+                doc.setFontSize(9);
+                doc.setTextColor(...textGray);
+                doc.text('Firma del Profesional / Responsable', 135, finalY + 45);
+            }
 
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(10);
-            const summaryText = `Durante el mes de ${monthName}, el servicio de Higiene y Seguridad completó un total de ${metrics.ats.total + metrics.inspections.total + metrics.riskAssessments.total + metrics.permits.total} registros documentales en la plataforma. Este nivel de seguimiento sistemático asegura el cumplimiento de las normativas vigentes y fomenta la mejora continua en la cultura preventiva de la organización.`;
-
-            const splitSummary = doc.splitTextToSize(summaryText, pageWidth - 30);
-            doc.text(splitSummary, 15, finalY + 23);
-
-            // Signature area
-            doc.setDrawColor(156, 163, 175);
-            doc.line(130, finalY + 70, 190, finalY + 70);
-            doc.setFontSize(9);
-            doc.text('Firma del Profesional', 145, finalY + 75);
+            // Page numbers on all pages
+            const pageCount = (doc as any).internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setTextColor(...textGray);
+                doc.text(`Generado por Asistente de Higiene y Seguridad - Página ${i} de ${pageCount}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+            }
 
             doc.save(`Informe_Gestion_${monthName.replace(/ /g, '_')}.pdf`);
             toast.success('Informe PDF descargado con éxito');
@@ -183,16 +262,10 @@ export default function ManagementReport(): React.ReactElement | null {
         }
     };
 
-    const { monthName } = getTargetDates();
-    const totalActions = metrics.inspections.total + metrics.ats.total + metrics.riskAssessments.total + metrics.permits.total;
-
     return (
         <div className="container" style={{ paddingBottom: '4rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', marginTop: '1rem' }}>
-                <button
-                    onClick={() => navigate('/')}
-                    style={{ background: 'none', border: 'none', padding: 0, color: 'var(--color-text)' }}
-                >
+                <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--color-text)', cursor: 'pointer' }}>
                     <ArrowLeft size={24} />
                 </button>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
@@ -205,18 +278,18 @@ export default function ManagementReport(): React.ReactElement | null {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <button
                         onClick={() => setMonthOffset(prev => prev - 1)}
-                        style={{ padding: '0.6rem', border: '1px solid var(--color-border)', borderRadius: '10px', background: 'var(--color-surface)', cursor: 'pointer', color: 'var(--color-text)' }}
+                        style={{ padding: '0.6rem', border: '1px solid var(--color-border)', borderRadius: '10px', background: 'var(--color-surface)', cursor: 'pointer', color: 'var(--color-text)', transition: 'all 0.2s' }}
                     >
                         <ArrowLeft size={16} />
                     </button>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, fontSize: '1.1rem', color: 'var(--color-primary)', textTransform: 'capitalize', width: '130px', justifyContent: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, fontSize: '1.1rem', color: 'var(--color-primary)', textTransform: 'capitalize', width: '140px', justifyContent: 'center' }}>
                         <Calendar size={18} />
                         {monthName.split(' ')[0]}
                     </div>
                     <button
                         onClick={() => setMonthOffset(prev => prev + 1)}
                         disabled={monthOffset >= 0}
-                        style={{ padding: '0.6rem', border: '1px solid var(--color-border)', borderRadius: '10px', background: 'var(--color-surface)', cursor: monthOffset >= 0 ? 'not-allowed' : 'pointer', opacity: monthOffset >= 0 ? 0.5 : 1, color: 'var(--color-text)' }}
+                        style={{ padding: '0.6rem', border: '1px solid var(--color-border)', borderRadius: '10px', background: 'var(--color-surface)', cursor: monthOffset >= 0 ? 'not-allowed' : 'pointer', opacity: monthOffset >= 0 ? 0.5 : 1, color: 'var(--color-text)', transition: 'all 0.2s' }}
                     >
                         <ChevronRight size={16} />
                     </button>
@@ -226,7 +299,7 @@ export default function ManagementReport(): React.ReactElement | null {
                     onClick={handleExportPDF}
                     disabled={loading || totalActions === 0}
                     className="btn-primary"
-                    style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 1.5rem' }}
+                    style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 1.5rem', borderRadius: '12px', boxShadow: '0 4px 15px rgba(59, 130, 246, 0.3)' }}
                 >
                     <Download size={18} /> Exportar Mensual PDF
                 </button>
@@ -235,7 +308,7 @@ export default function ManagementReport(): React.ReactElement | null {
             {loading ? (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4rem 0', opacity: 0.5 }}>
                     <div className="spinner" style={{ borderTopColor: 'var(--color-primary)', marginBottom: '1rem' }}></div>
-                    <p>Compilando estadísticas del mes...</p>
+                    <p style={{ fontWeight: 600 }}>Compilando estadísticas integrales...</p>
                 </div>
             ) : totalActions === 0 ? (
                 <div className="card" style={{ padding: '4rem 2rem', textAlign: 'center', background: 'rgba(59, 130, 246, 0.05)', border: '1px dashed var(--color-primary)' }}>
@@ -244,65 +317,155 @@ export default function ManagementReport(): React.ReactElement | null {
                     <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>No hay reportes ni documentos guardados durante {monthName}.</p>
                 </div>
             ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', animation: 'fadeIn 0.4s ease' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', animation: 'fadeIn 0.4s ease' }}>
 
-                    {/* Tarjeta Resumen */}
-                    <div className="card" style={{ padding: '1.5rem', background: 'linear-gradient(135deg, var(--color-primary), #1e40af)', color: 'white', border: 'none', gridColumn: '1 / -1' }}>
-                        <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem', fontWeight: 700, opacity: 0.9 }}>Volumen de Gestión Integral</h2>
-                        <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-                            <span style={{ fontSize: '3rem', fontWeight: 900, lineHeight: 1 }}>{totalActions}</span>
-                            <span style={{ fontSize: '1rem', fontWeight: 600, opacity: 0.8 }}>registros conformados</span>
+                    {/* Resumen Superior */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+                        {/* Volumen General */}
+                        <div className="card" style={{ padding: '2rem', background: 'linear-gradient(135deg, var(--color-primary), #1e40af)', color: 'white', border: 'none', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                            <h2 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: 700, opacity: 0.9, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <TrendingUp size={20} /> Volumen de Gestión Integral
+                            </h2>
+                            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                                <span style={{ fontSize: '4rem', fontWeight: 900, lineHeight: 1, textShadow: '0 4px 10px rgba(0,0,0,0.2)' }}>{totalActions}</span>
+                                <span style={{ fontSize: '1.1rem', fontWeight: 600, opacity: 0.8 }}>documentos generados</span>
+                            </div>
+                            <p style={{ margin: '1rem 0 0', fontSize: '0.9rem', opacity: 0.7, lineHeight: 1.5 }}>
+                                Incluye todos los registros conformados y avalados dentro de la plataforma durante el período.
+                            </p>
                         </div>
+
+                        {/* Gráfico de Distribución */}
+                        {chartData.length > 0 && (
+                            <div className="card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+                                <h3 style={{ margin: '0 0 1rem', fontSize: '1rem', fontWeight: 700, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <Target size={18} color="var(--color-primary)" /> Distribución del Esfuerzo
+                                </h3>
+                                <div style={{ flex: 1, minHeight: '200px', width: '100%' }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie
+                                                data={chartData}
+                                                cx="50%"
+                                                cy="50%"
+                                                innerRadius={60}
+                                                outerRadius={80}
+                                                paddingAngle={5}
+                                                dataKey="value"
+                                            >
+                                                {chartData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip 
+                                                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}
+                                                itemStyle={{ fontWeight: 800 }}
+                                            />
+                                            <Legend verticalAlign="middle" align="right" layout="vertical" iconType="circle" wrapperStyle={{ fontSize: '0.8rem', fontWeight: 600 }}/>
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-                    <div className="card" style={{ padding: '1.5rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1rem', color: '#10b981' }}>
-                            <FileSignature size={24} />
-                            <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>ATS & Permisos</h3>
+                    {/* Grilla de Métricas Detalladas */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1rem' }}>
+                        
+                        <div className="card hover-lift" style={{ padding: '1.2rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <ShieldCheck size={24} />
+                            </div>
+                            <div>
+                                <h4 style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>ATS Realizados</h4>
+                                <span style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-text)' }}>{metrics.ats.total}</span>
+                            </div>
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.8rem 0', borderBottom: '1px solid var(--color-border)' }}>
-                            <span style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>ATS Confeccionados</span>
-                            <span style={{ fontWeight: 800, fontSize: '1.1rem' }}>{metrics.ats.total}</span>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.8rem 0' }}>
-                            <span style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>Permisos Especiales</span>
-                            <span style={{ fontWeight: 800, fontSize: '1.1rem' }}>{metrics.permits.total}</span>
-                        </div>
-                    </div>
 
-                    <div className="card" style={{ padding: '1.5rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1rem', color: '#ef4444' }}>
-                            <Shield size={24} />
-                            <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>Inspecciones</h3>
+                        <div className="card hover-lift" style={{ padding: '1.2rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <FileSignature size={24} />
+                            </div>
+                            <div>
+                                <h4 style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Permisos Trabajo</h4>
+                                <span style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-text)' }}>{metrics.permits.total}</span>
+                            </div>
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.8rem 0', borderBottom: '1px solid var(--color-border)' }}>
-                            <span style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>Realizadas</span>
-                            <span style={{ fontWeight: 800, fontSize: '1.1rem' }}>{metrics.inspections.total}</span>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.8rem 0' }}>
-                            <span style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>Con Nivel Crítico</span>
-                            <span style={{ fontWeight: 800, fontSize: '1.1rem', color: metrics.inspections.criticalFindings > 0 ? '#ef4444' : 'inherit' }}>{metrics.inspections.criticalFindings}</span>
-                        </div>
-                    </div>
 
-                    <div className="card" style={{ padding: '1.5rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1rem', color: '#8b5cf6' }}>
-                            <TriangleAlert size={24} />
-                            <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>Evaluación de Riesgo</h3>
+                        <div className="card hover-lift" style={{ padding: '1.2rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <ClipboardList size={24} />
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <h4 style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Inspecciones</h4>
+                                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                                    <span style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-text)' }}>{metrics.inspections.total}</span>
+                                    {metrics.inspections.critical > 0 && <span style={{ fontSize: '0.8rem', color: '#ef4444', fontWeight: 800, background: 'rgba(239, 68, 68, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>{metrics.inspections.critical} CRIT</span>}
+                                </div>
+                            </div>
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.8rem 0', borderBottom: '1px solid var(--color-border)' }}>
-                            <span style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>Identificaciones</span>
-                            <span style={{ fontWeight: 800, fontSize: '1.1rem' }}>{metrics.riskAssessments.total}</span>
+
+                        <div className="card hover-lift" style={{ padding: '1.2rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <TriangleAlert size={24} />
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <h4 style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Eval. Riesgos</h4>
+                                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                                    <span style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-text)' }}>{metrics.riskAssessments.total}</span>
+                                    {metrics.riskAssessments.highRisk > 0 && <span style={{ fontSize: '0.8rem', color: '#ef4444', fontWeight: 800, background: 'rgba(239, 68, 68, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>{metrics.riskAssessments.highRisk} ALTO</span>}
+                                </div>
+                            </div>
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.8rem 0' }}>
-                            <span style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>Riesgo Crítico/Alto</span>
-                            <span style={{ fontWeight: 800, fontSize: '1.1rem', color: metrics.riskAssessments.highRisk > 0 ? '#ef4444' : 'inherit' }}>{metrics.riskAssessments.highRisk}</span>
+
+                        <div className="card hover-lift" style={{ padding: '1.2rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(236, 72, 153, 0.1)', color: '#ec4899', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Users size={24} />
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <h4 style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Capacitaciones</h4>
+                                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                                    <span style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-text)' }}>{metrics.training.total}</span>
+                                    <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>({metrics.training.attendees} pers)</span>
+                                </div>
+                            </div>
                         </div>
+
+                        <div className="card hover-lift" style={{ padding: '1.2rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(20, 184, 166, 0.1)', color: '#14b8a6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Siren size={24} />
+                            </div>
+                            <div>
+                                <h4 style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Simulacros</h4>
+                                <span style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-text)' }}>{metrics.drills.total}</span>
+                            </div>
+                        </div>
+                        
+                        <div className="card hover-lift" style={{ padding: '1.2rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Building size={24} />
+                            </div>
+                            <div>
+                                <h4 style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Auditorías</h4>
+                                <span style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-text)' }}>{metrics.audits.total}</span>
+                            </div>
+                        </div>
+
+                        <div className="card hover-lift" style={{ padding: '1.2rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(249, 115, 22, 0.1)', color: '#f97316', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Flame size={24} />
+                            </div>
+                            <div>
+                                <h4 style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Carga de Fuego</h4>
+                                <span style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-text)' }}>{metrics.fireload.total}</span>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             )}
 
-            <div style={{ marginTop: '2rem' }}>
+            <div style={{ marginTop: '3rem' }}>
                 <AdBanner />
             </div>
         </div>
