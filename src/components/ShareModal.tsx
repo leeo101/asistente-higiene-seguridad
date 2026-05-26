@@ -33,11 +33,11 @@ export default function ShareModal({
 
     const [copied, setCopied] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 450);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [pendingShareFile, setPendingShareFile] = useState<File | null>(null);
 
     useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth < 450);
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
@@ -222,41 +222,53 @@ export default function ShareModal({
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)',
             display: 'flex',
-            alignItems: 'center',
+            alignItems: isMobile ? 'flex-end' : 'center',
             justifyContent: 'center',
             zIndex: 999999,
-            padding: '1.5rem'
+            padding: isMobile ? '0' : '1.5rem'
         }} onClick={onClose}>
             <div className="share-modal-container" style={{
                 position: 'relative',
                 width: '100%',
-                maxWidth: 'min(440px, 100%)',
+                maxWidth: isMobile ? '100%' : 'min(440px, 100%)',
                 boxSizing: 'border-box'
             }} onClick={e => e.stopPropagation()}>
                 
                 <div className="share-modal-content" style={{
                     background: 'var(--color-surface)',
-                    borderRadius: isMobile ? '24px' : '28px',
+                    borderRadius: isMobile ? '24px 24px 0 0' : '28px',
                     width: '100%',
-                    maxHeight: '85vh',
+                    maxHeight: isMobile ? '90vh' : '85vh',
                     overflowY: 'auto',
-                    padding: isMobile ? '1.25rem 1rem' : '2.5rem',
+                    padding: isMobile ? '1rem' : '2rem',
                     boxShadow: '0 25px 70px -10px rgba(0, 0, 0, 0.5)',
                     border: '1px solid rgba(255,255,255,0.1)',
                     position: 'relative',
                     boxSizing: 'border-box'
                 }}>
+                    {/* Drag handle indicator for mobile */}
+                    {isMobile && (
+                        <div style={{
+                            width: '40px',
+                            height: '4px',
+                            background: 'var(--color-border)',
+                            borderRadius: '9999px',
+                            margin: '0 auto 1rem',
+                            opacity: 0.6
+                        }} />
+                    )}
+
                     <button
                         onClick={onClose}
                         style={{
                             position: 'absolute',
-                            top: '1.25rem',
-                            right: '1.25rem',
+                            top: isMobile ? '0.75rem' : '1.25rem',
+                            right: isMobile ? '0.75rem' : '1.25rem',
                             background: '#ef4444',
                             border: 'none',
                             borderRadius: '12px',
-                            width: '36px',
-                            height: '36px',
+                            width: '32px',
+                            height: '32px',
                             cursor: 'pointer',
                             color: '#ffffff',
                             display: 'flex',
@@ -268,21 +280,21 @@ export default function ShareModal({
                         }}
                         title="Cerrar"
                     >
-                        <X size={20} strokeWidth={3} />
+                        <X size={16} strokeWidth={3} />
                     </button>
 
-                    <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                    <div style={{ textAlign: 'center', marginBottom: isMobile ? '1rem' : '1.5rem' }}>
                         <div style={{
-                            width: '80px',
-                            height: '80px',
+                            width: isMobile ? '52px' : '72px',
+                            height: isMobile ? '52px' : '72px',
                             background: '#ffffff',
-                            borderRadius: '24px',
+                            borderRadius: isMobile ? '16px' : '20px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            margin: '0 auto 1.25rem',
-                            boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.2)',
-                            padding: '10px',
+                            margin: '0 auto 0.75rem',
+                            boxShadow: '0 6px 20px -4px rgba(0, 0, 0, 0.2)',
+                            padding: '8px',
                             border: '1px solid var(--color-border)'
                         }}>
                             <img 
@@ -296,39 +308,42 @@ export default function ShareModal({
                                 onError={(e) => {
                                     (e.target as HTMLImageElement).style.display = 'none';
                                     const parent = (e.target as HTMLImageElement).parentElement;
-                                    if (parent) parent.innerHTML = '<div style="color:var(--color-primary)"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div>';
+                                    if (parent) parent.innerHTML = '<div style="color:var(--color-primary)"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div>';
                                 }}
                             />
                         </div>
                         <h2 style={{
-                            fontSize: '1.5rem',
+                            fontSize: isMobile ? '1.1rem' : '1.4rem',
                             fontWeight: 900,
                             color: 'var(--color-text)',
-                            marginBottom: '0.5rem',
-                            letterSpacing: '-0.5px'
+                            marginBottom: '0.3rem',
+                            letterSpacing: '-0.3px'
                         }}>
                             Compartir Reporte
                         </h2>
                         <p style={{
                             color: 'var(--color-text-muted)',
-                            fontSize: '0.85rem',
+                            fontSize: '0.78rem',
                             fontWeight: '500',
                             margin: 0,
-                            padding: '0 1rem'
+                            padding: '0 0.5rem',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
                         }}>
                             {title}
                         </p>
                     </div>
 
-                    <div style={{ margin: '1rem 0', textAlign: 'center' }}>
-                        <p style={{ margin: '0 0 0.8rem', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text)' }}>
-                            {elementIdToPrint ? 'Selecciona una app para enviar (PDF):' : 'Compartir enlace:'}
+                    <div style={{ margin: '0.75rem 0', textAlign: 'center' }}>
+                        <p style={{ margin: '0 0 0.6rem', fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text)' }}>
+                            {elementIdToPrint ? 'Enviá el PDF por:' : 'Compartir enlace:'}
                         </p>
 
                         <div className="share-grid" style={{ 
                             display: 'grid', 
-                            gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
-                            gap: '1rem' 
+                            gridTemplateColumns: '1fr 1fr', 
+                            gap: '0.6rem' 
                         }}>
                             {pendingShareFile ? (
                                 <button
@@ -342,10 +357,10 @@ export default function ShareModal({
                                     }}
                                     className="share-item-button"
                                     style={{
-                                        display: 'flex', alignItems: 'center', gap: '0.8rem',
-                                        padding: '1rem', background: '#22c55e',
-                                        borderRadius: '16px', border: `1px solid rgba(255,255,255,0.2)`,
-                                        color: '#ffffff', fontWeight: 800, fontSize: '1rem',
+                                        display: 'flex', alignItems: 'center', gap: '0.6rem',
+                                        padding: '0.9rem', background: '#22c55e',
+                                        borderRadius: '14px', border: `1px solid rgba(255,255,255,0.2)`,
+                                        color: '#ffffff', fontWeight: 800, fontSize: '0.9rem',
                                         gridColumn: '1 / -1', justifyContent: 'center',
                                         cursor: 'pointer', boxShadow: '0 4px 15px rgba(34, 197, 94, 0.4)'
                                     }}
@@ -373,18 +388,19 @@ export default function ShareModal({
                                         }}
                                         className="share-item-button"
                                         style={{
-                                            display: 'flex', alignItems: 'center', gap: '0.8rem',
-                                            padding: '1rem', background: opt.bg,
-                                            borderRadius: '16px', border: `1px solid ${opt.color}20`,
+                                            display: 'flex', alignItems: 'center', gap: '0.6rem',
+                                            padding: isMobile ? '0.85rem 0.6rem' : '0.9rem',
+                                            background: opt.bg,
+                                            borderRadius: '14px', border: `1px solid ${opt.color}20`,
                                             textDecoration: 'none', color: opt.color,
-                                            fontWeight: 800, fontSize: '0.9rem',
+                                            fontWeight: 800, fontSize: isMobile ? '0.82rem' : '0.9rem',
                                             transition: 'all 0.2s',
                                             justifyContent: 'center',
                                             opacity: (isGenerating && isHijacked) ? 0.7 : 1,
                                             pointerEvents: (isGenerating && isHijacked) ? 'none' : 'auto'
                                         }}
                                     >
-                                        <span style={{ display: 'flex' }}>
+                                        <span style={{ display: 'flex', flexShrink: 0 }}>
                                             {(isGenerating && isHijacked) ? <div className="spinner-mini" /> : opt.icon}
                                         </span>
                                         {(isGenerating && isHijacked) ? 'Generando...' : opt.label}
@@ -394,60 +410,69 @@ export default function ShareModal({
                         </div>
                     </div>
 
-                    <div style={{
-                        padding: '1.25rem',
-                        background: 'var(--color-background)',
-                        borderRadius: '20px',
-                        border: '1.5px dashed var(--color-border)',
-                        position: 'relative',
-                        marginTop: '1rem'
-                    }}>
-                        <button
-                            onClick={handleCopy}
-                            style={{
-                                position: 'absolute',
-                                right: '0.75rem',
-                                top: '50%',
-                                transform: 'translateY(-50%)',
-                                background: copied ? '#22c55e' : 'var(--color-surface)',
-                                border: '1px solid var(--color-border)',
-                                borderRadius: '12px',
-                                padding: '0.6rem',
-                                cursor: 'pointer',
-                                color: copied ? 'white' : 'var(--color-primary)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
-                                transition: 'all 0.2s'
-                            }}
-                        >
-                            {copied ? <Check size={18} /> : <Copy size={18} />}
-                        </button>
-                        <p style={{
-                            fontSize: '0.8rem',
-                            color: 'var(--color-text-muted)',
-                            margin: 0,
-                            paddingRight: '3.5rem',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            fontWeight: 600
+                    {message ? (
+                        <div style={{
+                            padding: '0.85rem 1rem',
+                            background: 'var(--color-background)',
+                            borderRadius: '14px',
+                            border: '1.5px dashed var(--color-border)',
+                            position: 'relative',
+                            marginTop: '0.75rem'
                         }}>
-                            {message}
-                        </p>
-                    </div>
+                            <button
+                                onClick={handleCopy}
+                                style={{
+                                    position: 'absolute',
+                                    right: '0.6rem',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    background: copied ? '#22c55e' : 'var(--color-surface)',
+                                    border: '1px solid var(--color-border)',
+                                    borderRadius: '10px',
+                                    padding: '0.5rem',
+                                    cursor: 'pointer',
+                                    color: copied ? 'white' : 'var(--color-primary)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                {copied ? <Check size={16} /> : <Copy size={16} />}
+                            </button>
+                            <p style={{
+                                fontSize: '0.75rem',
+                                color: 'var(--color-text-muted)',
+                                margin: 0,
+                                paddingRight: '3rem',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                fontWeight: 600
+                            }}>
+                                {message}
+                            </p>
+                        </div>
+                    ) : null}
+
+                    {/* Safe area padding for iOS home bar */}
+                    {isMobile && <div style={{ height: 'env(safe-area-inset-bottom, 12px)' }} />}
                 </div>
 
                 <style>{`
                     .share-item-button:hover {
-                        filter: brightness(0.95);
-                        transform: translateY(-3px);
-                        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+                        filter: brightness(0.92);
+                        transform: translateY(-2px);
+                        box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+                    }
+                    .share-item-button:active {
+                        transform: translateY(0px);
+                        filter: brightness(0.85);
                     }
                     .spinner-mini {
-                        width: 20px;
-                        height: 20px;
+                        width: 18px;
+                        height: 18px;
                         border: 2px solid currentColor;
                         border-radius: 50%;
                         border-top-color: transparent;
@@ -456,11 +481,14 @@ export default function ShareModal({
                     @keyframes spin {
                         to { transform: rotate(360deg); }
                     }
+                    @media (max-width: 480px) {
+                        .share-modal-overlay {
+                            padding: 0 !important;
+                        }
+                    }
                 `}</style>
             </div>
         </div>,
         document.body
     );
 };
-
-
