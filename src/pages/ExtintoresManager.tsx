@@ -126,7 +126,7 @@ export default function ExtintoresManager() {
         await saveToStorage(updated);
         setShowForm(false);
         setEditingId(null);
-        setFormData({ numero: '', numeroSerie: '', tipo: 'ABC', capacidad: '5 kg', ubicacion: '', marca: '', fechaFabricacion: '', vencimientoRecarga: '', vencimientoPH: '', selloIRAM: '', estadoFisico: 'Operativo', foto: null, empresa: '' });
+        setFormData({ numero: '', numeroSerie: '', tipo: 'ABC', capacidad: '5 kg', ubicacion: '', marca: '', fechaFabricacion: '', vencimientoRecarga: '', vencimientoPH: '', selloIRAM: '', estadoFisico: 'Operativo', foto: null, empresa: '', showSignatures: { professional: true, supervisor: false, operator: false }, operatorSignature: '', supervisorSignature: '', professionalSignature: '', professionalName: '', professionalLicense: '' });
     };
 
     const handleEdit = (ext) => {
@@ -380,7 +380,7 @@ export default function ExtintoresManager() {
                                                 <input
                                                     type="checkbox"
                                                     checked={isChecked}
-                                                    onChange={e => setFormData({ ...formData, showSignatures: { ...(formData.showSignatures || {}), [sig.id]: e.target.checked } })}
+                                                    onChange={e => setFormData({ ...formData, showSignatures: { ...formData.showSignatures, [sig.id]: e.target.checked } as any })}
                                                     style={{ display: 'none' }}
                                                 />
                                                 <div style={{

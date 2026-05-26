@@ -334,6 +334,8 @@ export default function ChecklistManager(): React.ReactElement | null {
         item: '',
         serial: '',
         date: new Date().toISOString().split('T')[0],
+        expirationDate: '',
+        extinguisherObs: ''
     });
 
     const [activeSections, setActiveSections] = useState([]);
