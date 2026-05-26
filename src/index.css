@@ -1517,8 +1517,33 @@ label {
   }
 
   @page {
-    margin: 1cm;
+    margin: 0.7cm;
     size: A4 portrait;
+  }
+
+  /* ── CLAVE: eliminar la hoja en blanco extra ──
+     html/body/#root en runtime tienen height:100vh o height:100%
+     lo que crea un "bloque vacío" después del contenido imprimible.
+     Forzar height:auto los colapsa al tamaño real del contenido. */
+  html, body {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+
+  #root {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
   }
 
   .glass-panel,
@@ -1553,11 +1578,12 @@ label {
     border: none !important;
   }
 
-  /* Specific fix for blank pages: override inline min-heights */
+  /* Specific fix for blank pages: override inline min-heights and paddings */
   .pdf-container, .print-area {
     min-height: 0 !important;
     height: auto !important;
     margin: 0 !important;
+    padding-bottom: 0 !important;
     max-height: none !important;
   }
 
@@ -1624,16 +1650,27 @@ label {
     left: 0 !important;
   }
 
-  /* Prevent blank extra pages by removing bottom margins on the last element */
+  /* Prevent blank extra pages by removing bottom margins and paddings everywhere */
   body>*:last-child,
   #root>*:last-child,
   .container>*:last-child,
-  #root>div>*:last-child {
+  #root>div>*:last-child,
+  /* Also force all direct children of #root and body to have no bottom spacing */
+  body > *,
+  #root > *,
+  #root > div > * {
     margin-bottom: 0 !important;
     padding-bottom: 0 !important;
     border-bottom: none !important;
     page-break-after: avoid !important;
     break-after: avoid !important;
+  }
+
+  /* Override any inline style padding-bottom on page-level containers */
+  .container,
+  [style*="paddingBottom"],
+  [style*="padding-bottom"] {
+    padding-bottom: 0 !important;
   }
 
   .signature-container-row {

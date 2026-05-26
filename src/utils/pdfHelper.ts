@@ -54,24 +54,34 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         element.style.color = '#000000';
         element.classList.add('force-pdf-print');
 
-        // Wait for styles to apply
-        await new Promise(resolve => setTimeout(resolve, 400));
+        // Wait for styles to apply and images to load
+        await new Promise(resolve => setTimeout(resolve, 600));
+
+        // Force layout recalc so scrollHeight is accurate
+        element.getBoundingClientRect();
 
         // Default configuration
         const A4_WIDTH_MM = 210;
         const A4_HEIGHT_MM = 297;
 
+        // Use scrollHeight to capture full content even if overflow was hidden
+        const captureWidth = element.scrollWidth || element.offsetWidth;
+        const captureHeight = element.scrollHeight || element.offsetHeight;
+
         const canvas = await html2canvas(element, {
-            scale: 3, // Increased scale for better "print-like" quality
+            scale: 2.5, // Good quality without excessive memory
             useCORS: true,
+            allowTaint: true,
             logging: false,
-            windowWidth: element.scrollWidth,
-            windowHeight: element.scrollHeight,
+            windowWidth: captureWidth,
+            windowHeight: captureHeight,
             x: 0,
             y: 0,
-            width: element.offsetWidth,
-            height: element.offsetHeight,
-            backgroundColor: '#ffffff'
+            width: captureWidth,
+            height: captureHeight,
+            backgroundColor: '#ffffff',
+            scrollX: 0,
+            scrollY: 0
         });
 
         const imgData = canvas.toDataURL('image/jpeg', 0.95);
@@ -98,10 +108,10 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         let finalRatio = ratioPxToMm;
         let finalContentHeightMM = contentHeightMM;
 
-        // Auto-fit to 1 page if it slightly overflows (e.g., up to 30% overflow)
-        // This prevents the "se hacen varias hojas" issue for 1-page forms
+        // Auto-fit to 1 page if it slightly overflows (e.g., up to 25% overflow)
+        // This prevents unnecessary multi-page PDFs for forms that just barely overflow
         const maxOnePageHeight = pdfHeight - (marginY * 2);
-        if (contentHeightMM > maxOnePageHeight && contentHeightMM <= maxOnePageHeight * 1.3) {
+        if (contentHeightMM > maxOnePageHeight && contentHeightMM <= maxOnePageHeight * 1.25) {
             finalRatio = maxOnePageHeight / imgHeightPx;
             finalContentHeightMM = maxOnePageHeight;
         }
@@ -111,21 +121,32 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         const finalMarginX = marginX + (contentWidthMM - finalContentWidthMM) / 2;
 
         if (finalContentHeightMM <= maxOnePageHeight) {
+            // Single page
             pdf.addImage(imgData, 'JPEG', finalMarginX, marginY, finalContentWidthMM, finalContentHeightMM);
         } else {
-            let heightLeft = finalContentHeightMM;
-            let position = 0;
+            // Multi-page: slice the tall image across pages
+            // The trick is: on page N, we shift the image UP by (N-1) * pageHeight
+            // so that the correct slice appears in the printable area
+            const pageContentHeight = maxOnePageHeight;
+            let pageNumber = 0;
+            let remainingHeight = finalContentHeightMM;
 
-            // First page
-            pdf.addImage(imgData, 'JPEG', finalMarginX, marginY, finalContentWidthMM, finalContentHeightMM);
-            heightLeft -= maxOnePageHeight;
+            while (remainingHeight > 0) {
+                if (pageNumber > 0) pdf.addPage();
 
-            // Additional pages
-            while (heightLeft > 0) {
-                position = heightLeft - finalContentHeightMM + marginY;
-                pdf.addPage();
-                pdf.addImage(imgData, 'JPEG', finalMarginX, position, finalContentWidthMM, finalContentHeightMM);
-                heightLeft -= maxOnePageHeight;
+                // Vertical offset: shift the image up so this page's slice is visible
+                const yOffset = marginY - pageNumber * pageContentHeight;
+
+                pdf.addImage(
+                    imgData, 'JPEG',
+                    finalMarginX,
+                    yOffset,
+                    finalContentWidthMM,
+                    finalContentHeightMM
+                );
+
+                remainingHeight -= pageContentHeight;
+                pageNumber++;
             }
         }
 
