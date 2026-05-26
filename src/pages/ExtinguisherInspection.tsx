@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ShieldCheck, ArrowLeft, Camera, CheckCircle2, Save, X, Flame } from 'lucide-react';
+import { ShieldCheck, ArrowLeft, Camera, CheckCircle2, Save, X, Flame, Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
@@ -25,6 +25,7 @@ export default function ExtinguisherInspection() {
     );
     const [inspectorName, setInspectorName] = useState('');
     const [generalPhotos, setGeneralPhotos] = useState([]);
+    const [generalObservations, setGeneralObservations] = useState('');
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
@@ -56,6 +57,22 @@ export default function ExtinguisherInspection() {
     const handleNotes = (index, text) => {
         const newChecklist = [...checklist];
         newChecklist[index].notes = text;
+        setChecklist(newChecklist);
+    };
+
+    const handleItemTextChange = (index, text) => {
+        const newChecklist = [...checklist];
+        newChecklist[index].text = text;
+        setChecklist(newChecklist);
+    };
+
+    const handleAddItem = () => {
+        setChecklist([...checklist, { id: 'c' + Date.now(), text: '', status: null, notes: '', photos: [] }]);
+    };
+
+    const handleRemoveItem = (index) => {
+        const newChecklist = [...checklist];
+        newChecklist.splice(index, 1);
         setChecklist(newChecklist);
     };
 
@@ -110,6 +127,7 @@ export default function ExtinguisherInspection() {
             inspector: inspectorName,
             items: checklist,
             fotos: generalPhotos,
+            observaciones: generalObservations,
             resultado: checklist.some(c => c.status === 'NC') ? 'RECHAZADO' : 'APROBADO'
         };
 
@@ -147,7 +165,14 @@ export default function ExtinguisherInspection() {
                     <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-text)' }}>
                         <Flame size={20} color="#ef4444" /> {extintor.numero}
                     </h2>
-                    <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>{extintor.tipo} - {extintor.ubicacion}</p>
+                    <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>
+                        {extintor.tipo} - {extintor.ubicacion} {extintor.marca ? `(${extintor.marca})` : ''}
+                    </p>
+                    {extintor.numeroSerie && (
+                        <p style={{ margin: 0, fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-text-muted)', marginTop: '0.1rem' }}>
+                            S/N: {extintor.numeroSerie}
+                        </p>
+                    )}
                 </div>
             </div>
 
@@ -162,9 +187,19 @@ export default function ExtinguisherInspection() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     {checklist.map((item, idx) => (
                         <div key={item.id} style={{ padding: '1rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '12px' }}>
-                            <p style={{ margin: 0, fontWeight: 700, fontSize: '0.85rem', color: 'var(--color-text)', marginBottom: '0.8rem', lineHeight: 1.4 }}>
-                                {idx + 1}. {item.text}
-                            </p>
+                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.8rem' }}>
+                                <span style={{ fontWeight: 800, color: 'var(--color-primary)', marginTop: '0.4rem' }}>{idx + 1}.</span>
+                                <textarea
+                                    value={item.text}
+                                    onChange={e => handleItemTextChange(idx, e.target.value)}
+                                    placeholder="Detalle a inspeccionar..."
+                                    style={{ flex: 1, padding: '0.4rem', fontSize: '0.85rem', fontWeight: 600, border: '1px solid transparent', borderRadius: '8px', background: 'transparent', outline: 'none', resize: 'none', minHeight: '40px', lineHeight: 1.4 }}
+                                    className="hover:border-slate-300 focus:border-blue-500 focus:bg-white"
+                                />
+                                <button onClick={() => handleRemoveItem(idx)} style={{ background: 'transparent', border: 'none', color: '#ef4444', padding: '0.4rem', cursor: 'pointer', borderRadius: '8px' }} className="hover:bg-red-50">
+                                    <X size={16} />
+                                </button>
+                            </div>
                             
                             <div className="ats-status-group" style={{ marginBottom: '0.8rem' }}>
                                 <button className={`ats-status-btn ${item.status === 'C' ? 'active-ok' : ''}`} onClick={() => handleStatus(idx, 'C')}>C</button>
@@ -202,6 +237,10 @@ export default function ExtinguisherInspection() {
                             )}
                         </div>
                     ))}
+                    
+                    <button onClick={handleAddItem} style={{ padding: '0.8rem', background: 'rgba(37,99,235,0.1)', color: '#2563eb', border: '1px dashed rgba(37,99,235,0.3)', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
+                        <Plus size={18} /> AGREGAR PREGUNTA AL CHECKLIST
+                    </button>
                 </div>
             </div>
 
@@ -223,6 +262,16 @@ export default function ExtinguisherInspection() {
                         ))}
                     </div>
                 )}
+            </div>
+
+            <div className="card" style={{ padding: '1.2rem', marginBottom: '1.5rem', background: 'var(--color-surface)', border: '2px solid var(--color-border)' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-text)', textTransform: 'uppercase', marginBottom: '0.8rem' }}>Observaciones Generales</label>
+                <textarea 
+                    value={generalObservations}
+                    onChange={e => setGeneralObservations(e.target.value)}
+                    placeholder="Agregue comentarios adicionales sobre la inspección..."
+                    style={{ width: '100%', padding: '0.8rem', borderRadius: '10px', border: '1px solid var(--color-border)', outline: 'none', minHeight: '80px', resize: 'vertical' }}
+                />
             </div>
 
             <div className="card" style={{ padding: '1.2rem', background: 'var(--color-surface)', border: '2px solid var(--color-border)' }}>

@@ -61,11 +61,12 @@ export const SyncProvider: React.FC<SyncProviderProps> = ({ children }) => {
     const syncOnLogin = async () => {
       setSyncing(true);
       try {
-        // 1. PRIMERO: Descargar desde el cloud (fuente de verdad)
-        await pullAllFromCloud(currentUser.uid);
-        setSyncPulse(p => p + 1);
-        // 2. DESPUÉS: Subir solo items locales que el cloud NO tiene (merge sin sobreescribir)
+        // 1. PRIMERO: Subir items locales al cloud para no perder lo que se hizo offline o antes del refresh
         await mergeLocalToCloud(currentUser.uid);
+        setSyncPulse(p => p + 1);
+        
+        // 2. DESPUÉS: Descargar desde el cloud para tener lo de otros dispositivos
+        await pullAllFromCloud(currentUser.uid);
         setLastSync(new Date());
         setSyncPulse(p => p + 1);
       } catch (e) {

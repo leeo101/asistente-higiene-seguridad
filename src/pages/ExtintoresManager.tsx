@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Flame, Plus, Search, MapPin, QrCode, ArrowLeft, ShieldCheck,
-    Calendar, Edit3, Trash2, Printer, AlertTriangle, CheckCircle2, Camera
+    Calendar, Edit3, Trash2, Printer, AlertTriangle, CheckCircle2, Camera, Share2, Pencil
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
@@ -12,6 +12,9 @@ import toast from 'react-hot-toast';
 import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
 import ShareModal from '../components/ShareModal';
+import ExtinguisherProfilePdf from '../components/ExtinguisherProfilePdf';
+import SignatureCanvas from '../components/SignatureCanvas';
+import PdfSignatures from '../components/PdfSignatures';
 
 export default function ExtintoresManager() {
     const navigate = useNavigate();
@@ -24,18 +27,63 @@ export default function ExtintoresManager() {
     const [editingId, setEditingId] = useState(null);
     const [qrData, setQrData] = useState(null);
     const [showQrModal, setShowQrModal] = useState(false);
+    const [shareItem, setShareItem] = useState(null);
 
     const [formData, setFormData] = useState({
         numero: '',
+        numeroSerie: '',
         tipo: 'ABC',
         capacidad: '5 kg',
         ubicacion: '',
         marca: '',
+        fechaFabricacion: '',
         vencimientoRecarga: '',
         vencimientoPH: '',
+        selloIRAM: '',
         estadoFisico: 'Operativo',
-        foto: null
+        foto: null,
+        showSignatures: { professional: true, supervisor: false, operator: false },
+        operatorSignature: '',
+        supervisorSignature: '',
+        professionalSignature: '',
+        professionalName: '',
+        professionalLicense: ''
     });
+    const [professionalData, setProfessionalData] = useState({ name: '', license: '', signature: null, stamp: null });
+
+    useEffect(() => {
+        try {
+            const lsPersonal = localStorage.getItem('personalData');
+            const lsStamp = localStorage.getItem('signatureStampData');
+            const legacySig = localStorage.getItem('capturedSignature');
+            
+            let sig = null;
+            let stamp = null;
+            let name = 'Profesional HSE';
+            let license = '';
+
+            if (lsStamp) {
+                const parsed = JSON.parse(lsStamp);
+                sig = parsed.signature;
+                stamp = parsed.stamp;
+            } else if (legacySig) {
+                sig = legacySig;
+            }
+            if (lsPersonal) {
+                const pd = JSON.parse(lsPersonal);
+                name = pd.name || name;
+                license = pd.license || license;
+            }
+            
+            setProfessionalData({ name, license, signature: sig, stamp });
+            setFormData(prev => ({
+                ...prev,
+                professionalSignature: sig,
+                professionalName: name,
+                professionalLicense: license
+            }));
+        } catch(e) {}
+    }, []);
 
     const handlePhotoUpload = (files) => {
         if (!files.length) return;
@@ -76,7 +124,7 @@ export default function ExtintoresManager() {
         await saveToStorage(updated);
         setShowForm(false);
         setEditingId(null);
-        setFormData({ numero: '', tipo: 'ABC', capacidad: '5 kg', ubicacion: '', marca: '', vencimientoRecarga: '', vencimientoPH: '', estadoFisico: 'Operativo', foto: null });
+        setFormData({ numero: '', numeroSerie: '', tipo: 'ABC', capacidad: '5 kg', ubicacion: '', marca: '', fechaFabricacion: '', vencimientoRecarga: '', vencimientoPH: '', selloIRAM: '', estadoFisico: 'Operativo', foto: null });
     };
 
     const handleEdit = (ext) => {
@@ -116,6 +164,21 @@ export default function ExtintoresManager() {
         return { color: '#10b981', label: 'Vigente', bg: '#d1fae5', icon: <CheckCircle2 size={14} /> };
     };
 
+    // Calculate 20 year lifespan status
+    const getLifespanStatus = (fechaFab) => {
+        if (!fechaFab) return null;
+        const d = new Date(fechaFab);
+        const limitDate = new Date(d);
+        limitDate.setFullYear(limitDate.getFullYear() + 20);
+        
+        const today = new Date();
+        const diffDays = Math.ceil((limitDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (diffDays < 0) return { color: '#ffffff', label: 'DAR DE BAJA (Vida útil cumplida)', bg: '#dc2626', icon: <AlertTriangle size={14} /> };
+        if (diffDays <= 180) return { color: '#f59e0b', label: 'Por vencer vida útil (20 años)', bg: '#fef3c7', icon: <AlertTriangle size={14} /> };
+        return { color: '#10b981', label: 'Vigente', bg: '#d1fae5', icon: <CheckCircle2 size={14} /> };
+    };
+
     const filtered = extintores.filter(e => 
         e.numero.toLowerCase().includes(searchTerm.toLowerCase()) || 
         e.ubicacion.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -123,7 +186,12 @@ export default function ExtintoresManager() {
     );
 
     const types = ['ABC', 'CO2', 'K', 'Agua', 'HCFC', 'Espuma'];
-    
+
+    const expiredLifespans = extintores.filter(ext => {
+        const st = getLifespanStatus(ext.fechaFabricacion);
+        return st && (st.label.includes('DAR DE BAJA') || st.label.includes('Por vencer vida útil'));
+    });
+
     return (
         <div className="container" style={{ maxWidth: '1200px', paddingBottom: '8rem' }}>
             <Breadcrumbs />
@@ -133,6 +201,51 @@ export default function ExtintoresManager() {
                 subtitle="Inventario, trazabilidad NFPA 10 y Códigos QR"
                 icon={<Flame size={36} />}
             />
+
+            <ShareModal 
+                isOpen={!!shareItem} 
+                open={!!shareItem} 
+                onClose={() => setShareItem(null)} 
+                title={`Ficha Técnica - Extintor #${shareItem?.numero}`} 
+                text={shareItem ? `📋 Ficha de Extintor\n🔥 Chapa: ${shareItem.numero}\n📍 Ubicación: ${shareItem.ubicacion}` : ''} 
+                rawMessage={''} 
+                elementIdToPrint="pdf-content" 
+                fileName={`Ficha_Extintor_${shareItem?.numero || 'Reporte'}.pdf`} 
+            />
+            <style type="text/css">
+                {`
+                    .ext-print-wrapper {
+                        position: absolute !important;
+                        left: -9999px !important;
+                        top: -9999px !important;
+                        opacity: 0 !important;
+                        pointer-events: none !important;
+                    }
+                    @media print {
+                        .ext-print-wrapper {
+                            position: relative !important;
+                            left: 0 !important;
+                            top: 0 !important;
+                            opacity: 1 !important;
+                        }
+                    }
+                `}
+            </style>
+            <div className="ext-print-wrapper">
+                <ExtinguisherProfilePdf data={shareItem || formData} isHeadless={true} />
+            </div>
+
+            {expiredLifespans.length > 0 && (
+                <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', padding: '1rem 1.5rem', borderRadius: '12px', display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.5rem' }}>
+                    <AlertTriangle color="#ef4444" size={24} style={{ flexShrink: 0, marginTop: '0.2rem' }} />
+                    <div>
+                        <h4 style={{ margin: 0, color: '#991b1b', fontWeight: 800, fontSize: '1rem', marginBottom: '0.2rem' }}>Alerta de Vida Útil (20 años)</h4>
+                        <p style={{ margin: 0, color: '#b91c1c', fontSize: '0.9rem', lineHeight: 1.5 }}>
+                            Tienes {expiredLifespans.length} extintor(es) que han superado o están a punto de superar los 20 años desde su fabricación. Según la normativa vigente, deben ser dados de baja definitivamente.
+                        </p>
+                    </div>
+                </div>
+            )}
 
             <div className="no-print floating-action-bar">
                 <button
@@ -156,6 +269,14 @@ export default function ExtintoresManager() {
                                 <input required type="text" value={formData.numero} onChange={e => setFormData({...formData, numero: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--color-border)', outline: 'none' }} placeholder="Ej: EXT-01" />
                             </div>
                             <div>
+                                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>Nº DE SERIE (FABRICANTE)</label>
+                                <input type="text" value={formData.numeroSerie} onChange={e => setFormData({...formData, numeroSerie: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--color-border)', outline: 'none' }} placeholder="Ej: 12345678" />
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>MARCA</label>
+                                <input type="text" value={formData.marca} onChange={e => setFormData({...formData, marca: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--color-border)', outline: 'none' }} placeholder="Ej: Georgia, Melisam..." />
+                            </div>
+                            <div>
                                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>TIPO DE AGENTE</label>
                                 <select value={formData.tipo} onChange={e => setFormData({...formData, tipo: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--color-border)', outline: 'none', background: 'var(--color-background)' }}>
                                     {types.map(t => <option key={t} value={t}>{t}</option>)}
@@ -170,12 +291,20 @@ export default function ExtintoresManager() {
                                 <input required type="text" value={formData.ubicacion} onChange={e => setFormData({...formData, ubicacion: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--color-border)', outline: 'none' }} placeholder="Ej: Pasillo principal 1er piso" />
                             </div>
                             <div>
+                                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>FECHA DE FABRICACIÓN</label>
+                                <input type="date" value={formData.fechaFabricacion} onChange={e => setFormData({...formData, fechaFabricacion: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--color-border)', outline: 'none' }} />
+                            </div>
+                            <div>
                                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>VENCIMIENTO RECARGA</label>
                                 <input required type="date" value={formData.vencimientoRecarga} onChange={e => setFormData({...formData, vencimientoRecarga: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--color-border)', outline: 'none' }} />
                             </div>
                             <div>
                                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>PRUEBA HIDRÁULICA (P.H.)</label>
                                 <input type="date" value={formData.vencimientoPH} onChange={e => setFormData({...formData, vencimientoPH: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--color-border)', outline: 'none' }} />
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>SELLO IRAM / OPDS</label>
+                                <input type="text" value={formData.selloIRAM} onChange={e => setFormData({...formData, selloIRAM: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--color-border)', outline: 'none' }} placeholder="Ej: 12345" />
                             </div>
                             <div style={{ gridColumn: '1 / -1' }}>
                                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>FOTO DEL EQUIPO (OPCIONAL)</label>
@@ -193,9 +322,124 @@ export default function ExtintoresManager() {
                                 </div>
                             </div>
                         </div>
-                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
-                            <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} style={{ padding: '0.8rem 1.5rem', borderRadius: '12px', border: '1px solid var(--color-border)', background: 'transparent', fontWeight: 800, cursor: 'pointer' }}>Cancelar</button>
-                            <button type="submit" style={{ padding: '0.8rem 1.5rem', borderRadius: '12px', border: 'none', background: 'var(--color-primary)', color: '#fff', fontWeight: 900, cursor: 'pointer' }}>Guardar Equipo</button>
+                        
+                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '2rem', flexWrap: 'wrap' }}>
+                            <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} style={{ padding: '0.8rem 1.5rem', borderRadius: '12px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', fontWeight: 800, cursor: 'pointer', color: 'var(--color-text)' }}>Cancelar</button>
+                            <button type="button" onClick={() => window.print()} style={{ padding: '0.8rem 1.5rem', borderRadius: '12px', border: '2px solid #10b981', color: '#10b981', background: 'rgba(16, 185, 129, 0.05)', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <Printer size={18} /> Generar PDF
+                            </button>
+                            <button type="button" onClick={() => { setShareItem(formData); }} style={{ padding: '0.8rem 1.5rem', borderRadius: '12px', border: '2px solid #3b82f6', color: '#3b82f6', background: 'rgba(59, 130, 246, 0.05)', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <Share2 size={18} /> Compartir
+                            </button>
+                            <button type="submit" style={{ padding: '0.8rem 1.5rem', borderRadius: '12px', border: 'none', background: 'var(--color-primary)', color: '#fff', fontWeight: 900, cursor: 'pointer', boxShadow: '0 4px 12px rgba(var(--color-primary-rgb), 0.3)' }}>Guardar Equipo</button>
+                        </div>
+
+                        <div className="card animate-fade-in" style={{ marginTop: '2.5rem', background: 'rgba(var(--color-surface-rgb), 0.3)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', padding: '2.5rem', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.08)' }}>
+                            <h3 style={{ marginTop: 0, marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.25rem', textTransform: 'uppercase', letterSpacing: '1.2px' }}>
+                                <Pencil size={22} style={{ color: 'var(--color-primary)' }} /> Firmas en Ficha Técnica
+                            </h3>
+
+                            <div className="no-print mb-8 p-6" style={{ background: 'rgba(30, 41, 59, 0.2)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', width: '100%', display: 'flex', flexDirection: 'column', gap: '1.25rem', justifyContent: 'center', alignItems: 'center' }}>
+                                <div style={{ color: 'var(--color-text)', fontWeight: 800, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                                    {[
+                                        { id: 'professional', label: 'Profesional (Tú)' },
+                                        { id: 'supervisor', label: 'Supervisor / Responsable' },
+                                        { id: 'operator', label: 'Operador / Sector' }
+                                    ].map(sig => {
+                                        const isChecked = formData.showSignatures?.[sig.id];
+                                        return (
+                                            <label
+                                                key={sig.id}
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '0.5rem',
+                                                    padding: '0.6rem 1.25rem',
+                                                    background: isChecked ? 'var(--color-primary)' : 'rgba(var(--color-text-rgb), 0.05)',
+                                                    color: isChecked ? '#fff' : 'var(--color-text-muted)',
+                                                    border: `1px solid ${isChecked ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                                                    borderRadius: '2rem',
+                                                    cursor: 'pointer',
+                                                    fontWeight: 700,
+                                                    fontSize: '0.85rem',
+                                                    transition: 'all 0.2s ease',
+                                                    boxShadow: isChecked ? '0 4px 12px rgba(var(--color-primary-rgb), 0.3)' : 'none'
+                                                }}
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    checked={isChecked}
+                                                    onChange={e => setFormData({ ...formData, showSignatures: { ...(formData.showSignatures || {}), [sig.id]: e.target.checked } })}
+                                                    style={{ display: 'none' }}
+                                                />
+                                                <div style={{
+                                                    width: '16px',
+                                                    height: '16px',
+                                                    borderRadius: '4px',
+                                                    border: `2px solid ${isChecked ? '#fff' : 'var(--color-text-muted)'}`,
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    background: isChecked ? '#fff' : 'transparent'
+                                                }}>
+                                                    {isChecked && <div style={{ width: '8px', height: '8px', background: 'var(--color-primary)', borderRadius: '2px' }} />}
+                                                </div>
+                                                {sig.label}
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* On-Sheet Visual Preview */}
+                            <div className="no-print" style={{ transform: 'scale(0.9)', transformOrigin: 'top center', opacity: 0.8, pointerEvents: 'none' }}>
+                                <PdfSignatures 
+                                    data={formData}
+                                    box1={formData.showSignatures?.operator ? {
+                                        title: 'OPERADOR',
+                                        subtitle: 'Responsable de sector',
+                                        signatureUrl: formData.operatorSignature || null,
+                                        isProfessional: false
+                                    } : null}
+                                    box2={formData.showSignatures?.professional !== false ? {
+                                        title: 'INSPECTOR / PROFESIONAL',
+                                        subtitle: (professionalData.name || 'Profesional HSE').toUpperCase(),
+                                        signatureUrl: professionalData.signature || formData.professionalSignature || null,
+                                        stampUrl: professionalData.stamp || null,
+                                        isProfessional: true,
+                                        license: professionalData.license || formData.professionalLicense || null
+                                    } : null}
+                                    box3={formData.showSignatures?.supervisor ? {
+                                        title: 'SUPERVISOR',
+                                        subtitle: 'Aprobación HSE',
+                                        signatureUrl: formData.supervisorSignature || null,
+                                        isProfessional: false
+                                    } : null}
+                                />
+                            </div>
+
+                            <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 gap-8">
+                                {formData.showSignatures?.operator && (
+                                    <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                                        <SignatureCanvas 
+                                            onSave={(sig) => setFormData(prev => ({ ...prev, operatorSignature: sig || '' }))}
+                                            initialImage={formData.operatorSignature}
+                                            label="Firma del Operador / Sector"
+                                        />
+                                    </div>
+                                )}
+                                
+                                {formData.showSignatures?.supervisor && (
+                                    <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                                        <SignatureCanvas 
+                                            onSave={(sig) => setFormData(prev => ({ ...prev, supervisorSignature: sig || '' }))}
+                                            initialImage={formData.supervisorSignature}
+                                            label="Firma del Supervisor"
+                                        />
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -242,13 +486,21 @@ export default function ExtintoresManager() {
                                                         {ext.numero}
                                                     </h3>
                                                     <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: '0.8rem', fontWeight: 700, marginTop: '0.2rem' }}>
-                                                        {ext.tipo} - {ext.capacidad}
+                                                        {ext.tipo} - {ext.capacidad} {ext.marca ? `(${ext.marca})` : ''}
                                                     </p>
+                                                    {ext.numeroSerie && (
+                                                        <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: '0.75rem', fontWeight: 600, marginTop: '0.1rem' }}>
+                                                            S/N: {ext.numeroSerie}
+                                                        </p>
+                                                    )}
                                                 </div>
                                             </div>
                                             <div style={{ display: 'flex', gap: '0.5rem' }}>
                                                 <button onClick={() => requirePro(() => generateQR(ext))} title="Código QR" style={{ padding: '0.5rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'transparent', cursor: 'pointer', color: 'var(--color-text)' }} className="hover:bg-slate-100 dark:hover:bg-slate-800">
                                                     <QrCode size={18} />
+                                                </button>
+                                                <button onClick={() => requirePro(() => setShareItem(ext))} title="Generar PDF" style={{ padding: '0.5rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'transparent', cursor: 'pointer', color: '#10b981' }} className="hover:bg-green-50 dark:hover:bg-green-900/30">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                                                 </button>
                                                 <button onClick={() => handleEdit(ext)} title="Editar" style={{ padding: '0.5rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'transparent', cursor: 'pointer', color: 'var(--color-primary)' }} className="hover:bg-blue-50 dark:hover:bg-blue-900/30">
                                                     <Edit3 size={18} />
@@ -268,12 +520,20 @@ export default function ExtintoresManager() {
                                                     {recargaStatus.icon} {ext.vencimientoRecarga ? new Date(ext.vencimientoRecarga).toLocaleDateString('es-AR') : '-'}
                                                 </span>
                                             </div>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', padding: '0.4rem 0' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', padding: '0.4rem 0', borderBottom: '1px dashed var(--color-border)' }}>
                                                 <span style={{ fontWeight: 800, color: 'var(--color-text-muted)' }}>P.H. (5 AÑOS)</span>
                                                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 800, color: phStatus.color, background: phStatus.bg, padding: '0.2rem 0.6rem', borderRadius: '999px' }}>
                                                     {phStatus.icon} {ext.vencimientoPH ? new Date(ext.vencimientoPH).toLocaleDateString('es-AR') : '-'}
                                                 </span>
                                             </div>
+                                            {ext.fechaFabricacion && (
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', padding: '0.4rem 0' }}>
+                                                    <span style={{ fontWeight: 800, color: 'var(--color-text-muted)' }}>VIDA ÚTIL (20 AÑOS)</span>
+                                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 800, color: getLifespanStatus(ext.fechaFabricacion)?.color, background: getLifespanStatus(ext.fechaFabricacion)?.bg, padding: '0.2rem 0.6rem', borderRadius: '999px' }}>
+                                                        {getLifespanStatus(ext.fechaFabricacion)?.icon} {getLifespanStatus(ext.fechaFabricacion)?.label}
+                                                    </span>
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem', paddingTop: '1rem', borderTop: '1px solid var(--color-border)' }}>

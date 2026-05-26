@@ -730,6 +730,16 @@ export default function ChecklistManager(): React.ReactElement | null {
                         <div className="sm:col-span-2 print:col-span-2"><DocBox label="ÁREA / EQUIPO INSPECCIONADO" value={inspectionInfo.item} onChange={v => setInspectionInfo({ ...inspectionInfo, item: v })} /></div>
                         <div className="sm:col-span-1 print:col-span-1"><DocBox label="Nº IDENTIFICACIÓN (SERIAL)" value={inspectionInfo.serial} onChange={v => setInspectionInfo({ ...inspectionInfo, serial: v })} /></div>
                     </div>
+                    {activeSections.some(s => s.id === 'extintores_checklist') && (
+                        <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ width: '100%', borderBottom: '2px solid var(--color-border)' }}>
+                            <div className="sm:col-span-1 print:col-span-1" style={{ background: 'rgba(239, 68, 68, 0.05)' }}>
+                                <DocBox label="VENCIMIENTO CARGA" value={inspectionInfo.expirationDate || ''} onChange={v => setInspectionInfo({ ...inspectionInfo, expirationDate: v })} type="date" />
+                            </div>
+                            <div className="sm:col-span-3 print:col-span-3" style={{ background: 'rgba(239, 68, 68, 0.05)' }}>
+                                <DocBox label="OBSERVACIONES EXTINTOR" value={inspectionInfo.extinguisherObs || ''} onChange={v => setInspectionInfo({ ...inspectionInfo, extinguisherObs: v })} />
+                            </div>
+                        </div>
+                    )}
                     <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ width: '100%' }}>
                         <div className="sm:col-span-2 print:col-span-2"><DocBox label="INSPECTOR / RESPONSABLE" value={companyInfo.inspector} onChange={v => setCompanyInfo({ ...companyInfo, inspector: v })} /></div>
                         <div className="sm:col-span-2 print:col-span-2"><DocBox label="PROFESIONAL HYS" value={professional.name} onChange={() => { }} /></div>

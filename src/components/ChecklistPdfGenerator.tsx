@@ -148,6 +148,18 @@ export default function ChecklistPdfGenerator({
                             <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.2rem' }}>{compInfo.inspector || '-'}</div>
                         </div>
                     </div>
+                    {inspInfo.expirationDate && (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', background: '#fef2f2', borderTop: '1px solid #cbd5e1' }}>
+                            <div style={{ padding: '0.8rem 1rem', borderRight: '1px solid #cbd5e1' }}>
+                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#991b1b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={12}/> VENCIMIENTO CARGA (EXTINTOR)</span>
+                                <div style={{ fontWeight: 800, fontSize: '0.9rem', color: '#7f1d1d', marginTop: '0.2rem' }}>{new Date(inspInfo.expirationDate + 'T12:00:00Z').toLocaleDateString('es-AR')}</div>
+                            </div>
+                            <div style={{ padding: '0.8rem 1rem' }}>
+                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#991b1b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><AlertTriangle size={12}/> OBSERVACIONES EXTINTOR</span>
+                                <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#7f1d1d', marginTop: '0.2rem' }}>{inspInfo.extinguisherObs || '-'}</div>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Resumen Estadístico - Cards modernas */}
