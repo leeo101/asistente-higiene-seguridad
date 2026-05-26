@@ -263,37 +263,32 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                         </table>
                     </div>
 
-                    {/* Historial de Inspecciones */}
+                    {/* Última Inspección */}
                     <div style={{ marginBottom: '30px', flex: 1 }}>
                         <h3 style={{ margin: '0 0 15px 0', fontSize: '14pt', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '2px solid #1e293b', paddingBottom: '8px' }}>
-                            <ShieldCheck size={20} color="#10b981" /> Última Inspección Mensual
+                            <ShieldCheck size={20} color="#10b981" /> Última Inspección Registrada
                         </h3>
                         
-                        <div style={{ padding: '15px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
-                            {data.ultimaInspeccion ? (
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div>
-                                        <div style={{ fontSize: '10pt', color: '#64748b', fontWeight: 700 }}>Último Control Realizado:</div>
-                                        <div style={{ fontSize: '12pt', fontWeight: 900, color: '#0f172a' }}>{new Date(data.ultimaInspeccion).toLocaleDateString('es-AR')}</div>
-                                    </div>
-                                    <div style={{ background: '#dcfce7', color: '#166534', padding: '8px 16px', borderRadius: '999px', fontWeight: 800, fontSize: '10pt', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                        <ShieldCheck size={16} /> INSPECCIÓN OK
-                                    </div>
-                                </div>
-                            ) : (
-                                <div style={{ textAlign: 'center', color: '#64748b', padding: '10px 0', fontStyle: 'italic', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                    <AlertTriangle size={18} color="#f59e0b" /> No hay registros recientes de inspección para este equipo en el historial.
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                        {!latestInspection && !data.ultimaInspeccion ? (
+                            <div style={{ padding: '15px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', textAlign: 'center', color: '#64748b', fontStyle: 'italic', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                <AlertTriangle size={18} color="#f59e0b" /> No hay registros de inspección para este equipo.
+                            </div>
+                        ) : null}
 
-                    {/* Última Inspección */}
-                    {latestInspection && (
+                        {!latestInspection && data.ultimaInspeccion ? (
+                             <div style={{ padding: '15px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                 <div>
+                                     <div style={{ fontSize: '10pt', color: '#64748b', fontWeight: 700 }}>Fecha:</div>
+                                     <div style={{ fontSize: '12pt', fontWeight: 900, color: '#0f172a' }}>{new Date(data.ultimaInspeccion).toLocaleDateString('es-AR')}</div>
+                                 </div>
+                                 <div style={{ background: '#dcfce7', color: '#166534', padding: '8px 16px', borderRadius: '999px', fontWeight: 800, fontSize: '10pt', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                     <ShieldCheck size={16} /> INSPECCIÓN OK
+                                 </div>
+                             </div>
+                        ) : null}
                         <div style={{ marginBottom: '30px' }}>
-                            <h3 style={{ margin: '0 0 15px 0', fontSize: '14pt', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '2px solid #1e293b', paddingBottom: '8px' }}>
-                                <ShieldCheck size={20} color="#10b981" /> Última Inspección (Checklist)
-                            </h3>
+                        {latestInspection && (
+                            <div style={{ marginTop: data.ultimaInspeccion && !latestInspection ? '20px' : '0' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '10pt', background: '#f8fafc', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                                 <div><strong style={{ color: '#64748b' }}>Fecha:</strong> <span style={{ fontWeight: 800 }}>{new Date(latestInspection.fecha).toLocaleDateString('es-AR')}</span></div>
                                 <div><strong style={{ color: '#64748b' }}>Inspector:</strong> <span style={{ fontWeight: 800 }}>{latestInspection.inspector || '-'}</span></div>
@@ -326,11 +321,13 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                     {latestInspection.observaciones}
                                 </div>
                             )}
+                            </div>
+                        )}
                         </div>
-                    )}
+                    </div>
 
                     {/* Firmas */}
-                    <div style={{ marginTop: 'auto', paddingTop: '20px' }}>
+                    <div style={{ marginTop: '40px', paddingTop: '20px', pageBreakInside: 'avoid' }}>
                         <PdfSignatures 
                             data={data}
                             box1={data.showSignatures?.operator ? {

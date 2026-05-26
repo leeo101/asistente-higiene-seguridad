@@ -33,7 +33,14 @@ export default function ShareModal({
 
     const [copied, setCopied] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [pendingShareFile, setPendingShareFile] = useState<File | null>(null);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         if (!displayOpen) return;
@@ -208,88 +215,23 @@ export default function ShareModal({
     ];
 
     return createPortal(
-        <div className="share-modal-overlay" style={{
-            position: 'fixed',
-            top: 0, left: 0, right: 0, bottom: 0,
-            backgroundColor: 'rgba(15, 23, 42, 0.85)',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-            display: 'flex',
-            alignItems: isMobile ? 'flex-end' : 'center',
-            justifyContent: 'center',
-            zIndex: 999999,
-            padding: isMobile ? '0' : '1.5rem'
-        }} onClick={onClose}>
-            <div className="share-modal-container" style={{
-                position: 'relative',
-                width: '100%',
-                maxWidth: isMobile ? '100%' : 'min(440px, 100%)',
-                boxSizing: 'border-box'
-            }} onClick={e => e.stopPropagation()}>
+        <div className="share-modal-overlay" onClick={onClose}>
+            <div className="share-modal-container" onClick={e => e.stopPropagation()}>
                 
-                <div className="share-modal-content" style={{
-                    background: 'var(--color-surface)',
-                    borderRadius: isMobile ? '24px 24px 0 0' : '28px',
-                    width: '100%',
-                    maxHeight: isMobile ? '90vh' : '85vh',
-                    overflowY: 'auto',
-                    padding: isMobile ? '1rem' : '2rem',
-                    boxShadow: '0 25px 70px -10px rgba(0, 0, 0, 0.5)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    position: 'relative',
-                    boxSizing: 'border-box'
-                }}>
-                    {/* Drag handle indicator for mobile */}
-                    {isMobile && (
-                        <div style={{
-                            width: '40px',
-                            height: '4px',
-                            background: 'var(--color-border)',
-                            borderRadius: '9999px',
-                            margin: '0 auto 1rem',
-                            opacity: 0.6
-                        }} />
-                    )}
+                <div className="share-modal-content">
+                    {/* Drag handle indicator for mobile - hidden by default, can be shown in CSS if needed but we want it centered now */}
+                    <div className="share-drag-handle" />
 
                     <button
                         onClick={onClose}
-                        style={{
-                            position: 'absolute',
-                            top: isMobile ? '0.75rem' : '1.25rem',
-                            right: isMobile ? '0.75rem' : '1.25rem',
-                            background: '#ef4444',
-                            border: 'none',
-                            borderRadius: '12px',
-                            width: '32px',
-                            height: '32px',
-                            cursor: 'pointer',
-                            color: '#ffffff',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            zIndex: 10,
-                            boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
-                            transition: 'all 0.2s',
-                        }}
+                        className="share-close-btn"
                         title="Cerrar"
                     >
                         <X size={16} strokeWidth={3} />
                     </button>
 
-                    <div style={{ textAlign: 'center', marginBottom: isMobile ? '1rem' : '1.5rem' }}>
-                        <div style={{
-                            width: isMobile ? '52px' : '72px',
-                            height: isMobile ? '52px' : '72px',
-                            background: '#ffffff',
-                            borderRadius: isMobile ? '16px' : '20px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            margin: '0 auto 0.75rem',
-                            boxShadow: '0 6px 20px -4px rgba(0, 0, 0, 0.2)',
-                            padding: '8px',
-                            border: '1px solid var(--color-border)'
-                        }}>
+                    <div className="share-header">
+                        <div className="share-logo-box">
                             <img 
                                 src="/logo.png" 
                                 alt="Logo" 
@@ -305,137 +247,10 @@ export default function ShareModal({
                                 }}
                             />
                         </div>
-                        <h2 style={{
-                            fontSize: isMobile ? '1.1rem' : '1.4rem',
-                            fontWeight: 900,
-                            color: 'var(--color-text)',
-                            marginBottom: '0.3rem',
-                            letterSpacing: '-0.3px'
-                        }}>
+                        <h2 className="share-title">
                             Compartir Reporte
                         </h2>
-                        <p style={{
-                            color: 'var(--color-text-muted)',
-                            fontSize: '0.78rem',
-                            fontWeight: '500',
-                            margin: 0,
-                            padding: '0 0.5rem',
-                            overflow: 'hidden',
-            };
-
-            if (navigator.canShare && navigator.canShare(shareData)) {
-                try {
-                    await navigator.share(shareData);
-                    toast.success('¡Compartido con éxito!', { id: 'pdf-gen' });
-                } catch (shareErr: any) {
-                    console.warn("Native share failed, falling back to download/link:", shareErr);
-                    // If it's a user gesture error due to async timeout, offer a retry button
-                    if (shareErr.name === 'NotAllowedError' || shareErr.message?.toLowerCase().includes('user gesture')) {
-                        setPendingShareFile(file);
-                        toast.success('PDF listo. Toca el botón para enviar.', { id: 'pdf-gen', duration: 4000 });
-                    } else {
-                        fallbackShare();
-                    }
-                }
-            } else {
-                fallbackShare();
-            }
-        } catch (error) {
-            console.error("Error generating/sharing PDF:", error);
-            toast.error('Hubo un error al procesar el PDF.', { id: 'pdf-gen' });
-        } finally {
-            setIsGenerating(false);
-        }
-    };
-
-    const handleDirectDownload = async () => {
-        if (!isPro) {
-            toast.error('La descarga de PDFs es exclusiva para miembros PRO 💎', { duration: 4000 });
-            return;
-        }
-
-        if (!elementIdToPrint) return;
-        
-        // Trigger native print for true vector PDF quality instead of html2canvas screenshots
-        toast.success('Para obtener la mejor calidad (sin capturas), selecciona "Guardar como PDF" en la siguiente ventana.', { duration: 5000 });
-        setTimeout(() => {
-            handlePrint();
-        }, 1500);
-    };
-
-    const options = [
-        {
-            label: 'WhatsApp',
-            icon: (
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                </svg>
-            ),
-            url: `https://wa.me/?text=${encodeURIComponent(message)}`,
-            bg: '#25D366',
-            color: '#ffffff',
-            hijack: true
-        },
-        {
-            label: 'Correo',
-            icon: <Mail size={22} />,
-            url: `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(message)}`,
-            bg: '#3b82f6',
-            color: '#ffffff',
-            hijack: true
-        },
-        {
-            label: 'Descargar',
-            icon: <Download size={22} />,
-            onClick: handleDirectDownload,
-            bg: '#8b5cf6',
-            color: '#ffffff',
-            hijack: false
-        },
-        {
-            label: 'Imprimir',
-            icon: <Printer size={22} />,
-            onClick: handlePrint,
-            bg: '#1e293b',
-            color: '#ffffff',
-            hijack: false
-        }
-    ];
-
-    return createPortal(
-        <div className="share-modal-overlay">
-            <div className="share-modal-container" onClick={e => e.stopPropagation()}>
-                <div className="share-modal-content">
-                    <div className="share-drag-handle" />
-
-                    <button className="share-close-btn" onClick={onClose} title="Cerrar">
-                        <X size={16} strokeWidth={3} />
-                    </button>
-
-                    <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                        <div className="share-logo-box">
-                            <img 
-                                src="/logo.png" 
-                                alt="Logo" 
-                                style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
-                                onError={(e) => {
-                                    (e.target as HTMLImageElement).style.display = 'none';
-                                    const parent = (e.target as HTMLImageElement).parentElement;
-                                    if (parent) parent.innerHTML = '<div style="color:var(--color-primary)"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div>';
-                                }}
-                            />
-                        </div>
-                        <h2 className="share-title">Compartir Reporte</h2>
-                        <p style={{
-                            color: 'var(--color-text-muted)',
-                            fontSize: '0.78rem',
-                            fontWeight: '500',
-                            margin: 0,
-                            padding: '0 0.5rem',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap'
-                        }}>
+                        <p className="share-subtitle">
                             {title}
                         </p>
                     </div>
@@ -445,11 +260,7 @@ export default function ShareModal({
                             {elementIdToPrint ? 'Enviá el PDF por:' : 'Compartir enlace:'}
                         </p>
 
-                        <div className="share-grid" style={{ 
-                            display: 'grid', 
-                            gridTemplateColumns: '1fr 1fr', 
-                            gap: '0.6rem' 
-                        }}>
+                        <div className="share-grid">
                             {pendingShareFile ? (
                                 <button
                                     onClick={async () => {
@@ -460,15 +271,7 @@ export default function ShareModal({
                                             console.warn(e);
                                         }
                                     }}
-                                    className="share-item-button"
-                                    style={{
-                                        display: 'flex', alignItems: 'center', gap: '0.6rem',
-                                        padding: '0.9rem', background: '#22c55e',
-                                        borderRadius: '14px', border: `1px solid rgba(255,255,255,0.2)`,
-                                        color: '#ffffff', fontWeight: 800, fontSize: '0.9rem',
-                                        gridColumn: '1 / -1', justifyContent: 'center',
-                                        cursor: 'pointer', boxShadow: '0 4px 15px rgba(34, 197, 94, 0.4)'
-                                    }}
+                                    className="share-item-button share-btn-now"
                                 >
                                     ¡Compartir Ahora! 🚀
                                 </button>
@@ -493,13 +296,9 @@ export default function ShareModal({
                                         }}
                                         className="share-item-button share-opt-btn"
                                         style={{
-                                            display: 'flex', alignItems: 'center', gap: '0.6rem',
                                             background: opt.bg,
-                                            borderRadius: '14px', border: `1px solid ${opt.color}20`,
-                                            textDecoration: 'none', color: opt.color,
-                                            fontWeight: 800,
-                                            transition: 'all 0.2s',
-                                            justifyContent: 'center',
+                                            border: `1px solid ${opt.color}20`,
+                                            color: opt.color,
                                             opacity: (isGenerating && isHijacked) ? 0.7 : 1,
                                             pointerEvents: (isGenerating && isHijacked) ? 'none' : 'auto'
                                         }}
@@ -515,51 +314,24 @@ export default function ShareModal({
                     </div>
 
                     {message ? (
-                        <div style={{
-                            padding: '0.85rem 1rem',
-                            background: 'var(--color-background)',
-                            borderRadius: '14px',
-                            border: '1.5px dashed var(--color-border)',
-                            position: 'relative',
-                            marginTop: '0.75rem'
-                        }}>
+                        <div className="share-message-box">
                             <button
                                 onClick={handleCopy}
+                                className="share-copy-btn"
                                 style={{
-                                    position: 'absolute',
-                                    right: '0.6rem',
-                                    top: '50%',
-                                    transform: 'translateY(-50%)',
                                     background: copied ? '#22c55e' : 'var(--color-surface)',
-                                    border: '1px solid var(--color-border)',
-                                    borderRadius: '10px',
-                                    padding: '0.5rem',
-                                    cursor: 'pointer',
                                     color: copied ? 'white' : 'var(--color-primary)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
-                                    transition: 'all 0.2s'
                                 }}
                             >
                                 {copied ? <Check size={16} /> : <Copy size={16} />}
                             </button>
-                            <p style={{
-                                fontSize: '0.75rem',
-                                color: 'var(--color-text-muted)',
-                                margin: 0,
-                                paddingRight: '3rem',
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                fontWeight: 600
-                            }}>
+                            <p className="share-message-text">
                                 {message}
                             </p>
                         </div>
                     ) : null}
 
+                    {/* Safe area padding for iOS home bar */}
                     <div className="mobile-safe-area" />
                 </div>
 
@@ -621,6 +393,10 @@ export default function ShareModal({
                         box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
                         transition: all 0.2s;
                     }
+                    .share-header {
+                        text-align: center;
+                        margin-bottom: 1.5rem;
+                    }
                     .share-logo-box {
                         width: 72px;
                         height: 72px;
@@ -641,9 +417,77 @@ export default function ShareModal({
                         margin-bottom: 0.3rem;
                         letter-spacing: -0.3px;
                     }
+                    .share-subtitle {
+                        color: var(--color-text-muted);
+                        font-size: 0.78rem;
+                        font-weight: 500;
+                        margin: 0;
+                        padding: 0 0.5rem;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                    }
+                    .share-grid {
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 0.6rem;
+                    }
+                    .share-item-button {
+                        display: flex;
+                        align-items: center;
+                        gap: 0.6rem;
+                        border-radius: 14px;
+                        text-decoration: none;
+                        font-weight: 800;
+                        transition: all 0.2s;
+                        justify-content: center;
+                        cursor: pointer;
+                    }
+                    .share-btn-now {
+                        padding: 0.9rem;
+                        background: #22c55e;
+                        border: 1px solid rgba(255,255,255,0.2);
+                        color: #ffffff;
+                        font-size: 0.9rem;
+                        grid-column: 1 / -1;
+                        box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+                    }
                     .share-opt-btn {
                         padding: 0.9rem;
                         font-size: 0.9rem;
+                    }
+                    .share-message-box {
+                        padding: 0.85rem 1rem;
+                        background: var(--color-background);
+                        border-radius: 14px;
+                        border: 1.5px dashed var(--color-border);
+                        position: relative;
+                        margin-top: 0.75rem;
+                    }
+                    .share-copy-btn {
+                        position: absolute;
+                        right: 0.6rem;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        border: 1px solid var(--color-border);
+                        border-radius: 10px;
+                        padding: 0.5rem;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+                        transition: all 0.2s;
+                    }
+                    .share-message-text {
+                        font-size: 0.75rem;
+                        color: var(--color-text-muted);
+                        margin: 0;
+                        padding-right: 3rem;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        font-weight: 600;
                     }
                     .mobile-safe-area {
                         display: none;
@@ -668,8 +512,6 @@ export default function ShareModal({
                     @keyframes spin {
                         to { transform: rotate(360deg); }
                     }
-
-                    /* ── Mobile Layout (< 768px) ── */
                     @media (max-width: 767px) {
                         .share-modal-overlay {
                             align-items: center;
@@ -683,17 +525,18 @@ export default function ShareModal({
                             max-height: 90vh;
                             padding: 1.25rem 1rem 1.5rem;
                         }
-                        .share-drag-handle {
-                            display: none;
-                        }
                         .share-close-btn {
                             top: 1rem;
                             right: 1rem;
+                        }
+                        .share-header {
+                            margin-bottom: 1rem;
                         }
                         .share-logo-box {
                             width: 52px;
                             height: 52px;
                             border-radius: 16px;
+                            margin: 0 auto 0.75rem;
                         }
                         .share-title {
                             font-size: 1.15rem;

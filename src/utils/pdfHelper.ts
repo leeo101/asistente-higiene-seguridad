@@ -145,7 +145,8 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
             let pageNumber = 0;
             let remainingHeight = finalContentHeightMM;
 
-            while (remainingHeight > 0) {
+            // Use a small tolerance (e.g., 5mm) to avoid adding a whole blank page for a tiny overflow
+            while (remainingHeight > 5) {
                 if (pageNumber > 0) pdf.addPage();
 
                 // Vertical offset: shift the image up so this page's slice is visible
