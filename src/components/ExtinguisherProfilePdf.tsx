@@ -109,6 +109,8 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                     style={{
                         width: '210mm',
                         minHeight: '297mm',
+                        display: 'flex',
+                        flexDirection: 'column',
                         padding: '15mm', background: '#ffffff', color: '#000000',
                         boxShadow: '0 20px 40px rgba(0,0,0,0.1)', borderRadius: '8px',
                         boxSizing: 'border-box'

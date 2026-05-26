@@ -221,18 +221,19 @@ export default function ExtintoresManager() {
             <style type="text/css">
                 {`
                     .ext-print-wrapper {
-                        position: absolute !important;
-                        left: -9999px !important;
-                        top: -9999px !important;
-                        opacity: 0 !important;
-                        pointer-events: none !important;
+                        position: fixed !important;
+                        left: 200vw !important;
+                        top: 0 !important;
+                        width: 210mm !important;
+                        z-index: -9999 !important;
                     }
                     @media print {
                         .ext-print-wrapper {
                             position: relative !important;
                             left: 0 !important;
                             top: 0 !important;
-                            opacity: 1 !important;
+                            width: 100% !important;
+                            z-index: auto !important;
                         }
                     }
                 `}
