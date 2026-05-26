@@ -672,19 +672,19 @@ export default function ShareModal({
                     /* ── Mobile Layout (< 768px) ── */
                     @media (max-width: 767px) {
                         .share-modal-overlay {
-                            align-items: flex-end;
-                            padding: 0;
+                            align-items: center;
+                            padding: 1rem;
                         }
                         .share-modal-container {
                             max-width: 100%;
                         }
                         .share-modal-content {
-                            border-radius: 24px 24px 0 0;
+                            border-radius: 24px;
                             max-height: 90vh;
                             padding: 1.25rem 1rem 1.5rem;
                         }
                         .share-drag-handle {
-                            display: block;
+                            display: none;
                         }
                         .share-close-btn {
                             top: 1rem;
