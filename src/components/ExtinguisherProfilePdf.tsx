@@ -185,6 +185,10 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                         </div>
                                     </div>
                                     <div>
+                                        <div style={{ fontSize: '9pt', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Empresa / Cliente</div>
+                                        <div style={{ fontSize: '11pt', fontWeight: 700, color: '#0f172a' }}>{data.empresa || '-'}</div>
+                                    </div>
+                                    <div>
                                         <div style={{ fontSize: '9pt', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Marca / Fabricante</div>
                                         <div style={{ fontSize: '11pt', fontWeight: 700, color: '#0f172a' }}>{data.marca || 'Sin especificar'}</div>
                                     </div>

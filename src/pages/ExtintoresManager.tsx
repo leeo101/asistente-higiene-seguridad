@@ -23,6 +23,7 @@ export default function ExtintoresManager() {
     
     const [extintores, setExtintores] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [filterEmpresa, setFilterEmpresa] = useState('');
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [qrData, setQrData] = useState(null);
@@ -35,6 +36,7 @@ export default function ExtintoresManager() {
         tipo: 'ABC',
         capacidad: '5 kg',
         ubicacion: '',
+        empresa: '',
         marca: '',
         fechaFabricacion: '',
         vencimientoRecarga: '',
@@ -124,7 +126,7 @@ export default function ExtintoresManager() {
         await saveToStorage(updated);
         setShowForm(false);
         setEditingId(null);
-        setFormData({ numero: '', numeroSerie: '', tipo: 'ABC', capacidad: '5 kg', ubicacion: '', marca: '', fechaFabricacion: '', vencimientoRecarga: '', vencimientoPH: '', selloIRAM: '', estadoFisico: 'Operativo', foto: null });
+        setFormData({ numero: '', numeroSerie: '', tipo: 'ABC', capacidad: '5 kg', ubicacion: '', marca: '', fechaFabricacion: '', vencimientoRecarga: '', vencimientoPH: '', selloIRAM: '', estadoFisico: 'Operativo', foto: null, empresa: '' });
     };
 
     const handleEdit = (ext) => {
@@ -179,11 +181,15 @@ export default function ExtintoresManager() {
         return { color: '#10b981', label: 'Vigente', bg: '#d1fae5', icon: <CheckCircle2 size={14} /> };
     };
 
-    const filtered = extintores.filter(e => 
-        e.numero.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        e.ubicacion.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        e.tipo.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filtered = extintores.filter(e => {
+        const matchesSearch = e.numero.toLowerCase().includes(searchTerm.toLowerCase()) || 
+            e.ubicacion.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            e.tipo.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesEmpresa = filterEmpresa === '' || e.empresa === filterEmpresa;
+        return matchesSearch && matchesEmpresa;
+    });
+
+    const uniqueEmpresas = [...new Set(extintores.map(e => e.empresa).filter(Boolean))];
 
     const types = ['ABC', 'CO2', 'K', 'Agua', 'HCFC', 'Espuma'];
 
@@ -267,6 +273,10 @@ export default function ExtintoresManager() {
                             <div>
                                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>Nº CHAPA / ID</label>
                                 <input required type="text" value={formData.numero} onChange={e => setFormData({...formData, numero: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--color-border)', outline: 'none' }} placeholder="Ej: EXT-01" />
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>CLIENTE / EMPRESA</label>
+                                <input type="text" value={formData.empresa || ''} onChange={e => setFormData({...formData, empresa: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--color-border)', outline: 'none' }} placeholder="Ej: Empresa S.A." />
                             </div>
                             <div>
                                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>Nº DE SERIE (FABRICANTE)</label>
@@ -445,15 +455,29 @@ export default function ExtintoresManager() {
                 </div>
             ) : (
                 <>
-                    <div style={{ marginBottom: '1.5rem', position: 'relative' }}>
-                        <Search size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
-                        <input 
-                            type="text" 
-                            placeholder="Buscar por Nº de chapa, tipo o ubicación..." 
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            style={{ width: '100%', padding: '1rem 1rem 1rem 3rem', borderRadius: '16px', border: '2px solid var(--color-border)', fontSize: '1rem', outline: 'none', background: 'var(--color-surface)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}
-                        />
+                    <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                        <div style={{ flex: '1 1 300px', position: 'relative' }}>
+                            <Search size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                            <input 
+                                type="text" 
+                                placeholder="Buscar por Nº de chapa, tipo o ubicación..." 
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                style={{ width: '100%', padding: '1rem 1rem 1rem 3rem', borderRadius: '16px', border: '2px solid var(--color-border)', fontSize: '1rem', outline: 'none', background: 'var(--color-surface)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}
+                            />
+                        </div>
+                        <div style={{ flex: '0 1 250px' }}>
+                            <select 
+                                value={filterEmpresa} 
+                                onChange={e => setFilterEmpresa(e.target.value)}
+                                style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '2px solid var(--color-border)', fontSize: '1rem', outline: 'none', background: 'var(--color-surface)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', color: filterEmpresa ? 'var(--color-text)' : 'var(--color-text-muted)' }}
+                            >
+                                <option value="">Todas las Empresas</option>
+                                {uniqueEmpresas.map(emp => (
+                                    <option key={emp} value={emp}>{emp}</option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
@@ -485,7 +509,12 @@ export default function ExtintoresManager() {
                                                     <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', fontWeight: 900 }}>
                                                         {ext.numero}
                                                     </h3>
-                                                    <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: '0.8rem', fontWeight: 700, marginTop: '0.2rem' }}>
+                                                    {ext.empresa && (
+                                                        <div style={{ display: 'inline-block', background: 'rgba(37,99,235,0.1)', color: '#2563eb', padding: '0.1rem 0.5rem', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 800, marginTop: '0.2rem', border: '1px solid rgba(37,99,235,0.2)' }}>
+                                                            {ext.empresa}
+                                                        </div>
+                                                    )}
+                                                    <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: '0.8rem', fontWeight: 700, marginTop: '0.3rem' }}>
                                                         {ext.tipo} - {ext.capacidad} {ext.marca ? `(${ext.marca})` : ''}
                                                     </p>
                                                     {ext.numeroSerie && (
