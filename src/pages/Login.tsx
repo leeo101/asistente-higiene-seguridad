@@ -330,6 +330,7 @@ export default function Login(): React.ReactElement {
             
             /* Glassmorphism Inputs */
             .login-page-wrapper input, .login-page-wrapper select {
+              display: block !important;
               width: 100% !important;
               box-sizing: border-box !important;
               background: rgba(255, 255, 255, 0.6) !important;
@@ -423,7 +424,7 @@ export default function Login(): React.ReactElement {
               <div style={{ marginBottom: '1.5rem' }}>
                 <label htmlFor="email">Correo Electrónico</label>
                 <div style={{ position: 'relative', width: '100%' }}>
-                  <User size={18} style={{ position: 'absolute', left: '14px', top: '0', bottom: '0', margin: 'auto', color: '#64748b', pointerEvents: 'none' }} />
+                  <User size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', pointerEvents: 'none' }} />
                   <input
                     type="email"
                     id="email"
@@ -439,7 +440,7 @@ export default function Login(): React.ReactElement {
               <div style={{ marginBottom: '2rem' }}>
                 <label htmlFor="password">Contraseña</label>
                 <div style={{ position: 'relative', width: '100%' }}>
-                  <Lock size={18} style={{ position: 'absolute', left: '14px', top: '0', bottom: '0', margin: 'auto', color: '#64748b', pointerEvents: 'none' }} />
+                  <Lock size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', pointerEvents: 'none' }} />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     id="password"
@@ -455,9 +456,8 @@ export default function Login(): React.ReactElement {
                     style={{
                       position: 'absolute',
                       right: '14px',
-                      top: '0',
-                      bottom: '0',
-                      margin: 'auto',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
                       background: 'none',
                       border: 'none',
                       cursor: 'pointer',
@@ -583,7 +583,7 @@ export default function Login(): React.ReactElement {
               <div style={{ marginBottom: '1.5rem' }}>
                 <label htmlFor="name">Nombre Completo</label>
                 <div style={{ position: 'relative', width: '100%' }}>
-                  <User size={18} style={{ position: 'absolute', left: '14px', top: '0', bottom: '0', margin: 'auto', color: '#64748b', pointerEvents: 'none' }} />
+                  <User size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', pointerEvents: 'none' }} />
                   <input
                     type="text"
                     id="name"
@@ -599,7 +599,7 @@ export default function Login(): React.ReactElement {
               <div style={{ marginBottom: '1.5rem' }}>
                 <label htmlFor="email">Correo Electrónico</label>
                 <div style={{ position: 'relative', width: '100%' }}>
-                  <Mail size={18} style={{ position: 'absolute', left: '14px', top: '0', bottom: '0', margin: 'auto', color: '#64748b', pointerEvents: 'none' }} />
+                  <Mail size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', pointerEvents: 'none' }} />
                   <input
                     type="email"
                     id="email"
@@ -615,7 +615,7 @@ export default function Login(): React.ReactElement {
               <div style={{ marginBottom: '1.5rem' }}>
                 <label htmlFor="password">Contraseña</label>
                 <div style={{ position: 'relative', width: '100%' }}>
-                  <Lock size={18} style={{ position: 'absolute', left: '14px', top: '0', bottom: '0', margin: 'auto', color: '#64748b', pointerEvents: 'none' }} />
+                  <Lock size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', pointerEvents: 'none' }} />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     id="password"
@@ -657,7 +657,7 @@ export default function Login(): React.ReactElement {
               <div style={{ marginBottom: '1.5rem' }}>
                 <label htmlFor="confirmPassword">Confirmar Contraseña</label>
                 <div style={{ position: 'relative', width: '100%' }}>
-                  <Lock size={18} style={{ position: 'absolute', left: '14px', top: '0', bottom: '0', margin: 'auto', color: '#64748b', pointerEvents: 'none' }} />
+                  <Lock size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', pointerEvents: 'none' }} />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     id="confirmPassword"
@@ -673,7 +673,7 @@ export default function Login(): React.ReactElement {
               <div style={{ marginBottom: '1.5rem' }}>
                 <label htmlFor="country">País</label>
                 <div style={{ position: 'relative', width: '100%' }}>
-                  <MapPin size={18} style={{ position: 'absolute', left: '14px', top: '0', bottom: '0', margin: 'auto', color: '#64748b', pointerEvents: 'none' }} />
+                  <MapPin size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', pointerEvents: 'none' }} />
                   <select
                     id="country"
                     value={country}
@@ -698,7 +698,7 @@ export default function Login(): React.ReactElement {
                 <div style={{ marginBottom: '1.2rem' }}>
                   <label htmlFor="profession">Profesión / Título</label>
                   <div style={{ position: 'relative', width: '100%' }}>
-                    <GraduationCap size={18} style={{ position: 'absolute', left: '14px', top: '0', bottom: '0', margin: 'auto', color: '#64748b', pointerEvents: 'none' }} />
+                    <GraduationCap size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', pointerEvents: 'none' }} />
                     <select
                       id="profession"
                       value={profession}
@@ -716,7 +716,7 @@ export default function Login(): React.ReactElement {
                 <div style={{ marginBottom: '1.2rem' }}>
                   <label htmlFor="license">Matrícula Profesional</label>
                   <div style={{ position: 'relative', width: '100%' }}>
-                    <Award size={18} style={{ position: 'absolute', left: '14px', top: '0', bottom: '0', margin: 'auto', color: '#64748b', pointerEvents: 'none' }} />
+                    <Award size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', pointerEvents: 'none' }} />
                     <input
                       type="text"
                       id="license"
@@ -731,7 +731,7 @@ export default function Login(): React.ReactElement {
                 <div style={{ marginBottom: '1.2rem' }}>
                   <label htmlFor="dni">DNI / Cédula</label>
                   <div style={{ position: 'relative', width: '100%' }}>
-                    <CreditCard size={18} style={{ position: 'absolute', left: '14px', top: '0', bottom: '0', margin: 'auto', color: '#64748b', pointerEvents: 'none' }} />
+                    <CreditCard size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', pointerEvents: 'none' }} />
                     <input
                       type="text"
                       id="dni"
@@ -746,7 +746,7 @@ export default function Login(): React.ReactElement {
                 <div style={{ marginBottom: '0' }}>
                   <label htmlFor="phone">Teléfono de Contacto</label>
                   <div style={{ position: 'relative', width: '100%' }}>
-                    <Phone size={18} style={{ position: 'absolute', left: '14px', top: '0', bottom: '0', margin: 'auto', color: '#64748b', pointerEvents: 'none' }} />
+                    <Phone size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', pointerEvents: 'none' }} />
                     <input
                       type="tel"
                       id="phone"
@@ -828,7 +828,7 @@ export default function Login(): React.ReactElement {
               <div style={{ marginBottom: '1.5rem' }}>
                 <label htmlFor="email">Correo Electrónico</label>
                 <div style={{ position: 'relative', width: '100%' }}>
-                  <Mail size={18} style={{ position: 'absolute', left: '14px', top: '0', bottom: '0', margin: 'auto', color: '#64748b', pointerEvents: 'none' }} />
+                  <Mail size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', pointerEvents: 'none' }} />
                   <input
                     type="email"
                     id="email"
