@@ -96,12 +96,12 @@ const CHART_COLORS = {
 };
 
 const CARD_GRADIENTS = {
-  blue: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-  green: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-  orange: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-  red: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-  purple: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-  cyan: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)'  
+  blue: 'linear-gradient(135deg, rgba(59, 130, 246, 0.85) 0%, rgba(37, 99, 235, 0.85) 100%)',
+  green: 'linear-gradient(135deg, rgba(16, 185, 129, 0.85) 0%, rgba(5, 150, 105, 0.85) 100%)',
+  orange: 'linear-gradient(135deg, rgba(245, 158, 11, 0.85) 0%, rgba(217, 119, 6, 0.85) 100%)',
+  red: 'linear-gradient(135deg, rgba(239, 68, 68, 0.85) 0%, rgba(220, 38, 38, 0.85) 100%)',
+  purple: 'linear-gradient(135deg, rgba(139, 92, 246, 0.85) 0%, rgba(124, 58, 237, 0.85) 100%)',
+  cyan: 'linear-gradient(135deg, rgba(6, 182, 212, 0.85) 0%, rgba(8, 145, 178, 0.85) 100%)'  
 };
 
 const KPICard: React.FC<KPICardProps> = ({ icon: Icon, title, value, trend, gradient, delay }) => (
@@ -112,7 +112,10 @@ const KPICard: React.FC<KPICardProps> = ({ icon: Icon, title, value, trend, grad
         borderRadius: '20px',
         background: gradient,
         color: '#ffffff',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        border: '1px solid rgba(255,255,255,0.2)',
         transition: 'transform 0.3s ease, box-shadow 0.3s ease'
       }}
       onMouseOver={e => {
@@ -434,7 +437,8 @@ export default function Dashboard(): React.ReactElement {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '0.4rem'
+              gap: '0.4rem',
+              backdropFilter: 'blur(8px)'
             }}
           >
             <Download size={18} /> {isMobile ? 'Exportar' : 'Exportar'}
@@ -460,7 +464,7 @@ export default function Dashboard(): React.ReactElement {
       {/* Header */}
 
       {/* KPI Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
         {loading ? (
           <> {[...Array(7)].map((_, i) => <KPISkeleton key={i} />)} </>
         ) : (
@@ -473,9 +477,9 @@ export default function Dashboard(): React.ReactElement {
             {/* Special: Animated days-without-accidents card */}
             <div className="stagger-item" style={{ animationDelay: '0.4s' }}>
               <div
-                style={{ padding: '1.5rem', borderRadius: '20px', background: CARD_GRADIENTS.purple, color: '#ffffff', boxShadow: '0 10px 30px rgba(0,0,0,0.2)', transition: 'transform 0.3s ease, box-shadow 0.3s ease', textAlign: 'center' }}
-                onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.boxShadow = '0 15px 40px rgba(0,0,0,0.3)'; }}
-                onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.2)'; }}
+                style={{ padding: '1.5rem', borderRadius: '20px', background: CARD_GRADIENTS.purple, color: '#ffffff', boxShadow: '0 10px 30px rgba(0,0,0,0.15)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.2)', transition: 'transform 0.3s ease, box-shadow 0.3s ease', textAlign: 'center' }}
+                onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.boxShadow = '0 15px 40px rgba(0,0,0,0.2)'; }}
+                onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.15)'; }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '0.8rem', opacity: 0.9 }}>
                   <Clock size={22} />
@@ -492,7 +496,7 @@ export default function Dashboard(): React.ReactElement {
       </div>
 
       {/* Charts */}
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(min(100%, 400px), 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
 
         {loading ? <><ChartSkeleton /><ChartSkeleton /></> : (<>
 
@@ -578,7 +582,7 @@ export default function Dashboard(): React.ReactElement {
       {/* Top Risks & Alerts */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 350px), 1fr))',
         gap: '1.5rem',
         marginBottom: '2rem'
       }}>

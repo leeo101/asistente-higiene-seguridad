@@ -320,7 +320,7 @@ export default function ManagementReport(): React.ReactElement | null {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', animation: 'fadeIn 0.4s ease' }}>
 
                     {/* Resumen Superior */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '1.5rem' }}>
                         {/* Volumen General */}
                         <div className="card" style={{ padding: '2rem', background: 'linear-gradient(135deg, var(--color-primary), #1e40af)', color: 'white', border: 'none', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                             <h2 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: 700, opacity: 0.9, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -370,7 +370,7 @@ export default function ManagementReport(): React.ReactElement | null {
                     </div>
 
                     {/* Grilla de Métricas Detalladas */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 240px), 1fr))', gap: '1rem' }}>
                         
                         <div className="card hover-lift" style={{ padding: '1.2rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
                             <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
