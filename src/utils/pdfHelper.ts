@@ -19,6 +19,8 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         maxWidth: element.style.maxWidth,
         height: element.style.height,
         minHeight: element.style.minHeight,
+        display: element.style.display,
+        flexDirection: element.style.flexDirection,
         transform: element.style.transform,
         zIndex: element.style.zIndex,
         opacity: element.style.opacity,
@@ -37,12 +39,17 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         // Hide off-screen instead of overlapping the UI
         element.style.position = 'absolute';
         element.style.left = '-9999px';
-        element.style.top = '-9999px';
+        element.style.top = '0px';
         element.style.width = targetWidth;
         element.style.maxWidth = 'none';
+
+        // CRÍTICO: forzar display:block para que scrollHeight funcione bien.
+        // display:flex con marginTop:auto en hijos colapsa scrollHeight en html2canvas.
+        element.style.display = 'block';
+        element.style.flexDirection = 'unset';
         
         // Remove height constraints so it can expand naturally to content height
-        element.style.height = 'max-content';
+        element.style.height = 'auto';
         element.style.minHeight = '0';
         element.style.overflow = 'visible';
         
@@ -54,22 +61,29 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         element.style.color = '#000000';
         element.classList.add('force-pdf-print');
 
-        // Wait for styles to apply and images to load
-        await new Promise(resolve => setTimeout(resolve, 600));
+        // Primera espera: estilos y reflow inicial
+        await new Promise(resolve => setTimeout(resolve, 300));
 
-        // Force layout recalc so scrollHeight is accurate
+        // Forzar recálculo de layout
+        element.getBoundingClientRect();
+        document.body.offsetHeight; // trigger global reflow
+
+        // Segunda espera: imágenes y fuentes (firmas, logos)
+        await new Promise(resolve => setTimeout(resolve, 700));
+
+        // Segundo recálculo para capturar la altura real tras imágenes
         element.getBoundingClientRect();
 
         // Default configuration
         const A4_WIDTH_MM = 210;
         const A4_HEIGHT_MM = 297;
 
-        // Use scrollHeight to capture full content even if overflow was hidden
-        const captureWidth = element.scrollWidth || element.offsetWidth;
-        const captureHeight = element.scrollHeight || element.offsetHeight;
+        // Medir DESPUÉS del doble reflow
+        const captureWidth = Math.max(element.scrollWidth, element.offsetWidth);
+        const captureHeight = Math.max(element.scrollHeight, element.offsetHeight);
 
         const canvas = await html2canvas(element, {
-            scale: 2.5, // Good quality without excessive memory
+            scale: 2.5,
             useCORS: true,
             allowTaint: true,
             logging: false,
@@ -161,6 +175,8 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         element.style.maxWidth = originalStyles.maxWidth;
         element.style.height = originalStyles.height;
         element.style.minHeight = originalStyles.minHeight;
+        element.style.display = originalStyles.display;
+        element.style.flexDirection = originalStyles.flexDirection;
         element.style.transform = originalStyles.transform;
         element.style.zIndex = originalStyles.zIndex;
         element.style.opacity = originalStyles.opacity;

@@ -33,14 +33,7 @@ export default function ShareModal({
 
     const [copied, setCopied] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [pendingShareFile, setPendingShareFile] = useState<File | null>(null);
-
-    useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth < 768);
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
 
     useEffect(() => {
         if (!displayOpen) return;
@@ -328,6 +321,118 @@ export default function ShareModal({
                             margin: 0,
                             padding: '0 0.5rem',
                             overflow: 'hidden',
+            };
+
+            if (navigator.canShare && navigator.canShare(shareData)) {
+                try {
+                    await navigator.share(shareData);
+                    toast.success('¡Compartido con éxito!', { id: 'pdf-gen' });
+                } catch (shareErr: any) {
+                    console.warn("Native share failed, falling back to download/link:", shareErr);
+                    // If it's a user gesture error due to async timeout, offer a retry button
+                    if (shareErr.name === 'NotAllowedError' || shareErr.message?.toLowerCase().includes('user gesture')) {
+                        setPendingShareFile(file);
+                        toast.success('PDF listo. Toca el botón para enviar.', { id: 'pdf-gen', duration: 4000 });
+                    } else {
+                        fallbackShare();
+                    }
+                }
+            } else {
+                fallbackShare();
+            }
+        } catch (error) {
+            console.error("Error generating/sharing PDF:", error);
+            toast.error('Hubo un error al procesar el PDF.', { id: 'pdf-gen' });
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
+    const handleDirectDownload = async () => {
+        if (!isPro) {
+            toast.error('La descarga de PDFs es exclusiva para miembros PRO 💎', { duration: 4000 });
+            return;
+        }
+
+        if (!elementIdToPrint) return;
+        
+        // Trigger native print for true vector PDF quality instead of html2canvas screenshots
+        toast.success('Para obtener la mejor calidad (sin capturas), selecciona "Guardar como PDF" en la siguiente ventana.', { duration: 5000 });
+        setTimeout(() => {
+            handlePrint();
+        }, 1500);
+    };
+
+    const options = [
+        {
+            label: 'WhatsApp',
+            icon: (
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
+            ),
+            url: `https://wa.me/?text=${encodeURIComponent(message)}`,
+            bg: '#25D366',
+            color: '#ffffff',
+            hijack: true
+        },
+        {
+            label: 'Correo',
+            icon: <Mail size={22} />,
+            url: `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(message)}`,
+            bg: '#3b82f6',
+            color: '#ffffff',
+            hijack: true
+        },
+        {
+            label: 'Descargar',
+            icon: <Download size={22} />,
+            onClick: handleDirectDownload,
+            bg: '#8b5cf6',
+            color: '#ffffff',
+            hijack: false
+        },
+        {
+            label: 'Imprimir',
+            icon: <Printer size={22} />,
+            onClick: handlePrint,
+            bg: '#1e293b',
+            color: '#ffffff',
+            hijack: false
+        }
+    ];
+
+    return createPortal(
+        <div className="share-modal-overlay">
+            <div className="share-modal-container" onClick={e => e.stopPropagation()}>
+                <div className="share-modal-content">
+                    <div className="share-drag-handle" />
+
+                    <button className="share-close-btn" onClick={onClose} title="Cerrar">
+                        <X size={16} strokeWidth={3} />
+                    </button>
+
+                    <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                        <div className="share-logo-box">
+                            <img 
+                                src="/logo.png" 
+                                alt="Logo" 
+                                style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
+                                onError={(e) => {
+                                    (e.target as HTMLImageElement).style.display = 'none';
+                                    const parent = (e.target as HTMLImageElement).parentElement;
+                                    if (parent) parent.innerHTML = '<div style="color:var(--color-primary)"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div>';
+                                }}
+                            />
+                        </div>
+                        <h2 className="share-title">Compartir Reporte</h2>
+                        <p style={{
+                            color: 'var(--color-text-muted)',
+                            fontSize: '0.78rem',
+                            fontWeight: '500',
+                            margin: 0,
+                            padding: '0 0.5rem',
+                            overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap'
                         }}>
@@ -386,14 +491,13 @@ export default function ShareModal({
                                                 await handleNativeShare(opt.label);
                                             }
                                         }}
-                                        className="share-item-button"
+                                        className="share-item-button share-opt-btn"
                                         style={{
                                             display: 'flex', alignItems: 'center', gap: '0.6rem',
-                                            padding: isMobile ? '0.85rem 0.6rem' : '0.9rem',
                                             background: opt.bg,
                                             borderRadius: '14px', border: `1px solid ${opt.color}20`,
                                             textDecoration: 'none', color: opt.color,
-                                            fontWeight: 800, fontSize: isMobile ? '0.82rem' : '0.9rem',
+                                            fontWeight: 800,
                                             transition: 'all 0.2s',
                                             justifyContent: 'center',
                                             opacity: (isGenerating && isHijacked) ? 0.7 : 1,
@@ -456,11 +560,94 @@ export default function ShareModal({
                         </div>
                     ) : null}
 
-                    {/* Safe area padding for iOS home bar */}
-                    {isMobile && <div style={{ height: 'env(safe-area-inset-bottom, 12px)' }} />}
+                    <div className="mobile-safe-area" />
                 </div>
 
                 <style>{`
+                    .share-modal-overlay {
+                        position: fixed;
+                        top: 0; left: 0; right: 0; bottom: 0;
+                        background-color: rgba(15, 23, 42, 0.85);
+                        backdrop-filter: blur(12px);
+                        -webkit-backdrop-filter: blur(12px);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        z-index: 999999;
+                        padding: 1.5rem;
+                    }
+                    .share-modal-container {
+                        position: relative;
+                        width: 100%;
+                        max-width: min(440px, 100%);
+                        box-sizing: border-box;
+                    }
+                    .share-modal-content {
+                        background: var(--color-surface);
+                        border-radius: 28px;
+                        width: 100%;
+                        max-height: 85vh;
+                        overflow-y: auto;
+                        padding: 2rem;
+                        box-shadow: 0 25px 70px -10px rgba(0, 0, 0, 0.5);
+                        border: 1px solid rgba(255,255,255,0.1);
+                        position: relative;
+                        box-sizing: border-box;
+                    }
+                    .share-drag-handle {
+                        display: none;
+                        width: 40px;
+                        height: 4px;
+                        background: var(--color-border);
+                        border-radius: 9999px;
+                        margin: 0 auto 1rem;
+                        opacity: 0.6;
+                    }
+                    .share-close-btn {
+                        position: absolute;
+                        top: 1.25rem;
+                        right: 1.25rem;
+                        background: #ef4444;
+                        border: none;
+                        border-radius: 12px;
+                        width: 32px;
+                        height: 32px;
+                        cursor: pointer;
+                        color: #ffffff;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        z-index: 10;
+                        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+                        transition: all 0.2s;
+                    }
+                    .share-logo-box {
+                        width: 72px;
+                        height: 72px;
+                        background: #ffffff;
+                        border-radius: 20px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        margin: 0 auto 0.75rem;
+                        box-shadow: 0 6px 20px -4px rgba(0, 0, 0, 0.2);
+                        padding: 8px;
+                        border: 1px solid var(--color-border);
+                    }
+                    .share-title {
+                        font-size: 1.4rem;
+                        font-weight: 900;
+                        color: var(--color-text);
+                        margin-bottom: 0.3rem;
+                        letter-spacing: -0.3px;
+                    }
+                    .share-opt-btn {
+                        padding: 0.9rem;
+                        font-size: 0.9rem;
+                    }
+                    .mobile-safe-area {
+                        display: none;
+                    }
                     .share-item-button:hover {
                         filter: brightness(0.92);
                         transform: translateY(-2px);
@@ -481,9 +668,43 @@ export default function ShareModal({
                     @keyframes spin {
                         to { transform: rotate(360deg); }
                     }
-                    @media (max-width: 480px) {
+
+                    /* ── Mobile Layout (< 768px) ── */
+                    @media (max-width: 767px) {
                         .share-modal-overlay {
-                            padding: 0 !important;
+                            align-items: flex-end;
+                            padding: 0;
+                        }
+                        .share-modal-container {
+                            max-width: 100%;
+                        }
+                        .share-modal-content {
+                            border-radius: 24px 24px 0 0;
+                            max-height: 90vh;
+                            padding: 1.25rem 1rem 1.5rem;
+                        }
+                        .share-drag-handle {
+                            display: block;
+                        }
+                        .share-close-btn {
+                            top: 1rem;
+                            right: 1rem;
+                        }
+                        .share-logo-box {
+                            width: 52px;
+                            height: 52px;
+                            border-radius: 16px;
+                        }
+                        .share-title {
+                            font-size: 1.15rem;
+                        }
+                        .share-opt-btn {
+                            padding: 0.85rem 0.6rem;
+                            font-size: 0.82rem;
+                        }
+                        .mobile-safe-area {
+                            display: block;
+                            height: env(safe-area-inset-bottom, 16px);
                         }
                     }
                 `}</style>
