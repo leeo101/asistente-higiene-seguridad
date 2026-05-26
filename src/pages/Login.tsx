@@ -272,10 +272,9 @@ export default function Login(): React.ReactElement {
       <div style={{ position: 'absolute', top: '10%', left: '15%', width: '300px', height: '300px', background: 'rgba(139, 92, 246, 0.3)', borderRadius: '50%', filter: 'blur(80px)', animation: 'float 10s ease-in-out infinite' }} />
       <div style={{ position: 'absolute', bottom: '10%', right: '15%', width: '250px', height: '250px', background: 'rgba(59, 130, 246, 0.3)', borderRadius: '50%', filter: 'blur(80px)', animation: 'float 12s ease-in-out infinite reverse' }} />
 
-      <div style={{
+      <div className="login-card" style={{
         width: '100%',
         maxWidth: '480px',
-        padding: '2.5rem 2rem',
         borderRadius: '24px',
         textAlign: 'center',
         background: 'rgba(255, 255, 255, 0.7)',
@@ -286,7 +285,8 @@ export default function Login(): React.ReactElement {
         animation: 'fadeIn 0.6s ease-out, slideUp 0.6s ease-out',
         margin: '0 auto',
         position: 'relative',
-        zIndex: 1
+        zIndex: 1,
+        boxSizing: 'border-box'
       }}>
         <img
           src="/logo.png"
@@ -309,6 +309,23 @@ export default function Login(): React.ReactElement {
             }
             .floating-logo {
               animation: floatingLogo 4s infinite ease-in-out;
+            }
+
+            .login-card {
+              padding: 2.5rem 2rem;
+            }
+
+            @media (max-width: 600px) {
+              .login-card {
+                padding: 2rem 1.2rem !important;
+              }
+              .login-page-wrapper {
+                padding: 1rem !important;
+              }
+              .floating-logo {
+                height: 70px !important;
+                margin-bottom: 1.5rem !important;
+              }
             }
             
             /* Glassmorphism Inputs */
