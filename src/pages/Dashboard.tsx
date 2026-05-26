@@ -15,7 +15,10 @@ import { useSync } from '../contexts/SyncContext';
 import Breadcrumbs from '../components/Breadcrumbs';
 import toast from 'react-hot-toast';
 import confetti from 'canvas-confetti';
+import { useMobile } from '../hooks/useMobile';
 import DailyNewsWidget from '../components/DailyNewsWidget';
+import AdBanner from '../components/ads/AdBanner';
+import AdModal from '../components/ads/AdModal';
 
 // Tipos
 interface KPIData {
@@ -231,6 +234,9 @@ export default function Dashboard(): React.ReactElement {
   const navigate = useNavigate();
   const { currentUser } = useAuth() as { currentUser: User | null };
   const { syncPulse } = useSync();
+  
+  // Publicidad modal al ingresar
+  const [isAdModalOpen, setIsAdModalOpen] = useState(true);
 
   const [kpis, setKpis] = useState<KPIData>({
     accidentRate: 0,
@@ -401,6 +407,11 @@ export default function Dashboard(): React.ReactElement {
 
   return (
     <AnimatedPage>
+      <AdModal 
+        isOpen={isAdModalOpen} 
+        onClose={() => setIsAdModalOpen(false)} 
+        adSlot="dashboard-popup" 
+      />
       <div className="container" style={{ paddingTop: isMobile ? '7rem' : '6rem', paddingBottom: '3rem' }}>
         <Breadcrumbs />
 
@@ -687,6 +698,11 @@ export default function Dashboard(): React.ReactElement {
             </div>
           )}
         </div>
+      </div>
+      
+      {/* Banner Publicitario Inferior */}
+      <div style={{ marginTop: '2rem' }}>
+        <AdBanner adSlot="dashboard-bottom" format="horizontal" />
       </div>
 
       <style>

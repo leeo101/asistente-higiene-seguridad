@@ -9,6 +9,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import ShareModal from '../components/ShareModal';
 import QRModal from '../components/QRModal';
 import ExtinguisherPdfGenerator from '../components/ExtinguisherPdfGenerator';
+import ExtinguisherProfilePdf from '../components/ExtinguisherProfilePdf';
 import { usePaywall } from '../hooks/usePaywall';
 import { DataTable } from '../components/DataTable';
 import AnimatedPage from '../components/AnimatedPage';
@@ -295,8 +296,12 @@ export default function ExtinguishersHistory(): React.ReactElement | null {
         <AnimatedPage>
             <div className="container" style={{ paddingBottom: '3rem' }}>
                 <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={Array.isArray(shareItem) ? "Inventario de Extintores" : `Extintor #${shareItem?.chapa}`} text={shareItem ? (Array.isArray(shareItem) ? `🧯 Inventario de Extintores\n📊 Total: ${shareItem.length}` : `🧯 Extintor #${shareItem.chapa}\n📍 Ubicación: ${shareItem.ubicacion}`) : ''} rawMessage={''} elementIdToPrint="pdf-content" fileName={Array.isArray(shareItem) ? "Inventario_Extintores.pdf" : `Extintor_${shareItem?.chapa || 'Reporte'}.pdf`} />
-                <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
-                    <ExtinguisherPdfGenerator extinguishers={Array.isArray(shareItem) ? shareItem : (shareItem ? [shareItem] : [])} />
+                <div className="ats-pdf-offscreen" aria-hidden="true">
+                    {shareItem && !Array.isArray(shareItem) ? (
+                        <ExtinguisherProfilePdf data={shareItem} isHeadless={true} />
+                    ) : (
+                        <ExtinguisherPdfGenerator extinguishers={Array.isArray(shareItem) ? shareItem : []} />
+                    )}
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>

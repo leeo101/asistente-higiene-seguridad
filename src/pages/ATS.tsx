@@ -21,6 +21,7 @@ import CompanyLogo from '../components/CompanyLogo';
 import PdfSignatures from '../components/PdfSignatures';
 import SignatureCanvas from '../components/SignatureCanvas';
 import { API_BASE_URL } from '../config';
+import AdModal from '../components/ads/AdModal';
 
 const printStyles = `
 @media print {
@@ -124,6 +125,7 @@ export default function ATS(): React.ReactElement | null {
     const [isGeneratingATS, setIsGeneratingATS] = useState(false);
     const [showAIModal, setShowAIModal] = useState(false);
     const [aiTaskInput, setAiTaskInput] = useState('');
+    const [isAdModalOpen, setIsAdModalOpen] = useState(true);
 
     const handleGenerateAI = () => {
         setAiTaskInput('');
@@ -367,6 +369,11 @@ export default function ATS(): React.ReactElement | null {
     return (
         <>
             <style>{printStyles}</style>
+            <AdModal 
+                isOpen={isAdModalOpen} 
+                onClose={() => setIsAdModalOpen(false)} 
+                adSlot="ats-popup" 
+            />
             <div className="container" style={{ maxWidth: '1200px', paddingBottom: '12rem' }}>
                 {/* Breadcrumbs de navegación */}
                 <Breadcrumbs />
