@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Fire, MapPin, ArrowLeft, ShareNetwork as Share2, QrCode, Printer, PencilSimple, DownloadSimple } from '@phosphor-icons/react';
 import ExcelJS from 'exceljs';
+import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
