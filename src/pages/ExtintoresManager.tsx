@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
     Flame, Plus, Search, MapPin, QrCode, ArrowLeft, ShieldCheck,
     Calendar, Edit3, Trash2, Printer, AlertTriangle, CheckCircle2, Camera, Share2, Pencil
@@ -18,6 +18,7 @@ import PdfSignatures from '../components/PdfSignatures';
 
 export default function ExtintoresManager() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const { requirePro } = usePaywall();
     const { syncCollection } = useSync();
     
@@ -98,18 +99,54 @@ export default function ExtintoresManager() {
 
     useEffect(() => {
         const loadData = async () => {
-            const dataRaw = localStorage.getItem('extintores_inventory');
-            if (dataRaw) {
-                setExtintores(JSON.parse(dataRaw));
+            const oldDataStr = localStorage.getItem('extinguishers_inventory');
+            const newDataStr = localStorage.getItem('extintores_inventory');
+            let combined = [];
+            
+            if (oldDataStr) {
+                try { combined = [...combined, ...JSON.parse(oldDataStr)]; } catch(e) {}
             }
+            
+            if (newDataStr) {
+                try {
+                    const newData = JSON.parse(newDataStr);
+                    const existingIds = new Set(combined.map((e: any) => e.id));
+                    const uniqueNew = newData.filter((e: any) => !existingIds.has(e.id));
+                    combined = [...combined, ...uniqueNew];
+                    localStorage.setItem('extinguishers_inventory', JSON.stringify(combined));
+                    localStorage.removeItem('extintores_inventory');
+                } catch(e) {}
+            }
+
+            const migrated = combined.map((ext: any) => {
+                return {
+                    ...ext,
+                    numero: ext.numero || ext.chapa || '',
+                    vencimientoRecarga: ext.vencimientoRecarga || ext.ultimaCarga || '',
+                    vencimientoPH: ext.vencimientoPH || ext.ultimaPH || ''
+                };
+            });
+            setExtintores(migrated as any);
         };
         loadData();
     }, []);
 
+    useEffect(() => {
+        const editId = searchParams.get('edit');
+        if (editId && extintores.length > 0 && !showForm && !editingId) {
+            const extToEdit = extintores.find(e => e.id === editId);
+            if (extToEdit) {
+                setFormData(extToEdit);
+                setEditingId(editId);
+                setShowForm(true);
+            }
+        }
+    }, [searchParams, extintores, showForm, editingId]);
+
     const saveToStorage = async (data) => {
-        localStorage.setItem('extintores_inventory', JSON.stringify(data));
+        localStorage.setItem('extinguishers_inventory', JSON.stringify(data));
         setExtintores(data);
-        await syncCollection('extintores_inventory', data);
+        await syncCollection('extinguishers_inventory', data);
     };
 
     const handleSave = async (e) => {
@@ -203,7 +240,7 @@ export default function ExtintoresManager() {
             <Breadcrumbs />
 
             <PremiumHeader
-                title="Gestor de Extintores"
+                title="Control de Matafuegos"
                 subtitle="Inventario, trazabilidad NFPA 10 y Códigos QR"
                 icon={<Flame size={36} />}
             />

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Fire, MapPin, ArrowLeft, ShareNetwork as Share2, QrCode, Printer } from '@phosphor-icons/react';
+import { Fire, MapPin, ArrowLeft, ShareNetwork as Share2, QrCode, Printer, PencilSimple, DownloadSimple } from '@phosphor-icons/react';
+import ExcelJS from 'exceljs';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -35,6 +36,18 @@ const getStatus = (lastDate, monthsValid) => {
     return { status: 'valid', color: '#10b981', text: 'Vigente' };
 };
 
+const getLifespanStatus = (fechaFab) => {
+    if (!fechaFab) return null;
+    const d = new Date(fechaFab);
+    const limitDate = new Date(d);
+    limitDate.setFullYear(limitDate.getFullYear() + 20);
+    const today = new Date();
+    const diffDays = Math.ceil(((limitDate as any) - (today as any)) / (1000 * 60 * 60 * 24));
+    if (diffDays < 0) return { color: '#ef4444', text: 'Vencida' };
+    if (diffDays <= 180) return { color: '#f59e0b', text: 'Por vencer' };
+    return { color: '#10b981', text: 'Vigente' };
+};
+
 export default function ExtinguishersHistory(): React.ReactElement | null {
     useDocumentTitle('Historial de Extintores');
     const navigate = useNavigate();
@@ -44,11 +57,127 @@ export default function ExtinguishersHistory(): React.ReactElement | null {
     const [inventory, setInventory] = useState([]);
     const [qrTarget, setQrTarget] = useState(null);
     const [shareItem, setShareItem] = useState(null);
+    const [companyFilter, setCompanyFilter] = useState('');
 
     useEffect(() => {
-        const stored = JSON.parse(localStorage.getItem('extinguishers_inventory') || '[]');
-        setInventory(stored);
+        const oldDataStr = localStorage.getItem('extinguishers_inventory');
+        const newDataStr = localStorage.getItem('extintores_inventory');
+        let combined = [];
+        
+        if (oldDataStr) {
+            try { combined = [...combined, ...JSON.parse(oldDataStr)]; } catch(e) {}
+        }
+        
+        if (newDataStr) {
+            try {
+                const newData = JSON.parse(newDataStr);
+                const existingIds = new Set(combined.map((e: any) => e.id));
+                const uniqueNew = newData.filter((e: any) => !existingIds.has(e.id));
+                combined = [...combined, ...uniqueNew];
+                // Persist the merge immediately and clear the old new-format storage to avoid duplicates later
+                localStorage.setItem('extinguishers_inventory', JSON.stringify(combined));
+                localStorage.removeItem('extintores_inventory');
+            } catch(e) {}
+        }
+
+        const migrated = combined.map((ext: any) => ({
+            ...ext,
+            chapa: ext.chapa || ext.numero || '',
+            ultimaCarga: ext.ultimaCarga || ext.vencimientoRecarga || '',
+            ultimaPH: ext.ultimaPH || ext.vencimientoPH || ''
+        }));
+        setInventory(migrated);
     }, [syncPulse]);
+
+    const handleExportExcel = async () => {
+        const dataToExport = companyFilter ? inventory.filter((e: any) => e.empresa === companyFilter) : inventory;
+        if (dataToExport.length === 0) return;
+        
+        try {
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Inventario Extintores');
+
+            worksheet.columns = [
+                { header: 'Empresa', key: 'empresa', width: 25 },
+                { header: 'Chapa/Número', key: 'chapa', width: 15 },
+                { header: 'Tipo', key: 'tipo', width: 20 },
+                { header: 'Capacidad', key: 'capacidad', width: 15 },
+                { header: 'Ubicación', key: 'ubicacion', width: 30 },
+                { header: 'Fecha Fabric.', key: 'fechaFabricacion', width: 15 },
+                { header: 'Vto. Recarga', key: 'vencimientoRecarga', width: 15 },
+                { header: 'Vto. P.H.', key: 'vencimientoPH', width: 15 },
+                { header: 'Estado', key: 'estadoFisico', width: 15 }
+            ];
+
+            // Premium header styling
+            const headerRow = worksheet.getRow(1);
+            headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+            headerRow.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FF0F766E' } // Teal background
+            };
+            headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+
+            dataToExport.forEach((item: any) => {
+                worksheet.addRow({
+                    empresa: item.empresa || 'Sin empresa',
+                    chapa: item.chapa || item.numero || '',
+                    tipo: item.tipo || '',
+                    capacidad: item.capacidad || '',
+                    ubicacion: item.ubicacion || '',
+                    fechaFabricacion: item.fechaFabricacion || '',
+                    vencimientoRecarga: item.ultimaCarga || item.vencimientoRecarga || '',
+                    vencimientoPH: item.ultimaPH || item.vencimientoPH || '',
+                    estadoFisico: item.estadoFisico || item.estado || ''
+                });
+            });
+
+            // Alternate row colors for premium look
+            worksheet.eachRow((row, rowNumber) => {
+                if (rowNumber > 1) {
+                    row.fill = {
+                        type: 'pattern',
+                        pattern: 'solid',
+                        fgColor: { argb: rowNumber % 2 === 0 ? 'FFF8FAFC' : 'FFFFFFFF' } // Slate-50 alternating
+                    };
+                    row.border = {
+                        bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } }
+                    };
+                }
+            });
+
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Inventario_Extintores_${companyFilter || 'Todas'}.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            toast.success('Excel generado correctamente');
+        } catch (error) {
+            console.error('Error generando Excel:', error);
+            toast.error('Hubo un error al generar el Excel');
+        }
+    };
+
+    const handlePrintPdf = () => {
+        const dataToExport = companyFilter ? inventory.filter((e: any) => e.empresa === companyFilter) : inventory;
+        setShareItem(dataToExport as any);
+        
+        setTimeout(() => {
+            const element = document.getElementById('pdf-content');
+            if (!element) return;
+            document.body.classList.add('printing-isolated');
+            element.classList.add('isolated-print-target');
+            window.print();
+            document.body.classList.remove('printing-isolated');
+            element.classList.remove('isolated-print-target');
+            setShareItem(null);
+        }, 500);
+    };
 
     const columns = [
         {
@@ -137,10 +266,23 @@ export default function ExtinguishersHistory(): React.ReactElement | null {
             }
         },
         {
+            header: 'Vida Útil',
+            accessor: 'fechaFabricacion',
+            sortable: true,
+            render: (item: any) => {
+                const st = getLifespanStatus(item.fechaFabricacion);
+                if (!st) return <span style={{ color: '#64748b', fontSize: '0.8rem', fontWeight: 700 }}>Sin Dato</span>;
+                return (
+                    <span style={{ color: st.color, fontWeight: 700, fontSize: '0.8rem' }}>{st.text}</span>
+                );
+            }
+        },
+        {
             header: 'Acciones',
             accessor: 'id',
             render: (item: any) => (
                 <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    <button onClick={() => navigate(`/extintores?edit=${item.id}`)} style={{ padding: '0.4rem', background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.2)', borderRadius: '8px', color: '#2563eb', cursor: 'pointer' }} title="Editar"><PencilSimple size={15} /></button>
                     <button onClick={() => requirePro(() => { const url = `${window.location.origin}/v/${currentUser?.uid}/extinguisher/${item.id}?print=true`; setQrTarget({ text: url, title: `Extintor — ${item.chapa}` }); })} style={{ padding: '0.4rem', background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer' }} title="QR"><QrCode size={15} /></button>
                     <button onClick={() => requirePro(() => setShareItem(item))} style={{ padding: '0.4rem', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '8px', color: '#16a34a', cursor: 'pointer' }} title="Compartir"><Share2 size={15} /></button>
                 </div>
@@ -160,31 +302,50 @@ export default function ExtinguishersHistory(): React.ReactElement | null {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                         <button onClick={() => navigate('/#activity')} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)' }}><ArrowLeft size={20} /></button>
                         <div>
-                            <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800 }}>Inventario de Extintores</h1>
-                            <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Control de vencimientos</p>
+                            <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800 }}>Control de Matafuegos</h1>
+                            <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Inventario y Vencimientos</p>
                         </div>
                     </div>
-                    <button onClick={() => navigate('/extinguishers')} className="btn-primary" style={{ margin: 0, padding: '0.5rem 1rem' }}>Gestionar / Nuevo</button>
+                    
+                    {(() => {
+                        const companies = [...new Set(inventory.map((e: any) => e.empresa).filter(Boolean))];
+                        return (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', width: '100%', flex: '1 1 300px', justifyContent: 'flex-end' }}>
+                                <select
+                                    value={companyFilter}
+                                    onChange={e => setCompanyFilter(e.target.value)}
+                                    style={{ padding: '0.6rem 1rem', borderRadius: '12px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontSize: '0.9rem', outline: 'none', flex: '1 1 200px', maxWidth: '100%' }}
+                                >
+                                    <option value="">Todas las Empresas</option>
+                                    {companies.map(c => <option key={c as string} value={c as string}>{c as string}</option>)}
+                                </select>
+                                <button onClick={() => navigate('/extintores')} className="btn-primary" style={{ margin: 0, padding: '0.6rem 1rem', flex: '1 1 200px', maxWidth: '100%', whiteSpace: 'nowrap' }}>Gestionar / Nuevo</button>
+                            </div>
+                        );
+                    })()}
                 </div>
 
                 <DataTable
-                    data={inventory}
+                    data={companyFilter ? inventory.filter((e: any) => e.empresa === companyFilter) : inventory}
                     columns={columns}
                     searchPlaceholder="Buscar por chapa, ubicación o empresa..."
                     searchFields={['chapa', 'ubicacion', 'empresa', 'tipo']}
                     emptyMessage="No hay extintores en el inventario."
                     emptyIcon={<Fire size={48} />}
-                    onEmptyAction={() => navigate('/extinguishers')}
+                    onEmptyAction={() => navigate('/extintores')}
                     emptyActionLabel="Registrar Extintor"
                 />
 
                 {inventory.length > 0 && (
-                    <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-                        <button onClick={() => requirePro(() => navigate('/extinguishers-report'))} className="btn-outline" style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', margin: 0 }}>
-                            <Printer size={18} /> Imprimir Vista Previa
+                    <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem', flexWrap: 'wrap' }}>
+                        <button onClick={() => requirePro(handlePrintPdf)} className="btn-outline" style={{ flex: '1 1 250px', display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', margin: 0, padding: '0.8rem' }}>
+                            <Printer size={18} /> Imprimir PDF
                         </button>
-                        <button onClick={() => requirePro(() => setShareItem(inventory))} className="btn-primary" style={{ flex: 1.5, display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', margin: 0, background: '#16a34a', border: 'none' }}>
-                            <Share2 size={18} /> Compartir Inventario (WA)
+                        <button onClick={() => requirePro(handleExportExcel)} className="btn-outline" style={{ flex: '1 1 250px', display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', margin: 0, borderColor: '#10b981', color: '#10b981', padding: '0.8rem' }}>
+                            <DownloadSimple size={18} /> Exportar Excel
+                        </button>
+                        <button onClick={() => requirePro(() => setShareItem(inventory))} className="btn-primary" style={{ flex: '1 1 250px', display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', margin: 0, background: '#16a34a', border: 'none', padding: '0.8rem' }}>
+                            <Share2 size={18} /> Compartir (WA)
                         </button>
                     </div>
                 )}
