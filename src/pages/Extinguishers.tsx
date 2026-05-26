@@ -201,7 +201,11 @@ export default function Extinguishers(): React.ReactElement | null {
                 const inspections = e.inspections || [];
                 return {
                     ...e,
-                    inspections: [...inspections, newInspection]
+                    inspections: [...inspections, newInspection],
+                    // Actualizar ultimaInspeccion para que aparezca en la Ficha PDF
+                    ultimaInspeccion: resultado === 'C'
+                        ? new Date().toISOString()
+                        : e.ultimaInspeccion
                 };
             }
             return e;

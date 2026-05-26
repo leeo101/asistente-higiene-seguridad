@@ -62,10 +62,30 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
 
     let latestInspection = null;
     try {
+        // Buscar en extintores_history (módulo ExtintoresManager - checklist NFPA 10)
         const historyRaw = localStorage.getItem('extintores_history');
         if (historyRaw) {
             const history = JSON.parse(historyRaw);
-            latestInspection = history.find(h => h.extintorId === data.id);
+            latestInspection = history.find(h => String(h.extintorId) === String(data.id)) || null;
+        }
+        // Si no hay en history, buscar en el array inspections[] del objeto
+        // (módulo Extinguishers.tsx - inspección mensual rápida)
+        if (!latestInspection && data.inspections && data.inspections.length > 0) {
+            const last = data.inspections[data.inspections.length - 1];
+            // Adaptar formato para que sea compatible con el template del PDF
+            latestInspection = {
+                fecha: last.fechaVisita ? last.fechaVisita + 'T12:00:00Z' : new Date().toISOString(),
+                inspector: '-',
+                resultado: last.resultado === 'C' ? 'APROBADO' : 'RECHAZADO',
+                items: [
+                    { text: 'Manómetro (presión operable)', status: last.controles?.manometro || 'C', observacion: '' },
+                    { text: 'Acceso sin obstrucciones', status: last.controles?.acceso || 'C', observacion: '' },
+                    { text: 'Señalización reglamentaria', status: last.controles?.senalizacion || 'C', observacion: '' },
+                    { text: 'Manguera y boquilla', status: last.controles?.manguera || 'C', observacion: '' },
+                    { text: 'Estado físico del cilindro', status: last.controles?.cilindro || 'C', observacion: '' },
+                ],
+                observaciones: last.observacion || ''
+            };
         }
     } catch(e) {}
 
