@@ -594,10 +594,18 @@ export default function ExtintoresManager() {
                                                 </span>
                                             </div>
                                             {ext.fechaFabricacion && (
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', padding: '0.4rem 0' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', padding: '0.4rem 0', borderBottom: (ext.inspections && ext.inspections.length > 0) ? '1px dashed var(--color-border)' : 'none' }}>
                                                     <span style={{ fontWeight: 800, color: 'var(--color-text-muted)' }}>VIDA ÚTIL (20 AÑOS)</span>
                                                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 800, color: getLifespanStatus(ext.fechaFabricacion)?.color, background: getLifespanStatus(ext.fechaFabricacion)?.bg, padding: '0.2rem 0.6rem', borderRadius: '999px' }}>
                                                         {getLifespanStatus(ext.fechaFabricacion)?.icon} {getLifespanStatus(ext.fechaFabricacion)?.label}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {ext.inspections && ext.inspections.length > 0 && (
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', padding: '0.4rem 0' }}>
+                                                    <span style={{ fontWeight: 800, color: 'var(--color-text-muted)' }}>ÚLTIMA INSPECCIÓN</span>
+                                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 800, color: ext.inspections[ext.inspections.length - 1].resultado === 'C' ? '#10b981' : '#ef4444', background: ext.inspections[ext.inspections.length - 1].resultado === 'C' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', padding: '0.2rem 0.6rem', borderRadius: '999px' }}>
+                                                        <ShieldCheck size={14} /> {new Date(ext.inspections[ext.inspections.length - 1].fechaVisita + 'T12:00:00Z').toLocaleDateString('es-AR')}
                                                     </span>
                                                 </div>
                                             )}
