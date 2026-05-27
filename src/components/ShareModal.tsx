@@ -512,42 +512,63 @@ export default function ShareModal({
                     @keyframes spin {
                         to { transform: rotate(360deg); }
                     }
+                    @keyframes slideUp {
+                        from { transform: translateY(100%); }
+                        to { transform: translateY(0); }
+                    }
                     @media (max-width: 767px) {
                         .share-modal-overlay {
-                            align-items: center;
-                            padding: 1rem;
+                            align-items: flex-end;
+                            padding: 0;
                         }
                         .share-modal-container {
                             max-width: 100%;
+                            width: 100%;
                         }
                         .share-modal-content {
-                            border-radius: 24px;
-                            max-height: 90vh;
-                            padding: 1.25rem 1rem 1.5rem;
+                            border-radius: 28px 28px 0 0;
+                            max-height: 85vh;
+                            padding: 1.25rem 1.25rem 1.5rem;
+                            border-bottom: none;
+                            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                        }
+                        .share-drag-handle {
+                            display: block;
                         }
                         .share-close-btn {
                             top: 1rem;
                             right: 1rem;
+                            width: 28px;
+                            height: 28px;
+                            background: rgba(148, 163, 184, 0.2);
+                            color: var(--color-text-muted);
+                            box-shadow: none;
                         }
                         .share-header {
                             margin-bottom: 1rem;
+                            margin-top: 0.5rem;
                         }
                         .share-logo-box {
-                            width: 52px;
-                            height: 52px;
-                            border-radius: 16px;
-                            margin: 0 auto 0.75rem;
+                            display: none;
                         }
                         .share-title {
                             font-size: 1.15rem;
                         }
+                        .share-subtitle {
+                            font-size: 0.8rem;
+                        }
+                        .share-grid {
+                            grid-template-columns: 1fr 1fr;
+                            gap: 0.6rem;
+                        }
                         .share-opt-btn {
-                            padding: 0.85rem 0.6rem;
-                            font-size: 0.82rem;
+                            padding: 0.8rem 0.5rem;
+                            font-size: 0.85rem;
+                            border-radius: 14px;
                         }
                         .mobile-safe-area {
                             display: block;
-                            height: env(safe-area-inset-bottom, 16px);
+                            height: env(safe-area-inset-bottom, 20px);
                         }
                     }
                 `}</style>
