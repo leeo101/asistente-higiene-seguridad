@@ -538,11 +538,11 @@ export default function ShareModal({
                         .share-close-btn {
                             top: 1rem;
                             right: 1rem;
-                            width: 28px;
-                            height: 28px;
-                            background: rgba(148, 163, 184, 0.2);
-                            color: var(--color-text-muted);
-                            box-shadow: none;
+                            width: 30px;
+                            height: 30px;
+                            background: #ef4444;
+                            color: #ffffff;
+                            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
                         }
                         .share-header {
                             margin-bottom: 1rem;
