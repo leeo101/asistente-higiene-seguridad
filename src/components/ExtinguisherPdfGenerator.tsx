@@ -27,8 +27,8 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
     const stats = {
         total: extinguishers.length,
         vencidos: extinguishers.filter(e => {
-            const cargaStatus = getStatus(e.ultimaCarga, 12).text;
-            const phStatus = getStatus(e.ultimaPH, 60).text;
+            const cargaStatus = getStatus(e.ultimaCarga).text;
+            const phStatus = getStatus(e.ultimaPH).text;
             return cargaStatus === 'Vencido' || phStatus === 'Vencido';
         }).length
     };
@@ -151,7 +151,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
                                                             <div>
                                                                 <div style={{ fontSize: '11pt', fontWeight: 900, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                                                     <div style={{ background: '#fef3c7', color: '#d97706', padding: '4px', borderRadius: '6px' }}>
-                                                                        <Flame size={14} weight="fill" />
+                                                                        <Flame size={14} fill="currentColor" />
                                                                     </div>
                                                                     CHAPA: {ext?.chapa || ext?.numero || '-'}
                                                                 </div>

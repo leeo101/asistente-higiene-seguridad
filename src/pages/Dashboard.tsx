@@ -15,7 +15,6 @@ import { useSync } from '../contexts/SyncContext';
 import Breadcrumbs from '../components/Breadcrumbs';
 import toast from 'react-hot-toast';
 import confetti from 'canvas-confetti';
-import { useMobile } from '../hooks/useMobile';
 import DailyNewsWidget from '../components/DailyNewsWidget';
 import AdBanner from '../components/ads/AdBanner';
 import AdModal from '../components/ads/AdModal';
