@@ -15,6 +15,18 @@ const getExpirationStatus = (dateStr) => {
     return { text: 'Vigente', color: '#10b981' };
 };
 
+const getPHExpirationStatus = (dateStr: string) => {
+    if (!dateStr) return { text: 'Sin Datos', color: '#64748b' };
+    const d = new Date(dateStr + 'T12:00:00Z');
+    if (isNaN(d.getTime())) return { text: 'Sin Datos', color: '#64748b' };
+    d.setFullYear(d.getFullYear() + 5);
+    const today = new Date();
+    const diffDays = Math.ceil((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays < 0) return { text: 'Vencido', color: '#ef4444', expirationDate: d.toLocaleDateString('es-AR') };
+    if (diffDays <= 30) return { text: 'Por vencer', color: '#f59e0b', expirationDate: d.toLocaleDateString('es-AR') };
+    return { text: 'Vigente', color: '#10b981', expirationDate: d.toLocaleDateString('es-AR') };
+};
+
 const getLifespanStatus = (fechaFab) => {
     if (!fechaFab) return null;
     const d = new Date(fechaFab);
@@ -36,7 +48,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
     const handlePrint = () => window.print();
 
     const recargaStatus = getExpirationStatus(data.vencimientoRecarga);
-    const phStatus = getExpirationStatus(data.vencimientoPH);
+    const phStatus = getPHExpirationStatus(data.vencimientoPH);
     const lifespanStatus = getLifespanStatus(data.fechaFabricacion);
 
     let actSignature = null;
@@ -248,7 +260,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                         <div style={{ color: recargaStatus.color, fontWeight: 800, marginTop: '4px', fontSize: '9pt' }}>{recargaStatus.text}</div>
                                     </td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '12px' }}>
-                                        <div style={{ fontSize: '12pt', fontWeight: 900 }}>{data.vencimientoPH ? new Date(data.vencimientoPH).toLocaleDateString('es-AR') : '-'}</div>
+                                        <div style={{ fontSize: '12pt', fontWeight: 900 }}>{phStatus.expirationDate ? phStatus.expirationDate : '-'}</div>
                                         <div style={{ color: phStatus.color, fontWeight: 800, marginTop: '4px', fontSize: '9pt' }}>{phStatus.text}</div>
                                     </td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '12px' }}>

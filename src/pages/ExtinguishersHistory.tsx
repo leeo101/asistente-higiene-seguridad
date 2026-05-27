@@ -32,6 +32,26 @@ const getStatus = (dueDateStr) => {
     }
 };
 
+const getPHStatus = (dateStr) => {
+    if (!dateStr) return { status: 'unknown', color: '#64748b', text: 'Sin Dato', vto: '-' };
+    try {
+        const d = new Date(dateStr + 'T12:00:00Z');
+        if (isNaN(d.getTime())) return { status: 'unknown', color: '#64748b', text: 'Sin Dato', vto: '-' };
+        
+        d.setFullYear(d.getFullYear() + 5);
+        
+        const today = new Date();
+        const diffDays = Math.ceil(((d as any) - (today as any)) / (1000 * 60 * 60 * 24));
+        const formattedDate = d.toLocaleDateString('es-AR');
+        
+        if (diffDays < 0) return { status: 'expired', color: '#ef4444', text: 'Vencido', vto: formattedDate };
+        if (diffDays <= 30) return { status: 'warning', color: '#f59e0b', text: 'Por Vencer', vto: formattedDate };
+        return { status: 'valid', color: '#10b981', text: 'Vigente', vto: formattedDate };
+    } catch (e) {
+        return { status: 'unknown', color: '#64748b', text: 'Sin Dato', vto: '-' };
+    }
+};
+
 const getLifespanStatus = (fechaFab) => {
     if (!fechaFab) return null;
     const d = new Date(fechaFab);
@@ -182,7 +202,7 @@ export default function ExtinguishersHistory(): React.ReactElement | null {
             sortable: true,
             render: (item: any) => {
                 const stCarga = getStatus(item.ultimaCarga || item.vencimientoRecarga);
-                const isExpired = stCarga.status === 'expired' || getStatus(item.ultimaPH || item.vencimientoPH).status === 'expired';
+                const isExpired = stCarga.status === 'expired' || getPHStatus(item.ultimaPH || item.vencimientoPH).status === 'expired';
                 const lastInspection = item.inspections && item.inspections.length > 0 ? item.inspections[item.inspections.length - 1] : null;
                 return (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
@@ -255,7 +275,7 @@ export default function ExtinguishersHistory(): React.ReactElement | null {
             accessor: 'ultimaPH',
             sortable: true,
             render: (item: any) => {
-                const st = getStatus(item.ultimaPH || item.vencimientoPH);
+                const st = getPHStatus(item.ultimaPH || item.vencimientoPH);
                 return (
                     <span style={{ color: st.color, fontWeight: 700, fontSize: '0.8rem' }}>{st.text}</span>
                 );

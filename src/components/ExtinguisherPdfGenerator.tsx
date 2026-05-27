@@ -20,6 +20,26 @@ const getStatus = (dueDateStr: string) => {
     }
 };
 
+const getPHStatus = (dueDateStr: string) => {
+    if (!dueDateStr) return { text: 'Sin Dato', color: '#64748b', vto: '-' };
+    try {
+        const d = new Date(dueDateStr + 'T12:00:00Z');
+        if (isNaN(d.getTime())) return { text: 'Sin Dato', color: '#64748b', vto: '-' };
+        
+        d.setFullYear(d.getFullYear() + 5);
+        
+        const today = new Date();
+        const diffDays = Math.ceil(((d as any) - (today as any)) / (1000 * 60 * 60 * 24));
+        const formattedDate = d.toLocaleDateString('es-AR');
+
+        if (diffDays < 0) return { text: 'Vencido', color: '#dc2626', vto: formattedDate };
+        if (diffDays <= 30) return { text: 'Próximo', color: '#d97706', vto: formattedDate };
+        return { text: 'Vigente', color: '#166534', vto: formattedDate };
+    } catch (e) {
+        return { text: 'Sin Dato', color: '#64748b', vto: '-' };
+    }
+};
+
 export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguishers: any[] }): React.ReactElement | null {
     const componentRef = useRef<HTMLDivElement>(null);
     const isLandscape = (extinguishers || []).length > 15; // Auto rotate if many
@@ -27,8 +47,8 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
     const stats = {
         total: extinguishers.length,
         vencidos: extinguishers.filter(e => {
-            const cargaStatus = getStatus(e.ultimaCarga).text;
-            const phStatus = getStatus(e.ultimaPH).text;
+            const cargaStatus = getStatus(e.ultimaCarga || e.vencimientoRecarga).text;
+            const phStatus = getPHStatus(e.ultimaPH || e.vencimientoPH).text;
             return cargaStatus === 'Vencido' || phStatus === 'Vencido';
         }).length
     };
@@ -136,7 +156,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
                                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '15px' }}>
                                             {group.map((ext, idx) => {
                                                 const sCarga = getStatus(ext?.ultimaCarga || ext?.vencimientoRecarga);
-                                                const sPH = getStatus(ext?.ultimaPH || ext?.vencimientoPH);
+                                                const sPH = getPHStatus(ext?.ultimaPH || ext?.vencimientoPH);
                                                 const lastInspection = ext?.inspections && ext.inspections.length > 0 ? ext.inspections[ext.inspections.length - 1] : null;
 
                                                 return (

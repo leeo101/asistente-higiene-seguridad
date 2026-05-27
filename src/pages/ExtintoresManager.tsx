@@ -204,6 +204,20 @@ export default function ExtintoresManager() {
         return { color: '#10b981', label: 'Vigente', bg: '#d1fae5', icon: <CheckCircle2 size={14} /> };
     };
 
+    // Calculate PH expiration status (add 5 years to the performed date)
+    const getPHExpirationStatus = (dateStr) => {
+        if (!dateStr) return { color: 'gray', label: 'Sin Datos', icon: <AlertTriangle size={14} />, expirationDate: null };
+        const d = new Date(dateStr + 'T12:00:00Z');
+        if (isNaN(d.getTime())) return { color: 'gray', label: 'Sin Datos', icon: <AlertTriangle size={14} />, expirationDate: null };
+        d.setFullYear(d.getFullYear() + 5);
+        const today = new Date();
+        const diffDays = Math.ceil((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        const expDate = d.toLocaleDateString('es-AR');
+        if (diffDays < 0) return { color: '#ef4444', label: 'Vencido', bg: '#fee2e2', icon: <AlertTriangle size={14} />, expirationDate: expDate };
+        if (diffDays <= 30) return { color: '#f59e0b', label: 'Por vencer', bg: '#fef3c7', icon: <AlertTriangle size={14} />, expirationDate: expDate };
+        return { color: '#10b981', label: 'Vigente', bg: '#d1fae5', icon: <CheckCircle2 size={14} />, expirationDate: expDate };
+    };
+
     // Calculate 20 year lifespan status
     const getLifespanStatus = (fechaFab) => {
         if (!fechaFab) return null;
@@ -351,7 +365,7 @@ export default function ExtintoresManager() {
                                 <input required type="date" value={formData.vencimientoRecarga} onChange={e => setFormData({...formData, vencimientoRecarga: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--color-border)', outline: 'none' }} />
                             </div>
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>PRUEBA HIDRÁULICA (P.H.)</label>
+                                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>ÚLTIMA PRUEBA HIDRÁULICA (SE SUMARÁN 5 AÑOS)</label>
                                 <input type="date" value={formData.vencimientoPH} onChange={e => setFormData({...formData, vencimientoPH: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--color-border)', outline: 'none' }} />
                             </div>
                             <div>
@@ -532,7 +546,7 @@ export default function ExtintoresManager() {
                         ) : (
                             filtered.map(ext => {
                                 const recargaStatus = getExpirationStatus(ext.vencimientoRecarga);
-                                const phStatus = getExpirationStatus(ext.vencimientoPH);
+                                const phStatus = getPHExpirationStatus(ext.vencimientoPH);
 
                                 return (
                                     <div key={ext.id} className="card hover:shadow-md transition-all" style={{ padding: '1.5rem', border: '1px solid var(--color-border)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -594,7 +608,7 @@ export default function ExtintoresManager() {
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', padding: '0.4rem 0', borderBottom: '1px dashed var(--color-border)' }}>
                                                 <span style={{ fontWeight: 800, color: 'var(--color-text-muted)' }}>P.H. (5 AÑOS)</span>
                                                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 800, color: phStatus.color, background: phStatus.bg, padding: '0.2rem 0.6rem', borderRadius: '999px' }}>
-                                                    {phStatus.icon} {ext.vencimientoPH ? new Date(ext.vencimientoPH).toLocaleDateString('es-AR') : '-'}
+                                                    {phStatus.icon} {phStatus.expirationDate ? `Vence: ${phStatus.expirationDate}` : '-'}
                                                 </span>
                                             </div>
                                             {ext.fechaFabricacion && (
