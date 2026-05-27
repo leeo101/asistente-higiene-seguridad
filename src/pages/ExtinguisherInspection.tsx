@@ -45,6 +45,26 @@ export default function ExtinguisherInspection() {
 
         if (found) {
             setExtintor(found);
+            
+            // Cargar checklist de la inspección anterior si existe
+            const historyRaw = localStorage.getItem('extintores_history');
+            if (historyRaw) {
+                try {
+                    const history = JSON.parse(historyRaw);
+                    const extHistory = history.filter((h: any) => String(h.extintorId) === String(id) || String(h.extintorNum) === String(found.numero || found.chapa));
+                    if (extHistory.length > 0) {
+                        extHistory.sort((a: any, b: any) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+                        const lastInsp = extHistory[0];
+                        if (lastInsp.items && Array.isArray(lastInsp.items) && lastInsp.items.length > 0) {
+                            setChecklist(lastInsp.items);
+                        }
+                        if (lastInsp.observaciones) {
+                            setGeneralObservations(lastInsp.observaciones);
+                        }
+                        // Opcionalmente podemos cargar las fotos generales también, pero suele ser mejor que sean nuevas en cada inspección
+                    }
+                } catch (e) {}
+            }
         } else {
             toast.error('Extintor no encontrado. Puede que no esté sincronizado.');
             navigate('/extintores');
