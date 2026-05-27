@@ -120,7 +120,7 @@ export default function WorkPermitHistory(): React.ReactElement | null {
         <AnimatedPage>
             <div className="container" style={{ maxWidth: '900px', paddingBottom: '8rem' }}>
                 <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Permiso de Trabajo - ${shareItem?.empresa || ''}`} text={shareItem ? `🔐 Permiso de Trabajo\n🏗️ Empresa: ${shareItem.empresa}\n🚧 Obra: ${shareItem.obra}\n📅 Fecha: ${shareItem.fecha}` : ''} rawMessage={``} elementIdToPrint="pdf-content" fileName={`Permiso_${shareItem?.empresa || 'Trabajo'}`} />
-                <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                <div style={{ position: 'absolute', left: 0, opacity: 0.01, top: '-9999px', pointerEvents: 'none' }}>
                     {shareItem && <WorkPermitPdfGenerator data={shareItem} />}
                 </div>
 

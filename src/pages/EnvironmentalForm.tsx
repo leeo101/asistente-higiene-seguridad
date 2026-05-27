@@ -495,7 +495,7 @@ export default function EnvironmentalForm(): React.ReactElement | null {
                 fileName={`Ambiente_${measurement.stationName || 'Sin_Nombre'}.pdf`}
             />
 
-            <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+            <div className="print-only" style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0 }}>
                 <EnvironmentalPdf data={{ ...measurement, id: (measurement as any).id || Date.now().toString(), createdAt: (measurement as any).createdAt || new Date().toISOString() }} />
             </div>
         </div>

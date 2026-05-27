@@ -196,7 +196,7 @@ export default function FireLoadHistory(): React.ReactElement | null {
             <div className="container" style={{ maxWidth: '960px', paddingBottom: '6rem' }}>
                 {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
                 <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Carga de Fuego - ${shareItem?.sector || ''}`} text={shareItem ? `🔥 Estudio de Carga de Fuego\n🏗️ Empresa: ${shareItem.empresa}\n📍 Sector: ${shareItem.sector}\n🔥 Carga Qf: ${shareItem.results?.cargaDeFuego?.toFixed(2)} Kg/m²\n🛡️ RF: ${shareItem.results?.rfRequerida}` : ''} rawMessage={''} elementIdToPrint="pdf-content" fileName={`Carga_Fuego_${shareItem?.sector || 'Estudio'}.pdf`} />
-                <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                <div style={{ position: 'absolute', left: 0, opacity: 0.01, top: '-9999px', pointerEvents: 'none' }}>
                     <FireLoadPdfGenerator data={shareItem} />
                 </div>
 

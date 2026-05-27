@@ -114,7 +114,7 @@ export default function RiskAssessmentHistory(): React.ReactElement | null {
                 elementIdToPrint="pdf-content"
             />
 
-            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+            <div style={{ position: 'absolute', left: 0, opacity: 0.01, top: '-9999px', pointerEvents: 'none' }}>
                 <RiskAssessmentPdfGenerator assessmentData={shareItem} />
             </div>
 

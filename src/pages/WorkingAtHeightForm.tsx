@@ -589,7 +589,7 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
                 fileName={`Altura_${permit.workerName || 'Sin_Nombre'}.pdf`}
             />
 
-            <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+            <div className="print-only" style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0 }}>
                 <WorkingAtHeightPdf data={{ ...permit, createdAt: (permit as any).createdAt || new Date().toISOString() } as any} />
             </div>
         </div>

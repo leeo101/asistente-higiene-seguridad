@@ -543,7 +543,7 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
                 fileName={`Quimico_${chemical.name || 'Sin_Nombre'}.pdf`}
             />
 
-            <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+            <div className="print-only" style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0 }}>
                 <ChemicalSafetyPdf data={{ ...chemical, id: (chemical as any).id || Date.now().toString(), createdAt: (chemical as any).createdAt || new Date().toISOString() }} />
             </div>
         </div>

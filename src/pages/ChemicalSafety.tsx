@@ -213,7 +213,7 @@ export default function ChemicalSafety(): React.ReactElement | null {
                 fileName={`SGA_${(shareItem as any)?.name || 'Producto'}.pdf`}
             />
 
-            <div style={{ position: 'fixed', left: '-9999px', top: 0, pointerEvents: 'none' }}>
+            <div style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0, pointerEvents: 'none' }}>
                 {shareItem && <ChemicalSafetyPdf data={shareItem} />}
             </div>
             {/* Header Premium */}
@@ -513,7 +513,7 @@ export default function ChemicalSafety(): React.ReactElement | null {
                 fileName={`SDS_${(selectedChemical as any)?.name || 'Quimico'}.pdf`}
             />
 
-            <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+            <div className="print-only" style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0 }}>
                 <ChemicalSafetyPdf data={selectedChemical} />
             </div>
         </div>

@@ -80,7 +80,7 @@ export default function LightingHistory(): React.ReactElement | null {
                 fileName={`Iluminacion_${shareItem?.empresa || 'Empresa'}.pdf`}
             />
 
-            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+            <div style={{ position: 'absolute', left: 0, opacity: 0.01, top: '-9999px', pointerEvents: 'none' }}>
                 <LightingPdfGenerator data={shareItem} />
             </div>
 

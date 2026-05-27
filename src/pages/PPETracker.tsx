@@ -701,7 +701,7 @@ export default function PPETracker(): React.ReactElement | null {
                 </div>
             )}
             
-            <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+            <div className="print-only" style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0 }}>
                 <PPEReceiptPdfGenerator />
             </div>
         </div>

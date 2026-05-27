@@ -555,7 +555,7 @@ export default function LOTOForm(): React.ReactElement | null {
                 fileName={`LOTO_${procedure.equipmentName || 'Sin_Nombre'}.pdf`}
             />
 
-            <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+            <div className="print-only" style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0 }}>
                 <LOTOPdf data={{ ...procedure, id: (procedure as any).id || Date.now().toString(), createdAt: (procedure as any).createdAt || new Date().toISOString() }} />
             </div>
         </div>

@@ -278,7 +278,7 @@ export default function AuditManager(): React.ReactElement | null {
                 fileName={`Auditoria_${shareItem?.auditTitle.replace(/\s+/g, '_') || 'Reporte'}.pdf`}
             />
 
-            <div style={{ position: 'fixed', left: '-9999px', top: 0, pointerEvents: 'none' }}>
+            <div style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0, pointerEvents: 'none' }}>
                 {shareItem && <AuditPdf data={shareItem} />}
             </div>
 

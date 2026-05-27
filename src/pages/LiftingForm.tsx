@@ -563,7 +563,7 @@ export default function LiftingForm(): React.ReactElement | null {
                 fileName={`Izaje_${plan.location?.replace(/\s+/g, '_') || 'Nuevo'}.pdf`}
             />
 
-            <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+            <div className="print-only" style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0 }}>
                 <LiftingPdfGenerator data={{
                     ...plan,
                     professionalSignature: plan.professionalSignature || professional.signature,

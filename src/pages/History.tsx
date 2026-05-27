@@ -315,7 +315,7 @@ export default function History(): React.ReactElement | null {
                     fileName={`Matriz_${shareItem?.data?.name || 'Riesgo'}.pdf`}
                 />
 
-                <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                <div style={{ position: 'absolute', left: 0, opacity: 0.01, top: '-9999px', pointerEvents: 'none' }}>
                     {shareItem?.type === 'matrix' && <RiskMatrixPdfGenerator data={shareItem.data} />}
                 </div>
 
@@ -446,7 +446,7 @@ export default function History(): React.ReactElement | null {
                     fileName={`Informe_${shareItem?.data?.title || 'Profesional'}.pdf`}
                 />
 
-                <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                <div style={{ position: 'absolute', left: 0, opacity: 0.01, top: '-9999px', pointerEvents: 'none' }}>
                     {shareItem?.type === 'report' && <ProfessionalReportPdfGenerator currentReport={shareItem.data} />}
                 </div>
 
@@ -573,7 +573,7 @@ export default function History(): React.ReactElement | null {
                 fileName={`Inspeccion_${shareItem?.data?.name || 'Seguridad'}.pdf`}
             />
 
-            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+            <div style={{ position: 'absolute', left: 0, opacity: 0.01, top: '-9999px', pointerEvents: 'none' }}>
                 {shareItem?.type === 'inspection' && <ReportPdfGenerator initialData={shareItem.data} />}
             </div>
 

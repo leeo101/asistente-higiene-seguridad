@@ -36,9 +36,9 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         // height is needed to fit the unwrapped content.
         const targetWidth = isLandscape ? '297mm' : '210mm';
         
-        // Hide off-screen instead of overlapping the UI
+        // Move element to top-left but behind everything to prevent offscreen capture bugs
         element.style.position = 'absolute';
-        element.style.left = '-9999px';
+        element.style.left = '0px';
         element.style.top = '0px';
         element.style.width = targetWidth;
         element.style.maxWidth = 'none';
@@ -96,13 +96,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
             logging: false,
             windowWidth: captureWidth,
             windowHeight: captureHeight,
-            x: 0,
-            y: 0,
-            width: captureWidth,
-            height: captureHeight,
-            backgroundColor: '#ffffff',
-            scrollX: 0,
-            scrollY: 0
+            backgroundColor: '#ffffff'
         });
 
         const imgData = canvas.toDataURL('image/jpeg', 0.95);

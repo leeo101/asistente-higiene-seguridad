@@ -233,7 +233,7 @@ export default function NoiseAssessmentPage(): React.ReactElement | null {
                 fileName={`Ruido_${selectedMeasurement?.workerName || 'Evaluacion'}.pdf`}
             />
 
-            <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+            <div className="print-only" style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0 }}>
                 <NoiseAssessmentPdf data={selectedMeasurement} />
             </div>
         </div>

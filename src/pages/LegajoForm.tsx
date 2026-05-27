@@ -369,7 +369,7 @@ export default function LegajoForm() {
 
   return (
     <div className="pt-24 pb-20" style={{ minHeight: '100vh', background: 'var(--color-background)' }}>
-      <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+      <div className="print-only" style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0 }}>
           <div id="pdf-content">
               <LegajoPdf data={{ ...formData, professionalName: currentUser?.displayName || 'Profesional H&S' }} />
           </div>

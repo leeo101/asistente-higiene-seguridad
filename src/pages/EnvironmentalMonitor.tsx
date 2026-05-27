@@ -239,7 +239,7 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
                 fileName={`Monitoreo_${shareItem?.stationName || 'Sin_Nombre'}.pdf`}
             />
 
-            <div style={{ position: 'fixed', left: '-9999px', top: 0, pointerEvents: 'none' }}>
+            <div style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0, pointerEvents: 'none' }}>
                 {shareItem && <EnvironmentalPdf data={shareItem} />}
             </div>
             {/* Header Premium */}
@@ -579,7 +579,7 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
                 fileName={`Monitoreo_${(selectedMeasurement || newMeasurement)?.stationName || 'Ambiental'}.pdf`}
             />
 
-            <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+            <div className="print-only" style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0 }}>
                 <EnvironmentalPdf data={selectedMeasurement || newMeasurement} />
             </div>
         </div>

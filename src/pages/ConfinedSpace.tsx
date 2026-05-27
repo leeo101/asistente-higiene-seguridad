@@ -276,7 +276,7 @@ export default function ConfinedSpace(): React.ReactElement | null {
                 fileName={`Espacio_Confinado_${shareItem?.spaceName || 'Sin_Nombre'}.pdf`}
             />
 
-            <div style={{ position: 'fixed', left: '-9999px', top: 0, pointerEvents: 'none' }}>
+            <div style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0, pointerEvents: 'none' }}>
                 {shareItem && <ConfinedSpacePdf data={shareItem} />}
             </div>
             <Breadcrumbs />

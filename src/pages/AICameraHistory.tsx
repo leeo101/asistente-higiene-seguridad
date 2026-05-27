@@ -153,7 +153,7 @@ export default function AICameraHistory(): React.ReactElement | null {
                 fileName={`Inspeccion_IA_${shareItem?.company || 'Sin_Nombre'}.pdf`}
             />
 
-            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+            <div style={{ position: 'absolute', left: 0, opacity: 0.01, top: '-9999px', pointerEvents: 'none' }}>
                 {shareItem && <AiReportPdfGenerator item={shareItem} />}
             </div>
 

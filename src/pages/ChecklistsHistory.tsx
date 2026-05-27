@@ -144,7 +144,7 @@ export default function ChecklistsHistory(): React.ReactElement | null {
             <div className="container" style={{ maxWidth: '900px', paddingBottom: '5rem' }}>
                 {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
                 <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Checklist - ${shareItem?.equipo || ''}`} text={shareItem ? `📋 Checklist de Seguridad\n🔧 Equipo: ${shareItem.equipo}\n🏗️ Empresa: ${shareItem.empresa}\n📅 Fecha: ${new Date(shareItem.fecha).toLocaleDateString('es-AR')}` : ''} rawMessage={``} elementIdToPrint="pdf-content" fileName={`Checklist_${shareItem?.equipo || 'Reporte'}.pdf`} />
-                <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                <div style={{ position: 'absolute', left: 0, opacity: 0.01, top: '-9999px', pointerEvents: 'none' }}>
                     {shareItem && <ChecklistPdfGenerator checklistData={shareItem} isHeadless={true} />}
                 </div>
 

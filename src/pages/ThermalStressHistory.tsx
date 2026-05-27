@@ -128,7 +128,7 @@ export default function ThermalStressHistory(): React.ReactElement | null {
                     </div>
                 )}
                 <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Estrés Térmico - ${shareItem?.puesto || ''}`} text={shareItem ? `🔥 Evaluación de Estrés Térmico\n📍 Puesto: ${shareItem.puesto}\n🌡️ TGBH: ${shareItem.resultados.tgbh}°C\n✅ Resultado: ${shareItem.resultados.admisible ? 'ADMISIBLE' : 'NO ADMISIBLE'}` : ''} rawMessage={''} elementIdToPrint="pdf-content" fileName={`Estres_Termico_${shareItem?.puesto || 'report'}.pdf`} />
-                <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                <div style={{ position: 'absolute', left: 0, opacity: 0.01, top: '-9999px', pointerEvents: 'none' }}>
                     {shareItem && <ThermalStressPdfGenerator data={shareItem} isHeadless={true} />}
                 </div>
 

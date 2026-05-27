@@ -166,7 +166,7 @@ export default function TrainingHistory(): React.ReactElement | null {
                     </div>
                 )}
                 <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Capacitación - ${shareItem?.tema || ''}`} text={shareItem ? `📊 Capacitación\n📚 Tema: ${shareItem.tema}\n🧑‍🏫 Expositor: ${shareItem.expositor}\n📅 Fecha: ${shareItem.fecha}\n👥 Asistentes: ${shareItem.asistentes?.length}` : ''} rawMessage={''} elementIdToPrint="pdf-content" fileName={`Capacitacion_${shareItem?.tema || 'registro'}.pdf`} />
-                <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                <div style={{ position: 'absolute', left: 0, opacity: 0.01, top: '-9999px', pointerEvents: 'none' }}>
                     {shareItem && <TrainingPdfGenerator data={shareItem} isHeadless={true} />}
                 </div>
 

@@ -615,7 +615,7 @@ export default function CAPAForm(): React.ReactElement | null {
                 fileName={`CAPA_${capa.title || 'Sin_Nombre'}.pdf`}
             />
 
-            <div className="print-only" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+            <div className="print-only" style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0 }}>
                 <CAPAPdf data={{ ...capa, showSignatures, createdAt: capa.createdAt || new Date().toISOString() }} />
             </div>
         </div>

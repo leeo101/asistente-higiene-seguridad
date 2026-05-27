@@ -104,7 +104,7 @@ export default function ExtinguisherAIHistory(): React.ReactElement | null {
                 fileName={`Inspeccion_Extintor_IA_${shareItem?.type || 'Sin_Tipo'}.pdf`}
             />
 
-            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+            <div style={{ position: 'absolute', left: 0, opacity: 0.01, top: '-9999px', pointerEvents: 'none' }}>
                 {shareItem && <ExtinguisherAIPdfGenerator item={shareItem} />}
             </div>
 

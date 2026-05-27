@@ -102,7 +102,7 @@ export default function AIHistory(): React.ReactElement | null {
                         fileName={`Analisis_IA_${shareItem?.task?.replace(/\s+/g, '_') || 'Sin_Nombre'}.pdf`}
                     />
 
-                    <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                    <div style={{ position: 'absolute', left: 0, opacity: 0.01, top: '-9999px', pointerEvents: 'none' }}>
                         {shareItem && <AiAdvisorPdfGenerator data={shareItem} />}
                     </div>
 
@@ -162,7 +162,7 @@ export default function AIHistory(): React.ReactElement | null {
                 fileName={`Analisis_IA_${shareItem?.task?.replace(/\s+/g, '_') || 'Sin_Nombre'}.pdf`}
             />
 
-            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+            <div style={{ position: 'absolute', left: 0, opacity: 0.01, top: '-9999px', pointerEvents: 'none' }}>
                 {shareItem && <AiAdvisorPdfGenerator data={shareItem} />}
             </div>
 

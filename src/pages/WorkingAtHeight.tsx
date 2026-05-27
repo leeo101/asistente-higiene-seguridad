@@ -236,7 +236,7 @@ export default function WorkingAtHeight(): React.ReactElement | null {
                 fileName={`Altura_${shareItem?.location || 'Sin_Nombre'}.pdf`}
             />
 
-            <div style={{ position: 'fixed', left: '-9999px', top: 0, pointerEvents: 'none' }}>
+            <div style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0, pointerEvents: 'none' }}>
                 {shareItem && <WorkingAtHeightPdf data={shareItem} />}
             </div>
             {/* Header Premium */}

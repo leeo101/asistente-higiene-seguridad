@@ -113,7 +113,7 @@ export default function DrillsHistory(): React.ReactElement | null {
                     </div>
                 )}
                 <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Simulacro - ${shareItem?.empresa || ''}`} text={shareItem ? `🔔 Acta de Simulacro\n🏢 Empresa: ${shareItem.empresa}\n📅 Fecha: ${shareItem.fecha}\n⏱️ Tiempo: ${shareItem.tiempoVisual}` : ''} rawMessage={shareItem ? `🔔 Acta de Simulacro\n🏢 Empresa: ${shareItem.empresa}\n📅 Fecha: ${shareItem.fecha}\n⏱️ Tiempo: ${shareItem.tiempoVisual}` : ''} elementIdToPrint="pdf-content" fileName={`Simulacro_${shareItem?.empresa || 'acta'}.pdf`} />
-                <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
+                <div style={{ position: 'absolute', left: 0, opacity: 0.01, top: '-9999px', pointerEvents: 'none' }}>
                     {shareItem && <DrillPdfGenerator report={shareItem} isHeadless={true} />}
                 </div>
 
