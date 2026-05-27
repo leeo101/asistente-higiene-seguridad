@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { usePaywall } from '../hooks/usePaywall';
+import { usePaywall } from '../../hooks/usePaywall';
 
 interface AdBannerProps {
   adSlot: string;
