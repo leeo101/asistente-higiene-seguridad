@@ -472,14 +472,16 @@ export default function ChecklistManager(): React.ReactElement | null {
 
     
     useEffect(() => {
-        const initial = MANDATORY_SECTIONS.map(s => ({
-            id: s.id,
-            title: s.title,
-            isMandatory: false,
-            items: s.items.map(text => ({ text, status: null }))
-        }));
-        setActiveSections(initial);
-    }, []);
+        if (!searchParams.get('id')) {
+            const initial = MANDATORY_SECTIONS.map(s => ({
+                id: s.id,
+                title: s.title,
+                isMandatory: false,
+                items: s.items.map(text => ({ text, status: null }))
+            }));
+            setActiveSections(initial);
+        }
+    }, [searchParams]);
 
     const toggleTemplate = (templateKey) => {
         const template = DEFAULT_TEMPLATES[templateKey];

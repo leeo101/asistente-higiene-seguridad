@@ -32,10 +32,16 @@ const getChecklistStatus = (id) => {
     if (!stored) return { label: 'Aprobado', color: '#10b981', bg: 'rgba(16,185,129,0.1)' };
     try {
         const parsed = JSON.parse(stored);
-        const items = parsed.items || parsed.checks || parsed || [];
-        const arr = Array.isArray(items) ? items : Object.values(items);
-        const nok = arr.filter((c: any) => c.value === 'NO' || c.estado === 'NO' || c.checked === false || c.result === 'no').length;
-        const obs = arr.filter((c: any) => c.observation || c.observacion).length;
+        let items = parsed.items || parsed.checks || [];
+        if (parsed.activeSections) {
+            items = parsed.activeSections.flatMap((s: any) => s.items || []);
+        } else if (!Array.isArray(items) && Object.keys(items).length > 0) {
+            items = Object.values(items);
+        }
+        
+        const arr = Array.isArray(items) ? items : [];
+        const nok = arr.filter((c: any) => c.status === 'NC' || c.value === 'NO' || c.estado === 'NO' || c.checked === false || c.result === 'no').length;
+        const obs = arr.filter((c: any) => c.observation || c.observacion || c.observaciones).length;
         if (arr.length === 0) return { label: 'Vacío', color: '#64748b', bg: 'rgba(100,116,139,0.1)' };
         if (nok > 0) return { label: 'Rechazado', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' };
         if (obs > 0) return { label: 'Con Obs.', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' };
