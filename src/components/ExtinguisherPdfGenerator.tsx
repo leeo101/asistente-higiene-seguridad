@@ -3,30 +3,21 @@ import { Calendar, Flame, MapPin } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
 
-const addMonths = (dateString, months) => {
-    if (!dateString) return '';
+const getStatus = (dueDateStr: string) => {
+    if (!dueDateStr) return { text: 'Sin Dato', color: '#64748b', vto: '-' };
     try {
-        const d = new Date(dateString + 'T12:00:00Z');
-        if (isNaN(d.getTime())) return '';
-        d.setMonth(d.getMonth() + months);
-        return d.toISOString().split('T')[0];
+        const dueDate = new Date(dueDateStr + 'T12:00:00Z');
+        if (isNaN(dueDate.getTime())) return { text: 'Sin Dato', color: '#64748b', vto: '-' };
+        const today = new Date();
+        const diffDays = Math.ceil(((dueDate as any) - (today as any)) / (1000 * 60 * 60 * 24));
+        const formattedDate = dueDate.toLocaleDateString('es-AR');
+
+        if (diffDays < 0) return { text: 'Vencido', color: '#dc2626', vto: formattedDate };
+        if (diffDays <= 30) return { text: 'Próximo', color: '#d97706', vto: formattedDate };
+        return { text: 'Vigente', color: '#166534', vto: formattedDate };
     } catch (e) {
-        return '';
+        return { text: 'Sin Dato', color: '#64748b', vto: '-' };
     }
-};
-
-const getStatus = (lastDate, monthsValid) => {
-    if (!lastDate) return { text: 'Sin Dato', color: '#000000', vto: '-' };
-    const dueDate = addMonths(lastDate, monthsValid);
-    if (!dueDate) return { text: 'Sin Dato', color: '#000000', vto: '-' };
-    const today = new Date().toISOString().split('T')[0];
-    const diffDays = Math.ceil((new Date(dueDate).getTime() - new Date(today).getTime()) / (1000 * 60 * 60 * 24));
-
-    if (isNaN(diffDays)) return { text: 'Sin Dato', color: '#000000', vto: '-' };
-
-    if (diffDays < 0) return { text: 'Vencido', color: '#dc2626', vto: new Date(dueDate).toLocaleDateString('es-AR') };
-    if (diffDays <= 30) return { text: 'Próximo', color: '#d97706', vto: new Date(dueDate).toLocaleDateString('es-AR') };
-    return { text: 'Vigente', color: '#166534', vto: new Date(dueDate).toLocaleDateString('es-AR') };
 };
 
 export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguishers: any[] }): React.ReactElement | null {
@@ -101,140 +92,146 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
                         />
                     </div>
 
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9pt', fontFamily: 'sans-serif' }}>
-                        <thead>
-                            <tr style={{ background: '#f1f5f9' }}>
-                                <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', width: '8%', fontWeight: 800 }}>Chapa</th>
-                                <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'left', width: '20%', fontWeight: 800 }}>Ubicación</th>
-                                <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'left', width: '20%', fontWeight: 800 }}>Tipo / Cap. / Fabricación</th>
-                                <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', width: '20%', fontWeight: 800 }}>Vto. Mantenimiento</th>
-                                <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'left', width: '32%', fontWeight: 800 }}>Último Control Mensual</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {(() => {
-                                if (!extinguishers || extinguishers.length === 0) {
-                                    return (
-                                        <tr>
-                                            <td colSpan={5} style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>
-                                                No hay extintores registrados.
-                                            </td>
-                                        </tr>
-                                    );
-                                }
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
+                        {(() => {
+                            if (!extinguishers || extinguishers.length === 0) {
+                                return (
+                                    <div style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>
+                                        No hay extintores registrados.
+                                    </div>
+                                );
+                            }
 
-                                const grouped = extinguishers.reduce((acc, ext) => {
-                                    const key = ext.empresa || 'Sin Empresa Especificada';
-                                    if (!acc[key]) acc[key] = [];
-                                    acc[key].push(ext);
-                                    return acc;
-                                }, {});
+                            const grouped = extinguishers.reduce((acc, ext) => {
+                                const key = ext.empresa || 'Sin Empresa Especificada';
+                                if (!acc[key]) acc[key] = [];
+                                acc[key].push(ext);
+                                return acc;
+                            }, {});
 
-                                const sortedCompanies = Object.keys(grouped).sort();
+                            const sortedCompanies = Object.keys(grouped).sort();
 
-                                return sortedCompanies.map(empresa => {
-                                    const group = grouped[empresa].sort((a, b) => {
-                                        const numA = parseInt(a.chapa || a.numero || '0', 10);
-                                        const numB = parseInt(b.chapa || b.numero || '0', 10);
-                                        if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
-                                        return String(a.chapa || a.numero || '').localeCompare(String(b.chapa || b.numero || ''));
-                                    });
+                            return sortedCompanies.map(empresa => {
+                                const group = grouped[empresa].sort((a, b) => {
+                                    const numA = parseInt(a.chapa || a.numero || '0', 10);
+                                    const numB = parseInt(b.chapa || b.numero || '0', 10);
+                                    if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+                                    return String(a.chapa || a.numero || '').localeCompare(String(b.chapa || b.numero || ''));
+                                });
 
-                                    return (
-                                        <React.Fragment key={empresa}>
-                                            <tr style={{ background: '#e2e8f0', borderBottom: '2px solid #cbd5e1' }}>
-                                                <td colSpan={5} style={{ padding: '10px 8px', fontWeight: 900, fontSize: '10pt', color: '#0f172a' }}>
-                                                    🏢 Empresa: {empresa} <span style={{ fontWeight: 'normal', fontSize: '8pt', color: '#475569', marginLeft: '10px' }}>({group.length} extintores)</span>
-                                                </td>
-                                            </tr>
+                                return (
+                                    <div key={empresa} style={{ pageBreakInside: 'avoid', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                        {/* Company Header */}
+                                        <div style={{ 
+                                            background: '#1e293b', color: '#ffffff', padding: '10px 15px', 
+                                            borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '10px' 
+                                        }}>
+                                            <span style={{ fontSize: '12pt', fontWeight: 900 }}>🏢 {empresa}</span>
+                                            <span style={{ fontSize: '9pt', background: '#334155', padding: '2px 8px', borderRadius: '12px' }}>
+                                                {group.length} extintores
+                                            </span>
+                                        </div>
+
+                                        {/* Grid of Cards */}
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '15px' }}>
                                             {group.map((ext, idx) => {
-                                                const sCarga = getStatus(ext?.ultimaCarga || ext?.vencimientoRecarga, 12);
-                                                const sPH = getStatus(ext?.ultimaPH || ext?.vencimientoPH, 60);
+                                                const sCarga = getStatus(ext?.ultimaCarga || ext?.vencimientoRecarga);
+                                                const sPH = getStatus(ext?.ultimaPH || ext?.vencimientoPH);
                                                 const lastInspection = ext?.inspections && ext.inspections.length > 0 ? ext.inspections[ext.inspections.length - 1] : null;
 
                                                 return (
-                                                    <tr key={`${empresa}-${idx}`} style={{ pageBreakInside: 'avoid' }}>
-                                                        <td style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', fontWeight: 'bold' }}>{ext?.chapa || ext?.numero || '-'}</td>
-                                                        <td style={{ border: '1px solid #cbd5e1', padding: '8px' }}>
-                                                            <strong>{ext?.ubicacion || 'Sin ubicación'}</strong>
-                                                        </td>
-                                                        <td style={{ border: '1px solid #cbd5e1', padding: '8px' }}>
-                                                            {ext?.tipo || 'N/A'} <br />
-                                                            <span style={{ fontSize: '8pt', color: '#475569' }}>Cap: {ext?.capacidad || '-'}</span>
-                                                            {ext?.fechaFabricacion && (
-                                                                <div style={{ fontSize: '7.5pt', color: '#64748b', marginTop: '2px' }}>
-                                                                    Fab: {new Date(ext.fechaFabricacion + 'T12:00:00Z').toLocaleDateString('es-AR')}
-                                                                </div>
-                                                            )}
-                                                        </td>
-
-                                                        <td style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', fontSize: '8pt' }}>
-                                                            <div style={{ marginBottom: '4px' }}>
-                                                                <strong>Recarga:</strong> <span style={{ color: sCarga.color }}>{sCarga.text}</span>
-                                                                <div style={{ fontSize: '7pt', color: '#64748b' }}>Vto: {sCarga.vto}</div>
-                                                            </div>
+                                                    <div key={`${empresa}-${idx}`} style={{ 
+                                                        border: '1px solid #cbd5e1', borderRadius: '8px', 
+                                                        padding: '12px', background: '#ffffff', 
+                                                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                                                        pageBreakInside: 'avoid',
+                                                        display: 'flex', flexDirection: 'column', gap: '10px'
+                                                    }}>
+                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>
                                                             <div>
-                                                                <strong>P.H.:</strong> <span style={{ color: sPH.color }}>{sPH.text}</span>
-                                                                <div style={{ fontSize: '7pt', color: '#64748b' }}>Vto: {sPH.vto}</div>
-                                                            </div>
-                                                        </td>
-
-                                                        <td style={{ border: '1px solid #cbd5e1', padding: '8px', fontSize: '8pt' }}>
-                                                            {lastInspection ? (
-                                                                <div>
-                                                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontWeight: 'bold' }}>
-                                                                        <span>Insp: {new Date(lastInspection.fechaVisita + 'T12:00:00Z').toLocaleDateString('es-AR')}</span>
-                                                                        <span style={{ color: lastInspection.resultado === 'C' ? '#166534' : '#dc2626' }}>
-                                                                            {lastInspection.resultado === 'C' ? 'CUMPLE ✓' : 'NO CUMPLE ⚠️'}
-                                                                        </span>
+                                                                <div style={{ fontSize: '11pt', fontWeight: 900, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                                    <div style={{ background: '#fef3c7', color: '#d97706', padding: '4px', borderRadius: '6px' }}>
+                                                                        <Flame size={14} weight="fill" />
                                                                     </div>
-                                                                    <div style={{ display: 'flex', gap: '3px', flexWrap: 'wrap', marginBottom: '4px' }}>
-                                                                        {Object.entries(lastInspection.controles || {}).map(([key, value]) => {
-                                                                            const labels = {
-                                                                                manometro: 'Man.',
-                                                                                acceso: 'Acc.',
-                                                                                senalizacion: 'Señ.',
-                                                                                manguera: 'Mang.',
-                                                                                cilindro: 'Cil.'
-                                                                            };
-                                                                            const color = value === 'C' ? '#166534' : value === 'NC' ? '#dc2626' : '#64748b';
-                                                                            const bg = value === 'C' ? '#dcfce7' : value === 'NC' ? '#fee2e2' : '#f1f5f9';
-                                                                            return (
-                                                                                <span key={key} style={{ padding: '1px 4px', borderRadius: '3px', fontSize: '7.5pt', background: bg, color, fontWeight: 'bold' }}>
-                                                                                    {(labels as any)[key] || key}: {value as string}
-                                                                                </span>
-                                                                            );
-                                                                        })}
-                                                                    </div>
-                                                                    {lastInspection.observacion && (
-                                                                        <div style={{ color: '#475569', fontStyle: 'italic', marginTop: '2px', fontSize: '7.5pt' }}>
-                                                                            Obs: {lastInspection.observacion}
-                                                                        </div>
-                                                                    )}
-                                                                    {lastInspection.fotos && lastInspection.fotos.length > 0 && (
-                                                                        <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
-                                                                            {lastInspection.fotos.map((img: string, i: number) => (
-                                                                                <img key={i} src={img} alt="" style={{ width: '30px', height: '30px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
-                                                                            ))}
-                                                                        </div>
-                                                                    )}
+                                                                    CHAPA: {ext?.chapa || ext?.numero || '-'}
                                                                 </div>
-                                                            ) : (
-                                                                <div style={{ color: '#64748b', fontStyle: 'italic' }}>Sin controles este período.</div>
-                                                            )}
-                                                        </td>
-                                                    </tr>
+                                                                <div style={{ fontSize: '9pt', color: '#475569', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                                    <MapPin size={12} /> <strong>{ext?.ubicacion || 'Sin ubicación'}</strong>
+                                                                </div>
+                                                            </div>
+                                                            <div style={{ textAlign: 'right' }}>
+                                                                <div style={{ fontSize: '9pt', fontWeight: 700, color: '#0f172a', background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px' }}>
+                                                                    {ext?.tipo || 'N/A'} - {ext?.capacidad || '-'}
+                                                                </div>
+                                                                {ext?.fechaFabricacion && (
+                                                                    <div style={{ fontSize: '7.5pt', color: '#64748b', marginTop: '4px' }}>
+                                                                        Fab: {new Date(ext.fechaFabricacion + 'T12:00:00Z').toLocaleDateString('es-AR')}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Dates */}
+                                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '8.5pt' }}>
+                                                            <div style={{ background: '#f8fafc', padding: '6px 8px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                                                                <div style={{ color: '#64748b', fontWeight: 700, marginBottom: '2px' }}>RECARGA</div>
+                                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                                    <span style={{ color: sCarga.color, fontWeight: 900 }}>{sCarga.text}</span>
+                                                                    <span style={{ color: '#475569' }}>{sCarga.vto}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div style={{ background: '#f8fafc', padding: '6px 8px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                                                                <div style={{ color: '#64748b', fontWeight: 700, marginBottom: '2px' }}>PRUEBA HIDR.</div>
+                                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                                    <span style={{ color: sPH.color, fontWeight: 900 }}>{sPH.text}</span>
+                                                                    <span style={{ color: '#475569' }}>{sPH.vto}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Last Inspection */}
+                                                        {lastInspection ? (
+                                                            <div style={{ fontSize: '8.5pt', background: '#f8fafc', padding: '8px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontWeight: 800 }}>
+                                                                    <span style={{ color: '#475569' }}>Insp: {new Date(lastInspection.fechaVisita + 'T12:00:00Z').toLocaleDateString('es-AR')}</span>
+                                                                    <span style={{ color: lastInspection.resultado === 'C' ? '#166534' : '#dc2626' }}>
+                                                                        {lastInspection.resultado === 'C' ? 'CUMPLE ✓' : 'NO CUMPLE ⚠️'}
+                                                                    </span>
+                                                                </div>
+                                                                <div style={{ display: 'flex', gap: '3px', flexWrap: 'wrap' }}>
+                                                                    {Object.entries(lastInspection.controles || {}).map(([key, value]) => {
+                                                                        const labels = {
+                                                                            manometro: 'Man.', acceso: 'Acc.', senalizacion: 'Señ.', manguera: 'Mang.', cilindro: 'Cil.'
+                                                                        };
+                                                                        const color = value === 'C' ? '#166534' : value === 'NC' ? '#dc2626' : '#64748b';
+                                                                        const bg = value === 'C' ? '#dcfce7' : value === 'NC' ? '#fee2e2' : '#f1f5f9';
+                                                                        return (
+                                                                            <span key={key} style={{ padding: '2px 5px', borderRadius: '4px', fontSize: '7pt', background: bg, color, fontWeight: 'bold' }}>
+                                                                                {(labels as any)[key] || key}: {value as string}
+                                                                            </span>
+                                                                        );
+                                                                    })}
+                                                                </div>
+                                                                {lastInspection.observacion && (
+                                                                    <div style={{ color: '#475569', fontStyle: 'italic', marginTop: '6px', fontSize: '7.5pt', borderTop: '1px solid #e2e8f0', paddingTop: '4px' }}>
+                                                                        Obs: {lastInspection.observacion}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        ) : (
+                                                            <div style={{ fontSize: '8pt', color: '#64748b', fontStyle: 'italic', background: '#f8fafc', padding: '6px', borderRadius: '6px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+                                                                Sin controles mensuales este período.
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 );
                                             })}
-                                        </React.Fragment>
-                                    );
-                                });
-                            })()}
-                        </tbody>
-                    </table>
-
-                    {/* Firmas */}
-                    <PdfSignatures data={extinguishers[0] || {}} />
+                                        </div>
+                                    </div>
+                                );
+                            });
+                        })()}
+                    </div>
                 </div>
             </div>
         </div>

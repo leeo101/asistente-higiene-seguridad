@@ -14,28 +14,21 @@ import { usePaywall } from '../hooks/usePaywall';
 import { DataTable } from '../components/DataTable';
 import AnimatedPage from '../components/AnimatedPage';
 
-const addMonths = (dateString, months) => {
-    if (!dateString) return null;
+const getStatus = (dueDateStr) => {
+    if (!dueDateStr) return { status: 'unknown', color: '#64748b', text: 'Sin Dato', vto: '-' };
     try {
-        const d = new Date(dateString + 'T12:00:00Z');
-        if (isNaN(d.getTime())) return null;
-        d.setMonth(d.getMonth() + months);
-        return d;
+        const dueDate = new Date(dueDateStr + 'T12:00:00Z');
+        if (isNaN(dueDate.getTime())) return { status: 'unknown', color: '#64748b', text: 'Sin Dato', vto: '-' };
+        const today = new Date();
+        const diffDays = Math.ceil(((dueDate as any) - (today as any)) / (1000 * 60 * 60 * 24));
+        const formattedDate = dueDate.toLocaleDateString('es-AR');
+        
+        if (diffDays < 0) return { status: 'expired', color: '#ef4444', text: 'Vencido', vto: formattedDate };
+        if (diffDays <= 30) return { status: 'warning', color: '#f59e0b', text: 'Por Vencer', vto: formattedDate };
+        return { status: 'valid', color: '#10b981', text: 'Vigente', vto: formattedDate };
     } catch (e) {
-        return null;
+        return { status: 'unknown', color: '#64748b', text: 'Sin Dato', vto: '-' };
     }
-};
-
-const getStatus = (lastDate, monthsValid) => {
-    if (!lastDate) return { status: 'unknown', color: '#64748b', text: 'Sin Dato' };
-    const dueDate = addMonths(lastDate, monthsValid);
-    if (!dueDate || isNaN(dueDate.getTime())) return { status: 'unknown', color: '#64748b', text: 'Sin Dato' };
-    const today = new Date();
-    const diffDays = Math.ceil(((dueDate as any) - (today as any)) / (1000 * 60 * 60 * 24));
-    if (isNaN(diffDays)) return { status: 'unknown', color: '#64748b', text: 'Sin Dato' };
-    if (diffDays < 0) return { status: 'expired', color: '#ef4444', text: 'Vencido' };
-    if (diffDays <= 30) return { status: 'warning', color: '#f59e0b', text: 'Próx. a Vencer' };
-    return { status: 'valid', color: '#10b981', text: 'Vigente' };
 };
 
 const getLifespanStatus = (fechaFab) => {
@@ -187,8 +180,8 @@ export default function ExtinguishersHistory(): React.ReactElement | null {
             accessor: 'chapa',
             sortable: true,
             render: (item: any) => {
-                const stCarga = getStatus(item.ultimaCarga, 12);
-                const isExpired = stCarga.status === 'expired' || getStatus(item.ultimaPH, 60).status === 'expired';
+                const stCarga = getStatus(item.ultimaCarga || item.vencimientoRecarga);
+                const isExpired = stCarga.status === 'expired' || getStatus(item.ultimaPH || item.vencimientoPH).status === 'expired';
                 const lastInspection = item.inspections && item.inspections.length > 0 ? item.inspections[item.inspections.length - 1] : null;
                 return (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
@@ -250,7 +243,7 @@ export default function ExtinguishersHistory(): React.ReactElement | null {
             accessor: 'ultimaCarga',
             sortable: true,
             render: (item: any) => {
-                const st = getStatus(item.ultimaCarga, 12);
+                const st = getStatus(item.ultimaCarga || item.vencimientoRecarga);
                 return (
                     <span style={{ color: st.color, fontWeight: 700, fontSize: '0.8rem' }}>{st.text}</span>
                 );
@@ -261,7 +254,7 @@ export default function ExtinguishersHistory(): React.ReactElement | null {
             accessor: 'ultimaPH',
             sortable: true,
             render: (item: any) => {
-                const st = getStatus(item.ultimaPH, 60);
+                const st = getStatus(item.ultimaPH || item.vencimientoPH);
                 return (
                     <span style={{ color: st.color, fontWeight: 700, fontSize: '0.8rem' }}>{st.text}</span>
                 );
