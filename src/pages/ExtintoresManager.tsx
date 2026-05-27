@@ -258,8 +258,8 @@ export default function ExtintoresManager() {
             <style type="text/css">
                 {`
                     .ext-print-wrapper {
-                        position: fixed !important;
-                        left: 200vw !important;
+                        position: absolute !important;
+                        left: -9999px !important;
                         top: 0 !important;
                         width: 210mm !important;
                         z-index: -9999 !important;

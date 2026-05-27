@@ -2721,14 +2721,14 @@ svg.ph-duotone [opacity="0.2"] {
 
 /* ─── ATS PDF / Print ─── */
 .ats-pdf-offscreen {
-  position: fixed;
+  position: absolute;
   left: -12000px;
   top: 0;
   width: 210mm;
   pointer-events: none;
   opacity: 0;
   z-index: -1;
-  overflow: hidden;
+  overflow: visible;
 }
 
 body.printing-isolated .ats-pdf-offscreen {
