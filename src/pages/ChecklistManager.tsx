@@ -321,7 +321,7 @@ export default function ChecklistManager(): React.ReactElement | null {
     const { currentUser } = useAuth();
     const { syncCollection } = useSync();
     const { requirePro } = usePaywall();
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
 
     const [companyInfo, setCompanyInfo] = useState({
         name: '',
@@ -468,6 +468,11 @@ export default function ChecklistManager(): React.ReactElement | null {
         localStorage.setItem('tool_checklists_history', JSON.stringify(history));
         await syncCollection('tool_checklists_history', history);
         toast.success('Checklist guardado con éxito y registrado en el historial ✅');
+
+        // Update URL to prevent creating duplicate entries on subsequent saves
+        if (!searchParams.get('id')) {
+            setSearchParams({ id });
+        }
     };
 
     

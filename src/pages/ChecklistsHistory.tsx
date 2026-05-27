@@ -40,7 +40,7 @@ const getChecklistStatus = (id) => {
         }
         
         const arr = Array.isArray(items) ? items : [];
-        const nok = arr.filter((c: any) => c.status === 'NC' || c.value === 'NO' || c.estado === 'NO' || c.checked === false || c.result === 'no').length;
+        const nok = arr.filter((c: any) => c.status === 'NC' || c.status === 'FAIL' || c.value === 'NO' || c.estado === 'NO' || c.checked === false || c.result === 'no').length;
         const obs = arr.filter((c: any) => c.observation || c.observacion || c.observaciones).length;
         if (arr.length === 0) return { label: 'Vacío', color: '#64748b', bg: 'rgba(100,116,139,0.1)' };
         if (nok > 0) return { label: 'Rechazado', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' };
