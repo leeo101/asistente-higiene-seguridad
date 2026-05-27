@@ -82,8 +82,15 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         const captureWidth = Math.max(element.scrollWidth, element.offsetWidth);
         const captureHeight = Math.max(element.scrollHeight, element.offsetHeight);
 
+        // Calculate dynamic scale to prevent iOS canvas truncation limits (e.g. > 4096px height)
+        // Max desired scale is 2.5 for high quality, minimum is 1.0.
+        let dynamicScale = 2.5;
+        if (captureHeight * dynamicScale > 4000) {
+            dynamicScale = Math.max(1.0, 4000 / captureHeight);
+        }
+
         const canvas = await html2canvas(element, {
-            scale: 2.5,
+            scale: dynamicScale,
             useCORS: true,
             allowTaint: true,
             logging: false,

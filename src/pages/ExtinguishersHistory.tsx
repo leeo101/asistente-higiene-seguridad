@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { Fire, MapPin, ArrowLeft, ShareNetwork as Share2, QrCode, Printer, PencilSimple, DownloadSimple } from '@phosphor-icons/react';
 import ExcelJS from 'exceljs';
@@ -289,13 +290,16 @@ export default function ExtinguishersHistory(): React.ReactElement | null {
         <AnimatedPage>
             <div className="container" style={{ paddingBottom: '3rem' }}>
                 <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={Array.isArray(shareItem) ? "Inventario de Extintores" : `Extintor #${shareItem?.chapa}`} text={shareItem ? (Array.isArray(shareItem) ? `🧯 Inventario de Extintores\n📊 Total: ${shareItem.length}` : `🧯 Extintor #${shareItem.chapa}\n📍 Ubicación: ${shareItem.ubicacion}`) : ''} rawMessage={''} elementIdToPrint="pdf-content" fileName={Array.isArray(shareItem) ? "Inventario_Extintores.pdf" : `Extintor_${shareItem?.chapa || 'Reporte'}.pdf`} />
-                <div className="ats-pdf-offscreen" aria-hidden="true">
-                    {shareItem && !Array.isArray(shareItem) ? (
-                        <ExtinguisherProfilePdf data={shareItem} isHeadless={true} />
-                    ) : (
-                        <ExtinguisherPdfGenerator extinguishers={Array.isArray(shareItem) ? shareItem : []} />
-                    )}
-                </div>
+                {createPortal(
+                    <div className="ats-pdf-offscreen" aria-hidden="true">
+                        {shareItem && !Array.isArray(shareItem) ? (
+                            <ExtinguisherProfilePdf data={shareItem} isHeadless={true} />
+                        ) : (
+                            <ExtinguisherPdfGenerator extinguishers={Array.isArray(shareItem) ? shareItem : []} />
+                        )}
+                    </div>,
+                    document.body
+                )}
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>

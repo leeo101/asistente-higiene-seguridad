@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
     Flame, Plus, Search, MapPin, QrCode, ArrowLeft, ShieldCheck,
     Calendar, Edit3, Trash2, Printer, AlertTriangle, CheckCircle2, Camera, Share2, Pencil
@@ -275,9 +276,12 @@ export default function ExtintoresManager() {
                     }
                 `}
             </style>
-            <div className="ext-print-wrapper">
-                <ExtinguisherProfilePdf data={shareItem || formData} isHeadless={true} />
-            </div>
+            {createPortal(
+                <div className="ext-print-wrapper">
+                    <ExtinguisherProfilePdf data={shareItem || formData} isHeadless={true} />
+                </div>,
+                document.body
+            )}
 
             {expiredLifespans.length > 0 && (
                 <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', padding: '1rem 1.5rem', borderRadius: '12px', display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.5rem' }}>
