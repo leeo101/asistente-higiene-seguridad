@@ -193,15 +193,18 @@ export default function ExtintoresManager() {
         }
     };
 
-    // Calculate expiration status
-    const getExpirationStatus = (dateStr) => {
-        if (!dateStr) return { color: 'gray', label: 'Sin Datos', icon: <AlertTriangle size={14} /> };
-        const d = new Date(dateStr);
+    // Calculate Recarga expiration status (add 1 year to the performed date)
+    const getRecargaExpirationStatus = (dateStr) => {
+        if (!dateStr) return { color: 'gray', label: 'Sin Datos', icon: <AlertTriangle size={14} />, expirationDate: null };
+        const d = new Date(dateStr + 'T12:00:00Z');
+        if (isNaN(d.getTime())) return { color: 'gray', label: 'Sin Datos', icon: <AlertTriangle size={14} />, expirationDate: null };
+        d.setFullYear(d.getFullYear() + 1);
         const today = new Date();
         const diffDays = Math.ceil((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-        if (diffDays < 0) return { color: '#ef4444', label: 'Vencido', bg: '#fee2e2', icon: <AlertTriangle size={14} /> };
-        if (diffDays <= 30) return { color: '#f59e0b', label: 'Por vencer', bg: '#fef3c7', icon: <AlertTriangle size={14} /> };
-        return { color: '#10b981', label: 'Vigente', bg: '#d1fae5', icon: <CheckCircle2 size={14} /> };
+        const expDate = d.toLocaleDateString('es-AR');
+        if (diffDays < 0) return { color: '#ef4444', label: 'Vencido', bg: '#fee2e2', icon: <AlertTriangle size={14} />, expirationDate: expDate };
+        if (diffDays <= 30) return { color: '#f59e0b', label: 'Por vencer', bg: '#fef3c7', icon: <AlertTriangle size={14} />, expirationDate: expDate };
+        return { color: '#10b981', label: 'Vigente', bg: '#d1fae5', icon: <CheckCircle2 size={14} />, expirationDate: expDate };
     };
 
     // Calculate PH expiration status (add 5 years to the performed date)
@@ -354,7 +357,7 @@ export default function ExtintoresManager() {
                                 <input type="date" value={formData.fechaFabricacion} onChange={e => setFormData({...formData, fechaFabricacion: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--color-border)', outline: 'none' }} />
                             </div>
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>VENCIMIENTO RECARGA</label>
+                                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>ÚLTIMA CARGA (SE SUMARÁ 1 AÑO)</label>
                                 <input required type="date" value={formData.vencimientoRecarga} onChange={e => setFormData({...formData, vencimientoRecarga: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--color-border)', outline: 'none' }} />
                             </div>
                             <div>
@@ -544,7 +547,7 @@ export default function ExtintoresManager() {
                             </div>
                         ) : (
                             filtered.map(ext => {
-                                const recargaStatus = getExpirationStatus(ext.vencimientoRecarga);
+                                const recargaStatus = getRecargaExpirationStatus(ext.vencimientoRecarga);
                                 const phStatus = getPHExpirationStatus(ext.vencimientoPH);
 
                                 return (
@@ -601,7 +604,7 @@ export default function ExtintoresManager() {
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', padding: '0.4rem 0', borderBottom: '1px dashed var(--color-border)' }}>
                                                 <span style={{ fontWeight: 800, color: 'var(--color-text-muted)' }}>RECARGA ANUAL</span>
                                                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 800, color: recargaStatus.color, background: recargaStatus.bg, padding: '0.2rem 0.6rem', borderRadius: '999px' }}>
-                                                    {recargaStatus.icon} {ext.vencimientoRecarga ? new Date(ext.vencimientoRecarga).toLocaleDateString('es-AR') : '-'}
+                                                    {recargaStatus.icon} {recargaStatus.expirationDate || '-'}
                                                 </span>
                                             </div>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', padding: '0.4rem 0', borderBottom: '1px dashed var(--color-border)' }}>

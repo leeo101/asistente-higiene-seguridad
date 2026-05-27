@@ -5,14 +5,17 @@ import PdfSignatures from './PdfSignatures';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import ShareModal from './ShareModal';
 
-const getExpirationStatus = (dateStr) => {
-    if (!dateStr) return { text: 'Sin Datos', color: '#64748b' };
-    const d = new Date(dateStr);
+const getRecargaExpirationStatus = (dateStr) => {
+    if (!dateStr) return { text: 'Sin Datos', color: '#64748b', expirationDate: null };
+    const d = new Date(dateStr + 'T12:00:00Z');
+    if (isNaN(d.getTime())) return { text: 'Sin Datos', color: '#64748b', expirationDate: null };
+    d.setFullYear(d.getFullYear() + 1);
     const today = new Date();
     const diffDays = Math.ceil((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    if (diffDays < 0) return { text: 'Vencido', color: '#ef4444' };
-    if (diffDays <= 30) return { text: 'Por vencer', color: '#f59e0b' };
-    return { text: 'Vigente', color: '#10b981' };
+    const expDate = d.toLocaleDateString('es-AR');
+    if (diffDays < 0) return { text: 'Vencido', color: '#ef4444', expirationDate: expDate };
+    if (diffDays <= 30) return { text: 'Por vencer', color: '#f59e0b', expirationDate: expDate };
+    return { text: 'Vigente', color: '#10b981', expirationDate: expDate };
 };
 
 const getPHExpirationStatus = (dateStr: string) => {
@@ -47,7 +50,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
 
     const handlePrint = () => window.print();
 
-    const recargaStatus = getExpirationStatus(data.vencimientoRecarga);
+    const recargaStatus = getRecargaExpirationStatus(data.vencimientoRecarga);
     const phStatus = getPHExpirationStatus(data.vencimientoPH);
     const lifespanStatus = getLifespanStatus(data.fechaFabricacion);
 
@@ -256,7 +259,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                             <tbody>
                                 <tr>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '12px' }}>
-                                        <div style={{ fontSize: '12pt', fontWeight: 900 }}>{data.vencimientoRecarga ? new Date(data.vencimientoRecarga).toLocaleDateString('es-AR') : '-'}</div>
+                                        <div style={{ fontSize: '12pt', fontWeight: 900 }}>{recargaStatus.expirationDate || '-'}</div>
                                         <div style={{ color: recargaStatus.color, fontWeight: 800, marginTop: '4px', fontSize: '9pt' }}>{recargaStatus.text}</div>
                                     </td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '12px' }}>
