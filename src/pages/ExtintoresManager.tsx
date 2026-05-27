@@ -311,15 +311,6 @@ export default function ExtintoresManager() {
                 </div>
             )}
 
-            <div className="no-print floating-action-bar">
-                <button
-                    onClick={() => requirePro(() => setShowForm(true))}
-                    className="btn-floating-action"
-                    style={{ background: '#36B37E', color: '#ffffff' }}
-                >
-                    <Plus size={18} /> NUEVO EQUIPO
-                </button>
-            </div>
 
             {showForm ? (
                 <div className="card animate-fade-in" style={{ padding: '2rem', border: '2px solid var(--color-primary)' }}>
@@ -367,7 +358,7 @@ export default function ExtintoresManager() {
                                 <input required type="date" value={formData.vencimientoRecarga} onChange={e => setFormData({...formData, vencimientoRecarga: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--color-border)', outline: 'none' }} />
                             </div>
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>ÚLTIMA PRUEBA HIDRÁULICA (SE SUMARÁN 5 AÑOS)</label>
+                                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>ÚLTIMA PRUEBA HIDRÁULICA</label>
                                 <input type="date" value={formData.vencimientoPH} onChange={e => setFormData({...formData, vencimientoPH: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--color-border)', outline: 'none' }} />
                             </div>
                             <div>
@@ -513,7 +504,13 @@ export default function ExtintoresManager() {
                 </div>
             ) : (
                 <>
-                    <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                    <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                        <button
+                            onClick={() => requirePro(() => setShowForm(true))}
+                            style={{ flex: '0 1 auto', padding: '1rem 1.5rem', borderRadius: '16px', background: '#36B37E', color: '#fff', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(54,179,126,0.3)', whiteSpace: 'nowrap' }}
+                        >
+                            <Plus size={20} /> Nuevo Matafuego
+                        </button>
                         <div style={{ flex: '1 1 300px', position: 'relative' }}>
                             <Search size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
                             <input 
