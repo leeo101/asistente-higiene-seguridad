@@ -54,7 +54,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
     };
 
     return (
-        <div className="container" style={{ paddingBottom: '3rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <div id="extinguisher-pdf-wrap" className="container" style={{ paddingBottom: '3rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center', overflowX: 'auto' }}>
                 <div
                     id="pdf-content"
@@ -80,7 +80,14 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
                                 width: 100% !important; 
                                 max-width: none !important; 
                                 border: 1px solid #1e293b !important;
-                                border-radius: 0 !important; 
+                                border-radius: 0 !important;
+                                min-height: 0 !important;
+                                height: auto !important;
+                            }
+                            #extinguisher-pdf-wrap {
+                                padding-bottom: 0 !important;
+                                min-height: 0 !important;
+                                margin: 0 !important;
                             }
                             .company-logo {
                                 -webkit-print-color-adjust: exact !important;

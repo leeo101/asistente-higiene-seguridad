@@ -105,7 +105,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
     } catch(e) {}
 
     return (
-        <div className="container" style={{ paddingBottom: '3rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <div id="extinguisher-profile-wrap" className="container" style={{ paddingBottom: '3rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             {!isHeadless && (
                 <div className="no-print" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10, flexWrap: 'wrap', gap: '1rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -162,6 +162,13 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                 padding: 10mm !important; 
                                 width: 100% !important; 
                                 border: none !important;
+                                min-height: 0 !important;
+                                height: auto !important;
+                            }
+                            #extinguisher-profile-wrap {
+                                padding-bottom: 0 !important;
+                                min-height: 0 !important;
+                                margin: 0 !important;
                             }
                         `}
                     </style>

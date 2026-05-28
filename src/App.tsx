@@ -58,9 +58,7 @@ const SignatureStamp = lazyWithRetry(() => import('./pages/SignatureStamp'));
 const Security = lazyWithRetry(() => import('./pages/Security'));
 const AppSettings = lazyWithRetry(() => import('./pages/AppSettings'));
 const ATS = lazyWithRetry(() => import('./pages/ATS'));
-const ATSHistory = lazyWithRetry(() => import('./pages/ATSHistory'));
 const FireLoad = lazyWithRetry(() => import('./pages/FireLoad'));
-const FireLoadHistory = lazyWithRetry(() => import('./pages/FireLoadHistory'));
 const RiskMatrix = lazyWithRetry(() => import('./pages/RiskMatrix'));
 const RiskMatrixReport = lazyWithRetry(() => import('./pages/RiskMatrixReport'));
 const Reports = lazyWithRetry(() => import('./pages/Reports'));
@@ -85,7 +83,6 @@ const RiskAssessmentHistory = lazyWithRetry(() => import('./pages/RiskAssessment
 const NotFound = lazyWithRetry(() => import('./pages/NotFound'));
 const PPETracker = lazyWithRetry(() => import('./pages/PPETracker'));
 const Dashboard = lazyWithRetry(() => import('./pages/Dashboard'));
-const ChecklistsHistory = lazyWithRetry(() => import('./pages/ChecklistsHistory'));
 const ChecklistManager = lazyWithRetry(() => import('./pages/ChecklistManager'));
 const Subscription = lazyWithRetry(() => import('./pages/Subscription'));
 const AIHistory = lazyWithRetry(() => import('./pages/AIHistory'));
@@ -95,8 +92,7 @@ const AccidentInvestigation = lazyWithRetry(() => import('./pages/AccidentInvest
 const AccidentHistory = lazyWithRetry(() => import('./pages/AccidentHistory'));
 const TrainingManagement = lazyWithRetry(() => import('./pages/TrainingManagement'));
 const TrainingHistory = lazyWithRetry(() => import('./pages/TrainingHistory'));
-const Extinguishers = lazyWithRetry(() => import('./pages/Extinguishers'));
-const ExtinguishersHistory = lazyWithRetry(() => import('./pages/ExtinguishersHistory'));
+
 const ExtinguisherPdfGenerator = lazyWithRetry(() => import('./components/ExtinguisherPdfGenerator'));
 const ExtintoresManager = lazyWithRetry(() => import('./pages/ExtintoresManager'));
 const ExtinguisherInspection = lazyWithRetry(() => import('./pages/ExtinguisherInspection'));
@@ -553,10 +549,8 @@ function App() {
                   <Route path="/security" element={<ProtectedRoute><Security /></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute><AppSettings /></ProtectedRoute>} />
                   <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
-                  <Route path="/extinguishers-history" element={<ProtectedRoute><ExtinguishersHistory /></ProtectedRoute>} />
-                  <Route path="/ats-history" element={<ProtectedRoute><ATSHistory /></ProtectedRoute>} />
-                  <Route path="/fire-load-history" element={<ProtectedRoute><FireLoadHistory /></ProtectedRoute>} />
-                  <Route path="/checklists-history" element={<ProtectedRoute><ChecklistsHistory /></ProtectedRoute>} />
+
+
                   <Route path="/lighting-history" element={<ProtectedRoute><LightingHistory /></ProtectedRoute>} />
                   <Route path="/work-permit" element={<ProtectedRoute><WorkPermit /></ProtectedRoute>} />
                   <Route path="/work-permit-history" element={<ProtectedRoute><WorkPermitHistory /></ProtectedRoute>} />
@@ -569,7 +563,7 @@ function App() {
                   <Route path="/accident-history" element={<ProtectedRoute><AccidentHistory /></ProtectedRoute>} />
                   <Route path="/training-management" element={<ProtectedRoute><TrainingManagement /></ProtectedRoute>} />
                   <Route path="/training-history" element={<ProtectedRoute><TrainingHistory /></ProtectedRoute>} />
-                  <Route path="/extinguishers" element={<ProtectedRoute><Extinguishers /></ProtectedRoute>} />
+
                   <Route path="/extintores" element={<ProtectedRoute><ExtintoresManager /></ProtectedRoute>} />
                   <Route path="/extintores/inspect/:id" element={<ProtectedRoute><ExtinguisherInspection /></ProtectedRoute>} />
                   <Route path="/thermal-stress" element={<ProtectedRoute><ThermalStress /></ProtectedRoute>} />

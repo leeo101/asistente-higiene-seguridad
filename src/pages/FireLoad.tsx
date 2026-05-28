@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
     ArrowLeft, Save, Plus, Trash2, Flame, Calculator,
     FileText, Printer, Building2, Layout, Maximize2,
-    Info, TriangleAlert, ShieldCheck, History, Share2, Sparkles, Loader2
+    Info, TriangleAlert, ShieldCheck, History, Share2, Sparkles, Loader2, Calendar, QrCode
 } from 'lucide-react';
 import { fireMaterials, riskActivityGroups } from '../data/fireMaterials';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -20,6 +20,27 @@ import PremiumHeader from '../components/PremiumHeader';
 import { API_BASE_URL } from '../config';
 import { auth } from '../firebase';
 import { getCountryNormativa } from '../data/legislationData';
+import { DataTable } from '../components/DataTable';
+import QRModal from '../components/QRModal';
+import FireLoadPdfGenerator from '../components/FireLoadPdfGenerator';
+
+function DeleteConfirm({ onConfirm, onCancel }) {
+    return (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(12px)' }}>
+            <div className="glass-card" style={{ padding: '2rem', maxWidth: '380px', width: '90%', textAlign: 'center', borderRadius: 'var(--radius-2xl)', border: '1px solid var(--glass-border)', boxShadow: 'var(--glass-shadow)' }}>
+                <div style={{ fontSize: '2.8rem', marginBottom: '1rem', display: 'inline-block', filter: 'drop-shadow(0 0 10px rgba(239, 68, 68, 0.3))' }}>🗑️</div>
+                <h3 style={{ margin: '0 0 0.5rem', fontWeight: 900, fontSize: '1.2rem', color: 'var(--color-text)' }}>¿Eliminar estudio?</h3>
+                <p style={{ margin: '0 0 1.5rem', color: 'var(--color-text-muted)', fontSize: '0.85rem', fontWeight: 500, lineHeight: 1.4 }}>
+                    Esta acción no se puede deshacer y el registro se eliminará de todo el historial.
+                </p>
+                <div style={{ display: 'flex', gap: '0.8rem' }}>
+                    <button onClick={onCancel} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: 'var(--color-surface)', border: '1px solid var(--glass-border-subtle)', cursor: 'pointer', fontWeight: 800, color: 'var(--color-text)', transition: 'all 0.2s' }}>Cancelar</button>
+                    <button onClick={onConfirm} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: 'linear-gradient(135deg, #ef4444, #dc2626)', border: 'none', cursor: 'pointer', fontWeight: 800, color: '#fff', boxShadow: '0 4px 12px rgba(239, 68, 68, 0.25)', transition: 'all 0.2s' }}>Eliminar</button>
+                </div>
+            </div>
+        </div>
+    );
+}
 
 export default function FireLoad(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -27,9 +48,31 @@ export default function FireLoad(): React.ReactElement | null {
     const { currentUser } = useAuth();
     const { syncCollection } = useSync();
     const { requirePro } = usePaywall();
+    const { syncPulse } = useSync();
 
     const editData = location.state?.editData;
     useDocumentTitle(editData ? 'Editar Carga de Fuego' : 'Cálculo Carga de Fuego');
+
+    const [showForm, setShowForm] = useState(!!editData);
+    const [history, setHistory] = useState([]);
+    const [deleteTarget, setDeleteTarget] = useState(null);
+    const [qrTarget, setQrTarget] = useState(null);
+    const [shareItem, setShareItem] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterEmpresa, setFilterEmpresa] = useState('');
+
+    useEffect(() => {
+        const historyRaw = localStorage.getItem('fireload_history');
+        if (historyRaw) setHistory(JSON.parse(historyRaw));
+    }, [syncPulse]);
+
+    const confirmDelete = () => {
+        const updated = history.filter((item: any) => item.id !== deleteTarget);
+        setHistory(updated);
+        localStorage.setItem('fireload_history', JSON.stringify(updated));
+        syncCollection('fireload_history', updated);
+        setDeleteTarget(null);
+    };
 
     const [isMobile, setIsMobile] = useState(false);
 
@@ -320,7 +363,8 @@ export default function FireLoad(): React.ReactElement | null {
             localStorage.setItem('fireload_history', JSON.stringify(newHistory));
             await syncCollection('fireload_history', newHistory);
             toast.success('Carga de Fuego guardada con éxito');
-            navigate('/fire-load-history');
+            setHistory(newHistory);
+            setShowForm(false);
         } catch (error) {
             toast.error('Error al guardar: ' + error.message);
         }
@@ -335,8 +379,108 @@ export default function FireLoad(): React.ReactElement | null {
     };
     const threat = getThreatColors();
 
+    const filteredHistory = history.filter((e: any) => {
+        const matchesSearch = (e.empresa || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
+            (e.sector || '').toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesEmpresa = filterEmpresa === '' || e.empresa === filterEmpresa;
+        return matchesSearch && matchesEmpresa;
+    });
+
+    const columns = [
+        {
+            header: 'Fecha',
+            accessor: 'createdAt',
+            sortable: true,
+            render: (item: any) => (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap', fontWeight: 700, fontSize: '0.85rem' }}>
+                    <Calendar size={15} /> {new Date(item.createdAt).toLocaleDateString('es-AR')}
+                </span>
+            )
+        },
+        {
+            header: 'Empresa',
+            accessor: 'empresa',
+            sortable: true,
+            render: (item: any) => (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                    <div style={{ background: 'rgba(249,115,22,0.1)', padding: '0.5rem', borderRadius: '10px', color: '#f97316', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Flame size={18} />
+                    </div>
+                    <span style={{ fontWeight: 800, color: 'var(--color-text)' }}>{item.empresa || 'Sin nombre'}</span>
+                </div>
+            )
+        },
+        {
+            header: 'Sector',
+            accessor: 'sector',
+            sortable: true,
+            render: (item: any) => (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>
+                    <Building2 size={16} /> {item.sector}
+                </span>
+            )
+        },
+        {
+            header: 'Carga Qf',
+            accessor: 'results',
+            render: (item: any) => (
+                <div>
+                    <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#f97316', lineHeight: 1.1 }}>{item.results?.cargaDeFuego?.toFixed(2)}</div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '2px' }}>
+                        Kg/m² — <span style={{ color: '#ef4444' }}>{item.results?.rfRequerida}</span>
+                    </div>
+                </div>
+            )
+        },
+        {
+            header: 'Acciones',
+            accessor: 'id',
+            render: (item: any) => (
+                <div style={{ display: 'flex', gap: '0.45rem' }}>
+                    <button 
+                        onClick={() => {
+                            setFormData(item);
+                            if (item.showSignatures) setShowSignatures(item.showSignatures);
+                            setShowForm(true);
+                        }} 
+                        style={{ padding: '0.45rem 0.85rem', background: 'var(--color-surface)', border: '1px solid var(--glass-border-subtle)', borderRadius: '10px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '4px', transition: 'all 0.2s' }}
+                    >
+                        <FileText size={16} /> Ver
+                    </button>
+                    <button 
+                        onClick={() => requirePro(() => { const url = `${window.location.origin}/v/${currentUser?.uid}/fireload/${item.id}?print=true`; setQrTarget({ text: url, title: `Carga de Fuego — ${item.sector}` }); })} 
+                        style={{ padding: '0.45rem', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: '10px', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }} 
+                        title="QR"
+                    >
+                        <QrCode size={16} />
+                    </button>
+                    <button 
+                        onClick={() => requirePro(() => setShareItem(item))} 
+                        style={{ padding: '0.45rem', background: 'rgba(22,163,74,0.06)', border: '1px solid rgba(22,163,74,0.18)', borderRadius: '10px', color: '#16a34a', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }} 
+                        title="Compartir"
+                    >
+                        <Share2 size={16} />
+                    </button>
+                    <button 
+                        onClick={(e) => { e.stopPropagation(); setDeleteTarget(item.id); }} 
+                        style={{ padding: '0.45rem', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.18)', borderRadius: '10px', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
+                    >
+                        <Trash2 size={16} />
+                    </button>
+                </div>
+            )
+        }
+    ];
+
     return (
         <div className="container" style={{ maxWidth: '1000px', paddingBottom: '8rem' }}>
+            {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
+            {qrTarget && <QRModal text={(qrTarget as any).text} title={(qrTarget as any).title} onClose={() => setQrTarget(null)} />}
+            <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Carga de Fuego - ${(shareItem as any)?.sector || ''}`} text={shareItem ? `🔥 Estudio de Carga de Fuego\n🏗️ Empresa: ${(shareItem as any).empresa}\n📍 Sector: ${(shareItem as any).sector}\n🔥 Carga Qf: ${(shareItem as any).results?.cargaDeFuego?.toFixed(2)} Kg/m²\n🛡️ RF: ${(shareItem as any).results?.rfRequerida}` : ''} rawMessage={''} elementIdToPrint="pdf-content" fileName={`Carga_Fuego_${(shareItem as any)?.sector || 'Estudio'}.pdf`} />
+            <div className="ats-pdf-offscreen">
+                <FireLoadPdfGenerator data={shareItem} />
+            </div>
+
             <div className="no-print">
                 <PremiumHeader
                     title="Carga de Fuego"
@@ -345,6 +489,81 @@ export default function FireLoad(): React.ReactElement | null {
                 />
             </div>
 
+            {!showForm ? (
+                <>
+                    <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                        <div style={{ flex: 1, minWidth: '250px', position: 'relative' }}>
+                            <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }}>
+                                <Flame size={18} />
+                            </div>
+                            <input
+                                type="text"
+                                placeholder="Buscar por empresa o sector..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                style={{
+                                    width: '100%', padding: '0.8rem 1rem 0.8rem 2.5rem',
+                                    borderRadius: '12px', border: '1px solid var(--color-border)',
+                                    background: 'var(--color-surface)', color: 'var(--color-text)',
+                                    fontWeight: 500, outline: 'none', transition: 'all 0.2s'
+                                }}
+                            />
+                        </div>
+                        <select
+                            value={filterEmpresa}
+                            onChange={(e) => setFilterEmpresa(e.target.value)}
+                            style={{
+                                padding: '0.8rem 1rem', borderRadius: '12px',
+                                border: '1px solid var(--color-border)', background: 'var(--color-surface)',
+                                color: 'var(--color-text)', fontWeight: 600, outline: 'none', cursor: 'pointer',
+                                minWidth: '200px'
+                            }}
+                        >
+                            <option value="">Todas las empresas</option>
+                            {Array.from(new Set(history.map((h: any) => h.empresa).filter(Boolean))).map((empresa: string) => (
+                                <option key={empresa} value={empresa}>{empresa}</option>
+                            ))}
+                        </select>
+                        <button
+                            onClick={() => {
+                                setFormData({
+                                    empresa: '',
+                                    sector: '',
+                                    actividadResumen: '',
+                                    descripcionActividad: '',
+                                    superficie: 0,
+                                    actividadGrupo: 'industrial',
+                                    riesgo: 'R4',
+                                    conclusion: '',
+                                    materiales: [
+                                        { nombre: 'Madera (General)', peso: 0, poderCalorifico: 4400, totalKcal: 0 }
+                                    ],
+                                    id: ''
+                                });
+                                setShowForm(true);
+                            }}
+                            className="btn-primary"
+                            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 1.5rem', borderRadius: '12px' }}
+                        >
+                            <Plus size={18} /> Nuevo Cálculo
+                        </button>
+                    </div>
+
+                    <div className="glass-card" style={{ padding: '1rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                        <DataTable
+                            data={filteredHistory}
+                            columns={columns}
+                            searchPlaceholder="Buscar..."
+                            searchFields={['empresa', 'sector']}
+                            emptyMessage="No se encontraron estudios de carga de fuego."
+                            emptyIcon={<Flame size={48} />}
+                            onEmptyAction={() => setShowForm(true)}
+                            emptyActionLabel="Generar primer Cálculo"
+                        />
+                    </div>
+                </>
+            ) : (
+                <>
             <div>
             <ShareModal
                 isOpen={showShare}
@@ -354,7 +573,7 @@ export default function FireLoad(): React.ReactElement | null {
                 text={`🔥 Estudio de Carga de Fuego\n🏗️ Empresa: ${formData.empresa}\n📍 Sector: ${formData.sector}\n🔥 Carga Qf: ${results.cargaDeFuego.toFixed(2)} Kg/m²\n🛡️ RF Requerida: ${results.rfRequerida}\n\nGenerado con Asistente HYS`}
                 elementIdToPrint="pdf-content"
                 rawMessage={``}
-                fileName={`Carga_de_Fuego_${formData.empresa || 'Reporte'}`}
+                fileName={`Carga_de_Fuego_${formData.empresa || 'Reporte'}.pdf`}
             />
 
 
@@ -414,7 +633,7 @@ export default function FireLoad(): React.ReactElement | null {
                 </div>
 
                 <div className="no-print" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                    <button onClick={() => navigate('/fire-load-history')} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>
+                    <button onClick={() => setShowForm(false)} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>
                         <ArrowLeft size={20} />
                     </button>
                     <div>
@@ -921,8 +1140,10 @@ export default function FireLoad(): React.ReactElement | null {
                     />
                     <PdfBrandingFooter />
                 </div>
+                </div>
             </div>
-            </div>
+            </>
+            )}
         </div>
     );
 }

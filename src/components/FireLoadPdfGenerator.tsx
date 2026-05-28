@@ -35,8 +35,9 @@ export default function FireLoadPdfGenerator({ data }: { data: any }): React.Rea
                             padding: 5mm !important;
                             width: 100% !important;
                             max-width: none !important;
-                            border: none !important;
                             border-radius: 0 !important;
+                            min-height: 0 !important;
+                            height: auto !important;
                         }
                         .company-logo {
                             -webkit-print-color-adjust: exact !important;

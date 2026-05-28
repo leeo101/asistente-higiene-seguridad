@@ -5,8 +5,12 @@ import {
     Settings, TriangleAlert, Building2, Calendar,
     Check, ShieldCheck, Trash2, Edit3, X,
     Share2, Save, ArrowLeft, Info, Pencil, Camera,
-    Flame, Zap, Siren, Lightbulb, Activity, CheckCircle2
+    Flame, Zap, Siren, Lightbulb, Activity, CheckCircle2,
+    Search, QrCode, Download, FileText, ClipboardList
 } from 'lucide-react';
+import { DataTable } from '../components/DataTable';
+import { downloadCSV } from '../services/exportCsv';
+import QRModal from '../components/QRModal';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
@@ -145,6 +149,19 @@ const DEFAULT_TEMPLATES = {
             'Medicamentos y desinfectantes dentro de su fecha de vencimiento vigente',
             'Elementos limpios, secos y debidamente resguardados',
             'Presencia de guantes descartables de latex/nitrilo listos para usar'
+        ]
+    },
+    'epp': {
+        title: 'Elementos de Protección Personal',
+        icon: <ShieldCheck size={18} />,
+        items: [
+            'Casco en buen estado, sin fisuras y con el arnés ajustado correctamente',
+            'Gafas de seguridad limpias, sin rayaduras que impidan la visión',
+            'Protección auditiva (tapones/auriculares) en buen estado y limpios',
+            'Guantes adecuados a la tarea, sin agujeros ni desgaste excesivo',
+            'Calzado de seguridad con puntera, suela antideslizante y sin roturas',
+            'Ropa de trabajo en buenas condiciones, sin partes sueltas o desgarros',
+            'Arnés de seguridad con costuras, cabo de vida y herrajes sin desgaste'
         ]
     },
     'extintores_checklist': {
@@ -316,12 +333,60 @@ const getNormsForCountry = (country) => {
     return [...countryNorms, ...internationalNorms];
 };
 
+function DeleteConfirm({ onConfirm, onCancel }) {
+    return (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+            <div style={{ background: 'var(--color-surface)', borderRadius: '20px', padding: '2rem', maxWidth: '360px', width: '90%', textAlign: 'center' }}>
+                <div style={{ fontSize: '2.5rem', marginBottom: '0.8rem' }}>🗑️</div>
+                <h3 style={{ margin: '0 0 0.5rem', fontWeight: 900 }}>¿Eliminar checklist?</h3>
+                <p style={{ margin: '0 0 1.5rem', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>Esta acción no se puede deshacer.</p>
+                <div style={{ display: 'flex', gap: '0.8rem' }}>
+                    <button onClick={onCancel} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: 'var(--color-background)', border: 'none', cursor: 'pointer', fontWeight: 800 }}>Cancelar</button>
+                    <button onClick={onConfirm} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: 'linear-gradient(135deg,#ef4444,#dc2626)', border: 'none', cursor: 'pointer', fontWeight: 800, color: '#fff' }}>Eliminar</button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+const getChecklistStatus = (id) => {
+    const stored = localStorage.getItem(`checklist_${id}`);
+    if (!stored) return { label: 'Aprobado', color: '#10b981', bg: 'rgba(16,185,129,0.1)' };
+    try {
+        const parsed = JSON.parse(stored);
+        let items = parsed.items || parsed.checks || [];
+        if (parsed.activeSections) {
+            items = parsed.activeSections.flatMap((s: any) => s.items || []);
+        } else if (!Array.isArray(items) && Object.keys(items).length > 0) {
+            items = Object.values(items);
+        }
+        
+        const arr = Array.isArray(items) ? items : [];
+        const nok = arr.filter((c: any) => c.status === 'NC' || c.status === 'FAIL' || c.value === 'NO' || c.estado === 'NO' || c.checked === false || c.result === 'no').length;
+        const obs = arr.filter((c: any) => c.observation || c.observacion || c.observaciones).length;
+        if (arr.length === 0) return { label: 'Vacío', color: '#64748b', bg: 'rgba(100,116,139,0.1)' };
+        if (nok > 0) return { label: 'Rechazado', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' };
+        if (obs > 0) return { label: 'Con Obs.', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' };
+        return { label: 'Aprobado', color: '#10b981', bg: 'rgba(16,185,129,0.1)' };
+    } catch {
+        return { label: 'Aprobado', color: '#10b981', bg: 'rgba(16,185,129,0.1)' };
+    }
+};
+
 export default function ChecklistManager(): React.ReactElement | null {
     const navigate = useNavigate();
     const { currentUser } = useAuth();
-    const { syncCollection } = useSync();
+    const { syncCollection, syncPulse } = useSync();
     const { requirePro } = usePaywall();
     const [searchParams, setSearchParams] = useSearchParams();
+
+    const [showForm, setShowForm] = useState(false);
+    const [history, setHistory] = useState([]);
+    const [deleteTarget, setDeleteTarget] = useState(null);
+    const [qrTarget, setQrTarget] = useState(null);
+    const [shareItem, setShareItem] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterEmpresa, setFilterEmpresa] = useState('');
 
     const [companyInfo, setCompanyInfo] = useState({
         name: '',
@@ -402,8 +467,14 @@ export default function ChecklistManager(): React.ReactElement | null {
     }, []);
 
     useEffect(() => {
+        const historyRaw = localStorage.getItem('tool_checklists_history');
+        if (historyRaw) setHistory(JSON.parse(historyRaw));
+    }, [syncPulse]);
+
+    useEffect(() => {
         const id = searchParams.get('id');
         if (id) {
+            setShowForm(true);
             const savedData = localStorage.getItem(`checklist_${id}`);
             if (savedData) {
                 const parsed = JSON.parse(savedData);
@@ -466,13 +537,13 @@ export default function ChecklistManager(): React.ReactElement | null {
         }
 
         localStorage.setItem('tool_checklists_history', JSON.stringify(history));
+        setHistory(history);
         await syncCollection('tool_checklists_history', history);
         toast.success('Checklist guardado con éxito y registrado en el historial ✅');
 
-        // Update URL to prevent creating duplicate entries on subsequent saves
-        if (!searchParams.get('id')) {
-            setSearchParams({ id });
-        }
+        // Go back to the list
+        setSearchParams({});
+        setShowForm(false);
     };
 
     
@@ -568,15 +639,167 @@ export default function ChecklistManager(): React.ReactElement | null {
     const progressLabel = progressPct === 100 ? 'Listo para guardar y exportar ✅' : progressPct >= 66 ? 'Casi completo' : progressPct >= 33 ? 'En progreso' : 'Pendiente';
     const progressColor = progressPct === 100 ? '#10b981' : progressPct >= 66 ? '#f59e0b' : progressPct >= 33 ? '#3b82f6' : '#94a3b8';
 
+    const confirmDelete = () => {
+        const updated = history.filter((item: any) => item.id !== deleteTarget);
+        setHistory(updated);
+        localStorage.setItem('tool_checklists_history', JSON.stringify(updated));
+        syncCollection('tool_checklists_history', updated);
+        localStorage.removeItem(`checklist_${deleteTarget}`);
+        setDeleteTarget(null);
+    };
+
+    const handleExportCSV = () => {
+        requirePro(() => downloadCSV(history.map((i: any) => {
+            const st = getChecklistStatus(i.id);
+            return { fecha: new Date(i.fecha).toLocaleDateString('es-AR'), equipo: i.equipo, marca: i.marca, serial: i.serial, empresa: i.empresa, estado: st.label };
+        }), 'checklists_herramientas', { fecha: 'Fecha', equipo: 'Equipo', marca: 'Marca', serial: 'Número Serie', empresa: 'Empresa', estado: 'Estado' }, 'Reporte de Checklists'));
+    };
+
+    const columns = [
+        {
+            header: 'Fecha',
+            accessor: 'fecha',
+            sortable: true,
+            render: (item: any) => (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>
+                    <Calendar size={14} /> {new Date(item.fecha).toLocaleDateString('es-AR')}
+                </span>
+            )
+        },
+        {
+            header: 'Equipo',
+            accessor: 'equipo',
+            sortable: true,
+            render: (item: any) => (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                    <div style={{ background: 'rgba(59,130,246,0.1)', padding: '0.5rem', borderRadius: '8px', color: '#3b82f6' }}>
+                        <ClipboardList size={16} />
+                    </div>
+                    <div>
+                        <div style={{ fontWeight: 700 }}>{item.equipo || 'Sin nombre'}</div>
+                        <div style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)' }}>#{item.serial}</div>
+                    </div>
+                </div>
+            )
+        },
+        {
+            header: 'Empresa',
+            accessor: 'empresa',
+            sortable: true,
+            render: (item: any) => (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <Building2 size={14} /> {item.empresa}
+                </span>
+            )
+        },
+        {
+            header: 'Estado',
+            accessor: 'id',
+            render: (item: any) => {
+                const st = getChecklistStatus(item.id);
+                return (
+                    <span style={{ background: st.bg, color: st.color, padding: '0.25rem 0.7rem', borderRadius: '999px', fontSize: '0.72rem', fontWeight: 800 }}>
+                        {st.label}
+                    </span>
+                );
+            }
+        },
+        {
+            header: 'Acciones',
+            accessor: 'id',
+            render: (item: any) => (
+                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    <button onClick={() => { setSearchParams({ id: item.id }); setShowForm(true); }} style={{ padding: '0.4rem 0.8rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '4px' }}><FileText size={15} /> Ver</button>
+                    <button onClick={() => requirePro(() => { const url = `${window.location.origin}/v/${currentUser?.uid}/checklist/${item.id}?print=true`; setQrTarget({ text: url, title: `Checklist — ${item.equipo}` } as any); })} style={{ padding: '0.4rem', background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer' }} title="QR"><QrCode size={15} /></button>
+                    <button onClick={() => requirePro(() => setShareItem(JSON.parse(localStorage.getItem('checklist_' + item.id) || 'null') || item))} style={{ padding: '0.4rem', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '8px', color: '#16a34a', cursor: 'pointer' }} title="Compartir"><Share2 size={15} /></button>
+                    <button onClick={() => setDeleteTarget(item.id)} style={{ padding: '0.4rem', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}><Trash2 size={15} /></button>
+                </div>
+            )
+        }
+    ];
+
+    const uniqueEmpresas = [...new Set(history.map((e: any) => e.empresa).filter(Boolean))];
+
+    const filteredHistory = history.filter((e: any) => {
+        const matchesSearch = (e.equipo || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
+            (e.serial || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (e.marca || '').toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesEmpresa = filterEmpresa === '' || e.empresa === filterEmpresa;
+        return matchesSearch && matchesEmpresa;
+    });
+
     return (
         <div className="container" style={{ maxWidth: '1100px', paddingBottom: '8rem' }}>
             <Breadcrumbs />
 
             <PremiumHeader
-                title="Generador de Checklist"
+                title="Control de Checklists"
                 subtitle="Relevamiento preventivo y control de condiciones de seguridad"
                 icon={<ClipboardCheck size={36} />}
             />
+
+            {!showForm ? (
+                <>
+                    <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                        <button
+                            onClick={() => { setSearchParams({}); setShowForm(true); }}
+                            style={{ flex: '0 1 auto', padding: '1rem 1.5rem', borderRadius: '16px', background: '#36B37E', color: '#fff', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(54,179,126,0.3)', whiteSpace: 'nowrap' }}
+                        >
+                            <Plus size={20} /> Nuevo Checklist
+                        </button>
+                        <div style={{ flex: '1 1 300px', position: 'relative' }}>
+                            <Search size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                            <input 
+                                type="text" 
+                                placeholder="Buscar por equipo, empresa o serial..." 
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                style={{ width: '100%', padding: '1rem 1rem 1rem 3rem', borderRadius: '16px', border: '2px solid var(--color-border)', fontSize: '1rem', outline: 'none', background: 'var(--color-surface)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}
+                            />
+                        </div>
+                        <div style={{ flex: '0 1 250px' }}>
+                            <select 
+                                value={filterEmpresa} 
+                                onChange={e => setFilterEmpresa(e.target.value)}
+                                style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '2px solid var(--color-border)', fontSize: '1rem', outline: 'none', background: 'var(--color-surface)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', color: filterEmpresa ? 'var(--color-text)' : 'var(--color-text-muted)' }}
+                            >
+                                <option value="">Todas las Empresas</option>
+                                {uniqueEmpresas.map((emp: any) => (
+                                    <option key={emp} value={emp}>{emp}</option>
+                                ))}
+                            </select>
+                        </div>
+                        {history.length > 0 && (
+                            <button onClick={handleExportCSV} style={{ flex: '0 1 auto', display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'var(--color-primary)', border: 'none', borderRadius: '16px', padding: '1rem 1.5rem', fontSize: '1rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
+                                <Download size={20} /> Excel
+                            </button>
+                        )}
+                    </div>
+
+                    <DataTable
+                        data={filteredHistory}
+                        columns={columns}
+                        searchPlaceholder="Buscar..."
+                        emptyMessage="No se encontraron registros de Checklists."
+                        emptyIcon={<ClipboardList size={48} />}
+                        onEmptyAction={() => { setSearchParams({}); setShowForm(true); }}
+                        emptyActionLabel="Realizar Control Nuevo"
+                    />
+
+                    {qrTarget && <QRModal text={(qrTarget as any).text} title={(qrTarget as any).title} onClose={() => setQrTarget(null)} />}
+                    {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
+                    <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Checklist - ${(shareItem as any)?.equipo || ''}`} text={shareItem ? `📋 Checklist de Seguridad\n🔧 Equipo: ${(shareItem as any).equipo}\n🏗️ Empresa: ${(shareItem as any).empresa}\n📅 Fecha: ${new Date((shareItem as any).fecha).toLocaleDateString('es-AR')}` : ''} rawMessage={``} elementIdToPrint="pdf-content" fileName={`Checklist_${(shareItem as any)?.equipo || 'Reporte'}.pdf`} />
+                    <div className="ats-pdf-offscreen">
+                        {shareItem && <ChecklistPdfGenerator checklistData={shareItem} isHeadless={true} />}
+                    </div>
+                </>
+            ) : (
+                <>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                        <button onClick={() => { setShowForm(false); setSearchParams({}); }} style={{ background: 'var(--color-background)', border: '2px solid var(--color-border)', borderRadius: '12px', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, cursor: 'pointer', color: 'var(--color-text)' }}>
+                            <ArrowLeft size={18} /> Volver
+                        </button>
+                    </div>
 
             {showTutorialBanner && (
                 <div className="no-print" style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', color: '#fff', padding: '1rem 1.5rem', borderRadius: '16px', marginBottom: '1.5rem', marginTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 8px 30px rgba(37,99,235,0.2)', position: 'relative', flexWrap: 'wrap', gap: '1rem' }}>
@@ -800,8 +1023,8 @@ export default function ChecklistManager(): React.ReactElement | null {
                         <div key={section.id} className="card" style={{ padding: 0, marginBottom: '1.5rem' }}>
                             <div style={{ background: 'var(--color-background)', padding: '1rem', borderBottom: '2px solid var(--color-border)', display: 'flex', flexDirection: 'column', gap: '0.8rem', alignItems: 'center' }}>
                                 <input
-                                    className="font-black text-xl uppercase tracking-tighter bg-transparent outline-none w-full border-none focus:ring-0 text-black text-center placeholder:text-slate-400"
-                                    style={{ textAlign: 'center', margin: 0, width: '100%' }}
+                                    className="font-black text-xl uppercase tracking-tighter bg-transparent outline-none w-full border-none focus:ring-0 text-center placeholder:text-slate-400"
+                                    style={{ textAlign: 'center', margin: 0, width: '100%', color: 'var(--color-text)' }}
                                     value={section.title}
                                     onChange={e => updateSectionTitle(section.id, e.target.value)}
                                 />
@@ -1195,7 +1418,9 @@ export default function ChecklistManager(): React.ReactElement | null {
                         professionalStamp: professional.stamp
                     }}
                 />
-            </div>
+                </div>
+                </>
+            )}
         </div>
     );
 }

@@ -16,6 +16,7 @@ import ShareModal from '../components/ShareModal';
 import ExtinguisherProfilePdf from '../components/ExtinguisherProfilePdf';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
+import { DataTable } from '../components/DataTable';
 
 export default function ExtintoresManager() {
     const navigate = useNavigate();
@@ -253,6 +254,142 @@ export default function ExtintoresManager() {
         return st && (st.label.includes('DAR DE BAJA') || st.label.includes('Por vencer vida útil'));
     });
 
+    const columns = [
+        {
+            header: 'Chapa',
+            accessor: 'numero',
+            sortable: true,
+            render: (item: any) => {
+                const stCarga = getRecargaExpirationStatus(item.vencimientoRecarga);
+                const isExpired = stCarga.color === '#ef4444' || getPHExpirationStatus(item.vencimientoPH).color === '#ef4444';
+                const lastInspection = item.inspections && item.inspections.length > 0 ? item.inspections[item.inspections.length - 1] : null;
+                return (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <div style={{ background: isExpired ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)', padding: '0.3rem', borderRadius: '6px', color: isExpired ? '#ef4444' : '#10b981' }}>
+                                <Flame size={14} />
+                            </div>
+                            <span style={{ fontWeight: 800 }}>#{item.numero}</span>
+                        </div>
+                        {lastInspection && (
+                            <div style={{ 
+                                display: 'inline-flex', 
+                                alignItems: 'center', 
+                                gap: '0.1rem', 
+                                fontSize: '0.6rem', 
+                                fontWeight: 900, 
+                                padding: '0.05rem 0.2rem',
+                                borderRadius: '4px',
+                                background: lastInspection.resultado === 'C' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
+                                color: lastInspection.resultado === 'C' ? '#10b981' : '#ef4444',
+                                width: 'fit-content'
+                            }}>
+                                INSP: {lastInspection.resultado}
+                            </div>
+                        )}
+                    </div>
+                );
+            }
+        },
+        {
+            header: 'Tipo',
+            accessor: 'tipo',
+            sortable: true,
+            render: (item: any) => (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
+                    <span style={{ padding: '0.2rem 0.6rem', background: 'var(--color-background)', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, width: 'fit-content' }}>
+                        {item.tipo} — {item.capacidad}
+                    </span>
+                    {item.fechaFabricacion && (
+                        <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>
+                            Fab: {new Date(item.fechaFabricacion + 'T12:00:00Z').toLocaleDateString('es-AR')}
+                        </span>
+                    )}
+                </div>
+            )
+        },
+        {
+            header: 'Empresa',
+            accessor: 'empresa',
+            sortable: true,
+            render: (item: any) => (
+                <span style={{ fontWeight: 700, fontSize: '0.85rem' }}>
+                    {item.empresa || '-'}
+                </span>
+            )
+        },
+        {
+            header: 'Ubicación',
+            accessor: 'ubicacion',
+            sortable: true,
+            render: (item: any) => (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-text-muted)' }}>
+                    <MapPin size={14} /> {item.ubicacion}
+                </span>
+            )
+        },
+        {
+            header: 'Carga',
+            accessor: 'vencimientoRecarga',
+            sortable: true,
+            render: (item: any) => {
+                const st = getRecargaExpirationStatus(item.vencimientoRecarga);
+                return (
+                    <span style={{ color: st.color, fontWeight: 700, fontSize: '0.8rem' }}>{st.label} ({st.expirationDate || '-'})</span>
+                );
+            }
+        },
+        {
+            header: 'P.H.',
+            accessor: 'vencimientoPH',
+            sortable: true,
+            render: (item: any) => {
+                const st = getPHExpirationStatus(item.vencimientoPH);
+                return (
+                    <span style={{ color: st.color, fontWeight: 700, fontSize: '0.8rem' }}>{st.label} ({st.expirationDate || '-'})</span>
+                );
+            }
+        },
+        {
+            header: 'Vida Útil',
+            accessor: 'fechaFabricacion',
+            sortable: true,
+            render: (item: any) => {
+                const st = getLifespanStatus(item.fechaFabricacion);
+                if (!st) return <span style={{ color: '#64748b', fontSize: '0.8rem', fontWeight: 700 }}>Sin Dato</span>;
+                return (
+                    <span style={{ color: st.color, fontWeight: 700, fontSize: '0.8rem' }}>{st.label}</span>
+                );
+            }
+        },
+        {
+            header: 'Última Inspec.',
+            accessor: 'id',
+            sortable: false,
+            render: (item: any) => {
+                const lastInspection = item.inspections && item.inspections.length > 0 ? item.inspections[item.inspections.length - 1] : null;
+                if (!lastInspection) return <span style={{ color: '#64748b', fontSize: '0.8rem', fontWeight: 700 }}>-</span>;
+                return (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontWeight: 700, fontSize: '0.8rem', color: lastInspection.resultado === 'C' ? '#10b981' : '#ef4444' }}>
+                        <ShieldCheck size={14} /> 
+                        {new Date(lastInspection.fechaVisita + 'T12:00:00Z').toLocaleDateString('es-AR')}
+                    </span>
+                );
+            }
+        },
+        {
+            header: 'Acciones',
+            accessor: 'id',
+            render: (item: any) => (
+                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    <button onClick={() => handleEdit(item)} style={{ padding: '0.4rem', background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.2)', borderRadius: '8px', color: '#2563eb', cursor: 'pointer' }} title="Editar"><Edit3 size={15} /></button>
+                    <button onClick={() => requirePro(() => generateQR(item))} style={{ padding: '0.4rem', background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer' }} title="QR"><QrCode size={15} /></button>
+                    <button onClick={() => requirePro(() => setShareItem(item))} style={{ padding: '0.4rem', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '8px', color: '#16a34a', cursor: 'pointer' }} title="Compartir"><Share2 size={15} /></button>
+                </div>
+            )
+        }
+    ];
+
     return (
         <div className="container" style={{ maxWidth: '1200px', paddingBottom: '8rem' }}>
             <Breadcrumbs />
@@ -273,34 +410,9 @@ export default function ExtintoresManager() {
                 elementIdToPrint="pdf-content" 
                 fileName={`Ficha_Extintor_${shareItem?.numero || 'Reporte'}.pdf`} 
             />
-            <style type="text/css">
-                {`
-                    .ext-print-wrapper {
-                        position: absolute !important;
-                        left: 0 !important;
-                        top: 0 !important;
-                        width: 210mm !important;
-                        z-index: -9999 !important;
-                        opacity: 0.01 !important;
-                        pointer-events: none !important;
-                    }
-                    @media print {
-                        .ext-print-wrapper {
-                            position: relative !important;
-                            left: 0 !important;
-                            top: 0 !important;
-                            width: 100% !important;
-                            z-index: auto !important;
-                        }
-                    }
-                `}
-            </style>
-            {createPortal(
-                <div className="ext-print-wrapper">
-                    <ExtinguisherProfilePdf data={shareItem || formData} isHeadless={true} />
-                </div>,
-                document.body
-            )}
+            <div className="ats-pdf-offscreen">
+                <ExtinguisherProfilePdf data={shareItem || formData} isHeadless={true} />
+            </div>
 
             {expiredLifespans.length > 0 && (
                 <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', padding: '1rem 1.5rem', borderRadius: '12px', display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.5rem' }}>
@@ -316,7 +428,7 @@ export default function ExtintoresManager() {
 
 
             {showForm ? (
-                <div className="card animate-fade-in" style={{ padding: '2rem', border: '2px solid var(--color-primary)' }}>
+                <div className="card animate-fade-in ats-editor-panel" style={{ padding: '2rem', border: '2px solid var(--color-primary)' }}>
                     <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--color-primary)', marginTop: 0 }}>
                         <Flame size={24} /> {editingId ? 'Editar Extintor' : 'Registrar Nuevo Extintor'}
                     </h2>
@@ -538,112 +650,16 @@ export default function ExtintoresManager() {
                         </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
-                        {filtered.length === 0 ? (
-                            <div style={{ gridColumn: '1 / -1', padding: '3rem', textAlign: 'center', background: 'var(--color-surface)', borderRadius: '20px', border: '2px dashed var(--color-border)' }}>
-                                <Flame size={48} color="var(--color-text-muted)" style={{ margin: '0 auto', marginBottom: '1rem', opacity: 0.5 }} />
-                                <h3 style={{ margin: 0, color: 'var(--color-text)' }}>No hay extintores registrados</h3>
-                                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>Añadí tu primer equipo para comenzar la gestión inteligente.</p>
-                            </div>
-                        ) : (
-                            filtered.map(ext => {
-                                const recargaStatus = getRecargaExpirationStatus(ext.vencimientoRecarga);
-                                const phStatus = getPHExpirationStatus(ext.vencimientoPH);
+                    <DataTable
+                        data={filtered}
+                        columns={columns}
+                        searchPlaceholder="" // Search is handled manually above, or we can use DataTable's search
+                        emptyMessage="No hay extintores registrados."
+                        emptyIcon={<Flame size={48} />}
+                        onEmptyAction={() => setShowForm(true)}
+                        emptyActionLabel="Nuevo Matafuego"
+                    />
 
-                                return (
-                                    <div key={ext.id} className="card hover:shadow-md transition-all" style={{ padding: '1.5rem', border: '1px solid var(--color-border)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                                                {ext.foto ? (
-                                                    <div style={{ width: '50px', height: '50px', borderRadius: '12px', overflow: 'hidden', border: '2px solid var(--color-border)', flexShrink: 0 }}>
-                                                        <img src={ext.foto} alt="Extintor" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                                    </div>
-                                                ) : (
-                                                    <div style={{ width: '50px', height: '50px', borderRadius: '12px', background: 'rgba(239,68,68,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                                        <Flame size={24} color="#ef4444" />
-                                                    </div>
-                                                )}
-                                                <div>
-                                                    <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', fontWeight: 900 }}>
-                                                        {ext.numero}
-                                                    </h3>
-                                                    {ext.empresa && (
-                                                        <div style={{ display: 'inline-block', background: 'rgba(37,99,235,0.1)', color: '#2563eb', padding: '0.1rem 0.5rem', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 800, marginTop: '0.2rem', border: '1px solid rgba(37,99,235,0.2)' }}>
-                                                            {ext.empresa}
-                                                        </div>
-                                                    )}
-                                                    <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: '0.8rem', fontWeight: 700, marginTop: '0.3rem' }}>
-                                                        {ext.tipo} - {ext.capacidad} {ext.marca ? `(${ext.marca})` : ''}
-                                                    </p>
-                                                    {ext.numeroSerie && (
-                                                        <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: '0.75rem', fontWeight: 600, marginTop: '0.1rem' }}>
-                                                            S/N: {ext.numeroSerie}
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            </div>
-                                            <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                                <button onClick={() => requirePro(() => generateQR(ext))} title="Código QR" style={{ padding: '0.5rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'transparent', cursor: 'pointer', color: 'var(--color-text)' }} className="hover:bg-slate-100 dark:hover:bg-slate-800">
-                                                    <QrCode size={18} />
-                                                </button>
-                                                <button onClick={() => requirePro(() => setShareItem(ext))} title="Generar PDF" style={{ padding: '0.5rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'transparent', cursor: 'pointer', color: '#10b981' }} className="hover:bg-green-50 dark:hover:bg-green-900/30">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                                                </button>
-                                                <button onClick={() => handleEdit(ext)} title="Editar" style={{ padding: '0.5rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'transparent', cursor: 'pointer', color: 'var(--color-primary)' }} className="hover:bg-blue-50 dark:hover:bg-blue-900/30">
-                                                    <Edit3 size={18} />
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: 'var(--color-text-muted)', background: 'var(--color-background)', padding: '0.6rem', borderRadius: '8px' }}>
-                                            <MapPin size={16} /> 
-                                            <span style={{ fontWeight: 600 }}>{ext.ubicacion}</span>
-                                        </div>
-
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', padding: '0.4rem 0', borderBottom: '1px dashed var(--color-border)' }}>
-                                                <span style={{ fontWeight: 800, color: 'var(--color-text-muted)' }}>RECARGA ANUAL</span>
-                                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 800, color: recargaStatus.color, background: recargaStatus.bg, padding: '0.2rem 0.6rem', borderRadius: '999px' }}>
-                                                    {recargaStatus.icon} {recargaStatus.expirationDate || '-'}
-                                                </span>
-                                            </div>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', padding: '0.4rem 0', borderBottom: '1px dashed var(--color-border)' }}>
-                                                <span style={{ fontWeight: 800, color: 'var(--color-text-muted)' }}>P.H. (5 AÑOS)</span>
-                                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 800, color: phStatus.color, background: phStatus.bg, padding: '0.2rem 0.6rem', borderRadius: '999px' }}>
-                                                    {phStatus.icon} {phStatus.expirationDate ? `Vence: ${phStatus.expirationDate}` : '-'}
-                                                </span>
-                                            </div>
-                                            {ext.fechaFabricacion && (
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', padding: '0.4rem 0', borderBottom: (ext.inspections && ext.inspections.length > 0) ? '1px dashed var(--color-border)' : 'none' }}>
-                                                    <span style={{ fontWeight: 800, color: 'var(--color-text-muted)' }}>VIDA ÚTIL (20 AÑOS)</span>
-                                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 800, color: getLifespanStatus(ext.fechaFabricacion)?.color, background: getLifespanStatus(ext.fechaFabricacion)?.bg, padding: '0.2rem 0.6rem', borderRadius: '999px' }}>
-                                                        {getLifespanStatus(ext.fechaFabricacion)?.icon} {getLifespanStatus(ext.fechaFabricacion)?.label}
-                                                    </span>
-                                                </div>
-                                            )}
-                                            {ext.inspections && ext.inspections.length > 0 && (
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', padding: '0.4rem 0' }}>
-                                                    <span style={{ fontWeight: 800, color: 'var(--color-text-muted)' }}>ÚLTIMA INSPECCIÓN</span>
-                                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 800, color: ext.inspections[ext.inspections.length - 1].resultado === 'C' ? '#10b981' : '#ef4444', background: ext.inspections[ext.inspections.length - 1].resultado === 'C' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', padding: '0.2rem 0.6rem', borderRadius: '999px' }}>
-                                                        <ShieldCheck size={14} /> {new Date(ext.inspections[ext.inspections.length - 1].fechaVisita + 'T12:00:00Z').toLocaleDateString('es-AR')}
-                                                    </span>
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem', paddingTop: '1rem', borderTop: '1px solid var(--color-border)' }}>
-                                            <button onClick={() => navigate(`/extintores/inspect/${ext.id}`)} style={{ flex: 1, padding: '0.6rem', background: 'rgba(var(--color-primary-rgb), 0.1)', color: 'var(--color-primary)', border: '1px solid rgba(var(--color-primary-rgb), 0.2)', borderRadius: '8px', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }} className="hover:bg-[rgba(var(--color-primary-rgb),0.15)]">
-                                                <ShieldCheck size={16} /> INSPECCIONAR
-                                            </button>
-                                            <button onClick={() => handleDelete(ext.id)} style={{ padding: '0.6rem', marginLeft: '0.5rem', background: 'transparent', color: '#ef4444', border: 'none', cursor: 'pointer' }} title="Eliminar">
-                                                <Trash2 size={18} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                );
-                            })
-                        )}
-                    </div>
                 </>
             )}
 

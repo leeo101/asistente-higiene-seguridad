@@ -333,10 +333,11 @@ export default function ATSPdfGenerator({ atsData }: ATSPdfGeneratorProps): Reac
                   <div
                     className="ats-pdf-category-header"
                     style={{
-                      background: 'linear-gradient(90deg, #0f172a 0%, #1e3a8a 100%)',
-                      color: '#fff',
+                      background: '#e2e8f0',
+                      color: '#0f172a',
+                      borderBottom: '2px solid #cbd5e1',
                       padding: '0.45rem 0.75rem',
-                      fontSize: '8pt',
+                      fontSize: '8.5pt',
                       fontWeight: 900,
                       textTransform: 'uppercase',
                       letterSpacing: '0.06em',
@@ -346,7 +347,7 @@ export default function ATSPdfGenerator({ atsData }: ATSPdfGeneratorProps): Reac
                       borderRadius: '6px 6px 0 0',
                     }}
                   >
-                    <span style={{ color: '#60a5fa', fontSize: '9pt', lineHeight: 1 }}>■</span>
+                    <span style={{ color: '#3b82f6', fontSize: '9pt', lineHeight: 1 }}>■</span>
                     {categoria}
                   </div>
                   <table className="ats-pdf-table" style={{ borderTop: 'none' }}>

@@ -88,7 +88,7 @@ export default function ChecklistPdfGenerator({
                             box-shadow: none !important; margin: 0 !important; padding: 5mm !important;
                             width: 100% !important; max-width: none !important;
                             border-top: ${hasCritical ? '12px solid #dc2626' : '12px solid #2563eb'} !important;
-                            border-radius: 0 !important; min-height: auto !important; height: auto !important;
+                            border-radius: 0 !important; min-height: 0 !important; height: auto !important;
                         }
                     `}
                 </style>
@@ -186,8 +186,8 @@ export default function ChecklistPdfGenerator({
                     const sectionFails = section.items.filter(item => item.status === 'FAIL');
                     return (
                         <div key={section.id} style={{ border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden', marginBottom: '1.2rem', pageBreakInside: 'avoid' }}>
-                            <div style={{ background: '#1e293b', padding: '0.65rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <h3 style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                            <div style={{ background: '#e2e8f0', padding: '0.65rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #cbd5e1' }}>
+                                <h3 style={{ margin: 0, fontWeight: 900, fontSize: '0.85rem', color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                                     {section.title}
                                 </h3>
                                 {sectionFails.length > 0 ? (
