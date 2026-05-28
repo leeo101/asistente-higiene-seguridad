@@ -63,7 +63,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         const opt = {
             margin:       [10, 10, 10, 10] as [number, number, number, number], // top, left, bottom, right in mm
             filename:     'reporte.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
+            image:        { type: 'jpeg' as const, quality: 0.98 },
             html2canvas:  { scale: 2, useCORS: true, logging: false },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' },
             pagebreak:    { mode: ['css', 'avoid-all'] } // IMPORTANTE: evita cortar a la mitad de los elementos
