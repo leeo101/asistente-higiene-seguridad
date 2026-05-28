@@ -870,9 +870,31 @@ export default function ChecklistManager(): React.ReactElement | null {
                 title={`Checklist – ${companyInfo?.name || ''}`}
                 text={`📋 Checklist de Inspección\n🏗️ Empresa: ${companyInfo?.name || '-'}\n📍 Ubicación: ${companyInfo?.address || '-'}\n👷 Responsable: ${companyInfo?.responsable || '-'}\n\nGenerado con Asistente H&S`}
                 rawMessage={`📋 Checklist de Inspección\n🏗️ Empresa: ${companyInfo?.name || '-'}\n📍 Ubicación: ${companyInfo?.address || '-'}\n👷 Responsable: ${companyInfo?.responsable || '-'}\n\nGenerado con Asistente H&S`}
-                elementIdToPrint="checklist-editor-content"
+                elementIdToPrint="pdf-content-editor"
                 fileName={`Checklist_${companyInfo?.name || 'Reporte'}.pdf`}
             />
+            {/* PDF Generator offscreen para el editor — capturado al compartir */}
+            <div className="ats-pdf-offscreen" style={{ zIndex: -9999 }}>
+                <ChecklistPdfGenerator
+                    checklistData={{
+                        checklistTitle,
+                        companyInfo,
+                        inspectionInfo,
+                        activeSections,
+                        observations,
+                        actionPlan,
+                        nextReview,
+                        selectedNorms,
+                        availableNorms,
+                        showSignatures,
+                        operatorSignature,
+                        signature,
+                        supervisorSignature
+                    }}
+                    pdfElementId="pdf-content-editor"
+                    isHeadless={true}
+                />
+            </div>
 
             {/* Floating Action Buttons */}
             <div className="no-print floating-action-bar">

@@ -7,11 +7,13 @@ import PdfSignatures from './PdfSignatures';
 export default function ChecklistPdfGenerator({
     checklistData,
     showSignatures = { operator: true, supervisor: true, professional: true },
-    isHeadless = false
+    isHeadless = false,
+    pdfElementId = 'pdf-content'
 }: {
     checklistData: any,
     showSignatures?: { operator: boolean, supervisor: boolean, professional: boolean },
-    isHeadless?: boolean
+    isHeadless?: boolean,
+    pdfElementId?: string
 }): React.ReactElement | null {
     if (!checklistData) return null;
 
@@ -71,9 +73,9 @@ export default function ChecklistPdfGenerator({
     const hasPermits = activeIds.some((id: string) => ['espacios_confinados', 'trabajos_caliente', 'trabajos_altura'].includes(id));
     const hasHeavy = activeIds.some((id: string) => ['scaffolding', 'izaje_gruas'].includes(id));
     const hasExtinguishers = activeIds.includes('extintores_checklist');
-    return (
+    return (
         <div
-            id="pdf-content"
+            id={pdfElementId}
             className="pdf-container print-area"
             style={{
                 width: '100%', maxWidth: '210mm', minHeight: '297mm',
