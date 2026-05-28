@@ -212,7 +212,6 @@ export default function History(): React.ReactElement | null {
 
         { title: 'Consultas Asesor IA', icon: <Bot size={24} />, color: '#a855f7', bg: 'rgba(168,85,247,0.1)', path: '/ai-history', countKey: 'ai' },
         { title: 'Control de EPP', icon: <HardHat size={24} />, color: '#10b981', bg: 'rgba(16,185,129,0.1)', path: '/ppe-tracker', countKey: 'ppeTracker' },
-        { title: 'Control de Matafuegos', icon: <Flame size={24} />, color: '#f97316', bg: 'rgba(249,115,22,0.1)', path: '/extintores', countKey: 'extinguishers' },
         { title: 'Extintores IA — Inspección', icon: <Flame size={24} />, color: '#dc2626', bg: 'rgba(220,38,38,0.1)', path: '/extinguisher-ai-history', countKey: 'extinguisherAi' },
         { title: 'Estrés Térmico', icon: <ThermometerSun size={24} />, color: '#f97316', bg: 'rgba(249,115,22,0.1)', path: '/thermal-stress-history', countKey: 'thermal' },
         { title: 'Evaluaciones de Riesgo', icon: <Shield size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/risk-assessment-history', countKey: 'riskAssessments' },
