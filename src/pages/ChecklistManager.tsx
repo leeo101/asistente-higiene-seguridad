@@ -870,7 +870,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                 title={`Checklist – ${companyInfo?.name || ''}`}
                 text={`📋 Checklist de Inspección\n🏗️ Empresa: ${companyInfo?.name || '-'}\n📍 Ubicación: ${companyInfo?.address || '-'}\n👷 Responsable: ${companyInfo?.responsable || '-'}\n\nGenerado con Asistente H&S`}
                 rawMessage={`📋 Checklist de Inspección\n🏗️ Empresa: ${companyInfo?.name || '-'}\n📍 Ubicación: ${companyInfo?.address || '-'}\n👷 Responsable: ${companyInfo?.responsable || '-'}\n\nGenerado con Asistente H&S`}
-                elementIdToPrint="pdf-content"
+                elementIdToPrint="checklist-editor-content"
                 fileName={`Checklist_${companyInfo?.name || 'Reporte'}.pdf`}
             />
 
@@ -989,40 +989,6 @@ export default function ChecklistManager(): React.ReactElement | null {
                     </div>
                 </div>
 
-                <div style={{ border: '2px solid var(--color-border)', borderRadius: '16px', marginBottom: '2.5rem', width: '100%', overflow: 'hidden', background: 'var(--color-surface)', boxShadow: 'var(--shadow-sm)', transition: 'all 0.3s' }} className="hover:border-blue-400/50 hover:shadow-md">
-                    <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ borderBottom: '2px solid var(--color-border)', width: '100%' }}>
-                        <div className="sm:col-span-2 print:col-span-2"><DocBox label="CLIENTE / EMPRESA" value={companyInfo.name} onChange={v => setCompanyInfo({ ...companyInfo, name: v })} large /></div>
-                        <div className="sm:col-span-2 print:col-span-2"><DocBox label="UBICACIÓN / DIRECCIÓN" value={companyInfo.address} onChange={v => setCompanyInfo({ ...companyInfo, address: v })} /></div>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ width: '100%', borderBottom: '2px solid var(--color-border)' }}>
-                        <div className="sm:col-span-1 print:col-span-1"><DocBox label="FECHA" value={inspectionInfo.date} onChange={v => setInspectionInfo({ ...inspectionInfo, date: v })} type="date" /></div>
-                        <div className="sm:col-span-2 print:col-span-2"><DocBox label="ÁREA / EQUIPO INSPECCIONADO" value={inspectionInfo.item} onChange={v => setInspectionInfo({ ...inspectionInfo, item: v })} /></div>
-                        <div className="sm:col-span-1 print:col-span-1"><DocBox label="Nº IDENTIFICACIÓN (SERIAL)" value={inspectionInfo.serial} onChange={v => setInspectionInfo({ ...inspectionInfo, serial: v })} /></div>
-                    </div>
-                    {activeSections.some(s => s.id === 'extintores_checklist') && (
-                        <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ width: '100%', borderBottom: '2px solid var(--color-border)' }}>
-                            <div className="sm:col-span-1 print:col-span-1" style={{ background: 'rgba(239, 68, 68, 0.05)' }}>
-                                <DocBox label="VENCIMIENTO CARGA" value={inspectionInfo.expirationDate || ''} onChange={v => setInspectionInfo({ ...inspectionInfo, expirationDate: v })} type="date" />
-                            </div>
-                            <div className="sm:col-span-3 print:col-span-3" style={{ background: 'rgba(239, 68, 68, 0.05)' }}>
-                                <DocBox label="OBSERVACIONES EXTINTOR" value={inspectionInfo.extinguisherObs || ''} onChange={v => setInspectionInfo({ ...inspectionInfo, extinguisherObs: v })} />
-                            </div>
-                        </div>
-                    )}
-                    <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ width: '100%' }}>
-                        <div className="sm:col-span-2 print:col-span-2"><DocBox label="INSPECTOR / RESPONSABLE" value={companyInfo.inspector} onChange={v => setCompanyInfo({ ...companyInfo, inspector: v })} /></div>
-                        <div className="sm:col-span-2 print:col-span-2"><DocBox label="PROFESIONAL HYS" value={professional.name} onChange={() => { }} /></div>
-                    </div>
-                </div>
-            </div>
-
-            {/* TEMPLATE SELECTOR - Responsive Grid */}
-            <div className="no-print" style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
-                gap: '0.8rem',
-                marginBottom: '1.5rem'
-            }}>
                 {(() => {
                     const activeIds = activeSections.map((s: any) => s.id);
                     const hasTools = activeIds.some(id => ['manual_tools', 'electric_tools', 'circular_saw', 'grinder'].includes(id));
@@ -1087,7 +1053,15 @@ export default function ChecklistManager(): React.ReactElement | null {
                         </div>
                     );
                 })()}
+            </div> {/* End of checklist-editor-content */}
 
+            {/* TEMPLATE SELECTOR - Responsive Grid */}
+            <div className="no-print" style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
+                gap: '0.8rem',
+                marginBottom: '1.5rem'
+            }}>
                 {Object.entries(DEFAULT_TEMPLATES).map(([key, value]) => {
                     const active = activeSections.some(s => s.id === key);
                     return (
