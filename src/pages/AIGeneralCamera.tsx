@@ -8,6 +8,7 @@ import { useSync } from '../contexts/SyncContext';
 import { auth } from '../firebase';
 import toast from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { uploadImageToStorage } from '../services/storageService';
 
 export default function AIGeneralCamera(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -208,7 +209,7 @@ export default function AIGeneralCamera(): React.ReactElement | null {
         analyzeImage(imageData);
     };
 
-    const saveToHistory = (imageSrc, data) => {
+    const saveToHistory = async (imageSrc, data) => {
         try {
             const currentReport = JSON.parse(localStorage.getItem('current_report') || '{}');
             const company  = currentReport.company  || currentReport.empresa   || 'Empresa Local';
@@ -225,7 +226,17 @@ export default function AIGeneralCamera(): React.ReactElement | null {
                 findingsCount: data?.detections?.length || 0
             };
 
-            // Guardar el reporte completo (con imagen) para el detalle
+            // Intentar subir a Firebase Storage
+            try {
+                const userId = auth.currentUser?.uid || 'anonymous';
+                const path = `camera_inspections/${userId}/riesgos_${report.id}.jpg`;
+                const uploadedUrl = await uploadImageToStorage(imageSrc, path);
+                report.image = uploadedUrl;
+            } catch (uploadErr) {
+                console.warn("No se pudo subir a Storage, guardando localmente (sujeto a límites de memoria)", uploadErr);
+            }
+
+            // Guardar el reporte completo para el detalle local temporal
             localStorage.setItem(`ai_report_full_${report.id}`, JSON.stringify(report));
             localStorage.setItem('current_ai_inspection', JSON.stringify(report));
 
@@ -290,7 +301,7 @@ export default function AIGeneralCamera(): React.ReactElement | null {
             }
 
             // ✅ Guardar automáticamente al terminar el análisis
-            saveToHistory(finalImage, data);
+            await saveToHistory(finalImage, data);
 
             setAnalysisResult(data);
             toast.success('Análisis guardado en historial');
@@ -370,13 +381,13 @@ export default function AIGeneralCamera(): React.ReactElement | null {
         <div className="container" style={{ paddingBottom: '3rem', position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <button onClick={() => navigate('/#tools')} style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.1)', border: 'none', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-primary)' }}>
+                    <button onClick={() => navigate('/ai-general-camera-manager')} style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.1)', border: 'none', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-primary)' }}>
                         <ArrowLeft />
                     </button>
                     <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Detector de Riesgos IA</h1>
                 </div>
                 <button 
-                    onClick={() => navigate('/ai-history')}
+                    onClick={() => navigate('/ai-general-camera-manager')}
                     className="btn-outline"
                     style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', fontSize: '0.85rem' }}
                 >

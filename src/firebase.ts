@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, Auth } from "firebase/auth";
+import { getStorage, FirebaseStorage } from "firebase/storage";
 import {
   getFirestore,
   enableMultiTabIndexedDbPersistence,
@@ -57,6 +58,7 @@ if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
 // Exportar instancias de Firebase
 export const auth: Auth = getAuth(app);
 export const db: Firestore = getFirestore(app);
+export const storage: FirebaseStorage = getStorage(app);
 
 // Habilitar persistencia offline para que Firestore encole escrituras
 // y permita lecturas al no tener internet

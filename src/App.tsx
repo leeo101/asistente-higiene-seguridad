@@ -86,7 +86,8 @@ const Dashboard = lazyWithRetry(() => import('./pages/Dashboard'));
 const ChecklistManager = lazyWithRetry(() => import('./pages/ChecklistManager'));
 const Subscription = lazyWithRetry(() => import('./pages/Subscription'));
 const AIHistory = lazyWithRetry(() => import('./pages/AIHistory'));
-const AICameraHistory = lazyWithRetry(() => import('./pages/AICameraHistory'));
+const AICameraManager = lazyWithRetry(() => import('./pages/AICameraManager'));
+const AIGeneralCameraManager = lazyWithRetry(() => import('./pages/AIGeneralCameraManager'));
 const ManagementReport = lazyWithRetry(() => import('./pages/ManagementReport'));
 const AccidentInvestigation = lazyWithRetry(() => import('./pages/AccidentInvestigation'));
 const AccidentHistory = lazyWithRetry(() => import('./pages/AccidentHistory'));
@@ -528,7 +529,8 @@ function App() {
                   <Route path="/safety-kpis" element={<ProtectedRoute><SafetyKPIs /></ProtectedRoute>} />
                   <Route path="/toolbox-talk" element={<ProtectedRoute><ToolboxTalk /></ProtectedRoute>} />
                   <Route path="/calendar" element={<SafetyCalendar />} />
-                  <Route path="/ai-camera-history" element={<AICameraHistory />} />
+                  <Route path="/ai-camera-manager" element={<AICameraManager />} />
+                  <Route path="/ai-general-camera-manager" element={<AIGeneralCameraManager />} />
                   <Route path="/lighting" element={<LightingReport />} />
 
                   {/* Dashboard & Tools */}

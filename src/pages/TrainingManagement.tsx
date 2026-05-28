@@ -204,7 +204,7 @@ export default function TrainingManagement(): React.ReactElement | null {
 
         const report = {
             id: editingId || Date.now().toString(),
-            date: editingId ? formData.date : new Date().toISOString(),
+            date: editingId ? (formData as any).date : new Date().toISOString(),
             ...formData,
             showSignatures,
             asistentes: asistentesValidos

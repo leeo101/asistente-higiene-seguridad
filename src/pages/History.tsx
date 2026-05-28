@@ -108,9 +108,9 @@ export default function History(): React.ReactElement | null {
             fireload: safeGetList('fireload_history').length,
             matrices: safeGetList('risk_matrix_history').length,
             reports: safeGetList('reports_history').length,
-            checklists: safeGetList('tool_checklists_history').length,
+
             ai: safeGetList('ai_advisor_history').length,
-            aiCamera: safeGetList('ai_camera_history').length,
+
             lighting: safeGetList('lighting_history').length,
             workPermits: safeGetList('work_permits_history').length,
             ppeTracker: safeGetList('ppe_items').length,
@@ -208,8 +208,8 @@ export default function History(): React.ReactElement | null {
     );
 
     const historyCategories = [
-        { title: 'Cámara IA y Riesgos IA', icon: <Camera size={24} />, color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', path: '/ai-camera-history', countKey: 'aiCamera' },
-        { title: 'Checklist Herramientas', icon: <ClipboardList size={24} />, color: '#06b6d4', bg: 'rgba(6,182,212,0.1)', path: '/checklists', countKey: 'checklists' },
+
+
         { title: 'Consultas Asesor IA', icon: <Bot size={24} />, color: '#a855f7', bg: 'rgba(168,85,247,0.1)', path: '/ai-history', countKey: 'ai' },
         { title: 'Control de EPP', icon: <HardHat size={24} />, color: '#10b981', bg: 'rgba(16,185,129,0.1)', path: '/ppe-tracker', countKey: 'ppeTracker' },
         { title: 'Control de Matafuegos', icon: <Flame size={24} />, color: '#f97316', bg: 'rgba(249,115,22,0.1)', path: '/extintores', countKey: 'extinguishers' },

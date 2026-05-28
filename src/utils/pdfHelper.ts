@@ -61,7 +61,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         await new Promise(resolve => setTimeout(resolve, 700));
 
         const opt = {
-            margin:       [10, 10, 10, 10], // top, left, bottom, right in mm
+            margin:       [10, 10, 10, 10] as [number, number, number, number], // top, left, bottom, right in mm
             filename:     'reporte.pdf',
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { scale: 2, useCORS: true, logging: false },
