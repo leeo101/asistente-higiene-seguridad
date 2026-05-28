@@ -85,7 +85,6 @@ const PPETracker = lazyWithRetry(() => import('./pages/PPETracker'));
 const Dashboard = lazyWithRetry(() => import('./pages/Dashboard'));
 const ChecklistManager = lazyWithRetry(() => import('./pages/ChecklistManager'));
 const Subscription = lazyWithRetry(() => import('./pages/Subscription'));
-const AIHistory = lazyWithRetry(() => import('./pages/AIHistory'));
 const AICameraManager = lazyWithRetry(() => import('./pages/AICameraManager'));
 const AIGeneralCameraManager = lazyWithRetry(() => import('./pages/AIGeneralCameraManager'));
 const ManagementReport = lazyWithRetry(() => import('./pages/ManagementReport'));
@@ -495,7 +494,6 @@ function App() {
                   <Route path="/ai-camera" element={<ProtectedRoute><AICamera /></ProtectedRoute>} />
                   <Route path="/ai-general-camera" element={<ProtectedRoute><AIGeneralCamera /></ProtectedRoute>} />
                   <Route path="/ai-advisor" element={<ProtectedRoute><AIChatAdvisor /></ProtectedRoute>} />
-                  <Route path="/ai-history" element={<ProtectedRoute><AIHistory /></ProtectedRoute>} />
                   <Route path="/ai-report" element={<ProtectedRoute><AIReport /></ProtectedRoute>} />
                   <Route path="/extinguisher-ai" element={<ProtectedRoute><ExtinguisherAI /></ProtectedRoute>} />
                   <Route path="/extinguisher-ai-history" element={<ProtectedRoute><ExtinguisherAIHistory /></ProtectedRoute>} />

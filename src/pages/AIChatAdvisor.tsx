@@ -6,7 +6,7 @@ import {
     Lightbulb, Gavel, ClipboardList, Copy,
     Check, Download, Sparkles, Loader2,
     Mic, MicOff, History, ChevronDown, ChevronUp,
-    RotateCcw, Clock, Database, Zap
+    RotateCcw, Clock, Database, Zap, Plus, Trash2, Calendar, FileText, QrCode, Share2, Search
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -15,6 +15,32 @@ import AdBanner from '../components/AdBanner';
 import { toast } from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { auth } from '../firebase';
+import { useSync } from '../contexts/SyncContext';
+import { DataTable } from '../components/DataTable';
+import PremiumHeader from '../components/PremiumHeader';
+import Breadcrumbs from '../components/Breadcrumbs';
+import QRModal from '../components/QRModal';
+import ShareModal from '../components/ShareModal';
+import AiAdvisorPdfGenerator from '../components/AiAdvisorPdfGenerator';
+import { downloadCSV } from '../services/exportCsv';
+
+function DeleteConfirm({ onConfirm, onCancel }) {
+    return (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(5px)' }}>
+            <div style={{ background: 'var(--color-surface)', padding: '2rem', borderRadius: '24px', maxWidth: '400px', width: '90%', textAlign: 'center', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}>
+                <div style={{ width: '64px', height: '64px', background: 'rgba(239,68,68,0.1)', color: '#ef4444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
+                    <Trash2 size={32} />
+                </div>
+                <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.4rem', fontWeight: 800 }}>¿Eliminar registro?</h3>
+                <p style={{ margin: '0 0 2rem 0', color: 'var(--color-text-muted)' }}>Esta acción no se puede deshacer y el registro se perderá permanentemente.</p>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                    <button onClick={onCancel} style={{ flex: 1, padding: '0.8rem', background: 'var(--color-background)', border: '2px solid var(--color-border)', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', color: 'var(--color-text)' }}>Cancelar</button>
+                    <button onClick={onConfirm} style={{ flex: 1, padding: '0.8rem', background: '#ef4444', border: 'none', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 12px rgba(239,68,68,0.3)' }}>Sí, eliminar</button>
+                </div>
+            </div>
+        </div>
+    );
+}
 
 // ── Subcomponent for history panel ─────────────────────────────────────────
 function HistoryPanel({ onLoad }) {
@@ -126,6 +152,34 @@ export default function AIChatAdvisor(): React.ReactElement | null {
     const [result, setResult] = useState(null);
     const [copied, setCopied] = useState(false);
     const [userCountry, setUserCountry] = useState('argentina');
+    
+    const { syncCollection, syncPulse } = useSync();
+    const [history, setHistory] = useState([]);
+    const [showForm, setShowForm] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [shareItem, setShareItem] = useState(null);
+    const [qrTarget, setQrTarget] = useState(null);
+    const [deleteTarget, setDeleteTarget] = useState(null);
+    const currentUser = auth.currentUser;
+
+    useEffect(() => {
+        try {
+            const raw = localStorage.getItem('ai_advisor_history');
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed)) {
+                    setHistory(parsed.filter((item: any) => item && item.id && item.task));
+                } else {
+                    setHistory([]);
+                }
+            } else {
+                setHistory([]);
+            }
+        } catch (err) {
+            console.error("Error parsing AI history:", err);
+            setHistory([]);
+        }
+    }, [showForm, syncPulse]);
 
     useEffect(() => {
         const savedData = localStorage.getItem('personalData');
@@ -235,6 +289,7 @@ export default function AIChatAdvisor(): React.ReactElement | null {
     const handleLoadHistory = (item) => {
         setTask(item.task);
         setResult(item);
+        setShowForm(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -484,7 +539,10 @@ export default function AIChatAdvisor(): React.ReactElement | null {
                 ...data
             };
             try {
-                localStorage.setItem('ai_advisor_history', JSON.stringify([newRecord, ...history].slice(0, 20)));
+                const updatedHistory = [newRecord, ...history].slice(0, 50); // Keep more items now
+                localStorage.setItem('ai_advisor_history', JSON.stringify(updatedHistory));
+                setHistory(updatedHistory);
+                syncCollection('ai_advisor_history', updatedHistory);
             } catch (err) {
                 console.error("[Advisor IA] Error saving to history:", err);
             }
@@ -504,24 +562,140 @@ export default function AIChatAdvisor(): React.ReactElement | null {
         setTimeout(() => setCopied(false), 2000);
     };
 
-    return (
-        <div className="container" style={{ paddingBottom: '3rem' }}>
-            {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', marginTop: '1rem' }}>
-                <button
-                    onClick={() => navigate('/#tools')}
-                    style={{ background: 'none', border: 'none', padding: 0, color: 'var(--color-text)' }}
-                    className="hover:opacity-70 transition-opacity"
-                >
-                    <ArrowLeft size={24} />
-                </button>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Sparkles size={26} color="var(--color-primary)" className="animate-pulse" />
-                    <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 800, background: 'linear-gradient(to right, var(--color-primary), #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                        Asesor de Seguridad IA
-                    </h1>
+    const confirmDelete = () => {
+        const updated = history.filter((item: any) => item.id !== deleteTarget);
+        setHistory(updated);
+        localStorage.setItem('ai_advisor_history', JSON.stringify(updated));
+        syncCollection('ai_advisor_history', updated);
+        setDeleteTarget(null);
+    };
+
+    const handleExportCSV = () => {
+        downloadCSV(history.map((i: any) => ({
+            fecha: new Date(i.date).toLocaleDateString(),
+            tarea: i.task || '',
+            riesgos: (i.riesgos || []).join(', '),
+            epp: (i.epp || []).join(', ')
+        })), 'asesor_ia_historial', {
+            fecha: 'Fecha', tarea: 'Tarea Consultada', riesgos: 'Riesgos Detectados', epp: 'EPP Recomendado'
+        });
+    };
+
+    const columns = [
+        {
+            header: 'Fecha',
+            accessor: 'date',
+            sortable: true,
+            render: (item: any) => (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>
+                    <Calendar size={14} /> {new Date(item.date).toLocaleDateString()}
+                </span>
+            )
+        },
+        {
+            header: 'Tarea Analizada',
+            accessor: 'task',
+            sortable: true,
+            render: (item: any) => (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                    <div style={{ background: 'rgba(59,130,246,0.1)', padding: '0.5rem', borderRadius: '8px', color: 'var(--color-primary)' }}>
+                        <Sparkles size={16} />
+                    </div>
+                    <div style={{ fontWeight: 700, maxWidth: '300px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.task || 'Sin nombre'}</div>
                 </div>
-            </div>
+            )
+        },
+        {
+            header: 'Acciones',
+            accessor: 'id',
+            render: (item: any) => (
+                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    <button onClick={() => { handleLoadHistory(item); }} style={{ padding: '0.4rem 0.8rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '4px' }}><FileText size={15} /> Ver</button>
+                    <button onClick={() => { setShareItem(item); }} style={{ padding: '0.4rem', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '8px', color: '#16a34a', cursor: 'pointer' }} title="Compartir"><Share2 size={15} /></button>
+                    <button onClick={() => setDeleteTarget(item.id)} style={{ padding: '0.4rem', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}><Trash2 size={15} /></button>
+                </div>
+            )
+        }
+    ];
+
+    const filteredHistory = history.filter((e: any) => {
+        const query = searchTerm.toLowerCase();
+        return (e.task || '').toLowerCase().includes(query);
+    });
+
+    return (
+        <div className="container" style={{ maxWidth: '1200px', paddingBottom: '12rem' }}>
+            <Breadcrumbs />
+
+            <PremiumHeader
+                title="Asesor de Seguridad IA"
+                subtitle="Análisis predictivo, normativo y preventivo con Inteligencia Artificial"
+                icon={<Sparkles size={36} />}
+            />
+
+            {!showForm ? (
+                <>
+                    <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                        <button
+                            onClick={() => { 
+                                handleNewQuery();
+                                setShowForm(true); 
+                            }}
+                            style={{ flex: '0 1 auto', padding: '1rem 1.5rem', borderRadius: '16px', background: '#36B37E', color: '#fff', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(54,179,126,0.3)', whiteSpace: 'nowrap' }}
+                        >
+                            <Plus size={20} /> Nueva Consulta
+                        </button>
+                        <div style={{ flex: '1 1 300px', position: 'relative' }}>
+                            <Search size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                            <input 
+                                type="text" 
+                                placeholder="Buscar en consultas..." 
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                style={{ width: '100%', padding: '1rem 1rem 1rem 3rem', borderRadius: '16px', border: '2px solid var(--color-border)', fontSize: '1rem', outline: 'none', background: 'var(--color-surface)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}
+                            />
+                        </div>
+                        {history.length > 0 && (
+                            <button onClick={handleExportCSV} style={{ flex: '0 1 auto', display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'var(--color-primary)', border: 'none', borderRadius: '16px', padding: '1rem 1.5rem', fontSize: '1rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
+                                <Download size={20} /> Excel
+                            </button>
+                        )}
+                    </div>
+
+                    <DataTable
+                        data={filteredHistory}
+                        columns={columns}
+                        searchPlaceholder="Buscar..."
+                        emptyMessage="No hay consultas registradas."
+                        emptyIcon={<Sparkles size={48} />}
+                        onEmptyAction={() => setShowForm(true)}
+                        emptyActionLabel="Hacer una consulta ahora"
+                    />
+
+                    {qrTarget && <QRModal text={(qrTarget as any).text} title={(qrTarget as any).title} onClose={() => setQrTarget(null)} />}
+                    {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
+                    
+                    <ShareModal
+                        isOpen={!!shareItem}
+                        open={!!shareItem}
+                        onClose={() => setShareItem(null)}
+                        title={`Análisis IA - ${(shareItem as any)?.task || ''}`}
+                        text={shareItem ? `✨ Análisis de Seguridad (IA)\n📋 Tarea: ${(shareItem as any).task}\n🚨 Riesgos: ${((shareItem as any).riesgos || []).slice(0, 2).join(', ')}...\n🛡️ EPP: ${((shareItem as any).epp || []).slice(0, 2).join(', ')}...\n📚 Normativa: ${((shareItem as any).normativa || []).join(', ')}` : ''}
+                        rawMessage={shareItem ? `✨ Análisis de Seguridad (IA)\n📋 Tarea: ${(shareItem as any).task}\n🚨 Riesgos: ${((shareItem as any).riesgos || []).slice(0, 2).join(', ')}...\n🛡️ EPP: ${((shareItem as any).epp || []).slice(0, 2).join(', ')}...\n📚 Normativa: ${((shareItem as any).normativa || []).join(', ')}` : ''}
+                        elementIdToPrint="pdf-content-ai"
+                        fileName={`Analisis_IA_${(shareItem as any)?.task?.replace(/\s+/g, '_') || 'Sin_Nombre'}.pdf`}
+                    />
+                    <div style={{ position: 'absolute', left: 0, opacity: 0.01, top: '-12000px', pointerEvents: 'none' }}>
+                        {shareItem && <AiAdvisorPdfGenerator data={shareItem} />}
+                    </div>
+                </>
+            ) : (
+                <>
+                    <div className="no-print" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                        <button onClick={() => setShowForm(false)} style={{ background: 'var(--color-background)', border: '2px solid var(--color-border)', borderRadius: '12px', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, cursor: 'pointer', color: 'var(--color-text)' }}>
+                            <ArrowLeft size={18} /> Volver
+                        </button>
+                    </div>
 
             {/* History Panel */}
             <HistoryPanel onLoad={handleLoadHistory} />
@@ -781,6 +955,8 @@ export default function AIChatAdvisor(): React.ReactElement | null {
 
                     <AdBanner />
                 </div>
+            )}
+                </>
             )}
         </div>
     );
