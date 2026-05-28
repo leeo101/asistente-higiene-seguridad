@@ -1,5 +1,5 @@
 import React from 'react';
-import { ClipboardCheck, Check, X, AlertTriangle, Calendar, MapPin, User, Building2, Hash } from 'lucide-react';
+import { ClipboardCheck, Check, X, AlertTriangle, Calendar, MapPin, User, Building2, Hash, Activity } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import PdfSignatures from './PdfSignatures';
@@ -64,6 +64,13 @@ export default function ChecklistPdfGenerator({
     const failPercent = totalItems > 0 ? Math.round((failCount / totalItems) * 100) : 0;
     const naPercent = totalItems > 0 ? Math.round((naCount / totalItems) * 100) : 0;
     const hasCritical = failCount > 0;
+
+    const activeIds = sections.map((s: any) => s.id);
+    const hasTools = activeIds.some((id: string) => ['manual_tools', 'electric_tools', 'circular_saw', 'grinder'].includes(id));
+    const hasVehicles = activeIds.includes('autoelevadores');
+    const hasPermits = activeIds.some((id: string) => ['espacios_confinados', 'trabajos_caliente', 'trabajos_altura'].includes(id));
+    const hasHeavy = activeIds.some((id: string) => ['scaffolding', 'izaje_gruas'].includes(id));
+    const hasExtinguishers = activeIds.includes('extintores_checklist');
 
     return (
         <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
@@ -134,11 +141,13 @@ export default function ChecklistPdfGenerator({
                             <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.2rem' }}>{compInfo.location || '-'}</div>
                         </div>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', background: '#ffffff' }}>
-                        <div style={{ padding: '0.8rem 1rem', borderRight: '1px solid #cbd5e1' }}>
-                            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><ClipboardCheck size={12}/> EQUIPO / ÁREA REVISADA</span>
-                            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.item || checklistData.equipo || '-'}</div>
-                        </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', background: '#ffffff', borderBottom: '1px solid #cbd5e1' }}>
+                        {!(hasVehicles && !hasTools && !hasPermits && !hasHeavy && !hasExtinguishers) && (
+                            <div style={{ padding: '0.8rem 1rem', borderRight: '1px solid #cbd5e1' }}>
+                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><ClipboardCheck size={12}/> {hasPermits ? "SECTOR / ÁREA" : "EQUIPO / ÁREA REVISADA"}</span>
+                                <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.item || checklistData.equipo || '-'}</div>
+                            </div>
+                        )}
                         <div style={{ padding: '0.8rem 1rem', borderRight: '1px solid #cbd5e1' }}>
                             <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={12}/> FECHA DE REVISIÓN</span>
                             <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.2rem' }}>{inspInfo.date ? new Date(inspInfo.date + 'T12:00:00Z').toLocaleDateString('es-AR') : '-'}</div>
@@ -148,11 +157,64 @@ export default function ChecklistPdfGenerator({
                             <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.2rem' }}>{compInfo.inspector || '-'}</div>
                         </div>
                     </div>
-                    {inspInfo.expirationDate && (
+                    
+                    {hasVehicles && (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', background: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
+                            <div style={{ padding: '0.8rem 1rem', borderRight: '1px solid #cbd5e1' }}>
+                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><ClipboardCheck size={12}/> MARCA / MODELO</span>
+                                <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.marca || '-'}</div>
+                            </div>
+                            <div style={{ padding: '0.8rem 1rem', borderRight: '1px solid #cbd5e1' }}>
+                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Hash size={12}/> DOMINIO (PATENTE)</span>
+                                <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.patente || '-'}</div>
+                            </div>
+                            <div style={{ padding: '0.8rem 1rem' }}>
+                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Activity size={12}/> HORÓMETRO / KM</span>
+                                <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.horometro || '-'}</div>
+                            </div>
+                        </div>
+                    )}
+
+                    {(hasTools || hasHeavy) && !hasVehicles && (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', background: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
+                            <div style={{ padding: '0.8rem 1rem', borderRight: '1px solid #cbd5e1' }}>
+                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><ClipboardCheck size={12}/> MARCA / MODELO</span>
+                                <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.marca || '-'}</div>
+                            </div>
+                            <div style={{ padding: '0.8rem 1rem' }}>
+                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Hash size={12}/> {hasExtinguishers ? "CHAPA / NÚMERO" : "Nº IDENTIFICACIÓN (SERIAL)"}</span>
+                                <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.serial || '-'}</div>
+                            </div>
+                        </div>
+                    )}
+
+                    {(!hasTools && !hasHeavy && !hasVehicles && !hasPermits) && (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr', background: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
+                            <div style={{ padding: '0.8rem 1rem' }}>
+                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Hash size={12}/> {hasExtinguishers ? "CHAPA / NÚMERO" : "Nº IDENTIFICACIÓN (SERIAL)"}</span>
+                                <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.serial || '-'}</div>
+                            </div>
+                        </div>
+                    )}
+
+                    {hasPermits && (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', background: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
+                            <div style={{ padding: '0.8rem 1rem', borderRight: '1px solid #cbd5e1' }}>
+                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><ClipboardCheck size={12}/> Nº PERMISO DE TRABAJO (PT)</span>
+                                <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.pt || '-'}</div>
+                            </div>
+                            <div style={{ padding: '0.8rem 1rem' }}>
+                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><User size={12}/> RESPONSABLE DEL ÁREA</span>
+                                <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.responsableArea || '-'}</div>
+                            </div>
+                        </div>
+                    )}
+
+                    {hasExtinguishers && (
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', background: '#fef2f2', borderTop: '1px solid #cbd5e1' }}>
                             <div style={{ padding: '0.8rem 1rem', borderRight: '1px solid #cbd5e1' }}>
                                 <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#991b1b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={12}/> VENCIMIENTO CARGA (EXTINTOR)</span>
-                                <div style={{ fontWeight: 800, fontSize: '0.9rem', color: '#7f1d1d', marginTop: '0.2rem' }}>{new Date(inspInfo.expirationDate + 'T12:00:00Z').toLocaleDateString('es-AR')}</div>
+                                <div style={{ fontWeight: 800, fontSize: '0.9rem', color: '#7f1d1d', marginTop: '0.2rem' }}>{inspInfo.expirationDate ? new Date(inspInfo.expirationDate + 'T12:00:00Z').toLocaleDateString('es-AR') : '-'}</div>
                             </div>
                             <div style={{ padding: '0.8rem 1rem' }}>
                                 <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#991b1b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><AlertTriangle size={12}/> OBSERVACIONES EXTINTOR</span>

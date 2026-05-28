@@ -542,10 +542,9 @@ export default function FireLoad(): React.ReactElement | null {
                                 });
                                 setShowForm(true);
                             }}
-                            className="btn-primary"
-                            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 1.5rem', borderRadius: '12px' }}
+                            style={{ flex: '0 1 auto', padding: '1rem 1.5rem', borderRadius: '16px', background: '#36B37E', color: '#fff', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(54,179,126,0.3)', whiteSpace: 'nowrap' }}
                         >
-                            <Plus size={18} /> Nuevo Cálculo
+                            <Plus size={20} /> Nuevo Cálculo
                         </button>
                     </div>
 

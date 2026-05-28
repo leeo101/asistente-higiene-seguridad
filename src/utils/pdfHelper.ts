@@ -1,8 +1,8 @@
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
+import html2pdf from 'html2pdf.js';
 
 /**
  * Generates a PDF from an HTML element id and returns it as a Blob.
+ * Utiliza html2pdf.js para evitar que los saltos de página corten el texto.
  */
 export async function generatePdfBlob(elementId: string, isLandscape: boolean = false): Promise<Blob> {
     const element = document.getElementById(elementId);
@@ -10,7 +10,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         throw new Error(`Element with id '${elementId}' not found.`);
     }
 
-    // Store original styles to restore later
+    // Guardar estilos originales para restaurarlos luego
     const originalStyles = {
         position: element.style.position,
         left: element.style.left,
@@ -30,25 +30,18 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
     };
 
     try {
-        // Make element visible and positioned for capture
-        // Force element to A4 width so its layout does not wrap endlessly on mobile.
-        // Use absolute positioning to allow its height to grow naturally to whatever
-        // height is needed to fit the unwrapped content.
         const targetWidth = isLandscape ? '297mm' : '210mm';
         
-        // Move element to top-left but behind everything to prevent offscreen capture bugs
+        // Preparar el elemento para que html2pdf lo pueda renderizar bien
         element.style.position = 'absolute';
         element.style.left = '0px';
         element.style.top = '0px';
         element.style.width = targetWidth;
         element.style.maxWidth = 'none';
 
-        // CRÍTICO: forzar display:block para que scrollHeight funcione bien.
-        // display:flex con marginTop:auto en hijos colapsa scrollHeight en html2canvas.
         element.style.display = 'block';
         element.style.flexDirection = 'unset';
         
-        // Remove height constraints so it can expand naturally to content height
         element.style.height = 'auto';
         element.style.minHeight = '0';
         element.style.overflow = 'visible';
@@ -61,115 +54,27 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         element.style.color = '#000000';
         element.classList.add('force-pdf-print');
 
-        // Primera espera: estilos y reflow inicial
+        // Espera para carga de imágenes y fuentes
         await new Promise(resolve => setTimeout(resolve, 300));
-
-        // Forzar recálculo de layout
         element.getBoundingClientRect();
         document.body.offsetHeight; // trigger global reflow
-
-        // Segunda espera: imágenes y fuentes (firmas, logos)
         await new Promise(resolve => setTimeout(resolve, 700));
 
-        // Segundo recálculo para capturar la altura real tras imágenes
-        element.getBoundingClientRect();
+        const opt = {
+            margin:       [10, 10, 10, 10], // top, left, bottom, right in mm
+            filename:     'reporte.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true, logging: false },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' },
+            pagebreak:    { mode: ['css', 'avoid-all'] } // IMPORTANTE: evita cortar a la mitad de los elementos
+        };
 
-        // Default configuration
-        const A4_WIDTH_MM = 210;
-        const A4_HEIGHT_MM = 297;
-
-        // Medir DESPUÉS del doble reflow
-        const captureWidth = Math.max(element.scrollWidth, element.offsetWidth);
-        const captureHeight = Math.max(element.scrollHeight, element.offsetHeight);
-
-        // Calculate dynamic scale to prevent iOS canvas truncation limits (e.g. > 4096px height)
-        // Max desired scale is 2.5 for high quality, minimum is 1.0.
-        let dynamicScale = 2.5;
-        if (captureHeight * dynamicScale > 4000) {
-            dynamicScale = Math.max(1.0, 4000 / captureHeight);
-        }
-
-        const canvas = await html2canvas(element, {
-            scale: dynamicScale,
-            useCORS: true,
-            allowTaint: true,
-            logging: false,
-            windowWidth: captureWidth,
-            windowHeight: captureHeight,
-            backgroundColor: '#ffffff'
-        });
-
-        const imgData = canvas.toDataURL('image/jpeg', 0.95);
-
-        const pdf = new jsPDF({
-            orientation: isLandscape ? 'l' : 'p',
-            unit: 'mm',
-            format: 'a4',
-            compress: true
-        });
-
-        const pdfWidth = isLandscape ? A4_HEIGHT_MM : A4_WIDTH_MM;
-        const pdfHeight = isLandscape ? A4_WIDTH_MM : A4_HEIGHT_MM;
-
-        const marginX = 10;
-        const marginY = 10;
-        const contentWidthMM = pdfWidth - (marginX * 2);
-
-        const imgWidthPx = canvas.width;
-        const imgHeightPx = canvas.height;
-        const ratioPxToMm = contentWidthMM / imgWidthPx;
-        const contentHeightMM = imgHeightPx * ratioPxToMm;
-
-        let finalRatio = ratioPxToMm;
-        let finalContentHeightMM = contentHeightMM;
-
-        // Auto-fit to 1 page if it slightly overflows (e.g., up to 25% overflow)
-        // This prevents unnecessary multi-page PDFs for forms that just barely overflow
-        const maxOnePageHeight = pdfHeight - (marginY * 2);
-        if (contentHeightMM > maxOnePageHeight && contentHeightMM <= maxOnePageHeight * 1.25) {
-            finalRatio = maxOnePageHeight / imgHeightPx;
-            finalContentHeightMM = maxOnePageHeight;
-        }
-
-        const finalContentWidthMM = imgWidthPx * finalRatio;
-        // Center horizontally if scaled down
-        const finalMarginX = marginX + (contentWidthMM - finalContentWidthMM) / 2;
-
-        if (finalContentHeightMM <= maxOnePageHeight) {
-            // Single page
-            pdf.addImage(imgData, 'JPEG', finalMarginX, marginY, finalContentWidthMM, finalContentHeightMM);
-        } else {
-            // Multi-page: slice the tall image across pages
-            // The trick is: on page N, we shift the image UP by (N-1) * pageHeight
-            // so that the correct slice appears in the printable area
-            const pageContentHeight = maxOnePageHeight;
-            let pageNumber = 0;
-            let remainingHeight = finalContentHeightMM;
-
-            // Use a small tolerance (e.g., 5mm) to avoid adding a whole blank page for a tiny overflow
-            while (remainingHeight > 5) {
-                if (pageNumber > 0) pdf.addPage();
-
-                // Vertical offset: shift the image up so this page's slice is visible
-                const yOffset = marginY - pageNumber * pageContentHeight;
-
-                pdf.addImage(
-                    imgData, 'JPEG',
-                    finalMarginX,
-                    yOffset,
-                    finalContentWidthMM,
-                    finalContentHeightMM
-                );
-
-                remainingHeight -= pageContentHeight;
-                pageNumber++;
-            }
-        }
-
-        return pdf.output('blob');
+        // Generar el PDF y devolverlo como Blob
+        const pdfBlob = await html2pdf().set(opt).from(element).outputPdf('blob');
+        return pdfBlob;
 
     } finally {
-        // Restore original styles
+        // Restaurar estilos originales
         element.style.position = originalStyles.position;
         element.style.left = originalStyles.left;
         element.style.top = originalStyles.top;

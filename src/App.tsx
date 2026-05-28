@@ -91,7 +91,7 @@ const ManagementReport = lazyWithRetry(() => import('./pages/ManagementReport'))
 const AccidentInvestigation = lazyWithRetry(() => import('./pages/AccidentInvestigation'));
 const AccidentHistory = lazyWithRetry(() => import('./pages/AccidentHistory'));
 const TrainingManagement = lazyWithRetry(() => import('./pages/TrainingManagement'));
-const TrainingHistory = lazyWithRetry(() => import('./pages/TrainingHistory'));
+
 
 const ExtinguisherPdfGenerator = lazyWithRetry(() => import('./components/ExtinguisherPdfGenerator'));
 const ExtintoresManager = lazyWithRetry(() => import('./pages/ExtintoresManager'));
@@ -562,7 +562,7 @@ function App() {
                   <Route path="/accident-investigation" element={<ProtectedRoute><AccidentInvestigation /></ProtectedRoute>} />
                   <Route path="/accident-history" element={<ProtectedRoute><AccidentHistory /></ProtectedRoute>} />
                   <Route path="/training-management" element={<ProtectedRoute><TrainingManagement /></ProtectedRoute>} />
-                  <Route path="/training-history" element={<ProtectedRoute><TrainingHistory /></ProtectedRoute>} />
+
 
                   <Route path="/extintores" element={<ProtectedRoute><ExtintoresManager /></ProtectedRoute>} />
                   <Route path="/extintores/inspect/:id" element={<ProtectedRoute><ExtinguisherInspection /></ProtectedRoute>} />

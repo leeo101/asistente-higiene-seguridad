@@ -150,110 +150,58 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
                                     <div key={empresa} style={{ pageBreakInside: 'avoid', display: 'flex', flexDirection: 'column', gap: '15px' }}>
                                         {/* Company Header */}
                                         <div style={{ 
-                                            background: '#1e293b', color: '#ffffff', padding: '10px 15px', 
-                                            borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '10px' 
+                                            background: '#f8fafc', color: '#0f172a', padding: '10px 15px', 
+                                            borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '10px',
+                                            border: '2px solid #cbd5e1'
                                         }}>
                                             <span style={{ fontSize: '12pt', fontWeight: 900 }}>🏢 {empresa}</span>
-                                            <span style={{ fontSize: '9pt', background: '#334155', padding: '2px 8px', borderRadius: '12px' }}>
+                                            <span style={{ fontSize: '9pt', background: '#e2e8f0', color: '#334155', padding: '2px 8px', borderRadius: '12px', fontWeight: 700 }}>
                                                 {group.length} extintores
                                             </span>
                                         </div>
 
-                                        {/* Grid of Cards */}
-                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '15px' }}>
-                                            {group.map((ext, idx) => {
-                                                const sCarga = getStatus(ext?.ultimaCarga || ext?.vencimientoRecarga);
-                                                const sPH = getPHStatus(ext?.ultimaPH || ext?.vencimientoPH);
-                                                const lastInspection = ext?.inspections && ext.inspections.length > 0 ? ext.inspections[ext.inspections.length - 1] : null;
+                                        {/* Compact Table */}
+                                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9pt', marginTop: '5px' }}>
+                                            <thead>
+                                                <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
+                                                    <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>CHAPA</th>
+                                                    <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>TIPO / CAP.</th>
+                                                    <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>UBICACIÓN</th>
+                                                    <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>VENC. CARGA</th>
+                                                    <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>VENC. PH</th>
+                                                    <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>ÚLTIMA INSP.</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {group.map((ext, idx) => {
+                                                    const sCarga = getStatus(ext?.ultimaCarga || ext?.vencimientoRecarga);
+                                                    const sPH = getPHStatus(ext?.ultimaPH || ext?.vencimientoPH);
+                                                    const lastInspection = ext?.inspections && ext.inspections.length > 0 ? ext.inspections[ext.inspections.length - 1] : null;
 
-                                                return (
-                                                    <div key={`${empresa}-${idx}`} style={{ 
-                                                        border: '1px solid #cbd5e1', borderRadius: '8px', 
-                                                        padding: '12px', background: '#ffffff', 
-                                                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-                                                        pageBreakInside: 'avoid',
-                                                        display: 'flex', flexDirection: 'column', gap: '10px'
-                                                    }}>
-                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>
-                                                            <div>
-                                                                <div style={{ fontSize: '11pt', fontWeight: 900, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                                    <div style={{ background: '#fef3c7', color: '#d97706', padding: '4px', borderRadius: '6px' }}>
-                                                                        <Flame size={14} fill="currentColor" />
+                                                    return (
+                                                        <tr key={`${empresa}-${idx}`} style={{ borderBottom: '1px solid #e2e8f0', background: idx % 2 === 0 ? '#ffffff' : '#f8fafc', pageBreakInside: 'avoid' }}>
+                                                            <td style={{ padding: '8px', fontWeight: 900, color: '#0f172a' }}>{ext?.chapa || ext?.numero || '-'}</td>
+                                                            <td style={{ padding: '8px', color: '#334155', fontWeight: 600 }}>{ext?.tipo || 'N/A'} {ext?.capacidad ? `- ${ext.capacidad}` : ''}</td>
+                                                            <td style={{ padding: '8px', color: '#475569' }}>{ext?.ubicacion || 'Sin ubicación'}</td>
+                                                            <td style={{ padding: '8px', color: sCarga.color, fontWeight: 700 }}>{sCarga.vto}</td>
+                                                            <td style={{ padding: '8px', color: sPH.color, fontWeight: 700 }}>{sPH.vto}</td>
+                                                            <td style={{ padding: '8px' }}>
+                                                                {lastInspection ? (
+                                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                                                        <span style={{ fontWeight: 800, color: lastInspection.resultado === 'C' ? '#166534' : '#dc2626' }}>
+                                                                            {new Date(lastInspection.fechaVisita + 'T12:00:00Z').toLocaleDateString('es-AR')} - {lastInspection.resultado === 'C' ? 'CUMPLE' : 'NO CUMPLE'}
+                                                                        </span>
+                                                                        {lastInspection.observacion && <span style={{ fontSize: '7.5pt', color: '#64748b', fontStyle: 'italic' }}>Obs: {lastInspection.observacion}</span>}
                                                                     </div>
-                                                                    CHAPA: {ext?.chapa || ext?.numero || '-'}
-                                                                </div>
-                                                                <div style={{ fontSize: '9pt', color: '#475569', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                                                    <MapPin size={12} /> <strong>{ext?.ubicacion || 'Sin ubicación'}</strong>
-                                                                </div>
-                                                            </div>
-                                                            <div style={{ textAlign: 'right' }}>
-                                                                <div style={{ fontSize: '9pt', fontWeight: 700, color: '#0f172a', background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px' }}>
-                                                                    {ext?.tipo || 'N/A'} - {ext?.capacidad || '-'}
-                                                                </div>
-                                                                {ext?.fechaFabricacion && (
-                                                                    <div style={{ fontSize: '7.5pt', color: '#64748b', marginTop: '4px' }}>
-                                                                        Fab: {new Date(ext.fechaFabricacion + 'T12:00:00Z').toLocaleDateString('es-AR')}
-                                                                    </div>
+                                                                ) : (
+                                                                    <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>Sin inspecciones</span>
                                                                 )}
-                                                            </div>
-                                                        </div>
-
-                                                        {/* Dates */}
-                                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '8.5pt' }}>
-                                                            <div style={{ background: '#f8fafc', padding: '6px 8px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
-                                                                <div style={{ color: '#64748b', fontWeight: 700, marginBottom: '2px' }}>RECARGA</div>
-                                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                                    <span style={{ color: sCarga.color, fontWeight: 900 }}>{sCarga.text}</span>
-                                                                    <span style={{ color: '#475569' }}>{sCarga.vto}</span>
-                                                                </div>
-                                                            </div>
-                                                            <div style={{ background: '#f8fafc', padding: '6px 8px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
-                                                                <div style={{ color: '#64748b', fontWeight: 700, marginBottom: '2px' }}>PRUEBA HIDR.</div>
-                                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                                    <span style={{ color: sPH.color, fontWeight: 900 }}>{sPH.text}</span>
-                                                                    <span style={{ color: '#475569' }}>{sPH.vto}</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        {/* Last Inspection */}
-                                                        {lastInspection ? (
-                                                            <div style={{ fontSize: '8.5pt', background: '#f8fafc', padding: '8px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
-                                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontWeight: 800 }}>
-                                                                    <span style={{ color: '#475569' }}>Insp: {new Date(lastInspection.fechaVisita + 'T12:00:00Z').toLocaleDateString('es-AR')}</span>
-                                                                    <span style={{ color: lastInspection.resultado === 'C' ? '#166534' : '#dc2626' }}>
-                                                                        {lastInspection.resultado === 'C' ? 'CUMPLE ✓' : 'NO CUMPLE ⚠️'}
-                                                                    </span>
-                                                                </div>
-                                                                <div style={{ display: 'flex', gap: '3px', flexWrap: 'wrap' }}>
-                                                                    {Object.entries(lastInspection.controles || {}).map(([key, value]) => {
-                                                                        const labels = {
-                                                                            manometro: 'Man.', acceso: 'Acc.', senalizacion: 'Señ.', manguera: 'Mang.', cilindro: 'Cil.'
-                                                                        };
-                                                                        const color = value === 'C' ? '#166534' : value === 'NC' ? '#dc2626' : '#64748b';
-                                                                        const bg = value === 'C' ? '#dcfce7' : value === 'NC' ? '#fee2e2' : '#f1f5f9';
-                                                                        return (
-                                                                            <span key={key} style={{ padding: '2px 5px', borderRadius: '4px', fontSize: '7pt', background: bg, color, fontWeight: 'bold' }}>
-                                                                                {(labels as any)[key] || key}: {value as string}
-                                                                            </span>
-                                                                        );
-                                                                    })}
-                                                                </div>
-                                                                {lastInspection.observacion && (
-                                                                    <div style={{ color: '#475569', fontStyle: 'italic', marginTop: '6px', fontSize: '7.5pt', borderTop: '1px solid #e2e8f0', paddingTop: '4px' }}>
-                                                                        Obs: {lastInspection.observacion}
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        ) : (
-                                                            <div style={{ fontSize: '8pt', color: '#64748b', fontStyle: 'italic', background: '#f8fafc', padding: '6px', borderRadius: '6px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
-                                                                Sin controles mensuales este período.
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
                                     </div>
                                 );
                             });

@@ -1219,6 +1219,12 @@ app.post('/api/welcome-email', emailLimiter, async (req, res) => {
 // START SERVER
 // ==========================================
 const PORT = process.env.PORT || 3001;
+
+// Inicializar tareas programadas en segundo plano (Cron Jobs)
+import('./cron.js').then(module => {
+    module.initCronJobs();
+}).catch(err => console.error("[CRON] Error cargando cron.js", err));
+
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
 });

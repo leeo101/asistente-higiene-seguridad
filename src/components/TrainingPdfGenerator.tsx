@@ -156,10 +156,11 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                         <thead>
                             <tr style={{ background: '#1e293b', color: '#ffffff' }}>
                                 <th style={{ padding: '0.6rem 0.4rem', width: '5%', textAlign: 'center', fontWeight: 800, border: '1px solid #0f172a' }}>N°</th>
-                                <th style={{ padding: '0.6rem 0.8rem', width: '35%', textAlign: 'left', fontWeight: 800, border: '1px solid #0f172a' }}>Apellido y Nombres</th>
+                                <th style={{ padding: '0.6rem 0.8rem', width: '30%', textAlign: 'left', fontWeight: 800, border: '1px solid #0f172a' }}>Apellido y Nombres</th>
                                 <th style={{ padding: '0.6rem 0.8rem', width: '15%', textAlign: 'center', fontWeight: 800, border: '1px solid #0f172a' }}>DNI / CUIL</th>
-                                <th style={{ padding: '0.6rem 0.8rem', width: '25%', textAlign: 'left', fontWeight: 800, border: '1px solid #0f172a' }}>Puesto de Trabajo</th>
-                                <th style={{ padding: '0.6rem 0.8rem', width: '20%', textAlign: 'center', fontWeight: 800, border: '1px solid #0f172a' }}>Firma del Asistente</th>
+                                <th style={{ padding: '0.6rem 0.8rem', width: '20%', textAlign: 'left', fontWeight: 800, border: '1px solid #0f172a' }}>Puesto de Trabajo</th>
+                                <th style={{ padding: '0.6rem 0.8rem', width: '15%', textAlign: 'center', fontWeight: 800, border: '1px solid #0f172a' }}>Nota / Eval.</th>
+                                <th style={{ padding: '0.6rem 0.8rem', width: '15%', textAlign: 'center', fontWeight: 800, border: '1px solid #0f172a' }}>Firma del Asistente</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -169,6 +170,7 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                                     <td style={{ border: '1px solid #cbd5e1', padding: '0.6rem 0.8rem', fontWeight: 700, color: '#1e293b' }}>{asist.nombre}</td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '0.6rem 0.8rem', textAlign: 'center', color: '#334155' }}>{asist.dni}</td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '0.6rem 0.8rem', color: '#334155' }}>{asist.puesto}</td>
+                                    <td style={{ border: '1px solid #cbd5e1', padding: '0.6rem 0.8rem', textAlign: 'center', fontWeight: 800, color: '#0f172a' }}>{asist.nota || '-'}</td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '1rem 0.8rem', textAlign: 'center' }}></td>
                                 </tr>
                             ))}
@@ -176,6 +178,7 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                             {Array.from({ length: Math.max(0, 5 - (training?.asistentes?.length || 0)) }).map((_, i) => (
                                 <tr key={`empty-${i}`} style={{ pageBreakInside: 'avoid' }}>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '1.2rem 0.4rem' }}></td>
+                                    <td style={{ border: '1px solid #cbd5e1', padding: '1.2rem 0.8rem' }}></td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '1.2rem 0.8rem' }}></td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '1.2rem 0.8rem' }}></td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '1.2rem 0.8rem' }}></td>

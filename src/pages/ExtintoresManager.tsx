@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import {
     Flame, Plus, Search, MapPin, QrCode, ArrowLeft, ShieldCheck,
-    Calendar, Edit3, Trash2, Printer, AlertTriangle, CheckCircle2, Camera, Share2, Pencil
+    Calendar, Edit3, Trash2, Printer, AlertTriangle, CheckCircle2, Camera, Share2, Pencil, Download
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
@@ -17,6 +17,8 @@ import ExtinguisherProfilePdf from '../components/ExtinguisherProfilePdf';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
 import { DataTable } from '../components/DataTable';
+import ExtinguisherPdfGenerator from '../components/ExtinguisherPdfGenerator';
+import ExcelJS from 'exceljs';
 
 export default function ExtintoresManager() {
     const navigate = useNavigate();
@@ -245,6 +247,67 @@ export default function ExtintoresManager() {
         return matchesSearch && matchesEmpresa;
     });
 
+    const handlePrintPdf = () => {
+        setShareItem(filtered as any);
+        
+        setTimeout(() => {
+            const element = document.getElementById('pdf-content');
+            if (!element) return;
+            document.body.classList.add('printing-isolated');
+            element.classList.add('isolated-print-target');
+            window.print();
+            document.body.classList.remove('printing-isolated');
+            element.classList.remove('isolated-print-target');
+            setShareItem(null);
+        }, 500);
+    };
+
+    const handleExportExcel = async () => {
+        try {
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Extintores');
+
+            worksheet.columns = [
+                { header: 'Chapa', key: 'chapa', width: 15 },
+                { header: 'Tipo', key: 'tipo', width: 20 },
+                { header: 'Capacidad', key: 'capacidad', width: 15 },
+                { header: 'Ubicación', key: 'ubicacion', width: 30 },
+                { header: 'Empresa', key: 'empresa', width: 25 },
+                { header: 'Venc. Recarga', key: 'recarga', width: 20 },
+                { header: 'Venc. PH', key: 'ph', width: 20 },
+                { header: 'Vida Útil', key: 'vidaUtil', width: 20 }
+            ];
+
+            worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+            worksheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2563EB' } };
+
+            filtered.forEach(ext => {
+                worksheet.addRow({
+                    chapa: ext.numero,
+                    tipo: ext.tipo,
+                    capacidad: ext.capacidad,
+                    ubicacion: ext.ubicacion,
+                    empresa: ext.empresa || '',
+                    recarga: ext.vencimientoRecarga ? new Date(ext.vencimientoRecarga + 'T12:00:00Z').toLocaleDateString('es-AR') : '',
+                    ph: ext.vencimientoPH ? new Date(ext.vencimientoPH + 'T12:00:00Z').toLocaleDateString('es-AR') : '',
+                    vidaUtil: ext.fechaFabricacion ? new Date(ext.fechaFabricacion + 'T12:00:00Z').toLocaleDateString('es-AR') : ''
+                });
+            });
+
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Inventario_Extintores_${filterEmpresa || 'Completo'}_${new Date().toISOString().split('T')[0]}.xlsx`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error(error);
+            toast.error('Error al exportar Excel');
+        }
+    };
+
     const uniqueEmpresas = [...new Set(extintores.map(e => e.empresa).filter(Boolean))];
 
     const types = ['ABC', 'CO2', 'K', 'Agua', 'HCFC', 'Espuma'];
@@ -380,13 +443,34 @@ export default function ExtintoresManager() {
         {
             header: 'Acciones',
             accessor: 'id',
-            render: (item: any) => (
-                <div style={{ display: 'flex', gap: '0.4rem' }}>
-                    <button onClick={() => handleEdit(item)} style={{ padding: '0.4rem', background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.2)', borderRadius: '8px', color: '#2563eb', cursor: 'pointer' }} title="Editar"><Edit3 size={15} /></button>
-                    <button onClick={() => requirePro(() => generateQR(item))} style={{ padding: '0.4rem', background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer' }} title="QR"><QrCode size={15} /></button>
-                    <button onClick={() => requirePro(() => setShareItem(item))} style={{ padding: '0.4rem', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '8px', color: '#16a34a', cursor: 'pointer' }} title="Compartir"><Share2 size={15} /></button>
-                </div>
-            )
+            render: (item: any) => {
+                const lastInspection = item.inspections && item.inspections.length > 0 ? item.inspections[item.inspections.length - 1] : null;
+                let isInspectedRecently = false;
+                if (lastInspection) {
+                    const d = new Date(lastInspection.fechaVisita + 'T12:00:00Z');
+                    const today = new Date();
+                    const diffDays = Math.ceil((today.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
+                    if (diffDays <= 35) { // 35 days to allow a bit of overlap for monthly inspections
+                        isInspectedRecently = true;
+                    }
+                }
+
+                const inspColor = isInspectedRecently ? '#10b981' : '#ef4444';
+                const inspBg = isInspectedRecently ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)';
+                const inspBorder = isInspectedRecently ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)';
+
+                return (
+                    <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                        <button onClick={() => navigate(`/extintores/inspect/${item.id}`)} style={{ padding: '0.4rem', background: inspBg, border: `1px solid ${inspBorder}`, borderRadius: '8px', color: inspColor, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem', fontWeight: 800, fontSize: '0.75rem' }} title="Inspeccionar">
+                            <ShieldCheck size={15} /> INSP
+                        </button>
+                        <button onClick={() => handleEdit(item)} style={{ padding: '0.4rem', background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.2)', borderRadius: '8px', color: '#2563eb', cursor: 'pointer' }} title="Editar"><Edit3 size={15} /></button>
+                        <button onClick={() => requirePro(() => generateQR(item))} style={{ padding: '0.4rem', background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer' }} title="QR"><QrCode size={15} /></button>
+                        <button onClick={() => requirePro(() => setShareItem(item))} style={{ padding: '0.4rem', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '8px', color: '#16a34a', cursor: 'pointer' }} title="Compartir"><Share2 size={15} /></button>
+                        <button onClick={() => handleDelete(item.id)} style={{ padding: '0.4rem', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }} title="Eliminar"><Trash2 size={15} /></button>
+                    </div>
+                );
+            }
         }
     ];
 
@@ -404,15 +488,22 @@ export default function ExtintoresManager() {
                 isOpen={!!shareItem} 
                 open={!!shareItem} 
                 onClose={() => setShareItem(null)} 
-                title={`Ficha Técnica - Extintor #${shareItem?.numero}`} 
-                text={shareItem ? `📋 Ficha de Extintor\n🔥 Chapa: ${shareItem.numero}\n📍 Ubicación: ${shareItem.ubicacion}` : ''} 
+                title={Array.isArray(shareItem) ? "Inventario de Extintores" : `Ficha Técnica - Extintor #${shareItem?.numero}`} 
+                text={shareItem ? (Array.isArray(shareItem) ? `🧯 Inventario de Extintores\n📊 Total: ${shareItem.length}` : `📋 Ficha de Extintor\n🔥 Chapa: ${shareItem.numero}\n📍 Ubicación: ${shareItem.ubicacion}`) : ''} 
                 rawMessage={''} 
                 elementIdToPrint="pdf-content" 
-                fileName={`Ficha_Extintor_${shareItem?.numero || 'Reporte'}.pdf`} 
+                fileName={Array.isArray(shareItem) ? `Inventario_Extintores_${filterEmpresa || 'Completo'}.pdf` : `Ficha_Extintor_${shareItem?.numero || 'Reporte'}.pdf`} 
             />
-            <div className="ats-pdf-offscreen">
-                <ExtinguisherProfilePdf data={shareItem || formData} isHeadless={true} />
-            </div>
+            {createPortal(
+                <div className="ats-pdf-offscreen" aria-hidden="true">
+                    {shareItem && !Array.isArray(shareItem) ? (
+                        <ExtinguisherProfilePdf data={shareItem || formData} isHeadless={true} />
+                    ) : (
+                        <ExtinguisherPdfGenerator extinguishers={Array.isArray(shareItem) ? shareItem : []} />
+                    )}
+                </div>,
+                document.body
+            )}
 
             {expiredLifespans.length > 0 && (
                 <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', padding: '1rem 1.5rem', borderRadius: '12px', display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.5rem' }}>
@@ -469,7 +560,7 @@ export default function ExtintoresManager() {
                                 <input type="date" value={formData.fechaFabricacion} onChange={e => setFormData({...formData, fechaFabricacion: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--color-border)', outline: 'none' }} />
                             </div>
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>ÚLTIMA CARGA (SE SUMARÁ 1 AÑO)</label>
+                                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>ÚLTIMA CARGA</label>
                                 <input required type="date" value={formData.vencimientoRecarga} onChange={e => setFormData({...formData, vencimientoRecarga: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--color-border)', outline: 'none' }} />
                             </div>
                             <div>
@@ -648,6 +739,64 @@ export default function ExtintoresManager() {
                                 ))}
                             </select>
                         </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '0.8rem', marginBottom: '1.5rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                        {filtered.length > 0 && (
+                            <>
+                                <style>
+                                    {`
+                                        .action-btn-premium {
+                                            display: flex;
+                                            align-items: center;
+                                            gap: 0.5rem;
+                                            padding: 0.6rem 1.2rem;
+                                            font-size: 0.8rem;
+                                            font-weight: 800;
+                                            border-radius: 50px;
+                                            border: none;
+                                            cursor: pointer;
+                                            color: white;
+                                            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                                            letter-spacing: 0.5px;
+                                        }
+                                        .btn-pdf {
+                                            background: linear-gradient(135deg, #f87171, #ef4444);
+                                            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+                                        }
+                                        .btn-pdf:hover {
+                                            transform: translateY(-2px);
+                                            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+                                        }
+                                        .btn-excel {
+                                            background: linear-gradient(135deg, #10b981, #059669);
+                                            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+                                        }
+                                        .btn-excel:hover {
+                                            transform: translateY(-2px);
+                                            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+                                        }
+                                        .btn-share {
+                                            background: linear-gradient(135deg, #3b82f6, #2563eb);
+                                            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+                                        }
+                                        .btn-share:hover {
+                                            transform: translateY(-2px);
+                                            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+                                        }
+                                    `}
+                                </style>
+                                <button onClick={() => requirePro(handlePrintPdf)} className="action-btn-premium btn-pdf">
+                                    <Printer size={16} /> IMPRIMIR PDF
+                                </button>
+                                <button onClick={() => requirePro(handleExportExcel)} className="action-btn-premium btn-excel">
+                                    <Download size={16} /> EXPORTAR EXCEL
+                                </button>
+                                <button onClick={() => requirePro(() => setShareItem(filtered))} className="action-btn-premium btn-share">
+                                    <Share2 size={16} /> COMPARTIR
+                                </button>
+                            </>
+                        )}
                     </div>
 
                     <DataTable

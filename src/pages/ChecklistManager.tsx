@@ -241,6 +241,43 @@ const DEFAULT_TEMPLATES = {
             'Kit de control de derrames cercano y completo (absorbentes, barreras)',
             'Duchas de emergencia y lavaojos operativos y sin obstrucciones'
         ]
+    },
+    'espacios_confinados': {
+        title: 'Espacios Confinados',
+        icon: <ShieldCheck size={18} />,
+        items: [
+            'Permiso de ingreso a espacio confinado (PT) completado y firmado',
+            'Medición de gases (O2, LEL, CO, H2S) realizada y dentro de rangos seguros',
+            'Sistema de ventilación forzada o extracción operando correctamente',
+            'Vigía / Observador posicionado permanentemente en el exterior',
+            'Equipos de rescate y trípode armados y listos para uso',
+            'Iluminación interior a 24V (antiexplosiva si corresponde)',
+            'Bloqueo y etiquetado (LOTO) de energías e ingresos de fluidos efectivo'
+        ]
+    },
+    'izaje_gruas': {
+        title: 'Izaje y Grúas',
+        icon: <TriangleAlert size={18} />,
+        items: [
+            'Plan de izaje documentado y verificado (capacidades y radios)',
+            'Grúa apoyada firmemente sobre estabilizadores con bases/tacos',
+            'Eslingas, fajas y grilletes inspeccionados (sin desgarros ni deformaciones)',
+            'Área de izaje completamente delimitada y señalizada (prohibido paso inferior)',
+            'Operador y Rigger (señalero) calificados e identificados',
+            'Sistemas de seguridad de la grúa operativos (corte por sobrecarga, anemómetro)'
+        ]
+    },
+    'ergonomia_oficina': {
+        title: 'Ergonomía (Oficinas)',
+        icon: <Activity size={18} />,
+        items: [
+            'Monitor a la altura de los ojos y a distancia adecuada (50-70 cm)',
+            'Silla ergonómica en buen estado (ajuste de altura, apoyo lumbar)',
+            'Apoyapiés disponible si el usuario no alcanza el suelo correctamente',
+            'Teclado y mouse alineados permitiendo apoyo de antebrazos',
+            'Iluminación general sin reflejos directos en la pantalla',
+            'Espacio suficiente debajo del escritorio para mover las piernas'
+        ]
     }
 };
 
@@ -400,7 +437,12 @@ export default function ChecklistManager(): React.ReactElement | null {
         serial: '',
         date: new Date().toISOString().split('T')[0],
         expirationDate: '',
-        extinguisherObs: ''
+        extinguisherObs: '',
+        marca: '',
+        patente: '',
+        horometro: '',
+        pt: '',
+        responsableArea: ''
     });
 
     const [activeSections, setActiveSections] = useState([]);
@@ -549,13 +591,8 @@ export default function ChecklistManager(): React.ReactElement | null {
     
     useEffect(() => {
         if (!searchParams.get('id')) {
-            const initial = MANDATORY_SECTIONS.map(s => ({
-                id: s.id,
-                title: s.title,
-                isMandatory: false,
-                items: s.items.map(text => ({ text, status: null }))
-            }));
-            setActiveSections(initial);
+            // Empezar en blanco sin ningún checklist seleccionado por defecto
+            setActiveSections([]);
         }
     }, [searchParams]);
 
@@ -986,6 +1023,71 @@ export default function ChecklistManager(): React.ReactElement | null {
                 gap: '0.8rem',
                 marginBottom: '1.5rem'
             }}>
+                {(() => {
+                    const activeIds = activeSections.map((s: any) => s.id);
+                    const hasTools = activeIds.some(id => ['manual_tools', 'electric_tools', 'circular_saw', 'grinder'].includes(id));
+                    const hasVehicles = activeIds.includes('autoelevadores');
+                    const hasPermits = activeIds.some(id => ['espacios_confinados', 'trabajos_caliente', 'trabajos_altura'].includes(id));
+                    const hasHeavy = activeIds.some(id => ['scaffolding', 'izaje_gruas'].includes(id));
+                    const hasExtinguishers = activeIds.includes('extintores_checklist');
+
+                    return (
+                        <div style={{ border: '2px solid var(--color-border)', borderRadius: '16px', marginBottom: '2.5rem', width: '100%', overflow: 'hidden', background: 'var(--color-surface)', boxShadow: 'var(--shadow-sm)', transition: 'all 0.3s', gridColumn: '1 / -1' }} className="hover:border-blue-400/50 hover:shadow-md">
+                            <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ borderBottom: '2px solid var(--color-border)', width: '100%' }}>
+                                <div className="sm:col-span-2 print:col-span-2"><DocBox label="CLIENTE / EMPRESA" value={companyInfo.name} onChange={v => setCompanyInfo({ ...companyInfo, name: v })} large /></div>
+                                <div className="sm:col-span-2 print:col-span-2"><DocBox label="UBICACIÓN / DIRECCIÓN" value={companyInfo.address} onChange={v => setCompanyInfo({ ...companyInfo, address: v })} /></div>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ width: '100%', borderBottom: '2px solid var(--color-border)' }}>
+                                <div className="sm:col-span-1 print:col-span-1"><DocBox label="FECHA" value={inspectionInfo.date} onChange={v => setInspectionInfo({ ...inspectionInfo, date: v })} type="date" /></div>
+                                
+                                {!(hasVehicles && !hasTools && !hasPermits && !hasHeavy && !hasExtinguishers) && (
+                                    <div className="sm:col-span-2 print:col-span-2"><DocBox label={hasPermits ? "SECTOR / ÁREA" : "ÁREA / EQUIPO INSPECCIONADO"} value={inspectionInfo.item} onChange={v => setInspectionInfo({ ...inspectionInfo, item: v })} /></div>
+                                )}
+                                
+                                {(!hasPermits && !hasVehicles) && (
+                                   <div className="sm:col-span-1 print:col-span-1"><DocBox label={hasExtinguishers ? "CHAPA / NÚMERO" : "Nº IDENTIFICACIÓN (SERIAL)"} value={inspectionInfo.serial} onChange={v => setInspectionInfo({ ...inspectionInfo, serial: v })} /></div>
+                                )}
+                                
+                                {hasVehicles && (
+                                    <>
+                                        <div className="sm:col-span-1 print:col-span-1"><DocBox label="MARCA / MODELO" value={inspectionInfo.marca || ''} onChange={v => setInspectionInfo({ ...inspectionInfo, marca: v })} /></div>
+                                        <div className="sm:col-span-1 print:col-span-1"><DocBox label="DOMINIO (PATENTE)" value={inspectionInfo.patente || ''} onChange={v => setInspectionInfo({ ...inspectionInfo, patente: v })} /></div>
+                                        <div className="sm:col-span-1 print:col-span-1"><DocBox label="HORÓMETRO / KM" value={inspectionInfo.horometro || ''} onChange={v => setInspectionInfo({ ...inspectionInfo, horometro: v })} /></div>
+                                    </>
+                                )}
+                            </div>
+                            
+                            {(hasTools || hasHeavy) && !hasVehicles && (
+                                <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ width: '100%', borderBottom: '2px solid var(--color-border)' }}>
+                                    <div className="sm:col-span-2 print:col-span-2"><DocBox label="MARCA / MODELO" value={inspectionInfo.marca || ''} onChange={v => setInspectionInfo({ ...inspectionInfo, marca: v })} /></div>
+                                </div>
+                            )}
+
+                            {hasPermits && (
+                                <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ width: '100%', borderBottom: '2px solid var(--color-border)' }}>
+                                    <div className="sm:col-span-2 print:col-span-2"><DocBox label="Nº PERMISO DE TRABAJO (PT)" value={inspectionInfo.pt || ''} onChange={v => setInspectionInfo({ ...inspectionInfo, pt: v })} /></div>
+                                    <div className="sm:col-span-2 print:col-span-2"><DocBox label="RESPONSABLE DEL ÁREA / SUPERVISOR" value={inspectionInfo.responsableArea || ''} onChange={v => setInspectionInfo({ ...inspectionInfo, responsableArea: v })} /></div>
+                                </div>
+                            )}
+
+                            {hasExtinguishers && (
+                                <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ width: '100%', borderBottom: '2px solid var(--color-border)' }}>
+                                    <div className="sm:col-span-1 print:col-span-1" style={{ background: 'rgba(239, 68, 68, 0.05)' }}>
+                                        <DocBox label="VENCIMIENTO CARGA" value={inspectionInfo.expirationDate || ''} onChange={v => setInspectionInfo({ ...inspectionInfo, expirationDate: v })} type="date" />
+                                    </div>
+                                    <div className="sm:col-span-3 print:col-span-3" style={{ background: 'rgba(239, 68, 68, 0.05)' }}>
+                                        <DocBox label="OBSERVACIONES EXTINTOR" value={inspectionInfo.extinguisherObs || ''} onChange={v => setInspectionInfo({ ...inspectionInfo, extinguisherObs: v })} />
+                                    </div>
+                                </div>
+                            )}
+                            <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ width: '100%' }}>
+                                <div className="sm:col-span-2 print:col-span-2"><DocBox label="INSPECTOR / RESPONSABLE" value={companyInfo.inspector} onChange={v => setCompanyInfo({ ...companyInfo, inspector: v })} /></div>
+                                <div className="sm:col-span-2 print:col-span-2"><DocBox label="PROFESIONAL HYS" value={professional.name} onChange={() => { }} /></div>
+                            </div>
+                        </div>
+                    );
+                })()}
+
                 {Object.entries(DEFAULT_TEMPLATES).map(([key, value]) => {
                     const active = activeSections.some(s => s.id === key);
                     return (

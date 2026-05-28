@@ -2726,7 +2726,6 @@ svg.ph-duotone [opacity="0.2"] {
   top: 0;
   width: 210mm;
   pointer-events: none;
-  opacity: 0;
   z-index: -1;
   overflow: visible;
 }
