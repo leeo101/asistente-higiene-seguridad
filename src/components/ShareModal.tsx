@@ -98,9 +98,21 @@ export default function ShareModal({
 
         setIsGenerating(true);
         
+        const el = document.getElementById(elementIdToPrint);
+        if (el) {
+            document.body.classList.add('printing-isolated');
+            el.classList.add('isolated-print-target');
+        }
+        
         try {
             await new Promise(resolve => setTimeout(resolve, 150));
             const pdfBlob = await generatePdfBlob(elementIdToPrint);
+            
+            if (el) {
+                el.classList.remove('isolated-print-target');
+                document.body.classList.remove('printing-isolated');
+            }
+            
             const safeName = propFileName ? (propFileName.endsWith('.pdf') ? propFileName : `${propFileName}.pdf`) : `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'reporte'}.pdf`;
             const fileName = safeName;
 
@@ -157,6 +169,9 @@ export default function ShareModal({
             toast.error('Hubo un error al procesar el PDF.', { id: 'pdf-gen' });
         } finally {
             setIsGenerating(false);
+            const el = document.getElementById(elementIdToPrint);
+            if (el) el.classList.remove('isolated-print-target');
+            document.body.classList.remove('printing-isolated');
         }
     };
 
