@@ -668,8 +668,6 @@ export default function AIChatAdvisor(): React.ReactElement | null {
                         searchPlaceholder="Buscar..."
                         emptyMessage="No hay consultas registradas."
                         emptyIcon={<Sparkles size={48} />}
-                        onEmptyAction={() => setShowForm(true)}
-                        emptyActionLabel="Hacer una consulta ahora"
                     />
 
                     {qrTarget && <QRModal text={(qrTarget as any).text} title={(qrTarget as any).title} onClose={() => setQrTarget(null)} />}
