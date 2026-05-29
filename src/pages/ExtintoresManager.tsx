@@ -590,7 +590,19 @@ export default function ExtintoresManager() {
                         
                         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '2rem', flexWrap: 'wrap' }}>
                             <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} style={{ padding: '0.8rem 1.5rem', borderRadius: '12px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', fontWeight: 800, cursor: 'pointer', color: 'var(--color-text)' }}>Cancelar</button>
-                            <button type="button" onClick={() => window.print()} style={{ padding: '0.8rem 1.5rem', borderRadius: '12px', border: '2px solid #10b981', color: '#10b981', background: 'rgba(16, 185, 129, 0.05)', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <button type="button" onClick={() => {
+                                setShareItem(formData);
+                                setTimeout(() => {
+                                    const el = document.getElementById('pdf-content');
+                                    if (!el) return;
+                                    document.body.classList.add('printing-isolated');
+                                    el.classList.add('isolated-print-target');
+                                    window.print();
+                                    document.body.classList.remove('printing-isolated');
+                                    el.classList.remove('isolated-print-target');
+                                    setShareItem(null);
+                                }, 600);
+                            }} style={{ padding: '0.8rem 1.5rem', borderRadius: '12px', border: '2px solid #10b981', color: '#10b981', background: 'rgba(16, 185, 129, 0.05)', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                 <Printer size={18} /> Generar PDF
                             </button>
                             <button type="button" onClick={() => { setShareItem(formData); }} style={{ padding: '0.8rem 1.5rem', borderRadius: '12px', border: '2px solid #3b82f6', color: '#3b82f6', background: 'rgba(59, 130, 246, 0.05)', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
