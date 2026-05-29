@@ -43,6 +43,7 @@ interface ATSData {
 
 interface ATSPdfGeneratorProps {
   atsData: ATSData | null;
+  pdfElementId?: string;
 }
 
 const PDF_STYLES = `
@@ -196,7 +197,7 @@ function StatusCell({ label, active }: { label: string; active: boolean }) {
   );
 }
 
-export default function ATSPdfGenerator({ atsData }: ATSPdfGeneratorProps): React.ReactElement | null {
+export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' }: ATSPdfGeneratorProps): React.ReactElement | null {
   if (!atsData) return null;
 
   const data = atsData;
@@ -210,7 +211,7 @@ export default function ATSPdfGenerator({ atsData }: ATSPdfGeneratorProps): Reac
   return (
     <div className="ats-pdf-offscreen-wrap" style={{ width: '100%' }}>
       <div
-        id="pdf-content"
+        id={pdfElementId}
         className="pdf-container print-area ats-pdf-root"
         style={{
           width: '100%',

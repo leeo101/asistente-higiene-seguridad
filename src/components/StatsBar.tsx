@@ -30,6 +30,7 @@ export default function StatsBar() {
     const [stats, setStats] = useState([]);
     const [eppAlert, setEppAlert] = useState(0);
     const [totalThisMonth, setTotalThisMonth] = useState(0);
+    const [safetyScore, setSafetyScore] = useState(100);
 
     useEffect(() => {
         // Load counts from localStorage
@@ -97,8 +98,6 @@ export default function StatsBar() {
         setSafetyScore(Math.max(0, Math.min(100, score)));
 
     }, []);
-
-    const [safetyScore, setSafetyScore] = useState(100);
 
     const hasAnyData = stats.some(s => s.total > 0);
     if (!hasAnyData && eppAlert === 0) return null;

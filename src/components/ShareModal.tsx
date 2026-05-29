@@ -97,23 +97,17 @@ export default function ShareModal({
         }
 
         setIsGenerating(true);
-        
-        const el = document.getElementById(elementIdToPrint);
-        if (el) {
-            document.body.classList.add('printing-isolated');
-            el.classList.add('isolated-print-target');
-        }
+        toast.loading('Generando PDF...', { id: 'pdf-gen' });
         
         try {
-            await new Promise(resolve => setTimeout(resolve, 150));
+            // Pequeño delay para que el toast de "generando" se muestre antes de bloquear el hilo
+            await new Promise(resolve => setTimeout(resolve, 80));
+
             const pdfBlob = await generatePdfBlob(elementIdToPrint);
             
-            if (el) {
-                el.classList.remove('isolated-print-target');
-                document.body.classList.remove('printing-isolated');
-            }
-            
-            const safeName = propFileName ? (propFileName.endsWith('.pdf') ? propFileName : `${propFileName}.pdf`) : `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'reporte'}.pdf`;
+            const safeName = propFileName
+                ? (propFileName.endsWith('.pdf') ? propFileName : `${propFileName}.pdf`)
+                : `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'reporte'}.pdf`;
             const fileName = safeName;
 
             const triggerDownload = () => {
@@ -124,24 +118,21 @@ export default function ShareModal({
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
-                window.URL.revokeObjectURL(url);
+                setTimeout(() => window.URL.revokeObjectURL(url), 1000);
                 toast.success('¡PDF generado! Descargando...', { id: 'pdf-gen' });
             };
 
             const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
-            const shareData = {
-                files: [file]
-            };
+            const shareData = { files: [file] };
 
             const fallbackShare = () => {
                 triggerDownload();
-                // Specific fallback for WhatsApp/Mail on desktop
                 if (!isMobile) {
                     const opt = options.find(o => o.label === optLabel);
                     if (opt && opt.url && optLabel !== 'Imprimir') {
                         setTimeout(() => {
                             window.open(opt.url, '_blank');
-                            toast.success(`PDF listo. Adjúntalo en ${optLabel}.`);
+                            toast.success(`PDF listo. Adjúntalo en ${optLabel}.`, { id: 'pdf-gen' });
                         }, 1000);
                     }
                 }
@@ -152,11 +143,13 @@ export default function ShareModal({
                     await navigator.share(shareData);
                     toast.success('¡Compartido con éxito!', { id: 'pdf-gen' });
                 } catch (shareErr: any) {
-                    console.warn("Native share failed, falling back to download/link:", shareErr);
-                    // If it's a user gesture error due to async timeout, offer a retry button
+                    console.warn("Native share failed, falling back:", shareErr);
                     if (shareErr.name === 'NotAllowedError' || shareErr.message?.toLowerCase().includes('user gesture')) {
                         setPendingShareFile(file);
                         toast.success('PDF listo. Toca el botón para enviar.', { id: 'pdf-gen', duration: 4000 });
+                    } else if (shareErr.name === 'AbortError') {
+                        // El usuario canceló el selector de compartir — no es un error
+                        toast.dismiss('pdf-gen');
                     } else {
                         fallbackShare();
                     }
@@ -166,14 +159,12 @@ export default function ShareModal({
             }
         } catch (error) {
             console.error("Error generating/sharing PDF:", error);
-            toast.error('Hubo un error al procesar el PDF.', { id: 'pdf-gen' });
+            toast.error('Hubo un error al procesar el PDF. Intentá de nuevo.', { id: 'pdf-gen' });
         } finally {
             setIsGenerating(false);
-            const el = document.getElementById(elementIdToPrint);
-            if (el) el.classList.remove('isolated-print-target');
-            document.body.classList.remove('printing-isolated');
         }
     };
+
 
     const handleDirectDownload = async () => {
         if (!isPro) {
