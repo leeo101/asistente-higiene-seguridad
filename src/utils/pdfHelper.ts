@@ -66,35 +66,80 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         offscreenContainer.getBoundingClientRect();
 
         // Evitar límite de memoria de Canvas en móviles (ej. 16MP en iOS Safari)
-        // Reducimos la escala y forzamos dimensiones para no explotar la RAM
         const isMobileCanvas = window.innerWidth < 768 || ('ontouchstart' in window);
         const dynamicScale = isMobileCanvas ? 1 : 2;
 
-        const opt = {
-            margin:      [10, 10, 10, 10] as [number, number, number, number],
-            filename:    'reporte.pdf',
-            image:       { type: 'jpeg' as const, quality: 0.95 },
-            html2canvas: {
-                scale: dynamicScale,
-                useCORS: true,
-                allowTaint: true,   // Necesario para imágenes base64 en iOS
-                logging: false,
-                scrollX: 0,         // Evita problemas de scroll en móvil
-                scrollY: 0,
-                windowWidth: isLandscape ? 1122 : 794, // Ancho equivalente a A4 a 96dpi
-                backgroundColor: '#ffffff',
-            },
-            jsPDF: {
-                unit: 'mm',
-                format: 'a4',
-                orientation: (isLandscape ? 'landscape' : 'portrait') as 'landscape' | 'portrait',
-                compress: true,
-            },
-            pagebreak: { mode: ['css', 'avoid-all'] },
+        const margin = 10;
+        
+        // Importamos dinámicamente jsPDF y html2canvas para no bloquear el bundle principal
+        const { jsPDF } = await import('jspdf');
+        const html2canvas = (await import('html2canvas')).default || await import('html2canvas');
+
+        const manualPdf = new jsPDF({
+            unit: 'mm',
+            format: 'a4',
+            orientation: isLandscape ? 'landscape' : 'portrait',
+            compress: true
+        });
+
+        const pdfWidthMm = manualPdf.internal.pageSize.getWidth();
+        const pdfHeightMm = manualPdf.internal.pageSize.getHeight();
+        const innerPdfWidthMm = pdfWidthMm - margin * 2;
+        const innerPdfHeightMm = pdfHeightMm - margin * 2;
+
+        const windowWidthPx = isLandscape ? 1122 : 794;
+        
+        // Calculamos la altura EXACTA en píxeles que equivale al área imprimible de la hoja A4
+        const chunkHeightPx = Math.floor(windowWidthPx * (innerPdfHeightMm / innerPdfWidthMm));
+        
+        const totalHeightPx = clone.scrollHeight || clone.getBoundingClientRect().height;
+        let currentY = 0;
+        let isFirstPage = true;
+
+        const optBase = {
+            scale: dynamicScale,
+            useCORS: true,
+            allowTaint: true,
+            logging: false,
+            scrollX: 0,
+            windowWidth: windowWidthPx,
+            backgroundColor: '#ffffff',
         };
 
-        const pdfBlob = await html2pdf().set(opt).from(clone).outputPdf('blob');
-        return pdfBlob;
+        // Iteramos tomando "fotos" del tamaño exacto de la hoja para no superar el límite de memoria en móviles
+        while (currentY < totalHeightPx) {
+            const remainingHeight = totalHeightPx - currentY;
+            const currentChunkHeightPx = Math.min(chunkHeightPx, remainingHeight);
+
+            // Capturar pedazo de DOM
+            const canvas = await html2canvas(clone, {
+                ...optBase,
+                y: currentY,
+                height: currentChunkHeightPx,
+                windowHeight: totalHeightPx // Mantener altura total para no romper CSS flex/grids
+            });
+
+            const imgData = canvas.toDataURL('image/jpeg', 0.95);
+            
+            const canvasRatio = canvas.height / canvas.width;
+            const drawHeightMm = innerPdfWidthMm * canvasRatio;
+
+            if (!isFirstPage) {
+                manualPdf.addPage();
+            } else {
+                isFirstPage = false;
+            }
+
+            // Dibujar imagen exacta en la hoja
+            manualPdf.addImage(imgData, 'JPEG', margin, margin, innerPdfWidthMm, drawHeightMm);
+
+            currentY += currentChunkHeightPx;
+            
+            // Si el pedazo actual era el último, rompemos el ciclo (por seguridad de redondeo)
+            if (currentChunkHeightPx < chunkHeightPx) break;
+        }
+
+        return manualPdf.output('blob');
 
     } finally {
         // Siempre limpiar el contenedor off-screen
