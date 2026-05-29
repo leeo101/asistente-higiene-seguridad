@@ -19,7 +19,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
     offscreenContainer.setAttribute('data-pdf-offscreen', 'true');
     offscreenContainer.style.cssText = [
         'position: absolute',
-        'left: 0',
+        'left: -9999px', // Mover hacia la izquierda para no ensanchar el documento y evitar zoom/agrandamiento en móvil
         'top: 0',
         'width: ' + (isLandscape ? '1122px' : '794px'), // Ancho exacto en px para evitar recortes en móvil
         'height: auto',
@@ -111,6 +111,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
             // Capturar pedazo de DOM
             const canvas = await html2canvas(clone, {
                 ...optBase,
+                x: -9999, // Coordenada donde movimos el clon para que no afecte el width del dispositivo
                 y: currentY,
                 height: currentChunkHeightPx,
                 windowHeight: totalHeightPx // Mantener altura total para no romper CSS flex/grids
