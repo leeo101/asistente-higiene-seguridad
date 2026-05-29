@@ -38,9 +38,8 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
     clone.style.cssText += [
         '; width: 100%',
         'max-width: none',
-        'height: max-content', // Ajusta al contenido para evitar páginas extra
+        'height: auto', // Permitir que expanda todo lo necesario
         'min-height: 0',
-        'overflow: hidden', // Previene el colapso de márgenes al final que crea hojas en blanco
         'display: block',
         'position: relative',
         'background: #ffffff',
@@ -104,6 +103,9 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         // Iteramos tomando "fotos" del tamaño exacto de la hoja para no superar el límite de memoria en móviles
         while (currentY < totalHeightPx) {
             const remainingHeight = totalHeightPx - currentY;
+            // Tolerancia: si queda un residuo muy chico (ej. menos de 20px de padding final) no generamos una hoja entera
+            if (remainingHeight < 20 && currentY > 0) break;
+
             const currentChunkHeightPx = Math.min(chunkHeightPx, remainingHeight);
 
             // Capturar pedazo de DOM

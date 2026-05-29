@@ -272,22 +272,11 @@ export default function AICameraManager(): React.ReactElement | null {
                                         const savedFull = localStorage.getItem(fullReportKey);
                                         const reportToLoad = savedFull ? JSON.parse(savedFull) : item;
                                         setShareItem(reportToLoad);
-                                        
-                                        setTimeout(() => {
-                                            const element = document.getElementById('pdf-content');
-                                            if (!element) return;
-                                            document.body.classList.add('printing-isolated');
-                                            element.classList.add('isolated-print-target');
-                                            window.print();
-                                            document.body.classList.remove('printing-isolated');
-                                            element.classList.remove('isolated-print-target');
-                                            setShareItem(null);
-                                        }, 500);
                                     }}
                                     style={{ flex: 1, padding: '0.8rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '12px', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', fontWeight: 800 }}
-                                    title="Imprimir PDF"
+                                    title="Compartir Reporte"
                                 >
-                                    <Share2 size={18} /> <span style={{ marginLeft: '0.3rem' }}>PDF</span>
+                                    <Share2 size={18} /> <span style={{ marginLeft: '0.3rem' }}>Compartir</span>
                                 </button>
                                 <button
                                     onClick={() => {
