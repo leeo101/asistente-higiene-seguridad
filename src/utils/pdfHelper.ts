@@ -22,33 +22,35 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         'position: absolute',
         'left: 0',
         'top: 0',
-        'width: ' + (isLandscape ? '297mm' : '210mm'),
+        'width: ' + (isLandscape ? '1122px' : '794px'), // Ancho exacto en px para evitar recortes en móvil
         'height: auto',
         'overflow: visible',
         'visibility: visible',
         'opacity: 1',
         'pointer-events: none',
         'z-index: -9999',
-        'background: #ffffff',
+        'background: #ffffff'
     ].join('; ');
 
     // Clonar el elemento original con todos sus hijos
     const clone = originalElement.cloneNode(true) as HTMLElement;
 
-    // Forzar estilos en el clon para renderizado correcto
+    // Forzar estilos en el clon para renderizado correcto (A4 width)
     clone.style.cssText += [
         '; width: 100%',
         'max-width: none',
-        'height: auto',
+        'height: max-content', // Ajusta al contenido para evitar páginas extra
         'min-height: 0',
-        'overflow: visible',
+        'overflow: hidden', // Previene el colapso de márgenes al final que crea hojas en blanco
         'display: block',
         'position: relative',
         'background: #ffffff',
         'color: #000000',
         'box-shadow: none',
         'border-radius: 0',
-    ].join('');
+        'margin: 0',
+        'padding: 1px 0' // Evita que los márgenes internos se salgan
+    ].join('; ');
 
     offscreenContainer.appendChild(clone);
     document.body.appendChild(offscreenContainer);
