@@ -63,12 +63,17 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         // Forzar un reflow del contenedor para que el navegador calcule los tamaños
         offscreenContainer.getBoundingClientRect();
 
+        // Evitar límite de memoria de Canvas en móviles (ej. 16MP en iOS Safari)
+        // Reducimos la escala y forzamos dimensiones para no explotar la RAM
+        const isMobileCanvas = window.innerWidth < 768 || ('ontouchstart' in window);
+        const dynamicScale = isMobileCanvas ? 1 : 2;
+
         const opt = {
             margin:      [10, 10, 10, 10] as [number, number, number, number],
             filename:    'reporte.pdf',
             image:       { type: 'jpeg' as const, quality: 0.95 },
             html2canvas: {
-                scale: 2,
+                scale: dynamicScale,
                 useCORS: true,
                 allowTaint: true,   // Necesario para imágenes base64 en iOS
                 logging: false,
