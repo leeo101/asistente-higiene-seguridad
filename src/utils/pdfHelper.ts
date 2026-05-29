@@ -1,13 +1,12 @@
 import html2pdf from 'html2pdf.js';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 /**
  * Genera un PDF desde un elemento HTML por su ID y lo devuelve como Blob.
  *
- * TÉCNICA: Clonado off-screen
- * - NO modifica el elemento original (evita parpadeos y efectos secundarios)
- * - Inserta un clon en un contenedor invisible FUERA del viewport pero VISIBLE para html2canvas
- * - Espera que todas las imágenes (firmas base64, logos) carguen antes de capturar
- * - Compatible con iOS Safari, Android Chrome, y escritorio
+ * TÉCNICA: Clonado off-screen segmentado
+ * - Captura en bloques iterativos para evadir límites de RAM de Canvas en móviles
  */
 export async function generatePdfBlob(elementId: string, isLandscape: boolean = false): Promise<Blob> {
     const originalElement = document.getElementById(elementId);
@@ -70,10 +69,6 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         const dynamicScale = isMobileCanvas ? 1 : 2;
 
         const margin = 10;
-        
-        // Importamos dinámicamente jsPDF y html2canvas para no bloquear el bundle principal
-        const { jsPDF } = await import('jspdf');
-        const html2canvas = (await import('html2canvas')).default || await import('html2canvas');
 
         const manualPdf = new jsPDF({
             unit: 'mm',
