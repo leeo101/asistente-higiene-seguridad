@@ -226,19 +226,27 @@ export default function AIGeneralCamera(): React.ReactElement | null {
                 findingsCount: data?.detections?.length || 0
             };
 
-            // Intentar subir a Firebase Storage
-            try {
-                const userId = auth.currentUser?.uid || 'anonymous';
-                const path = `camera_inspections/${userId}/riesgos_${report.id}.jpg`;
-                const uploadedUrl = await uploadImageToStorage(imageSrc, path);
-                report.image = uploadedUrl;
-            } catch (uploadErr) {
-                console.warn("No se pudo subir a Storage, guardando localmente (sujeto a límites de memoria)", uploadErr);
-            }
-
-            // Guardar el reporte completo para el detalle local temporal
+            // Guardar el reporte completo de forma local primero (con base64) para acceso instantáneo
             localStorage.setItem(`ai_report_full_${report.id}`, JSON.stringify(report));
             localStorage.setItem('current_ai_inspection', JSON.stringify(report));
+
+            // Subir a Firebase Storage en SEGUNDO PLANO
+            const userId = auth.currentUser?.uid || 'anonymous';
+            const path = `camera_inspections/${userId}/riesgos_${report.id}.jpg`;
+            uploadImageToStorage(imageSrc, path).then(uploadedUrl => {
+                const savedReport = JSON.parse(localStorage.getItem(`ai_report_full_${report.id}`) || '{}');
+                if (savedReport.id) {
+                    savedReport.image = uploadedUrl;
+                    localStorage.setItem(`ai_report_full_${report.id}`, JSON.stringify(savedReport));
+                }
+                const currentSession = JSON.parse(localStorage.getItem('current_ai_inspection') || '{}');
+                if (currentSession.id === report.id) {
+                    currentSession.image = uploadedUrl;
+                    localStorage.setItem('current_ai_inspection', JSON.stringify(currentSession));
+                }
+            }).catch(uploadErr => {
+                console.warn("Subida en background falló, se conserva localmente", uploadErr);
+            });
 
             // Guardar solo el resumen liviano en el historial (sin imagen)
             const existing = JSON.parse(localStorage.getItem('ai_camera_history') || '[]');

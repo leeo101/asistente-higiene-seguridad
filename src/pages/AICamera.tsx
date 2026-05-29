@@ -21,6 +21,7 @@ export default function AICamera(): React.ReactElement | null {
     const streamRef = useRef(null);
     const [capturedImage, setCapturedImage] = useState(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     const [analysisResult, setAnalysisResult] = useState(null);
     const [torchOn, setTorchOn] = useState(false);
     const [facingMode, setFacingMode] = useState('environment'); // 'environment' or 'user'
@@ -274,9 +275,14 @@ export default function AICamera(): React.ReactElement | null {
     };
 
     const handleSaveReport = async () => {
-            const currentReport = JSON.parse(localStorage.getItem('current_report') || '{}');
-            const company = currentReport.company || currentReport.empresa || 'Empresa Local';
-            const location = currentReport.location || currentReport.ubicacion || 'Planta Principal';
+            if (isSaving) return;
+            setIsSaving(true);
+            const toastId = toast.loading('Guardando informe y evidencia...');
+
+            try {
+                const currentReport = JSON.parse(localStorage.getItem('current_report') || '{}');
+                const company = currentReport.company || currentReport.empresa || 'Empresa Local';
+                const location = currentReport.location || currentReport.ubicacion || 'Planta Principal';
 
             const report = {
                 id: Date.now(),
@@ -288,21 +294,29 @@ export default function AICamera(): React.ReactElement | null {
                 type: 'ppe_check', // Always set type so history shows correct badge
             };
             
-            // Intentar subir a Firebase Storage
-            try {
-                const userId = auth.currentUser?.uid || 'anonymous';
-                const path = `camera_inspections/${userId}/epp_${report.id}.jpg`;
-                const uploadedUrl = await uploadImageToStorage(capturedImage, path);
-                report.image = uploadedUrl;
-            } catch (uploadErr) {
-                console.warn("No se pudo subir a Storage, guardando localmente", uploadErr);
-            }
-            
-            // Save FULL report to a unique key to prevent history fragmentation
+            // Save FULL report to a unique key immediately (with base64 image)
             localStorage.setItem(`ai_report_full_${report.id}`, JSON.stringify(report));
-            
             // Still set current_ai_inspection for immediate navigation
             localStorage.setItem('current_ai_inspection', JSON.stringify(report));
+            
+            // Subir a Firebase Storage en SEGUNDO PLANO
+            const userId = auth.currentUser?.uid || 'anonymous';
+            const path = `camera_inspections/${userId}/epp_${report.id}.jpg`;
+            uploadImageToStorage(capturedImage, path).then(uploadedUrl => {
+                // Actualizar reporte local silenciosamente cuando termine
+                const savedReport = JSON.parse(localStorage.getItem(`ai_report_full_${report.id}`) || '{}');
+                if (savedReport.id) {
+                    savedReport.image = uploadedUrl;
+                    localStorage.setItem(`ai_report_full_${report.id}`, JSON.stringify(savedReport));
+                }
+                const currentSession = JSON.parse(localStorage.getItem('current_ai_inspection') || '{}');
+                if (currentSession.id === report.id) {
+                    currentSession.image = uploadedUrl;
+                    localStorage.setItem('current_ai_inspection', JSON.stringify(currentSession));
+                }
+            }).catch(err => {
+                console.warn("Subida en background falló, se conserva la imagen local", err);
+            });
             
             const history = JSON.parse(localStorage.getItem('ai_camera_history') || '[]');
             // Only add if not a duplicate (same id)
@@ -318,7 +332,16 @@ export default function AICamera(): React.ReactElement | null {
                 localStorage.setItem('ai_camera_history', JSON.stringify(history));
                 syncCollection('ai_camera_history', history);
             }
+            
+            toast.success('Informe guardado correctamente', { id: toastId });
             navigate('/ai-report');
+            
+            } catch (err) {
+                console.error("Error al guardar el informe:", err);
+                toast.error('Ocurrió un error al guardar el informe', { id: toastId });
+            } finally {
+                setIsSaving(false);
+            }
     };
 
 
@@ -425,7 +448,9 @@ export default function AICamera(): React.ReactElement | null {
                                     <button onClick={handleRetry} className="btn-outline" style={{ flex: 1, minWidth: '130px', borderColor: 'var(--color-surface)', color: 'var(--color-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', height: '46px', margin: 0, padding: '0 0.5rem', fontSize: '0.85rem' }}>
                                         <RefreshCw size={16} /> Reintentar
                                     </button>
-                                    <button onClick={handleSaveReport} className="btn-primary" style={{ flex: 1, minWidth: '130px', height: '46px', margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0.5rem', fontSize: '0.85rem' }}>Generar Informe</button>
+                                    <button onClick={handleSaveReport} disabled={isSaving} className="btn-primary" style={{ flex: 1, minWidth: '130px', height: '46px', margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0.5rem', fontSize: '0.85rem', opacity: isSaving ? 0.7 : 1 }}>
+                                        {isSaving ? <RefreshCw size={16} className="spin" /> : 'Generar Informe'}
+                                    </button>
                                 </div>
                             </div>
                         )}
