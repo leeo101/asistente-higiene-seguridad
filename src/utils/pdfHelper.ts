@@ -19,8 +19,8 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
     const offscreenContainer = document.createElement('div');
     offscreenContainer.setAttribute('data-pdf-offscreen', 'true');
     offscreenContainer.style.cssText = [
-        'position: fixed',
-        'left: -99999px',
+        'position: absolute',
+        'left: 0',
         'top: 0',
         'width: ' + (isLandscape ? '297mm' : '210mm'),
         'height: auto',
@@ -28,7 +28,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         'visibility: visible',
         'opacity: 1',
         'pointer-events: none',
-        'z-index: -1',
+        'z-index: -9999',
         'background: #ffffff',
     ].join('; ');
 

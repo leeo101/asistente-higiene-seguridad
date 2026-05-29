@@ -525,27 +525,27 @@ export default function ShareModal({
                     @media (max-width: 767px) {
                         .share-modal-overlay {
                             align-items: flex-end;
-                            padding: 0;
+                            padding: 1rem;
                         }
                         .share-modal-container {
                             max-width: 100%;
                             width: 100%;
                         }
                         .share-modal-content {
-                            border-radius: 28px 28px 0 0;
+                            border-radius: 28px;
                             max-height: 85vh;
-                            padding: 1.25rem 1.25rem 1.5rem;
-                            border-bottom: none;
+                            padding: 1.5rem 1.25rem;
+                            border-bottom: 1px solid rgba(255,255,255,0.1);
                             animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
                         }
                         .share-drag-handle {
-                            display: block;
+                            display: none;
                         }
                         .share-close-btn {
                             top: 1rem;
                             right: 1rem;
-                            width: 30px;
-                            height: 30px;
+                            width: 32px;
+                            height: 32px;
                             background: #ef4444;
                             color: #ffffff;
                             box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
@@ -565,16 +565,16 @@ export default function ShareModal({
                         }
                         .share-grid {
                             grid-template-columns: 1fr 1fr;
-                            gap: 0.6rem;
+                            gap: 0.5rem;
                         }
                         .share-opt-btn {
-                            padding: 0.8rem 0.5rem;
-                            font-size: 0.85rem;
+                            padding: 0.75rem 0.5rem;
+                            font-size: 0.8rem;
                             border-radius: 14px;
                         }
                         .mobile-safe-area {
                             display: block;
-                            height: env(safe-area-inset-bottom, 20px);
+                            height: env(safe-area-inset-bottom, 15px);
                         }
                     }
                 `}</style>
