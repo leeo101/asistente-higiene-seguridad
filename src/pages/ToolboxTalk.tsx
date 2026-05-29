@@ -4,7 +4,7 @@ import {
     MessageSquare, Plus, Trash2, Save, Share2, Printer,
     Users, Calendar, User, Building2, FileText, ChevronDown,
     CheckCircle2, Clock, Search, Eye, Edit3, History, Pencil,
-    Briefcase, MapPin, Award, UserCheck
+    Briefcase, MapPin, Award, UserCheck, Download, ArrowLeft
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useAuth } from '../contexts/AuthContext';
@@ -16,6 +16,26 @@ import ToolboxTalkPdfGenerator from '../components/ToolboxTalkPdfGenerator';
 import toast from 'react-hot-toast';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
+import { DataTable } from '../components/DataTable';
+import { downloadCSV } from '../services/exportCsv';
+
+function DeleteConfirm({ onConfirm, onCancel }) {
+    return (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(5px)' }}>
+            <div style={{ background: 'var(--color-surface)', padding: '2rem', borderRadius: '24px', maxWidth: '400px', width: '90%', textAlign: 'center', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}>
+                <div style={{ width: '64px', height: '64px', background: 'rgba(239,68,68,0.1)', color: '#ef4444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
+                    <Trash2 size={32} />
+                </div>
+                <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.4rem', fontWeight: 800 }}>¿Eliminar registro?</h3>
+                <p style={{ margin: '0 0 2rem 0', color: 'var(--color-text-muted)' }}>Esta acción no se puede deshacer y el registro se perderá permanentemente.</p>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                    <button onClick={onCancel} style={{ flex: 1, padding: '0.8rem', background: 'var(--color-background)', border: '2px solid var(--color-border)', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', color: 'var(--color-text)' }}>Cancelar</button>
+                    <button onClick={onConfirm} style={{ flex: 1, padding: '0.8rem', background: '#ef4444', border: 'none', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 12px rgba(239,68,68,0.3)' }}>Sí, eliminar</button>
+                </div>
+            </div>
+        </div>
+    );
+}
 
 const STORAGE_KEY = 'ehs_toolbox_talks';
 
@@ -183,11 +203,12 @@ export default function ToolboxTalk(): React.ReactElement {
 
     const [talks, setTalks] = useState<ToolboxTalk[]>([]);
     const [form, setForm] = useState<ToolboxTalk>(emptyTalk());
-    const [showShare, setShowShare] = useState(false);
+    const [shareItem, setShareItem] = useState<ToolboxTalk | null>(null);
     const [showTopics, setShowTopics] = useState(false);
-    const [view, setView] = useState<'form' | 'history'>('form');
+    const [showForm, setShowForm] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [editId, setEditId] = useState<string | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
     const [professional, setProfessional] = useState({ name: '', license: '', signature: null as string | null, stamp: null as string | null });
 
     const [showSignatures, setShowSignatures] = useState({
@@ -259,17 +280,19 @@ export default function ToolboxTalk(): React.ReactElement {
         setShowSignatures({ operator: false, professional: true, supervisor: false });
     };
 
-    const handleDelete = (id: string) => {
-        if (!confirm('¿Eliminar esta charla?')) return;
-        save(talks.filter(t => t.id !== id));
-    };
-
     const handleEdit = (talk: ToolboxTalk) => {
         setForm(talk);
         setEditId(talk.id);
         setShowSignatures(talk.showSignatures || { operator: false, professional: true, supervisor: false });
-        setView('form');
+        setShowForm(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const confirmDelete = () => {
+        if (!deleteTarget) return;
+        save(talks.filter(t => t.id !== deleteTarget));
+        setDeleteTarget(null);
+        toast.success('Charla eliminada');
     };
 
     const addAttendee = () => {
@@ -293,6 +316,73 @@ export default function ToolboxTalk(): React.ReactElement {
         t.responsable.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const handleExportCSV = () => {
+        downloadCSV(talks.map(i => ({
+            fecha: new Date(i.fecha).toLocaleDateString(),
+            tema: i.tema || '',
+            area: i.area || '',
+            responsable: i.responsable || '',
+            asistentes: i.asistentes.filter(a => a.nombre).length,
+            firmas: i.asistentes.filter(a => a.firma).length
+        })), 'charlas_5min', {
+            fecha: 'Fecha', tema: 'Tema', area: 'Área', responsable: 'Responsable', asistentes: 'Cant. Asistentes', firmas: 'Firmas Recabadas'
+        });
+    };
+
+    const columns = [
+        {
+            header: 'Fecha',
+            accessor: 'fecha',
+            sortable: true,
+            render: (item: ToolboxTalk) => (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>
+                    <Calendar size={14} /> {new Date(item.fecha + 'T12:00').toLocaleDateString('es-AR')}
+                </span>
+            )
+        },
+        {
+            header: 'Tema',
+            accessor: 'tema',
+            sortable: true,
+            render: (item: ToolboxTalk) => (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                    <div style={{ background: 'rgba(0,82,204,0.1)', padding: '0.5rem', borderRadius: '8px', color: '#0052CC' }}>
+                        <MessageSquare size={16} />
+                    </div>
+                    <div>
+                        <div style={{ fontWeight: 700, maxWidth: '250px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.tema || 'Sin tema'}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '2px' }}>{item.area} • {item.responsable}</div>
+                    </div>
+                </div>
+            )
+        },
+        {
+            header: 'Asistencia',
+            accessor: 'asistentes',
+            render: (item: ToolboxTalk) => {
+                const asis = item.asistentes.filter(a => a.nombre).length;
+                const firm = item.asistentes.filter(a => a.firma).length;
+                return (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', color: 'var(--color-text-muted)' }} title="Asistentes"><Users size={14} /> {asis}</span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', color: firm === asis && asis > 0 ? '#10b981' : '#f59e0b' }} title="Firmas"><CheckCircle2 size={14} /> {firm}</span>
+                    </div>
+                );
+            }
+        },
+        {
+            header: 'Acciones',
+            accessor: 'id',
+            render: (item: ToolboxTalk) => (
+                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    <button onClick={() => { handleEdit(item); }} style={{ padding: '0.4rem 0.8rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '4px' }}><Edit3 size={15} /> Editar</button>
+                    <button onClick={() => { requirePro(() => setShareItem(item)); }} style={{ padding: '0.4rem', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '8px', color: '#16a34a', cursor: 'pointer' }} title="Compartir"><Share2 size={15} /></button>
+                    <button onClick={() => setDeleteTarget(item.id)} style={{ padding: '0.4rem', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}><Trash2 size={15} /></button>
+                </div>
+            )
+        }
+    ];
+
     // Dashboard stats
     const totalCharlas = talks.length;
     const totalAsistentes = talks.reduce((acc, t) => acc + t.asistentes.filter(a => a.nombre).length, 0);
@@ -306,28 +396,32 @@ export default function ToolboxTalk(): React.ReactElement {
                 <Breadcrumbs />
 
                 <ShareModal
-                    isOpen={showShare}
-                    open={showShare}
-                    onClose={() => setShowShare(false)}
-                    title={`Charla de 5 Minutos — ${form.tema}`}
-                    text={`📋 Charla de 5 Minutos\n📅 Fecha: ${form.fecha}\n👷 Responsable: ${form.responsable}\n🏢 Área: ${form.area}\n📌 Tema: ${form.tema}\n👥 Asistentes: ${form.asistentes.filter(a => a.nombre).length}`}
-                    rawMessage={`📋 Charla de 5 Minutos\n📅 Fecha: ${form.fecha}\n👷 Responsable: ${form.responsable}\n🏢 Área: ${form.area}\n📌 Tema: ${form.tema}\n👥 Asistentes: ${form.asistentes.filter(a => a.nombre).length}`}
+                    isOpen={!!shareItem}
+                    open={!!shareItem}
+                    onClose={() => setShareItem(null)}
+                    title={`Charla de 5 Minutos — ${shareItem?.tema}`}
+                    text={shareItem ? `📋 Charla de 5 Minutos\n📅 Fecha: ${shareItem.fecha}\n👷 Responsable: ${shareItem.responsable}\n🏢 Área: ${shareItem.area}\n📌 Tema: ${shareItem.tema}\n👥 Asistentes: ${shareItem.asistentes.filter(a => a.nombre).length}` : ''}
+                    rawMessage={shareItem ? `📋 Charla de 5 Minutos\n📅 Fecha: ${shareItem.fecha}\n👷 Responsable: ${shareItem.responsable}\n🏢 Área: ${shareItem.area}\n📌 Tema: ${shareItem.tema}\n👥 Asistentes: ${shareItem.asistentes.filter(a => a.nombre).length}` : ''}
                     elementIdToPrint="toolbox-pdf-content"
-                    fileName={`Charla_5min_${form.tema.replace(/\s+/g, '_') || 'sin_tema'}`}
+                    fileName={`Charla_5min_${shareItem?.tema?.replace(/\s+/g, '_') || 'sin_tema'}.pdf`}
                 />
+                <div style={{ position: 'absolute', left: 0, opacity: 0.01, top: '-12000px', pointerEvents: 'none' }}>
+                    {shareItem && <ToolboxTalkPdfGenerator data={{ ...shareItem, showSignatures: shareItem.showSignatures || { operator: false, professional: true, supervisor: false } }} professional={professional} />}
+                </div>
+
+                {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
 
                 {/* Floating Action Buttons */}
-                <div className="no-print floating-action-bar">
-                    <button onClick={handleSave} className="btn-floating-action" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff' }}>
-                        <Save size={18} /> GUARDAR
-                    </button>
-                    <button onClick={() => requirePro(() => setShowShare(true))} className="btn-floating-action" style={{ background: 'linear-gradient(135deg, #0052CC, #0077ff)', color: '#fff' }}>
-                        <Share2 size={18} /> COMPARTIR
-                    </button>
-                    <button onClick={() => requirePro(() => window.print())} className="btn-floating-action" style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#fff' }}>
-                        <Printer size={18} /> IMPRIMIR
-                    </button>
-                </div>
+                {showForm && (
+                    <div className="no-print floating-action-bar">
+                        <button onClick={handleSave} className="btn-floating-action" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff' }}>
+                            <Save size={18} /> GUARDAR
+                        </button>
+                        <button onClick={() => requirePro(() => window.print())} className="btn-floating-action" style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#fff' }}>
+                            <Printer size={18} /> IMPRIMIR
+                        </button>
+                    </div>
+                )}
 
                 {/* ═══ Premium Header ═══ */}
                 <div style={{
@@ -363,28 +457,7 @@ export default function ToolboxTalk(): React.ReactElement {
                         </div>
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem', position: 'relative', zIndex: 1 }}>
-                        {[
-                            { key: 'form' as const, icon: <FileText size={15} />, text: 'Nueva Charla' },
-                            { key: 'history' as const, icon: <History size={15} />, text: `Historial (${talks.length})` }
-                        ].map(tab => (
-                            <button
-                                key={tab.key}
-                                onClick={() => setView(tab.key)}
-                                style={{
-                                    padding: '0.55rem 1rem', borderRadius: 12,
-                                    fontWeight: 800, cursor: 'pointer', fontSize: '0.82rem',
-                                    background: view === tab.key ? '#fff' : 'rgba(255,255,255,0.12)',
-                                    color: view === tab.key ? '#0052CC' : 'rgba(255,255,255,0.9)',
-                                    display: 'flex', alignItems: 'center', gap: '0.35rem',
-                                    backdropFilter: view === tab.key ? 'none' : 'blur(8px)',
-                                    border: view === tab.key ? 'none' : '1px solid rgba(255,255,255,0.15)',
-                                    transition: 'all 0.2s',
-                                    boxShadow: view === tab.key ? '0 4px 15px rgba(0,0,0,0.15)' : 'none'
-                                }}
-                            >
-                                {tab.icon} {tab.text}
-                            </button>
-                        ))}
+                        {/* Tabs removed, using DataTable pattern */}
                     </div>
                 </div>
 
@@ -420,8 +493,52 @@ export default function ToolboxTalk(): React.ReactElement {
                     />
                 </div>
 
-                {view === 'form' && (
+                {!showForm ? (
                     <>
+                        <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                            <button
+                                onClick={() => { 
+                                    setForm(emptyTalk());
+                                    setEditId(null);
+                                    setShowForm(true); 
+                                }}
+                                style={{ flex: '0 1 auto', padding: '1rem 1.5rem', borderRadius: '16px', background: '#36B37E', color: '#fff', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(54,179,126,0.3)', whiteSpace: 'nowrap' }}
+                            >
+                                <Plus size={20} /> Nueva Charla
+                            </button>
+                            <div style={{ flex: '1 1 300px', position: 'relative' }}>
+                                <Search size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                                <input 
+                                    type="text" 
+                                    placeholder="Buscar por tema, área o responsable..." 
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    style={{ width: '100%', padding: '1rem 1rem 1rem 3rem', borderRadius: '16px', border: '2px solid var(--color-border)', fontSize: '1rem', outline: 'none', background: 'var(--color-surface)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}
+                                />
+                            </div>
+                            {talks.length > 0 && (
+                                <button onClick={handleExportCSV} style={{ flex: '0 1 auto', display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'var(--color-primary)', border: 'none', borderRadius: '16px', padding: '1rem 1.5rem', fontSize: '1rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
+                                    <Download size={20} /> Excel
+                                </button>
+                            )}
+                        </div>
+
+                        <DataTable
+                            data={filteredTalks}
+                            columns={columns}
+                            searchPlaceholder="Buscar..."
+                            emptyMessage="No hay charlas registradas."
+                            emptyIcon={<MessageSquare size={48} />}
+                        />
+                    </>
+                ) : (
+                    <>
+                        <div className="no-print" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                            <button onClick={() => setShowForm(false)} style={{ background: 'var(--color-background)', border: '2px solid var(--color-border)', borderRadius: '12px', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, cursor: 'pointer', color: 'var(--color-text)' }}>
+                                <ArrowLeft size={18} /> Volver
+                            </button>
+                        </div>
+
                         {/* ═══ DATOS GENERALES ═══ */}
                         <div className="toolbox-glass-section no-print" style={{ marginBottom: '1.5rem' }}>
                             <SectionHeader
@@ -724,111 +841,6 @@ export default function ToolboxTalk(): React.ReactElement {
                             </div>
                         </div>
                     </>
-                )}
-
-                {/* ═══ HISTORIAL ═══ */}
-                {view === 'history' && (
-                    <div>
-                        <div style={{ marginBottom: '1rem', position: 'relative' }}>
-                            <Search size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)', pointerEvents: 'none' }} />
-                            <input type="text" value={searchTerm}
-                                onChange={e => setSearchTerm(e.target.value)}
-                                placeholder="Buscar por tema, área o responsable..."
-                                className="toolbox-input-pro toolbox-focus-glow"
-                            />
-                        </div>
-                        {filteredTalks.length === 0 ? (
-                            <div className="toolbox-glass-section" style={{ padding: '3rem', textAlign: 'center' }}>
-                                <div style={{
-                                    width: 72, height: 72, margin: '0 auto 1rem',
-                                    background: 'rgba(0,82,204,0.08)', borderRadius: 20,
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center'
-                                }}>
-                                    <MessageSquare size={36} style={{ opacity: 0.3 }} color="var(--color-text)" />
-                                </div>
-                                <p style={{ color: 'var(--color-text-muted)', fontWeight: 700, fontSize: '1rem', margin: 0 }}>
-                                    No hay charlas registradas
-                                </p>
-                                <p style={{ color: 'var(--color-text-light)', fontSize: '0.82rem', margin: '0.25rem 0 0' }}>
-                                    Creá tu primera charla de 5 minutos
-                                </p>
-                            </div>
-                        ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                                {filteredTalks.map(talk => (
-                                    <div key={talk.id} className="toolbox-history-card">
-                                        <div style={{
-                                            width: 48, height: 48,
-                                            background: 'linear-gradient(135deg, rgba(0,82,204,0.12), rgba(0,197,255,0.08))',
-                                            borderRadius: 14, display: 'flex',
-                                            alignItems: 'center', justifyContent: 'center', flexShrink: 0
-                                        }}>
-                                            <MessageSquare size={22} color="#0052CC" />
-                                        </div>
-                                        <div style={{ flex: 1, minWidth: 0 }}>
-                                            <div style={{
-                                                fontWeight: 800, color: 'var(--color-text)',
-                                                fontSize: '0.95rem', overflow: 'hidden',
-                                                textOverflow: 'ellipsis', whiteSpace: 'nowrap'
-                                            }}>
-                                                {talk.tema}
-                                            </div>
-                                            <div style={{
-                                                fontSize: '0.78rem', color: 'var(--color-text-muted)',
-                                                marginTop: '0.3rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem'
-                                            }}>
-                                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                                                    <Calendar size={12} /> {new Date(talk.fecha + 'T12:00').toLocaleDateString('es-AR')}
-                                                </span>
-                                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                                                    <User size={12} /> {talk.responsable}
-                                                </span>
-                                                {talk.area && <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                                                    <MapPin size={12} /> {talk.area}
-                                                </span>}
-                                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                                                    <Users size={12} /> {talk.asistentes.filter(a => a.nombre).length}
-                                                </span>
-                                                <span style={{ color: '#10b981', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                                                    <CheckCircle2 size={12} /> {talk.asistentes.filter(a => a.firma).length} firmaron
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div style={{ display: 'flex', gap: '0.4rem', flexShrink: 0 }}>
-                                            <button onClick={() => handleEdit(talk)}
-                                                style={{
-                                                    padding: '0.5rem',
-                                                    background: 'rgba(0,82,204,0.06)',
-                                                    border: '1.5px solid rgba(0,82,204,0.15)',
-                                                    borderRadius: 10, cursor: 'pointer',
-                                                    color: '#0052CC', display: 'flex',
-                                                    transition: 'all 0.15s'
-                                                }}
-                                                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,82,204,0.12)'; e.currentTarget.style.borderColor = '#0052CC'; }}
-                                                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,82,204,0.06)'; e.currentTarget.style.borderColor = 'rgba(0,82,204,0.15)'; }}
-                                                title="Editar">
-                                                <Edit3 size={16} />
-                                            </button>
-                                            <button onClick={() => handleDelete(talk.id)}
-                                                style={{
-                                                    padding: '0.5rem',
-                                                    background: 'rgba(239,68,68,0.06)',
-                                                    border: '1.5px solid rgba(239,68,68,0.15)',
-                                                    borderRadius: 10, cursor: 'pointer',
-                                                    color: '#ef4444', display: 'flex',
-                                                    transition: 'all 0.15s'
-                                                }}
-                                                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.12)'; e.currentTarget.style.borderColor = '#ef4444'; }}
-                                                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.06)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.15)'; }}
-                                                title="Eliminar">
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
                 )}
             </div>
 
