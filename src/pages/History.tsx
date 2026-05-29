@@ -233,7 +233,6 @@ export default function History(): React.ReactElement | null {
         { title: 'Permisos Trabajo en Altura', icon: <HardHat size={24} />, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', path: '/working-at-height', countKey: 'workHeight' },
         { title: 'Seguridad Química (SGA)', icon: <FlaskConical size={24} />, color: '#ec4899', bg: 'rgba(236,72,153,0.1)', path: '/chemical-safety', countKey: 'chemicalSafety' },
         { title: 'KPIs de Seguridad', icon: <BarChart3 size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/safety-kpis', countKey: 'safetyKPIs' },
-        { title: 'Charlas de 5 Minutos', icon: <MessageSquare size={24} />, color: '#0052CC', bg: 'rgba(0,82,204,0.1)', path: '/toolbox-talk', countKey: 'toolboxTalks' },
         { title: 'Control de Flota y Vehículos', icon: <CarFront size={24} />, color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', path: '/fleet-history', countKey: 'fleetInspections' },
         { title: 'Planes de Izaje', icon: <Weight size={24} />, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', path: '/lifting-history', countKey: 'liftingPlans' },
         { title: 'Simulador de Evacuación', icon: <Timer size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/evacuation-history', countKey: 'evacuationSimulator' },
