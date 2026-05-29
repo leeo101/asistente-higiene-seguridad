@@ -2756,17 +2756,18 @@ body.printing-isolated #pdf-content.ats-pdf-root,
     visibility: hidden !important;
   }
 
-  body:not(.printing-isolated) #pdf-content {
-    visibility: visible !important;
-    display: block !important;
-  }
-
-  body:not(.printing-isolated) .ats-pdf-offscreen {
+  /* Solo mostrar el PDF offscreen que contiene el target de impresión activo */
+  body:not(.printing-isolated) .ats-pdf-offscreen:has(.isolated-print-target) {
     position: static !important;
     left: auto !important;
     opacity: 1 !important;
     width: 100% !important;
     pointer-events: none;
+  }
+
+  /* Ocultar los demás contenedores offscreen que NO tienen el target activo */
+  body:not(.printing-isolated) .ats-pdf-offscreen:not(:has(.isolated-print-target)) {
+    display: none !important;
   }
 
   body:not(.printing-isolated) .ats-pdf-offscreen ~ * .ats-editor-panel,

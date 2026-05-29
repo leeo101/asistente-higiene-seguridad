@@ -913,7 +913,14 @@ export default function ChecklistManager(): React.ReactElement | null {
                     <Share2 size={18} /> COMPARTIR
                 </button>
                 <button
-                    onClick={() => requirePro(() => window.print())}
+                    onClick={() => requirePro(() => {
+                        const el = document.getElementById('pdf-content-editor');
+                        if (el) el.classList.add('isolated-print-target');
+                        setTimeout(() => {
+                            window.print();
+                            if (el) el.classList.remove('isolated-print-target');
+                        }, 300);
+                    })}
                     className="btn-floating-action"
                     style={{ background: '#FF8B00', color: '#ffffff' }}
                 >
