@@ -593,13 +593,7 @@ export default function ExtintoresManager() {
                             <button type="button" onClick={() => {
                                 setShareItem(formData);
                                 setTimeout(() => {
-                                    const el = document.getElementById('pdf-content');
-                                    if (!el) return;
-                                    document.body.classList.add('printing-isolated');
-                                    el.classList.add('isolated-print-target');
                                     window.print();
-                                    document.body.classList.remove('printing-isolated');
-                                    el.classList.remove('isolated-print-target');
                                     setShareItem(null);
                                 }, 600);
                             }} style={{ padding: '0.8rem 1.5rem', borderRadius: '12px', border: '2px solid #10b981', color: '#10b981', background: 'rgba(16, 185, 129, 0.05)', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

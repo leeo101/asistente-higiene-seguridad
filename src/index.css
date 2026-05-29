@@ -2756,8 +2756,9 @@ body.printing-isolated #pdf-content.ats-pdf-root,
     visibility: hidden !important;
   }
 
-  /* Solo mostrar el PDF offscreen que contiene el target de impresión activo */
-  body:not(.printing-isolated) .ats-pdf-offscreen:has(.isolated-print-target) {
+  /* Mostrar el offscreen que contiene el target marcado o el #pdf-content */
+  body:not(.printing-isolated) .ats-pdf-offscreen:has(.isolated-print-target),
+  body:not(.printing-isolated) .ats-pdf-offscreen:has(#pdf-content) {
     position: static !important;
     left: auto !important;
     opacity: 1 !important;
@@ -2765,8 +2766,8 @@ body.printing-isolated #pdf-content.ats-pdf-root,
     pointer-events: none;
   }
 
-  /* Ocultar los demás contenedores offscreen que NO tienen el target activo */
-  body:not(.printing-isolated) .ats-pdf-offscreen:not(:has(.isolated-print-target)) {
+  /* Ocultar los offscreen que NO contienen ni el target activo ni #pdf-content */
+  body:not(.printing-isolated) .ats-pdf-offscreen:not(:has(.isolated-print-target)):not(:has(#pdf-content)) {
     display: none !important;
   }
 
