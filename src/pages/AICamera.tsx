@@ -9,6 +9,7 @@ import { auth } from '../firebase';
 import toast from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { uploadImageToStorage } from '../services/storageService';
+import { safeSetLocalStorage } from '../utils/storageHelper';
 
 export default function AICamera(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -295,9 +296,9 @@ export default function AICamera(): React.ReactElement | null {
             };
             
             // Save FULL report to a unique key immediately (with base64 image)
-            localStorage.setItem(`ai_report_full_${report.id}`, JSON.stringify(report));
+            safeSetLocalStorage(`ai_report_full_${report.id}`, JSON.stringify(report));
             // Still set current_ai_inspection for immediate navigation
-            localStorage.setItem('current_ai_inspection', JSON.stringify(report));
+            safeSetLocalStorage('current_ai_inspection', JSON.stringify(report));
             
             // Subir a Firebase Storage en SEGUNDO PLANO
             const userId = auth.currentUser?.uid || 'anonymous';

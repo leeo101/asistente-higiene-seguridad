@@ -9,6 +9,7 @@ import { auth } from '../firebase';
 import toast from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { uploadImageToStorage } from '../services/storageService';
+import { safeSetLocalStorage } from '../utils/storageHelper';
 
 export default function AIGeneralCamera(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -227,8 +228,8 @@ export default function AIGeneralCamera(): React.ReactElement | null {
             };
 
             // Guardar el reporte completo de forma local primero (con base64) para acceso instantáneo
-            localStorage.setItem(`ai_report_full_${report.id}`, JSON.stringify(report));
-            localStorage.setItem('current_ai_inspection', JSON.stringify(report));
+            safeSetLocalStorage(`ai_report_full_${report.id}`, JSON.stringify(report));
+            safeSetLocalStorage('current_ai_inspection', JSON.stringify(report));
 
             // Subir a Firebase Storage en SEGUNDO PLANO
             const userId = auth.currentUser?.uid || 'anonymous';
