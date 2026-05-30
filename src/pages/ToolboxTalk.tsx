@@ -505,7 +505,7 @@ export default function ToolboxTalk(): React.ReactElement {
                             >
                                 <Plus size={20} /> Nueva Charla
                             </button>
-                            <div style={{ flex: '1 1 200px', position: 'relative' }}>
+                            <div style={{ flex: '1 1 100%', minWidth: 0, position: 'relative' }}>
                                 <Search size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
                                 <input 
                                     type="text" 
