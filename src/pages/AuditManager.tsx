@@ -115,6 +115,13 @@ export default function AuditManager(): React.ReactElement | null {
     const [showFindingModal, setShowFindingModal] = useState(false);
     const [currentAuditForFinding, setCurrentAuditForFinding] = useState(null);
     const [shareItem, setShareItem] = useState<any>(null);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const [newAudit, setNewAudit] = useState({
         id: '',
@@ -285,7 +292,7 @@ export default function AuditManager(): React.ReactElement | null {
             {/* Header Premium */}
             <div style={{
                 marginBottom: '2rem',
-                padding: '1.5rem',
+                padding: isMobile ? '1rem' : '1.5rem',
                 background: 'var(--gradient-card)',
                 borderRadius: 'var(--radius-2xl)',
                 border: '1px solid var(--glass-border)',
@@ -430,12 +437,14 @@ export default function AuditManager(): React.ReactElement | null {
             </div>
 
             {/* Tabs */}
-            <div style={{
+            <div className="hide-scrollbar" style={{
                 display: 'flex',
                 gap: '0.5rem',
                 marginBottom: '1.5rem',
                 borderBottom: '2px solid var(--color-border)',
-                paddingBottom: '0.5rem'
+                paddingBottom: '0.5rem',
+                overflowX: 'auto',
+                WebkitOverflowScrolling: 'touch'
             }}>
                 <TabButton 
                     active={activeTab === 'audits'}
@@ -443,6 +452,7 @@ export default function AuditManager(): React.ReactElement | null {
                     icon={<ClipboardCheck size={18} />}
                     label="Auditorías"
                     count={audits.length}
+                    isMobile={isMobile}
                 />
                 <TabButton 
                     active={activeTab === 'findings'}
@@ -451,12 +461,14 @@ export default function AuditManager(): React.ReactElement | null {
                     label="Hallazgos"
                     count={findings.length}
                     badge={stats.openFindings}
+                    isMobile={isMobile}
                 />
                 <TabButton 
                     active={activeTab === 'checklist'}
                     onClick={() => setActiveTab('checklist')}
                     icon={<CheckSquare size={18} />}
                     label="Checklist ISO"
+                    isMobile={isMobile}
                 />
             </div>
 
@@ -655,7 +667,7 @@ function StatCard({ icon, label, value, color, gradient }: any) {
     );
 }
 
-function TabButton({ active, onClick, icon, label, count, badge }: any) {
+function TabButton({ active, onClick, icon, label, count, badge, isMobile }: any) {
     const [isHovered, setIsHovered] = useState(false);
     return (
         <button
@@ -666,7 +678,8 @@ function TabButton({ active, onClick, icon, label, count, badge }: any) {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.6rem',
-                padding: '0.85rem 1.5rem',
+                padding: isMobile ? '0.75rem 1rem' : '0.85rem 1.5rem',
+                whiteSpace: 'nowrap',
                 background: active 
                     ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(124, 58, 237, 0.04))' 
                     : isHovered 
