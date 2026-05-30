@@ -3739,3 +3739,22 @@ body.printing-isolated #pdf-content.ats-pdf-root,
     min-height: auto !important;
     height: auto !important;
 }
+
+/* --- NATIVE APP FEEL (Capacitor tweaks) --- */
+html, body {
+  -webkit-touch-callout: none; /* Disable native callout on long-press */
+  -webkit-user-select: none; /* Disable text selection for native feel */
+  user-select: none;
+  touch-action: manipulation; /* Disable double-tap-to-zoom */
+  /* Respect safe-area for notches */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Allow text selection in specific inputs and text areas */
+input, textarea, [contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}

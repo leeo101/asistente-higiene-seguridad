@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Asistente HS</string>
+    <string name="title_activity_main">Asistente HS</string>
+    <string name="package_name">com.asistentehs.app</string>
+    <string name="custom_url_scheme">com.asistentehs.app</string>
+</resources>
