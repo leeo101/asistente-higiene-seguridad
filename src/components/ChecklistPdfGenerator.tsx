@@ -394,6 +394,7 @@ export default function ChecklistPdfGenerator({
                         })}
                     </div>
                 </div>
+                </>
             )}
             {/* Firmas */}
             <PdfSignatures
