@@ -5,7 +5,7 @@ import React from 'react';
  */
 export default function PdfBrandingFooter() {
     return (
-        <div className="pdf-brand-container">
+        <div className="pdf-brand-container avoid-break">
             <style>{`
                 .pdf-brand-container { display: none; }
                 @media print {

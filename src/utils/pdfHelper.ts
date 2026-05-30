@@ -79,7 +79,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
                 windowWidth: isLandscape ? 1122 : 794
             },
             jsPDF: { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' },
-            pagebreak: { mode: ['css', 'legacy'] }
+            pagebreak: { mode: ['css', 'legacy'], avoid: '.avoid-break' }
         };
 
         // html2pdf procesa automáticamente las clases pageBreakInside: avoid y no corta los elementos por la mitad

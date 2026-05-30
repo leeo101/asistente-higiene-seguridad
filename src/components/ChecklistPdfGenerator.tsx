@@ -265,7 +265,7 @@ export default function ChecklistPdfGenerator({
 
                         <div>
                             {section.items.map((item, idx) => (
-                                <div key={idx} style={{
+                                <div key={idx} className="avoid-break" style={{
                                     borderBottom: idx === section.items.length - 1 ? 'none' : '1px solid #f1f5f9',
                                     pageBreakInside: 'avoid',
                                     background: item.status === 'FAIL' ? '#fef2f2' : idx % 2 === 0 ? '#ffffff' : '#f8fafc'
@@ -342,7 +342,7 @@ export default function ChecklistPdfGenerator({
                     </div>
                     <div style={{ padding: '1rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '0.8rem', background: '#fffbeb' }}>
                         {actionPlan.map((action, idx) => (
-                            <div key={action.id} style={{ background: '#ffffff', border: '1px solid #fcd34d', borderRadius: '6px', padding: '0.8rem', pageBreakInside: 'avoid' }}>
+                            <div key={action.id} className="avoid-break" style={{ background: '#ffffff', border: '1px solid #fcd34d', borderRadius: '6px', padding: '0.8rem', pageBreakInside: 'avoid' }}>
                                 <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'flex-start' }}>
                                     <span style={{ background: '#f59e0b', color: '#fff', minWidth: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 900 }}>{idx + 1}</span>
                                     <div style={{ flex: 1 }}>
@@ -364,7 +364,7 @@ export default function ChecklistPdfGenerator({
 
             {/* Próxima Revisión */}
             {nextReview && (
-                <div style={{ border: '1px solid #bfdbfe', borderRadius: '6px', padding: '0.8rem 1.2rem', marginBottom: '1.5rem', background: '#eff6ff', display: 'flex', alignItems: 'center', gap: '1rem', pageBreakInside: 'avoid' }}>
+                <div className="avoid-break" style={{ border: '1px solid #bfdbfe', borderRadius: '6px', padding: '0.8rem 1.2rem', marginBottom: '1.5rem', background: '#eff6ff', display: 'flex', alignItems: 'center', gap: '1rem', pageBreakInside: 'avoid' }}>
                     <Calendar size={22} color="#2563eb" />
                     <div>
                         <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#1e3a8a', textTransform: 'uppercase' }}>PRÓXIMA REVISIÓN PROGRAMADA</p>
@@ -375,7 +375,7 @@ export default function ChecklistPdfGenerator({
 
             {/* Normativa aplicable */}
             {selectedNorms.length > 0 && (
-                <div style={{ border: '1px solid #d8b4fe', borderRadius: '6px', overflow: 'hidden', marginBottom: '1.5rem', pageBreakInside: 'avoid' }}>
+                <div className="avoid-break" style={{ border: '1px solid #d8b4fe', borderRadius: '6px', overflow: 'hidden', marginBottom: '1.5rem', pageBreakInside: 'avoid' }}>
                     <div style={{ background: '#7c3aed', padding: '0.6rem 1rem', color: '#fff', fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         📚 NORMATIVA LEGAL APLICABLE
                     </div>

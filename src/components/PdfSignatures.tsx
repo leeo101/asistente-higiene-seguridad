@@ -99,7 +99,7 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
     if (boxes.length === 0) return null;
 
     return (
-        <div style={{
+        <div className="avoid-break" style={{
             width: '100%',
             pageBreakInside: 'avoid',
             breakInside: 'avoid',
