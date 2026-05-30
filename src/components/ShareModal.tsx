@@ -354,6 +354,7 @@ export default function ShareModal({
                         justify-content: center;
                         z-index: 999999;
                         padding: 1.5rem;
+                        box-sizing: border-box;
                     }
                     .share-modal-container {
                         position: relative;
@@ -423,6 +424,9 @@ export default function ShareModal({
                         color: var(--color-text);
                         margin-bottom: 0.3rem;
                         letter-spacing: -0.3px;
+                        word-break: break-word;
+                        overflow-wrap: break-word;
+                        line-height: 1.2;
                     }
                     .share-subtitle {
                         color: var(--color-text-muted);
@@ -430,9 +434,12 @@ export default function ShareModal({
                         font-weight: 500;
                         margin: 0;
                         padding: 0 0.5rem;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 2;
+                        -webkit-box-orient: vertical;
                         overflow: hidden;
                         text-overflow: ellipsis;
-                        white-space: nowrap;
+                        line-height: 1.3;
                     }
                     .share-grid {
                         display: grid;
