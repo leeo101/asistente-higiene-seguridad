@@ -339,20 +339,22 @@ export default function CAPAManager(): React.ReactElement | null {
                     }}>
                         <RefreshCw size={32} color="#ffffff" strokeWidth={2} />
                     </div>
-                    <div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                         <h1 style={{ 
                             margin: 0, 
-                            fontSize: '1.5rem', 
+                            fontSize: isMobile ? '1.2rem' : '1.5rem', 
                             fontWeight: 900,
                             color: 'var(--color-text)',
-                            letterSpacing: '-0.5px'
+                            letterSpacing: '-0.5px',
+                            wordBreak: 'break-word',
+                            lineHeight: 1.2
                         }}>
                             CAPA - Acciones Correctivas/Preventivas
                         </h1>
                         <p style={{ 
                             margin: '0.25rem 0 0 0', 
                             color: 'var(--color-text-muted)',
-                            fontSize: '0.85rem',
+                            fontSize: isMobile ? '0.75rem' : '0.85rem',
                             fontWeight: 600
                         }}>
                             ISO 9001 / ISO 45001 • {stats.open} abiertas
