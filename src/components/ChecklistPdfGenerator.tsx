@@ -379,12 +379,12 @@ export default function ChecklistPdfGenerator({
                     <div style={{ background: '#7c3aed', padding: '0.6rem 1rem', color: '#fff', fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         📚 NORMATIVA LEGAL APLICABLE
                     </div>
-                    <div style={{ padding: '0.8rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '0.5rem', background: '#faf5ff' }}>
+                    <div style={{ padding: '0.8rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', background: '#faf5ff' }}>
                         {selectedNorms.map(normId => {
                             const norm = availableNorms.find(n => n.id === normId);
                             if (!norm) return null;
                             return (
-                                <div key={normId} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#fff', padding: '0.5rem 0.7rem', borderRadius: '6px', border: '1px solid #e9d5ff' }}>
+                                <div key={normId} style={{ flex: '1 1 260px', display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#fff', padding: '0.5rem 0.7rem', borderRadius: '6px', border: '1px solid #e9d5ff' }}>
                                     <span style={{ width: '16px', height: '16px', background: '#7c3aed', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', fontWeight: 900, flexShrink: 0 }}>✓</span>
                                     <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1e293b' }}>{norm.name}</span>
                                 </div>
