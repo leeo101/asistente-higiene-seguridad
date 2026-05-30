@@ -54,98 +54,33 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
     document.body.appendChild(offscreenContainer);
 
     try {
-        // Esperar a que todas las imágenes del clon carguen
         await waitForImages(clone);
-
-        // Delay adicional para fuentes, SVGs y layout de tablas (firmas usan <table>)
-        // Se incrementa significativamente a pedido del usuario para asegurar que reportes largos se rendericen completos
         await new Promise(resolve => setTimeout(resolve, 2500));
-
-        // Forzar reflow ANTES de medir la altura del clon
         offscreenContainer.getBoundingClientRect();
         clone.getBoundingClientRect();
-
-        // Otro tick extra para que el navegador aplique los estilos calculados (aumentado para mayor seguridad)
         await new Promise(resolve => setTimeout(resolve, 500));
 
-        // Evitar límite de memoria de Canvas en móviles (ej. 16MP en iOS Safari)
         const isMobileCanvas = window.innerWidth < 768 || ('ontouchstart' in window);
-        const dynamicScale = isMobileCanvas ? 1 : 2;
+        const dynamicScale = isMobileCanvas ? 1.5 : 2;
 
-        const margin = 10;
-
-        const manualPdf = new jsPDF({
-            unit: 'mm',
-            format: 'a4',
-            orientation: isLandscape ? 'landscape' : 'portrait',
-            compress: true
-        });
-
-        const pdfWidthMm = manualPdf.internal.pageSize.getWidth();
-        const pdfHeightMm = manualPdf.internal.pageSize.getHeight();
-        const innerPdfWidthMm = pdfWidthMm - margin * 2;
-        const innerPdfHeightMm = pdfHeightMm - margin * 2;
-
-        const windowWidthPx = isLandscape ? 1122 : 794;
-        
-        // Calculamos la altura EXACTA en píxeles que equivale al área imprimible de la hoja A4
-        const chunkHeightPx = Math.floor(windowWidthPx * (innerPdfHeightMm / innerPdfWidthMm));
-        
-        const totalHeightPx = Math.max(
-            clone.scrollHeight,
-            clone.offsetHeight,
-            clone.getBoundingClientRect().height
-        );
-        let currentY = 0;
-        let isFirstPage = true;
-
-        const optBase = {
-            scale: dynamicScale,
-            useCORS: true,
-            allowTaint: true,
-            logging: false,
-            scrollX: 0,
-            windowWidth: windowWidthPx,
-            backgroundColor: '#ffffff',
+        const opt = {
+            margin: [10, 10, 10, 10], // top, left, bottom, right in mm
+            filename: 'documento.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { 
+                scale: dynamicScale, 
+                useCORS: true, 
+                allowTaint: true,
+                logging: false,
+                windowWidth: isLandscape ? 1122 : 794
+            },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' },
+            pagebreak: { mode: ['css', 'legacy'] }
         };
 
-        // Iteramos tomando "fotos" del tamaño exacto de la hoja para no superar el límite de memoria en móviles
-        while (currentY < totalHeightPx) {
-            const remainingHeight = totalHeightPx - currentY;
-            // Tolerancia: si queda un residuo muy chico (menos de 5px, puro padding final) no generamos hoja extra
-            if (remainingHeight < 5 && currentY > 0) break;
-
-            const currentChunkHeightPx = Math.min(chunkHeightPx, remainingHeight);
-
-            // Capturar pedazo de DOM
-            const canvas = await html2canvas(clone, {
-                ...optBase,
-                y: currentY,
-                height: currentChunkHeightPx,
-                windowHeight: totalHeightPx // Mantener altura total para no romper CSS flex/grids
-            });
-
-            const imgData = canvas.toDataURL('image/jpeg', 0.95);
-            
-            const canvasRatio = canvas.height / canvas.width;
-            const drawHeightMm = innerPdfWidthMm * canvasRatio;
-
-            if (!isFirstPage) {
-                manualPdf.addPage();
-            } else {
-                isFirstPage = false;
-            }
-
-            // Dibujar imagen exacta en la hoja
-            manualPdf.addImage(imgData, 'JPEG', margin, margin, innerPdfWidthMm, drawHeightMm);
-
-            currentY += currentChunkHeightPx;
-            
-            // Si el pedazo actual era el último, rompemos el ciclo (por seguridad de redondeo)
-            if (currentChunkHeightPx < chunkHeightPx) break;
-        }
-
-        return manualPdf.output('blob');
+        // html2pdf procesa automáticamente las clases pageBreakInside: avoid y no corta los elementos por la mitad
+        const pdfBlob = await html2pdf().set(opt as any).from(clone).output('blob');
+        return pdfBlob;
 
     } finally {
         // Siempre limpiar el contenedor off-screen
