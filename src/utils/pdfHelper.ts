@@ -68,7 +68,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         const dynamicScale = isMobileCanvas ? 1.5 : 2;
 
         const opt = {
-            margin: 0, // El padding ya está definido en el CSS del componente (ChecklistPdfGenerator.tsx)
+            margin: [10, 0, 12, 0], // Top: 10mm, Right: 0, Bottom: 12mm, Left: 0. Evita que el contenido se pegue al borde superior en las páginas 2 en adelante.
             filename: 'documento.pdf',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { 
