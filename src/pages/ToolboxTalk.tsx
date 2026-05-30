@@ -423,78 +423,77 @@ export default function ToolboxTalk(): React.ReactElement {
                     </div>
                 )}
 
-                {/* ═══ Premium Header ═══ */}
-                <div style={{
-                    marginBottom: '1.5rem', padding: '1.5rem 2rem',
-                    background: 'linear-gradient(135deg, #0052CC 0%, #003d99 50%, #001a66 100%)',
-                    borderRadius: 24, display: 'flex', justifyContent: 'space-between',
-                    alignItems: 'center', flexWrap: 'wrap', gap: '1rem',
-                    boxShadow: '0 10px 40px rgba(0,82,204,0.35), 0 0 80px rgba(0,82,204,0.1)',
-                    position: 'relative', overflow: 'hidden'
-                }}>
-                    {/* Background glow */}
-                    <div style={{ position: 'absolute', top: -40, right: -40, width: 180, height: 180, background: 'radial-gradient(circle, rgba(0,197,255,0.2) 0%, transparent 70%)', pointerEvents: 'none' }} />
-                    <div style={{ position: 'absolute', bottom: -30, left: -30, width: 120, height: 120, background: 'radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', position: 'relative', zIndex: 1 }}>
-                        <div style={{
-                            width: 56, height: 56,
-                            background: 'rgba(255,255,255,0.15)',
-                            backdropFilter: 'blur(12px)',
-                            borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            border: '1px solid rgba(255,255,255,0.2)',
-                            boxShadow: '0 8px 32px rgba(0,0,0,0.15)'
-                        }}>
-                            <MessageSquare size={30} color="#fff" strokeWidth={2.5} />
-                        </div>
-                        <div>
-                            <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.5px' }}>
-                                Charla de 5 Minutos
-                            </h1>
-                            <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem', fontWeight: 600, letterSpacing: '0.3px' }}>
-                                Registro de asistentes y firma digital
-                            </p>
-                        </div>
-                    </div>
-                    <div style={{ display: 'flex', gap: '0.5rem', position: 'relative', zIndex: 1 }}>
-                        {/* Tabs removed, using DataTable pattern */}
-                    </div>
-                </div>
-
-                {/* ═══ Stats Dashboard ═══ */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-                    <ToolboxStatCard
-                        icon={<MessageSquare size={20} color="#fff" />}
-                        label="Charlas Dictadas"
-                        value={totalCharlas}
-                        color="#8b5cf6"
-                        gradient="linear-gradient(135deg, #8b5cf6, #7c3aed)"
-                    />
-                    <ToolboxStatCard
-                        icon={<Users size={20} color="#fff" />}
-                        label="Personal Capacitado"
-                        value={totalAsistentes}
-                        color="#10b981"
-                        gradient="linear-gradient(135deg, #10b981, #059669)"
-                    />
-                    <ToolboxStatCard
-                        icon={<CheckCircle2 size={20} color="#fff" />}
-                        label="Firmas Obtenidas"
-                        value={totalFirmados}
-                        color="#0052CC"
-                        gradient="linear-gradient(135deg, #0052CC, #0077ff)"
-                    />
-                    <ToolboxStatCard
-                        icon={<Award size={20} color="#fff" />}
-                        label="Tasa de Firma"
-                        value={`${tasaFirma}%`}
-                        color="#f59e0b"
-                        gradient="linear-gradient(135deg, #f59e0b, #d97706)"
-                    />
-                </div>
-
                 {!showForm ? (
                     <>
+                        {/* ═══ Premium Header ═══ */}
+                        <div style={{
+                            marginBottom: '1.5rem', padding: '1.5rem 2rem',
+                            background: 'linear-gradient(135deg, #0052CC 0%, #003d99 50%, #001a66 100%)',
+                            borderRadius: 24, display: 'flex', justifyContent: 'space-between',
+                            alignItems: 'center', flexWrap: 'wrap', gap: '1rem',
+                            boxShadow: '0 10px 40px rgba(0,82,204,0.35), 0 0 80px rgba(0,82,204,0.1)',
+                            position: 'relative', overflow: 'hidden'
+                        }}>
+                            {/* Background glow */}
+                            <div style={{ position: 'absolute', top: -40, right: -40, width: 180, height: 180, background: 'radial-gradient(circle, rgba(0,197,255,0.2) 0%, transparent 70%)', pointerEvents: 'none' }} />
+                            <div style={{ position: 'absolute', bottom: -30, left: -30, width: 120, height: 120, background: 'radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', position: 'relative', zIndex: 1 }}>
+                                <div style={{
+                                    width: 56, height: 56,
+                                    background: 'rgba(255,255,255,0.15)',
+                                    backdropFilter: 'blur(12px)',
+                                    borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    border: '1px solid rgba(255,255,255,0.2)',
+                                    boxShadow: '0 8px 32px rgba(0,0,0,0.15)'
+                                }}>
+                                    <MessageSquare size={30} color="#fff" strokeWidth={2.5} />
+                                </div>
+                                <div>
+                                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.5px' }}>
+                                        Charla de 5 Minutos
+                                    </h1>
+                                    <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem', fontWeight: 600, letterSpacing: '0.3px' }}>
+                                        Registro de asistentes y firma digital
+                                    </p>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '0.5rem', position: 'relative', zIndex: 1 }}>
+                                {/* Tabs removed, using DataTable pattern */}
+                            </div>
+                        </div>
+
+                        {/* ═══ Stats Dashboard ═══ */}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+                            <ToolboxStatCard
+                                icon={<MessageSquare size={20} color="#fff" />}
+                                label="Charlas Dictadas"
+                                value={totalCharlas}
+                                color="#8b5cf6"
+                                gradient="linear-gradient(135deg, #8b5cf6, #7c3aed)"
+                            />
+                            <ToolboxStatCard
+                                icon={<Users size={20} color="#fff" />}
+                                label="Personal Capacitado"
+                                value={totalAsistentes}
+                                color="#10b981"
+                                gradient="linear-gradient(135deg, #10b981, #059669)"
+                            />
+                            <ToolboxStatCard
+                                icon={<CheckCircle2 size={20} color="#fff" />}
+                                label="Firmas Obtenidas"
+                                value={totalFirmados}
+                                color="#0052CC"
+                                gradient="linear-gradient(135deg, #0052CC, #0077ff)"
+                            />
+                            <ToolboxStatCard
+                                icon={<Award size={20} color="#fff" />}
+                                label="Tasa de Firma"
+                                value={`${tasaFirma}%`}
+                                color="#f59e0b"
+                                gradient="linear-gradient(135deg, #f59e0b, #d97706)"
+                            />
+                        </div>
                         <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
                             <button
                                 onClick={() => { 
