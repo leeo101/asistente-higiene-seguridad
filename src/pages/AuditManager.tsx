@@ -568,6 +568,7 @@ export default function AuditManager(): React.ReactElement | null {
                                         setShowFindingModal(true);
                                     }}
                                     onDelete={() => deleteAudit(audit.id)}
+                                    isMobile={isMobile}
                                 />
                             ))}
                         </div>
@@ -582,6 +583,7 @@ export default function AuditManager(): React.ReactElement | null {
                     onUpdateStatus={updateFindingStatus}
                     severityConfig={FINDING_SEVERITY}
                     statusConfig={FINDING_STATUS}
+                    isMobile={isMobile}
                 />
             )}
 
@@ -759,7 +761,7 @@ function TabButton({ active, onClick, icon, label, count, badge, isMobile }: any
     );
 }
 
-function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete, onView, onShare, onAddFinding, onDelete }: any) {
+function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete, onView, onShare, onAddFinding, onDelete, isMobile }: any) {
     const auditType = AUDIT_TYPES.find((t: any) => t.id === audit.auditType);
     const auditFindings = findings.filter((f: any) => f.auditId === audit.id);
     const openFindings = auditFindings.filter((f: any) => f.status === 'open').length;
@@ -771,10 +773,11 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             style={{
-                padding: '1.5rem 1.25rem',
+                padding: isMobile ? '1rem' : '1.5rem 1.25rem',
                 display: 'flex',
-                alignItems: 'center',
-                gap: '1.25rem',
+                flexDirection: isMobile ? 'column' : 'row',
+                alignItems: isMobile ? 'stretch' : 'center',
+                gap: isMobile ? '1rem' : '1.25rem',
                 background: 'var(--gradient-card)',
                 border: '1px solid var(--glass-border)',
                 borderLeft: `5px solid ${statusConfig.color}`,
@@ -800,25 +803,27 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
                 pointerEvents: 'none'
             }} />
 
-            {/* Icono */}
-            <div style={{
-                width: '56px',
-                height: '56px',
-                background: `${statusConfig.color}10`,
-                border: `1px solid ${statusConfig.color}20`,
-                borderRadius: 'var(--radius-xl)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                transform: isHovered ? 'scale(1.05) rotate(-3deg)' : 'scale(1) rotate(0)',
-                transition: 'all 0.3s ease'
-            }}>
-                <ClipboardCheck size={28} color={statusConfig.color} strokeWidth={2} />
-            </div>
+            {/* Top row: Icon + Info */}
+            <div style={{ display: 'flex', gap: isMobile ? '0.75rem' : '1rem', flex: 1, minWidth: 0, alignItems: 'center' }}>
+                {/* Icono */}
+                <div style={{
+                    width: isMobile ? '44px' : '56px',
+                    height: isMobile ? '44px' : '56px',
+                    background: `${statusConfig.color}10`,
+                    border: `1px solid ${statusConfig.color}20`,
+                    borderRadius: 'var(--radius-xl)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    transform: isHovered ? 'scale(1.05) rotate(-3deg)' : 'scale(1) rotate(0)',
+                    transition: 'all 0.3s ease'
+                }}>
+                    <ClipboardCheck size={isMobile ? 22 : 28} color={statusConfig.color} strokeWidth={2} />
+                </div>
 
-            {/* Información */}
-            <div style={{ flex: 1, minWidth: 0 }}>
+                {/* Información */}
+                <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
                     <h3 style={{ 
                         margin: 0, 
@@ -882,14 +887,15 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
                         </span>
                     )}
                 </div>
+                </div>
             </div>
 
             {/* Acciones */}
-            <div style={{ display: 'flex', gap: '0.4rem', position: 'relative', zIndex: 2 }}>
+            <div style={{ display: 'flex', gap: '0.4rem', position: 'relative', zIndex: 2, flexWrap: isMobile ? 'wrap' : 'nowrap', borderTop: isMobile ? '1px solid var(--color-border)' : 'none', paddingTop: isMobile ? '0.75rem' : '0' }}>
                 <button
                     onClick={onEdit}
                     style={{
-                        padding: '0.65rem',
+                        padding: isMobile ? '0.5rem 1rem' : '0.65rem',
                         background: 'var(--color-background)',
                         border: '1px solid var(--color-border)',
                         borderRadius: 'var(--radius-lg)',
@@ -898,19 +904,23 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
                         transition: 'all 0.2s',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        flex: isMobile ? 1 : 'none',
+                        gap: '0.5rem',
+                        fontWeight: 700
                     }}
                     onMouseEnter={(e) => { e.currentTarget.style.background = '#6366f112'; e.currentTarget.style.borderColor = '#6366f130'; }}
                     onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--color-background)'; e.currentTarget.style.borderColor = 'var(--color-border)'; }}
                     title="Editar Auditoría"
                 >
                     <Edit3 size={16} />
+                    {isMobile && 'Editar'}
                 </button>
                 {audit.status === 'planned' && (
                     <button
                         onClick={onStart}
                         style={{
-                            padding: '0.65rem 0.85rem',
+                            padding: isMobile ? '0.5rem 1rem' : '0.65rem 0.85rem',
                             background: '#3b82f6',
                             border: 'none',
                             borderRadius: 'var(--radius-lg)',
@@ -920,6 +930,8 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
                             fontSize: '0.75rem',
                             display: 'flex',
                             alignItems: 'center',
+                            justifyContent: 'center',
+                            flex: isMobile ? 1 : 'none',
                             gap: '0.35rem',
                             transition: 'all 0.2s',
                             boxShadow: '0 4px 10px rgba(59, 130, 246, 0.25)'
@@ -937,7 +949,7 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
                         <button
                             onClick={onAddFinding}
                             style={{
-                                padding: '0.65rem 0.85rem',
+                                padding: isMobile ? '0.5rem 1rem' : '0.65rem 0.85rem',
                                 background: '#f59e0b',
                                 border: 'none',
                                 borderRadius: 'var(--radius-lg)',
@@ -947,6 +959,8 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
                                 fontSize: '0.75rem',
                                 display: 'flex',
                                 alignItems: 'center',
+                                justifyContent: 'center',
+                                flex: isMobile ? 1 : 'none',
                                 gap: '0.35rem',
                                 transition: 'all 0.2s',
                                 boxShadow: '0 4px 10px rgba(245, 158, 11, 0.25)'
@@ -961,7 +975,7 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
                         <button
                             onClick={onComplete}
                             style={{
-                                padding: '0.65rem 0.85rem',
+                                padding: isMobile ? '0.5rem 1rem' : '0.65rem 0.85rem',
                                 background: '#16a34a',
                                 border: 'none',
                                 borderRadius: 'var(--radius-lg)',
@@ -971,6 +985,8 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
                                 fontSize: '0.75rem',
                                 display: 'flex',
                                 alignItems: 'center',
+                                justifyContent: 'center',
+                                flex: isMobile ? 1 : 'none',
                                 gap: '0.35rem',
                                 transition: 'all 0.2s',
                                 boxShadow: '0 4px 10px rgba(22, 163, 74, 0.25)'
@@ -987,7 +1003,7 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
                 <button
                     onClick={onView}
                     style={{
-                        padding: '0.65rem',
+                        padding: isMobile ? '0.5rem 1rem' : '0.65rem',
                         background: 'var(--color-background)',
                         border: '1px solid var(--color-border)',
                         borderRadius: 'var(--radius-lg)',
@@ -996,18 +1012,22 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
                         transition: 'all 0.2s',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        flex: isMobile ? 1 : 'none',
+                        gap: '0.5rem',
+                        fontWeight: 700
                     }}
                     onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--color-border)'; }}
                     onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--color-background)'; }}
                     title="Ver detalle"
                 >
                     <Eye size={16} />
+                    {isMobile && 'Ver'}
                 </button>
                 <button
                     onClick={onShare}
                     style={{
-                        padding: '0.65rem',
+                        padding: isMobile ? '0.5rem 1rem' : '0.65rem',
                         background: '#dcfce7',
                         border: '1px solid #bbf7d0',
                         borderRadius: 'var(--radius-lg)',
@@ -1016,7 +1036,8 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
                         transition: 'all 0.2s',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        flex: isMobile ? 1 : 'none'
                     }}
                     onMouseEnter={(e) => { e.currentTarget.style.background = '#bbf7d0'; }}
                     onMouseLeave={(e) => { e.currentTarget.style.background = '#dcfce7'; }}
@@ -1027,7 +1048,7 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
                 <button
                     onClick={onDelete}
                     style={{
-                        padding: '0.65rem',
+                        padding: isMobile ? '0.5rem 1rem' : '0.65rem',
                         background: 'var(--color-background)',
                         border: '1px solid var(--color-border)',
                         borderRadius: 'var(--radius-lg)',
@@ -1036,7 +1057,8 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
                         transition: 'all 0.2s',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        flex: isMobile ? 'none' : 'none'
                     }}
                     onMouseEnter={(e) => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.borderColor = '#fecaca'; }}
                     onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--color-background)'; e.currentTarget.style.borderColor = 'var(--color-border)'; }}
@@ -1123,7 +1145,7 @@ const inputStyle = {
 };
 
 // Componentes restantes simplificados por espacio
-function FindingsList({ findings, audits, onUpdateStatus, severityConfig, statusConfig }: any) {
+function FindingsList({ findings, audits, onUpdateStatus, severityConfig, statusConfig, isMobile }: any) {
     if (findings.length === 0) {
         return (
             <div style={{ padding: '3rem 2rem', textAlign: 'center', background: 'var(--gradient-card)', borderRadius: 'var(--radius-2xl)', border: '2px dashed var(--color-border)' }}>
@@ -1142,30 +1164,34 @@ function FindingsList({ findings, audits, onUpdateStatus, severityConfig, status
                 const status = statusConfig[finding.status] || statusConfig.open;
                 
                 return (
-                    <div key={finding.id} className="card" style={{ padding: '1.25rem', borderLeft: `4px solid ${severity.color}` }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                            <span style={{ fontSize: '2rem' }}>{severity.icon}</span>
-                            <div style={{ flex: 1 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                                    <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800 }}>{finding.title}</h4>
-                                    <span style={{ padding: '0.25rem 0.5rem', background: severity.bg, color: severity.color, borderRadius: 'var(--radius-full)', fontSize: '0.65rem', fontWeight: 800 }}>{severity.label}</span>
-                                    <span style={{ padding: '0.25rem 0.5rem', background: status.bg, color: status.color, borderRadius: 'var(--radius-full)', fontSize: '0.65rem', fontWeight: 800 }}>{status.label}</span>
-                                </div>
-                                <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{finding.description}</p>
-                                <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-                                    <span>Auditoría: {audit?.title || 'N/A'}</span>
-                                    <span>Fecha: {new Date(finding.createdAt).toLocaleDateString('es-AR')}</span>
+                    <div key={finding.id} className="card" style={{ padding: isMobile ? '1rem' : '1.25rem', borderLeft: `4px solid ${severity.color}` }}>
+                        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: isMobile ? '0.75rem' : '1rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '0.75rem' : '1rem', width: isMobile ? '100%' : 'auto', flex: 1, minWidth: 0 }}>
+                                <span style={{ fontSize: isMobile ? '1.5rem' : '2rem' }}>{severity.icon}</span>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
+                                        <h4 style={{ margin: 0, fontSize: isMobile ? '0.95rem' : '1rem', fontWeight: 800 }}>{finding.title}</h4>
+                                        <span style={{ padding: '0.2rem 0.5rem', background: severity.bg, color: severity.color, borderRadius: 'var(--radius-full)', fontSize: '0.65rem', fontWeight: 800 }}>{severity.label}</span>
+                                        <span style={{ padding: '0.2rem 0.5rem', background: status.bg, color: status.color, borderRadius: 'var(--radius-full)', fontSize: '0.65rem', fontWeight: 800 }}>{status.label}</span>
+                                    </div>
+                                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{finding.description}</p>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: isMobile ? '0.5rem 1rem' : '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                                        <span>Auditoría: {audit?.title || 'N/A'}</span>
+                                        <span>Fecha: {new Date(finding.createdAt).toLocaleDateString('es-AR')}</span>
+                                    </div>
                                 </div>
                             </div>
-                            <select 
-                                value={finding.status} 
-                                onChange={(e: any) => onUpdateStatus(finding.id, e.target.value)}
-                                style={{ padding: '0.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', fontSize: '0.8rem', fontWeight: 600 }}
-                            >
-                                {Object.entries(statusConfig).map(([key, value]: any) => (
-                                    <option key={key} value={key}>{value.label}</option>
-                                ))}
-                            </select>
+                            <div style={{ width: isMobile ? '100%' : 'auto', display: 'flex', borderTop: isMobile ? '1px solid var(--color-border)' : 'none', paddingTop: isMobile ? '0.5rem' : '0' }}>
+                                <select 
+                                    value={finding.status} 
+                                    onChange={(e: any) => onUpdateStatus(finding.id, e.target.value)}
+                                    style={{ padding: '0.6rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', fontSize: '0.8rem', fontWeight: 600, width: '100%', background: 'var(--color-background)' }}
+                                >
+                                    {Object.entries(statusConfig).map(([key, value]: any) => (
+                                        <option key={key} value={key}>{value.label}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
                     </div>
                 );
