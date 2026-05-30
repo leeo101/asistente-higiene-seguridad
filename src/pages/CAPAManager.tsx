@@ -483,13 +483,14 @@ export default function CAPAManager(): React.ReactElement | null {
             {/* Tabs */}
             <div style={{
                 display: 'flex',
-                gap: '0.25rem',
+                gap: isMobile ? '0.5rem' : '0.25rem',
                 marginBottom: '2rem',
                 background: 'var(--color-surface)',
                 border: '1px solid var(--glass-border)',
                 padding: '0.35rem',
-                borderRadius: 'var(--radius-full)',
-                width: 'fit-content',
+                borderRadius: isMobile ? 'var(--radius-2xl)' : 'var(--radius-full)',
+                width: isMobile ? '100%' : 'fit-content',
+                flexWrap: isMobile ? 'wrap' : 'nowrap',
                 boxShadow: 'var(--glass-shadow)',
                 backdropFilter: 'blur(20px)'
             }}>
@@ -521,7 +522,7 @@ export default function CAPAManager(): React.ReactElement | null {
                 display: 'flex',
                 gap: '1rem',
                 marginBottom: '1.5rem',
-                flexWrap: 'wrap'
+                flexDirection: isMobile ? 'column' : 'row'
             }}>
                 <div style={{ flex: 1, minWidth: '280px', position: 'relative' }}>
                     <Search 
@@ -767,7 +768,10 @@ function TabButton({ active, onClick, icon, label, count }) {
                 fontSize: '0.85rem',
                 transition: 'all 0.2s',
                 boxShadow: active ? 'var(--glass-shadow)' : 'none',
-                backdropFilter: active ? 'blur(10px)' : 'none'
+                backdropFilter: active ? 'blur(10px)' : 'none',
+                flex: 1,
+                justifyContent: 'center',
+                minWidth: 'fit-content'
             }}
         >
             {icon}
