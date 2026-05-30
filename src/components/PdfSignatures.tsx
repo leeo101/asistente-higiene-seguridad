@@ -107,7 +107,8 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
             marginTop: '1.5rem',
             borderTop: '2px dashed #cbd5e1',
             paddingTop: '1.5rem',
-            paddingBottom: '1rem'
+            paddingBottom: '1rem',
+            overflowX: 'auto'
         }}>
             {/* Table layout: the most stable structure for html2canvas — avoids flexbox clipping */}
             <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '8px', tableLayout: 'fixed' }}>
