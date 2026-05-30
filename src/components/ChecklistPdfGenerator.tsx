@@ -247,7 +247,7 @@ export default function ChecklistPdfGenerator({
             {sections.map((section, sectionIdx) => {
                 const sectionFails = section.items.filter(item => item.status === 'FAIL');
                 return (
-                    <div key={section.id} style={{ border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden', marginBottom: '1.2rem', pageBreakInside: 'avoid' }}>
+                    <div key={section.id} style={{ border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden', marginBottom: '1.2rem' }}>
                         <div style={{ background: '#e2e8f0', padding: '0.65rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #cbd5e1' }}>
                             <h3 style={{ margin: 0, fontWeight: 900, fontSize: '0.85rem', color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                                 {section.title}
@@ -324,7 +324,7 @@ export default function ChecklistPdfGenerator({
 
             {/* Observaciones */}
             {obs && (
-                <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden', marginBottom: '1.5rem', pageBreakInside: 'avoid' }}>
+                <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden', marginBottom: '1.5rem' }}>
                     <div style={{ background: '#334155', color: '#fff', padding: '0.5rem 1rem', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         OBSERVACIONES Y COMENTARIOS DEL INSPECTOR
                     </div>
@@ -336,13 +336,13 @@ export default function ChecklistPdfGenerator({
 
             {/* Plan de Acción */}
             {actionPlan.length > 0 && (
-                <div style={{ border: '1px solid #fcd34d', borderRadius: '6px', overflow: 'hidden', marginBottom: '1.5rem', pageBreakInside: 'avoid' }}>
+                <div style={{ border: '1px solid #fcd34d', borderRadius: '6px', overflow: 'hidden', marginBottom: '1.5rem' }}>
                     <div style={{ background: '#f59e0b', padding: '0.6rem 1rem', color: '#fff', fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         🎯 PLAN DE ACCIÓN CORRECTIVA — {actionPlan.length} ACCIÓN{actionPlan.length > 1 ? 'ES' : ''}
                     </div>
                     <div style={{ padding: '1rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '0.8rem', background: '#fffbeb' }}>
                         {actionPlan.map((action, idx) => (
-                            <div key={action.id} style={{ background: '#ffffff', border: '1px solid #fcd34d', borderRadius: '6px', padding: '0.8rem' }}>
+                            <div key={action.id} style={{ background: '#ffffff', border: '1px solid #fcd34d', borderRadius: '6px', padding: '0.8rem', pageBreakInside: 'avoid' }}>
                                 <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'flex-start' }}>
                                     <span style={{ background: '#f59e0b', color: '#fff', minWidth: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 900 }}>{idx + 1}</span>
                                     <div style={{ flex: 1 }}>

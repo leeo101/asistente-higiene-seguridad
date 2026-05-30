@@ -33,6 +33,10 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
 
     // Clonar el elemento original con todos sus hijos
     const clone = originalElement.cloneNode(true) as HTMLElement;
+    
+    // Agregamos esta clase para que los componentes que solo se muestran en impresión
+    // (como el pie de página legal) se hagan visibles en el clon antes de tomar la foto.
+    clone.classList.add('force-pdf-print');
 
     // Forzar estilos en el clon para renderizado correcto (A4 width)
     clone.style.cssText += [
