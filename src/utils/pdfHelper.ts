@@ -18,8 +18,8 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
     const offscreenContainer = document.createElement('div');
     offscreenContainer.setAttribute('data-pdf-offscreen', 'true');
     offscreenContainer.style.cssText = [
-        'position: fixed', // fixed no participa del document flow
-        'left: -9999px', // Mover lejos del viewport para que no se vea debajo del blur del modal
+        'position: absolute', // absolute allows element to grow indefinitely without viewport clipping
+        'left: -9999px', // Mover lejos del viewport para que no se vea debajo del modal
         'top: 0',
         'width: ' + (isLandscape ? '1122px' : '794px'), // Ancho exacto en px para evitar recortes en móvil
         'height: auto',
