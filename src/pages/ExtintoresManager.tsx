@@ -248,17 +248,17 @@ export default function ExtintoresManager() {
     });
 
     const handlePrintPdf = () => {
-        setShareItem(filtered as any);
+        setPrintItem(filtered);
         
         setTimeout(() => {
             const element = document.getElementById('pdf-content');
             if (!element) return;
-            document.body.classList.add('printing-isolated');
-            element.classList.add('isolated-print-target');
             window.print();
-            document.body.classList.remove('printing-isolated');
-            element.classList.remove('isolated-print-target');
-            setShareItem(null);
+            
+            // Wait 10 seconds before clearing to allow Android's print spooler to capture the DOM
+            setTimeout(() => {
+                setPrintItem(null);
+            }, 10000);
         }, 500);
     };
 
@@ -496,10 +496,10 @@ export default function ExtintoresManager() {
             />
             {createPortal(
                 <div className="ats-pdf-offscreen" aria-hidden="true">
-                    {shareItem && !Array.isArray(shareItem) ? (
-                        <ExtinguisherProfilePdf data={shareItem || formData} isHeadless={true} />
+                    {(printItem && !Array.isArray(printItem)) || (shareItem && !Array.isArray(shareItem)) ? (
+                        <ExtinguisherProfilePdf data={printItem || shareItem || formData} isHeadless={true} />
                     ) : (
-                        <ExtinguisherPdfGenerator extinguishers={Array.isArray(shareItem) ? shareItem : []} />
+                        <ExtinguisherPdfGenerator extinguishers={Array.isArray(printItem) ? printItem : (Array.isArray(shareItem) ? shareItem : [])} />
                     )}
                 </div>,
                 document.body
@@ -591,10 +591,10 @@ export default function ExtintoresManager() {
                         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '2rem', flexWrap: 'wrap' }}>
                             <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} style={{ padding: '0.8rem 1.5rem', borderRadius: '12px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', fontWeight: 800, cursor: 'pointer', color: 'var(--color-text)' }}>Cancelar</button>
                             <button type="button" onClick={() => {
-                                setShareItem(formData);
+                                setPrintItem(formData);
                                 setTimeout(() => {
                                     window.print();
-                                    setShareItem(null);
+                                    setTimeout(() => setPrintItem(null), 10000);
                                 }, 600);
                             }} style={{ padding: '0.8rem 1.5rem', borderRadius: '12px', border: '2px solid #10b981', color: '#10b981', background: 'rgba(16, 185, 129, 0.05)', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                 <Printer size={18} /> Generar PDF
