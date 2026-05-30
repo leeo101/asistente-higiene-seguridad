@@ -33,18 +33,18 @@ const labelStyle = {
     letterSpacing: '0.5px'
 };
 
-const inputStyle = {
+const inputStyle = (isMobile: boolean) => ({
     width: '100%',
-    padding: '0.85rem 1rem',
+    padding: isMobile ? '0.75rem 0.85rem' : '0.85rem 1rem',
     borderRadius: 'var(--radius-lg)',
     border: '1px solid var(--color-input-border)',
     background: 'var(--color-surface)',
     color: 'var(--color-text)',
-    fontSize: '0.95rem',
+    fontSize: isMobile ? '0.85rem' : '0.95rem',
     outline: 'none',
     transition: 'all 0.2s',
     boxSizing: 'border-box' as const
-};
+});
 
 export default function CAPAForm(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -186,9 +186,9 @@ export default function CAPAForm(): React.ReactElement | null {
             <div style={{
                 background: 'var(--glass-bg)',
                 borderBottom: '1px solid var(--glass-border-subtle)',
-                padding: '1rem 1.5rem',
+                padding: isMobile ? '0.75rem 1rem' : '1rem 1.5rem',
                 position: 'sticky',
-                top: '5.5rem',
+                top: isMobile ? '4.5rem' : '5.5rem',
                 zIndex: 100,
                 backdropFilter: 'blur(20px)',
                 display: 'flex',
@@ -221,9 +221,9 @@ export default function CAPAForm(): React.ReactElement | null {
                 </div>
             </div>
 
-            <main style={{ padding: '3.5rem 1.5rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
-                <div className="capa-card" style={{ padding: '2rem', borderRadius: 'var(--radius-2xl)' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem' }}>
+            <main style={{ padding: isMobile ? '1.5rem 1rem' : '3.5rem 1.5rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
+                <div className="capa-card" style={{ padding: isMobile ? '1.25rem' : '2rem', borderRadius: isMobile ? '1rem' : 'var(--radius-2xl)' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '1rem' : '1.5rem' }}>
                         <div style={isMobile ? {} : { gridColumn: 'span 2' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                                 <FileText size={16} style={{ color: 'var(--color-primary-light)' }} />
@@ -233,7 +233,7 @@ export default function CAPAForm(): React.ReactElement | null {
                                 type="text"
                                 value={capa.title}
                                 onChange={(e) => setCapa({ ...capa, title: e.target.value })}
-                                style={inputStyle}
+                                style={inputStyle(isMobile)}
                                 className="capa-focus-glow"
                                 placeholder="Ej: Fugas detectadas en sector de químicos"
                             />
@@ -246,7 +246,7 @@ export default function CAPAForm(): React.ReactElement | null {
                             <select
                                 value={capa.capaType}
                                 onChange={(e) => setCapa({ ...capa, capaType: e.target.value })}
-                                style={inputStyle}
+                                style={inputStyle(isMobile)}
                                 className="capa-focus-glow"
                             >
                                 {CAPA_TYPES.map(t => (
@@ -264,7 +264,7 @@ export default function CAPAForm(): React.ReactElement | null {
                             <select
                                 value={capa.priority}
                                 onChange={(e) => setCapa({ ...capa, priority: e.target.value })}
-                                style={inputStyle}
+                                style={inputStyle(isMobile)}
                                 className="capa-focus-glow"
                             >
                                 {Object.entries(PRIORITY).map(([k, v]) => (
@@ -283,7 +283,7 @@ export default function CAPAForm(): React.ReactElement | null {
                                 type="text"
                                 value={capa.responsible}
                                 onChange={(e) => setCapa({ ...capa, responsible: e.target.value })}
-                                style={inputStyle}
+                                style={inputStyle(isMobile)}
                                 className="capa-focus-glow"
                                 placeholder="Nombre del responsable"
                             />
@@ -297,7 +297,7 @@ export default function CAPAForm(): React.ReactElement | null {
                                 type="date"
                                 value={capa.dueDate}
                                 onChange={(e) => setCapa({ ...capa, dueDate: e.target.value })}
-                                style={inputStyle}
+                                style={inputStyle(isMobile)}
                                 className="capa-focus-glow"
                             />
                         </div>
@@ -311,7 +311,7 @@ export default function CAPAForm(): React.ReactElement | null {
                         <textarea 
                             value={capa.description} 
                             onChange={(e) => setCapa({ ...capa, description: e.target.value })} 
-                            style={{ ...inputStyle, minHeight: '100px', paddingTop: '0.75rem' }} 
+                            style={{ ...inputStyle(isMobile), minHeight: isMobile ? '80px' : '100px', paddingTop: '0.75rem' }} 
                             className="capa-focus-glow"
                             placeholder="Describa de manera clara y precisa la no conformidad o problema detectado..."
                         />
@@ -343,7 +343,7 @@ export default function CAPAForm(): React.ReactElement | null {
                                             type="text" 
                                             value={capa.rootCause[`why${num}` as keyof typeof capa.rootCause]} 
                                             onChange={(e) => setCapa({ ...capa, rootCause: { ...capa.rootCause, [`why${num}`]: e.target.value } })} 
-                                            style={{ ...inputStyle, border: 'none', background: 'transparent', padding: '0.4rem 0', borderBottom: '1px solid var(--color-input-border)', borderRadius: 0 }} 
+                                            style={{ ...inputStyle(isMobile), border: 'none', background: 'transparent', padding: '0.4rem 0', borderBottom: '1px solid var(--color-input-border)', borderRadius: 0 }} 
                                             className="capa-focus-glow"
                                             placeholder={`¿Por qué ocurrió el paso anterior?`} 
                                         />
@@ -361,7 +361,7 @@ export default function CAPAForm(): React.ReactElement | null {
                                 type="text" 
                                 value={capa.rootCause.finalCause} 
                                 onChange={(e) => setCapa({ ...capa, rootCause: { ...capa.rootCause, finalCause: e.target.value } })} 
-                                style={{ ...inputStyle, background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(16, 185, 129, 0.3)' }} 
+                                style={{ ...inputStyle(isMobile), background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(16, 185, 129, 0.3)' }} 
                                 className="capa-focus-glow"
                                 placeholder="La causa fundamental identificada es..." 
                             />
@@ -389,13 +389,13 @@ export default function CAPAForm(): React.ReactElement | null {
                             <textarea 
                                 value={capa.actionPlan} 
                                 onChange={(e) => setCapa({ ...capa, actionPlan: e.target.value })} 
-                                style={{ ...inputStyle, minHeight: '120px' }} 
+                                style={{ ...inputStyle(isMobile), minHeight: isMobile ? '100px' : '120px' }} 
                                 className="capa-focus-glow"
                                 placeholder="1. Reparar... 2. Capacitar... 3. Modificar procedimiento..." 
                             />
                         </div>
                         
-                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)', padding: '1.5rem', borderRadius: 'var(--radius-xl)' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '1rem' : '1.5rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)', padding: isMobile ? '1rem' : '1.5rem', borderRadius: isMobile ? '1rem' : 'var(--radius-xl)' }}>
                             <div className="capa-verify-pill-group">
                                 <button
                                     type="button"
@@ -421,7 +421,7 @@ export default function CAPAForm(): React.ReactElement | null {
                                 <textarea 
                                     value={capa.verification.comments} 
                                     onChange={(e) => setCapa({ ...capa, verification: { ...capa.verification, comments: e.target.value } })} 
-                                    style={{ ...inputStyle, minHeight: '94px', fontSize: '0.85rem' }} 
+                                    style={{ ...inputStyle(isMobile), minHeight: isMobile ? '80px' : '94px', fontSize: '0.85rem' }} 
                                     className="capa-focus-glow"
                                     placeholder="Resultados de la verificación de eficacia..." 
                                 />
@@ -447,7 +447,7 @@ export default function CAPAForm(): React.ReactElement | null {
 
                         <div className="no-print" style={{
                             marginBottom: '2.5rem',
-                            padding: '1.5rem',
+                            padding: isMobile ? '1rem' : '1.5rem',
                             background: 'rgba(255, 255, 255, 0.02)',
                             border: '1px solid var(--glass-border-subtle)',
                             borderRadius: 'var(--radius-xl)',
@@ -471,7 +471,7 @@ export default function CAPAForm(): React.ReactElement | null {
                                         type="button"
                                         onClick={() => setShowSignatures(s => ({ ...s, [item.id]: !s[item.id as keyof typeof showSignatures] }))}
                                         style={{
-                                            padding: '0.5rem 1rem',
+                                            padding: isMobile ? '0.4rem 0.75rem' : '0.5rem 1rem',
                                             borderRadius: '20px',
                                             border: '1px solid',
                                             borderColor: item.active ? 'var(--color-primary)' : 'var(--color-border)',
@@ -615,7 +615,7 @@ export default function CAPAForm(): React.ReactElement | null {
                 fileName={`CAPA_${capa.title || 'Sin_Nombre'}.pdf`}
             />
 
-            <div className="print-only" style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0 }}>
+            <div className="print-only" id="pdf-content" style={{ position: 'fixed', left: '-9999px', top: 0, opacity: 0.01, pointerEvents: 'none' }}>
                 <CAPAPdf data={{ ...capa, showSignatures, createdAt: capa.createdAt || new Date().toISOString() }} />
             </div>
         </div>
