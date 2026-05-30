@@ -166,8 +166,20 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                 height: auto !important;
                             }
                             #extinguisher-profile-wrap {
+                                padding: 0 !important;
                                 padding-bottom: 0 !important;
                                 min-height: 0 !important;
+                                height: auto !important;
+                                margin: 0 !important;
+                                display: block !important;
+                            }
+                            #extinguisher-profile-wrap > div {
+                                flex: none !important;
+                                display: block !important;
+                                min-height: 0 !important;
+                            }
+                            .ats-pdf-offscreen {
+                                padding: 0 !important;
                                 margin: 0 !important;
                             }
                         `}
