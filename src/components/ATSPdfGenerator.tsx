@@ -294,7 +294,7 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
 
         {/* Secuencia de tareas */}
         {tareas.length > 0 && (
-          <div className="ats-pdf-section ats-pdf-section-compact">
+          <div className="ats-pdf-section">
             <div style={{ fontSize: '9pt', fontWeight: 900, textTransform: 'uppercase', color: '#0f172a', borderLeft: '4px solid #2563eb', paddingLeft: '0.6rem', marginBottom: '0.65rem' }}>
               1. Secuencia de tareas y análisis de riesgos
             </div>
@@ -309,7 +309,7 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
               </thead>
               <tbody>
                 {tareas.map((tarea, i) => (
-                  <tr key={tarea.id ?? i} style={{ background: i % 2 === 1 ? '#f8fafc' : '#fff' }}>
+                  <tr key={tarea.id ?? i} className="avoid-break" style={{ background: i % 2 === 1 ? '#f8fafc' : '#fff' }}>
                     <td style={{ textAlign: 'center', fontWeight: 800, color: '#64748b' }}>{i + 1}</td>
                     <td style={{ fontWeight: 700, fontSize: '9pt' }}>{tarea.paso || '—'}</td>
                     <td style={{ fontSize: '8.5pt', color: '#475569' }}>{tarea.riesgo || '—'}</td>
@@ -367,7 +367,7 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
                         const isNO = item.estado === 'No Cumple' || item.estado === 'NO';
                         const isNA = item.estado === 'N/A' || item.estado === 'NA';
                         return (
-                          <tr key={item.id ?? itemIndex} className="ats-pdf-check-row" style={{ background: itemIndex % 2 === 1 ? '#f8fafc' : '#fff' }}>
+                          <tr key={item.id ?? itemIndex} className="ats-pdf-check-row avoid-break" style={{ background: itemIndex % 2 === 1 ? '#f8fafc' : '#fff' }}>
                             <StatusCell label="SI" active={isSI} />
                             <StatusCell label="NO" active={isNO} />
                             <StatusCell label="N/A" active={isNA} />
@@ -385,7 +385,7 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
         )}
 
         {/* Firmas */}
-        <div className="ats-pdf-section ats-pdf-section-compact" style={{ marginTop: '0.75rem' }}>
+        <div className="ats-pdf-section ats-pdf-section-compact avoid-break" style={{ marginTop: '0.75rem' }}>
           <div style={{ fontSize: '9pt', fontWeight: 900, textTransform: 'uppercase', color: '#0f172a', borderLeft: '4px solid #2563eb', paddingLeft: '0.6rem', marginBottom: '0.75rem' }}>
             3. Firmas y autorizaciones
           </div>
