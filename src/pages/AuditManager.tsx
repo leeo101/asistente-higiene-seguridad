@@ -368,9 +368,9 @@ export default function AuditManager(): React.ReactElement | null {
             {/* Stats Cards */}
             <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-                gap: '1rem',
-                marginBottom: '2rem'
+                gridTemplateColumns: isMobile ? 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))' : 'repeat(auto-fit, minmax(180px, 1fr))',
+                gap: isMobile ? '0.75rem' : '1rem',
+                marginBottom: isMobile ? '1rem' : '2rem'
             }}>
                 <StatCard 
                     icon={<FileText size={24} />}
@@ -378,6 +378,7 @@ export default function AuditManager(): React.ReactElement | null {
                     value={stats.total}
                     color="#3B82F6"
                     gradient="linear-gradient(135deg, #3B82F6, #1D4ED8)"
+                    isMobile={isMobile}
                 />
                 <StatCard 
                     icon={<Clock size={24} />}
@@ -385,6 +386,7 @@ export default function AuditManager(): React.ReactElement | null {
                     value={stats.inProgress}
                     color="#f59e0b"
                     gradient="linear-gradient(135deg, #f59e0b, #d97706)"
+                    isMobile={isMobile}
                 />
                 <StatCard 
                     icon={<CheckCircle2 size={24} />}
@@ -392,6 +394,7 @@ export default function AuditManager(): React.ReactElement | null {
                     value={stats.completed}
                     color="#16a34a"
                     gradient="linear-gradient(135deg, #16a34a, #059669)"
+                    isMobile={isMobile}
                 />
                 <StatCard 
                     icon={<AlertTriangle size={24} />}
@@ -399,22 +402,23 @@ export default function AuditManager(): React.ReactElement | null {
                     value={stats.openFindings}
                     color="#dc2626"
                     gradient="linear-gradient(135deg, #dc2626, #991b1b)"
+                    isMobile={isMobile}
                 />
             </div>
 
             {/* Secondary Stats */}
             <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                gap: '1rem',
-                marginBottom: '2rem'
+                gridTemplateColumns: isMobile ? 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))' : 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: isMobile ? '0.75rem' : '1rem',
+                marginBottom: isMobile ? '1.5rem' : '2rem'
             }}>
-                <div className="card" style={{ padding: '1.25rem' }}>
+                <div className="card" style={{ padding: isMobile ? '1rem' : '1.25rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                        <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>Tasa de Cumplimiento</span>
-                        <Target size={20} color="#8b5cf6" />
+                        <span style={{ fontSize: isMobile ? '0.75rem' : '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>Tasa de Cumplimiento</span>
+                        <Target size={isMobile ? 18 : 20} color="#8b5cf6" />
                     </div>
-                    <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#8b5cf6' }}>
+                    <div style={{ fontSize: isMobile ? '2rem' : '2.5rem', fontWeight: 900, color: '#8b5cf6' }}>
                         {stats.complianceRate}%
                     </div>
                     <div style={{ height: '8px', background: '#e2e8f0', borderRadius: '4px', marginTop: '0.75rem', overflow: 'hidden' }}>
@@ -422,15 +426,15 @@ export default function AuditManager(): React.ReactElement | null {
                     </div>
                 </div>
 
-                <div className="card" style={{ padding: '1.25rem' }}>
+                <div className="card" style={{ padding: isMobile ? '1rem' : '1.25rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                        <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>Total Hallazgos</span>
-                        <AlertTriangle size={20} color="#f59e0b" />
+                        <span style={{ fontSize: isMobile ? '0.75rem' : '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>Total Hallazgos</span>
+                        <AlertTriangle size={isMobile ? 18 : 20} color="#f59e0b" />
                     </div>
-                    <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#f59e0b' }}>
+                    <div style={{ fontSize: isMobile ? '2rem' : '2.5rem', fontWeight: 900, color: '#f59e0b' }}>
                         {stats.findings}
                     </div>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>
+                    <div style={{ fontSize: isMobile ? '0.75rem' : '0.85rem', color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>
                         {stats.criticalFindings} críticos
                     </div>
                 </div>
@@ -592,7 +596,7 @@ export default function AuditManager(): React.ReactElement | null {
 }
 
 // Componentes Auxiliares
-function StatCard({ icon, label, value, color, gradient }: any) {
+function StatCard({ icon, label, value, color, gradient, isMobile }: any) {
     const [isHovered, setIsHovered] = useState(false);
     return (
         <div 
@@ -600,7 +604,7 @@ function StatCard({ icon, label, value, color, gradient }: any) {
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             style={{
-                padding: '1.5rem 1.25rem',
+                padding: isMobile ? '0.75rem' : '1.5rem 1.25rem',
                 background: 'var(--gradient-card)',
                 border: '1px solid var(--glass-border)',
                 position: 'relative',
@@ -612,7 +616,10 @@ function StatCard({ icon, label, value, color, gradient }: any) {
                     : 'var(--glass-shadow)',
                 transform: isHovered ? 'translateY(-4px) scale(1.02)' : 'translateY(0) scale(1)',
                 transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                display: isMobile ? 'flex' : 'block',
+                alignItems: isMobile ? 'center' : 'stretch',
+                gap: isMobile ? '0.75rem' : '0'
             }}
         >
             <div style={{
@@ -627,10 +634,10 @@ function StatCard({ icon, label, value, color, gradient }: any) {
                 opacity: isHovered ? 0.25 : 0.12,
                 transition: 'all 0.5s ease'
             }} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: isMobile ? '0' : '0.75rem', flexShrink: 0 }}>
                 <div style={{
-                    width: '48px',
-                    height: '48px',
+                    width: isMobile ? '40px' : '48px',
+                    height: isMobile ? '40px' : '48px',
                     background: gradient,
                     borderRadius: 'var(--radius-lg)',
                     display: 'flex',
@@ -640,28 +647,33 @@ function StatCard({ icon, label, value, color, gradient }: any) {
                     transform: isHovered ? 'scale(1.1) rotate(5deg)' : 'scale(1) rotate(0)',
                     transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
                 }}>
-                    {React.cloneElement(icon, { color: '#ffffff', size: 24 })}
+                    {React.cloneElement(icon, { color: '#ffffff', size: isMobile ? 20 : 24 })}
                 </div>
             </div>
-            <div style={{ 
-                fontSize: '2.2rem', 
-                fontWeight: 900, 
-                color: 'var(--color-text)', 
-                lineHeight: 1,
-                fontFamily: 'var(--font-heading)',
-                letterSpacing: '-0.5px',
-                marginBottom: '0.25rem'
-            }}>
-                {value}
-            </div>
-            <div style={{ 
-                fontSize: '0.82rem', 
-                fontWeight: 700, 
-                color: 'var(--color-text-muted)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px'
-            }}>
-                {label}
+            <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ 
+                    fontSize: isMobile ? '0.75rem' : '0.82rem', 
+                    fontWeight: 700, 
+                    color: 'var(--color-text-muted)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                }}>
+                    {label}
+                </div>
+                <div style={{ 
+                    fontSize: isMobile ? '1.5rem' : '2.2rem', 
+                    fontWeight: 900, 
+                    color: 'var(--color-text)', 
+                    lineHeight: 1,
+                    fontFamily: 'var(--font-heading)',
+                    letterSpacing: '-0.5px',
+                    marginTop: isMobile ? '0.2rem' : '0'
+                }}>
+                    {value}
+                </div>
             </div>
         </div>
     );
