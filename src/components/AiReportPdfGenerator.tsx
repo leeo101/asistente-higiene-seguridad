@@ -14,7 +14,7 @@ export default function AiReportPdfGenerator({ item }: { item: any }): React.Rea
     const signature = JSON.parse(localStorage.getItem('signatureStampData') || 'null');
 
     return (
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+        <div className="ai-report-wrapper" style={{ width: '100%', display: 'block' }}>
             <div
                 id="pdf-content"
                 className="pdf-container report-print print-area"
@@ -22,7 +22,8 @@ export default function AiReportPdfGenerator({ item }: { item: any }): React.Rea
                     width: '100%', maxWidth: '210mm', minHeight: '297mm',
                     padding: '20mm', background: '#ffffff', color: '#1e293b',
                     boxShadow: '0 20px 40px rgba(0,0,0,0.1)', borderRadius: '8px',
-                    boxSizing: 'border-box', margin: '0 auto', fontSize: '10pt'
+                    boxSizing: 'border-box', margin: '0 auto', fontSize: '10pt',
+                    display: 'block'
                 }}
             >
                 <style type="text/css" media="print">

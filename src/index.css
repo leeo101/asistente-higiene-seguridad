@@ -3716,8 +3716,6 @@ body.printing-isolated #pdf-content.ats-pdf-root,
     background: var(--color-background);
     color: var(--color-text);
     font-size: 0.9rem;
-    font-weight: 600;
-    outline: none;
     box-sizing: border-box;
     transition: all var(--transition-fast);
 }
@@ -3727,7 +3725,17 @@ body.printing-isolated #pdf-content.ats-pdf-root,
     box-shadow: 0 0 0 4px rgba(0, 119, 255, 0.14) !important;
 }
 
+/* --- FIX BLANK PAGES ON PRINT --- */
+@media print {
+    .report-print, .print-area, #pdf-content {
+        min-height: auto !important;
+        height: auto !important;
+    }
+}
 
-
-
-
+.ats-pdf-offscreen .report-print,
+.ats-pdf-offscreen .print-area,
+.ats-pdf-offscreen #pdf-content {
+    min-height: auto !important;
+    height: auto !important;
+}

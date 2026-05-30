@@ -6,53 +6,53 @@ const NEWS_BY_COUNTRY = {
     argentina: [
         {
             id: 1,
-            title: "Nuevos valores de la cuota fija de ART",
-            description: "La Superintendencia de Riesgos del Trabajo actualizó el valor de la suma fija con destino al FFEP.",
-            date: "Hace 2 días",
-            tag: "SRT",
+            title: "Nuevo Protocolo de Valoración del Daño (Res. 7/2026)",
+            description: "La SRT oficializó el protocolo para estandarizar la evidencia médica ante Comisiones Médicas, derogando la Res. 886/17.",
+            date: "Urgente",
+            tag: "SRT 2026",
             link: "https://www.argentina.gob.ar/srt"
         },
         {
             id: 2,
-            title: "Recordatorio: Relevamiento Anual",
-            description: "Recordá presentar en término el Relevamiento de Agentes de Riesgo (RAR) para evitar intimaciones de tu ART.",
-            date: "Hace 1 semana",
+            title: "Ley 6.912: Colegiatura CABA",
+            description: "Es oficial la matriculación obligatoria para ejercer Higiene y Seguridad en la Ciudad Autónoma de Buenos Aires.",
+            date: "Nuevo",
             tag: "Normativa",
-            link: "https://www.argentina.gob.ar/srt"
+            link: "https://boletinoficial.buenosaires.gob.ar"
         },
         {
             id: 3,
-            title: "Actualización Protocolo de Ergonomía",
-            description: "Revisá los nuevos lineamientos de la Res. 886/15 sobre medición de levantamiento manual de cargas.",
-            date: "Novedad",
-            tag: "Técnico",
+            title: "Reformas en Comisiones Médicas (Res. 5/2026)",
+            description: "Cambios en los plazos y estrategia probatoria, que ahora debe presentarse íntegramente en la primera audiencia.",
+            date: "Actualidad",
+            tag: "Laboral",
             link: "https://www.argentina.gob.ar/srt"
         }
     ],
     chile: [
         {
             id: 1,
-            title: "Actualización de Protocolos MINSAL",
-            description: "Revisa las últimas actualizaciones sobre el Protocolo de Vigilancia de Riesgos Psicosociales en el Trabajo.",
-            date: "Hace 3 días",
-            tag: "MINSAL",
-            link: "https://www.minsal.cl"
+            title: "Plena entrada en vigor del D.S. N° 44",
+            description: "A un año de su inicio, la Dirección del Trabajo intensifica la fiscalización del Sistema de Gestión (SG-SST) en empresas.",
+            date: "Urgente",
+            tag: "Fiscalización",
+            link: "https://www.suseso.gob.cl/"
         },
         {
             id: 2,
-            title: "Nueva Guía Técnica de Manejo Manual de Carga",
-            description: "La SUSESO ha publicado una actualización de la guía técnica para la evaluación de riesgos de manejo manual de carga.",
-            date: "Hace 1 semana",
-            tag: "Ley 20.949",
-            link: "https://www.suseso.cl"
+            title: "Circular 3.914 SUSESO: Lugares Compartidos",
+            description: "Nuevas directivas obligatorias para coordinar matrices de riesgos entre contratistas y principales que compartan recinto.",
+            date: "Nuevo",
+            tag: "SUSESO 2026",
+            link: "https://www.suseso.gob.cl/"
         },
         {
             id: 3,
-            title: "Prevención en el uso de Citostáticos",
-            description: "Nuevas directrices técnicas para la protección de trabajadores expuestos a citostáticos en centros de salud.",
-            date: "Novedad",
-            tag: "Técnico",
-            link: "https://www.ispch.cl"
+            title: "Actualización Compendio de Normas",
+            description: "La SUSESO publicó la versión 111 de su compendio del Seguro de Accidentes incorporando las últimas directrices.",
+            date: "Actualidad",
+            tag: "Seguro",
+            link: "https://www.suseso.gob.cl/"
         }
     ],
     bolivia: [

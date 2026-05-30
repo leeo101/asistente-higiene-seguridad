@@ -17,6 +17,27 @@ export const regionalData = {
         'Arica y Parinacota', 'Tarapacá', 'Antofagasta', 'Atacama', 'Coquimbo', 'Valparaíso',
         'Metropolitana', "O'Higgins", 'Maule', 'Ñuble', 'Biobío', 'Araucanía', 'Los Ríos',
         'Los Lagos', 'Aysén', 'Magallanes'
+    
+        ,{
+            id: 'ds-44-cl',
+            title: 'DS 44',
+            subtitle: 'Gestión de Riesgos Laborales',
+            description: '⚠️ PLENA VIGENCIA 2026. Reemplaza a DS 40 y 54. Implementación del Sistema de Gestión de Seguridad y Salud en el Trabajo (SG-SST) para todas las empresas.',
+            url: 'https://www.suseso.gob.cl/',
+            category: 'Decreto Supremo',
+            level: 'national',
+            isNew: true
+        },
+        {
+            id: 'circ-3914-suseso',
+            title: 'Circular 3.914 SUSESO',
+            subtitle: 'Empresas con Lugares Compartidos',
+            description: '⚠️ VIGENTE DESDE MARZO 2026. Nuevas medidas de seguridad e información mutua para empresas que comparten un mismo lugar de trabajo.',
+            url: 'https://www.suseso.gob.cl/',
+            category: 'Circular',
+            level: 'national',
+            isNew: true
+        }
     ],
     bolivia: [
         'La Paz', 'Santa Cruz', 'Cochabamba', 'Oruro', 'Potosí', 'Tarija', 'Chuquisaca', 'Beni', 'Pando'
@@ -189,7 +210,58 @@ export const legislationData = {
             isNew: true
         },
 
-        // --- CABA ---
+        
+        {
+            id: 'res-srt-5-2026',
+            title: 'Res. SRT 5/2026',
+            subtitle: 'Comisiones Médicas',
+            description: '⚠️ VIGENTE DESDE FEB 2026. Nuevos procedimientos y estrategia probatoria ante Comisiones Médicas Jurisdiccionales.',
+            url: 'https://www.argentina.gob.ar/srt',
+            category: 'Resolución SRT',
+            level: 'national',
+            isNew: true
+        },
+        {
+            id: 'res-srt-8-2026',
+            title: 'Res. SRT 8/2026',
+            subtitle: 'Protocolo de Salud Mental',
+            description: '⚠️ VIGENTE DESDE 2026. Nuevo Protocolo de Prestaciones en Salud Mental. Deroga la Res. SRT N° 762/13.',
+            url: 'https://www.argentina.gob.ar/srt',
+            category: 'Resolución SRT',
+            level: 'national',
+            isNew: true
+        },
+        {
+            id: 'res-srt-20-2026',
+            title: 'Res. SRT 20/2026',
+            subtitle: 'Alta Médica y Formularios',
+            description: 'Actualiza referencias normativas en los formularios de Alta Médica y Fin de Tratamiento.',
+            url: 'https://www.argentina.gob.ar/srt',
+            category: 'Resolución SRT',
+            level: 'national',
+            isNew: true
+        },
+        {
+            id: 'res-srt-21-2026',
+            title: 'Res. SRT 21/2026',
+            subtitle: 'Incumplimientos ART',
+            description: 'Establece nuevas metodologías electrónicas para comprobar y juzgar incumplimientos de las ART.',
+            url: 'https://www.argentina.gob.ar/srt',
+            category: 'Resolución SRT',
+            level: 'national',
+            isNew: true
+        },
+        {
+            id: 'ley-27802',
+            title: 'Ley 27.802',
+            subtitle: 'Modernización Laboral',
+            description: 'Promulgada en Marzo 2026. Refuerza exigencias preventivas en el agro y otros rubros.',
+            url: 'https://www.boletinoficial.gob.ar/',
+            category: 'Ley Nacional',
+            level: 'national',
+            isNew: true
+        },
+// --- CABA ---
         {
             id: 'ley-5920-caba',
             title: 'Ley 5.920',
@@ -211,7 +283,19 @@ export const legislationData = {
             region: 'CABA'
         },
 
-        // --- BUENOS AIRES (PBA) ---
+        
+        {
+            id: 'ley-6912-caba',
+            title: 'Ley 6.912',
+            subtitle: 'CABA - Colegiación Obligatoria',
+            description: '⚠️ VIGENTE DESDE ENE 2026. Establece la colegiatura obligatoria para profesionales de Higiene y Seguridad en CABA.',
+            url: 'https://boletinoficial.buenosaires.gob.ar/',
+            category: 'Ejercicio Profesional',
+            level: 'regional',
+            region: 'CABA',
+            isNew: true
+        },
+// --- BUENOS AIRES (PBA) ---
         {
             id: 'ley-15105-ba',
             title: 'Ley 15.105',
