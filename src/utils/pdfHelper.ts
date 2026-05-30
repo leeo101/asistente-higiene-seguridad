@@ -57,11 +57,15 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         // Esperar a que todas las imágenes del clon carguen
         await waitForImages(clone);
 
-        // Pequeño delay adicional para que las fuentes y SVGs terminen de renderizarse
-        await new Promise(resolve => setTimeout(resolve, 400));
+        // Delay adicional para fuentes, SVGs y layout de tablas (firmas usan <table>)
+        await new Promise(resolve => setTimeout(resolve, 600));
 
-        // Forzar un reflow del contenedor para que el navegador calcule los tamaños
+        // Forzar reflow ANTES de medir la altura del clon
         offscreenContainer.getBoundingClientRect();
+        clone.getBoundingClientRect();
+
+        // Otro micro-tick para que el navegador aplique los estilos calculados
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         // Evitar límite de memoria de Canvas en móviles (ej. 16MP en iOS Safari)
         const isMobileCanvas = window.innerWidth < 768 || ('ontouchstart' in window);
@@ -86,7 +90,11 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         // Calculamos la altura EXACTA en píxeles que equivale al área imprimible de la hoja A4
         const chunkHeightPx = Math.floor(windowWidthPx * (innerPdfHeightMm / innerPdfWidthMm));
         
-        const totalHeightPx = clone.scrollHeight || clone.getBoundingClientRect().height;
+        const totalHeightPx = Math.max(
+            clone.scrollHeight,
+            clone.offsetHeight,
+            clone.getBoundingClientRect().height
+        );
         let currentY = 0;
         let isFirstPage = true;
 
@@ -103,8 +111,8 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         // Iteramos tomando "fotos" del tamaño exacto de la hoja para no superar el límite de memoria en móviles
         while (currentY < totalHeightPx) {
             const remainingHeight = totalHeightPx - currentY;
-            // Tolerancia: si queda un residuo muy chico (ej. menos de 20px de padding final) no generamos una hoja entera
-            if (remainingHeight < 20 && currentY > 0) break;
+            // Tolerancia: si queda un residuo muy chico (menos de 5px, puro padding final) no generamos hoja extra
+            if (remainingHeight < 5 && currentY > 0) break;
 
             const currentChunkHeightPx = Math.min(chunkHeightPx, remainingHeight);
 
