@@ -580,25 +580,25 @@ export default function CAPAForm(): React.ReactElement | null {
                 </div>
             </main>
 
-            <div className="no-print floating-action-bar">
+            <div className="no-print floating-action-bar" style={{ flexWrap: 'wrap', justifyContent: 'center' }}>
                 <button
                     onClick={() => requirePro(() => setShowShareModal(true))}
                     className="btn-floating-action"
-                    style={{ background: '#0052CC', color: '#ffffff' }}
+                    style={{ background: '#0052CC', color: '#ffffff', flex: isMobile ? '1 1 auto' : 'none', minWidth: isMobile ? '120px' : 'auto', padding: isMobile ? '0.75rem 1rem' : undefined, fontSize: isMobile ? '0.85rem' : undefined }}
                 >
                     <Share2 size={18} /> COMPARTIR
                 </button>
                 <button
                     onClick={() => requirePro(() => window.print())}
                     className="btn-floating-action"
-                    style={{ background: '#FF8B00', color: '#ffffff' }}
+                    style={{ background: '#FF8B00', color: '#ffffff', flex: isMobile ? '1 1 auto' : 'none', minWidth: isMobile ? '120px' : 'auto', padding: isMobile ? '0.75rem 1rem' : undefined, fontSize: isMobile ? '0.85rem' : undefined }}
                 >
-                    <Printer size={18} /> IMPRIMIR PDF
+                    <Printer size={18} /> IMPRIMIR
                 </button>
                 <button
                     onClick={handleSave}
                     className="btn-floating-action"
-                    style={{ background: '#36B37E', color: '#ffffff' }}
+                    style={{ background: '#36B37E', color: '#ffffff', flex: isMobile ? '1 1 100%' : 'none', padding: isMobile ? '0.85rem 1rem' : undefined, fontSize: isMobile ? '0.85rem' : undefined }}
                 >
                     <Save size={18} /> GUARDAR CAPA
                 </button>

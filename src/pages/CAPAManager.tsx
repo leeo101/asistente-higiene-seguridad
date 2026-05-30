@@ -104,6 +104,13 @@ export default function CAPAManager(): React.ReactElement | null {
     const [showActionModal, setShowActionModal] = useState(false);
     const [currentCapaForAction, setCurrentCapaForAction] = useState(null);
     const [shareItem, setShareItem] = useState(null);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const [newCapa, setNewCapa] = useState({
         id: '',
@@ -358,10 +365,11 @@ export default function CAPAManager(): React.ReactElement | null {
                         onClick={() => navigate('/capa/new')}
                         className="btn-primary"
                         style={{
-                            width: 'auto',
+                            width: isMobile ? '100%' : 'auto',
                             margin: 0,
                             display: 'flex',
                             alignItems: 'center',
+                            justifyContent: 'center',
                             gap: '0.5rem',
                             padding: '0.75rem 1.25rem'
                         }}
@@ -373,7 +381,10 @@ export default function CAPAManager(): React.ReactElement | null {
                         onClick={() => navigate('/history')}
                         className="btn-outline"
                         style={{
-                            padding: '0.75rem 1rem'
+                            padding: '0.75rem 1rem',
+                            width: isMobile ? '100%' : 'auto',
+                            display: 'flex',
+                            justifyContent: 'center'
                         }}
                     >
                         <FileText size={20} />
@@ -384,9 +395,9 @@ export default function CAPAManager(): React.ReactElement | null {
             {/* Stats Cards */}
             <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-                gap: '1rem',
-                marginBottom: '2rem'
+                gridTemplateColumns: isMobile ? 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))' : 'repeat(auto-fit, minmax(160px, 1fr))',
+                gap: isMobile ? '0.75rem' : '1rem',
+                marginBottom: isMobile ? '1rem' : '2rem'
             }}>
                 <StatCard 
                     icon={<FileText size={24} />}
@@ -394,6 +405,7 @@ export default function CAPAManager(): React.ReactElement | null {
                     value={stats.total}
                     color="#3B82F6"
                     gradient="linear-gradient(135deg, #3B82F6, #1D4ED8)"
+                    isMobile={isMobile}
                 />
                 <StatCard 
                     icon={<Clock size={24} />}
@@ -401,6 +413,7 @@ export default function CAPAManager(): React.ReactElement | null {
                     value={stats.open}
                     color="#f59e0b"
                     gradient="linear-gradient(135deg, #f59e0b, #d97706)"
+                    isMobile={isMobile}
                 />
                 <StatCard 
                     icon={<AlertTriangle size={24} />}
@@ -408,6 +421,7 @@ export default function CAPAManager(): React.ReactElement | null {
                     value={stats.overdue}
                     color="#dc2626"
                     gradient="linear-gradient(135deg, #dc2626, #991b1b)"
+                    isMobile={isMobile}
                 />
                 <StatCard 
                     icon={<CheckCircle2 size={24} />}
@@ -415,22 +429,23 @@ export default function CAPAManager(): React.ReactElement | null {
                     value={stats.completed}
                     color="#16a34a"
                     gradient="linear-gradient(135deg, #16a34a, #059669)"
+                    isMobile={isMobile}
                 />
             </div>
 
             {/* Secondary Stats */}
             <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                gap: '1rem',
-                marginBottom: '2rem'
+                gridTemplateColumns: isMobile ? 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))' : 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: isMobile ? '0.75rem' : '1rem',
+                marginBottom: isMobile ? '1.5rem' : '2rem'
             }}>
-                <div className="card" style={{ padding: '1.25rem' }}>
+                <div className="card" style={{ padding: isMobile ? '1rem' : '1.25rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                        <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>Tasa de Efectividad</span>
-                        <ThumbsUp size={20} color="#10b981" />
+                        <span style={{ fontSize: isMobile ? '0.75rem' : '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>Tasa de Efectividad</span>
+                        <ThumbsUp size={isMobile ? 18 : 20} color="#10b981" />
                     </div>
-                    <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#10b981' }}>
+                    <div style={{ fontSize: isMobile ? '2rem' : '2.5rem', fontWeight: 900, color: '#10b981' }}>
                         {stats.effectivenessRate}%
                     </div>
                     <div style={{ height: '8px', background: '#e2e8f0', borderRadius: '4px', marginTop: '0.75rem', overflow: 'hidden' }}>
@@ -438,28 +453,28 @@ export default function CAPAManager(): React.ReactElement | null {
                     </div>
                 </div>
 
-                <div className="card" style={{ padding: '1.25rem' }}>
+                <div className="card" style={{ padding: isMobile ? '1rem' : '1.25rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                        <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>Entrega a Tiempo</span>
-                        <Target size={20} color="#3b82f6" />
+                        <span style={{ fontSize: isMobile ? '0.75rem' : '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>Entrega a Tiempo</span>
+                        <Target size={isMobile ? 18 : 20} color="#3b82f6" />
                     </div>
-                    <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#3b82f6' }}>
+                    <div style={{ fontSize: isMobile ? '2rem' : '2.5rem', fontWeight: 900, color: '#3b82f6' }}>
                         {stats.onTime}
                     </div>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>
+                    <div style={{ fontSize: isMobile ? '0.75rem' : '0.85rem', color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>
                         {stats.total > 0 ? Math.round((stats.onTime / stats.total) * 100) : 0}% del total
                     </div>
                 </div>
 
-                <div className="card" style={{ padding: '1.25rem' }}>
+                <div className="card" style={{ padding: isMobile ? '1rem' : '1.25rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                        <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>Críticas Pendientes</span>
-                        <Zap size={20} color="#dc2626" />
+                        <span style={{ fontSize: isMobile ? '0.75rem' : '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>Críticas Pendientes</span>
+                        <Zap size={isMobile ? 18 : 20} color="#dc2626" />
                     </div>
-                    <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#dc2626' }}>
+                    <div style={{ fontSize: isMobile ? '2rem' : '2.5rem', fontWeight: 900, color: '#dc2626' }}>
                         {stats.critical}
                     </div>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>
+                    <div style={{ fontSize: isMobile ? '0.75rem' : '0.85rem', color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>
                         Requieren atención inmediata
                     </div>
                 </div>
@@ -608,6 +623,7 @@ export default function CAPAManager(): React.ReactElement | null {
                                 setShowActionModal(true);
                             }}
                             onDelete={() => deleteCapa(capa.id)}
+                            isMobile={isMobile}
                         />
                     ))}
                 </div>
@@ -665,10 +681,10 @@ export default function CAPAManager(): React.ReactElement | null {
 }
 
 // Componentes Auxiliares
-function StatCard({ icon, label, value, color, gradient }) {
+function StatCard({ icon, label, value, color, gradient, isMobile }: any) {
     return (
         <div className="capa-stat-card" style={{
-            padding: '1.5rem',
+            padding: isMobile ? '0.75rem' : '1.5rem',
             background: 'var(--glass-bg)',
             backdropFilter: 'blur(20px)',
             border: '1px solid var(--glass-border)',
@@ -676,7 +692,10 @@ function StatCard({ icon, label, value, color, gradient }) {
             borderRadius: 'var(--radius-2xl)',
             position: 'relative',
             overflow: 'hidden',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            display: isMobile ? 'flex' : 'block',
+            alignItems: isMobile ? 'center' : 'stretch',
+            gap: isMobile ? '0.75rem' : '0'
         }}>
             <div style={{
                 position: 'absolute',
@@ -688,10 +707,10 @@ function StatCard({ icon, label, value, color, gradient }) {
                 borderRadius: '50%',
                 pointerEvents: 'none'
             }} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: isMobile ? '0' : '1rem', flexShrink: 0 }}>
                 <div style={{
-                    width: '48px',
-                    height: '48px',
+                    width: isMobile ? '40px' : '48px',
+                    height: isMobile ? '40px' : '48px',
                     background: gradient,
                     borderRadius: 'var(--radius-xl)',
                     display: 'flex',
@@ -699,14 +718,32 @@ function StatCard({ icon, label, value, color, gradient }) {
                     justifyContent: 'center',
                     boxShadow: `0 8px 24px ${color}30`
                 }}>
-                    {React.cloneElement(icon, { color: '#ffffff', size: 22 })}
+                    {React.cloneElement(icon as any, { color: '#ffffff', size: isMobile ? 20 : 22 })}
                 </div>
             </div>
-            <div style={{ fontSize: '2.25rem', fontWeight: 900, color: 'var(--color-text)', lineHeight: 1, letterSpacing: '-1px', marginBottom: '0.25rem' }}>
-                {value}
-            </div>
-            <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                {label}
+            <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ 
+                    fontSize: isMobile ? '0.75rem' : '0.8rem', 
+                    fontWeight: 700, 
+                    color: 'var(--color-text-muted)', 
+                    textTransform: 'uppercase', 
+                    letterSpacing: '0.5px',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                }}>
+                    {label}
+                </div>
+                <div style={{ 
+                    fontSize: isMobile ? '1.5rem' : '2.25rem', 
+                    fontWeight: 900, 
+                    color: 'var(--color-text)', 
+                    lineHeight: 1, 
+                    letterSpacing: '-1px', 
+                    marginTop: isMobile ? '0.2rem' : '0' 
+                }}>
+                    {value}
+                </div>
             </div>
         </div>
     );
@@ -752,35 +789,37 @@ function TabButton({ active, onClick, icon, label, count }) {
     );
 }
 
-function CapaCard({ capa, statusConfig, priorityConfig, capaType, onUpdateStatus, onView, onEdit, onShare, onAddAction, onDelete }) {
+function CapaCard({ capa, statusConfig, priorityConfig, capaType, onUpdateStatus, onView, onEdit, onShare, onAddAction, onDelete, isMobile }: any) {
     const isOverdue = capa.dueDate && new Date(capa.dueDate) < new Date() && capa.status !== 'closed';
     const daysUntilDue = capa.dueDate ? Math.ceil((new Date(capa.dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : null;
 
     return (
         <div className="capa-card" style={{
-            padding: '1.25rem 1.5rem',
+            padding: isMobile ? '1rem' : '1.25rem 1.5rem',
             display: 'flex',
-            alignItems: 'center',
-            gap: '1.25rem',
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: isMobile ? 'stretch' : 'center',
+            gap: isMobile ? '1rem' : '1.25rem',
             borderRadius: 'var(--radius-2xl)',
             borderLeft: `5px solid ${isOverdue ? '#dc2626' : statusConfig.color}`
         }}>
-            {/* Priority & Type Icon */}
-            <div style={{
-                width: '56px',
-                height: '56px',
-                background: `${priorityConfig.color}10`,
-                borderRadius: 'var(--radius-xl)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                border: `1.5px solid ${priorityConfig.color}40`,
-                boxShadow: `0 4px 12px ${priorityConfig.color}15`
-            }}>
-                <span style={{ fontSize: '1.5rem', lineHeight: 1 }}>{priorityConfig.icon}</span>
-            </div>
+            <div style={{ display: 'flex', gap: isMobile ? '0.75rem' : '1.25rem', flex: 1, minWidth: 0, alignItems: 'center' }}>
+                {/* Priority & Type Icon */}
+                <div style={{
+                    width: isMobile ? '44px' : '56px',
+                    height: isMobile ? '44px' : '56px',
+                    background: `${priorityConfig.color}10`,
+                    borderRadius: 'var(--radius-xl)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    border: `1.5px solid ${priorityConfig.color}40`,
+                    boxShadow: `0 4px 12px ${priorityConfig.color}15`
+                }}>
+                    <span style={{ fontSize: isMobile ? '1.25rem' : '1.5rem', lineHeight: 1 }}>{priorityConfig.icon}</span>
+                </div>
 
             {/* Information */}
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -862,23 +901,28 @@ function CapaCard({ capa, statusConfig, priorityConfig, capaType, onUpdateStatus
                 </div>
             </div>
 
-            {/* Actions */}
-            <div style={{ display: 'flex', gap: '0.4rem', borderLeft: '1px solid var(--glass-border)', paddingLeft: '0.75rem', flexShrink: 0 }}>
+            {/* Acciones */}
+            <div style={{ display: 'flex', gap: '0.4rem', borderTop: isMobile ? '1px solid var(--color-border)' : 'none', paddingTop: isMobile ? '0.75rem' : '0', flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
                 <button
                     onClick={onEdit}
                     style={{
-                        padding: '0.6rem',
-                        background: 'var(--glass-bg)',
-                        border: '1px solid var(--glass-border)',
+                        padding: isMobile ? '0.5rem 1rem' : '0.6rem',
+                        background: 'var(--color-background)',
+                        border: '1px solid var(--color-border)',
                         borderRadius: 'var(--radius-lg)',
                         cursor: 'pointer',
-                        color: 'var(--color-primary)',
-                        transition: 'all 0.2s',
-                        boxShadow: 'var(--glass-shadow)'
+                        color: '#6366f1',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flex: isMobile ? 1 : 'none',
+                        gap: '0.5rem',
+                        fontWeight: 700
                     }}
-                    title="Editar CAPA"
+                    title="Editar"
                 >
                     <Edit3 size={16} />
+                    {isMobile && 'Editar'}
                 </button>
                 {capa.status === 'open' && (
                     <button
@@ -907,66 +951,78 @@ function CapaCard({ capa, statusConfig, priorityConfig, capaType, onUpdateStatus
                     <button
                         onClick={onAddAction}
                         style={{
-                            padding: '0.6rem 0.85rem',
-                            background: 'linear-gradient(135deg, #10b981, #059669)',
+                            padding: isMobile ? '0.5rem 1rem' : '0.6rem 0.85rem',
+                            background: '#3b82f6',
                             border: 'none',
                             borderRadius: 'var(--radius-lg)',
                             cursor: 'pointer',
                             color: '#fff',
                             fontWeight: 800,
                             fontSize: '0.75rem',
-                            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '0.25rem'
+                            justifyContent: 'center',
+                            flex: isMobile ? 1 : 'none',
+                            gap: '0.35rem',
+                            boxShadow: '0 4px 10px rgba(59, 130, 246, 0.25)'
                         }}
-                        title="Agregar Acción"
                     >
-                        <Plus size={14} />
+                        <Plus size={15} />
                         <span>Acción</span>
                     </button>
                 )}
                 <button
                     onClick={onView}
                     style={{
-                        padding: '0.6rem',
-                        background: 'var(--glass-bg)',
-                        border: '1px solid var(--glass-border)',
+                        padding: isMobile ? '0.5rem 1rem' : '0.6rem',
+                        background: 'var(--color-background)',
+                        border: '1px solid var(--color-border)',
                         borderRadius: 'var(--radius-lg)',
                         cursor: 'pointer',
                         color: 'var(--color-text)',
-                        transition: 'all 0.2s',
-                        boxShadow: 'var(--glass-shadow)'
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flex: isMobile ? 1 : 'none',
+                        gap: '0.5rem',
+                        fontWeight: 700
                     }}
-                    title="Ver detalle"
+                    title="Ver Detalles"
                 >
                     <Eye size={16} />
+                    {isMobile && 'Ver'}
                 </button>
                 <button
                     onClick={onShare}
                     style={{
-                        padding: '0.6rem',
-                        background: 'rgba(16, 185, 129, 0.08)',
-                        border: '1px solid rgba(16, 185, 129, 0.2)',
+                        padding: isMobile ? '0.5rem 1rem' : '0.6rem',
+                        background: '#dcfce7',
+                        border: '1px solid #bbf7d0',
                         borderRadius: 'var(--radius-lg)',
                         cursor: 'pointer',
-                        color: '#10b981',
-                        transition: 'all 0.2s'
+                        color: '#16a34a',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flex: isMobile ? 'none' : 'none'
                     }}
-                    title="Compartir PDF"
+                    title="Compartir CAPA"
                 >
                     <Share2 size={16} />
                 </button>
                 <button
                     onClick={onDelete}
                     style={{
-                        padding: '0.6rem',
-                        background: 'rgba(239, 68, 68, 0.08)',
-                        border: '1px solid rgba(239, 68, 68, 0.2)',
+                        padding: isMobile ? '0.5rem 1rem' : '0.6rem',
+                        background: 'var(--color-background)',
+                        border: '1px solid var(--color-border)',
                         borderRadius: 'var(--radius-lg)',
                         cursor: 'pointer',
                         color: '#ef4444',
-                        transition: 'all 0.2s'
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flex: isMobile ? 'none' : 'none'
                     }}
                     title="Eliminar"
                 >
