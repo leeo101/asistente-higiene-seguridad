@@ -916,9 +916,11 @@ export default function ChecklistManager(): React.ReactElement | null {
                     onClick={() => requirePro(() => {
                         const el = document.getElementById('pdf-content-editor');
                         if (el) el.classList.add('isolated-print-target');
+                        document.body.classList.add('printing-isolated');
                         window.print();
                         setTimeout(() => {
                             if (el) el.classList.remove('isolated-print-target');
+                            document.body.classList.remove('printing-isolated');
                         }, 8000);
                     })}
                     className="btn-floating-action"
@@ -1490,40 +1492,8 @@ export default function ChecklistManager(): React.ReactElement | null {
                 </div>
             </div>
 
-            {/* PDF Generator - Fuera de pantalla, solo visible al imprimir o generar PDF */}
-            <div
-                id="pdf-generator-container"
-                className="print-only"
-                style={{
-                    position: 'fixed',
-                    left: '-99999px',
-                    top: 0,
-                    width: '210mm',
-                    visibility: 'hidden'
-                }}
-            >
-                <ChecklistPdfGenerator
-                    checklistData={{
-                        checklistTitle,
-                        companyInfo,
-                        inspectionInfo,
-                        activeSections,
-                        observations,
-                        actionPlan,
-                        nextReview,
-                        selectedNorms,
-                        showSignatures,
-                        availableNorms,
-                        operatorSignature,
-                        signature,
-                        supervisorSignature,
-                        professionalSignature: professional.signature,
-                        professionalName: professional.name,
-                        professionalLicense: professional.license,
-                        professionalStamp: professional.stamp
-                    }}
-                />
-                </div>
+            {/* El PDF del editor se genera desde el ats-pdf-offscreen con pdfElementId="pdf-content-editor" (línea ~877) */}
+            {/* Se eliminó el tercer generador redundante que causaba duplicación al imprimir */}
                 </>
             )}
         </div>
