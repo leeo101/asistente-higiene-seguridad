@@ -247,7 +247,7 @@ export default function ChecklistPdfGenerator({
             {sections.map((section, sectionIdx) => {
                 const sectionFails = section.items.filter(item => item.status === 'FAIL');
                 return (
-                    <div key={section.id} style={{ border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden', marginBottom: '1.2rem' }}>
+                    <div key={section.id} style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.2rem' }}>
                         <div style={{ background: '#e2e8f0', padding: '0.65rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #cbd5e1' }}>
                             <h3 style={{ margin: 0, fontWeight: 900, fontSize: '0.85rem', color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                                 {section.title}
@@ -324,7 +324,7 @@ export default function ChecklistPdfGenerator({
 
             {/* Observaciones */}
             {obs && (
-                <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden', marginBottom: '1.5rem' }}>
+                <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.5rem' }}>
                     <div style={{ background: '#334155', color: '#fff', padding: '0.5rem 1rem', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         OBSERVACIONES Y COMENTARIOS DEL INSPECTOR
                     </div>
@@ -336,7 +336,7 @@ export default function ChecklistPdfGenerator({
 
             {/* Plan de Acción */}
             {actionPlan.length > 0 && (
-                <div style={{ border: '1px solid #fcd34d', borderRadius: '6px', overflow: 'hidden', marginBottom: '1.5rem' }}>
+                <div style={{ border: '1px solid #fcd34d', borderRadius: '6px', marginBottom: '1.5rem' }}>
                     <div style={{ background: '#f59e0b', padding: '0.6rem 1rem', color: '#fff', fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         🎯 PLAN DE ACCIÓN CORRECTIVA — {actionPlan.length} ACCIÓN{actionPlan.length > 1 ? 'ES' : ''}
                     </div>
@@ -375,7 +375,7 @@ export default function ChecklistPdfGenerator({
 
             {/* Normativa aplicable */}
             {selectedNorms.length > 0 && (
-                <div className="avoid-break" style={{ border: '1px solid #d8b4fe', borderRadius: '6px', overflow: 'hidden', marginBottom: '1.5rem', pageBreakInside: 'avoid' }}>
+                <div className="avoid-break" style={{ border: '1px solid #d8b4fe', borderRadius: '6px', marginBottom: '1.5rem', pageBreakInside: 'avoid' }}>
                     <div style={{ background: '#7c3aed', padding: '0.6rem 1rem', color: '#fff', fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         📚 NORMATIVA LEGAL APLICABLE
                     </div>
