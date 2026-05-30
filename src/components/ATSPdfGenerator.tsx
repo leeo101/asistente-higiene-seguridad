@@ -330,7 +330,7 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
             {categories.map((categoria, catIndex) => {
               const categoryItems = checklist.filter((item) => item.categoria === categoria);
               return (
-                <div key={catIndex} className="ats-pdf-category-block">
+                <div key={catIndex} className="ats-pdf-category-block avoid-break">
                   <div
                     className="ats-pdf-category-header"
                     style={{
