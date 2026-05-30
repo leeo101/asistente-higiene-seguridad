@@ -362,11 +362,11 @@ export default function ATS(): React.ReactElement | null {
             }
             document.body.classList.add('printing-isolated');
             element.classList.add('isolated-print-target');
+            window.print();
             setTimeout(() => {
-                window.print();
                 document.body.classList.remove('printing-isolated');
                 element.classList.remove('isolated-print-target');
-            }, 350);
+            }, 8000);
         });
     };
 

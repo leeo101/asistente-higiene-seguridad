@@ -2717,6 +2717,9 @@ svg.ph-duotone [opacity="0.2"] {
   body:has(.print-only) .app-container > :not(:has(.print-only)):not(.floating-action-bar) {
       display: none !important;
   }
+  .print-area, #pdf-content {
+      display: block !important;
+  }
 }
 
 /* ─── ATS PDF / Print ─── */

@@ -164,6 +164,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                 border: none !important;
                                 min-height: 0 !important;
                                 height: auto !important;
+                                display: block !important;
                             }
                             #extinguisher-profile-wrap {
                                 padding: 0 !important;
@@ -361,31 +362,39 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                     </div>
 
                     {/* Firmas */}
-                    <div style={{ marginTop: '40px', paddingTop: '20px', pageBreakInside: 'avoid' }}>
-                        <PdfSignatures 
-                            data={data}
-                            box1={data.showSignatures?.operator ? {
-                                title: 'OPERADOR',
-                                subtitle: 'Responsable de sector',
-                                signatureUrl: data.operatorSignature || null,
-                                isProfessional: false
-                            } : null}
-                            box2={data.showSignatures?.professional !== false ? {
-                                title: 'INSPECTOR / PROFESIONAL',
-                                subtitle: (actName || 'Profesional HSE').toUpperCase(),
-                                signatureUrl: actSignature || null,
-                                stampUrl: actStamp || null,
-                                isProfessional: true,
-                                license: actLic || null
-                            } : null}
-                            box3={data.showSignatures?.supervisor ? {
-                                title: 'SUPERVISOR',
-                                subtitle: 'Aprobación HSE',
-                                signatureUrl: data.supervisorSignature || null,
-                                isProfessional: false
-                            } : null}
-                        />
-                    </div>
+                    <table style={{ width: '100%', marginTop: '20px', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div style={{ paddingTop: '20px' }}>
+                                        <PdfSignatures 
+                                            data={data}
+                                            box1={data.showSignatures?.operator ? {
+                                                title: 'OPERADOR',
+                                                subtitle: 'Responsable de sector',
+                                                signatureUrl: data.operatorSignature || null,
+                                                isProfessional: false
+                                            } : null}
+                                            box2={data.showSignatures?.professional !== false ? {
+                                                title: 'INSPECTOR / PROFESIONAL',
+                                                subtitle: (actName || 'Profesional HSE').toUpperCase(),
+                                                signatureUrl: actSignature || null,
+                                                stampUrl: actStamp || null,
+                                                isProfessional: true,
+                                                license: actLic || null
+                                            } : null}
+                                            box3={data.showSignatures?.supervisor ? {
+                                                title: 'SUPERVISOR',
+                                                subtitle: 'Aprobación HSE',
+                                                signatureUrl: data.supervisorSignature || null,
+                                                isProfessional: false
+                                            } : null}
+                                        />
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                     
                     <PdfBrandingFooter />
                 </div>

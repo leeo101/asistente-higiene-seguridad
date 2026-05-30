@@ -153,11 +153,11 @@ export default function TrainingManagement(): React.ReactElement | null {
             const element = document.getElementById('pdf-content');
             if (element) {
                 element.classList.add('isolated-print-target');
-                setTimeout(() => {
-                    window.print();
-                    document.body.classList.remove('printing-isolated');
-                    element.classList.remove('isolated-print-target');
-                }, 300);
+                window.print();
+            setTimeout(() => {
+                document.body.classList.remove('printing-isolated');
+                element.classList.remove('isolated-print-target');
+            }, 8000);
             } else {
                 window.print();
             }

@@ -33,7 +33,8 @@ export default function ExtintoresManager() {
     const [editingId, setEditingId] = useState(null);
     const [qrData, setQrData] = useState(null);
     const [showQrModal, setShowQrModal] = useState(false);
-    const [shareItem, setShareItem] = useState(null);
+    const [shareItem, setShareItem] = useState<any | null>(null);
+    const [printItem, setPrintItem] = useState<any | null>(null);
 
     const [formData, setFormData] = useState({
         numero: '',

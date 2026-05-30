@@ -78,11 +78,12 @@ export default function ShareModal({
         document.body.classList.add('printing-isolated');
         element.classList.add('isolated-print-target');
 
+        window.print();
         setTimeout(() => {
-            window.print();
             document.body.classList.remove('printing-isolated');
-            element.classList.remove('isolated-print-target');
-        }, 300);
+            if (element) element.classList.remove('isolated-print-target');
+            onClose();
+        }, 8000); // 8 seconds delay to give Android print spooler time to capture the DOM before unmounting
     };
 
     const handleNativeShare = async (optLabel: string) => {

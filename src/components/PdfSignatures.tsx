@@ -99,7 +99,8 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
     if (boxes.length === 0) return null;
 
     return (
-        <div style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', breakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem', justifyContent: 'center' }} className="no-break">
+        <div style={{ width: '100%', pageBreakInside: 'avoid', breakInside: 'avoid', display: 'inline-block' }}>
+            <div style={{ paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', display: 'flex', gap: '1rem', paddingBottom: '1rem', justifyContent: 'center', width: '100%' }} className="no-break">
             {boxes.map((box, idx) => {
                 const isPro = box.isProfessional;
                 const borderCol = isPro ? '#bbf7d0' : '#e2e8f0';
@@ -130,6 +131,7 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
                     </div>
                 );
             })}
+        </div>
         </div>
     );
 }
