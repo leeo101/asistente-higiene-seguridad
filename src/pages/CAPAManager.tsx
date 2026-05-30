@@ -900,6 +900,7 @@ function CapaCard({ capa, statusConfig, priorityConfig, capaType, onUpdateStatus
                     )}
                 </div>
             </div>
+            </div>
 
             {/* Acciones */}
             <div style={{ display: 'flex', gap: '0.4rem', borderTop: isMobile ? '1px solid var(--color-border)' : 'none', paddingTop: isMobile ? '0.75rem' : '0', flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
