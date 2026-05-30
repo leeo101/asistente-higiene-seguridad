@@ -95,7 +95,7 @@ export default function DrillPdfGenerator({ report, onBack, isHeadless = false }
 
                     {/* Hipótesis and Timing */}
                     <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
-                        <div style={{ flex: '0 1 32%', border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden' }}>
+                        <div style={{ flex: '0 1 32%', border: '1px solid #cbd5e1', borderRadius: '6px',  }}>
                             <div style={{ background: '#f8fafc', padding: '8px 12px', fontWeight: 'bold', borderBottom: '1px solid #cbd5e1', fontSize: '10pt', display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#1e293b' }}>
                                 <Flame size={16} color="#ef4444" /> HIPÓTESIS DEL EVENTO
                             </div>
@@ -106,7 +106,7 @@ export default function DrillPdfGenerator({ report, onBack, isHeadless = false }
                             </div>
                         </div>
 
-                        <div style={{ flex: '0 1 32%', border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden' }}>
+                        <div style={{ flex: '0 1 32%', border: '1px solid #cbd5e1', borderRadius: '6px',  }}>
                             <div style={{ background: '#f8fafc', padding: '8px 12px', fontWeight: 'bold', borderBottom: '1px solid #cbd5e1', fontSize: '10pt', display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#1e293b' }}>
                                 <Clock size={16} color="#3b82f6" /> DESPLIEGUE TEMPORAL
                             </div>
@@ -121,7 +121,7 @@ export default function DrillPdfGenerator({ report, onBack, isHeadless = false }
                     </div>
 
                     {/* Población y Vías */}
-                    <div style={{ marginBottom: '1.5rem', border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden' }}>
+                    <div style={{ marginBottom: '1.5rem', border: '1px solid #cbd5e1', borderRadius: '6px',  }}>
                         <div style={{ background: '#f1f5f9', padding: '8px 12px', fontWeight: 'bold', borderBottom: '1px solid #cbd5e1', fontSize: '10pt', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                             <Users size={16} color="#8b5cf6" /> POBLACIÓN Y ESTADÍSTICAS
                         </div>

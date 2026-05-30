@@ -130,7 +130,7 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
             </div>
 
             {/* Tema + Metadatos */}
-            <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.2rem', width: '100%', overflow: 'hidden' }}>
+            <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.2rem', width: '100%',  }}>
                 <div style={{ padding: '0.9rem 1.2rem', background: '#eff6ff', borderBottom: '1px solid #bfdbfe' }}>
                     <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#0052CC', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                         <MessageSquare size={13} /> TEMA DE LA CHARLA
@@ -170,7 +170,7 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
 
             {/* Desarrollo */}
             {data.desarrollo && (
-                <div style={{ marginBottom: '1rem', border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden' }}>
+                <div style={{ marginBottom: '1rem', border: '1px solid #cbd5e1', borderRadius: '6px',  }}>
                     <div style={{ padding: '0.5rem 1rem', background: '#f1f5f9', borderBottom: '1px solid #cbd5e1' }}>
                         <span style={{ fontSize: '0.6rem', fontWeight: 900, color: '#334155', textTransform: 'uppercase' }}>DESARROLLO / PUNTOS TRATADOS</span>
                     </div>
@@ -208,7 +208,7 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
 
             {/* Observaciones */}
             {data.observaciones && (
-                <div style={{ marginBottom: '1rem', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '6px', overflow: 'hidden' }}>
+                <div style={{ marginBottom: '1rem', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '6px',  }}>
                     <div style={{ padding: '0.5rem 1rem', background: '#fef3c7', borderBottom: '1px solid #fde68a', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                         <AlertCircle size={13} color="#92400e" />
                         <span style={{ fontSize: '0.6rem', fontWeight: 900, color: '#92400e', textTransform: 'uppercase' }}>OBSERVACIONES Y COMPROMISOS</span>

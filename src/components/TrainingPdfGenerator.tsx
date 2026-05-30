@@ -114,7 +114,7 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                     </div>
 
                     {/* Datos de la Capacitación */}
-                    <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.5rem', width: '100%', overflow: 'hidden' }}>
+                    <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.5rem', width: '100%',  }}>
                         <div style={{ padding: '1rem', background: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
                             <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                                 <GraduationCap size={14} /> TEMA DICTADO
@@ -137,7 +137,7 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                             </div>
                             <div style={{ padding: '0.8rem 1rem', borderBottom: '1px solid #cbd5e1' }}>
                                 <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Briefcase size={12}/> EMPRESA / RAZÓN SOCIAL</span>
-                                <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.2rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{training.empresa || 'Aplicable al sitio'}</div>
+                                <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.2rem', whiteSpace: 'nowrap',  textOverflow: 'ellipsis' }}>{training.empresa || 'Aplicable al sitio'}</div>
                             </div>
                         </div>
                     </div>

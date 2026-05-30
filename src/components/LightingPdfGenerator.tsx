@@ -84,7 +84,7 @@ export default function LightingPdfGenerator({ data }: { data: any }): React.Rea
                 </div>
 
                 {/* Datos del establecimiento */}
-                <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.5rem', overflow: 'hidden' }}>
+                <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.5rem',  }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
                         <div style={{ padding: '0.8rem 1rem', borderRight: '1px solid #e2e8f0' }}>
                             <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Building2 size={12}/> EMPRESA / CLIENTE</span>
@@ -108,7 +108,7 @@ export default function LightingPdfGenerator({ data }: { data: any }): React.Rea
                 </div>
 
                 {/* Requerimiento legal */}
-                <div style={{ border: '1px solid #fde68a', borderRadius: '6px', marginBottom: '1.5rem', overflow: 'hidden', background: '#fffbeb', display: 'flex', gap: 0 }}>
+                <div style={{ border: '1px solid #fde68a', borderRadius: '6px', marginBottom: '1.5rem',  background: '#fffbeb', display: 'flex', gap: 0 }}>
                     <div style={{ flex: 2, padding: '1rem 1.2rem', borderRight: '1px solid #fde68a' }}>
                         <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#92400e', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Layout size={12}/> TIPO DE TAREA VISUAL</span>
                         <div style={{ fontWeight: 800, fontSize: '0.92rem', color: '#0f172a', marginTop: '0.25rem' }}>{tipoTarea || '-'}</div>
@@ -123,7 +123,7 @@ export default function LightingPdfGenerator({ data }: { data: any }): React.Rea
                 </div>
 
                 {/* Tabla de mediciones */}
-                <div style={{ marginBottom: '1.5rem', border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden' }}>
+                <div style={{ marginBottom: '1.5rem', border: '1px solid #cbd5e1', borderRadius: '6px',  }}>
                     <div style={{ background: '#1e293b', padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <Lightbulb size={15} color="#fbbf24" />
                         <span style={{ fontWeight: 900, fontSize: '0.78rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em' }}>PUNTOS DE MEDICIÓN — {meds.length} REGISTRO{meds.length !== 1 ? 'S' : ''}</span>
@@ -162,7 +162,7 @@ export default function LightingPdfGenerator({ data }: { data: any }): React.Rea
                 </div>
 
                 {/* Evaluación normativa */}
-                <div style={{ border: `1.5px solid ${cumple ? '#86efac' : '#fca5a5'}`, borderRadius: '6px', marginBottom: '1.5rem', overflow: 'hidden', pageBreakInside: 'avoid' }}>
+                <div style={{ border: `1.5px solid ${cumple ? '#86efac' : '#fca5a5'}`, borderRadius: '6px', marginBottom: '1.5rem',  pageBreakInside: 'avoid' }}>
                     <div style={{ background: cumple ? '#f0fdf4' : '#fef2f2', padding: '1rem 1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
                         <div>
                             <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.3rem' }}>PROMEDIO REGISTRADO</div>
@@ -183,7 +183,7 @@ export default function LightingPdfGenerator({ data }: { data: any }): React.Rea
 
                 {/* Conclusión */}
                 {conclusion && (
-                    <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.5rem', overflow: 'hidden', pageBreakInside: 'avoid' }}>
+                    <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.5rem',  pageBreakInside: 'avoid' }}>
                         <div style={{ background: '#334155', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                             <FileText size={14} color="#fff" />
                             <span style={{ fontWeight: 900, fontSize: '0.72rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>CONCLUSIÓN TÉCNICA PROFESIONAL</span>

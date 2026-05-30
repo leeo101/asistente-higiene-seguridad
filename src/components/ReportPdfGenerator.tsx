@@ -149,7 +149,7 @@ export default function ReportPdfGenerator({ initialData }: ReportPdfGeneratorPr
                             <div key={idx} style={{ padding: '0.8rem', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', pageBreakInside: 'avoid' }}>
                                 <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#334155', marginBottom: '0.5rem' }}>{cat.name}</div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
-                                    <div style={{ flex: 1, height: '6px', background: '#e2e8f0', borderRadius: '3px', overflow: 'hidden' }}>
+                                    <div style={{ flex: 1, height: '6px', background: '#e2e8f0', borderRadius: '3px',  }}>
                                         <div style={{ width: `${percent}%`, height: '100%', background: percent === 100 ? '#16a34a' : '#3b82f6' }}></div>
                                     </div>
                                     <span style={{ fontSize: '0.7rem', fontWeight: 900 }}>{percent}%</span>

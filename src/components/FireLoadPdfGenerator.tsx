@@ -68,7 +68,7 @@ export default function FireLoadPdfGenerator({ data }: { data: any }): React.Rea
                     </div>
                 </div>
 
-                <div style={{ border: '2px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden', marginBottom: '2rem', pageBreakInside: 'avoid' }}>
+                <div style={{ border: '2px solid #e2e8f0', borderRadius: '10px',  marginBottom: '2rem', pageBreakInside: 'avoid' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', borderBottom: '2px solid #e2e8f0' }}>
                         <div style={{ padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                             <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>EMPRESA / CLIENTE</span>
@@ -99,7 +99,7 @@ export default function FireLoadPdfGenerator({ data }: { data: any }): React.Rea
                     <h3 style={{ fontSize: '1.1rem', fontWeight: 900, margin: '0 0 1rem 0', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <Flame size={20} color="#f97316" /> Inventario de Materiales Combustibles
                     </h3>
-                    <div style={{ border: '2px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
+                    <div style={{ border: '2px solid #e2e8f0', borderRadius: '10px',  }}>
                         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1.2fr 1.5fr', background: '#f8fafc', padding: '0.8rem', borderBottom: '2px solid #e2e8f0', fontWeight: 800, fontSize: '0.75rem', color: '#64748b' }}>
                             <div>Material</div>
                             <div>Peso (Kg)</div>

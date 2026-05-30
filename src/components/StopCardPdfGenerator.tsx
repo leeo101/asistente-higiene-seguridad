@@ -345,7 +345,7 @@ export default function StopCardPdfGenerator({ card }: { card: any }): React.Rea
                     marginBottom: '2rem',
                     border: '1px solid #e2e8f0',
                     borderRadius: '10px',
-                    overflow: 'hidden'
+                    
                 }}>
                     <div style={{ 
                         background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
@@ -386,7 +386,7 @@ export default function StopCardPdfGenerator({ card }: { card: any }): React.Rea
                         marginBottom: '2rem',
                         border: '1px solid #86efac',
                         borderRadius: '10px',
-                        overflow: 'hidden'
+                        
                     }}>
                         <div style={{ 
                             background: 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)',
@@ -429,7 +429,7 @@ export default function StopCardPdfGenerator({ card }: { card: any }): React.Rea
                         pageBreakInside: 'avoid',
                         border: '1px solid #e2e8f0',
                         borderRadius: '10px',
-                        overflow: 'hidden'
+                        
                     }}>
                         <div style={{ 
                             background: 'linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%)',
@@ -461,7 +461,7 @@ export default function StopCardPdfGenerator({ card }: { card: any }): React.Rea
                                 maxWidth: '450px',
                                 height: '320px',
                                 borderRadius: '8px',
-                                overflow: 'hidden',
+                                
                                 border: '2px solid #cbd5e1',
                                 margin: '0 auto',
                                 background: '#f1f5f9',

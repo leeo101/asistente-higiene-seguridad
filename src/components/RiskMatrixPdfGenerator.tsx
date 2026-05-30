@@ -77,7 +77,7 @@ export default function RiskMatrixPdfGenerator({ data }: { data: any }): React.R
                 </div>
 
                 {/* PROJECT INFO */}
-                <div style={{ border: '2px solid #e2e8f0', borderRadius: '12px', marginBottom: '2rem', overflow: 'hidden' }}>
+                <div style={{ border: '2px solid #e2e8f0', borderRadius: '12px', marginBottom: '2rem',  }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', borderBottom: '2px solid #e2e8f0' }}>
                         <div style={{ padding: '0.8rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem', background: '#f8fafc' }}>
                             <span style={{ fontSize: '0.6rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
@@ -115,7 +115,7 @@ export default function RiskMatrixPdfGenerator({ data }: { data: any }): React.R
                         <h3 style={{ margin: 0, fontWeight: 900, fontSize: '1.1rem', textTransform: 'uppercase' }}>Análisis y Evaluación de Riesgos</h3>
                     </div>
 
-                    <table style={{ width: '100%', borderCollapse: 'collapse', border: '2px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', border: '2px solid #e2e8f0', borderRadius: '8px',  }}>
                         <thead>
                             <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
                                 <th style={{ padding: '0.8rem', textAlign: 'left', fontSize: '0.65rem', fontWeight: 900, color: '#475569', textTransform: 'uppercase', width: '25%' }}>Tarea / Actividad</th>

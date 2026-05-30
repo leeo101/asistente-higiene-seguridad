@@ -136,7 +136,7 @@ export default function RiskMapPdfGenerator({
                     </style>
 
                     {/* Canvas Area (Image snapshot) */}
-                    <div style={{ height: '140mm', width: '100%', border: '2px solid #1e293b', position: 'relative', overflow: 'hidden', background: '#f8fafc', backgroundImage: 'linear-gradient(to right, #e2e8f0 1px, transparent 1px), linear-gradient(to bottom, #e2e8f0 1px, transparent 1px)', backgroundSize: '10px 10px', flexShrink: 0 }}>
+                    <div style={{ height: '140mm', width: '100%', border: '2px solid #1e293b', position: 'relative',  background: '#f8fafc', backgroundImage: 'linear-gradient(to right, #e2e8f0 1px, transparent 1px), linear-gradient(to bottom, #e2e8f0 1px, transparent 1px)', backgroundSize: '10px 10px', flexShrink: 0 }}>
 
                         {/* Scalable Container ensuring 1:1 render fidelity then shrunk to fit A4 */}
                         <div style={{
@@ -244,7 +244,7 @@ export default function RiskMapPdfGenerator({
                     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 250px', gap: '10px', marginTop: '10px', height: '100px' }}>
 
                         {/* Legend */}
-                        <div style={{ border: '1px solid #1e293b', padding: '8px', fontSize: '9pt', overflow: 'hidden' }}>
+                        <div style={{ border: '1px solid #1e293b', padding: '8px', fontSize: '9pt',  }}>
                             <strong style={{ display: 'block', marginBottom: '6px', borderBottom: '1px solid #e2e8f0', paddingBottom: '2px' }}>REFERENCIAS (Norma ISO 7010 / IRAM)</strong>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 12px' }}>
                                 {legendIcons.map(icon => (
@@ -258,7 +258,7 @@ export default function RiskMapPdfGenerator({
                         </div>
 
                         {/* Rótulo Oficial */}
-                        <div style={{ border: '2px solid #1e293b', display: 'flex', flexDirection: 'column', fontSize: '8pt', background: '#f8fafc', overflow: 'hidden' }}>
+                        <div style={{ border: '2px solid #1e293b', display: 'flex', flexDirection: 'column', fontSize: '8pt', background: '#f8fafc',  }}>
                             <div style={{
                                 padding: '4px 6px',
                                 display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold',

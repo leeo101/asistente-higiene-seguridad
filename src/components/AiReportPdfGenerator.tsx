@@ -98,7 +98,7 @@ export default function AiReportPdfGenerator({ item }: { item: any }): React.Rea
 
                 {/* Evidence Photo */}
                 <div style={{ marginBottom: '2rem', textAlign: 'center', pageBreakInside: 'avoid' }}>
-                    <div style={{ width: '100%', maxWidth: '350px', height: '250px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #cbd5e1', margin: '0 auto', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ width: '100%', maxWidth: '350px', height: '250px', borderRadius: '8px',  border: '1px solid #cbd5e1', margin: '0 auto', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         {data.image ? (
                             <img src={data.image} alt="Evidencia" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                         ) : (

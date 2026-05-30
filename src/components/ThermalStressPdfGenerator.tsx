@@ -187,7 +187,7 @@ export default function ThermalStressPdfGenerator({ data, onBack = () => window.
                         <span style={{ background: '#fbbf24', color: '#1e293b', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9pt', fontWeight: 900 }}>1</span>
                         IDENTIFICACIÓN DEL PUESTO
                     </div>
-                    <div style={{ border: '1px solid #e2e8f0', borderTop: 'none', borderRadius: '0 0 8px 8px', overflow: 'hidden' }}>
+                    <div style={{ border: '1px solid #e2e8f0', borderTop: 'none', borderRadius: '0 0 8px 8px',  }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10pt' }}>
                             <tbody>
                                 <tr>
@@ -283,7 +283,7 @@ export default function ThermalStressPdfGenerator({ data, onBack = () => window.
                         <span style={{ background: '#ffffff', color: '#8b5cf6', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9pt', fontWeight: 900 }}>3</span>
                         CARGA DE TRABAJO Y LÍMITES
                     </div>
-                    <div style={{ border: '1px solid #c4b5fd', borderTop: 'none', borderRadius: '0 0 8px 8px', overflow: 'hidden' }}>
+                    <div style={{ border: '1px solid #c4b5fd', borderTop: 'none', borderRadius: '0 0 8px 8px',  }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10pt' }}>
                             <tbody>
                                 <tr>

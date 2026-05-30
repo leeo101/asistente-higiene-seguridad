@@ -126,7 +126,7 @@ export default function ChecklistPdfGenerator({
             </div>
 
             {/* Datos del Relevamiento */}
-            <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.5rem', width: '100%', overflow: 'hidden' }}>
+            <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.5rem', width: '100%',  }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', background: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
                     <div style={{ padding: '0.8rem 1rem', borderRight: '1px solid #cbd5e1' }}>
                         <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Building2 size={12}/> CLIENTE / EMPRESA</span>

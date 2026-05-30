@@ -135,7 +135,7 @@ export default function ExtinguisherAIPdfGenerator({ item }: { item: any }): Rea
                             alignItems: 'center',
                             justifyContent: 'center',
                             minHeight: '300px',
-                            overflow: 'hidden'
+                            
                         }}>
                             {item.image ? (
                                 <img src={item.image} alt="Extintor Capturado" style={{ width: '100%', height: 'auto', borderRadius: '8px', objectFit: 'contain', maxHeight: '400px' }} />

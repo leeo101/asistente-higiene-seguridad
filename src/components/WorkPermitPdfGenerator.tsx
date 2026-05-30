@@ -102,7 +102,7 @@ export default function WorkPermitPdfGenerator({ data }: { data: any }): React.R
                 </div>
 
                 {/* Form Grid */}
-                <div style={{ border: '2px solid #ddd', borderRadius: '10px', overflow: 'hidden', marginBottom: '2rem', pageBreakInside: 'avoid' }}>
+                <div style={{ border: '2px solid #ddd', borderRadius: '10px',  marginBottom: '2rem', pageBreakInside: 'avoid' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', borderBottom: '2px solid #ddd' }}>
                         <div style={{ padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                             <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>CLIENTE / EMPRESA</span>
@@ -139,7 +139,7 @@ export default function WorkPermitPdfGenerator({ data }: { data: any }): React.R
                         <h3 style={{ fontSize: '1rem', fontWeight: 900, margin: '0 0 1rem 0', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <ShieldCheck size={20} /> VERIFICACIÓN PREVENTIVA (CHECKLIST)
                         </h3>
-                        <div style={{ border: '1px solid #eee', borderRadius: '10px', overflow: 'hidden' }}>
+                        <div style={{ border: '1px solid #eee', borderRadius: '10px',  }}>
                             <div style={{ display: 'grid', gridTemplateColumns: '2.5fr 80px 1.5fr', background: '#f8fafc', padding: '0.6rem 1rem', borderBottom: '2px solid #ddd', fontWeight: 800, fontSize: '0.75rem', color: '#64748b' }}>
                                 <div>PREGUNTA / ITEM</div>
                                 <div style={{ textAlign: 'center' }}>ESTADO</div>
@@ -186,7 +186,7 @@ export default function WorkPermitPdfGenerator({ data }: { data: any }): React.R
                         <h3 style={{ fontSize: '1rem', fontWeight: 900, margin: '0 0 1rem 0', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <Users size={20} /> PERSONAL AUTORIZADO
                         </h3>
-                        <div style={{ border: '1px solid #ddd', borderRadius: '10px', overflow: 'hidden' }}>
+                        <div style={{ border: '1px solid #ddd', borderRadius: '10px',  }}>
                             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', background: '#f8fafc', padding: '0.6rem 1rem', borderBottom: '2px solid #ddd', fontWeight: 800, fontSize: '0.75rem', color: '#64748b' }}>
                                 <div>NOMBRE Y APELLIDO</div>
                                 <div>DNI</div>

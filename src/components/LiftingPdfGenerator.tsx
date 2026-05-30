@@ -162,7 +162,7 @@ export default function LiftingPdfGenerator({ data }: { data: any }): React.Reac
                 </div>
 
                 {/* Calculation */}
-                <div style={{ marginBottom: '2rem', border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
+                <div style={{ marginBottom: '2rem', border: '1px solid #e2e8f0', borderRadius: '10px',  }}>
                     <div style={{ background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)', padding: '0.8rem 1rem', color: '#ffffff' }}>
                         <h3 style={{ margin: 0, fontSize: '10.5pt', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <Weight size={18} /> CÁLCULO DE CARGA
@@ -187,7 +187,7 @@ export default function LiftingPdfGenerator({ data }: { data: any }): React.Reac
                 </div>
 
                 {/* Checklist */}
-                <div style={{ marginBottom: '2rem', border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
+                <div style={{ marginBottom: '2rem', border: '1px solid #e2e8f0', borderRadius: '10px',  }}>
                     <div style={{ background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)', padding: '0.8rem 1rem', color: '#ffffff' }}>
                         <h3 style={{ margin: 0, fontSize: '10.5pt', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                             VERIFICACIÓN DE SEGURIDAD
