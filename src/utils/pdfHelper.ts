@@ -58,14 +58,15 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         await waitForImages(clone);
 
         // Delay adicional para fuentes, SVGs y layout de tablas (firmas usan <table>)
-        await new Promise(resolve => setTimeout(resolve, 600));
+        // Se incrementa significativamente a pedido del usuario para asegurar que reportes largos se rendericen completos
+        await new Promise(resolve => setTimeout(resolve, 2500));
 
         // Forzar reflow ANTES de medir la altura del clon
         offscreenContainer.getBoundingClientRect();
         clone.getBoundingClientRect();
 
-        // Otro micro-tick para que el navegador aplique los estilos calculados
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Otro tick extra para que el navegador aplique los estilos calculados (aumentado para mayor seguridad)
+        await new Promise(resolve => setTimeout(resolve, 500));
 
         // Evitar límite de memoria de Canvas en móviles (ej. 16MP en iOS Safari)
         const isMobileCanvas = window.innerWidth < 768 || ('ontouchstart' in window);
