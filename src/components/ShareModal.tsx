@@ -477,6 +477,8 @@ export default function ShareModal({
                         border: 1.5px dashed var(--color-border);
                         position: relative;
                         margin-top: 0.75rem;
+                        min-width: 0;
+                        overflow: hidden;
                     }
                     .share-copy-btn {
                         position: absolute;
@@ -498,9 +500,8 @@ export default function ShareModal({
                         color: var(--color-text-muted);
                         margin: 0;
                         padding-right: 3rem;
-                        white-space: nowrap;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
+                        word-break: break-word;
+                        white-space: pre-wrap;
                         font-weight: 600;
                     }
                     .mobile-safe-area {
