@@ -80,7 +80,8 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
                 useCORS: true, 
                 allowTaint: true,
                 logging: false,
-                windowWidth: isLandscape ? 1122 : 794
+                windowWidth: isLandscape ? 1122 : 794,
+                windowHeight: clone.scrollHeight + 100 // ensure full height is captured
             },
             jsPDF: { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' },
             pagebreak: { mode: ['css', 'legacy'], avoid: '.avoid-break' }

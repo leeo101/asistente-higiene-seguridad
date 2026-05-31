@@ -19,7 +19,7 @@ export default function AiReportPdfGenerator({ item }: { item: any }): React.Rea
                 id="pdf-content"
                 className="pdf-container report-print print-area"
                 style={{
-                    width: '100%', maxWidth: '210mm', minHeight: '297mm',
+                    width: '100%', maxWidth: '210mm', minHeight: 'auto',
                     padding: '20mm', background: '#ffffff', color: '#1e293b',
                     boxShadow: '0 20px 40px rgba(0,0,0,0.1)', borderRadius: '8px',
                     boxSizing: 'border-box', margin: '0 auto', fontSize: '10pt',
