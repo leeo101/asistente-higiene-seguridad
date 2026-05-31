@@ -3762,6 +3762,13 @@ html, body {
   padding-right: env(safe-area-inset-right);
 }
 
+/* --- OVERRIDE FOR PDF EXPORT --- */
+/* html2canvas requires overflow to be visible on the body to capture offscreen elements properly */
+html.pdf-export-mode, body.pdf-export-mode {
+  overflow-x: visible !important;
+  max-width: none !important;
+}
+
 /* Allow text selection in specific inputs and text areas */
 input, textarea, [contenteditable="true"] {
   -webkit-user-select: text;

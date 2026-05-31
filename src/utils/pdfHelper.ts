@@ -57,6 +57,10 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
     offscreenContainer.appendChild(clone);
     document.body.appendChild(offscreenContainer);
 
+    // Prevent html2canvas from clipping on mobile due to overflow-x: hidden
+    document.documentElement.classList.add('pdf-export-mode');
+    document.body.classList.add('pdf-export-mode');
+
     try {
         await waitForImages(clone);
         await new Promise(resolve => setTimeout(resolve, 2500));
@@ -91,6 +95,8 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         if (offscreenContainer.parentNode) {
             document.body.removeChild(offscreenContainer);
         }
+        document.documentElement.classList.remove('pdf-export-mode');
+        document.body.classList.remove('pdf-export-mode');
     }
 }
 
