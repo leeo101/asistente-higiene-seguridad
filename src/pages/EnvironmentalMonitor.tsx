@@ -234,15 +234,14 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
                 open={!!shareItem}
                 onClose={() => setShareItem(null)}
                 title={`Monitoreo Ambiental - ${shareItem?.stationName || ''}`}
-                text={shareItem ? `🌿 Monitoreo Ambiental (Ley 19.587)\n📍 Estación: ${shareItem.stationName}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString('es-AR')}\n👷 Responsable: ${shareItem.technician || '-'}` : ''}
-                rawMessage={shareItem ? `🌿 Monitoreo Ambiental (Ley 19.587)\n📍 Estación: ${shareItem.stationName}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString('es-AR')}\n👷 Responsable: ${shareItem.technician || '-'}` : ''}
-                elementIdToPrint="pdf-content"
+                text={shareItem ? `🌿 Monitoreo Ambiental (Ley 19.587)\n📍 Estación: ${shareItem.stationName}\n📅 Fecha: ${new Date(shareItem.measurementDate || shareItem.date || shareItem.createdAt || Date.now()).toLocaleDateString('es-AR')}\n👷 Responsable: ${shareItem.technician || '-'}` : ''}
+                rawMessage={shareItem ? `🌿 Monitoreo Ambiental (Ley 19.587)\n📍 Estación: ${shareItem.stationName}\n📅 Fecha: ${new Date(shareItem.measurementDate || shareItem.date || shareItem.createdAt || Date.now()).toLocaleDateString('es-AR')}\n👷 Responsable: ${shareItem.technician || '-'}` : ''}
+                elementIdToPrint="pdf-content-list"
                 fileName={`Monitoreo_${shareItem?.stationName || 'Sin_Nombre'}.pdf`}
             />
 
-            <div style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0, pointerEvents: 'none' }}>
-                {shareItem && <EnvironmentalPdf data={shareItem} />}
-            </div>
+            <div className="ats-pdf-offscreen">
+                {shareItem && <EnvironmentalPdf data={shareItem} id="pdf-content-list" />}
             </div>
 
             <Breadcrumbs />
@@ -543,15 +542,15 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
                 isOpen={showShareModal}
                 open={showShareModal}
                 onClose={() => setShowShareModal(false)}
-                elementIdToPrint="pdf-content"
+                elementIdToPrint="pdf-content-modal"
                 title={selectedMeasurement ? "Protocolo de Monitoreo" : "Borrador de Monitoreo"}
                 text={selectedMeasurement ? `🌿 Monitoreo Ambiental - ${selectedMeasurement.stationName}` : "Borrador de Monitoreo"}
                 rawMessage={selectedMeasurement ? `🌿 Monitoreo Ambiental - ${selectedMeasurement.stationName}` : "Borrador de Monitoreo"}
-                fileName={`Monitoreo_${(selectedMeasurement || newMeasurement)?.stationName || 'Ambiental'}.pdf`}
+                fileName={`Monitoreo_${selectedMeasurement?.stationName || newMeasurement?.stationName || 'Borrador'}.pdf`}
             />
 
-            <div className="print-only" style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0 }}>
-                <EnvironmentalPdf data={selectedMeasurement || newMeasurement} />
+            <div className="ats-pdf-offscreen">
+                <EnvironmentalPdf data={selectedMeasurement || newMeasurement} id="pdf-content-modal" />
             </div>
         </div>
     );
@@ -704,7 +703,7 @@ function MeasurementCard({ measurement, statusConfig, monitoringType, onView, on
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                         <Calendar size={14} />
-                        {new Date(measurement.measurementDate).toLocaleDateString('es-AR')}
+                        {new Date(measurement.measurementDate || measurement.date || measurement.createdAt || Date.now()).toLocaleDateString('es-AR')}
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                         <User size={14} />

@@ -28,7 +28,7 @@ const UNITS_MAP = {
     co2: 'ton/año', nox: 'mg/Nm³', sox: 'mg/Nm³', particulates: 'mg/Nm³'
 };
 
-export default function EnvironmentalPdf({ data }: { data: any }): React.ReactElement | null {
+export default function EnvironmentalPdf({ data, id = "pdf-content" }: { data: any, id?: string }): React.ReactElement | null {
     if (!data) return null;
 
     // Obtener firma profesional desde data o localStorage
@@ -64,7 +64,7 @@ export default function EnvironmentalPdf({ data }: { data: any }): React.ReactEl
     return (
         <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
             <div
-                id="pdf-content"
+                id={id}
                 className="pdf-container print-area"
                 style={{
                     width: '100%', maxWidth: '210mm', minHeight: '297mm',
@@ -155,7 +155,7 @@ export default function EnvironmentalPdf({ data }: { data: any }): React.ReactEl
                     </div>
                     <div style={{ padding: '0.5rem', borderBottom: '1px solid #000' }}>
                         <span style={{ fontSize: '0.6rem', fontWeight: 900, display: 'block' }}>FECHA Y HORA</span>
-                        <span style={{ fontWeight: 700 }}>{data.measurementDate ? new Date(data.measurementDate).toLocaleDateString('es-AR') : 'N/A'} {data.measurementTime || ''}</span>
+                        <span style={{ fontWeight: 700 }}>{new Date(data.measurementDate || data.date || data.createdAt || Date.now()).toLocaleDateString('es-AR')} {data.measurementTime || ''}</span>
                     </div>
                     <div style={{ padding: '0.5rem', borderRight: '1.5px solid #000' }}>
                         <span style={{ fontSize: '0.6rem', fontWeight: 900, display: 'block' }}>COORDENADAS (LAT/LONG)</span>
