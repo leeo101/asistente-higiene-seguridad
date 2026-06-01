@@ -17,6 +17,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
     // Contenedor off-screen: visible para html2canvas pero fuera del viewport del usuario
     const offscreenContainer = document.createElement('div');
     offscreenContainer.setAttribute('data-pdf-offscreen', 'true');
+    offscreenContainer.classList.add('ats-pdf-offscreen'); // Add class to trigger CSS height fixes
     offscreenContainer.style.cssText = [
         'position: absolute', // absolute allows element to grow indefinitely without viewport clipping
         'left: -9999px', // Mover lejos del viewport para que no se vea debajo del modal

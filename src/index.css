@@ -3747,6 +3747,16 @@ body.printing-isolated #pdf-content.ats-pdf-root,
     height: auto !important;
 }
 
+/* Force everything inside the offscreen container to expand fully and not hide overflow */
+[data-pdf-offscreen="true"] *,
+.ats-pdf-offscreen * {
+    overflow: visible !important;
+    overflow-y: visible !important;
+    overflow-x: visible !important;
+    max-height: none !important;
+    height: auto !important;
+}
+
 /* --- NATIVE APP FEEL (Capacitor tweaks) --- */
 html, body {
   -webkit-touch-callout: none; /* Disable native callout on long-press */
