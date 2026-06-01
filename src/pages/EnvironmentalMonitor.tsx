@@ -11,7 +11,8 @@ import {
 import ShareModal from '../components/ShareModal';
 import EnvironmentalPdf from '../components/EnvironmentalPdf';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
-
+import Breadcrumbs from '../components/Breadcrumbs';
+import PremiumHeader from '../components/PremiumHeader';
 // Tipos de monitoreo ambiental
 const MONITORING_TYPES = [
     { id: 'air', name: 'Calidad de Aire', icon: '💨', color: '#3b82f6' },
@@ -242,82 +243,47 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
             <div style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0, pointerEvents: 'none' }}>
                 {shareItem && <EnvironmentalPdf data={shareItem} />}
             </div>
-            {/* Header Premium */}
-            <div style={{
-                marginBottom: '2rem',
-                padding: '1.5rem',
-                background: 'var(--gradient-card)',
-                borderRadius: 'var(--radius-2xl)',
-                border: '1px solid var(--glass-border)',
-                boxShadow: 'var(--glass-shadow)',
-                backdropFilter: 'blur(20px)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '1rem'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div style={{
-                        width: '56px',
-                        height: '56px',
-                        background: 'linear-gradient(135deg, #10b981, #059669)',
-                        borderRadius: 'var(--radius-lg)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        boxShadow: '0 4px 20px rgba(16, 185, 129, 0.3)'
-                    }}>
-                        <Leaf size={32} color="#ffffff" strokeWidth={2} />
-                    </div>
-                    <div>
-                        <h1 style={{ 
-                            margin: 0, 
-                            fontSize: '1.5rem', 
-                            fontWeight: 900,
-                            color: 'var(--color-text)',
-                            letterSpacing: '-0.5px'
-                        }}>
-                            Monitoreo Ambiental
-                        </h1>
-                        <p style={{ 
-                            margin: '0.25rem 0 0 0', 
-                            color: 'var(--color-text-muted)',
-                            fontSize: '0.85rem',
-                            fontWeight: 600
-                        }}>
-                            ISO 14001 • {stats.stations} estaciones
-                        </p>
-                    </div>
-                </div>
+            </div>
 
-                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <Breadcrumbs />
+
+            {/* Header Premium */}
+            <PremiumHeader
+                title="Monitoreo Ambiental"
+                subtitle={`ISO 14001 • ${stats.stations} estaciones`}
+                icon={<Leaf size={36} />}
+            >
+                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1rem' }}>
                     <button
                         onClick={() => navigate('/environmental/new')}
-                        className="btn-primary"
                         style={{
-                            width: 'auto',
-                            margin: 0,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            padding: '0.75rem 1.25rem'
+                            flex: '0 1 auto', padding: '1rem 1.5rem', borderRadius: '16px', 
+                            background: '#36B37E', color: '#fff', border: 'none', 
+                            fontWeight: 800, fontSize: '1rem', cursor: 'pointer', 
+                            display: 'flex', alignItems: 'center', gap: '0.5rem', 
+                            boxShadow: '0 4px 15px rgba(54,179,126,0.3)', whiteSpace: 'nowrap'
                         }}
+                        className="hover-lift"
                     >
                         <Plus size={20} strokeWidth={2.5} />
                         Nueva Medición
                     </button>
                     <button
                         onClick={() => navigate('/environmental/history')}
-                        className="btn-outline"
                         style={{
-                            padding: '0.75rem 1rem'
+                            padding: '1rem 1.5rem', borderRadius: '16px',
+                            background: 'rgba(255,255,255,0.1)', color: '#fff',
+                            border: '1px solid rgba(255,255,255,0.2)',
+                            fontWeight: 800, fontSize: '1rem', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', gap: '0.5rem',
+                            backdropFilter: 'blur(10px)', whiteSpace: 'nowrap'
                         }}
+                        className="hover-lift"
                     >
-                        <FileText size={20} />
+                        <FileText size={20} /> Historial
                     </button>
                 </div>
-            </div>
+            </PremiumHeader>
 
             {/* Stats Cards */}
             <div style={{
@@ -495,7 +461,7 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
                         <EmptyStateIllustrated 
                             title="Sin Mediciones"
                             description="Registrá mediciones de monitoreo ambiental según ISO 14001 para control de impacto."
-                            onAction={() => setShowAddModal(true)}
+                            onAction={() => navigate('/environmental/new')}
                             icon={<Leaf />}
                         />
                     ) : (
@@ -519,9 +485,14 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
                     {measurements.length > 0 && (
                         <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center', paddingBottom: '2rem' }}>
                             <button 
-                                onClick={() => setShowAddModal(true)} 
-                                className="btn-primary"
-                                style={{ width: 'auto', padding: '1rem 2rem', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', borderRadius: 'var(--radius-xl)', boxShadow: '0 10px 25px var(--color-primary)40' }}
+                                onClick={() => navigate('/environmental/new')} 
+                                className="hover-lift"
+                                style={{ 
+                                    width: 'auto', padding: '1rem 2rem', fontSize: '1.1rem', 
+                                    display: 'flex', alignItems: 'center', gap: '0.75rem', 
+                                    borderRadius: 'var(--radius-xl)', boxShadow: '0 10px 25px rgba(54,179,126,0.3)',
+                                    background: '#36B37E', color: '#fff', border: 'none', fontWeight: 800, cursor: 'pointer'
+                                }}
                             >
                                 <Plus size={24} strokeWidth={2.5} />
                                 Nueva Medición
