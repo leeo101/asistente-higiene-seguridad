@@ -5,7 +5,7 @@ import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import PdfSignatures from './PdfSignatures';
 
-export default function WorkPermitPdfGenerator({ data }: { data: any }): React.ReactElement | null {
+export default function WorkPermitPdfGenerator({ data, id = "pdf-content" }: { data: any, id?: string }): React.ReactElement | null {
     if (!data) return null;
 
     // Obtener firma profesional desde data o localStorage
@@ -44,7 +44,7 @@ export default function WorkPermitPdfGenerator({ data }: { data: any }): React.R
     return (
         <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
             <div
-                id="pdf-content"
+                id={id}
                 className="pdf-container print-area"
                 style={{
                     width: '100%', maxWidth: '210mm', minHeight: '297mm',

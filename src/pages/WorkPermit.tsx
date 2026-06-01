@@ -5,7 +5,7 @@ import {
     ArrowLeft, Save, Plus, Trash2, Printer,
     ShieldCheck, Building2, User, Calendar,
     CheckCircle2, AlertCircle, HelpCircle, Pencil, Info, Share2,
-    Users, Clock, Zap, Flame, HardHat, Construction
+    Users, Clock, Zap, Flame, HardHat, Construction, QrCode
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
@@ -39,6 +39,7 @@ export default function WorkPermit(): React.ReactElement | null {
     const [history, setHistory] = useState([]);
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [qrTarget, setQrTarget] = useState<any>(null);
+    const [shareItem, setShareItem] = useState<any>(null);
 
     // Default state
     const [formData, setFormData] = useState<any>(() => ({
@@ -363,27 +364,26 @@ export default function WorkPermit(): React.ReactElement | null {
             
             {!showForm ? (
                 <AnimatedPage>
+                    <div style={{ marginBottom: '1.5rem' }}>
+                        <Breadcrumbs />
+                    </div>
+
                     <PremiumHeader
                         title="Permisos de Trabajo"
                         subtitle="Gestión de Tareas Críticas y Especiales"
-                        icon={ShieldCheck}
+                        icon={<ShieldCheck size={36} />}
                         color="#3b82f6"
-                        actions={
-                            <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                {history.length > 0 && (
-                                    <button onClick={() => requirePro(handleExportCSV)} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '12px', padding: '0.6rem 1rem', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer', color: 'var(--color-text)' }}>
-                                        EXCEL
-                                    </button>
-                                )}
-                                <button onClick={() => setShowForm(true)} className="hover-lift" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#36B37E', color: 'white', border: 'none', borderRadius: '12px', padding: '0.6rem 1.2rem', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
-                                    <Plus size={18} /> NUEVA TAREA
-                                </button>
-                            </div>
-                        }
                     />
 
-                    <div style={{ marginTop: '1.5rem' }}>
-                        <Breadcrumbs />
+                    <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                        <button onClick={() => setShowForm(true)} className="hover-lift" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#36B37E', color: 'white', border: 'none', borderRadius: '12px', padding: '0.8rem 1.5rem', fontSize: '0.9rem', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 15px rgba(54, 179, 126, 0.3)' }}>
+                            <Plus size={18} /> NUEVA TAREA
+                        </button>
+                        {history.length > 0 && (
+                            <button onClick={() => requirePro(handleExportCSV)} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '12px', padding: '0.8rem 1.2rem', fontSize: '0.9rem', fontWeight: 800, cursor: 'pointer', color: 'var(--color-text)' }}>
+                                EXCEL
+                            </button>
+                        )}
                     </div>
 
                     <div className="ats-pdf-offscreen">
@@ -409,8 +409,6 @@ export default function WorkPermit(): React.ReactElement | null {
                             searchFields={['empresa', 'obra']}
                             emptyMessage="No hay permisos registrados."
                             emptyIcon={<ShieldCheck size={48} />}
-                            onEmptyAction={() => setShowForm(true)}
-                            emptyActionLabel="Crear nuevo Permiso"
                         />
                     </div>
 
@@ -882,20 +880,22 @@ function StatusBtn({ active, onClick, label, color = '#36B37E' }) {
 function DocBox({ label, value = '', onChange = () => {}, type = "text", borderLeft = false, borderTop = false, noInput = false, children = null }: any) {
     return (
         <div style={{
-            padding: '1rem',
-            borderLeft: borderLeft ? '2px solid #ddd' : 'none',
-            borderTop: borderTop ? '2px solid #ddd' : 'none',
+            padding: '1.2rem',
+            borderLeft: borderLeft ? '1px solid var(--color-border)' : 'none',
+            borderTop: borderTop ? '1px solid var(--color-border)' : 'none',
             display: 'flex',
             flexDirection: 'column',
-            gap: '4px'
-        }}>
-            <span style={{ fontSize: '0.6rem', fontWeight: 900, color: '#999', textTransform: 'uppercase' }}>{label}</span>
+            gap: '8px',
+            background: 'rgba(248, 250, 252, 0.4)',
+            transition: 'background 0.2s ease'
+        }} className="hover:bg-slate-50 dark:hover:bg-slate-900/30">
+            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</span>
             {noInput ? children : (
                 <input
                     type={type}
                     value={value}
                     onChange={e => onChange(e.target.value)}
-                    style={{ border: 'none', background: 'transparent', fontWeight: 800, fontSize: '0.9rem', outline: 'none', width: '100%' }}
+                    style={{ border: 'none', background: 'transparent', fontWeight: 800, fontSize: '0.95rem', outline: 'none', width: '100%', color: 'var(--color-text)' }}
                 />
             )}
         </div>
