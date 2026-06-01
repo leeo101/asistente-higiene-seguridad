@@ -39,7 +39,6 @@ const navItems: NavItem[] = [
   { to: '/settings', icon: <GearSix weight="duotone" size={20} />, label: 'Configuración', auth: true },
   { to: '/dashboard', icon: <ChartPieSlice weight="duotone" size={20} color="#10b981" />, label: 'Dashboard', auth: true },
   { to: '/contractors', icon: <Users weight="duotone" size={20} color="#3b82f6" />, label: 'Contratistas', auth: true },
-  { to: '/history', icon: <ClockCounterClockwise weight="duotone" size={20} />, label: 'Historiales', auth: true },
   { to: '/logo-settings', icon: <ImageIconPh weight="duotone" size={20} />, label: 'Logo de Empresa', auth: true },
   { to: '/profile', icon: <User weight="duotone" size={20} />, label: 'Mi Perfil', auth: true },
   { to: '/privacy', icon: <ShieldCheck weight="duotone" size={20} />, label: 'Privacidad', always: true },

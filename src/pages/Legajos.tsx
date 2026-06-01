@@ -7,6 +7,7 @@ import { db } from '../firebase';
 import { collection, query, getDocs, deleteDoc, doc, orderBy } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import AnimatedPage from '../components/AnimatedPage';
+import LegajoPdf from '../components/LegajoPdf';
 
 interface Legajo {
   id: string;
@@ -72,6 +73,22 @@ export default function Legajos() {
   const isAdmin = currentUser?.email?.toLowerCase().trim() === 'enzorodriguez31@gmail.com';
   const hasAccess = isPro || isAdmin;
   const navigate = useNavigate();
+  const [printingLegajo, setPrintingLegajo] = useState<Legajo | null>(null);
+
+  const handleGeneratePDF = (e: React.MouseEvent, legajo: Legajo) => {
+    e.stopPropagation();
+    if (!hasAccess) {
+      alert("La exportación a PDF requiere una suscripción PRO");
+      navigate('/subscription');
+      return;
+    }
+    setPrintingLegajo(legajo);
+    // Give it a moment to render the hidden DOM before calling print
+    setTimeout(() => {
+        window.print();
+        setTimeout(() => setPrintingLegajo(null), 1000);
+    }, 500);
+  };
 
   useEffect(() => {
     fetchLegajos();
@@ -122,6 +139,16 @@ export default function Legajos() {
   return (
     <AnimatedPage>
     <div className="container" style={{ paddingBottom: '3rem' }}>
+      
+      {/* Hidden PDF Container */}
+      {printingLegajo && (
+          <div className="print-only" style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0 }}>
+              <div id="pdf-content">
+                  <LegajoPdf data={{ ...printingLegajo, professionalName: currentUser?.displayName || 'Profesional H&S' }} />
+              </div>
+          </div>
+      )}
+
       {/* Premium Header */}
       <div style={{
           background: 'linear-gradient(135deg, #d4af37, #b8860b)',
@@ -342,7 +369,7 @@ export default function Legajos() {
                   <Edit size={15} /> Editar
                 </button>
                 <button 
-                  onClick={() => navigate(`/legajos/pdf/${legajo.id}`)}
+                  onClick={(e) => handleGeneratePDF(e, legajo)}
                   style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', padding: '0.6rem', background: 'rgba(22,163,74,0.06)', color: '#16a34a', border: '1px solid rgba(22,163,74,0.15)', borderRadius: '10px', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer' }}
                 >
                   <Download size={15} /> PDF
