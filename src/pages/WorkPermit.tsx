@@ -18,6 +18,13 @@ import toast from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import CompanyLogo from '../components/CompanyLogo';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import { DataTable } from '../components/DataTable';
+import AnimatedPage from '../components/AnimatedPage';
+import QRModal from '../components/QRModal';
+import { downloadCSV } from '../services/exportCsv';
+import Breadcrumbs from '../components/Breadcrumbs';
+import PremiumHeader from '../components/PremiumHeader';
+import WorkPermitPdfGenerator from '../components/WorkPermitPdfGenerator';
 
 export default function WorkPermit(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -27,6 +34,11 @@ export default function WorkPermit(): React.ReactElement | null {
     const { requirePro } = usePaywall();
     const editData = location.state?.editData;
     useDocumentTitle(editData ? 'Editar Permiso de Trabajo' : 'Permiso de Trabajo');
+
+    const [showForm, setShowForm] = useState(!!editData);
+    const [history, setHistory] = useState([]);
+    const [deleteTarget, setDeleteTarget] = useState(null);
+    const [qrTarget, setQrTarget] = useState<any>(null);
 
     // Default state
     const [formData, setFormData] = useState<any>(() => ({
@@ -85,8 +97,17 @@ export default function WorkPermit(): React.ReactElement | null {
                 supervisorSignature: ed.supervisorSignature || ed.firmas?.supervisor?.sign || '',
                 showSignatures: ed.showSignatures || { operator: true, professional: true, supervisor: true }
             });
+            setShowForm(true);
         }
     }, [location.state]);
+
+    // Load History
+    useEffect(() => {
+        const saved = localStorage.getItem('work_permits_history');
+        if (saved) {
+            setHistory(JSON.parse(saved));
+        }
+    }, [showForm]);
 
     // Load professional data
     useEffect(() => {
@@ -206,7 +227,7 @@ export default function WorkPermit(): React.ReactElement | null {
         localStorage.setItem('work_permits_history', JSON.stringify(updated));
         await syncCollection('work_permits_history', updated);
         toast.success('Permiso de Trabajo guardado con éxito');
-        navigate('/work-permit-history');
+        setShowForm(false);
     };
 
     const handlePrint = () => requirePro(() => window.print());
@@ -246,8 +267,162 @@ export default function WorkPermit(): React.ReactElement | null {
         toast.success(`Plantilla ${tpl.label} aplicada`);
     };
 
+    const confirmDelete = async () => {
+        if (!deleteTarget) return;
+        const updated = history.filter((item: any) => item.id !== deleteTarget);
+        setHistory(updated);
+        localStorage.setItem('work_permits_history', JSON.stringify(updated));
+        await syncCollection('work_permits_history', updated);
+        toast.success('Permiso eliminado');
+        setDeleteTarget(null);
+    };
+
+    const handleExportCSV = () => {
+        downloadCSV(history.map((i: any) => ({
+            id: i.id, fecha: i.fecha, empresa: i.empresa, obra: i.obra,
+            tipo: permitTypes.find(t => t.id === i.tipoPermiso)?.label || 'Permiso',
+            desde: i.validezDesde, hasta: i.validezHasta
+        })), 'permisos_de_trabajo', {
+            id: 'ID Permiso', fecha: 'Fecha', empresa: 'Empresa', obra: 'Obra',
+            tipo: 'Tipo de Tarea', desde: 'Hora Inicio', hasta: 'Hora Fin'
+        }, 'Reporte de Permisos');
+    };
+
+    const columns = [
+        {
+            header: 'Fecha',
+            accessor: 'fecha',
+            sortable: true,
+            render: (item: any) => (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>
+                    <Calendar size={14} /> {item.fecha}
+                </span>
+            )
+        },
+        {
+            header: 'Empresa',
+            accessor: 'empresa',
+            sortable: true,
+            render: (item: any) => (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                    <div style={{ background: 'rgba(59,130,246,0.1)', padding: '0.5rem', borderRadius: '8px', color: '#3b82f6' }}>
+                        <Building2 size={16} />
+                    </div>
+                    <span style={{ fontWeight: 700 }}>{item.empresa}</span>
+                </div>
+            )
+        },
+        {
+            header: 'Obra',
+            accessor: 'obra',
+            sortable: true,
+            render: (item: any) => (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <Construction size={14} /> {item.obra}
+                </span>
+            )
+        },
+        {
+            header: 'Tipo',
+            accessor: 'tipoPermiso',
+            sortable: true,
+            render: (item: any) => (
+                <span style={{ background: 'rgba(59,130,246,0.1)', color: 'var(--color-primary)', padding: '0.2rem 0.6rem', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase' }}>
+                    {permitTypes.find(t => t.id === item.tipoPermiso)?.label || 'Permiso'}
+                </span>
+            )
+        },
+        {
+            header: 'Acciones',
+            accessor: 'id',
+            render: (item: any) => (
+                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    <button onClick={() => { setFormData(item); setShowForm(true); }} style={{ padding: '0.4rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '8px', color: 'var(--color-text)', cursor: 'pointer' }} title="Ver"><Pencil size={15} /></button>
+                    <button onClick={() => requirePro(() => { const url = `${window.location.origin}/v/${currentUser?.uid}/permit/${item.id}?print=true`; setQrTarget({ text: url, title: `Permiso — ${item.empresa}` }); })} style={{ padding: '0.4rem', background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer' }} title="QR"><QrCode size={15} /></button>
+                    <button onClick={() => requirePro(() => setShareItem(item))} style={{ padding: '0.4rem', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '8px', color: '#16a34a', cursor: 'pointer' }} title="Compartir"><Share2 size={15} /></button>
+                    <button onClick={() => setDeleteTarget(item.id)} style={{ padding: '0.4rem', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}><Trash2 size={15} /></button>
+                </div>
+            )
+        }
+    ];
+
     return (
         <div className="container" style={{ maxWidth: '1000px', paddingBottom: '8rem' }}>
+            {deleteTarget && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ background: 'var(--color-surface)', padding: '2rem', borderRadius: '16px', maxWidth: '400px', width: '90%', textAlign: 'center' }}>
+                        <AlertCircle size={48} color="#ef4444" style={{ margin: '0 auto 1rem' }} />
+                        <h3 style={{ margin: '0 0 1rem' }}>¿Eliminar este permiso?</h3>
+                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                            <button onClick={() => setDeleteTarget(null)} style={{ padding: '0.5rem 1rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'transparent' }}>Cancelar</button>
+                            <button onClick={confirmDelete} style={{ padding: '0.5rem 1rem', borderRadius: '8px', border: 'none', background: '#ef4444', color: 'white' }}>Eliminar</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
+            {!showForm ? (
+                <AnimatedPage>
+                    <PremiumHeader
+                        title="Permisos de Trabajo"
+                        subtitle="Gestión de Tareas Críticas y Especiales"
+                        icon={ShieldCheck}
+                        color="#3b82f6"
+                        actions={
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                {history.length > 0 && (
+                                    <button onClick={() => requirePro(handleExportCSV)} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '12px', padding: '0.6rem 1rem', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer', color: 'var(--color-text)' }}>
+                                        EXCEL
+                                    </button>
+                                )}
+                                <button onClick={() => setShowForm(true)} className="hover-lift" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#36B37E', color: 'white', border: 'none', borderRadius: '12px', padding: '0.6rem 1.2rem', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)' }}>
+                                    <Plus size={18} /> NUEVA TAREA
+                                </button>
+                            </div>
+                        }
+                    />
+
+                    <div style={{ marginTop: '1.5rem' }}>
+                        <Breadcrumbs />
+                    </div>
+
+                    <div className="ats-pdf-offscreen">
+                        {shareItem && <WorkPermitPdfGenerator data={shareItem} id="pdf-content-list" />}
+                    </div>
+
+                    <ShareModal 
+                        isOpen={!!shareItem} 
+                        open={!!shareItem} 
+                        onClose={() => setShareItem(null)} 
+                        title={`Permiso de Trabajo - ${shareItem?.empresa || ''}`} 
+                        text={shareItem ? `🔐 Permiso de Trabajo\n🏗️ Empresa: ${shareItem.empresa}\n🚧 Obra: ${shareItem.obra}\n📅 Fecha: ${shareItem.fecha}` : ''} 
+                        rawMessage={``} 
+                        elementIdToPrint="pdf-content-list" 
+                        fileName={`Permiso_${shareItem?.empresa || 'Trabajo'}`} 
+                    />
+
+                    <div style={{ marginTop: '2rem' }}>
+                        <DataTable
+                            data={history}
+                            columns={columns}
+                            searchPlaceholder="Buscar por empresa, obra o tipo..."
+                            searchFields={['empresa', 'obra']}
+                            emptyMessage="No hay permisos registrados."
+                            emptyIcon={<ShieldCheck size={48} />}
+                            onEmptyAction={() => setShowForm(true)}
+                            emptyActionLabel="Crear nuevo Permiso"
+                        />
+                    </div>
+
+                    {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
+                </AnimatedPage>
+            ) : (
+                <AnimatedPage>
+                    <div style={{ marginBottom: '1.5rem' }}>
+                        <button onClick={() => setShowForm(false)} className="hover-lift" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '8px', cursor: 'pointer', color: 'var(--color-text)', fontWeight: 800, fontSize: '0.85rem' }}>
+                            <ArrowLeft size={18} /> VOLVER
+                        </button>
+                    </div>
             <ShareModal
                 isOpen={showShare}
                 open={showShare}
@@ -273,7 +448,7 @@ export default function WorkPermit(): React.ReactElement | null {
             </div>
 
             {/* Status Banner */}
-            <div className="no-print" style={{ marginBottom: '1.5rem', background: 'var(--color-surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+            <div className="no-print" style={{ marginBottom: '1.5rem', background: 'rgba(var(--color-surface-rgb), 0.7)', backdropFilter: 'blur(12px)', padding: '1.5rem', borderRadius: '24px', border: '1px solid var(--glass-border)', boxShadow: 'var(--glass-shadow)' }}>
                 <h3 style={{ margin: '0 0 1rem', fontSize: '1rem', fontWeight: 900 }}>Estado de Aprobación</h3>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', overflowX: 'auto', paddingBottom: '10px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: 1 }}>
@@ -326,12 +501,9 @@ export default function WorkPermit(): React.ReactElement | null {
             </div>
 
             {/* Quick Templates + Progress */}
-            <div className="no-print" style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.5rem', background: 'var(--color-surface)', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
+            <div className="no-print" style={{ marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.5rem', background: 'rgba(var(--color-surface-rgb), 0.7)', backdropFilter: 'blur(12px)', borderRadius: '24px', border: '1px solid var(--glass-border)', boxShadow: 'var(--glass-shadow)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.8rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                        <button onClick={() => navigate('/#tools')} style={{ padding: '0.5rem', background: 'var(--color-background)', borderRadius: '10px', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
-                            <ArrowLeft size={20} />
-                        </button>
                         <div>
                             <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.5rem)', fontWeight: 900, color: 'var(--color-text)' }}>
                                 {editData ? 'Editar Permiso de Trabajo' : 'Permisos de Trabajo'}
@@ -381,7 +553,7 @@ export default function WorkPermit(): React.ReactElement | null {
             </div>
 
             {/* Print Area */}
-            <div id="pdf-content" className="bg-white text-black p-6 sm:p-10 shadow-xl mx-auto print-area border border-slate-200 rounded-2xl print:shadow-none print:border-none" style={{ width: '100%', boxSizing: 'border-box' }}>
+            <div id="pdf-content" className="bg-white text-black p-6 sm:p-10 shadow-2xl mx-auto print-area border border-slate-200 rounded-3xl print:shadow-none print:border-none" style={{ width: '100%', boxSizing: 'border-box' }}>
 
                 {/* Header */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', alignItems: 'center', borderBottom: '4px solid #333', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
@@ -681,6 +853,8 @@ export default function WorkPermit(): React.ReactElement | null {
                 {/* Footer Notes */}
                 <PdfBrandingFooter />
             </div>
+            </AnimatedPage>
+            )}
         </div>
     );
 }
