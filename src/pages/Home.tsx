@@ -135,8 +135,8 @@ const quickLinks: QuickLink[] = [
   { to: '/drills', icon: <Siren weight="duotone" size={26} />, label: 'Simulacros', sub: 'Actas de Evacuación', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management' },
   { to: '/stop-cards', icon: <Warning weight="duotone" size={26} />, label: 'Tarjetas STOP', sub: 'Observaciones', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management' },
   { to: '/working-at-height', icon: <HardHat weight="duotone" size={26} />, label: 'Trabajo en Altura', sub: 'Permisos y EPP Crítico', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'critical' },
-  { to: '/lifting-history', icon: <Crane weight="duotone" size={26} />, label: 'Izaje y Grúas', sub: 'Plan de Izaje Crítico', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', premium: true, category: 'critical' },
-  { to: '/fleet-history', icon: <Truck weight="duotone" size={26} />, label: 'Flota y Vehículos', sub: 'Inspección Pre-Operacional', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', premium: true, category: 'management' },
+  { to: '/lifting-form', icon: <Crane weight="duotone" size={26} />, label: 'Izaje y Grúas', sub: 'Plan de Izaje Crítico', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', premium: true, category: 'critical' },
+  { to: '/fleet-form', icon: <Truck weight="duotone" size={26} />, label: 'Flota y Vehículos', sub: 'Inspección Pre-Operacional', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', premium: true, category: 'management' },
   { to: '/evacuation-history', icon: <Timer weight="duotone" size={26} />, label: 'Simulador de Evacuación', sub: 'Cálculo de Tiempos', color: '#ec4899', bg: 'rgba(236,72,153,0.1)', premium: true, category: 'specific' },
   { to: '/legajos', icon: <FileText weight="duotone" size={26} />, label: 'Legajos Técnicos', sub: 'Decreto 351/79', color: '#eab308', bg: 'rgba(234,179,8,0.1)', premium: true, category: 'management', badge: 'Nuevo', featured: true }
 ].sort((a, b) => a.label.localeCompare(b.label, 'es-AR'));

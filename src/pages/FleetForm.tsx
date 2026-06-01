@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, CarFront, AlertTriangle, ShieldCheck, Printer, Share2, ClipboardList, Wrench, FileText, Pencil } from 'lucide-react';
+import { ArrowLeft, Save, CarFront, AlertTriangle, ShieldCheck, Printer, Share2, ClipboardList, Wrench, FileText, Pencil, Search, Plus, Trash2, Calendar, CheckCircle2 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import PremiumHeader from '../components/PremiumHeader';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
@@ -19,15 +20,17 @@ const labelStyle: React.CSSProperties = {
 
 const inputStyle: React.CSSProperties = {
     width: '100%',
-    padding: '0.75rem 1rem',
-    borderRadius: '12px',
-    border: '1px solid var(--color-border)',
-    background: 'var(--color-background)',
+    padding: '0.85rem 1.2rem',
+    borderRadius: '14px',
+    border: '1px solid rgba(255,255,255,0.1)',
+    background: 'rgba(255,255,255,0.03)',
     color: 'var(--color-text)',
-    fontSize: '1rem',
+    fontSize: '0.95rem',
+    fontWeight: 500,
     outline: 'none',
     boxSizing: 'border-box' as any,
-    transition: 'all 0.2s'
+    transition: 'all 0.3s ease',
+    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)'
 };
 
 const CHECKLIST_ITEMS = [
@@ -57,10 +60,35 @@ export default function FleetForm(): React.ReactElement | null {
     const [isEdit, setIsEdit] = useState(false);
     const { isPro, requirePro } = usePaywall();
 
-    useDocumentTitle(isEdit ? 'Editar Inspección de Vehículo' : 'Nueva Inspección de Vehículo');
+    useDocumentTitle(isEdit ? 'Editar Inspección de Vehículo' : 'Control de Flota');
     
     // Initialize checklist state with "ok" (others: "fail", "na")
     const initialChecklist = CHECKLIST_ITEMS.reduce((acc, item) => ({ ...acc, [item.id]: 'ok' }), {});
+
+    const [isFormVisible, setIsFormVisible] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [inspections, setInspections] = useState<any[]>([]);
+
+    useEffect(() => {
+        const saved = JSON.parse(localStorage.getItem('fleet_inspections_db') || '[]');
+        setInspections(saved);
+    }, [isFormVisible]);
+
+    const handleDelete = (id: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (window.confirm('¿Está seguro de eliminar este registro?')) {
+            const updated = inspections.filter((p: any) => p.id !== id);
+            localStorage.setItem('fleet_inspections_db', JSON.stringify(updated));
+            setInspections(updated);
+            toast.success('Registro eliminado');
+        }
+    };
+
+    const filteredInspections = inspections.filter((p: any) => 
+        p.plate?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.driver?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.brandModel?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     const [form, setForm] = useState<any>({
         vehicleId: '',
@@ -137,6 +165,7 @@ export default function FleetForm(): React.ReactElement | null {
                 showSignatures: editData.showSignatures || { operator: true, professional: true, supervisor: true }
             });
             setIsEdit(true);
+            setIsFormVisible(true);
         }
     }, [location.state]);
 
@@ -194,49 +223,146 @@ export default function FleetForm(): React.ReactElement | null {
         }
         
         localStorage.setItem('fleet_inspections_db', JSON.stringify(updated));
-        navigate('/fleet-history');
+        
+        setIsFormVisible(false);
+        setIsEdit(false);
+        setForm({
+            vehicleId: '', vehicleType: 'Camioneta', brandModel: '', plate: '', mileage: '',
+            date: new Date().toISOString().split('T')[0], driver: '', inspector: '',
+            checklist: initialChecklist, observations: '', status: 'Apto',
+            signatures: { driver: '', inspector: '' }, driverSignature: '', professionalSignature: '', supervisorSignature: '',
+            showSignatures: { operator: true, professional: true, supervisor: true }
+        });
+        window.scrollTo(0, 0);
     };
+
+    if (!isFormVisible && !isEdit) {
+        return (
+            <div className="container" style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '7rem', paddingTop: isMobile ? '4.5rem' : '5.5rem' }}>
+                <PremiumHeader 
+                    title="Control de Flota y Vehículos"
+                    subtitle="Gestión e historial de inspecciones pre-operacionales."
+                    icon={<CarFront size={32} color="#ffffff" />}
+                    color="linear-gradient(135deg, #0ea5e9, #0284c7)"
+                />
+                
+                <main style={{ padding: '0 0 2rem 0', maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap', padding: '0 1rem' }}>
+                        <div style={{ position: 'relative', flex: '1 1 300px' }}>
+                            <Search size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                            <input 
+                                type="text" 
+                                placeholder="Buscar por patente o conductor..." 
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                style={{
+                                    width: '100%',
+                                    padding: '0.8rem 1rem 0.8rem 2.8rem',
+                                    borderRadius: '12px',
+                                    border: '1px solid var(--color-border)',
+                                    background: 'var(--color-surface)',
+                                    color: 'var(--color-text)',
+                                    boxSizing: 'border-box'
+                                }}
+                            />
+                        </div>
+                        <button
+                            onClick={() => setIsFormVisible(true)}
+                            className="btn-primary hover-lift"
+                            style={{ margin: 0, background: 'linear-gradient(135deg, #10b981, #059669)', border: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)', padding: '0.8rem 1.5rem', borderRadius: '12px' }}
+                        >
+                            <Plus size={20} /> NUEVA INSPECCIÓN
+                        </button>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem', padding: '0 1rem' }}>
+                        {filteredInspections.length === 0 ? (
+                            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '4rem 2rem', background: 'var(--color-surface)', borderRadius: '24px', border: '1px dashed var(--color-border)' }}>
+                                <CarFront size={48} style={{ color: 'var(--color-text-light)', marginBottom: '1rem' }} />
+                                <h3 style={{ margin: '0 0 0.5rem 0' }}>No hay inspecciones registradas</h3>
+                                <p style={{ margin: 0, color: 'var(--color-text-muted)' }}>Cargue la primera inspección pre-operacional.</p>
+                            </div>
+                        ) : (
+                            filteredInspections.map((item: any) => {
+                                const isApto = item.status === 'Apto';
+                                return (
+                                    <div 
+                                        key={item.id}
+                                        onClick={() => {
+                                            setForm({ ...item, showSignatures: item.showSignatures || { operator: true, professional: true, supervisor: true } });
+                                            setIsEdit(true);
+                                            setIsFormVisible(true);
+                                        }}
+                                        className="card hover-lift animate-fade-in"
+                                        style={{ cursor: 'pointer', padding: '1.5rem', borderRadius: '16px', background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+                                    >
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                                            <div>
+                                                <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.2rem', fontWeight: 900, textTransform: 'uppercase' }}>{item.plate}</h3>
+                                                <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                                    <Calendar size={14} /> {new Date(item.date).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                            <span style={{ 
+                                                background: isApto ? '#f0fdf4' : '#fef2f2', 
+                                                color: isApto ? '#16a34a' : '#dc2626', 
+                                                padding: '0.3rem 0.6rem', 
+                                                borderRadius: '6px', 
+                                                fontSize: '0.75rem', 
+                                                fontWeight: 900,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '0.25rem'
+                                            }}>
+                                                {isApto ? <CheckCircle2 size={14} /> : <AlertTriangle size={14} />}
+                                                {item.status?.toUpperCase() || 'N/A'}
+                                            </span>
+                                        </div>
+                                        
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                                                <span style={{ color: 'var(--color-text-muted)' }}>Modelo:</span>
+                                                <span style={{ fontWeight: 600 }}>{item.brandModel || '-'}</span>
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                                                <span style={{ color: 'var(--color-text-muted)' }}>Conductor:</span>
+                                                <span style={{ fontWeight: 600 }}>{item.driver}</span>
+                                            </div>
+                                        </div>
+
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1rem', borderTop: '1px solid var(--color-border)' }}>
+                                            <span style={{ fontSize: '0.8rem', color: 'var(--color-primary)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                                <FileText size={14} /> Ver / Editar
+                                            </span>
+                                            <button 
+                                                onClick={(e) => handleDelete(item.id, e)}
+                                                style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.5rem' }}
+                                                title="Eliminar"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        )}
+                    </div>
+                </main>
+            </div>
+        );
+    }
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem', paddingTop: isMobile ? '7.5rem' : '6.5rem' }}>
-            <div style={{
-                background: 'var(--color-surface)',
-                borderBottom: '1px solid var(--color-border)',
-                padding: '1rem 1.5rem',
-                position: 'sticky',
-                top: isMobile ? '6.5rem' : '5.5rem',
-                zIndex: 100,
-                backdropFilter: 'blur(20px)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem'
-            }}>
-                <button
-                    onClick={() => navigate(-1)}
-                    style={{
-                        padding: '0.5rem',
-                        background: 'var(--color-background)',
-                        border: '1px solid var(--color-border)',
-                        borderRadius: 'var(--radius-lg)',
-                        cursor: 'pointer',
-                        color: 'var(--color-text)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                    }}
-                >
-                    <ArrowLeft size={20} />
-                </button>
-                <div style={{ flex: 1 }}>
-                    <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.3rem', fontWeight: 900 }}>
-                        <CarFront size={20} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />
-                        {isEdit ? 'Editar Inspección Pre-Operacional' : 'Inspección Pre-Operacional Vehicular'}
-                    </h1>
-                </div>
-            </div>
+            <PremiumHeader 
+                title={isEdit ? 'Editar Inspección' : 'Nueva Inspección Vehicular'}
+                subtitle="Complete el checklist pre-operacional para autorizar el uso del vehículo."
+                icon={<CarFront size={32} color="#ffffff" />}
+                color="linear-gradient(135deg, #0ea5e9, #0284c7)"
+            />
 
             <main style={{ padding: '3.5rem 1.5rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
-                <div className="card" style={{ padding: '2rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)' }}>
+                <div className="card animate-fade-in" style={{ padding: '2.5rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem' }}>
                         <div>
                             <label style={labelStyle}>Dominio / Patente *</label>
@@ -286,31 +412,52 @@ export default function FleetForm(): React.ReactElement | null {
                             <ClipboardList size={22} /> Checklist Pre-Operacional
                         </h3>
                         
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             {CHECKLIST_ITEMS.map((item, index) => (
-                                <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '10px', flexWrap: 'wrap', gap: '1rem' }}>
-                                    <div style={{ flex: '1 1 200px' }}>
-                                        <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{item.label}</span>
+                                <div key={item.id} className="hover-lift" style={{ 
+                                    display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+                                    padding: '1.2rem 1.5rem', background: 'rgba(255,255,255,0.02)', 
+                                    border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px', 
+                                    flexWrap: 'wrap', gap: '1rem', transition: 'all 0.3s ease'
+                                }}>
+                                    <div style={{ flex: '1 1 200px', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--color-primary)' }}></div>
+                                        <span style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--color-text)' }}>{item.label}</span>
                                     </div>
-                                    <div className="checklist-status-buttons" style={{ minWidth: '180px' }}>
+                                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', flex: '1 1 auto', justifyContent: 'flex-end' }}>
                                         <button
                                             type="button"
                                             onClick={() => updateChecklist(item.id, 'ok')}
-                                            className={`status-btn ${form.checklist?.[item.id] === 'ok' ? 'active-ok' : ''}`}
+                                            style={{
+                                                padding: '0.6rem 1rem', borderRadius: '8px', border: form.checklist?.[item.id] === 'ok' ? 'none' : '1px solid var(--color-border)', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem', flex: '1 1 auto', textAlign: 'center', minWidth: '70px',
+                                                background: form.checklist?.[item.id] === 'ok' ? '#10b981' : 'var(--color-surface)',
+                                                color: form.checklist?.[item.id] === 'ok' ? 'white' : 'var(--color-text)',
+                                                transition: 'all 0.2s'
+                                            }}
                                         >
                                             OK
                                         </button>
                                         <button
                                             type="button"
                                             onClick={() => updateChecklist(item.id, 'fail')}
-                                            className={`status-btn ${form.checklist?.[item.id] === 'fail' ? 'active-fail' : ''}`}
+                                            style={{
+                                                padding: '0.6rem 1rem', borderRadius: '8px', border: form.checklist?.[item.id] === 'fail' ? 'none' : '1px solid var(--color-border)', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem', flex: '1 1 auto', textAlign: 'center', minWidth: '70px',
+                                                background: form.checklist?.[item.id] === 'fail' ? '#ef4444' : 'var(--color-surface)',
+                                                color: form.checklist?.[item.id] === 'fail' ? 'white' : 'var(--color-text)',
+                                                transition: 'all 0.2s'
+                                            }}
                                         >
                                             FALLA
                                         </button>
                                         <button
                                             type="button"
                                             onClick={() => updateChecklist(item.id, 'na')}
-                                            className={`status-btn ${form.checklist?.[item.id] === 'na' ? 'active-na' : ''}`}
+                                            style={{
+                                                padding: '0.6rem 1rem', borderRadius: '8px', border: form.checklist?.[item.id] === 'na' ? 'none' : '1px solid var(--color-border)', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem', flex: '1 1 auto', textAlign: 'center', minWidth: '70px',
+                                                background: form.checklist?.[item.id] === 'na' ? '#6b7280' : 'var(--color-surface)',
+                                                color: form.checklist?.[item.id] === 'na' ? 'white' : 'var(--color-text)',
+                                                transition: 'all 0.2s'
+                                            }}
                                         >
                                             N/A
                                         </button>
@@ -318,16 +465,17 @@ export default function FleetForm(): React.ReactElement | null {
                                 </div>
                             ))}
                         </div>
-                    </div>
-
-                    <div style={{ marginTop: '2.5rem' }}>
-                        <label style={labelStyle}>Observaciones Generales / Novedades</label>
+                      <div style={{ marginTop: '2.5rem' }}>
+                        <label style={{ ...labelStyle, color: 'var(--color-primary)', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                            <FileText size={20} /> Observaciones Generales / Novedades
+                        </label>
                         <textarea 
                             value={form.observations} 
-                            onChange={(e) => setForm({ ...form, observations: e.target.value })} 
-                            style={{ ...inputStyle, minHeight: '100px' }} 
-                            placeholder="Ej: Rayón en guardabarros derecho. Próximo service en 1000 km..."
+                            onChange={(e) => setForm({ ...form, observations: e.target.value })}
+                            style={{ ...inputStyle, minHeight: '140px', resize: 'vertical', fontSize: '1rem', padding: '1.2rem' }}
+                            placeholder="Describa cualquier novedad, daño o elemento faltante..."
                         />
+                    </div>
                     </div>
 
                     {/* Firmas y Autorizaciones */}
@@ -497,6 +645,13 @@ export default function FleetForm(): React.ReactElement | null {
             </main>
 
             <div className="no-print floating-action-bar">
+                <button
+                    onClick={() => { setIsFormVisible(false); setIsEdit(false); }}
+                    className="btn-floating-action"
+                    style={{ background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}
+                >
+                    <ArrowLeft size={18} /> ATRÁS
+                </button>
                 <button
                     onClick={() => requirePro(() => setShowShareModal(true))}
                     className="btn-floating-action"

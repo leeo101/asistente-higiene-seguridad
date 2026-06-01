@@ -5,6 +5,8 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import AuditPdf from '../components/AuditPdf';
+import Breadcrumbs from '../components/Breadcrumbs';
+import PremiumHeader from '../components/PremiumHeader';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
@@ -256,69 +258,41 @@ export default function AuditForm(): React.ReactElement | null {
     };
 
     return (
-        <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '7rem' }}>
-            <div style={{
-                background: 'rgba(var(--color-surface-rgb), 0.8)',
-                borderBottom: '1px solid var(--glass-border)',
-                padding: '0.85rem 1.5rem',
-                position: 'sticky',
-                top: '5.5rem',
-                zIndex: 100,
-                backdropFilter: 'blur(20px)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem',
-                boxShadow: 'var(--shadow-sm)'
-            }}>
-                <button
-                    onClick={() => navigate(-1)}
-                    style={{
-                        padding: '0.6rem',
-                        background: 'rgba(30, 41, 59, 0.1)',
-                        border: '1px solid var(--glass-border)',
-                        borderRadius: 'var(--radius-lg)',
-                        cursor: 'pointer',
-                        color: 'var(--color-text)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'all 0.2s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(30, 41, 59, 0.2)';
-                        e.currentTarget.style.transform = 'scale(1.05)';
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(30, 41, 59, 0.1)';
-                        e.currentTarget.style.transform = 'scale(1)';
-                    }}
-                >
-                    <ArrowLeft size={18} />
-                </button>
-                <div style={{ flex: 1 }}>
-                    <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.3rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <ClipboardCheck size={22} style={{ color: 'var(--color-primary)' }} />
-                        {isEdit ? 'Editar Auditoría EHS' : 'Nueva Auditoría EHS'}
-                    </h1>
-                </div>
-            </div>
+        <div className="container" style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '7rem', paddingTop: isMobile ? '4.5rem' : '5.5rem' }}>
+            <Breadcrumbs />
+            <PremiumHeader 
+                title={isEdit ? 'Editar Auditoría' : 'Nueva Auditoría EHS'}
+                subtitle={isEdit ? 'Actualice la información de la auditoría en curso.' : 'Registre una nueva inspección o auditoría para evaluar el cumplimiento de EHS.'}
+                icon={<Shield size={32} color="#ffffff" />}
+                color="linear-gradient(135deg, #10b981, #059669)"
+            />
 
-            <main style={{ padding: '2rem 1.5rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
-                <div className="card animate-fade-in" style={{ padding: '2.5rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)', boxShadow: 'var(--shadow-lg)' }}>
+            <main style={{ padding: '0 0 2rem 0', maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
+                <div className="card animate-fade-in" style={{ padding: '2.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '24px', boxShadow: 'var(--shadow-lg)' }}>
                     {/* Metadatos Principales */}
-                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem' }}>
+                    <div style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', 
+                        gap: '1.25rem',
+                        background: 'rgba(248, 250, 252, 0.5)',
+                        padding: '1.5rem',
+                        borderRadius: '16px',
+                        border: '1px solid var(--color-border)'
+                    }}>
                         <div style={isMobile ? {} : { gridColumn: 'span 2' }}>
                             <label style={labelStyle}>Título de la Auditoría *</label>
                             <div style={{ position: 'relative' }}>
                                 <input
                                     type="text"
                                     className="input-professional"
-                                    style={{ paddingLeft: '2.5rem', marginBottom: 0 }}
+                                    style={{ paddingLeft: '2.8rem', marginBottom: 0, height: '48px', fontSize: '1rem' }}
                                     value={audit.title}
                                     onChange={(e) => setAudit({ ...audit, title: e.target.value })}
                                     placeholder="Ej: Auditoría Interna Trimestral - Planta Norte"
                                 />
-                                <FileText size={16} color="var(--color-text-light)" style={{ position: 'absolute', left: '0.9rem', top: '1.05rem' }} />
+                                <div style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)', background: 'var(--color-primary-light)', padding: '0.4rem', borderRadius: '8px', color: 'white', display: 'flex' }}>
+                                    <FileText size={16} />
+                                </div>
                             </div>
                         </div>
                         <div>
@@ -328,11 +302,13 @@ export default function AuditForm(): React.ReactElement | null {
                                     value={audit.auditType}
                                     onChange={(e) => setAudit({ ...audit, auditType: e.target.value })}
                                     className="input-professional"
-                                    style={{ paddingLeft: '2.5rem', marginBottom: 0 }}
+                                    style={{ paddingLeft: '2.8rem', marginBottom: 0, height: '48px', fontSize: '0.95rem' }}
                                 >
                                     {AUDIT_TYPES.map(t => <option key={t.id} value={t.id}>{t.icon} {t.name}</option>)}
                                 </select>
-                                <Shield size={16} color="var(--color-text-light)" style={{ position: 'absolute', left: '0.9rem', top: '1.05rem', pointerEvents: 'none' }} />
+                                <div style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)', background: 'var(--color-secondary)', padding: '0.4rem', borderRadius: '8px', color: 'white', display: 'flex', pointerEvents: 'none' }}>
+                                    <Shield size={16} />
+                                </div>
                             </div>
                         </div>
                         <div>
@@ -343,9 +319,11 @@ export default function AuditForm(): React.ReactElement | null {
                                     value={audit.date}
                                     onChange={(e) => setAudit({ ...audit, date: e.target.value })}
                                     className="input-professional"
-                                    style={{ paddingLeft: '2.5rem', marginBottom: 0 }}
+                                    style={{ paddingLeft: '2.8rem', marginBottom: 0, height: '48px', fontSize: '0.95rem' }}
                                 />
-                                <Calendar size={16} color="var(--color-text-light)" style={{ position: 'absolute', left: '0.9rem', top: '1.05rem', pointerEvents: 'none' }} />
+                                <div style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)', background: 'var(--color-accent)', padding: '0.4rem', borderRadius: '8px', color: 'white', display: 'flex', pointerEvents: 'none' }}>
+                                    <Calendar size={16} />
+                                </div>
                             </div>
                         </div>
                         <div>
@@ -356,10 +334,12 @@ export default function AuditForm(): React.ReactElement | null {
                                     value={audit.auditor}
                                     onChange={(e) => setAudit({ ...audit, auditor: e.target.value })}
                                     className="input-professional"
-                                    style={{ paddingLeft: '2.5rem', marginBottom: 0 }}
+                                    style={{ paddingLeft: '2.8rem', marginBottom: 0, height: '48px', fontSize: '0.95rem' }}
                                     placeholder="Nombre del auditor"
                                 />
-                                <User size={16} color="var(--color-text-light)" style={{ position: 'absolute', left: '0.9rem', top: '1.05rem' }} />
+                                <div style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)', background: 'var(--color-warning)', padding: '0.4rem', borderRadius: '8px', color: 'white', display: 'flex', pointerEvents: 'none' }}>
+                                    <User size={16} />
+                                </div>
                             </div>
                         </div>
                         <div>
@@ -370,10 +350,12 @@ export default function AuditForm(): React.ReactElement | null {
                                     value={audit.location}
                                     onChange={(e) => setAudit({ ...audit, location: e.target.value })}
                                     className="input-professional"
-                                    style={{ paddingLeft: '2.5rem', marginBottom: 0 }}
+                                    style={{ paddingLeft: '2.8rem', marginBottom: 0, height: '48px', fontSize: '0.95rem' }}
                                     placeholder="Ej: Nave de Producción"
                                 />
-                                <MapPin size={16} color="var(--color-text-light)" style={{ position: 'absolute', left: '0.9rem', top: '1.05rem' }} />
+                                <div style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)', background: 'var(--color-danger)', padding: '0.4rem', borderRadius: '8px', color: 'white', display: 'flex', pointerEvents: 'none' }}>
+                                    <MapPin size={16} />
+                                </div>
                             </div>
                         </div>
                     </div>

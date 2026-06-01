@@ -346,10 +346,11 @@ export default function CAPAManager(): React.ReactElement | null {
                             fontWeight: 900,
                             color: 'var(--color-text)',
                             letterSpacing: '-0.5px',
-                            wordBreak: 'break-word',
+                            overflowWrap: 'break-word',
+                            wordBreak: 'normal',
                             lineHeight: 1.2
                         }}>
-                            CAPA - Acciones Correctivas/Preventivas
+                            CAPA - Acciones Correctivas / Preventivas
                         </h1>
                         <p style={{ 
                             margin: '0.25rem 0 0 0', 
@@ -373,7 +374,10 @@ export default function CAPAManager(): React.ReactElement | null {
                             alignItems: 'center',
                             justifyContent: 'center',
                             gap: '0.5rem',
-                            padding: '0.75rem 1.25rem'
+                            padding: '0.75rem 1.25rem',
+                            background: '#36B37E',
+                            borderColor: '#36B37E',
+                            color: '#ffffff'
                         }}
                     >
                         <Plus size={20} strokeWidth={2.5} />
@@ -605,7 +609,6 @@ export default function CAPAManager(): React.ReactElement | null {
                 <EmptyStateIllustrated 
                     title="Sin Acciones CAPA"
                     description="Registrá y hacé seguimiento de acciones correctivas y preventivas para la mejora continua."
-                    onAction={() => setShowAddModal(true)}
                     icon={<RefreshCw />}
                 />
             ) : (

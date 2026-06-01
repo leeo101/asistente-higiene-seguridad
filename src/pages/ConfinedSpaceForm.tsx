@@ -4,7 +4,7 @@ import {
     ArrowLeft, Save, Tent, ClipboardCheck, CheckCircle2,
     Eye, Printer, Share2, AlertTriangle, XCircle,
     User, Users, Shield, Wind, Droplets, Thermometer,
-    Activity, ShieldCheck, AlertCircle, Plus, Trash2, Pencil
+    Activity, ShieldCheck, AlertCircle, Plus, Trash2, Pencil, X
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
@@ -254,18 +254,18 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
             />
 
             <main style={{ padding: '2rem 1rem', maxWidth: '1000px', margin: '0 auto' }}>
-                <div className="card" style={{ padding: isMobile ? '1.5rem' : '2.5rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)' }}>
+                <div className="card animate-fade-in" style={{ padding: isMobile ? '1.5rem' : '2.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '24px', boxShadow: 'var(--shadow-lg)' }}>
 
                     {/* Sección: Información General */}
                     <SectionTitle icon={<ClipboardCheck size={20} />} title="Información del Espacio" />
                     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem', marginBottom: '2.5rem' }}>
                         <div style={{ gridColumn: isMobile ? 'auto' : 'span 2' }}>
                             <label style={labelStyle}>Nombre del Espacio *</label>
-                            <input type="text" value={permit.spaceName} onChange={(e) => setPermit({ ...permit, spaceName: e.target.value })} style={inputStyle} placeholder="Ej: Tanque de Almacenamiento T-101" />
+                            <input type="text" className="input-professional" value={permit.spaceName} onChange={(e) => setPermit({ ...permit, spaceName: e.target.value })} placeholder="Ej: Tanque de Almacenamiento T-101" />
                         </div>
                         <div>
                             <label style={labelStyle}>Tipo de Espacio</label>
-                            <select value={permit.spaceType} onChange={(e) => setPermit({ ...permit, spaceType: e.target.value })} style={inputStyle}>
+                            <select className="input-professional" value={permit.spaceType} onChange={(e) => setPermit({ ...permit, spaceType: e.target.value })}>
                                 {CONFINED_SPACE_TYPES.map(t => (
                                     <option key={t.id} value={t.id}>{t.icon} {t.name}</option>
                                 ))}
@@ -273,15 +273,15 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                         </div>
                         <div>
                             <label style={labelStyle}>Ubicación / Planta *</label>
-                            <input type="text" value={permit.location} onChange={(e) => setPermit({ ...permit, location: e.target.value })} style={inputStyle} placeholder="Ej: Planta Norte, Sector B" />
+                            <input type="text" className="input-professional" value={permit.location} onChange={(e) => setPermit({ ...permit, location: e.target.value })} placeholder="Ej: Planta Norte, Sector B" />
                         </div>
                         <div>
                             <label style={labelStyle}>Departamento</label>
-                            <input type="text" value={permit.department} onChange={(e) => setPermit({ ...permit, department: e.target.value })} style={inputStyle} placeholder="Mantenimiento / Operaciones" />
+                            <input type="text" className="input-professional" value={permit.department} onChange={(e) => setPermit({ ...permit, department: e.target.value })} placeholder="Mantenimiento / Operaciones" />
                         </div>
                         <div style={{ gridColumn: isMobile ? 'auto' : 'span 2' }}>
                             <label style={labelStyle}>Descripción del Trabajo</label>
-                            <input type="text" value={permit.description} onChange={(e) => setPermit({ ...permit, description: e.target.value })} style={inputStyle} placeholder="Limpieza, soldadura, inspección..." />
+                            <input type="text" className="input-professional" value={permit.description} onChange={(e) => setPermit({ ...permit, description: e.target.value })} placeholder="Limpieza, soldadura, inspección..." />
                         </div>
                     </div>
 
@@ -336,7 +336,7 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                         <div>
                             <label style={labelStyle}>Entrante(s) Autorizado(s)</label>
                             <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                                <input id="entrant-input" type="text" placeholder="Nombre completo" style={inputStyle} onKeyDown={(e) => {
+                                <input id="entrant-input" type="text" className="input-professional" placeholder="Nombre completo" onKeyDown={(e) => {
                                     if (e.key === 'Enter') {
                                         const val = (e.target as HTMLInputElement).value.trim();
                                         if (val) { addTeamMember('entrant', val); (e.target as HTMLInputElement).value = ''; }
@@ -362,24 +362,25 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                         </div>
                         <div>
                             <label style={labelStyle}>Vigía de Seguridad *</label>
-                            <input type="text" value={permit.team.attendant} onChange={(e) => setPermit({ ...permit, team: { ...permit.team, attendant: e.target.value } })} style={inputStyle} placeholder="Nombre del vigía" />
+                            <input type="text" className="input-professional" value={permit.team.attendant} onChange={(e) => setPermit({ ...permit, team: { ...permit.team, attendant: e.target.value } })} placeholder="Nombre del vigía" />
                         </div>
                         <div>
                             <label style={labelStyle}>Supervisor de Entrada *</label>
-                            <input type="text" value={permit.team.supervisor} onChange={(e) => setPermit({ ...permit, team: { ...permit.team, supervisor: e.target.value } })} style={inputStyle} placeholder="Nombre del supervisor" />
+                            <input type="text" className="input-professional" value={permit.team.supervisor} onChange={(e) => setPermit({ ...permit, team: { ...permit.team, supervisor: e.target.value } })} placeholder="Nombre del supervisor" />
                         </div>
                         <div>
                             <label style={labelStyle}>Equipo de Rescate</label>
-                            <input type="text" value={permit.team.rescue} onChange={(e) => setPermit({ ...permit, team: { ...permit.team, rescue: e.target.value } })} style={inputStyle} placeholder="Empresa o equipo interno" />
+                            <input type="text" className="input-professional" value={permit.team.rescue} onChange={(e) => setPermit({ ...permit, team: { ...permit.team, rescue: e.target.value } })} placeholder="Empresa o equipo interno" />
                         </div>
                     </div>
 
                     {/* Observaciones */}
                     <SectionTitle icon={<Activity size={20} />} title="Observaciones Finales" />
                     <textarea
+                        className="input-professional"
                         value={permit.observations}
                         onChange={(e) => setPermit({ ...permit, observations: e.target.value })}
-                        style={{ ...inputStyle, minHeight: '120px', paddingTop: '1rem' }}
+                        style={{ minHeight: '120px' }}
                         placeholder="Detalles adicionales, medidas preventivas específicas, condiciones climáticas, etc."
                     />
 
@@ -502,7 +503,7 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
 
             <div className="no-print floating-action-bar">
                 <button onClick={() => navigate(-1)} className="btn-floating-action" style={{ background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}>
-                    CANCELAR
+                    <X size={18} /> CANCELAR
                 </button>
                 <button onClick={() => setShowShareModal(true)} className="btn-floating-action" style={{ background: '#0052CC', color: '#ffffff' }}>
                     <Share2 size={18} /> COMPARTIR

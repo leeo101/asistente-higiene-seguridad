@@ -8,6 +8,8 @@ import CAPAPdf from '../components/CAPAPdf';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
+import Breadcrumbs from '../components/Breadcrumbs';
+import PremiumHeader from '../components/PremiumHeader';
 
 const CAPA_TYPES = [
     { id: 'corrective', name: 'Correctiva', icon: '🔧' },
@@ -183,70 +185,46 @@ export default function CAPAForm(): React.ReactElement | null {
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '4rem' }}>
-            <div style={{
-                background: 'var(--glass-bg)',
-                borderBottom: '1px solid var(--glass-border-subtle)',
-                padding: isMobile ? '0.75rem 1rem' : '1rem 1.5rem',
-                position: 'sticky',
-                top: isMobile ? '4.5rem' : '5.5rem',
-                zIndex: 100,
-                backdropFilter: 'blur(20px)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem'
-            }}>
-                <button
-                    onClick={() => navigate(-1)}
-                    style={{
-                        padding: '0.5rem',
-                        background: 'var(--color-surface-hover)',
-                        border: '1px solid var(--glass-border)',
-                        borderRadius: 'var(--radius-lg)',
-                        cursor: 'pointer',
-                        color: 'var(--color-text)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'all 0.2s'
-                    }}
-                    className="hover:scale-105"
-                >
-                    <ArrowLeft size={20} />
-                </button>
-                <div style={{ flex: 1 }}>
-                    <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.3rem', fontWeight: 900 }}>
-                        <RefreshCw size={20} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />
-                        {isEdit ? 'Editar Acción CAPA' : 'Nueva Acción CAPA'}
-                    </h1>
-                </div>
+            <div style={{ maxWidth: '1000px', margin: '0 auto', padding: isMobile ? '4.5rem 1rem 1rem' : '5.5rem 2rem 2rem' }}>
+                <Breadcrumbs />
+                <PremiumHeader 
+                    title={isEdit ? 'Editar Acción CAPA' : 'Nueva Acción CAPA'}
+                    subtitle={isEdit ? 'Actualice la información de la acción correctiva o preventiva en curso.' : 'Registre una nueva acción para el proceso de mejora continua.'}
+                    icon={<Shield size={32} color="#ffffff" />}
+                    color="linear-gradient(135deg, #36B37E, #059669)"
+                />
             </div>
 
-            <main style={{ padding: isMobile ? '1.5rem 1rem' : '3.5rem 1.5rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
-                <div className="capa-card" style={{ padding: isMobile ? '1.25rem' : '2rem', borderRadius: isMobile ? '1rem' : 'var(--radius-2xl)' }}>
+            <main style={{ padding: isMobile ? '0 1rem 1.5rem' : '0 1.5rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
+                <div className="capa-card" style={{ padding: isMobile ? '1.25rem' : '2rem', borderRadius: isMobile ? '1rem' : 'var(--radius-2xl)', background: 'var(--color-surface)', border: '1px solid var(--glass-border)', boxShadow: 'var(--shadow-sm)' }}>
+                    <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Target size={20} color="#3b82f6" />
+                        Metadatos Principales
+                    </h2>
                     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '1rem' : '1.5rem' }}>
                         <div style={isMobile ? {} : { gridColumn: 'span 2' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                                <FileText size={16} style={{ color: 'var(--color-primary-light)' }} />
+                                <div style={{ background: '#eff6ff', padding: '4px', borderRadius: '4px' }}><FileText size={16} color="#3b82f6" /></div>
                                 <label style={{ ...labelStyle, margin: 0 }}>Título de la Acción *</label>
                             </div>
                             <input
                                 type="text"
                                 value={capa.title}
                                 onChange={(e) => setCapa({ ...capa, title: e.target.value })}
-                                style={inputStyle(isMobile)}
+                                style={{...inputStyle(isMobile), background: 'rgba(248, 250, 252, 0.5)'}}
                                 className="capa-focus-glow"
                                 placeholder="Ej: Fugas detectadas en sector de químicos"
                             />
                         </div>
                         <div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                                <Shield size={16} style={{ color: 'var(--color-primary-light)' }} />
+                                <div style={{ background: '#f0fdf4', padding: '4px', borderRadius: '4px' }}><Shield size={16} color="#16a34a" /></div>
                                 <label style={{ ...labelStyle, margin: 0 }}>Tipo de Acción</label>
                             </div>
                             <select
                                 value={capa.capaType}
                                 onChange={(e) => setCapa({ ...capa, capaType: e.target.value })}
-                                style={inputStyle(isMobile)}
+                                style={{...inputStyle(isMobile), background: 'rgba(248, 250, 252, 0.5)'}}
                                 className="capa-focus-glow"
                             >
                                 {CAPA_TYPES.map(t => (
@@ -258,13 +236,13 @@ export default function CAPAForm(): React.ReactElement | null {
                         </div>
                         <div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                                <AlertTriangle size={16} style={{ color: 'var(--color-primary-light)' }} />
+                                <div style={{ background: '#fef3c7', padding: '4px', borderRadius: '4px' }}><AlertTriangle size={16} color="#d97706" /></div>
                                 <label style={{ ...labelStyle, margin: 0 }}>Prioridad</label>
                             </div>
                             <select
                                 value={capa.priority}
                                 onChange={(e) => setCapa({ ...capa, priority: e.target.value })}
-                                style={inputStyle(isMobile)}
+                                style={{...inputStyle(isMobile), background: 'rgba(248, 250, 252, 0.5)'}}
                                 className="capa-focus-glow"
                             >
                                 {Object.entries(PRIORITY).map(([k, v]) => (
@@ -580,25 +558,25 @@ export default function CAPAForm(): React.ReactElement | null {
                 </div>
             </main>
 
-            <div className="no-print floating-action-bar" style={{ flexWrap: 'wrap', justifyContent: 'center' }}>
+            <div className="no-print floating-action-bar">
                 <button
                     onClick={() => requirePro(() => setShowShareModal(true))}
                     className="btn-floating-action"
-                    style={{ background: '#0052CC', color: '#ffffff', flex: isMobile ? '1 1 auto' : 'none', minWidth: isMobile ? '120px' : 'auto', padding: isMobile ? '0.75rem 1rem' : undefined, fontSize: isMobile ? '0.85rem' : undefined }}
+                    style={{ background: '#0052CC', color: '#ffffff' }}
                 >
                     <Share2 size={18} /> COMPARTIR
                 </button>
                 <button
                     onClick={() => requirePro(() => window.print())}
                     className="btn-floating-action"
-                    style={{ background: '#FF8B00', color: '#ffffff', flex: isMobile ? '1 1 auto' : 'none', minWidth: isMobile ? '120px' : 'auto', padding: isMobile ? '0.75rem 1rem' : undefined, fontSize: isMobile ? '0.85rem' : undefined }}
+                    style={{ background: '#FF8B00', color: '#ffffff' }}
                 >
-                    <Printer size={18} /> IMPRIMIR
+                    <Printer size={18} /> IMPRIMIR PDF
                 </button>
                 <button
                     onClick={handleSave}
                     className="btn-floating-action"
-                    style={{ background: '#36B37E', color: '#ffffff', flex: isMobile ? '1 1 100%' : 'none', padding: isMobile ? '0.85rem 1rem' : undefined, fontSize: isMobile ? '0.85rem' : undefined }}
+                    style={{ background: '#36B37E', color: '#ffffff' }}
                 >
                     <Save size={18} /> GUARDAR CAPA
                 </button>

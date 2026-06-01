@@ -365,7 +365,7 @@ export default function LegajoForm() {
 
   if (loading) return <div className="text-center p-12 pt-32">Cargando datos del legajo...</div>;
 
-  const inputStyle = { background: "var(--color-surface)", border: "1px solid var(--color-border)" };
+  
 
   return (
     <div className="pt-24 pb-20" style={{ minHeight: '100vh', background: 'var(--color-background)' }}>
@@ -486,7 +486,15 @@ export default function LegajoForm() {
         {/* ═══ EMPRESA TAB ═══ */}
         {activeTab === 'empresa' && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">Datos del Establecimiento</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}>
+              <div style={{ width: 44, height: 44, background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(37,99,235,0.3)' }}>
+                  <Building2 size={22} color="#fff" />
+              </div>
+              <div>
+                  <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text)' }}>Datos del Establecimiento</h2>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Información general de la empresa</p>
+              </div>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Razón Social</label>
@@ -494,7 +502,7 @@ export default function LegajoForm() {
                   type="text" 
                   value={formData.empresa.razonSocial}
                   onChange={e => handleChange('empresa', 'razonSocial', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                   placeholder="Ej: Metalúrgica San Martín S.A."
                 />
               </div>
@@ -504,7 +512,7 @@ export default function LegajoForm() {
                   type="text" 
                   value={formData.empresa.cuit}
                   onChange={e => handleChange('empresa', 'cuit', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                   placeholder="30-12345678-9"
                 />
               </div>
@@ -514,7 +522,7 @@ export default function LegajoForm() {
                   type="text" 
                   value={formData.empresa.domicilio}
                   onChange={e => handleChange('empresa', 'domicilio', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                   placeholder="Calle, Número, Piso, Dpto"
                 />
               </div>
@@ -524,7 +532,7 @@ export default function LegajoForm() {
                   type="text" 
                   value={formData.empresa.localidad}
                   onChange={e => handleChange('empresa', 'localidad', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                 />
               </div>
               <div>
@@ -533,7 +541,7 @@ export default function LegajoForm() {
                   type="text" 
                   value={formData.empresa.provincia}
                   onChange={e => handleChange('empresa', 'provincia', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                   placeholder="Ej: Buenos Aires"
                 />
               </div>
@@ -543,7 +551,7 @@ export default function LegajoForm() {
                   type="text" 
                   value={formData.empresa.codigoPostal}
                   onChange={e => handleChange('empresa', 'codigoPostal', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                   placeholder="Ej: B1636"
                 />
               </div>
@@ -553,7 +561,7 @@ export default function LegajoForm() {
                   type="tel" 
                   value={formData.empresa.telefono}
                   onChange={e => handleChange('empresa', 'telefono', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                   placeholder="Ej: 011 4555-1234"
                 />
               </div>
@@ -563,7 +571,7 @@ export default function LegajoForm() {
                   type="email" 
                   value={formData.empresa.email}
                   onChange={e => handleChange('empresa', 'email', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                   placeholder="contacto@empresa.com"
                 />
               </div>
@@ -573,7 +581,7 @@ export default function LegajoForm() {
                   type="text" 
                   value={formData.empresa.actividad}
                   onChange={e => handleChange('empresa', 'actividad', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                 />
               </div>
               <div>
@@ -582,7 +590,7 @@ export default function LegajoForm() {
                   type="text" 
                   value={formData.empresa.art}
                   onChange={e => handleChange('empresa', 'art', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                 />
               </div>
               <div>
@@ -591,7 +599,7 @@ export default function LegajoForm() {
                   type="text" 
                   value={formData.empresa.polizaArt}
                   onChange={e => handleChange('empresa', 'polizaArt', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                   placeholder="Nro. de póliza"
                 />
               </div>
@@ -601,7 +609,7 @@ export default function LegajoForm() {
                   type="number" 
                   value={formData.empresa.cantidadEmpleados}
                   onChange={e => handleChange('empresa', 'cantidadEmpleados', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                 />
               </div>
               <div>
@@ -610,7 +618,7 @@ export default function LegajoForm() {
                   type="number" 
                   value={formData.empresa.superficie}
                   onChange={e => handleChange('empresa', 'superficie', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                 />
               </div>
               <div>
@@ -619,7 +627,7 @@ export default function LegajoForm() {
                   type="text" 
                   value={formData.empresa.responsableSeguridad}
                   onChange={e => handleChange('empresa', 'responsableSeguridad', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                   placeholder="Nombre y apellido"
                 />
               </div>
@@ -629,7 +637,7 @@ export default function LegajoForm() {
                   type="text" 
                   value={formData.empresa.matriculaResponsable}
                   onChange={e => handleChange('empresa', 'matriculaResponsable', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                 />
               </div>
               <div>
@@ -638,7 +646,7 @@ export default function LegajoForm() {
                   type="text" 
                   value={formData.empresa.representanteLegal}
                   onChange={e => handleChange('empresa', 'representanteLegal', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                 />
               </div>
               <div>
@@ -647,7 +655,7 @@ export default function LegajoForm() {
                   type="text" 
                   value={formData.empresa.horariosTrabajo}
                   onChange={e => handleChange('empresa', 'horariosTrabajo', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                   placeholder="Ej: Lunes a Viernes 8 a 17hs"
                 />
               </div>
@@ -657,7 +665,7 @@ export default function LegajoForm() {
                   type="date" 
                   value={formData.empresa.fechaInicioActividad}
                   onChange={e => handleChange('empresa', 'fechaInicioActividad', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                 />
               </div>
             </div>
@@ -667,7 +675,15 @@ export default function LegajoForm() {
         {/* ═══ RIESGOS TAB ═══ */}
         {activeTab === 'riesgos' && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">Identificación de Riesgos</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}>
+              <div style={{ width: 44, height: 44, background: 'linear-gradient(135deg, #dc2626, #991b1b)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(220,38,38,0.3)' }}>
+                  <AlertTriangle size={22} color="#fff" />
+              </div>
+              <div>
+                  <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text)' }}>Identificación de Riesgos</h2>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Análisis de peligros presentes</p>
+              </div>
+            </div>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Riesgos Físicos presentes</label>
@@ -675,7 +691,7 @@ export default function LegajoForm() {
                   rows={3}
                   value={formData.riesgos.fisicos}
                   onChange={e => handleChange('riesgos', 'fisicos', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                   placeholder="Ej: Ruido continuo en sector producción, carga térmica en hornos..."
                 />
               </div>
@@ -685,7 +701,7 @@ export default function LegajoForm() {
                   rows={3}
                   value={formData.riesgos.quimicos}
                   onChange={e => handleChange('riesgos', 'quimicos', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                   placeholder="Sustancias utilizadas, vapores, material particulado..."
                 />
               </div>
@@ -695,7 +711,7 @@ export default function LegajoForm() {
                   rows={3}
                   value={formData.riesgos.biologicos}
                   onChange={e => handleChange('riesgos', 'biologicos', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                   placeholder="Contacto con agentes biológicos, residuos patogénicos..."
                 />
               </div>
@@ -705,7 +721,7 @@ export default function LegajoForm() {
                   rows={3}
                   value={formData.riesgos.ergonomicos}
                   onChange={e => handleChange('riesgos', 'ergonomicos', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                   placeholder="Posturas forzadas, movimientos repetitivos, levantamiento manual de cargas..."
                 />
               </div>
@@ -715,7 +731,7 @@ export default function LegajoForm() {
                   rows={3}
                   value={formData.riesgos.electricos}
                   onChange={e => handleChange('riesgos', 'electricos', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                   placeholder="Contacto directo/indirecto, tableros sin protección..."
                 />
               </div>
@@ -725,7 +741,7 @@ export default function LegajoForm() {
                   rows={3}
                   value={formData.riesgos.trabajoAltura}
                   onChange={e => handleChange('riesgos', 'trabajoAltura', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                   placeholder="Escaleras, andamios, techos, niveles superiores..."
                 />
               </div>
@@ -735,7 +751,7 @@ export default function LegajoForm() {
                   rows={4}
                   value={formData.riesgos.medidasPreventivas}
                   onChange={e => handleChange('riesgos', 'medidasPreventivas', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                   placeholder="Ej: Sistema de extracción localizada instalada. Guardas de seguridad mecánicas..."
                 />
               </div>
@@ -744,7 +760,7 @@ export default function LegajoForm() {
                 <select
                   value={formData.riesgos.nivelRiesgo}
                   onChange={e => handleChange('riesgos', 'nivelRiesgo', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                 >
                   <option value="">Seleccione...</option>
                   <option value="Bajo">Bajo</option>
@@ -759,7 +775,7 @@ export default function LegajoForm() {
                   rows={4}
                   value={formData.riesgos.observaciones}
                   onChange={e => handleChange('riesgos', 'observaciones', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                   placeholder="Observaciones adicionales sobre los riesgos identificados..."
                 />
               </div>
@@ -776,7 +792,15 @@ export default function LegajoForm() {
         {/* ═══ INCENDIO TAB ═══ */}
         {activeTab === 'incendio' && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">Protección Contra Incendios</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}>
+              <div style={{ width: 44, height: 44, background: 'linear-gradient(135deg, #ea580c, #c2410c)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(234,88,12,0.3)' }}>
+                  <Flame size={22} color="#fff" />
+              </div>
+              <div>
+                  <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text)' }}>Protección Contra Incendios</h2>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Estudio de carga de fuego y sistemas</p>
+              </div>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Carga de Fuego Calculada (Mcal/m²)</label>
@@ -784,7 +808,7 @@ export default function LegajoForm() {
                   type="text" 
                   value={formData.incendio.cargaFuego}
                   onChange={e => handleChange('incendio', 'cargaFuego', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                 />
               </div>
               <div>
@@ -792,7 +816,7 @@ export default function LegajoForm() {
                 <select 
                   value={formData.incendio.riesgoIncendio}
                   onChange={e => handleChange('incendio', 'riesgoIncendio', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                 >
                   <option value="">Seleccione...</option>
                   <option value="R1">Riesgo 1 (Explosivo)</option>
@@ -810,7 +834,7 @@ export default function LegajoForm() {
                   type="number" 
                   value={formData.incendio.cantidadExtintores}
                   onChange={e => handleChange('incendio', 'cantidadExtintores', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                 />
               </div>
               <div>
@@ -819,7 +843,7 @@ export default function LegajoForm() {
                   type="text" 
                   value={formData.incendio.tipoExtintores}
                   onChange={e => handleChange('incendio', 'tipoExtintores', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                   placeholder="Ej: ABC, CO2, Agua"
                 />
               </div>
@@ -829,7 +853,7 @@ export default function LegajoForm() {
                   type="date" 
                   value={formData.incendio.fechaSimulacro}
                   onChange={e => handleChange('incendio', 'fechaSimulacro', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                 />
               </div>
             </div>
@@ -871,7 +895,15 @@ export default function LegajoForm() {
         {/* ═══ EPP TAB ═══ */}
         {activeTab === 'epp' && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">EPP y Capacitaciones</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}>
+              <div style={{ width: 44, height: 44, background: 'linear-gradient(135deg, #16a34a, #15803d)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(22,163,74,0.3)' }}>
+                  <ShieldCheck size={22} color="#fff" />
+              </div>
+              <div>
+                  <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text)' }}>EPP y Capacitaciones</h2>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Entrega de elementos e instrucción</p>
+              </div>
+            </div>
             
             <div>
               <p className="block text-sm font-medium text-slate-700 mb-3">Elementos de Protección Personal (Res 299/11)</p>
@@ -926,7 +958,7 @@ export default function LegajoForm() {
                   rows={2}
                   value={formData.epp.capacitacionRealizada}
                   onChange={e => handleChange('epp', 'capacitacionRealizada', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                   placeholder="Uso de extintores - 15/05/2024"
                 />
               </div>
@@ -936,7 +968,7 @@ export default function LegajoForm() {
                   rows={2}
                   value={formData.epp.proximaCapacitacion}
                   onChange={e => handleChange('epp', 'proximaCapacitacion', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                   placeholder="Riesgo Eléctrico - Octubre 2024"
                 />
               </div>
@@ -946,7 +978,7 @@ export default function LegajoForm() {
                   rows={4}
                   value={formData.epp.planAnualCapacitacion}
                   onChange={e => handleChange('epp', 'planAnualCapacitacion', e.target.value)}
-                  className="toolbox-input-plain" style={inputStyle}
+                  className="input-professional"
                   placeholder="Detalle del plan anual de capacitación en seguridad e higiene..."
                 />
               </div>
@@ -964,7 +996,15 @@ export default function LegajoForm() {
         {/* ═══ FIRMAS TAB ═══ */}
         {activeTab === 'firmas' && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">Firmas del Documento</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}>
+              <div style={{ width: 44, height: 44, background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(124,58,237,0.3)' }}>
+                  <PenTool size={22} color="#fff" />
+              </div>
+              <div>
+                  <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text)' }}>Firmas del Documento</h2>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Certificación del legajo técnico</p>
+              </div>
+            </div>
             
             <div style={{ marginBottom: '2.5rem' }}>
               <PdfSignatures
@@ -1017,7 +1057,15 @@ export default function LegajoForm() {
         {/* ═══ AMBIENTE TAB ═══ */}
         {activeTab === 'ambiente' && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">Estudios de Medio Ambiente (Res 905/15)</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}>
+              <div style={{ width: 44, height: 44, background: 'linear-gradient(135deg, #0d9488, #0f766e)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(13,148,136,0.3)' }}>
+                  <Wind size={22} color="#fff" />
+              </div>
+              <div>
+                  <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text)' }}>Estudios de Medio Ambiente</h2>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Resolución 905/15</p>
+              </div>
+            </div>
             
             <div className="space-y-4">
               {/* Iluminación */}

@@ -32,7 +32,7 @@ export default function AuditPage(): React.ReactElement | null {
                         <h1 style={{ margin: 0, fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: 900 }}><ClipboardCheck size={isMobile ? 20 : 24} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />Auditorías EHS</h1>
                         <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>ISO 45001 • {stats.inProgress} en curso</p>
                     </div>
-                    <button onClick={() => navigate('/audit/new')} className="btn-primary" style={{ width: 'auto', margin: 0, padding: '0.75rem 1.25rem', display: isMobile ? 'none' : 'flex', alignItems: 'center', gap: '0.5rem' }}><Plus size={20} strokeWidth={2.5} />Nueva Auditoría</button>
+                    <button onClick={() => navigate('/audit/new')} style={{ width: 'auto', margin: 0, padding: '0.75rem 1.5rem', display: isMobile ? 'none' : 'flex', alignItems: 'center', gap: '0.5rem', borderRadius: '16px', background: '#36B37E', color: '#fff', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', boxShadow: '0 4px 15px rgba(54,179,126,0.3)', whiteSpace: 'nowrap' }}><Plus size={20} strokeWidth={2.5} />Nueva Auditoría</button>
                 </div>
             </div>
             <div style={{ marginTop: isMobile ? '1rem' : '1.5rem' }}>
@@ -42,13 +42,12 @@ export default function AuditPage(): React.ReactElement | null {
                 <StatCard label="Planificadas" value={stats.planned} color="#3b82f6" icon={<Calendar size={20} />} />
                 <StatCard label="Completadas" value={stats.completed} color="#16a34a" icon={<CheckCircle2 size={20} />} />
             </div>
-            {isMobile && (<div style={{ padding: '0 1rem 1rem', display: 'flex', gap: '0.75rem' }}><div style={{ flex: 1, position: 'relative' }}><Search size={18} color="var(--color-text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} /><input type="text" placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 2.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)', background: 'var(--color-surface)', fontSize: '0.95rem' }} /></div><button onClick={() => navigate('/audit/new')} className="btn-primary" style={{ width: 'auto', margin: 0, padding: '0 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Plus size={20} /></button></div>)}
+            {isMobile && (<div style={{ padding: '0 1rem 1rem', display: 'flex', gap: '0.75rem' }}><div style={{ flex: 1, position: 'relative' }}><Search size={18} color="var(--color-text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} /><input type="text" placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 2.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)', background: 'var(--color-surface)', fontSize: '0.95rem' }} /></div><button onClick={() => navigate('/audit/new')} style={{ width: 'auto', margin: 0, padding: '0 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '16px', background: '#22c55e', color: '#fff', border: 'none', cursor: 'pointer', boxShadow: '0 4px 15px rgba(34,197,94,0.3)' }}><Plus size={20} /></button></div>)}
             <div style={{ padding: isMobile ? '0 1rem' : '0 1.5rem', maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {filtered.length === 0 ? (
                     <EmptyStateIllustrated 
                         title="Sin Auditorías"
                         description="Planificá y gestioná auditorías ISO o internas para asegurar el cumplimiento normativo."
-                        onAction={() => navigate('/audit/new')}
                         icon={<FileText />}
                     />
                 ) : filtered.map(a => (<AuditCard key={a.id} audit={a} statusConfig={(STATUS as any)[a.status] || STATUS.planned} onStart={() => updateStatus(a.id, 'in_progress')} onComplete={() => updateStatus(a.id, 'completed')} onView={() => setSelected(a)} onDelete={() => del(a.id)} isMobile={isMobile} />))}

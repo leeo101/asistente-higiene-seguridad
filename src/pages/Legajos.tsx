@@ -124,37 +124,53 @@ export default function Legajos() {
     <div className="container" style={{ paddingBottom: '3rem' }}>
       {/* Premium Header */}
       <div style={{
-          background: 'linear-gradient(135deg, rgba(37,99,235,0.08) 0%, rgba(124,58,237,0.06) 100%)',
-          border: '1px solid rgba(37,99,235,0.15)',
-          borderRadius: '20px',
-          padding: '2rem',
-          marginBottom: '2rem',
+          background: 'linear-gradient(135deg, #d4af37, #b8860b)',
+          border: '1px solid rgba(212,175,55,0.2)',
+          borderRadius: '24px',
+          padding: '1.5rem 2rem',
+          marginBottom: '1rem',
           display: 'flex',
           flexWrap: 'wrap',
           justifyContent: 'space-between',
           alignItems: 'center',
-          gap: '1rem'
+          gap: '1rem',
+          boxShadow: '0 10px 40px rgba(212,175,55,0.3)'
       }}>
-        <div>
-          <h1 style={{ margin: 0, fontSize: 'clamp(1.3rem, 4vw, 1.8rem)', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'linear-gradient(135deg, #2563eb, #7c3aed)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Building2 size={24} color="#fff" />
-            </div>
-            Legajos Técnicos
-          </h1>
-          <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>
-            Decreto 351/79 — Ley 19.587 · ISO 45001
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ 
+              width: '56px', height: '56px', borderRadius: '16px', 
+              background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)'
+          }}>
+              <Building2 size={30} color="#fff" strokeWidth={2.5} />
+          </div>
+          <div>
+            <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.5px', textShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
+              Legajos Técnicos
+            </h1>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: 'rgba(255,255,255,0.85)', fontWeight: 600 }}>
+              Decreto 351/79 — Ley 19.587 · ISO 45001
+            </p>
+          </div>
         </div>
+      </div>
+
+      <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'flex-start' }}>
         <button
           onClick={() => {
             if (!hasAccess) { navigate('/subscription'); return; }
             navigate('/legajos/nuevo');
           }}
-          className="btn-primary"
-          style={{ padding: '0.8rem 1.5rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem', borderRadius: '14px', fontSize: '0.95rem' }}
+          style={{
+              padding: '0.75rem 1.5rem', background: '#10b981', color: '#fff',
+              border: 'none', borderRadius: '14px', fontWeight: 800, fontSize: '0.9rem',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem',
+              boxShadow: '0 4px 15px rgba(16,185,129,0.4)', transition: 'all 0.2s'
+          }}
+          onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+          onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
         >
-          <Plus size={20} /> Nuevo Legajo
+          <Plus size={18} /> Nuevo Legajo
         </button>
       </div>
 

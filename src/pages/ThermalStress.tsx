@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
-    Calculator, Info, RefreshCw, Printer, Search, Settings2, CheckCircle2, TriangleAlert, Share2, Save, ArrowLeft, ThermometerSun, Pencil
+    Calculator, Info, RefreshCw, Printer, Search, Settings2, CheckCircle2, TriangleAlert, Share2, Save, ArrowLeft, ThermometerSun, Pencil, MapPin, Trash2, QrCode, Plus
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import ThermalStressPdfGenerator from '../components/ThermalStressPdfGenerator';
 import PdfSignatures from '../components/PdfSignatures';
 import SignatureCanvas from '../components/SignatureCanvas';
+import { DataTable } from '../components/DataTable';
+import QRModal from '../components/QRModal';
+import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -55,6 +58,30 @@ export default function ThermalStress(): React.ReactElement | null {
     useDocumentTitle(editData ? 'Editar Estrés Térmico' : 'Cálculo Estrés Térmico');
 
     const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
+    const [isFormVisible, setIsFormVisible] = useState(!!editData);
+
+    const [history, setHistory] = useState<any[]>([]);
+    const [deleteTarget, setDeleteTarget] = useState<any>(null);
+    const [qrTarget, setQrTarget] = useState<any>(null);
+    const { syncing } = useSync();
+
+    useEffect(() => {
+        const loadHistory = () => {
+            const h = JSON.parse(localStorage.getItem('thermal_history') || '[]');
+            setHistory(h.sort((a: any, b: any) => (new Date(b.fecha) as any) - (new Date(a.fecha) as any)));
+        };
+        loadHistory();
+        window.addEventListener('storage', loadHistory);
+        return () => window.removeEventListener('storage', loadHistory);
+    }, [syncing]);
+
+    const confirmDelete = () => {
+        const updated = history.filter(item => item.id !== deleteTarget);
+        setHistory(updated);
+        localStorage.setItem('thermal_history', JSON.stringify(updated));
+        syncCollection('thermal_history', updated);
+        setDeleteTarget(null);
+    };
 
     const [formData, setFormData] = useState(() => {
         if (editData) {
@@ -150,7 +177,86 @@ export default function ThermalStress(): React.ReactElement | null {
         enVLA: null as boolean | null,
     });
 
-    const [showShareModal, setShowShareModal] = useState(false);
+    const [shareItem, setShareItem] = useState<any>(null);
+
+    const columns = [
+        {
+            header: 'Fecha',
+            accessor: 'fecha',
+            sortable: true,
+            render: (item: any) => (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>
+                    {new Date(item.fecha + 'T12:00:00Z').toLocaleDateString('es-AR')}
+                </span>
+            )
+        },
+        {
+            header: 'Puesto',
+            accessor: 'puesto',
+            sortable: true,
+            render: (item: any) => (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                    <div style={{ background: item.resultados?.admisible ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', padding: '0.5rem', borderRadius: '8px', color: item.resultados?.admisible ? '#10b981' : '#ef4444' }}>
+                        <ThermometerSun size={16} />
+                    </div>
+                    <span style={{ fontWeight: 700 }}>{item.puesto}</span>
+                </div>
+            )
+        },
+        {
+            header: 'Sector',
+            accessor: 'sector',
+            render: (item: any) => (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <MapPin size={14} /> {item.sector}
+                </span>
+            )
+        },
+        {
+            header: 'TGBH',
+            accessor: 'resultados',
+            sortable: true,
+            render: (item: any) => (
+                <span style={{ padding: '0.2rem 0.6rem', background: 'var(--color-background)', borderRadius: '999px', fontWeight: 800 }}>
+                    {item.resultados?.tgbh}°C
+                </span>
+            )
+        },
+        {
+            header: 'Resultado',
+            accessor: 'id',
+            render: (item: any) => {
+                const ok = item.resultados?.admisible;
+                return (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: ok ? '#10b981' : '#ef4444', fontWeight: 800, fontSize: '0.8rem' }}>
+                        {ok ? <CheckCircle2 size={15} /> : <TriangleAlert size={15} />}
+                        {ok ? 'ADMISIBLE' : 'NO ADMISIBLE'}
+                    </span>
+                );
+            }
+        },
+        {
+            header: 'Acciones',
+            accessor: 'id',
+            render: (item: any) => (
+                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    <button onClick={() => {
+                        setFormData({
+                            ...item,
+                            operatorSignature: item.operatorSignature || '',
+                            supervisorSignature: item.supervisorSignature || item.signature || '',
+                            signature: item.signature || item.supervisorSignature || '',
+                            showSignatures: item.showSignatures || { operator: true, professional: true, supervisor: true }
+                        });
+                        setIsFormVisible(true);
+                    }} style={{ padding: '0.4rem', background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', borderRadius: '8px', color: '#3b82f6', cursor: 'pointer' }} title="Editar"><Pencil size={15} /></button>
+                    <button onClick={() => requirePro(() => { const url = `${window.location.origin}/v/${currentUser?.uid}/thermal/${item.id}?print=true`; setQrTarget({ text: url, title: `Estrés Térmico — ${item.puesto}` }); })} style={{ padding: '0.4rem', background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer' }} title="QR"><QrCode size={15} /></button>
+                    <button onClick={() => requirePro(() => setShareItem(item))} style={{ padding: '0.4rem', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '8px', color: '#16a34a', cursor: 'pointer' }} title="Compartir"><Share2 size={15} /></button>
+                    <button onClick={() => setDeleteTarget(item.id)} style={{ padding: '0.4rem', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}><Trash2 size={15} /></button>
+                </div>
+            )
+        }
+    ];
 
     let userCountry = 'argentina';
     try {
@@ -241,9 +347,10 @@ export default function ThermalStress(): React.ReactElement | null {
 
         localStorage.setItem('thermal_history', JSON.stringify(history));
         syncCollection('thermal_history', history);
+        setHistory(history);
 
         toast.success(editData ? 'Evaluación térmica actualizada.' : 'Medición guardada en el historial.');
-        navigate('/thermal-stress-history');
+        setIsFormVisible(false);
     };
 
     const [showUpdateAlert, setShowUpdateAlert] = useState(() => {
@@ -256,7 +363,7 @@ export default function ThermalStress(): React.ReactElement | null {
     return (
         <div className="container" style={{ paddingBottom: '6rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             {showUpdateAlert && (
-                <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyItems: 'center', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
+                <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
                     <div style={{ background: '#fff', margin: 'auto', padding: '2rem', borderRadius: '16px', maxWidth: '400px', textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
                         <div style={{ background: '#fef2f2', color: '#ef4444', height: '64px', width: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
                             <TriangleAlert size={32} />
@@ -275,38 +382,123 @@ export default function ThermalStress(): React.ReactElement | null {
                 </div>
             )}
             
+            {deleteTarget && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+                    <div className="card" style={{ maxWidth: '320px', textAlign: 'center', padding: '2rem' }}>
+                        <Trash2 size={48} style={{ color: '#ef4444', marginBottom: '1rem' }} />
+                        <h3>¿Eliminar evaluación?</h3>
+                        <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>Esta acción no se puede deshacer.</p>
+                        <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                            <button onClick={() => setDeleteTarget(null)} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: 'var(--color-background)', border: 'none', cursor: 'pointer', fontWeight: 700 }}>Cancelar</button>
+                            <button onClick={confirmDelete} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: '#ef4444', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 700 }}>Eliminar</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
             <ShareModal
-                open={showShareModal}
-                onClose={() => setShowShareModal(false)}
+                isOpen={!!shareItem}
+                open={!!shareItem}
+                onClose={() => setShareItem(null)}
                 title="Compartir Informe de Estrés Térmico"
-                text={`🌡️ Evaluación Estrés Térmico (TGBH) | Res. SRT 30/2023\n📍 Puesto: ${formData.puesto}\n📊 TGBH: ${resultados.tgbh}°C | VLE: ${resultados.vle}°C | VLA: ${resultados.vla}°C\n✅ Dictamen: ${!resultados.admisible ? 'RIESGO TÉRMICO' : resultados.enVLA ? 'ZONA DE ALERTA' : 'ADMISIBLE'}\n\nEnviado desde Asistente HYS`}
+                text={shareItem ? `🌡️ Evaluación Estrés Térmico (TGBH) | Res. SRT 30/2023\n📍 Puesto: ${shareItem.puesto}\n📊 TGBH: ${shareItem.resultados?.tgbh}°C | VLE: ${shareItem.resultados?.vle}°C\n✅ Dictamen: ${!shareItem.resultados?.admisible ? 'RIESGO TÉRMICO' : shareItem.resultados?.enVLA ? 'ZONA DE ALERTA' : 'ADMISIBLE'}\n\nEnviado desde Asistente HYS` : ''}
+                rawMessage={shareItem ? `🌡️ Evaluación Estrés Térmico (TGBH) | Res. SRT 30/2023\n📍 Puesto: ${shareItem.puesto}\n📊 TGBH: ${shareItem.resultados?.tgbh}°C | VLE: ${shareItem.resultados?.vle}°C\n✅ Dictamen: ${!shareItem.resultados?.admisible ? 'RIESGO TÉRMICO' : shareItem.resultados?.enVLA ? 'ZONA DE ALERTA' : 'ADMISIBLE'}\n\nEnviado desde Asistente HYS` : ''}
                 elementIdToPrint="pdf-content"
+                fileName={`Estres_Termico_${shareItem?.puesto || 'report'}.pdf`}
             />
 
-            <div className="no-print floating-action-bar">
-                <button onClick={() => navigate('/thermal-stress-history')} className="btn-floating-action" style={{ background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}>
-                    <Search size={18} /> HISTORIAL
-                </button>
-                <button onClick={handleSave} className="btn-floating-action" style={{ background: '#36B37E', color: '#ffffff' }}>
-                    <Save size={18} /> GUARDAR
-                </button>
-                <button onClick={() => requirePro(() => setShowShareModal(true))} className="btn-floating-action" style={{ background: '#0052CC', color: '#ffffff' }}>
-                    <Share2 size={18} /> COMPARTIR
-                </button>
-                <button onClick={handlePrint} className="btn-floating-action" style={{ background: '#FF8B00', color: '#ffffff' }}>
-                    <Printer size={18} /> IMPRIMIR PDF
-                </button>
+            <div style={{ position: 'absolute', left: 0, opacity: 0.01, top: '-9999px', pointerEvents: 'none' }}>
+                {shareItem && <ThermalStressPdfGenerator data={shareItem} isHeadless={true} onBack={() => {}} />}
             </div>
 
-            <div className="no-print">
-                <Breadcrumbs />
-                <PremiumHeader
-                    title={editData ? 'Editar Estrés Térmico' : 'Estrés Térmico Calculadora'}
-                    subtitle="Res. SRT 30/2023 — reemplaza Res. 295/03 (derogada)"
-                    icon={<ThermometerSun size={36} />}
-                />
+            {!isFormVisible ? (
+                <div className="animate-fade-in" style={{ padding: '0 1rem', width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
+                    <Breadcrumbs />
+                    <PremiumHeader
+                        title="Evaluaciones de Estrés Térmico"
+                        subtitle={`Res. SRT 30/2023 • ${history.length} registros`}
+                        icon={<ThermometerSun size={36} />}
+                    />
+                    
+                    <button
+                        onClick={() => {
+                            setFormData({
+                                puesto: '', sector: '', tarea: '', fecha: new Date().toISOString().split('T')[0],
+                                cargaSolar: false, tbh: '', tg: '', tbs: '', viento: '',
+                                aptaMedica: false, aclimatado: false, ritmo: 'moderado', ciclo: 'continuo',
+                                operatorSignature: '', supervisorSignature: '', signature: '',
+                                showSignatures: { operator: true, professional: true, supervisor: true }
+                            });
+                            setIsFormVisible(true);
+                        }}
+                        className="btn-primary"
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', width: '100%', padding: '0.85rem', border: '1px solid #36B37E', background: '#36B37E', color: '#ffffff', cursor: 'pointer', fontSize: '0.92rem', marginBottom: '1.5rem', borderRadius: '12px' }}
+                    >
+                        <Plus size={18} /> NUEVO ESTUDIO
+                    </button>
 
-                <div className="grid-2-cols" style={{ gap: '1.5rem', marginTop: '2rem' }}>
+                    <DataTable
+                        data={history}
+                        columns={columns}
+                        searchPlaceholder="Buscar por puesto o sector..."
+                        searchFields={['puesto', 'sector', 'tarea']}
+                        emptyMessage="No hay evaluaciones térmicas registradas."
+                        emptyIcon={<ThermometerSun size={48} />}
+                        onEmptyAction={() => setIsFormVisible(true)}
+                        emptyActionLabel="Nueva Medición"
+                    />
+
+                    {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
+                </div>
+            ) : (
+                <>
+                    <div className="no-print floating-action-bar">
+                        <button onClick={() => setIsFormVisible(false)} className="btn-floating-action" style={{ background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}>
+                            <ArrowLeft size={18} /> ATRÁS
+                        </button>
+                        <button onClick={handleSave} className="btn-floating-action" style={{ background: '#36B37E', color: '#ffffff' }}>
+                            <Save size={18} /> GUARDAR
+                        </button>
+                        <button onClick={() => {
+                            setFormData({
+                                ...formData,
+                                professionalSignature: formData.professionalSignature || professional.signature,
+                                professionalName: formData.professionalName || professional.name,
+                                professionalLicense: formData.professionalLicense || professional.license,
+                                professionalStamp: formData.professionalStamp || professional.stamp,
+                            });
+                            requirePro(() => {
+                                const report = {
+                                    id: editData?.id || Date.now(),
+                                    date: editData?.date || new Date().toISOString(),
+                                    evaluador: currentUser?.displayName || 'Profesional HSE',
+                                    normativa: 'Res. SRT 30/2023',
+                                    ...formData,
+                                    professionalSignature: formData.professionalSignature || professional.signature,
+                                    professionalName: formData.professionalName || professional.name,
+                                    professionalLicense: formData.professionalLicense || professional.license,
+                                    professionalStamp: formData.professionalStamp || professional.stamp,
+                                    resultados
+                                };
+                                setShareItem(report);
+                            });
+                        }} className="btn-floating-action" style={{ background: '#0052CC', color: '#ffffff' }}>
+                            <Share2 size={18} /> COMPARTIR
+                        </button>
+                        <button onClick={handlePrint} className="btn-floating-action" style={{ background: '#FF8B00', color: '#ffffff' }}>
+                            <Printer size={18} /> IMPRIMIR PDF
+                        </button>
+                    </div>
+
+                    <div className="no-print animate-fade-in">
+                        <Breadcrumbs />
+                        <PremiumHeader
+                            title={editData ? 'Editar Estrés Térmico' : 'Estrés Térmico Calculadora'}
+                            subtitle="Res. SRT 30/2023 — reemplaza Res. 295/03 (derogada)"
+                            icon={<ThermometerSun size={36} />}
+                        />
+
+                        <div className="grid-2-cols" style={{ gap: '1.5rem', marginTop: '2rem' }}>
 
                     {/* ─── Columna Izquierda: Formulario ─── */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -636,6 +828,8 @@ export default function ThermalStress(): React.ReactElement | null {
                     </div>
                 </div>
             </div>
+            </>
+        )}
 
             {/* PRO upgrade banner */}
             <AdBanner />

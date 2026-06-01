@@ -4,13 +4,15 @@ import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Plus, Trash2, HardHat, TriangleAlert, CheckCircle, Clock, Shield,
     Download, QrCode, ExternalLink, Info, Footprints, Hand, Glasses, Ear, Shirt,
-    Wind, Eye, Flame, Activity, HelpCircle, User, Calendar, ShieldCheck, Award
+    Wind, Eye, Flame, Activity, HelpCircle, User, Calendar, ShieldCheck, Award, X
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useSync } from '../contexts/SyncContext';
 import { downloadCSV } from '../services/exportCsv';
 import { usePaywall } from '../hooks/usePaywall';
 import PPEReceiptPdfGenerator from '../components/PPEReceiptPdfGenerator';
+import PremiumHeader from '../components/PremiumHeader';
+import Breadcrumbs from '../components/Breadcrumbs';
 
 const EPP_TYPES = [
     'Casco de seguridad', 'Calzado de seguridad', 'Guantes de trabajo',
@@ -79,8 +81,16 @@ export default function PPETracker(): React.ReactElement | null {
     const { syncCollection } = useSync();
     const { requirePro } = usePaywall();
     const [items, setItems] = useState<any[]>([]);
-    const [showForm, setShowForm] = useState(false);
+    const [isFormVisible, setIsFormVisible] = useState(false);
     const [form, setForm] = useState(EMPTY_FORM);
+    
+    // Check if device is mobile to adjust padding
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         const saved = localStorage.getItem('ppe_items');
@@ -93,9 +103,10 @@ export default function PPETracker(): React.ReactElement | null {
         await syncCollection('ppe_items', updated);
     };
 
-    const handleAdd = () => {
+    const handleAdd = async () => {
         if (!form.type) { toast.error('Seleccioná un tipo de EPP'); return; }
         if (!form.purchaseDate) { toast.error('Ingresá la fecha de compra/entrega'); return; }
+        
         const newItem = {
             id: Date.now(),
             type: form.type === 'Otro' ? (form.custom || 'Otro') : form.type,
@@ -106,10 +117,13 @@ export default function PPETracker(): React.ReactElement | null {
             certNumber: form.certNumber,
             addedAt: new Date().toISOString()
         };
-        save([newItem, ...items]);
-        setForm(EMPTY_FORM);
-        setShowForm(false);
+
+        const updated = [newItem, ...items];
+        await save(updated);
+        
         toast.success('EPP registrado');
+        setForm(EMPTY_FORM);
+        setIsFormVisible(false);
     };
 
     const handleDelete = (id) => {
@@ -125,6 +139,8 @@ export default function PPETracker(): React.ReactElement | null {
         });
     };
 
+    const showARStamp = form.certStandard && form.certNumber;
+
     // Cálculos estadísticos para el panel de salud superior
     const total = items.length;
     const expired = items.filter(i => getDaysUntilExpiry(i.purchaseDate, i.lifeMonths) !== null && getDaysUntilExpiry(i.purchaseDate, i.lifeMonths)! < 0).length;
@@ -137,8 +153,7 @@ export default function PPETracker(): React.ReactElement | null {
     // Puntuación de protección general (EPP seguros del equipo)
     const protectionScore = total > 0 ? Math.round(((active + expiring) / total) * 100) : 100;
 
-    // Determinar si mostramos el Sello Holográfico AR interactivo
-    const showARStamp = form.certStandard && form.certNumber;
+
 
     return (
         <div className="container" style={{ maxWidth: '750px', paddingBottom: '4rem', paddingTop: '6rem' }}>
@@ -305,266 +320,24 @@ export default function PPETracker(): React.ReactElement | null {
                 </div>
             )}
 
-            {/* Add form */}
-            {showForm && (
-                <div className="card" style={{ marginBottom: '1.5rem', animation: 'scaleIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
-                    <h3 style={{ margin: '0 0 1.2rem', fontSize: '1.1rem', fontWeight: 800, fontFamily: 'var(--font-heading)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <Plus size={18} color="var(--color-primary)" /> Registrar nuevo EPP
-                    </h3>
-                    
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
-                        
-                        {/* 🪖 EPP Visual Grid Selector */}
-                        <div style={{ gridColumn: '1 / -1', marginBottom: '0.2rem' }}>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 700, fontSize: '0.8rem', color: 'var(--color-text)' }}>
-                                Tipo de EPP
-                            </label>
-                            <div style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))',
-                                gap: '0.5rem',
-                                maxHeight: '200px',
-                                overflowY: 'auto',
-                                padding: '0.3rem',
-                                borderRadius: '12px',
-                                border: '1px solid var(--color-border)',
-                                background: 'rgba(15,23,42,0.01)',
-                            }} className="slim-scrollbar">
-                                {EPP_TYPES.map(t => {
-                                    const config = getPPEConfig(t);
-                                    const IconComponent = config.icon;
-                                    const isSelected = form.type === t;
-                                    return (
-                                        <button
-                                            key={t}
-                                            type="button"
-                                            onClick={() => setForm({ ...form, type: t })}
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                gap: '0.4rem',
-                                                padding: '0.65rem 0.4rem',
-                                                borderRadius: '10px',
-                                                border: isSelected ? `2.5px solid ${config.color}` : '1.5px solid var(--color-border)',
-                                                background: isSelected ? config.bg : 'var(--color-surface)',
-                                                cursor: 'pointer',
-                                                transition: 'all 0.2s ease',
-                                                boxShadow: isSelected ? `0 4px 10px ${config.bg}` : 'var(--shadow-sm)',
-                                                transform: isSelected ? 'scale(1.02)' : 'none',
-                                            }}
-                                            onMouseEnter={(e) => {
-                                                if (!isSelected) {
-                                                    e.currentTarget.style.borderColor = config.color;
-                                                    e.currentTarget.style.boxShadow = `0 3px 8px ${config.bg}`;
-                                                }
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                if (!isSelected) {
-                                                    e.currentTarget.style.borderColor = 'var(--color-border)';
-                                                    e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-                                                }
-                                            }}
-                                        >
-                                            <div style={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                width: '28px',
-                                                height: '28px',
-                                                borderRadius: '50%',
-                                                background: isSelected ? '#ffffff' : config.bg,
-                                                color: config.color,
-                                                boxShadow: isSelected ? '0 2px 4px rgba(0,0,0,0.05)' : 'none',
-                                                transition: 'all 0.2s ease'
-                                            }}>
-                                                <IconComponent size={15} strokeWidth={2.2} />
-                                            </div>
-                                            <span style={{
-                                                fontSize: '0.68rem',
-                                                fontWeight: isSelected ? 800 : 600,
-                                                color: isSelected ? 'var(--color-text)' : 'var(--color-text-muted)',
-                                                textAlign: 'center',
-                                                lineHeight: 1.15,
-                                                wordBreak: 'break-word'
-                                            }}>
-                                                {t}
-                                            </span>
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </div>
+            {!isFormVisible ? (
+                <>
+                    <button
+                        onClick={() => setIsFormVisible(true)}
+                        className="btn-primary"
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', width: '100%', padding: '0.85rem', border: '1px solid #10b981', background: '#10b981', color: '#ffffff', cursor: 'pointer', fontSize: '0.92rem', marginBottom: '1.5rem', borderRadius: '12px' }}
+                    >
+                        <Plus size={18} /> <span className="hidden sm:inline">Registrar EPP</span><span className="inline sm:hidden">REGISTRAR</span>
+                    </button>
 
-                        {form.type === 'Otro' && (
-                            <div style={{ gridColumn: '1 / -1', animation: 'scaleIn 0.25s ease-out' }}>
-                                <label style={{ fontWeight: 700, fontSize: '0.8rem' }}>Descripción del EPP Especial</label>
-                                <input
-                                    className="input-professional"
-                                    value={form.custom}
-                                    onChange={e => setForm({ ...form, custom: e.target.value })}
-                                    placeholder="Ej: Pantalla de soldadura fotosensible"
-                                />
-                            </div>
-                        )}
-                        
-                        <div>
-                            <label style={{ fontWeight: 700, fontSize: '0.8rem' }}>Responsable (Trabajador)</label>
-                            <div style={{ position: 'relative' }}>
-                                <input
-                                    className="input-professional"
-                                    style={{ paddingLeft: '2.3rem' }}
-                                    value={form.responsible}
-                                    onChange={e => setForm({ ...form, responsible: e.target.value })}
-                                    placeholder="Nombre del trabajador"
-                                />
-                                <User size={14} color="var(--color-text-light)" style={{ position: 'absolute', left: '0.9rem', top: '1.05rem' }} />
-                            </div>
+                    {/* List */}
+                    {items.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
+                            <Shield size={48} style={{ opacity: 0.15, marginBottom: '1rem', display: 'block', margin: '0 auto 1rem' }} />
+                            <p style={{ fontWeight: 600 }}>Sin EPPs registrados.</p>
+                            <p style={{ fontSize: '0.82rem' }}>Registrá los elementos de protección del equipo para controlar sus vencimientos.</p>
                         </div>
-                        
-                        <div>
-                            <label style={{ fontWeight: 700, fontSize: '0.8rem' }}>Fecha de compra / entrega</label>
-                            <div style={{ position: 'relative' }}>
-                                <input
-                                    className="input-professional"
-                                    style={{ paddingLeft: '2.3rem' }}
-                                    type="date"
-                                    value={form.purchaseDate}
-                                    onChange={e => setForm({ ...form, purchaseDate: e.target.value })}
-                                />
-                                <Calendar size={14} color="var(--color-text-light)" style={{ position: 'absolute', left: '0.9rem', top: '1.05rem', pointerEvents: 'none' }} />
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <label style={{ fontWeight: 700, fontSize: '0.8rem' }}>Vida útil (meses)</label>
-                            <input
-                                className="input-professional"
-                                type="number"
-                                min="1"
-                                max="120"
-                                value={form.lifeMonths}
-                                onChange={e => setForm({ ...form, lifeMonths: e.target.value })}
-                                placeholder="12"
-                            />
-                        </div>
-                        
-                        <div>
-                            <label style={{ fontWeight: 700, fontSize: '0.8rem' }}>Norma de Certificación</label>
-                            <select
-                                className="input-professional"
-                                value={form.certStandard}
-                                onChange={e => setForm({ ...form, certStandard: e.target.value })}
-                            >
-                                <option value="">— Seleccioná —</option>
-                                {CERT_STANDARDS.map(s => <option key={s} value={s}>{s}</option>)}
-                            </select>
-                        </div>
-                        
-                        <div style={{ gridColumn: form.certStandard ? 'auto' : '1 / -1' }}>
-                            <label style={{ fontWeight: 700, fontSize: '0.8rem' }}>N° de Certificado / Sello AR</label>
-                            <input
-                                className="input-professional"
-                                value={form.certNumber}
-                                onChange={e => setForm({ ...form, certNumber: e.target.value })}
-                                placeholder="Ej: AR-2025-001234"
-                            />
-                        </div>
-
-                        {/* 🛡️ Sello AR / QR Holográfico de Trazabilidad */}
-                        {showARStamp && (
-                            <div style={{
-                                gridColumn: '1 / -1',
-                                background: 'linear-gradient(135deg, rgba(245,158,11,0.06) 0%, rgba(37,99,235,0.06) 100%)',
-                                border: '1px dashed rgba(245,158,11,0.35)',
-                                borderRadius: '14px',
-                                padding: '0.8rem 1rem',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.8rem',
-                                animation: 'scaleIn 0.3s ease-out',
-                                boxShadow: '0 4px 12px rgba(245,158,11,0.04)'
-                            }}>
-                                {/* Stamp Hologram */}
-                                <div style={{
-                                    flexShrink: 0,
-                                    width: '46px',
-                                    height: '46px',
-                                    borderRadius: '50%',
-                                    background: 'radial-gradient(circle, #fcd34d 0%, #d97706 100%)',
-                                    border: '2px solid #ffffff',
-                                    boxShadow: '0 0 12px rgba(217,119,6,0.3), inset 0 0 6px rgba(255,255,255,0.5)',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    color: '#78350f',
-                                    fontFamily: 'var(--font-heading)',
-                                    fontSize: '0.5rem',
-                                    fontWeight: 950,
-                                    letterSpacing: '0.2px',
-                                    position: 'relative',
-                                    overflow: 'hidden'
-                                }}>
-                                    <Award size={14} strokeWidth={2.5} style={{ marginBottom: '-1px' }} />
-                                    <span>CONFORME</span>
-                                    <span style={{ fontSize: '0.35rem', opacity: 0.85 }}>Sello AR</span>
-                                </div>
-                                
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                    <h4 style={{ margin: 0, fontSize: '0.78rem', fontWeight: 800, color: '#b45309', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                                        <CheckCircle size={12} /> Marcado AR Homologado
-                                    </h4>
-                                    <p style={{ margin: '0.15rem 0 0 0', fontSize: '0.7rem', color: 'var(--color-text-muted)', lineHeight: 1.3 }}>
-                                        Este EPP cumple las directivas de trazabilidad y QR exigidas por la **Res. SIyC 18/25**.
-                                    </p>
-                                </div>
-                                
-                                <div style={{
-                                    width: '32px',
-                                    height: '32px',
-                                    borderRadius: '6px',
-                                    background: 'var(--color-surface)',
-                                    border: '1px solid var(--color-border)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    color: 'var(--color-text)',
-                                    boxShadow: 'var(--shadow-sm)',
-                                    animation: 'pulse-soft 2.5s infinite'
-                                }}>
-                                    <QrCode size={18} strokeWidth={2.2} />
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                    
-                    <div style={{ display: 'flex', gap: '0.8rem', marginTop: '1.2rem', flexWrap: 'wrap' }}>
-                        <button onClick={handleAdd} className="btn-primary" style={{ flex: 2, minWidth: '120px', margin: 0 }}>Guardar EPP</button>
-                        <button onClick={() => { setShowForm(false); setForm(EMPTY_FORM); }} style={{ flex: 1, minWidth: '100px', padding: '0.75rem', borderRadius: '10px', background: 'transparent', border: '1px solid var(--color-border)', cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem' }}>Cancelar</button>
-                    </div>
-                </div>
-            )}
-
-            {!showForm && (
-                <button
-                    onClick={() => setShowForm(true)}
-                    className="glow-button"
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', width: '100%', padding: '0.85rem', border: 'none', cursor: 'pointer', fontSize: '0.92rem', marginBottom: '1.5rem' }}
-                >
-                    <Plus size={18} /> <span className="hidden sm:inline">Registrar EPP</span><span className="inline sm:hidden">REGISTRAR</span>
-                </button>
-            )}
-
-            {/* List */}
-            {items.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
-                    <Shield size={48} style={{ opacity: 0.15, marginBottom: '1rem', display: 'block', margin: '0 auto 1rem' }} />
-                    <p style={{ fontWeight: 600 }}>Sin EPPs registrados.</p>
-                    <p style={{ fontSize: '0.82rem' }}>Registrá los elementos de protección del equipo para controlar sus vencimientos.</p>
-                </div>
-            ) : (
+                    ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
                     {items.map((item, index) => {
                         const days = getDaysUntilExpiry(item.purchaseDate, item.lifeMonths);
@@ -704,6 +477,225 @@ export default function PPETracker(): React.ReactElement | null {
             <div className="print-only" style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0 }}>
                 <PPEReceiptPdfGenerator />
             </div>
+            </>
+            ) : (
+                <div className="animate-fade-in">
+                    <PremiumHeader 
+                        title="Nuevo Registro de EPP"
+                        subtitle="Registrá un nuevo Elemento de Protección Personal y hacele seguimiento a su vida útil."
+                        icon={<Shield size={32} color="#ffffff" />}
+                        color="linear-gradient(135deg, #10b981, #059669)"
+                    />
+                    <div className="card" style={{ padding: '2.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '24px', boxShadow: 'var(--shadow-lg)', marginTop: '1rem' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
+                            {/* 🪖 EPP Visual Grid Selector */}
+                            <div style={{ gridColumn: '1 / -1', marginBottom: '0.2rem' }}>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 700, fontSize: '0.8rem', color: 'var(--color-text)' }}>
+                                    Tipo de EPP
+                                </label>
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))',
+                                    gap: '0.5rem',
+                                    maxHeight: '200px',
+                                    overflowY: 'auto',
+                                    padding: '0.3rem',
+                                    borderRadius: '12px',
+                                    border: '1px solid var(--color-border)',
+                                    background: 'rgba(15,23,42,0.01)',
+                                }} className="slim-scrollbar">
+                                    {EPP_TYPES.map(t => {
+                                        const config = getPPEConfig(t);
+                                        const IconComponent = config.icon;
+                                        const isSelected = form.type === t;
+                                        return (
+                                            <button
+                                                key={t}
+                                                type="button"
+                                                onClick={() => setForm({ ...form, type: t })}
+                                                style={{
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    gap: '0.4rem',
+                                                    padding: '0.65rem 0.4rem',
+                                                    borderRadius: '10px',
+                                                    border: isSelected ? `2.5px solid ${config.color}` : '1.5px solid var(--color-border)',
+                                                    background: isSelected ? config.bg : 'var(--color-surface)',
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.2s ease',
+                                                    boxShadow: isSelected ? `0 4px 10px ${config.bg}` : 'var(--shadow-sm)',
+                                                    transform: isSelected ? 'scale(1.02)' : 'none',
+                                                }}
+                                            >
+                                                <div style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    width: '28px',
+                                                    height: '28px',
+                                                    borderRadius: '50%',
+                                                    background: isSelected ? '#ffffff' : config.bg,
+                                                    color: config.color,
+                                                    boxShadow: isSelected ? '0 2px 4px rgba(0,0,0,0.05)' : 'none',
+                                                    transition: 'all 0.2s ease'
+                                                }}>
+                                                    <IconComponent size={15} strokeWidth={2.2} />
+                                                </div>
+                                                <span style={{
+                                                    fontSize: '0.68rem',
+                                                    fontWeight: isSelected ? 800 : 600,
+                                                    color: isSelected ? 'var(--color-text)' : 'var(--color-text-muted)',
+                                                    textAlign: 'center',
+                                                    lineHeight: 1.15,
+                                                    wordBreak: 'break-word'
+                                                }}>
+                                                    {t}
+                                                </span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                            
+                            {form.type === 'Otro' && (
+                                <div style={{ gridColumn: '1 / -1', animation: 'scaleIn 0.25s ease-out' }}>
+                                    <label style={{ fontWeight: 700, fontSize: '0.8rem' }}>Descripción del EPP Especial</label>
+                                    <input
+                                        className="input-professional"
+                                        value={form.custom}
+                                        onChange={e => setForm({ ...form, custom: e.target.value })}
+                                        placeholder="Ej: Pantalla de soldadura fotosensible"
+                                    />
+                                </div>
+                            )}
+                            
+                            <div>
+                                <label style={{ fontWeight: 700, fontSize: '0.8rem' }}>Responsable (Trabajador)</label>
+                                <div style={{ position: 'relative' }}>
+                                    <input
+                                        className="input-professional"
+                                        style={{ paddingLeft: '2.3rem' }}
+                                        value={form.responsible}
+                                        onChange={e => setForm({ ...form, responsible: e.target.value })}
+                                        placeholder="Nombre del trabajador"
+                                    />
+                                    <User size={14} color="var(--color-text-light)" style={{ position: 'absolute', left: '0.9rem', top: '1.05rem' }} />
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label style={{ fontWeight: 700, fontSize: '0.8rem' }}>Fecha de compra / entrega</label>
+                                <div style={{ position: 'relative' }}>
+                                    <input
+                                        className="input-professional"
+                                        style={{ paddingLeft: '2.3rem' }}
+                                        type="date"
+                                        value={form.purchaseDate}
+                                        onChange={e => setForm({ ...form, purchaseDate: e.target.value })}
+                                    />
+                                    <Calendar size={14} color="var(--color-text-light)" style={{ position: 'absolute', left: '0.9rem', top: '1.05rem', pointerEvents: 'none' }} />
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label style={{ fontWeight: 700, fontSize: '0.8rem' }}>Vida útil (meses)</label>
+                                <input
+                                    className="input-professional"
+                                    type="number"
+                                    min="1"
+                                    max="120"
+                                    value={form.lifeMonths}
+                                    onChange={e => setForm({ ...form, lifeMonths: e.target.value })}
+                                    placeholder="12"
+                                />
+                            </div>
+                            
+                            <div>
+                                <label style={{ fontWeight: 700, fontSize: '0.8rem' }}>Norma de Certificación</label>
+                                <select
+                                    className="input-professional"
+                                    value={form.certStandard}
+                                    onChange={e => setForm({ ...form, certStandard: e.target.value })}
+                                >
+                                    <option value="">— Seleccioná —</option>
+                                    {CERT_STANDARDS.map(s => <option key={s} value={s}>{s}</option>)}
+                                </select>
+                            </div>
+                            
+                            <div style={{ gridColumn: form.certStandard ? 'auto' : '1 / -1' }}>
+                                <label style={{ fontWeight: 700, fontSize: '0.8rem' }}>N° de Certificado / Sello AR</label>
+                                <input
+                                    className="input-professional"
+                                    value={form.certNumber}
+                                    onChange={e => setForm({ ...form, certNumber: e.target.value })}
+                                    placeholder="Ej: AR-2025-001234"
+                                />
+                            </div>
+
+                            {showARStamp && (
+                                <div style={{
+                                    gridColumn: '1 / -1',
+                                    background: 'linear-gradient(135deg, rgba(245,158,11,0.06) 0%, rgba(37,99,235,0.06) 100%)',
+                                    border: '1px dashed rgba(245,158,11,0.35)',
+                                    borderRadius: '14px',
+                                    padding: '0.8rem 1rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.8rem',
+                                    animation: 'scaleIn 0.3s ease-out',
+                                    boxShadow: '0 4px 12px rgba(245,158,11,0.04)'
+                                }}>
+                                    <div style={{
+                                        flexShrink: 0, width: '46px', height: '46px', borderRadius: '50%',
+                                        background: 'radial-gradient(circle, #fcd34d 0%, #d97706 100%)',
+                                        border: '2px solid #ffffff', boxShadow: '0 0 12px rgba(217,119,6,0.3), inset 0 0 6px rgba(255,255,255,0.5)',
+                                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                                        color: '#78350f', fontFamily: 'var(--font-heading)', fontSize: '0.5rem', fontWeight: 950, letterSpacing: '0.2px',
+                                        position: 'relative', overflow: 'hidden'
+                                    }}>
+                                        <Award size={14} strokeWidth={2.5} style={{ marginBottom: '-1px' }} />
+                                        <span>CONFORME</span>
+                                        <span style={{ fontSize: '0.35rem', opacity: 0.85 }}>Sello AR</span>
+                                    </div>
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <h4 style={{ margin: 0, fontSize: '0.78rem', fontWeight: 800, color: '#b45309', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                            <CheckCircle size={12} /> Marcado AR Homologado
+                                        </h4>
+                                        <p style={{ margin: '0.15rem 0 0 0', fontSize: '0.7rem', color: 'var(--color-text-muted)', lineHeight: 1.3 }}>
+                                            Este EPP cumple las directivas de trazabilidad y QR exigidas por la **Res. SIyC 18/25**.
+                                        </p>
+                                    </div>
+                                    <div style={{
+                                        width: '32px', height: '32px', borderRadius: '6px', background: 'var(--color-surface)', border: '1px solid var(--color-border)',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text)', boxShadow: 'var(--shadow-sm)', animation: 'pulse-soft 2.5s infinite'
+                                    }}>
+                                        <QrCode size={18} strokeWidth={2.2} />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    
+                    <div className="no-print floating-action-bar">
+                        <button
+                            onClick={() => setIsFormVisible(false)}
+                            className="btn-floating-action"
+                            style={{ background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}
+                        >
+                            <X size={18} /> CANCELAR
+                        </button>
+                        <button
+                            onClick={handleAdd}
+                            className="btn-floating-action"
+                            style={{ background: '#10b981', color: '#ffffff', border: 'none' }}
+                        >
+                            <ShieldCheck size={18} /> GUARDAR EPP
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

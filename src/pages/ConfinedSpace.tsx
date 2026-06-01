@@ -285,28 +285,20 @@ export default function ConfinedSpace(): React.ReactElement | null {
                 title="Espacios Confinados"
                 subtitle={`OSHA 1910.146 • ${activePermits.length} activos`}
                 icon={<Tent size={36} />}
+            />
+
+            <button
+                onClick={() => navigate('/confined-space/new')}
+                className="btn-primary"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', width: '100%', padding: '0.85rem', border: '1px solid #36B37E', background: '#36B37E', color: '#ffffff', cursor: 'pointer', fontSize: '0.92rem', marginBottom: '1.5rem', borderRadius: '12px' }}
             >
-                <button
-                    onClick={() => navigate('/confined-space/new')}
-                    className="btn-primary"
-                    style={{
-                        width: 'auto',
-                        margin: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        padding: '0.75rem 1.25rem'
-                    }}
-                >
-                    <Plus size={20} strokeWidth={2.5} />
-                    Nuevo Permiso
-                </button>
-            </PremiumHeader>
+                <Plus size={18} /> <span className="hidden sm:inline">Nuevo Permiso de Espacio Confinado</span><span className="inline sm:hidden">NUEVO PERMISO</span>
+            </button>
 
             {/* Stats Cards */}
             <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                gridTemplateColumns: 'repeat(2, 1fr)',
                 gap: '1rem',
                 marginBottom: '2rem'
             }}>
@@ -451,7 +443,6 @@ export default function ConfinedSpace(): React.ReactElement | null {
                         <EmptyStateIllustrated 
                             title="Sin Permisos de Espacio Confinado"
                             description="Creá permisos de entrada según OSHA 1910.146 para asegurar el ingreso seguro."
-                            onAction={() => navigate('/confined-space/new')}
                             icon={<Shield />}
                         />
                     ) : (
@@ -621,10 +612,10 @@ function StatCard({ icon, label, value, color, gradient }) {
                 borderRadius: '50%',
                 opacity: 0.1
             }} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
                 <div style={{
-                    width: '48px',
-                    height: '48px',
+                    width: '40px',
+                    height: '40px',
                     background: gradient,
                     borderRadius: 'var(--radius-lg)',
                     display: 'flex',
@@ -632,13 +623,13 @@ function StatCard({ icon, label, value, color, gradient }) {
                     justifyContent: 'center',
                     boxShadow: `0 4px 15px ${color}40`
                 }}>
-                    {React.cloneElement(icon, { color: '#ffffff', size: 24 })}
+                    {React.cloneElement(icon, { color: '#ffffff', size: 20 })}
                 </div>
             </div>
-            <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--color-text)', lineHeight: 1 }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-text)', lineHeight: 1 }}>
                 {value}
             </div>
-            <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>
+            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-muted)', lineHeight: 1.2, marginTop: '0.2rem' }}>
                 {label}
             </div>
         </div>

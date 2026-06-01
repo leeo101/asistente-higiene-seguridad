@@ -76,7 +76,6 @@ const ResetPassword = lazyWithRetry(() => import('./pages/ResetPassword'));
 const AdminRequests = lazyWithRetry(() => import('./pages/AdminRequests'));
 const PrivacyPolicy = lazyWithRetry(() => import('./pages/PrivacyPolicy'));
 const LightingReport = lazyWithRetry(() => import('./pages/LightingReport'));
-const LightingHistory = lazyWithRetry(() => import('./pages/LightingHistory'));
 const WorkPermit = lazyWithRetry(() => import('./pages/WorkPermit'));
 const WorkPermitHistory = lazyWithRetry(() => import('./pages/WorkPermitHistory'));
 const RiskAssessmentHistory = lazyWithRetry(() => import('./pages/RiskAssessmentHistory'));
@@ -89,7 +88,6 @@ const AICameraManager = lazyWithRetry(() => import('./pages/AICameraManager'));
 const AIGeneralCameraManager = lazyWithRetry(() => import('./pages/AIGeneralCameraManager'));
 const ManagementReport = lazyWithRetry(() => import('./pages/ManagementReport'));
 const AccidentInvestigation = lazyWithRetry(() => import('./pages/AccidentInvestigation'));
-const AccidentHistory = lazyWithRetry(() => import('./pages/AccidentHistory'));
 const TrainingManagement = lazyWithRetry(() => import('./pages/TrainingManagement'));
 
 
@@ -97,7 +95,6 @@ const ExtinguisherPdfGenerator = lazyWithRetry(() => import('./components/Exting
 const ExtintoresManager = lazyWithRetry(() => import('./pages/ExtintoresManager'));
 const ExtinguisherInspection = lazyWithRetry(() => import('./pages/ExtinguisherInspection'));
 const ThermalStress = lazyWithRetry(() => import('./pages/ThermalStress'));
-const ThermalStressHistory = lazyWithRetry(() => import('./pages/ThermalStressHistory'));
 const Drills = lazyWithRetry(() => import('./pages/Drills'));
 const DrillsHistory = lazyWithRetry(() => import('./pages/DrillsHistory'));
 const RiskMapGenerator = lazyWithRetry(() => import('./pages/RiskMapGenerator'));
@@ -107,7 +104,6 @@ const StopCardsHistory = lazyWithRetry(() => import('./pages/StopCardsHistory'))
 const LogoSettings = lazyWithRetry(() => import('./pages/LogoSettings'));
 const PublicView = lazyWithRetry(() => import('./pages/PublicView'));
 const ExtinguisherAI = lazyWithRetry(() => import('./pages/ExtinguisherAI'));
-const ExtinguisherAIHistory = lazyWithRetry(() => import('./pages/ExtinguisherAIHistory'));
 const ChemicalSafety = lazyWithRetry(() => import('./pages/ChemicalSafety'));
 const NoiseAssessment = lazyWithRetry(() => import('./pages/NoiseAssessment'));
 const LOTOManager = lazyWithRetry(() => import('./pages/LOTOManager'));
@@ -133,9 +129,7 @@ const WorkingAtHeightForm = lazyWithRetry(() => import('./pages/WorkingAtHeightF
 const ConfinedSpaceForm = lazyWithRetry(() => import('./pages/ConfinedSpaceForm'));
 const ChemicalSafetyForm = lazyWithRetry(() => import('./pages/ChemicalSafetyForm'));
 const LiftingForm = lazyWithRetry(() => import('./pages/LiftingForm'));
-const LiftingHistory = lazyWithRetry(() => import('./pages/LiftingHistory'));
 const FleetForm = lazyWithRetry(() => import('./pages/FleetForm'));
-const FleetHistory = lazyWithRetry(() => import('./pages/FleetHistory'));
 const EvacuationSimulatorForm = lazyWithRetry(() => import('./pages/EvacuationSimulatorForm'));
 const EvacuationSimulatorHistory = lazyWithRetry(() => import('./pages/EvacuationSimulatorHistory'));
 
@@ -496,7 +490,6 @@ function App() {
                   <Route path="/ai-advisor" element={<ProtectedRoute><AIChatAdvisor /></ProtectedRoute>} />
                   <Route path="/ai-report" element={<ProtectedRoute><AIReport /></ProtectedRoute>} />
                   <Route path="/extinguisher-ai" element={<ProtectedRoute><ExtinguisherAI /></ProtectedRoute>} />
-                  <Route path="/extinguisher-ai-history" element={<ProtectedRoute><ExtinguisherAIHistory /></ProtectedRoute>} />
 
                   {/* Safety Modules */}
                   <Route path="/audit" element={<ProtectedRoute><AuditManager /></ProtectedRoute>} />
@@ -551,7 +544,7 @@ function App() {
                   <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
 
 
-                  <Route path="/lighting-history" element={<ProtectedRoute><LightingHistory /></ProtectedRoute>} />
+
                   <Route path="/work-permit" element={<ProtectedRoute><WorkPermit /></ProtectedRoute>} />
                   <Route path="/work-permit-history" element={<ProtectedRoute><WorkPermitHistory /></ProtectedRoute>} />
                   <Route path="/risk-assessment-history" element={<ProtectedRoute><RiskAssessmentHistory /></ProtectedRoute>} />
@@ -560,14 +553,12 @@ function App() {
                   <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                   <Route path="/management-report" element={<ProtectedRoute><ManagementReport /></ProtectedRoute>} />
                   <Route path="/accident-investigation" element={<ProtectedRoute><AccidentInvestigation /></ProtectedRoute>} />
-                  <Route path="/accident-history" element={<ProtectedRoute><AccidentHistory /></ProtectedRoute>} />
                   <Route path="/training-management" element={<ProtectedRoute><TrainingManagement /></ProtectedRoute>} />
 
 
                   <Route path="/extintores" element={<ProtectedRoute><ExtintoresManager /></ProtectedRoute>} />
                   <Route path="/extintores/inspect/:id" element={<ProtectedRoute><ExtinguisherInspection /></ProtectedRoute>} />
                   <Route path="/thermal-stress" element={<ProtectedRoute><ThermalStress /></ProtectedRoute>} />
-                  <Route path="/thermal-stress-history" element={<ProtectedRoute><ThermalStressHistory /></ProtectedRoute>} />
                   <Route path="/drills" element={<ProtectedRoute><Drills /></ProtectedRoute>} />
                   <Route path="/drills-history" element={<ProtectedRoute><DrillsHistory /></ProtectedRoute>} />
                   <Route path="/risk-maps" element={<ProtectedRoute><RiskMapGenerator /></ProtectedRoute>} />
@@ -577,9 +568,7 @@ function App() {
                   <Route path="/logo-settings" element={<ProtectedRoute><LogoSettings /></ProtectedRoute>} />
                   <Route path="/contractors" element={<ProtectedRoute><ContractorManagement /></ProtectedRoute>} />
                   <Route path="/lifting-form" element={<ProtectedRoute><LiftingForm /></ProtectedRoute>} />
-                  <Route path="/lifting-history" element={<ProtectedRoute><LiftingHistory /></ProtectedRoute>} />
                   <Route path="/fleet-form" element={<ProtectedRoute><FleetForm /></ProtectedRoute>} />
-                  <Route path="/fleet-history" element={<ProtectedRoute><FleetHistory /></ProtectedRoute>} />
                   <Route path="/evacuation-form" element={<ProtectedRoute><EvacuationSimulatorForm /></ProtectedRoute>} />
                   <Route path="/evacuation-history" element={<ProtectedRoute><EvacuationSimulatorHistory /></ProtectedRoute>} />
                   <Route path="/legajos" element={<ProtectedRoute><Legajos /></ProtectedRoute>} />
@@ -587,7 +576,6 @@ function App() {
                   <Route path="/legajos/editar/:id" element={<ProtectedRoute><LegajoForm /></ProtectedRoute>} />
 
                   <Route path="/risk-matrix-history" element={<ProtectedRoute><History view="matrices" /></ProtectedRoute>} />
-                  <Route path="/reports-history" element={<ProtectedRoute><History view="reports" /></ProtectedRoute>} />
                   <Route path="/matrices" element={<Navigate to="/risk-matrix" replace />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>

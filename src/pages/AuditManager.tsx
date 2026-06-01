@@ -340,14 +340,22 @@ export default function AuditManager(): React.ReactElement | null {
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                     <button
                         onClick={() => navigate('/audit/new')}
-                        className="btn-primary"
                         style={{
-                            width: 'auto',
-                            margin: 0,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            padding: '0.75rem 1.25rem'
+                            flex: '0 1 auto', 
+                            padding: '0.75rem 1.5rem', 
+                            borderRadius: '16px', 
+                            background: '#36B37E', 
+                            color: '#fff', 
+                            border: 'none', 
+                            fontWeight: 800, 
+                            fontSize: '1rem', 
+                            cursor: 'pointer', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '0.5rem', 
+                            boxShadow: '0 4px 15px rgba(54,179,126,0.3)', 
+                            whiteSpace: 'nowrap',
+                            margin: 0
                         }}
                     >
                         <Plus size={20} strokeWidth={2.5} />
@@ -546,7 +554,6 @@ export default function AuditManager(): React.ReactElement | null {
                         <EmptyStateIllustrated 
                             title="Sin Auditorías Registradas"
                             description="Planificá y gestioná auditorías internas y externas según ISO 45001."
-                            onAction={() => navigate('/audit/new')}
                             icon={<ClipboardCheck />}
                         />
                     ) : (

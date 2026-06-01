@@ -237,16 +237,17 @@ export default function LOTOManager(): React.ReactElement | null {
             <div style={{
                 marginBottom: '2rem',
                 padding: '1.5rem',
-                background: 'var(--gradient-card)',
+                background: 'linear-gradient(135deg, #d4af37, #aa8222)',
                 borderRadius: 'var(--radius-2xl)',
-                border: '1px solid var(--glass-border)',
-                boxShadow: 'var(--glass-shadow)',
+                border: '1px solid rgba(212, 175, 55, 0.3)',
+                boxShadow: '0 8px 32px rgba(212, 175, 55, 0.2)',
                 backdropFilter: 'blur(20px)',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 flexWrap: 'wrap',
-                gap: '1rem'
+                gap: '1rem',
+                color: '#fff'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <div style={{
@@ -266,14 +267,14 @@ export default function LOTOManager(): React.ReactElement | null {
                             margin: 0, 
                             fontSize: '1.5rem', 
                             fontWeight: 900,
-                            color: 'var(--color-text)',
+                            color: '#fff',
                             letterSpacing: '-0.5px'
                         }}>
                             Lockout/Tagout (LOTO)
                         </h1>
                         <p style={{ 
                             margin: '0.25rem 0 0 0', 
-                            color: 'var(--color-text-muted)',
+                            color: 'rgba(255,255,255,0.9)',
                             fontSize: '0.85rem',
                             fontWeight: 600
                         }}>
@@ -282,38 +283,35 @@ export default function LOTOManager(): React.ReactElement | null {
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                    <button
-                        onClick={() => navigate('/loto/new')}
-                        className="btn-primary"
-                        style={{
-                            width: 'auto',
-                            margin: 0,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            padding: '0.75rem 1.25rem'
-                        }}
-                    >
-                        <Plus size={20} strokeWidth={2.5} />
-                        Nuevo Procedimiento
-                    </button>
-                    <button
-                        onClick={() => navigate('/loto/history')}
-                        className="btn-outline"
-                        style={{
-                            padding: '0.75rem 1rem'
-                        }}
-                    >
-                        <FileText size={20} />
-                    </button>
-                </div>
+                
             </div>
 
+            <div style={{ marginBottom: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                <button
+                    onClick={() => navigate('/loto/new')}
+                    style={{
+                        padding: '0.8rem 1.5rem',
+                        background: '#10b981',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: 'var(--radius-lg)',
+                        fontWeight: 700,
+                        fontSize: '1rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)'
+                    }}
+                >
+                    <Plus size={20} strokeWidth={2.5} />
+                    Nuevo Procedimiento LOTO
+                </button>
+            </div>
             {/* Stats Cards */}
             <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                gridTemplateColumns: 'repeat(2, 1fr)',
                 gap: '1rem',
                 marginBottom: '2rem'
             }}>
@@ -446,7 +444,6 @@ export default function LOTOManager(): React.ReactElement | null {
                         <EmptyStateIllustrated 
                             title="Sin Procedimientos LOTO"
                             description="Creá procedimientos de Lockout/Tagout según OSHA 1910.147 para control de energías peligrosas."
-                            onAction={() => setShowAddModal(true)}
                             icon={<Lock />}
                         />
                     ) : (

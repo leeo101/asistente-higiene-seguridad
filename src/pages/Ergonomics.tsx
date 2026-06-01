@@ -73,15 +73,13 @@ export default function Ergonomics(): React.ReactElement | null {
                 icon={<Accessibility size={36} />}
             />
 
-            <div className="no-print floating-action-bar">
-                <button
-                    onClick={() => navigate('/ergonomics-form')}
-                    className="btn-floating-action"
-                    style={{ background: '#36B37E', color: '#ffffff' }}
-                >
-                    <Plus size={18} /> NUEVO ESTUDIO
-                </button>
-            </div>
+            <button
+                onClick={() => navigate('/ergonomics-form')}
+                className="btn-primary"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', width: '100%', padding: '0.85rem', border: '1px solid #36B37E', background: '#36B37E', color: '#ffffff', cursor: 'pointer', fontSize: '0.92rem', marginBottom: '1.5rem', borderRadius: '12px' }}
+            >
+                <Plus size={18} /> <span className="hidden sm:inline">Nuevo Estudio de Ergonomía</span><span className="inline sm:hidden">NUEVO ESTUDIO</span>
+            </button>
 
             {/* Search */}
             <div style={{ position: 'relative', marginBottom: '2rem' }}>

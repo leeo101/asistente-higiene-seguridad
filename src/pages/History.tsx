@@ -210,31 +210,13 @@ export default function History(): React.ReactElement | null {
     const historyCategories = [
 
 
-        { title: 'Control de EPP', icon: <HardHat size={24} />, color: '#10b981', bg: 'rgba(16,185,129,0.1)', path: '/ppe-tracker', countKey: 'ppeTracker' },
-        { title: 'Extintores IA — Inspección', icon: <Flame size={24} />, color: '#dc2626', bg: 'rgba(220,38,38,0.1)', path: '/extinguisher-ai-history', countKey: 'extinguisherAi' },
-        { title: 'Estrés Térmico', icon: <ThermometerSun size={24} />, color: '#f97316', bg: 'rgba(249,115,22,0.1)', path: '/thermal-stress-history', countKey: 'thermal' },
         { title: 'Evaluaciones de Riesgo', icon: <Shield size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/risk-assessment-history', countKey: 'riskAssessments' },
-        { title: 'Iluminación', icon: <Lightbulb size={24} />, color: '#eab308', bg: 'rgba(234,179,8,0.1)', path: '/lighting-history', countKey: 'lighting' },
-        { title: 'Informes Profesionales', icon: <ScrollText size={24} />, color: '#ec4899', bg: 'rgba(236,72,153,0.1)', path: '/reports-history', countKey: 'reports', view: 'reports' },
         { title: 'Inspecciones', icon: <ClipboardCheck size={24} />, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', path: '/history', countKey: 'inspections', view: 'inspections' },
-        { title: 'Investigación de Accidentes', icon: <TriangleAlert size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/accident-history', countKey: 'accidents' },
-        { title: 'Legajos Técnicos', icon: <Building2 size={24} />, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', path: '/legajos', countKey: 'legajos' },
         { title: 'Mapas de Riesgo', icon: <Map size={24} />, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', path: '/risk-maps-history', countKey: 'riskmaps' },
         { title: 'Matrices de Riesgo', icon: <TriangleAlert size={24} />, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', path: '/risk-matrix-history', countKey: 'matrices', view: 'matrices' },
         { title: 'Permisos de Trabajo', icon: <KeySquare size={24} />, color: '#2563eb', bg: 'rgba(37,99,235,0.1)', path: '/work-permit-history', countKey: 'workPermits' },
         { title: 'Simulacros', icon: <Siren size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/drills-history', countKey: 'drills' },
         { title: 'Tarjetas STOP', icon: <TriangleAlert size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/stop-cards-history', countKey: 'stopCards' },
-        { title: 'Auditorías de Seguridad', icon: <ClipboardCheck size={24} />, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', path: '/audit', countKey: 'audits' },
-        { title: 'Gestión CAPA', icon: <CheckCircle2 size={24} />, color: '#10b981', bg: 'rgba(16,185,129,0.1)', path: '/capa', countKey: 'capa' },
-        { title: 'LOTO - Bloqueo/Etiquetado', icon: <Lock size={24} />, color: '#dc2626', bg: 'rgba(220,38,38,0.1)', path: '/loto', countKey: 'loto' },
-        { title: 'Mediciones de Ruido', icon: <Volume2 size={24} />, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', path: '/noise-assessment', countKey: 'noise' },
-        { title: 'Monitoreo Ambiental', icon: <Droplets size={24} />, color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', path: '/environmental', countKey: 'environmental' },
-        { title: 'Permisos de Espacios Confinados', icon: <Tent size={24} />, color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', path: '/confined-space', countKey: 'confinedSpace' },
-        { title: 'Permisos Trabajo en Altura', icon: <HardHat size={24} />, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', path: '/working-at-height', countKey: 'workHeight' },
-        { title: 'Seguridad Química (SGA)', icon: <FlaskConical size={24} />, color: '#ec4899', bg: 'rgba(236,72,153,0.1)', path: '/chemical-safety', countKey: 'chemicalSafety' },
-        { title: 'KPIs de Seguridad', icon: <BarChart3 size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/safety-kpis', countKey: 'safetyKPIs' },
-        { title: 'Control de Flota y Vehículos', icon: <CarFront size={24} />, color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', path: '/fleet-history', countKey: 'fleetInspections' },
-        { title: 'Planes de Izaje', icon: <Weight size={24} />, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', path: '/lifting-history', countKey: 'liftingPlans' },
         { title: 'Simulador de Evacuación', icon: <Timer size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/evacuation-history', countKey: 'evacuationSimulator' },
     ];
 
@@ -423,133 +405,7 @@ export default function History(): React.ReactElement | null {
         );
     }
 
-    // ─── REPORTS ───────────────────────────────────────────────────
-    if (view === 'reports') {
-        return (
-            <div className="container">
-                {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
-                
-                <ShareModal
-                    isOpen={!!shareItem}
-                    open={!!shareItem}
-                    onClose={() => setShareItem(null)}
-                    title={`Informe - ${shareItem?.data?.title || ''}`}
-                    text={shareItem ? `📄 Informe Profesional\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString('es-AR')}` : ''}
-                    rawMessage={shareItem ? `📄 Informe Profesional\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString('es-AR')}` : ''}
-                    elementIdToPrint="pdf-content"
-                    fileName={`Informe_${shareItem?.data?.title || 'Profesional'}.pdf`}
-                />
 
-                <div style={{ position: 'absolute', left: 0, opacity: 0.01, top: '-9999px', pointerEvents: 'none' }}>
-                    {shareItem?.type === 'report' && <ProfessionalReportPdfGenerator currentReport={shareItem.data} />}
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', minWidth: '200px' }}>
-                        <button onClick={() => setView('hub')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
-                            <ArrowLeft />
-                        </button>
-                        <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800 }}>Historial de Informes</h1>
-                    </div>
-                    <div style={{ display: 'flex', gap: '0.8rem', marginTop: 'auto' }}>
-                        <button onClick={() => {
-                            downloadCSV(reportsData.map(r => ({
-                                titulo: r.title, empresa: r.company, fecha: new Date(r.createdAt).toLocaleDateString('es-AR'),
-                                autor: r.author || ''
-                            })), 'historial_informes', {
-                                titulo: 'Título del Informe', empresa: 'Empresa', fecha: 'Fecha', autor: 'Autor'
-                            });
-                        }} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '10px', padding: '0.6rem 1rem', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff' }}>
-                            <Download size={14} /> EXCEL
-                        </button>
-                        <button onClick={() => navigate('/reports')} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.2rem', width: 'auto', marginTop: 0 }}>
-                            <Plus size={18} /> <span className="hidden sm:inline">Nuevo</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div style={{ padding: '0 0 2rem 0' }}>
-                    <DataTable 
-                        data={reportsData}
-                        searchPlaceholder="Buscar por título o empresa..."
-                        searchFields={['title', 'company', 'author']}
-                        emptyMessage="No hay informes registrados."
-                        emptyIcon={<FileText size={48} />}
-                        onEmptyAction={() => navigate('/reports')}
-                        emptyActionLabel="Crear mi primer Informe"
-                        columns={[
-                            {
-                                header: 'Fecha',
-                                accessor: 'createdAt',
-                                sortable: true,
-                                render: (item: any) => (
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-text-muted)' }}>
-                                        <Calendar size={14} /> 
-                                        {new Date(item.createdAt).toLocaleDateString('es-AR')}
-                                    </span>
-                                )
-                            },
-                            {
-                                header: 'Título',
-                                accessor: 'title',
-                                sortable: true,
-                                render: (item: any) => (
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                                        <div style={{ background: 'rgba(236,72,153,0.1)', padding: '0.5rem', borderRadius: '8px', color: '#ec4899' }}>
-                                            <FileText size={16} />
-                                        </div>
-                                        <div style={{ fontWeight: 700 }}>{item.title}</div>
-                                    </div>
-                                )
-                            },
-                            {
-                                header: 'Empresa',
-                                accessor: 'company',
-                                sortable: true
-                            },
-                            {
-                                header: 'Autor',
-                                accessor: 'author',
-                                render: (item) => <span style={{ color: 'var(--color-text-muted)' }}>{item.author || '--'}</span>
-                            },
-                            {
-                                header: 'Acciones',
-                                accessor: 'id',
-                                render: (item: any) => (
-                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                        <button
-                                            onClick={() => { localStorage.setItem('current_report', JSON.stringify(item)); navigate('/reports-report'); }}
-                                            style={{
-                                                padding: '0.4rem 0.6rem', background: 'rgba(59,130,246,0.1)', color: '#3b82f6', border: '1px solid rgba(59,130,246,0.2)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px'
-                                            }}
-                                            title="Ver PDF"
-                                        >
-                                            <FileText size={16} /> <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>PDF</span>
-                                        </button>
-                                        <button
-                                            onClick={() => navigate('/reports', { state: { editData: item } })}
-                                            style={{ padding: '0.4rem 0.6rem', background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)', borderRadius: '8px', cursor: 'pointer' }}
-                                            title="Editar"
-                                        >
-                                            Editar
-                                        </button>
-                                        <button
-                                            onClick={() => setShareItem({ type: 'report', data: item })}
-                                            style={{ padding: '0.4rem 0.6rem', background: 'rgba(22,163,74,0.1)', color: '#16a34a', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '8px', cursor: 'pointer' }}
-                                            title="Compartir"
-                                        >
-                                            <Share2 size={16} />
-                                        </button>
-                                        <DeleteBtn storageKey="reports_history" id={item.id} />
-                                    </div>
-                                )
-                            }
-                        ]}
-                    />
-                </div>
-            </div>
-        );
-    }
 
     // ─── INSPECTIONS ───────────────────────────────────────────────
     return (

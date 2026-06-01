@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, AlertTriangle, ShieldCheck, Weight, ArrowDownToLine, Users, Printer, Share2, Pencil } from 'lucide-react';
+import { ArrowLeft, Save, AlertTriangle, ShieldCheck, Weight, ArrowDownToLine, Users, Printer, Share2, Pencil, Search, Plus, Trash2, Calendar, CheckCircle2, FileText } from 'lucide-react';
 import { Crane } from '@phosphor-icons/react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import PremiumHeader from '../components/PremiumHeader';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
@@ -39,7 +40,32 @@ export default function LiftingForm(): React.ReactElement | null {
     const [isEdit, setIsEdit] = useState(false);
     const { isPro, requirePro } = usePaywall();
 
-    useDocumentTitle(isEdit ? 'Editar Plan de Izaje' : 'Nuevo Plan de Izaje');
+    useDocumentTitle(isEdit ? 'Editar Plan de Izaje' : 'Planes de Izaje');
+    
+    const [isFormVisible, setIsFormVisible] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [plans, setPlans] = useState<any[]>([]);
+
+    useEffect(() => {
+        const saved = JSON.parse(localStorage.getItem('lifting_plans_db') || '[]');
+        setPlans(saved);
+    }, [isFormVisible]);
+
+    const handleDelete = (id: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (window.confirm('¿Está seguro de eliminar este registro?')) {
+            const updated = plans.filter((p: any) => p.id !== id);
+            localStorage.setItem('lifting_plans_db', JSON.stringify(updated));
+            setPlans(updated);
+            toast.success('Registro eliminado');
+        }
+    };
+
+    const filteredPlans = plans.filter((p: any) => 
+        p.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.personnel?.operator?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.equipment?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
     
     const [plan, setPlan] = useState<any>({
         location: '',
@@ -132,6 +158,7 @@ export default function LiftingForm(): React.ReactElement | null {
                 showSignatures: editData.showSignatures || { operator: true, professional: true, supervisor: true }
             });
             setIsEdit(true);
+            setIsFormVisible(true);
         }
     }, [location.state]);
 
@@ -185,7 +212,20 @@ export default function LiftingForm(): React.ReactElement | null {
         }
         
         localStorage.setItem('lifting_plans_db', JSON.stringify(updated));
-        navigate('/lifting-history');
+        
+        setIsFormVisible(false);
+        setIsEdit(false);
+        setPlan({
+            location: '', date: new Date().toISOString().split('T')[0], time: '',
+            equipment: 'Grua Movil', equipmentCapacity: '', loadWeight: '', maxRadius: '', windSpeed: '',
+            riggingElements: { slings: false, shackles: false, spreaderBar: false, hooks: false },
+            personnel: { operator: '', rigger: '', supervisor: '' },
+            checklist: { groundStable: false, areaIsolated: false, weatherGood: false, powerLinesClear: false, elementsInspected: false },
+            observations: '', signatures: { operator: '', supervisor: '' },
+            operatorSignature: '', professionalSignature: '', supervisorSignature: '',
+            showSignatures: { operator: true, professional: true, supervisor: true }
+        });
+        window.scrollTo(0, 0);
     };
 
     const toggleChecklist = (key: string) => {
@@ -198,43 +238,140 @@ export default function LiftingForm(): React.ReactElement | null {
     const loadPercentage = calculateLoadPercentage();
     const isCritical = parseFloat(loadPercentage as string) >= 75;
 
+    if (!isFormVisible && !isEdit) {
+        return (
+            <div className="container" style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '7rem', paddingTop: isMobile ? '4.5rem' : '5.5rem' }}>
+                <PremiumHeader 
+                    title="Planes de Izaje"
+                    subtitle="Gestión e historial de planes de izaje seguro."
+                    icon={<Weight size={32} color="#ffffff" />}
+                    color="linear-gradient(135deg, #8b5cf6, #6d28d9)"
+                />
+                
+                <main style={{ padding: '0 0 2rem 0', maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap', padding: '0 1rem' }}>
+                        <div style={{ position: 'relative', flex: '1 1 300px' }}>
+                            <Search size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                            <input 
+                                type="text" 
+                                placeholder="Buscar por ubicación o equipo..." 
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                style={{
+                                    width: '100%',
+                                    padding: '0.8rem 1rem 0.8rem 2.8rem',
+                                    borderRadius: '12px',
+                                    border: '1px solid var(--color-border)',
+                                    background: 'var(--color-surface)',
+                                    color: 'var(--color-text)',
+                                    boxSizing: 'border-box'
+                                }}
+                            />
+                        </div>
+                        <button
+                            onClick={() => setIsFormVisible(true)}
+                            className="btn-primary"
+                            style={{ margin: 0, background: '#10b981', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                        >
+                            <Plus size={20} /> NUEVO PLAN
+                        </button>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem', padding: '0 1rem' }}>
+                        {filteredPlans.length === 0 ? (
+                            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '4rem 2rem', background: 'var(--color-surface)', borderRadius: '24px', border: '1px dashed var(--color-border)' }}>
+                                <Weight size={48} style={{ color: 'var(--color-text-light)', marginBottom: '1rem' }} />
+                                <h3 style={{ margin: '0 0 0.5rem 0' }}>No hay planes registrados</h3>
+                                <p style={{ margin: 0, color: 'var(--color-text-muted)' }}>Cargue su primer plan de izaje.</p>
+                            </div>
+                        ) : (
+                            filteredPlans.map((item: any) => {
+                                const loadRatio = item.loadWeight && item.equipmentCapacity 
+                                    ? (parseFloat(item.loadWeight) / parseFloat(item.equipmentCapacity)) * 100 
+                                    : 0;
+                                const isCritical = loadRatio >= 75;
+
+                                return (
+                                    <div 
+                                        key={item.id}
+                                        onClick={() => {
+                                            setPlan({ ...item, showSignatures: item.showSignatures || { operator: true, professional: true, supervisor: true } });
+                                            setIsEdit(true);
+                                            setIsFormVisible(true);
+                                        }}
+                                        className="card hover-lift animate-fade-in"
+                                        style={{ cursor: 'pointer', padding: '1.5rem', borderRadius: '16px', background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+                                    >
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                                            <div>
+                                                <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.2rem', fontWeight: 900 }}>{item.location}</h3>
+                                                <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                                    <Calendar size={14} /> {new Date(item.date).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                            <span style={{ 
+                                                background: isCritical ? '#fef2f2' : '#f0fdf4', 
+                                                color: isCritical ? '#dc2626' : '#16a34a', 
+                                                padding: '0.3rem 0.6rem', 
+                                                borderRadius: '6px', 
+                                                fontSize: '0.75rem', 
+                                                fontWeight: 900,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '0.25rem'
+                                            }}>
+                                                {isCritical ? <AlertTriangle size={14} /> : <CheckCircle2 size={14} />}
+                                                {isCritical ? 'CRÍTICO' : 'NORMAL'}
+                                            </span>
+                                        </div>
+                                        
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                                                <span style={{ color: 'var(--color-text-muted)' }}>Equipo:</span>
+                                                <span style={{ fontWeight: 600 }}>{item.equipment || '-'}</span>
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                                                <span style={{ color: 'var(--color-text-muted)' }}>Carga:</span>
+                                                <span style={{ fontWeight: 600 }}>{item.loadWeight ? `${item.loadWeight} kg` : '-'}</span>
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                                                <span style={{ color: 'var(--color-text-muted)' }}>% Capacidad:</span>
+                                                <span style={{ fontWeight: 600, color: isCritical ? '#dc2626' : 'inherit' }}>
+                                                    {loadRatio ? `${loadRatio.toFixed(1)}%` : '-'}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1rem', borderTop: '1px solid var(--color-border)' }}>
+                                            <span style={{ fontSize: '0.8rem', color: 'var(--color-primary)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                                <FileText size={14} /> Ver / Editar
+                                            </span>
+                                            <button 
+                                                onClick={(e) => handleDelete(item.id, e)}
+                                                style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.5rem' }}
+                                                title="Eliminar"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        )}
+                    </div>
+                </main>
+            </div>
+        );
+    }
+
     return (
         <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem', paddingTop: isMobile ? '7.5rem' : '6.5rem' }}>
-            <div style={{
-                background: 'var(--color-surface)',
-                borderBottom: '1px solid var(--color-border)',
-                padding: '1rem 1.5rem',
-                position: 'sticky',
-                top: isMobile ? '6.5rem' : '5.5rem',
-                zIndex: 100,
-                backdropFilter: 'blur(20px)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem'
-            }}>
-                <button
-                    onClick={() => navigate(-1)}
-                    style={{
-                        padding: '0.5rem',
-                        background: 'var(--color-background)',
-                        border: '1px solid var(--color-border)',
-                        borderRadius: 'var(--radius-lg)',
-                        cursor: 'pointer',
-                        color: 'var(--color-text)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                    }}
-                >
-                    <ArrowLeft size={20} />
-                </button>
-                <div style={{ flex: 1 }}>
-                    <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.3rem', fontWeight: 900 }}>
-                        <Crane size={20} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />
-                        {isEdit ? 'Editar Plan de Izaje' : 'Nuevo Plan de Izaje Seguro'}
-                    </h1>
-                </div>
-            </div>
+            <PremiumHeader 
+                title={isEdit ? 'Editar Plan de Izaje' : 'Nuevo Plan de Izaje'}
+                subtitle="Complete la información del plan de izaje."
+                icon={<Crane size={32} color="#ffffff" />}
+                color="linear-gradient(135deg, #8b5cf6, #6d28d9)"
+            />
 
             <main style={{ padding: '3.5rem 1.5rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
                 <div className="card" style={{ padding: '2rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)' }}>
@@ -529,6 +666,13 @@ export default function LiftingForm(): React.ReactElement | null {
             </main>
 
             <div className="no-print floating-action-bar">
+                <button
+                    onClick={() => { setIsFormVisible(false); setIsEdit(false); }}
+                    className="btn-floating-action"
+                    style={{ background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}
+                >
+                    <ArrowLeft size={18} /> ATRÁS
+                </button>
                 <button
                     onClick={() => requirePro(() => setShowShareModal(true))}
                     className="btn-floating-action"

@@ -15,9 +15,26 @@ import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import CompanyLogo from '../components/CompanyLogo';
 import PdfSignatures from '../components/PdfSignatures';
 import SignatureCanvas from '../components/SignatureCanvas';
+import PremiumHeader from '../components/PremiumHeader';
 import { API_BASE_URL } from '../config';
 import { getCountryNormativa } from '../data/legislationData';
 import { auth } from '../firebase';
+import { Search } from 'lucide-react';
+
+const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '0.85rem 1.2rem',
+    borderRadius: '14px',
+    border: '1px solid rgba(255,255,255,0.1)',
+    background: 'rgba(255,255,255,0.03)',
+    color: 'var(--color-text)',
+    fontSize: '0.95rem',
+    fontWeight: 500,
+    outline: 'none',
+    boxSizing: 'border-box' as any,
+    transition: 'all 0.3s ease',
+    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)'
+};
 
 // Tipos de tareas visuales basados en el Decreto 351/79 (Anexo IV) - Resumido
 const visualTasks = [
@@ -49,6 +66,30 @@ export default function LightingReport(): React.ReactElement | null {
             { id: Date.now().toString(), ubicacion: 'Puesto 1', luxMedido: 0 as any }
         ]
     });
+
+    const [isFormVisible, setIsFormVisible] = useState(false);
+    const [history, setHistory] = useState<any[]>([]);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    useEffect(() => {
+        const savedHistory = localStorage.getItem('lighting_history');
+        if (savedHistory) setHistory(JSON.parse(savedHistory));
+    }, [isFormVisible]);
+
+    const handleDelete = (id: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (window.confirm('¿Está seguro de eliminar este estudio?')) {
+            const updated = history.filter((p: any) => p.id !== id);
+            localStorage.setItem('lighting_history', JSON.stringify(updated));
+            setHistory(updated);
+            toast.success('Estudio eliminado');
+        }
+    };
+
+    const filteredHistory = history.filter((item: any) =>
+        item.empresa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.sector?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     const [isGeneratingConclusion, setIsGeneratingConclusion] = useState(false);
 
@@ -148,7 +189,8 @@ export default function LightingReport(): React.ReactElement | null {
 
     useEffect(() => {
         if (location.state?.editData) {
-            setFormData(location.state.editData);
+            setFormData(location.state.editData.datos || location.state.editData);
+            setIsFormVisible(true);
         }
     }, [location.state]);
 
@@ -248,16 +290,131 @@ export default function LightingReport(): React.ReactElement | null {
             }
 
             toast.success(location.state?.editData ? 'Informe actualizado correctamente.' : 'Informe guardado en el Historial');
+            setIsFormVisible(false);
+            window.scrollTo(0, 0);
         } catch (err) {
             console.error("Error saving document:", err);
             toast.error("Error al guardar en la base de datos.");
         }
     };
 
+    if (!isFormVisible) {
+        return (
+            <div className="container" style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '7rem', paddingTop: '5.5rem' }}>
+                <PremiumHeader 
+                    title="Estudios de Iluminación"
+                    subtitle="Gestión e historial de estudios de iluminación y luxometría."
+                    icon={<Lightbulb size={32} color="#ffffff" />}
+                    color="linear-gradient(135deg, #eab308, #ca8a04)"
+                />
+                
+                <main style={{ padding: '0 0 2rem 0', maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap', padding: '0 1rem' }}>
+                        <div style={{ position: 'relative', flex: '1 1 300px' }}>
+                            <Search size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                            <input 
+                                type="text" 
+                                placeholder="Buscar por empresa o sector..." 
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                style={{
+                                    width: '100%', padding: '0.8rem 1rem 0.8rem 2.8rem', borderRadius: '12px',
+                                    border: '1px solid var(--color-border)', background: 'var(--color-surface)',
+                                    color: 'var(--color-text)', boxSizing: 'border-box'
+                                }}
+                            />
+                        </div>
+                        <button
+                            onClick={() => {
+                                setFormData({
+                                    empresa: '', sector: '', descripcionActividad: '', tipoTarea: '', luxRequerido: 500, conclusion: '',
+                                    operatorSignature: '', supervisorSignature: '', mediciones: [{ id: Date.now().toString(), ubicacion: 'Puesto 1', luxMedido: 0 as any }]
+                                });
+                                setIsFormVisible(true);
+                            }}
+                            className="btn-primary hover-lift"
+                            style={{ margin: 0, background: 'linear-gradient(135deg, #10b981, #059669)', border: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)', padding: '0.8rem 1.5rem', borderRadius: '12px' }}
+                        >
+                            <Plus size={20} /> NUEVO ESTUDIO
+                        </button>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem', padding: '0 1rem' }}>
+                        {filteredHistory.length === 0 ? (
+                            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '4rem 2rem', background: 'var(--color-surface)', borderRadius: '24px', border: '1px dashed var(--color-border)' }}>
+                                <Lightbulb size={48} style={{ color: 'var(--color-text-light)', marginBottom: '1rem' }} />
+                                <h3 style={{ margin: '0 0 0.5rem 0' }}>No hay estudios registrados</h3>
+                                <p style={{ margin: 0, color: 'var(--color-text-muted)' }}>Cargue su primer estudio de iluminación.</p>
+                            </div>
+                        ) : (
+                            filteredHistory.map((item: any) => {
+                                const isApto = item.results?.cumplePromedio;
+                                return (
+                                    <div 
+                                        key={item.id}
+                                        onClick={() => {
+                                            setFormData(item.datos || item);
+                                            setIsFormVisible(true);
+                                            window.history.replaceState({ editData: item }, '');
+                                        }}
+                                        className="card hover-lift animate-fade-in"
+                                        style={{ cursor: 'pointer', padding: '1.5rem', borderRadius: '16px', background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+                                    >
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                                            <div>
+                                                <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.2rem', fontWeight: 900 }}>{item.empresa || 'Empresa'}</h3>
+                                                <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                                    <Building2 size={14} /> {item.sector || 'Sector'}
+                                                </span>
+                                            </div>
+                                            <span style={{ 
+                                                background: isApto ? '#f0fdf4' : '#fef2f2', 
+                                                color: isApto ? '#16a34a' : '#dc2626', 
+                                                padding: '0.3rem 0.6rem', 
+                                                borderRadius: '6px', 
+                                                fontSize: '0.75rem', 
+                                                fontWeight: 900
+                                            }}>
+                                                {isApto ? 'CUMPLE' : 'NO CUMPLE'}
+                                            </span>
+                                        </div>
+                                        
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1rem', borderTop: '1px solid var(--color-border)' }}>
+                                            <span style={{ fontSize: '0.8rem', color: 'var(--color-primary)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                                <FileText size={14} /> Ver / Editar
+                                            </span>
+                                            <button 
+                                                onClick={(e) => handleDelete(item.id, e)}
+                                                style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.5rem' }}
+                                                title="Eliminar"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        )}
+                    </div>
+                </main>
+            </div>
+        );
+    }
+
     return (
-        <div className="container" style={{ paddingTop: '6rem', paddingBottom: '5rem', maxWidth: '1000px' }}>
+        <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem', paddingTop: '6.5rem' }}>
+            <PremiumHeader 
+                title={location.state?.editData ? 'Editar Protocolo de Iluminación' : 'Nuevo Estudio de Iluminación'}
+                subtitle={`Medición según ${countryNorms.lighting}`}
+                icon={<Lightbulb size={32} color="#ffffff" />}
+                color="linear-gradient(135deg, #eab308, #ca8a04)"
+            />
+
             {/* Floating Action Buttons */}
             <div className="no-print floating-action-bar">
+                <button onClick={() => setIsFormVisible(false)} className="btn-floating-action" style={{ background: '#64748b', color: 'white' }}>
+                    <ArrowLeft size={18} /> ATRÁS
+                </button>
                 <button
                     onClick={saveReport}
                     className="btn-floating-action"
@@ -281,17 +438,7 @@ export default function LightingReport(): React.ReactElement | null {
                 </button>
             </div>
 
-            <div className="no-print" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                <button onClick={() => navigate('/#tools')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
-                    <ArrowLeft />
-                </button>
-                <div>
-                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>
-                        {location.state?.editData ? 'Editar Protocolo de Iluminación' : 'Estudio de Iluminación'}
-                    </h1>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Medición {countryNorms.lighting}</p>
-                </div>
-            </div>
+            <main style={{ padding: '2rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
 
             {showShare && (
                 <ShareModal
@@ -332,36 +479,36 @@ export default function LightingReport(): React.ReactElement | null {
                             <Building2 size={20} /> Datos del Establecimiento
                         </h3>
 
-                        <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600 }}>Razón Social / Obra</label>
+                        <div className="card" style={{ padding: '2rem', marginBottom: '1.5rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)', borderRadius: '20px' }}>
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', fontWeight: 700 }}>Razón Social / Obra</label>
                                 <input
                                     type="text"
                                     value={formData.empresa}
                                     onChange={(e) => handleDataChange('empresa', e.target.value)}
-                                    className="form-input no-print"
+                                    style={inputStyle} className="no-print"
                                     placeholder="Nombre de la empresa..."
                                 />
                                 <div className="print-only" style={{ padding: '0.6rem', borderBottom: '1px solid #eee', fontSize: '1rem', color: '#000' }}>{formData.empresa || '-'}</div>
                             </div>
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600 }}>Sector / Área de Estudio</label>
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', fontWeight: 700 }}>Sector / Área de Estudio</label>
                                 <input
                                     type="text"
                                     value={formData.sector}
                                     onChange={(e) => handleDataChange('sector', e.target.value)}
-                                    className="form-input no-print"
+                                    style={inputStyle} className="no-print"
                                     placeholder="Ej: Nave Industrial, Administración..."
                                 />
                                 <div className="print-only" style={{ padding: '0.6rem', borderBottom: '1px solid #eee', fontSize: '1rem', color: '#000' }}>{formData.sector || '-'}</div>
                             </div>
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600 }}>Descripción de las Tareas</label>
+                                <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', fontWeight: 700 }}>Descripción de las Tareas</label>
                                 <input
                                     type="text"
                                     value={formData.descripcionActividad}
                                     onChange={(e) => handleDataChange('descripcionActividad', e.target.value)}
-                                    className="form-input no-print"
+                                    style={inputStyle} className="no-print"
                                     placeholder="Ej: Trabajo en escritorio, torno mecánico..."
                                 />
                                 <div className="print-only" style={{ padding: '0.6rem', borderBottom: '1px solid #eee', fontSize: '1rem', color: '#000' }}>{formData.descripcionActividad || '-'}</div>
@@ -372,15 +519,14 @@ export default function LightingReport(): React.ReactElement | null {
                             <Layout size={20} /> Requerimiento Legal
                         </h3>
 
-                        <div className="card" style={{ padding: '1.5rem' }}>
+                        <div className="card" style={{ padding: '2rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)', borderRadius: '20px' }}>
                             <div style={{ marginBottom: '1.5rem' }}>
-                                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600 }}>Tipo de Tarea Visual ({countryNorms.lighting.split(' ')[0]} o Especial)</label>
+                                <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', fontWeight: 700 }}>Tipo de Tarea Visual ({countryNorms.lighting.split(' ')[0]} o Especial)</label>
                                 <input
                                     list="visualTasksList"
                                     value={formData.tipoTarea}
                                     onChange={(e) => handleDataChange('tipoTarea', e.target.value)}
-                                    className="form-input no-print"
-                                    style={{ width: '100%' }}
+                                    style={inputStyle} className="no-print"
                                     placeholder="Seleccione o escriba el tipo de tarea..."
                                 />
                                 <div className="print-only" style={{ padding: '0.6rem', borderBottom: '1px solid #eee', fontSize: '1rem', color: '#000', fontWeight: 'bold' }}>{formData.tipoTarea || '-'}</div>
@@ -390,18 +536,22 @@ export default function LightingReport(): React.ReactElement | null {
                                     ))}
                                 </datalist>
                             </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.2rem', background: 'rgba(59, 130, 246, 0.05)', borderRadius: '12px', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
                                 <Sun size={32} color="var(--color-primary)" />
-                                <div>
-                                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase', marginBottom: '0.3rem' }}>Iluminación Mínima Exigida (Lux)</p>
-                                    <input
-                                        type="number"
-                                        value={formData.luxRequerido}
-                                        onChange={(e) => handleDataChange('luxRequerido', e.target.value === '' ? '' : Number(e.target.value))}
-                                        className="form-input"
-                                        style={{ width: '120px', fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-primary)', padding: '0.2rem 0.5rem', background: 'transparent' }}
-                                        min="0"
-                                    />
+                                <div style={{ flex: 1 }}>
+                                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.3rem' }}>Iluminación Mínima Exigida</p>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                        <input
+                                            type="number"
+                                            value={formData.luxRequerido}
+                                            onChange={(e) => handleDataChange('luxRequerido', e.target.value === '' ? '' : Number(e.target.value))}
+                                            style={{ ...inputStyle, width: '100px', fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-primary)', padding: '0.5rem', background: 'var(--color-surface)' }}
+                                            min="0"
+                                            className="no-print"
+                                        />
+                                        <span style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--color-text)' }} className="no-print">Lux</span>
+                                        <div className="print-only" style={{ fontSize: '1.5rem', fontWeight: 800 }}>{formData.luxRequerido} Lux</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -418,50 +568,49 @@ export default function LightingReport(): React.ReactElement | null {
                             </button>
                         </h3>
 
-                        <div className="card" style={{ padding: '1rem', marginBottom: '1.5rem' }}>
+                        <div className="card" style={{ padding: '1rem', marginBottom: '1.5rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)', borderRadius: '20px' }}>
                             <div style={{ overflowX: 'auto' }}>
-                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', minWidth: '350px' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem', minWidth: '350px' }}>
                                     <thead>
-                                        <tr style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)' }}>
-                                            <th style={{ padding: '0.8rem', textAlign: 'left', borderBottom: '2px solid var(--color-border)' }}>Punto Exacto / Puesto</th>
-                                            <th style={{ padding: '0.8rem', textAlign: 'center', borderBottom: '2px solid var(--color-border)' }}>Lux Medido</th>
-                                            <th style={{ padding: '0.8rem', textAlign: 'center', borderBottom: '2px solid var(--color-border)' }} className="no-print">Acción</th>
+                                        <tr style={{ background: 'rgba(255,255,255,0.02)', color: 'var(--color-text-muted)' }}>
+                                            <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid var(--color-border)', fontWeight: 800 }}>Punto Exacto / Puesto</th>
+                                            <th style={{ padding: '1rem', textAlign: 'center', borderBottom: '2px solid var(--color-border)', fontWeight: 800 }}>Lux Medido</th>
+                                            <th style={{ padding: '1rem', textAlign: 'center', borderBottom: '2px solid var(--color-border)', fontWeight: 800 }} className="no-print">Acción</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {formData.mediciones.map((med, index) => (
-                                            <tr key={med.id}>
-                                                <td style={{ padding: '0.5rem', borderBottom: '1px solid var(--color-border)' }}>
+                                            <tr key={med.id} className="hover-lift" style={{ transition: 'all 0.2s' }}>
+                                                <td style={{ padding: '0.8rem', borderBottom: '1px solid var(--color-border)' }}>
                                                     <input
                                                         type="text"
                                                         value={med.ubicacion}
                                                         onChange={(e) => updateMedicion(index, 'ubicacion', e.target.value)}
-                                                        style={{ width: '100%', padding: '0.5rem', border: 'none', background: 'transparent' }}
+                                                        style={inputStyle}
                                                         placeholder="Puesto X"
-                                                        className="form-input-transparent no-print"
+                                                        className="no-print"
                                                     />
                                                     <div className="print-only" style={{ padding: '0.5rem', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{med.ubicacion}</div>
                                                 </td>
-                                                <td style={{ padding: '0.5rem', borderBottom: '1px solid var(--color-border)', width: '100px' }}>
+                                                <td style={{ padding: '0.8rem', borderBottom: '1px solid var(--color-border)', width: '120px' }}>
                                                     <input
                                                         type="number"
                                                         value={med.luxMedido}
                                                         onChange={(e) => updateMedicion(index, 'luxMedido', e.target.value)}
-                                                        style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--color-border)', borderRadius: '4px', textAlign: 'center' }}
+                                                        style={{ ...inputStyle, textAlign: 'center', fontWeight: 800, color: 'var(--color-primary)' }}
                                                         placeholder="0"
                                                         min="0"
                                                         className="no-print"
                                                     />
                                                     <div className="print-only" style={{ textAlign: 'center', fontWeight: 'bold' }}>{med.luxMedido}</div>
                                                 </td>
-                                                <td style={{ padding: '0.5rem', borderBottom: '1px solid var(--color-border)', textAlign: 'center', width: '50px' }} className="no-print">
+                                                <td style={{ padding: '0.8rem', borderBottom: '1px solid var(--color-border)', textAlign: 'center', width: '60px' }} className="no-print">
                                                     <button
                                                         onClick={() => removeMedicion(index)}
-                                                        style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.4rem', borderRadius: '8px' }}
-                                                        onMouseOver={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
-                                                        onMouseOut={e => e.currentTarget.style.background = 'none'}
+                                                        style={{ background: 'rgba(239, 68, 68, 0.1)', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.5rem', borderRadius: '10px', display: 'inline-flex' }}
+                                                        className="hover-lift"
                                                     >
-                                                        <Trash2 size={16} />
+                                                        <Trash2 size={18} />
                                                     </button>
                                                 </td>
                                             </tr>
@@ -525,8 +674,7 @@ export default function LightingReport(): React.ReactElement | null {
                     <textarea
                         value={formData.conclusion || ''}
                         onChange={(e) => handleDataChange('conclusion', e.target.value)}
-                        className="form-input no-print"
-                        style={{ minHeight: '120px', resize: 'vertical' }}
+                        style={{ ...inputStyle, minHeight: '160px', resize: 'vertical' }} className="no-print"
                         placeholder="Escriba la conclusión del estudio o use el botón de IA para generarla..."
                     />
 
@@ -634,6 +782,7 @@ export default function LightingReport(): React.ReactElement | null {
                     <PdfBrandingFooter />
                 </div>
             </div>
+            </main>
         </div >
     );
 }

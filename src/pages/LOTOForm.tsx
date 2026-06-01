@@ -232,27 +232,44 @@ export default function LOTOForm(): React.ReactElement | null {
 
             <main style={{ padding: '3.5rem 1.5rem 1.5rem', maxWidth: '800px', margin: '0 auto' }}>
                 <div className="card" style={{ padding: '2rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}>
+              <div style={{ width: 44, height: 44, background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(37,99,235,0.3)' }}>
+                  <Lock size={22} color="#fff" />
+              </div>
+              <div>
+                  <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text)' }}>Datos Generales del Procedimiento</h2>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Información del equipo a bloquear</p>
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem' }}>
                         <div style={isMobile ? {} : { gridColumn: 'span 2' }}>
                             <label style={labelStyle}>Nombre del Equipo *</label>
-                            <input type="text" value={procedure.equipmentName} onChange={(e) => setProcedure({ ...procedure, equipmentName: e.target.value })} style={inputStyle} placeholder="Ej: Compresor Principal" />
+                            <input type="text" value={procedure.equipmentName} onChange={(e) => setProcedure({ ...procedure, equipmentName: e.target.value })} className="input-professional" placeholder="Ej: Compresor Principal" />
                         </div>
                         <div>
                             <label style={labelStyle}>Ubicación</label>
-                            <input type="text" value={procedure.location} onChange={(e) => setProcedure({ ...procedure, location: e.target.value })} style={inputStyle} placeholder="Ej: Sala de Máquinas" />
+                            <input type="text" value={procedure.location} onChange={(e) => setProcedure({ ...procedure, location: e.target.value })} className="input-professional" placeholder="Ej: Sala de Máquinas" />
                         </div>
                         <div>
                             <label style={labelStyle}>Departamento</label>
-                            <input type="text" value={procedure.department} onChange={(e) => setProcedure({ ...procedure, department: e.target.value })} style={inputStyle} placeholder="Ej: Mantenimiento" />
+                            <input type="text" value={procedure.department} onChange={(e) => setProcedure({ ...procedure, department: e.target.value })} className="input-professional" placeholder="Ej: Mantenimiento" />
                         </div>
                         <div style={isMobile ? {} : { gridColumn: 'span 2' }}>
                             <label style={labelStyle}>Supervisor / Responsable</label>
-                            <input type="text" value={procedure.supervisor} onChange={(e) => setProcedure({ ...procedure, supervisor: e.target.value })} style={inputStyle} placeholder="Nombre completo" />
+                            <input type="text" value={procedure.supervisor} onChange={(e) => setProcedure({ ...procedure, supervisor: e.target.value })} className="input-professional" placeholder="Nombre completo" />
                         </div>
                     </div>
 
                     <div style={{ marginTop: '2.5rem' }}>
-                        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Paso 1: Identificar Fuentes de Energía a Bloquear</h3>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}>
+              <div style={{ width: 44, height: 44, background: 'linear-gradient(135deg, #dc2626, #991b1b)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(220,38,38,0.3)' }}>
+                  <span style={{ fontSize: '1.2rem' }}>⚡</span>
+              </div>
+              <div>
+                  <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text)' }}>Paso 1: Fuentes de Energía</h2>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Identifique las energías a bloquear</p>
+              </div>
+            </div>
                         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: '1.2rem' }}>
                             {ENERGY_TYPES.map(type => {
                                 const isSelected = procedure.energyTypes.includes(type.id);
@@ -290,7 +307,15 @@ export default function LOTOForm(): React.ReactElement | null {
                     </div>
 
                     <div style={{ marginTop: '2.5rem' }}>
-                        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Paso 2: Elementos de Bloqueo a Utilizar</h3>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}>
+              <div style={{ width: 44, height: 44, background: 'linear-gradient(135deg, #f59e0b, #d97706)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(245,158,11,0.3)' }}>
+                  <span style={{ fontSize: '1.2rem' }}>🔒</span>
+              </div>
+              <div>
+                  <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text)' }}>Paso 2: Dispositivos de Bloqueo</h2>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Elementos LOTO a utilizar</p>
+              </div>
+            </div>
                         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: '1rem' }}>
                             {LOTO_DEVICES.map(device => {
                                 const isSelected = procedure.lotoDevices.includes(device.id);
@@ -327,13 +352,21 @@ export default function LOTOForm(): React.ReactElement | null {
                             type="text" 
                             value={procedure.isolationPoints} 
                             onChange={(e) => setProcedure({ ...procedure, isolationPoints: e.target.value })} 
-                            style={inputStyle} 
+                            className="input-professional" 
                             placeholder="Ej: Interruptor Principal Q1, Válvula Entrada Vapor V-01" 
                         />
                     </div>
 
                     <div style={{ marginTop: '2.5rem' }}>
-                        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Paso 3: Verificación de Energía Cero</h3>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}>
+              <div style={{ width: 44, height: 44, background: 'linear-gradient(135deg, #16a34a, #15803d)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(22,163,74,0.3)' }}>
+                  <CheckCircle2 size={22} color="#fff" />
+              </div>
+              <div>
+                  <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text)' }}>Paso 3: Energía Cero</h2>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Verificación y try-out</p>
+              </div>
+            </div>
                         <div style={{ 
                             display: 'flex', flexDirection: 'column', gap: '1.5rem', 
                             background: procedure.zeroEnergyVerification.tested ? 'rgba(16, 185, 129, 0.05)' : 'var(--color-surface)', 

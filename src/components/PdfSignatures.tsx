@@ -111,7 +111,7 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
             overflowX: 'auto'
         }}>
             {/* Table layout: the most stable structure for html2canvas — avoids flexbox clipping */}
-            <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '8px', tableLayout: 'fixed' }}>
+            <table style={{ width: '100%', minWidth: '550px', borderCollapse: 'separate', borderSpacing: '8px', tableLayout: 'fixed' }}>
                 <tbody>
                     <tr>
                         {boxes.map((box, idx) => {
@@ -134,25 +134,32 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
                                 }}>
                                     {/* Signature / Stamp image row */}
                                     <div style={{
-                                        height: '60px',
+                                        minHeight: '60px',
+                                        height: 'auto',
                                         width: '100%',
                                         display: 'block',
                                         textAlign: 'center',
                                         borderBottom: `1px solid ${lineCol}`,
-                                        paddingBottom: '0.25rem',
+                                        paddingBottom: '0.5rem',
                                         marginBottom: '0.5rem',
-                                        boxSizing: 'border-box'
+                                        boxSizing: 'border-box',
+                                        overflow: 'hidden'
                                     }}>
                                         {box.signatureUrl && (
                                             <img
                                                 src={box.signatureUrl}
                                                 alt="Firma"
                                                 style={{
-                                                    maxHeight: '50px',
-                                                    maxWidth: box.stampUrl ? '48%' : '95%',
+                                                    height: '45px',
+                                                    width: box.stampUrl ? '48%' : '95%',
+                                                    maxWidth: '100%',
                                                     objectFit: 'contain',
                                                     display: 'inline-block',
-                                                    verticalAlign: 'bottom'
+                                                    verticalAlign: 'bottom',
+                                                    background: '#ffffff',
+                                                    borderRadius: '4px',
+                                                    padding: '2px',
+                                                    boxSizing: 'border-box'
                                                 }}
                                             />
                                         )}
@@ -161,12 +168,17 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
                                                 src={box.stampUrl}
                                                 alt="Sello"
                                                 style={{
-                                                    maxHeight: '50px',
-                                                    maxWidth: box.signatureUrl ? '48%' : '95%',
+                                                    height: '45px',
+                                                    width: box.signatureUrl ? '48%' : '95%',
+                                                    maxWidth: '100%',
                                                     objectFit: 'contain',
                                                     display: 'inline-block',
                                                     verticalAlign: 'bottom',
-                                                    marginLeft: box.signatureUrl ? '4px' : '0'
+                                                    marginLeft: box.signatureUrl ? '4px' : '0',
+                                                    background: '#ffffff',
+                                                    borderRadius: '4px',
+                                                    padding: '2px',
+                                                    boxSizing: 'border-box'
                                                 }}
                                             />
                                         )}
@@ -176,10 +188,10 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
                                             </span>
                                         )}
                                     </div>
-                                    <p style={{ margin: 0, fontWeight: 700, fontSize: '0.7rem', color: textCol, textTransform: 'uppercase' }}>{box.title}</p>
-                                    <p style={{ margin: '2px 0 0 0', fontSize: '0.6rem', color: subTextCol, fontWeight: isPro ? 600 : 400 }}>{box.subtitle}</p>
+                                    <p style={{ margin: 0, fontWeight: 700, fontSize: '0.7rem', color: textCol, textTransform: 'uppercase', wordBreak: 'break-word', overflowWrap: 'break-word', lineHeight: 1.2 }}>{box.title}</p>
+                                    <p style={{ margin: '4px 0 0 0', fontSize: '0.6rem', color: subTextCol, fontWeight: isPro ? 600 : 400, wordBreak: 'break-word', overflowWrap: 'break-word', lineHeight: 1.2 }}>{box.subtitle}</p>
                                     {box.license && (
-                                        <p style={{ margin: '2px 0 0 0', fontSize: '0.55rem', color: '#16a34a' }}>Mat.: {box.license}</p>
+                                        <p style={{ margin: '4px 0 0 0', fontSize: '0.55rem', color: '#16a34a', wordBreak: 'break-word' }}>Mat.: {box.license}</p>
                                     )}
                                     {box.customContent}
                                 </td>
