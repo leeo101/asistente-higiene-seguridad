@@ -445,58 +445,7 @@ export default function WorkPermit(): React.ReactElement | null {
                 </button>
             </div>
 
-            {/* Status Banner */}
-            <div className="no-print" style={{ marginBottom: '1.5rem', background: 'rgba(var(--color-surface-rgb), 0.7)', backdropFilter: 'blur(12px)', padding: '1.5rem', borderRadius: '24px', border: '1px solid var(--glass-border)', boxShadow: 'var(--glass-shadow)' }}>
-                <h3 style={{ margin: '0 0 1rem', fontSize: '1rem', fontWeight: 900 }}>Estado de Aprobación</h3>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', overflowX: 'auto', paddingBottom: '10px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: 1 }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: formData.estado === 'Borrador' ? '#3b82f6' : '#10b981', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>1</div>
-                        <span style={{ fontSize: '0.7rem', marginTop: '5px', fontWeight: 'bold', color: 'var(--color-text)' }}>Borrador</span>
-                    </div>
-                    <div style={{ height: '2px', width: '40px', background: formData.estado !== 'Borrador' ? '#10b981' : '#ddd' }}></div>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: formData.estado === 'Borrador' ? 0.4 : 1 }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: formData.estado === 'Pendiente Supervisor' ? '#f59e0b' : (['Pendiente EHS', 'Aprobado'].includes(formData.estado) ? '#10b981' : '#ddd'), color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>2</div>
-                        <span style={{ fontSize: '0.7rem', marginTop: '5px', fontWeight: 'bold', color: 'var(--color-text)' }}>Supervisor</span>
-                    </div>
-                    <div style={{ height: '2px', width: '40px', background: ['Pendiente EHS', 'Aprobado'].includes(formData.estado) ? '#10b981' : '#ddd' }}></div>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: ['Borrador', 'Pendiente Supervisor'].includes(formData.estado) ? 0.4 : 1 }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: formData.estado === 'Pendiente EHS' ? '#f59e0b' : (formData.estado === 'Aprobado' ? '#10b981' : '#ddd'), color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>3</div>
-                        <span style={{ fontSize: '0.7rem', marginTop: '5px', fontWeight: 'bold', color: 'var(--color-text)' }}>Gerencia EHS</span>
-                    </div>
-                    <div style={{ height: '2px', width: '40px', background: formData.estado === 'Aprobado' ? '#10b981' : '#ddd' }}></div>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: formData.estado === 'Aprobado' ? 1 : 0.4 }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: formData.estado === 'Aprobado' ? '#10b981' : '#ddd', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>✓</div>
-                        <span style={{ fontSize: '0.7rem', marginTop: '5px', fontWeight: 'bold', color: 'var(--color-text)' }}>Aprobado</span>
-                    </div>
-                </div>
 
-                <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                    {formData.estado === 'Borrador' && (
-                        <button onClick={() => {
-                            setFormData({...formData, estado: 'Pendiente Supervisor', firmas: {...formData.firmas, solicitante: { name: professional.name, sign: professional.signature, date: new Date().toLocaleString() }}});
-                            toast.success('Enviado a revisión de Supervisor');
-                        }} style={{ padding: '0.5rem 1rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Solicitar Aprobación</button>
-                    )}
-                    {formData.estado === 'Pendiente Supervisor' && (
-                        <button onClick={() => {
-                            setFormData({...formData, estado: 'Pendiente EHS', firmas: {...formData.firmas, supervisor: { name: professional.name, sign: professional.signature, date: new Date().toLocaleString() }}});
-                            toast.success('Firmado por Supervisor. Pendiente EHS');
-                        }} style={{ padding: '0.5rem 1rem', background: '#f59e0b', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Firmar como Supervisor</button>
-                    )}
-                    {formData.estado === 'Pendiente EHS' && (
-                        <button onClick={() => {
-                            setFormData({...formData, estado: 'Aprobado', firmas: {...formData.firmas, ehs: { name: professional.name, sign: professional.signature, date: new Date().toLocaleString() }}});
-                            toast.success('Permiso Aprobado Completamente');
-                        }} style={{ padding: '0.5rem 1rem', background: '#10b981', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Aprobar Definitivamente (EHS)</button>
-                    )}
-                    {formData.estado !== 'Borrador' && (
-                        <button onClick={() => {
-                            setFormData({...formData, estado: 'Borrador', firmas: { solicitante: null, supervisor: null, ehs: null }});
-                            toast.error('Permiso rechazado / devuelto a borrador');
-                        }} style={{ padding: '0.5rem 1rem', background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Rechazar / Reiniciar</button>
-                    )}
-                </div>
-            </div>
 
             {/* Quick Templates + Progress */}
             <div className="no-print" style={{ marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.5rem', background: 'rgba(var(--color-surface-rgb), 0.7)', backdropFilter: 'blur(12px)', borderRadius: '24px', border: '1px solid var(--glass-border)', boxShadow: 'var(--glass-shadow)' }}>
