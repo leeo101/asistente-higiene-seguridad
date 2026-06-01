@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Map as MapIcon, Calendar, ChevronRight, Trash2, Share2, Edit2, QrCode } from 'lucide-react';
+import { ArrowLeft, Search, Map as MapIcon, Calendar, ChevronRight, Trash2, Share2, Edit2, QrCode, Plus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -8,6 +8,7 @@ import RiskMapPdfGenerator from '../components/RiskMapPdfGenerator';
 import ShareModal from '../components/ShareModal';
 import QRModal from '../components/QRModal';
 import { usePaywall } from '../hooks/usePaywall';
+import AnimatedPage from '../components/AnimatedPage';
 
 export default function RiskMapHistory(): React.ReactElement | null {
     useDocumentTitle('Historial de Mapas de Riesgo');
@@ -51,6 +52,7 @@ export default function RiskMapHistory(): React.ReactElement | null {
     }
 
     return (
+        <AnimatedPage>
         <div className="container" style={{ paddingBottom: '3rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             {deleteTarget && (
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
@@ -59,7 +61,7 @@ export default function RiskMapHistory(): React.ReactElement | null {
                         <h3>¿Eliminar mapa?</h3>
                         <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>Esta acción borrará definitivamente el mapa de {history.find(h => h.id === deleteTarget)?.empresa}.</p>
                         <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
-                            <button onClick={() => setDeleteTarget(null)} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: 'var(--color-background)', border: 'none' }}>Cancelar</button>
+                            <button onClick={() => setDeleteTarget(null)} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: 'var(--color-background)', border: 'none', color: 'var(--color-text)' }}>Cancelar</button>
                             <button onClick={confirmDelete} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: '#ef4444', color: 'white', border: 'none' }}>Eliminar</button>
                         </div>
                     </div>
@@ -78,15 +80,54 @@ export default function RiskMapHistory(): React.ReactElement | null {
                 {shareItem && <RiskMapPdfGenerator data={shareItem} />}
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10 }}>
+            {/* Premium Header */}
+            <div style={{
+                background: 'linear-gradient(135deg, #d4af37, #b8860b)',
+                border: '1px solid rgba(212,175,55,0.2)',
+                borderRadius: '24px',
+                padding: '1.5rem 2rem',
+                marginBottom: '1rem',
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: '1rem',
+                boxShadow: '0 10px 40px rgba(212,175,55,0.3)'
+            }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <button onClick={() => navigate('/#activity')} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)' }}>
-                        <ArrowLeft size={20} />
-                    </button>
-                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Mapas de Riesgos Guardados</h1>
+                <div style={{ 
+                    width: '56px', height: '56px', borderRadius: '16px', 
+                    background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)'
+                }}>
+                    <MapIcon size={30} color="#fff" strokeWidth={2.5} />
                 </div>
-                <button onClick={() => navigate('/risk-maps')} className="btn-primary" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem' }}>
-                    Nuevo Mapa
+                <div>
+                    <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.5px', textShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
+                    Mapas de Riesgos
+                    </h1>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'rgba(255,255,255,0.85)', fontWeight: 600 }}>
+                    Croquis e Identificación ISO
+                    </p>
+                </div>
+                </div>
+            </div>
+
+            <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'flex-start' }}>
+                <button
+                onClick={() => {
+                    requirePro(() => navigate('/risk-maps'));
+                }}
+                style={{
+                    padding: '0.75rem 1.5rem', background: '#10b981', color: '#fff',
+                    border: 'none', borderRadius: '14px', fontWeight: 800, fontSize: '0.9rem',
+                    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem',
+                    boxShadow: '0 4px 15px rgba(16,185,129,0.4)', transition: 'all 0.2s'
+                }}
+                onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                >
+                <Plus size={18} /> Nuevo Mapa
                 </button>
             </div>
 
@@ -191,5 +232,6 @@ export default function RiskMapHistory(): React.ReactElement | null {
                 />
             )}
         </div>
+        </AnimatedPage>
     );
 }

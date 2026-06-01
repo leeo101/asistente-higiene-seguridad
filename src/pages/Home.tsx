@@ -125,7 +125,7 @@ const quickLinks: QuickLink[] = [
   { to: '/safety-kpis', icon: <ChartPieSlice weight="duotone" size={26} />, label: 'KPIs Seguridad', sub: 'Índices de Siniestralidad y Estadísticas', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management', badge: 'Nuevo', featured: true },
   { to: '/legislation', icon: <Gavel weight="duotone" size={26} />, label: 'Legislación', sub: 'Biblioteca Legal', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true, category: 'docs' },
   { to: '/loto', icon: <Lock weight="duotone" size={26} />, label: 'LOTO', sub: 'Bloqueo y Etiquetado', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true, category: 'critical' },
-  { to: '/risk-maps', icon: <MapTrifold weight="duotone" size={26} />, label: 'Mapas', sub: 'Croquis de Riesgos', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true, category: 'docs' },
+  { to: '/risk-maps-history', icon: <MapTrifold weight="duotone" size={26} />, label: 'Mapas', sub: 'Croquis de Riesgos', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', premium: true, category: 'docs' },
   { to: '/extintores', icon: <Fire weight="duotone" size={26} />, label: 'Matafuegos', sub: 'Control y Vencimientos', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true, category: 'management' },
   { to: '/environmental', icon: <Droplets weight="duotone" size={26} />, label: 'Medio Ambiente', sub: 'Monitoreo y Control', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)', premium: true, category: 'specific' },
   { to: '/work-permit', icon: <Key weight="duotone" size={26} />, label: 'Permisos', sub: 'Tareas Críticas', color: '#2563eb', bg: 'rgba(37,99,235,0.1)', premium: true, category: 'critical', featured: true },

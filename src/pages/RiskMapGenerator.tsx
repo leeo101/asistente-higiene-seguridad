@@ -523,35 +523,37 @@ export default function RiskMapGenerator(): React.ReactElement | null {
             )}
 
             {/* Floating actions */}
-            <div className="no-print floating-action-bar">
-                <button onClick={handleSave} className="btn-floating-action" style={{ background: '#36B37E', color: '#fff' }}><Save size={18} /> GUARDAR</button>
-                <button onClick={() => requirePro(() => setShowShareModal(true))} className="btn-floating-action" style={{ background: '#0052CC', color: '#fff' }}><Share2 size={18} /> COMPARTIR</button>
-                <button onClick={() => requirePro(() => window.print())} className="btn-floating-action" style={{ background: '#FF8B00', color: '#fff' }}><Printer size={18} /> IMPRIMIR</button>
-                <button onClick={handleExportPNG} className="btn-floating-action" style={{ background: '#9C27B0', color: '#fff' }}><Download size={18} /> PNG</button>
+            <div className="no-print floating-action-bar" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center' }}>
+                <button onClick={handleSave} className="glow-button hover-lift" style={{ padding: '0.6rem 1.2rem', background: 'linear-gradient(135deg, #10b981, #059669)', border: 'none', borderRadius: '12px', color: 'white', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}><Save size={16} /> GUARDAR</button>
+                <button onClick={() => requirePro(() => setShowShareModal(true))} className="glow-button hover-lift" style={{ padding: '0.6rem 1.2rem', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', border: 'none', borderRadius: '12px', color: 'white', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}><Share2 size={16} /> COMPARTIR</button>
+                <button onClick={() => requirePro(() => window.print())} className="glow-button hover-lift" style={{ padding: '0.6rem 1.2rem', background: 'linear-gradient(135deg, #f59e0b, #d97706)', border: 'none', borderRadius: '12px', color: 'white', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}><Printer size={16} /> IMPRIMIR</button>
+                <button onClick={handleExportPNG} className="glow-button hover-lift" style={{ padding: '0.6rem 1.2rem', background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', border: 'none', borderRadius: '12px', color: 'white', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}><Download size={16} /> PNG</button>
             </div>
 
-            <div className="no-print">
+            <div className="no-print" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 {/* Header row */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <button onClick={() => navigate('/#tools')} style={{ padding: '0.4rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)' }}><ArrowLeft size={18} /></button>
-                        <h1 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>{editData ? 'Editar Mapa' : 'Editor de Mapa de Riesgos'}</h1>
+                        <button onClick={() => navigate('/risk-maps-history')} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}><ArrowLeft size={18} /></button>
+                        <h1 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 900, background: 'linear-gradient(to right, var(--color-primary), #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                            {editData ? 'Editar Mapa' : 'Editor de Mapa de Riesgos'}
+                        </h1>
                     </div>
-                    <button onClick={clearCanvas} className="btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', margin: 0, padding: '0.5rem 1rem' }}><Trash2 size={15} /> Borrar Todo</button>
+                    <button onClick={clearCanvas} className="btn-outline hover-lift" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, padding: '0.5rem 1rem', borderColor: 'rgba(239, 68, 68, 0.3)', color: '#ef4444', borderRadius: '12px', fontWeight: 700 }}><Trash2 size={16} /> Borrar Todo</button>
                 </div>
 
                 {/* Metadata bar */}
-                <div className="card animate-fade-in" style={{ padding: '1.25rem 1.5rem', marginBottom: '1.5rem', display: 'flex', gap: '1.5rem', flexWrap: 'wrap', alignItems: 'flex-end', background: 'rgba(var(--color-surface-rgb), 0.3)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.08)' }}>
+                <div className="glass-card animate-fade-in" style={{ padding: '1.25rem 1.5rem', display: 'flex', gap: '1.5rem', flexWrap: 'wrap', alignItems: 'flex-end', border: '1px solid var(--glass-border)', borderRadius: '16px' }}>
                     <div style={{ flex: '1 1 200px' }}>
-                        <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.5rem', display: 'block' }}>Empresa / Cliente *</label>
-                        <input type="text" value={meta.empresa} onChange={e => setMeta({ ...meta, empresa: e.target.value })} placeholder="Ej. Planta Modelo" style={{ padding: '0.75rem 1rem', width: '100%', borderRadius: '12px', border: '1px solid var(--color-border)', background: 'var(--color-background)', color: 'var(--color-text)', fontSize: '1rem', outline: 'none', transition: 'all 0.2s', boxSizing: 'border-box' }} />
+                        <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.5rem', display: 'block' }}>Empresa / Cliente *</label>
+                        <input type="text" value={meta.empresa} onChange={e => setMeta({ ...meta, empresa: e.target.value })} placeholder="Ej. Planta Modelo" style={{ padding: '0.85rem 1rem', width: '100%', borderRadius: '12px', border: '1px solid var(--color-border)', background: 'rgba(255,255,255,0.03)', color: 'var(--color-text)', fontSize: '1rem', outline: 'none', transition: 'all 0.2s', boxSizing: 'border-box' }} onFocus={e => {e.target.style.borderColor = 'var(--color-primary)'}} onBlur={e => {e.target.style.borderColor = 'var(--color-border)'}} />
                     </div>
                     <div style={{ flex: '1 1 200px' }}>
-                        <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.5rem', display: 'block' }}>Sector / Planta *</label>
-                        <input type="text" value={meta.sector} onChange={e => setMeta({ ...meta, sector: e.target.value })} placeholder="Ej. Nave 1 - Producción" style={{ padding: '0.75rem 1rem', width: '100%', borderRadius: '12px', border: '1px solid var(--color-border)', background: 'var(--color-background)', color: 'var(--color-text)', fontSize: '1rem', outline: 'none', transition: 'all 0.2s', boxSizing: 'border-box' }} />
+                        <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.5rem', display: 'block' }}>Sector / Planta *</label>
+                        <input type="text" value={meta.sector} onChange={e => setMeta({ ...meta, sector: e.target.value })} placeholder="Ej. Nave 1 - Producción" style={{ padding: '0.85rem 1rem', width: '100%', borderRadius: '12px', border: '1px solid var(--color-border)', background: 'rgba(255,255,255,0.03)', color: 'var(--color-text)', fontSize: '1rem', outline: 'none', transition: 'all 0.2s', boxSizing: 'border-box' }} onFocus={e => {e.target.style.borderColor = 'var(--color-primary)'}} onBlur={e => {e.target.style.borderColor = 'var(--color-border)'}} />
                     </div>
                     <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                        <button className="btn-primary" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.25rem', fontSize: '0.9rem', borderRadius: '12px', fontWeight: 700 }}
+                        <button className="glow-button hover-lift" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.85rem 1.25rem', fontSize: '0.9rem', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', border: 'none' }}
                             onClick={() => document.getElementById('bg-upload').click()}>
                             <ImageIcon size={18} /> Subir Plano Base
                         </button>
@@ -561,10 +563,10 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                 </div>
 
                 {/* ─── Main 3-column layout ─── */}
-                <div style={{ display: 'flex', gap: '0.75rem', minHeight: '680px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '1rem', minHeight: '680px', flexWrap: 'wrap', width: '100%' }}>
 
                     {/* ── LEFT SIDEBAR ── */}
-                    <div className="card" style={{ width: '100%', maxWidth: 270, flex: '0 0 270px', padding: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                    <div className="card" style={{ flex: '1 1 250px', minWidth: '250px', maxWidth: '100%', padding: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', margin: 0 }}>
                         {/* Tab bar */}
                         <div style={{ display: 'flex', borderBottom: '1px solid var(--color-border)' }}>
                             {[['icons', '🔴 Íconos'], ['layers', '☰ Capas'], ['help', '❓ Ayuda']].map(([id, label]) => (
@@ -690,7 +692,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                     </div>
 
                     {/* ── CANVAS AREA ── */}
-                    <div style={{ flex: '1 1 400px', display: 'flex', flexDirection: 'column', gap: '0.5rem', minWidth: 300 }}>
+                    <div style={{ flex: '3 1 350px', display: 'flex', flexDirection: 'column', gap: '0.75rem', minWidth: '300px', width: '100%' }}>
                         {/* Canvas toolbar */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.4rem' }}>
                             <div style={{ display: 'flex', gap: 4 }}>
@@ -866,7 +868,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                     </div>
 
                     {/* ── RIGHT PROPERTIES PANEL ── */}
-                    <div className="card" style={{ width: '100%', maxWidth: 215, flex: '0 0 215px', padding: 0, overflowY: 'auto' }}>
+                    <div className="card" style={{ flex: '1 1 200px', minWidth: '200px', maxWidth: '100%', padding: 0, overflowY: 'auto', margin: 0 }}>
                         <div style={{ padding: '0.5rem 0.75rem', borderBottom: '1px solid var(--color-border)', fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>
                             Panel de Objeto
                         </div>
