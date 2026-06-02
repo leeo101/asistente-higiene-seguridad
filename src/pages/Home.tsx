@@ -232,6 +232,13 @@ export default function Home(): React.ReactElement {
   });
 
   useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       if (!currentUser) {
         setUserName('Profesional');
@@ -624,8 +631,8 @@ export default function Home(): React.ReactElement {
 
             <div style={{
               display: 'grid',
-              gridTemplateColumns: isMobile ? 'repeat(auto-fill, minmax(140px, 1fr))' : 'repeat(auto-fill, minmax(180px, 1fr))',
-              gap: isMobile ? '0.75rem' : '1.5rem',
+              gridTemplateColumns: isMobile ? 'repeat(auto-fill, minmax(110px, 1fr))' : 'repeat(auto-fill, minmax(180px, 1fr))',
+              gap: isMobile ? '0.6rem' : '1.5rem',
               gridAutoRows: 'auto'
             }}>
               {filteredLinks.length > 0 ? filteredLinks.map((link, i) => (
@@ -635,8 +642,8 @@ export default function Home(): React.ReactElement {
                   className="card"
                   style={{
                     textDecoration: 'none',
-                    padding: isMobile ? '1.25rem 0.5rem' : '1.5rem 1rem',
-                    borderRadius: '24px', // Sin puntas
+                    padding: isMobile ? '1rem 0.4rem' : '1.5rem 1rem',
+                    borderRadius: isMobile ? '16px' : '24px', // Sin puntas
                     background: `linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))`,
                     border: '1px solid var(--color-border)',
                     transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -645,7 +652,7 @@ export default function Home(): React.ReactElement {
                     alignItems: 'center',
                     justifyContent: 'center',
                     textAlign: 'center',
-                    gap: '0.8rem',
+                    gap: isMobile ? '0.5rem' : '0.8rem',
                     position: 'relative',
                     overflow: 'hidden',
                     aspectRatio: '1 / 1'
@@ -667,13 +674,13 @@ export default function Home(): React.ReactElement {
                   {link.badge && (
                     <div style={{
                       position: 'absolute',
-                      top: '0.8rem',
-                      right: '0.8rem',
+                      top: isMobile ? '0.5rem' : '0.8rem',
+                      right: isMobile ? '0.5rem' : '0.8rem',
                       background: `linear-gradient(135deg, ${link.color}, ${link.color}cc)`,
                       color: '#fff',
                       padding: '0.2rem 0.5rem',
                       borderRadius: '100px',
-                      fontSize: '0.65rem',
+                      fontSize: isMobile ? '0.55rem' : '0.65rem',
                       fontWeight: 800,
                       boxShadow: `0 2px 10px ${link.color}30`,
                       zIndex: 2
@@ -683,23 +690,23 @@ export default function Home(): React.ReactElement {
                   )}
 
                   <div className={`premium-icon-box ${link.category === 'ia' ? 'ai-magic-box' : ''}`} style={{
-                    width: isMobile ? '50px' : '56px',
-                    height: isMobile ? '50px' : '56px',
+                    width: isMobile ? '38px' : '56px',
+                    height: isMobile ? '38px' : '56px',
                     color: link.color,
                     flexShrink: 0,
-                    marginBottom: '0.2rem'
+                    marginBottom: '0.1rem'
                   }}>
                     {React.cloneElement(link.icon as React.ReactElement<any>, { 
-                      size: isMobile ? 28 : 30, 
+                      size: isMobile ? 22 : 30, 
                       className: `${link.category === 'ia' ? 'ai-magic-icon' : 'icon-glow-soft'}` 
                     })}
                   </div>
                   
                   <div style={{ width: '100%', padding: '0 0.2rem' }}>
-                    <h3 style={{ margin: 0, fontSize: isMobile ? '0.9rem' : '0.95rem', fontWeight: 800, color: 'var(--color-text)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <h3 style={{ margin: 0, fontSize: isMobile ? '0.8rem' : '0.95rem', fontWeight: 800, color: 'var(--color-text)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.2 }}>
                       {link.label}
                     </h3>
-                    <p style={{ margin: '0.3rem 0 0', fontSize: isMobile ? '0.75rem' : '0.8rem', color: 'var(--color-text-muted)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.3, opacity: 0.8 }}>
+                    <p style={{ margin: '0.2rem 0 0', fontSize: isMobile ? '0.65rem' : '0.8rem', color: 'var(--color-text-muted)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.3, opacity: 0.8 }}>
                       {link.sub}
                     </p>
                   </div>
