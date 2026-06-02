@@ -320,16 +320,24 @@ export default function PPETracker(): React.ReactElement | null {
                 </div>
             )}
 
+            {/* Segmented Tabs */}
+            <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '1.5rem', background: 'rgba(15,23,42,0.03)', padding: '0.35rem', borderRadius: '16px', border: '1px solid var(--color-border)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)' }}>
+                <button
+                    onClick={() => setIsFormVisible(false)}
+                    style={{ flex: 1, padding: '0.75rem', borderRadius: '12px', border: 'none', background: !isFormVisible ? '#10b981' : 'transparent', color: !isFormVisible ? '#fff' : 'var(--color-text-muted)', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: !isFormVisible ? '0 4px 12px rgba(16,185,129,0.2)' : 'none' }}
+                >
+                    <Shield size={18} /> Inventario
+                </button>
+                <button
+                    onClick={() => setIsFormVisible(true)}
+                    style={{ flex: 1, padding: '0.75rem', borderRadius: '12px', border: 'none', background: isFormVisible ? '#10b981' : 'transparent', color: isFormVisible ? '#fff' : 'var(--color-text-muted)', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: isFormVisible ? '0 4px 12px rgba(16,185,129,0.2)' : 'none' }}
+                >
+                    <Plus size={18} /> Nueva Entrega
+                </button>
+            </div>
+
             {!isFormVisible ? (
                 <>
-                    <button
-                        onClick={() => setIsFormVisible(true)}
-                        className="btn-primary"
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', width: '100%', padding: '0.85rem', border: '1px solid #10b981', background: '#10b981', color: '#ffffff', cursor: 'pointer', fontSize: '0.92rem', marginBottom: '1.5rem', borderRadius: '12px' }}
-                    >
-                        <Plus size={18} /> <span className="hidden sm:inline">Registrar EPP</span><span className="inline sm:hidden">REGISTRAR</span>
-                    </button>
-
                     {/* List */}
                     {items.length === 0 ? (
                         <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
@@ -678,18 +686,11 @@ export default function PPETracker(): React.ReactElement | null {
                         </div>
                     </div>
                     
-                    <div className="no-print floating-action-bar">
-                        <button
-                            onClick={() => setIsFormVisible(false)}
-                            className="btn-floating-action"
-                            style={{ background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}
-                        >
-                            <X size={18} /> CANCELAR
-                        </button>
+                    <div className="no-print floating-action-bar" style={{ justifyContent: 'center' }}>
                         <button
                             onClick={handleAdd}
                             className="btn-floating-action"
-                            style={{ background: '#10b981', color: '#ffffff', border: 'none' }}
+                            style={{ background: '#10b981', color: '#ffffff', border: 'none', width: '100%', maxWidth: '300px' }}
                         >
                             <ShieldCheck size={18} /> GUARDAR EPP
                         </button>
