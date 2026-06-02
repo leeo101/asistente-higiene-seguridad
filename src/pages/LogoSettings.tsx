@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Upload, X, CheckCircle, AlertCircle, Image as ImageIcon, Sparkles, ShieldCheck, Info, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Upload, X, CheckCircle, Image as ImageIcon, Sparkles, ShieldCheck, Info, RefreshCw, Palette } from 'lucide-react';
 import { usePaywall } from '../hooks/usePaywall';
 import { useAuth } from '../contexts/AuthContext';
 import { saveValue, listenToValue } from '../services/cloudSync';
@@ -8,21 +8,21 @@ import toast from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 const PRESET_PALETTES = [
-    { name: 'Azul Oceano', primary: '#3B82F6', secondary: '#10B981' },
-    { name: 'Rojo Seguridad', primary: '#EF4444', secondary: '#F59E0B' },
-    { name: 'Verde Industria', primary: '#059669', secondary: '#0EA5E9' },
-    { name: 'Naranja Alerta', primary: '#F97316', secondary: '#8B5CF6' },
-    { name: 'Violeta Pro', primary: '#8B5CF6', secondary: '#06B6D4' },
-    { name: 'Gris Acero', primary: '#475569', secondary: '#38BDF8' },
+    { name: 'Océano', primary: '#3B82F6', secondary: '#10B981' },
+    { name: 'Seguridad', primary: '#EF4444', secondary: '#F59E0B' },
+    { name: 'Industrial', primary: '#059669', secondary: '#0EA5E9' },
+    { name: 'Alerta', primary: '#F97316', secondary: '#8B5CF6' },
+    { name: 'Profesional', primary: '#8B5CF6', secondary: '#06B6D4' },
+    { name: 'Acero', primary: '#475569', secondary: '#38BDF8' },
 ];
 
 export default function LogoSettings(): React.ReactElement | null {
     const navigate = useNavigate();
     const { isPro } = usePaywall();
     const { currentUser } = useAuth();
-    useDocumentTitle('Logo de Empresa');
+    useDocumentTitle('Identidad Visual');
 
-    const [logo, setLogo] = useState(null);
+    const [logo, setLogo] = useState<string | null>(null);
     const [showLogo, setShowLogo] = useState(true);
     const [primaryColor, setPrimaryColor] = useState('#3B82F6');
     const [secondaryColor, setSecondaryColor] = useState('#10B981');
@@ -35,16 +35,20 @@ export default function LogoSettings(): React.ReactElement | null {
         const savedPrimaryColor = localStorage.getItem('primaryColor');
         const savedSecondaryColor = localStorage.getItem('secondaryColor');
 
-        if (savedLogo) setLogo(savedLogo);
+        if (savedLogo && savedLogo !== 'null' && savedLogo !== 'undefined') setLogo(savedLogo);
         if (savedShowLogo !== null) setShowLogo(savedShowLogo === 'true');
         if (savedPrimaryColor) setPrimaryColor(savedPrimaryColor);
         if (savedSecondaryColor) setSecondaryColor(savedSecondaryColor);
 
         if (currentUser?.uid) {
             const unsubscribeLogo = listenToValue<string>(currentUser.uid, 'companyLogo', (val) => {
-                setLogo(val);
-                if (val) localStorage.setItem('companyLogo', val);
-                else localStorage.removeItem('companyLogo');
+                if (val && val !== 'null' && val !== 'undefined') {
+                    setLogo(val);
+                    localStorage.setItem('companyLogo', val);
+                } else {
+                    setLogo(null);
+                    localStorage.removeItem('companyLogo');
+                }
             });
             const unsubscribeShow = listenToValue<boolean>(currentUser.uid, 'showCompanyLogo', (val) => {
                 const normalized = val === null ? true : val;
@@ -61,15 +65,15 @@ export default function LogoSettings(): React.ReactElement | null {
         }
     }, [currentUser]);
 
-    const handleFileChange = (file) => {
+    const handleFileChange = (file: File | undefined) => {
         if (!file) return;
         setIsUploading(true);
         if (!file.type.startsWith('image/')) {
             toast.error('Por favor subí una imagen válida (PNG, JPG, SVG)');
             setIsUploading(false); return;
         }
-        if (file.size > 500 * 1024) {
-            toast.error('La imagen debe pesar menos de 500KB');
+        if (file.size > 1024 * 1024) {
+            toast.error('La imagen debe pesar menos de 1MB');
             setIsUploading(false); return;
         }
         const reader = new FileReader();
@@ -79,17 +83,17 @@ export default function LogoSettings(): React.ReactElement | null {
             localStorage.setItem('companyLogo', base64);
             if (currentUser?.uid) saveValue(currentUser.uid, 'companyLogo', base64);
             setIsUploading(false);
-            toast.success('✅ Logo guardado exitosamente. Se aplicará a todos tus PDFs.');
+            toast.success('Logo guardado exitosamente.');
         };
         reader.onerror = () => { toast.error('Error al leer la imagen'); setIsUploading(false); };
         reader.readAsDataURL(file);
     };
 
-    const handleDrop = (e) => {
+    const handleDrop = (e: React.DragEvent) => {
         e.preventDefault(); e.stopPropagation(); setDragActive(false);
         if (e.dataTransfer.files?.[0]) handleFileChange(e.dataTransfer.files[0]);
     };
-    const handleDragOver = (e) => { e.preventDefault(); e.stopPropagation(); setDragActive(true); };
+    const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); setDragActive(true); };
     const handleDragLeave = () => setDragActive(false);
 
     const removeLogo = () => {
@@ -133,123 +137,128 @@ export default function LogoSettings(): React.ReactElement | null {
     };
 
     const cardStyle: React.CSSProperties = {
-        background: 'rgba(var(--color-surface-rgb), 0.5)',
-        backdropFilter: 'blur(12px)',
-        border: '1px solid var(--glass-border)',
+        background: 'var(--color-surface)',
+        backdropFilter: 'blur(20px)',
+        border: '1px solid rgba(255,255,255,0.05)',
         borderRadius: '24px',
-        padding: '2rem',
+        padding: '2.5rem',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
     };
 
     return (
-        <div className="container animate-fade-in" style={{ maxWidth: '800px', paddingBottom: '4rem' }}>
+        <div className="container animate-fade-in" style={{ maxWidth: '850px', paddingBottom: '5rem' }}>
             {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', marginBottom: '3rem' }}>
                 <button
                     onClick={() => navigate(-1)}
                     style={{
-                        padding: '0.6rem', background: 'var(--color-surface)',
-                        border: '1px solid var(--color-border)', borderRadius: '12px',
+                        padding: '0.8rem', background: 'var(--color-surface)',
+                        border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px',
                         cursor: 'pointer', color: 'var(--color-text)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        transition: 'all 0.2s', boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', 
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
                     }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-surface-hover)'}
-                    onMouseLeave={(e) => e.currentTarget.style.background = 'var(--color-surface)'}
+                    onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.1)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)'; }}
                 >
-                    <ArrowLeft size={20} />
+                    <ArrowLeft size={22} />
                 </button>
                 <div>
-                    <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 900, letterSpacing: '-0.5px' }}>Logo de Empresa</h1>
-                    <p style={{ margin: 0, color: 'var(--color-text-secondary)', fontSize: '0.9rem', fontWeight: 500 }}>Personalizá tus reportes profesionales</p>
+                    <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: 900, letterSpacing: '-0.8px', background: 'linear-gradient(135deg, #fff, #a1a1aa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                        Identidad Visual
+                    </h1>
+                    <p style={{ margin: '0.3rem 0 0 0', color: 'var(--color-text-secondary)', fontSize: '0.95rem', fontWeight: 500 }}>
+                        Personalizá tus reportes profesionales con una estética premium
+                    </p>
                 </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
 
                 {/* ── LOGO CARD ── */}
                 <div style={cardStyle}>
-                    {/* Decorative glows */}
-                    <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '150px', height: '150px', borderRadius: '50%', background: 'rgba(56, 189, 248, 0.08)', filter: 'blur(30px)', pointerEvents: 'none' }} />
-                    <div style={{ position: 'absolute', bottom: '-40px', left: '-40px', width: '180px', height: '180px', borderRadius: '50%', background: 'rgba(139, 92, 246, 0.06)', filter: 'blur(40px)', pointerEvents: 'none' }} />
+                    <div style={{ position: 'absolute', top: '-50px', right: '-50px', width: '200px', height: '200px', borderRadius: '50%', background: 'rgba(56, 189, 248, 0.05)', filter: 'blur(40px)', pointerEvents: 'none' }} />
+                    <div style={{ position: 'absolute', bottom: '-50px', left: '-50px', width: '250px', height: '250px', borderRadius: '50%', background: 'rgba(139, 92, 246, 0.04)', filter: 'blur(50px)', pointerEvents: 'none' }} />
 
                     <div style={{ position: 'relative', zIndex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', marginBottom: '2.5rem' }}>
                             <div style={{
-                                width: '52px', height: '52px',
-                                background: 'linear-gradient(135deg, #38bdf8, #3b82f6)',
-                                borderRadius: '16px',
+                                width: '56px', height: '56px',
+                                background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(59, 130, 246, 0.2))',
+                                border: '1px solid rgba(56, 189, 248, 0.3)',
+                                borderRadius: '18px',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                color: 'white', boxShadow: '0 8px 20px rgba(56, 189, 248, 0.3)'
+                                color: '#38bdf8', boxShadow: '0 8px 20px rgba(56, 189, 248, 0.15)'
                             }}>
-                                <ImageIcon size={26} />
+                                <ImageIcon size={28} />
                             </div>
                             <div>
-                                <h2 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 900, letterSpacing: '-0.3px' }}>Identidad Visual</h2>
-                                <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--color-text-secondary)' }}>Cargá el logo que aparecerá en el encabezado de todos tus documentos.</p>
+                                <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.3px', color: 'var(--color-text)' }}>Logo de Empresa</h2>
+                                <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>Este logo se insertará en alta calidad en la cabecera de tus PDFs.</p>
                             </div>
                         </div>
 
                         {logo ? (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                                 {/* Logo Preview */}
                                 <div style={{
-                                    display: 'flex', alignItems: 'center', gap: '2rem',
-                                    background: 'var(--color-background)',
-                                    padding: '1.8rem', borderRadius: '20px',
-                                    border: '1px solid var(--color-border)',
+                                    display: 'flex', alignItems: 'center', gap: '2.5rem',
+                                    background: 'rgba(255,255,255,0.02)',
+                                    padding: '2rem', borderRadius: '24px',
+                                    border: '1px solid rgba(255,255,255,0.06)',
                                     flexWrap: 'wrap'
                                 }}>
                                     <div style={{
-                                        width: '150px', height: '150px', background: 'white',
-                                        border: '2px solid rgba(56, 189, 248, 0.3)', borderRadius: '20px',
-                                        padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        boxShadow: '0 8px 25px rgba(56, 189, 248, 0.1)', flexShrink: 0
+                                        width: '180px', height: '180px', background: '#ffffff',
+                                        borderRadius: '24px', padding: '1.5rem', 
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        boxShadow: '0 20px 40px rgba(0,0,0,0.2)', flexShrink: 0,
+                                        position: 'relative'
                                     }}>
+                                        <div style={{ position: 'absolute', inset: 0, borderRadius: '24px', border: '1px solid rgba(0,0,0,0.1)' }} />
                                         <img src={logo} alt="Preview" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
                                     </div>
                                     <div style={{ flex: 1, minWidth: '200px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#10b981', marginBottom: '0.8rem' }}>
-                                            <div style={{ background: 'rgba(16, 185, 129, 0.1)', borderRadius: '50%', padding: '4px', display: 'flex' }}>
-                                                <CheckCircle size={18} />
-                                            </div>
-                                            <span style={{ fontWeight: 900, fontSize: '1rem' }}>Logo Configurado</span>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: '#10b981', marginBottom: '1rem' }}>
+                                            <CheckCircle size={22} />
+                                            <span style={{ fontWeight: 800, fontSize: '1.1rem', letterSpacing: '-0.3px' }}>Logo Configurado</span>
                                         </div>
-                                        <p style={{ margin: '0 0 1.5rem 0', fontSize: '0.88rem', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
-                                            Tu logo está listo. Se incluirá automáticamente en la esquina superior derecha de cada PDF que generes con la plataforma.
+                                        <p style={{ margin: '0 0 2rem 0', fontSize: '0.95rem', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+                                            Tu logo ha sido optimizado y está listo para ser incluido en todos los reportes generados.
                                         </p>
-                                        <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap' }}>
+                                        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                                             <button
-                                                onClick={() => document.getElementById('logo-file-input').click()}
+                                                onClick={() => document.getElementById('logo-file-input')?.click()}
                                                 style={{
-                                                    padding: '0.7rem 1.4rem',
-                                                    background: 'linear-gradient(90deg, #38bdf8, #3b82f6)',
-                                                    color: 'white', border: 'none', borderRadius: '12px',
-                                                    fontSize: '0.9rem', fontWeight: 800, cursor: 'pointer',
-                                                    display: 'flex', alignItems: 'center', gap: '0.5rem',
-                                                    boxShadow: '0 6px 15px rgba(56, 189, 248, 0.3)',
-                                                    transition: 'all 0.2s'
+                                                    padding: '0.8rem 1.6rem',
+                                                    background: 'var(--color-text)', color: 'var(--color-background)', 
+                                                    border: 'none', borderRadius: '14px',
+                                                    fontSize: '0.95rem', fontWeight: 800, cursor: 'pointer',
+                                                    display: 'flex', alignItems: 'center', gap: '0.6rem',
+                                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                                                 }}
-                                                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                                                onMouseLeave={(e) => e.currentTarget.style.transform = 'none'}
+                                                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 10px 25px rgba(255,255,255,0.2)'; }}
+                                                onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
                                             >
-                                                <Upload size={16} /> Cambiar Logo
+                                                <Upload size={18} /> Cambiar Logo
                                             </button>
                                             <button
                                                 onClick={removeLogo}
                                                 style={{
-                                                    padding: '0.7rem 1.4rem',
-                                                    background: 'rgba(239,68,68,0.08)', color: '#ef4444',
-                                                    border: '1px solid rgba(239,68,68,0.25)',
-                                                    borderRadius: '12px', fontSize: '0.9rem', fontWeight: 700,
-                                                    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem',
+                                                    padding: '0.8rem 1.6rem',
+                                                    background: 'transparent', color: '#ef4444',
+                                                    border: '1px solid rgba(239,68,68,0.3)',
+                                                    borderRadius: '14px', fontSize: '0.95rem', fontWeight: 700,
+                                                    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.6rem',
                                                     transition: 'all 0.2s'
                                                 }}
-                                                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(239,68,68,0.12)'}
-                                                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(239,68,68,0.08)'}
+                                                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(239,68,68,0.1)'}
+                                                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                                             >
-                                                <X size={16} /> Eliminar
+                                                <X size={18} /> Eliminar
                                             </button>
                                         </div>
                                     </div>
@@ -258,45 +267,44 @@ export default function LogoSettings(): React.ReactElement | null {
                                 {/* Toggle Visibility */}
                                 <div style={{
                                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                    background: showLogo ? 'rgba(16,185,129,0.06)' : 'rgba(var(--color-surface-rgb), 0.3)',
-                                    padding: '1.2rem 1.5rem', borderRadius: '18px',
-                                    border: `1px solid ${showLogo ? 'rgba(16,185,129,0.2)' : 'var(--color-border)'}`,
-                                    transition: 'all 0.3s'
+                                    background: showLogo ? 'rgba(16,185,129,0.04)' : 'rgba(255,255,255,0.02)',
+                                    padding: '1.5rem 2rem', borderRadius: '20px',
+                                    border: `1px solid ${showLogo ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.06)'}`,
+                                    transition: 'all 0.4s ease'
                                 }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
                                         <div style={{
-                                            width: '44px', height: '44px',
-                                            background: showLogo ? 'rgba(16,185,129,0.12)' : 'var(--color-background)',
+                                            width: '48px', height: '48px',
+                                            background: showLogo ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.05)',
                                             borderRadius: '14px',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            transition: 'all 0.3s'
+                                            transition: 'all 0.4s'
                                         }}>
-                                            {showLogo ? <ShieldCheck size={22} color="#10b981" /> : <X size={22} color="var(--color-text-secondary)" />}
+                                            {showLogo ? <ShieldCheck size={24} color="#10b981" /> : <X size={24} color="var(--color-text-secondary)" />}
                                         </div>
                                         <div>
-                                            <span style={{ display: 'block', fontWeight: 900, fontSize: '1rem', color: showLogo ? '#059669' : 'var(--color-text)' }}>
-                                                {showLogo ? 'Visible en todos los PDFs' : 'Oculto en los PDFs'}
+                                            <span style={{ display: 'block', fontWeight: 800, fontSize: '1.05rem', color: showLogo ? '#10b981' : 'var(--color-text)' }}>
+                                                {showLogo ? 'Visible en documentos' : 'Oculto temporalmente'}
                                             </span>
-                                            <span style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>
-                                                Usá este interruptor para mostrar u ocultar el logo globalmente.
+                                            <span style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>
+                                                {showLogo ? 'El logo se incluirá en cada PDF generado.' : 'No se mostrará el logo en los PDFs.'}
                                             </span>
                                         </div>
                                     </div>
                                     <button
                                         onClick={toggleShowLogo}
                                         style={{
-                                            width: '58px', height: '32px', borderRadius: '30px', border: 'none',
-                                            background: showLogo ? '#10b981' : 'var(--color-border)',
-                                            position: 'relative', cursor: 'pointer', transition: 'all 0.35s',
+                                            width: '64px', height: '34px', borderRadius: '34px', border: 'none',
+                                            background: showLogo ? '#10b981' : 'rgba(255,255,255,0.1)',
+                                            position: 'relative', cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                                             flexShrink: 0,
-                                            boxShadow: showLogo ? '0 0 18px rgba(16,185,129,0.35)' : 'none'
                                         }}
                                     >
                                         <div style={{
-                                            width: '24px', height: '24px', background: 'white', borderRadius: '50%',
-                                            position: 'absolute', top: '4px', left: showLogo ? '30px' : '4px',
-                                            transition: 'all 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28)',
-                                            boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+                                            width: '26px', height: '26px', background: 'white', borderRadius: '50%',
+                                            position: 'absolute', top: '4px', left: showLogo ? '34px' : '4px',
+                                            transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                                            boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
                                         }} />
                                     </button>
                                 </div>
@@ -307,58 +315,53 @@ export default function LogoSettings(): React.ReactElement | null {
                                 onDrop={handleDrop}
                                 onDragOver={handleDragOver}
                                 onDragLeave={handleDragLeave}
-                                onClick={() => document.getElementById('logo-file-input').click()}
+                                onClick={() => document.getElementById('logo-file-input')?.click()}
                                 style={{
-                                    width: '100%', padding: '4rem 2rem', boxSizing: 'border-box',
-                                    border: `3px dashed ${dragActive ? '#38bdf8' : 'rgba(56, 189, 248, 0.25)'}`,
-                                    background: dragActive ? 'rgba(56, 189, 248, 0.08)' : 'rgba(56, 189, 248, 0.02)',
+                                    width: '100%', padding: '5rem 2rem', boxSizing: 'border-box',
+                                    border: `2px dashed ${dragActive ? '#38bdf8' : 'rgba(255, 255, 255, 0.15)'}`,
+                                    background: dragActive ? 'rgba(56, 189, 248, 0.05)' : 'rgba(0, 0, 0, 0.2)',
                                     borderRadius: '24px',
-                                    color: 'var(--color-primary)', textAlign: 'center',
+                                    textAlign: 'center',
                                     cursor: isUploading ? 'wait' : 'pointer',
-                                    transition: 'all 0.3s ease',
-                                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.2rem'
+                                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem',
+                                    position: 'relative', overflow: 'hidden'
                                 }}
-                                onMouseOver={e => { if (!dragActive) { e.currentTarget.style.background = 'rgba(56, 189, 248, 0.05)'; e.currentTarget.style.borderColor = 'rgba(56, 189, 248, 0.4)'; } }}
-                                onMouseOut={e => { if (!dragActive) { e.currentTarget.style.background = 'rgba(56, 189, 248, 0.02)'; e.currentTarget.style.borderColor = 'rgba(56, 189, 248, 0.25)'; } }}
+                                onMouseOver={e => { if (!dragActive) { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)'; } }}
+                                onMouseOut={e => { if (!dragActive) { e.currentTarget.style.background = 'rgba(0, 0, 0, 0.2)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.15)'; } }}
                             >
                                 <div style={{
-                                    width: '90px', height: '90px',
-                                    background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(139, 92, 246, 0.15))',
+                                    width: '100px', height: '100px',
+                                    background: 'rgba(255, 255, 255, 0.03)',
                                     borderRadius: '50%',
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    border: '2px solid rgba(56, 189, 248, 0.2)',
-                                    boxShadow: dragActive ? '0 0 30px rgba(56, 189, 248, 0.3)' : 'none',
-                                    transition: 'all 0.3s'
+                                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                                    boxShadow: dragActive ? '0 0 40px rgba(56, 189, 248, 0.2)' : '0 10px 30px rgba(0,0,0,0.2)',
+                                    transition: 'all 0.4s',
+                                    color: dragActive ? '#38bdf8' : 'var(--color-text)'
                                 }}>
                                     {isUploading
-                                        ? <RefreshCw size={36} style={{ animation: 'spin 1s linear infinite' }} />
-                                        : <Upload size={36} />
+                                        ? <RefreshCw size={40} style={{ animation: 'spin 1.5s linear infinite' }} />
+                                        : <Upload size={40} strokeWidth={1.5} />
                                     }
                                 </div>
                                 <div>
-                                    <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.3rem', fontWeight: 900 }}>
-                                        {dragActive ? '¡Soltá aquí tu logo!' : 'Arrastrá tu logo acá'}
+                                    <h3 style={{ margin: '0 0 0.8rem 0', fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.5px' }}>
+                                        {dragActive ? '¡Soltalo!' : 'Subí tu logo acá'}
                                     </h3>
-                                    <p style={{ margin: 0, fontSize: '0.92rem', color: 'var(--color-text-secondary)' }}>
-                                        O hacé clic para seleccionar un archivo de tu equipo
+                                    <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--color-text-secondary)', fontWeight: 500 }}>
+                                        Arrastrá una imagen o hacé clic para buscar en tus archivos
                                     </p>
-                                    <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                                    <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center', gap: '0.8rem', flexWrap: 'wrap' }}>
                                         {['PNG', 'JPG', 'SVG'].map(fmt => (
                                             <span key={fmt} style={{
-                                                fontSize: '0.75rem', fontWeight: 700,
-                                                background: 'rgba(56, 189, 248, 0.1)',
-                                                color: 'var(--color-primary)',
-                                                padding: '0.3rem 0.8rem', borderRadius: '20px',
-                                                border: '1px solid rgba(56, 189, 248, 0.2)'
+                                                fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.5px',
+                                                background: 'rgba(255, 255, 255, 0.05)',
+                                                color: 'var(--color-text)',
+                                                padding: '0.4rem 1rem', borderRadius: '30px',
+                                                border: '1px solid rgba(255, 255, 255, 0.1)'
                                             }}>{fmt}</span>
                                         ))}
-                                        <span style={{
-                                            fontSize: '0.75rem', fontWeight: 700,
-                                            background: 'var(--color-background)',
-                                            color: 'var(--color-text-secondary)',
-                                            padding: '0.3rem 0.8rem', borderRadius: '20px',
-                                            border: '1px solid var(--color-border)'
-                                        }}>Máx. 500KB</span>
                                     </div>
                                 </div>
                             </div>
@@ -369,94 +372,101 @@ export default function LogoSettings(): React.ReactElement | null {
 
                 {/* ── COLORS CARD ── */}
                 <div style={cardStyle}>
-                    <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '120px', height: '120px', borderRadius: '50%', background: `${primaryColor}15`, filter: 'blur(25px)', pointerEvents: 'none' }} />
+                    <div style={{ position: 'absolute', top: '-50px', right: '-50px', width: '200px', height: '200px', borderRadius: '50%', background: `${primaryColor}10`, filter: 'blur(40px)', pointerEvents: 'none' }} />
 
                     <div style={{ position: 'relative', zIndex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', marginBottom: '2.5rem' }}>
                             <div style={{
-                                width: '52px', height: '52px',
-                                background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`,
-                                borderRadius: '16px',
+                                width: '56px', height: '56px',
+                                background: `linear-gradient(135deg, ${primaryColor}30, ${secondaryColor}30)`,
+                                border: `1px solid ${primaryColor}50`,
+                                borderRadius: '18px',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                color: 'white', boxShadow: `0 8px 20px ${primaryColor}40`,
-                                transition: 'all 0.3s'
+                                color: primaryColor, boxShadow: `0 8px 20px ${primaryColor}20`,
+                                transition: 'all 0.4s'
                             }}>
-                                <Sparkles size={26} />
+                                <Palette size={28} />
                             </div>
                             <div>
-                                <h2 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 900, letterSpacing: '-0.3px' }}>Colores Corporativos</h2>
-                                <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--color-text-secondary)' }}>Definí la paleta de colores para tu cuenta y documentos.</p>
+                                <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.3px', color: 'var(--color-text)' }}>Colores Corporativos</h2>
+                                <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>Definí la paleta de colores para tu experiencia en la plataforma.</p>
                             </div>
                         </div>
 
                         {/* Color Pickers */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2.5rem' }}>
                             {[
-                                { label: 'Color Primario', type: 'primary' as const, value: primaryColor, desc: 'Botones principales, encabezados y acentos.' },
-                                { label: 'Color Secundario', type: 'secondary' as const, value: secondaryColor, desc: 'Acciones de éxito, confirmaciones y alertas positivas.' }
+                                { label: 'Primario', type: 'primary' as const, value: primaryColor, desc: 'Acentos, botones y encabezados.' },
+                                { label: 'Secundario', type: 'secondary' as const, value: secondaryColor, desc: 'Notificaciones, éxitos y gráficos.' }
                             ].map(({ label, type, value, desc }) => (
                                 <div key={type} style={{
-                                    background: 'var(--color-background)',
-                                    border: '1px solid var(--color-border)',
-                                    borderRadius: '18px',
-                                    padding: '1.2rem',
-                                    transition: 'border-color 0.3s'
-                                }}>
-                                    <label style={{ fontWeight: 800, fontSize: '0.85rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '1rem' }}>{label}</label>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.8rem' }}>
+                                    background: 'rgba(255,255,255,0.02)',
+                                    border: '1px solid rgba(255,255,255,0.06)',
+                                    borderRadius: '20px',
+                                    padding: '1.5rem',
+                                    transition: 'all 0.3s ease'
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'}
+                                onMouseLeave={(e) => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'}>
+                                    <label style={{ fontWeight: 800, fontSize: '0.85rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '1.2rem' }}>{label}</label>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', marginBottom: '1rem' }}>
                                         <div style={{
-                                            width: '56px', height: '56px', borderRadius: '16px',
+                                            width: '64px', height: '64px', borderRadius: '50%',
                                             background: value, flexShrink: 0,
-                                            boxShadow: `0 6px 18px ${value}40`,
-                                            overflow: 'hidden', border: '2px solid rgba(255,255,255,0.15)',
-                                            cursor: 'pointer', position: 'relative'
-                                        }}>
+                                            boxShadow: `0 10px 25px ${value}40`,
+                                            overflow: 'hidden', border: '3px solid rgba(255,255,255,0.2)',
+                                            cursor: 'pointer', position: 'relative',
+                                            transition: 'transform 0.2s'
+                                        }}
+                                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
                                             <input
                                                 type="color" value={value}
                                                 onChange={(e) => handleColorChange(type, e.target.value)}
-                                                style={{ opacity: 0, position: 'absolute', inset: 0, width: '100%', height: '100%', cursor: 'pointer', border: 'none' }}
+                                                style={{ opacity: 0, position: 'absolute', inset: 0, width: '200%', height: '200%', cursor: 'pointer', border: 'none', transform: 'translate(-25%, -25%)' }}
                                             />
                                         </div>
                                         <div>
                                             <span style={{
-                                                fontFamily: 'monospace', fontWeight: 800, fontSize: '1rem',
+                                                fontFamily: 'monospace', fontWeight: 800, fontSize: '1.1rem',
                                                 color: 'var(--color-text)',
-                                                display: 'block', marginBottom: '2px'
+                                                display: 'block', marginBottom: '4px'
                                             }}>{value.toUpperCase()}</span>
-                                            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>Haz clic para cambiar</span>
+                                            <span style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>Clic para cambiar</span>
                                         </div>
                                     </div>
-                                    <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>{desc}</p>
+                                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>{desc}</p>
                                 </div>
                             ))}
                         </div>
 
                         {/* Preset Palettes */}
-                        <div style={{ marginBottom: '1.5rem' }}>
-                            <p style={{ margin: '0 0 1rem 0', fontSize: '0.82rem', fontWeight: 800, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Paletas Predefinidas</p>
-                            <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                        <div style={{ marginBottom: '2rem' }}>
+                            <p style={{ margin: '0 0 1.2rem 0', fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Inspiración</p>
+                            <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap' }}>
                                 {PRESET_PALETTES.map((palette) => (
                                     <button
                                         key={palette.name}
                                         onClick={() => applyPalette(palette)}
                                         title={palette.name}
                                         style={{
-                                            display: 'flex', alignItems: 'center', gap: '0.5rem',
-                                            padding: '0.5rem 0.9rem',
-                                            background: 'var(--color-background)',
-                                            border: `2px solid ${primaryColor === palette.primary ? palette.primary : 'var(--color-border)'}`,
-                                            borderRadius: '20px', cursor: 'pointer',
+                                            display: 'flex', alignItems: 'center', gap: '0.8rem',
+                                            padding: '0.6rem 1.2rem',
+                                            background: 'rgba(255,255,255,0.03)',
+                                            border: `1px solid ${primaryColor === palette.primary ? palette.primary : 'rgba(255,255,255,0.08)'}`,
+                                            borderRadius: '30px', cursor: 'pointer',
                                             fontWeight: primaryColor === palette.primary ? 800 : 600,
-                                            fontSize: '0.8rem',
-                                            color: primaryColor === palette.primary ? palette.primary : 'var(--color-text-secondary)',
-                                            transition: 'all 0.2s'
+                                            fontSize: '0.85rem',
+                                            color: primaryColor === palette.primary ? '#fff' : 'var(--color-text-secondary)',
+                                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                            boxShadow: primaryColor === palette.primary ? `0 4px 15px ${palette.primary}30` : 'none'
                                         }}
-                                        onMouseEnter={(e) => e.currentTarget.style.borderColor = palette.primary}
-                                        onMouseLeave={(e) => e.currentTarget.style.borderColor = primaryColor === palette.primary ? palette.primary : 'var(--color-border)'}
+                                        onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                                        onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.transform = 'none'; }}
                                     >
-                                        <span style={{ display: 'flex', gap: '3px' }}>
-                                            <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: palette.primary, display: 'inline-block' }} />
-                                            <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: palette.secondary, display: 'inline-block' }} />
+                                        <span style={{ display: 'flex', gap: '0' }}>
+                                            <span style={{ width: '14px', height: '14px', borderRadius: '50% 0 0 50%', background: palette.primary, display: 'inline-block' }} />
+                                            <span style={{ width: '14px', height: '14px', borderRadius: '0 50% 50% 0', background: palette.secondary, display: 'inline-block' }} />
                                         </span>
                                         {palette.name}
                                     </button>
@@ -467,70 +477,70 @@ export default function LogoSettings(): React.ReactElement | null {
                         <button
                             onClick={resetColors}
                             style={{
-                                display: 'flex', alignItems: 'center', gap: '0.5rem',
-                                padding: '0.6rem 1.2rem', fontSize: '0.85rem',
-                                color: 'var(--color-text-secondary)', background: 'var(--color-background)',
-                                border: '1px solid var(--color-border)', borderRadius: '12px',
+                                display: 'flex', alignItems: 'center', gap: '0.6rem',
+                                padding: '0.8rem 1.5rem', fontSize: '0.9rem',
+                                color: 'var(--color-text)', background: 'rgba(255,255,255,0.05)',
+                                border: '1px solid rgba(255,255,255,0.1)', borderRadius: '14px',
                                 cursor: 'pointer', fontWeight: 700, transition: 'all 0.2s'
                             }}
-                            onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-surface)'}
-                            onMouseLeave={(e) => e.currentTarget.style.background = 'var(--color-background)'}
+                            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+                            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
                         >
-                            <RefreshCw size={15} /> Restablecer colores por defecto
+                            <RefreshCw size={16} /> Restaurar Por Defecto
                         </button>
                     </div>
                 </div>
 
                 {/* ── INFO CARDS ── */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
                     <div style={{
-                        ...cardStyle, padding: '1.5rem',
-                        background: 'rgba(56, 189, 248, 0.05)',
+                        ...cardStyle, padding: '1.8rem',
+                        background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.05), rgba(59, 130, 246, 0.05))',
                         border: '1px solid rgba(56, 189, 248, 0.15)'
                     }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1rem', color: 'var(--color-primary)' }}>
-                            <div style={{ background: 'rgba(56, 189, 248, 0.1)', padding: '0.5rem', borderRadius: '10px', display: 'flex' }}>
-                                <Info size={20} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.2rem', color: '#38bdf8' }}>
+                            <div style={{ background: 'rgba(56, 189, 248, 0.15)', padding: '0.6rem', borderRadius: '12px', display: 'flex' }}>
+                                <Info size={22} />
                             </div>
-                            <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 900 }}>Impacto en Reportes</h3>
+                            <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 900 }}>Marca en Reportes</h3>
                         </div>
-                        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.7 }}>
-                            El logo se insertará en la cabecera de <strong>todos los documentos</strong> generados, incluyendo ATS, Investigaciones, Mapas de Riesgo y más. Usá un fondo transparente para un resultado óptimo.
+                        <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-secondary)', lineHeight: 1.7 }}>
+                            El logo se insertará en la esquina superior de <strong>todos los documentos</strong> generados (Investigaciones, Análisis, Checklists). Recomendamos usar formato PNG con fondo transparente.
                         </p>
                     </div>
 
                     <div style={{
-                        ...cardStyle, padding: '1.5rem',
-                        background: isPro ? 'rgba(16,185,129,0.05)' : 'rgba(251,191,36,0.06)',
+                        ...cardStyle, padding: '1.8rem',
+                        background: isPro ? 'linear-gradient(135deg, rgba(16,185,129,0.05), rgba(5,150,105,0.05))' : 'linear-gradient(135deg, rgba(251,191,36,0.05), rgba(217,119,6,0.05))',
                         border: `1px solid ${isPro ? 'rgba(16,185,129,0.2)' : 'rgba(251,191,36,0.2)'}`
                     }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1rem', color: isPro ? '#10b981' : '#f59e0b' }}>
-                            <div style={{ background: isPro ? 'rgba(16,185,129,0.1)' : 'rgba(251,191,36,0.1)', padding: '0.5rem', borderRadius: '10px', display: 'flex' }}>
-                                <Sparkles size={20} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.2rem', color: isPro ? '#10b981' : '#f59e0b' }}>
+                            <div style={{ background: isPro ? 'rgba(16,185,129,0.15)' : 'rgba(251,191,36,0.15)', padding: '0.6rem', borderRadius: '12px', display: 'flex' }}>
+                                <Sparkles size={22} />
                             </div>
-                            <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 900 }}>{isPro ? 'Beneficio PRO Activado ✓' : 'Función Exclusiva PRO'}</h3>
+                            <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 900 }}>{isPro ? 'Beneficio PRO Activado' : 'Función Exclusiva PRO'}</h3>
                         </div>
-                        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.7 }}>
+                        <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-secondary)', lineHeight: 1.7 }}>
                             {isPro
-                                ? 'Como usuario PRO, tenés habilitada la personalización completa. Tu logo aparecerá en alta calidad en todas las descargas.'
-                                : 'La personalización de reportes con logo propio es una característica premium. Subilo ahora para ver cómo queda y activá PRO cuando estés listo.'}
+                                ? 'Como usuario PRO, tu identidad visual completa y los logos de alta definición están desbloqueados sin límites de agua.'
+                                : 'La personalización de reportes es una característica premium. Activa la membresía PRO para habilitar esta estética en tus PDFs.'}
                         </p>
                         {!isPro && (
                             <button
                                 onClick={() => navigate('/subscribe')}
                                 style={{
-                                    display: 'flex', alignItems: 'center', gap: '0.5rem',
-                                    marginTop: '1rem', padding: '0.7rem 1.2rem',
-                                    background: 'linear-gradient(90deg, #f59e0b, #f97316)',
-                                    color: 'white', border: 'none', borderRadius: '12px',
-                                    fontSize: '0.88rem', fontWeight: 800, cursor: 'pointer',
-                                    boxShadow: '0 6px 15px rgba(245, 158, 11, 0.3)',
-                                    transition: 'all 0.2s'
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem',
+                                    marginTop: '1.5rem', padding: '0.8rem 1.4rem', width: '100%',
+                                    background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                                    color: 'white', border: 'none', borderRadius: '14px',
+                                    fontSize: '0.95rem', fontWeight: 800, cursor: 'pointer',
+                                    boxShadow: '0 8px 20px rgba(245, 158, 11, 0.3)',
+                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                                 }}
-                                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                                onMouseLeave={(e) => e.currentTarget.style.transform = 'none'}
+                                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 25px rgba(245, 158, 11, 0.4)'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(245, 158, 11, 0.3)'; }}
                             >
-                                <Sparkles size={16} /> Activar Versión Pro
+                                <Sparkles size={18} /> Activar Versión Pro
                             </button>
                         )}
                     </div>

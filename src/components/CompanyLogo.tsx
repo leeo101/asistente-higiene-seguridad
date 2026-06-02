@@ -28,7 +28,9 @@ export default function CompanyLogo({ style = {}, className = '' }: CompanyLogoP
   const companyLogo = sharedData ? sharedData.logo : localStorage.getItem('companyLogo');
   const showLogo = sharedData ? sharedData.show : (localStorage.getItem('showCompanyLogo') !== 'false');
 
-  if (!companyLogo || !showLogo) return null;
+  const isInvalid = !companyLogo || companyLogo === 'null' || companyLogo === 'undefined' || companyLogo === '';
+
+  if (isInvalid || !showLogo) return null;
 
   return (
     <>
