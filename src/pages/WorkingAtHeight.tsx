@@ -262,7 +262,7 @@ export default function WorkingAtHeight(): React.ReactElement | null {
                             boxShadow: '0 4px 15px rgba(54, 179, 126, 0.4)'
                         }}
                     >
-                        <Plus size={20} weight="bold" /> Nuevo Permiso
+                        <Plus size={20} strokeWidth={3} /> Nuevo Permiso
                     </button>
                 </div>
             </div>
