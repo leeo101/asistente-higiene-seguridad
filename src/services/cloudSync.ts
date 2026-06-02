@@ -33,6 +33,59 @@ export type SyncCallback<T> = (data: T) => void;
 const userDocRef = (uid: string, key: string) => doc(db, 'users', uid, 'data', key);
 
 /**
+ * Dirty Queue Management (Offline Sync)
+ */
+const DIRTY_KEYS_STORAGE = 'ehs_dirty_keys';
+
+export function getDirtyKeys(): string[] {
+  try {
+    return JSON.parse(localStorage.getItem(DIRTY_KEYS_STORAGE) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+export function markAsDirty(key: string) {
+  const dirty = new Set(getDirtyKeys());
+  dirty.add(key);
+  localStorage.setItem(DIRTY_KEYS_STORAGE, JSON.stringify(Array.from(dirty)));
+}
+
+export function removeFromDirty(key: string) {
+  const dirty = new Set(getDirtyKeys());
+  dirty.delete(key);
+  localStorage.setItem(DIRTY_KEYS_STORAGE, JSON.stringify(Array.from(dirty)));
+}
+
+/**
+ * Process the Dirty Queue (uploads everything that failed while offline)
+ */
+export async function processSyncQueue(uid: string): Promise<void> {
+  if (!uid) return;
+  const dirtyKeys = getDirtyKeys();
+  if (dirtyKeys.length === 0) return;
+
+  for (const key of dirtyKeys) {
+    const raw = localStorage.getItem(key);
+    if (!raw) {
+        removeFromDirty(key);
+        continue;
+    }
+    
+    try {
+      if (SYNC_COLLECTIONS.includes(key)) {
+        await saveCollection(uid, key, JSON.parse(raw));
+      } else if (SYNC_DOCUMENTS.includes(key)) {
+        await saveDocument(uid, key, JSON.parse(raw));
+      }
+      removeFromDirty(key);
+    } catch (e) {
+      console.warn(`[SyncQueue] Fallo al sincronizar pendiente ${key}`, e);
+    }
+  }
+}
+
+/**
  * Escucha cambios en tiempo real en un documento de usuario.
  */
 export function listenToCollection<T = SyncItem>(
@@ -74,26 +127,6 @@ export function listenToDocument<T = SyncDocument>(
 }
 
 /**
- * Escucha cambios en tiempo real en un valor simple guardado con saveValue.
- */
-export function listenToValue<T = string | boolean>(
-  uid: string,
-  key: string,
-  callback: SyncCallback<T | null>
-): Unsubscribe {
-  if (!uid) return () => {};
-  
-  return onSnapshot(userDocRef(uid, key), (snap: DocumentSnapshot) => {
-    if (snap.exists()) {
-      const data = snap.data() as { value?: T };
-      callback(data.value ?? null);
-    } else {
-      callback(null);
-    }
-  });
-}
-
-/**
  * Guarda un array de items a Firestore para el usuario.
  */
 export async function saveCollection<T = SyncItem>(
@@ -102,37 +135,11 @@ export async function saveCollection<T = SyncItem>(
   items: T[]
 ): Promise<void> {
   if (!uid) return;
-  
-  try {
-    await setDoc(
-      userDocRef(uid, key),
-      { items, updatedAt: Date.now() },
-      { merge: true }
-    );
-  } catch (error) {
-    console.warn(`[Sync] Error saving ${key}:`, (error as Error).message);
-  }
-}
-
-/**
- * Guarda un valor simple (string o bool) envuelto en un objeto.
- */
-export async function saveValue<T = string | boolean>(
-  uid: string,
-  key: string,
-  value: T
-): Promise<void> {
-  if (!uid) return;
-  
-  try {
-    await setDoc(
-      userDocRef(uid, key),
-      { value, updatedAt: Date.now() },
-      { merge: true }
-    );
-  } catch (error) {
-    console.warn(`[Sync] Error saving value ${key}:`, (error as Error).message);
-  }
+  await setDoc(
+    userDocRef(uid, key),
+    { items, updatedAt: Date.now() },
+    { merge: true }
+  );
 }
 
 /**
@@ -167,16 +174,11 @@ export async function saveDocument<T = SyncDocument>(
   data: T
 ): Promise<void> {
   if (!uid) return;
-  
-  try {
-    await setDoc(
-      userDocRef(uid, key),
-      { ...data, updatedAt: Date.now() },
-      { merge: true }
-    );
-  } catch (error) {
-    console.warn(`[Sync] Error saving doc ${key}:`, (error as Error).message);
-  }
+  await setDoc(
+    userDocRef(uid, key),
+    { ...data, updatedAt: Date.now() },
+    { merge: true }
+  );
 }
 
 /**
@@ -324,88 +326,6 @@ export async function pullAllFromCloud(uid: string): Promise<void> {
     const data = await loadDocument(uid, key);
     if (data) {
       localStorage.setItem(key, JSON.stringify(data));
-    }
-  }
-}
-
-/**
- * Sube TODO desde localStorage → Firestore (por si tenían datos previos offline).
- */
-export async function pushAllToCloud(uid: string): Promise<void> {
-  if (!uid) return;
-  
-  for (const key of SYNC_COLLECTIONS) {
-    const raw = localStorage.getItem(key);
-    if (raw) {
-      try {
-        await saveCollection(uid, key, JSON.parse(raw));
-      } catch {
-        // ignore
-      }
-    }
-  }
-  
-  for (const key of SYNC_DOCUMENTS) {
-    const raw = localStorage.getItem(key);
-    if (raw) {
-      try {
-        await saveDocument(uid, key, JSON.parse(raw));
-      } catch {
-        // ignore
-      }
-    }
-  }
-}
-
-/**
- * Merge inteligente: el cloud es fuente de verdad.
- * Solo sube items locales que el cloud NO tiene (nuevos creados offline).
- * No sobreescribe borrados ni cambios hechos en otro dispositivo.
- */
-export async function mergeLocalToCloud(uid: string): Promise<void> {
-  if (!uid) return;
-  
-  for (const key of SYNC_COLLECTIONS) {
-    const raw = localStorage.getItem(key);
-    if (!raw) continue;
-    
-    try {
-      const localItems = JSON.parse(raw) as SyncItem[];
-      if (!Array.isArray(localItems) || localItems.length === 0) continue;
-
-      // Obtener items actuales del cloud
-      const cloudItems = await loadCollection(uid, key);
-      const cloudIds = new Set(cloudItems.map(i => String(i.id)));
-
-      // Solo agregar los que NO existen en el cloud (nuevos locales no subidos)
-      const onlyLocal = localItems.filter(i => !cloudIds.has(String(i.id)));
-
-      if (onlyLocal.length > 0) {
-        // Merge: cloud tiene prioridad, se agregan items nuevos locales
-        const merged = [...cloudItems, ...onlyLocal];
-        await saveCollection(uid, key, merged);
-        localStorage.setItem(key, JSON.stringify(merged));
-      } else if (cloudItems.length > 0) {
-        // Si hay datos en cloud pero no hay nuevos locales, usar cloud como verdad
-        localStorage.setItem(key, JSON.stringify(cloudItems));
-      }
-    } catch {
-      // ignore
-    }
-  }
-  
-  // Para documentos simples: solo subir si el cloud está vacío
-  for (const key of SYNC_DOCUMENTS) {
-    const raw = localStorage.getItem(key);
-    if (!raw) continue;
-    
-    try {
-      const snap = await loadDocument(uid, key);
-      if (!snap) {
-        await saveDocument(uid, key, JSON.parse(raw));
-      }
-    } catch {
-      // ignore
     }
   }
 }

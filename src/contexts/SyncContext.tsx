@@ -2,7 +2,9 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useAuth } from './AuthContext';
 import {
   pullAllFromCloud,
-  mergeLocalToCloud,
+  processSyncQueue,
+  markAsDirty,
+  getDirtyKeys,
   saveCollection,
   saveDocument,
   SYNC_COLLECTIONS,
@@ -11,27 +13,20 @@ import {
   listenToDocument
 } from '../services/cloudSync';
 
-// Tipos
 interface SyncContextType {
   syncing: boolean;
   lastSync: Date | null;
   syncReady: boolean;
   syncPulse: number;
+  isOnline: boolean;
+  pendingCount: number;
   syncCollection: (key: string, items: unknown[]) => Promise<void>;
   syncDocument: (key: string, data: Record<string, unknown>) => Promise<void>;
   deleteFromCollection: (key: string, id: string | number) => Promise<unknown[]>;
-  pendingCount: number;
 }
 
-interface CloudData {
-  _timestamp?: number;
-  [key: string]: unknown;
-}
-
-// Crear contexto con tipo
 const SyncContext = createContext<SyncContextType | undefined>(undefined);
 
-// Hook personalizado con tipo
 export const useSync = (): SyncContextType => {
   const context = useContext(SyncContext);
   if (context === undefined) {
@@ -40,7 +35,6 @@ export const useSync = (): SyncContextType => {
   return context;
 };
 
-// Props del Provider
 interface SyncProviderProps {
   children: ReactNode;
 }
@@ -50,8 +44,45 @@ export const SyncProvider: React.FC<SyncProviderProps> = ({ children }) => {
   const [syncing, setSyncing] = useState(false);
   const [lastSync, setLastSync] = useState<Date | null>(null);
   const [syncReady, setSyncReady] = useState(false);
-  const [syncPulse, setSyncPulse] = useState(0); // Trigger para re-render de componentes
+  const [syncPulse, setSyncPulse] = useState(0); 
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [pendingCount, setPendingCount] = useState(0);
 
+  // Monitoreo de conexión a internet
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // Actualizar el contador de pendientes al cambiar syncPulse o isOnline
+  useEffect(() => {
+    setPendingCount(getDirtyKeys().length);
+  }, [syncPulse, isOnline]);
+
+  // Si recuperamos conexión, procesar cola
+  useEffect(() => {
+    if (isOnline && currentUser && syncReady) {
+      const syncNow = async () => {
+        setSyncing(true);
+        try {
+          await processSyncQueue(currentUser.uid);
+          setSyncPulse(p => p + 1);
+        } finally {
+          setSyncing(false);
+        }
+      };
+      syncNow();
+    }
+  }, [isOnline, currentUser, syncReady]);
+
+  // Sincronización inicial al loguear
   useEffect(() => {
     if (!currentUser) {
       setSyncReady(true);
@@ -61,14 +92,14 @@ export const SyncProvider: React.FC<SyncProviderProps> = ({ children }) => {
     const syncOnLogin = async () => {
       setSyncing(true);
       try {
-        // 1. PRIMERO: Subir items locales al cloud para no perder lo que se hizo offline o antes del refresh
-        await mergeLocalToCloud(currentUser.uid);
-        setSyncPulse(p => p + 1);
-        
-        // 2. DESPUÉS: Descargar desde el cloud para tener lo de otros dispositivos
-        await pullAllFromCloud(currentUser.uid);
-        setLastSync(new Date());
-        setSyncPulse(p => p + 1);
+        if (navigator.onLine) {
+          // 1. Subir pendientes de sesiones previas offline
+          await processSyncQueue(currentUser.uid);
+          // 2. Traer lo último del servidor
+          await pullAllFromCloud(currentUser.uid);
+          setLastSync(new Date());
+          setSyncPulse(p => p + 1);
+        }
       } catch (e) {
         console.warn('[SyncContext] sync error:', (e as Error).message);
       } finally {
@@ -83,14 +114,14 @@ export const SyncProvider: React.FC<SyncProviderProps> = ({ children }) => {
   // Escucha cambios en tiempo real desde otros dispositivos
   useEffect(() => {
     if (!currentUser) return;
-
     const unsubscribes: (() => void)[] = [];
 
-    // Colecciones (Arrays)
     SYNC_COLLECTIONS.forEach(key => {
       const unsub = listenToCollection(currentUser.uid, key, (items: unknown[]) => {
+        // Ignorar snapshots si tenemos datos sucios locales pendientes de subir
+        if (getDirtyKeys().includes(key)) return;
+
         const local = JSON.parse(localStorage.getItem(key) || '[]');
-        // Solo actualizar si es diferente (evitar loops si nosotros mismos escribimos)
         if (JSON.stringify(local) !== JSON.stringify(items)) {
           localStorage.setItem(key, JSON.stringify(items));
           setSyncPulse(p => p + 1);
@@ -99,9 +130,10 @@ export const SyncProvider: React.FC<SyncProviderProps> = ({ children }) => {
       unsubscribes.push(unsub);
     });
 
-    // Documentos (Objetos)
     SYNC_DOCUMENTS.forEach(key => {
-      const unsub = listenToDocument(currentUser.uid, key, (data: CloudData | null) => {
+      const unsub = listenToDocument(currentUser.uid, key, (data: any) => {
+        if (getDirtyKeys().includes(key)) return;
+
         const local = JSON.parse(localStorage.getItem(key) || 'null');
         if (JSON.stringify(local) !== JSON.stringify(data)) {
           if (data) localStorage.setItem(key, JSON.stringify(data));
@@ -115,40 +147,40 @@ export const SyncProvider: React.FC<SyncProviderProps> = ({ children }) => {
     return () => unsubscribes.forEach(u => u());
   }, [currentUser?.uid]);
 
-  /**
-   * Guarda/actualiza una colección (array) en localStorage + Firestore.
-   * Uso: syncCollection('risk_matrix_history', updatedArray)
-   */
   const syncCollection = async (key: string, items: unknown[]): Promise<void> => {
     localStorage.setItem(key, JSON.stringify(items));
     if (currentUser) {
-      try {
-        await saveCollection(currentUser.uid, key, items);
-      } catch (e) {
-        console.warn(`[Sync] Error syncing ${key}:`, (e as Error).message);
+      if (!navigator.onLine) {
+        markAsDirty(key);
+        setSyncPulse(p => p + 1);
+      } else {
+        try {
+          await saveCollection(currentUser.uid, key, items);
+        } catch (e) {
+          markAsDirty(key);
+          setSyncPulse(p => p + 1);
+        }
       }
     }
   };
 
-  /**
-   * Guarda un documento simple (objeto) en localStorage + Firestore.
-   * Uso: syncDocument('personalData', profileObj)
-   */
   const syncDocument = async (key: string, data: Record<string, unknown>): Promise<void> => {
     localStorage.setItem(key, JSON.stringify(data));
     if (currentUser) {
-      try {
-        await saveDocument(currentUser.uid, key, data);
-      } catch (e) {
-        console.warn(`[Sync] Error syncing doc ${key}:`, (e as Error).message);
+      if (!navigator.onLine) {
+        markAsDirty(key);
+        setSyncPulse(p => p + 1);
+      } else {
+        try {
+          await saveDocument(currentUser.uid, key, data);
+        } catch (e) {
+          markAsDirty(key);
+          setSyncPulse(p => p + 1);
+        }
       }
     }
   };
 
-  /**
-   * Elimina un item de una colección y sincroniza.
-   * Uso: deleteFromCollection('risk_matrix_history', itemId)
-   */
   const deleteFromCollection = async (key: string, id: string | number): Promise<unknown[]> => {
     const current = JSON.parse(localStorage.getItem(key) || '[]');
     const updated = current.filter((item: { id: string | number }) => String(item.id) !== String(id));
@@ -156,26 +188,8 @@ export const SyncProvider: React.FC<SyncProviderProps> = ({ children }) => {
     return updated;
   };
 
-  // Cálculo de documentos pendientes (Simulación basada en marcas de tiempo o cambios no confirmados)
-  // Para esta versión, consideramos "pendientes" si no hay lastSync o si hubo actividad reciente
-  const [pendingCount, setPendingCount] = useState(0);
-
-  useEffect(() => {
-    const checkPending = () => {
-      if (!currentUser) {
-        setPendingCount(0);
-        return;
-      }
-      // En una implementación real, compararíamos hashes o marcas de tiempo locales vs cloud
-      // Por ahora, simulamos "1" si hay pulso reciente y no hay lastSync reciente (< 10s)
-      const isRecentlyActive = lastSync && (new Date().getTime() - lastSync.getTime() < 10000);
-      setPendingCount(syncing ? 1 : 0);
-    };
-    checkPending();
-  }, [syncing, lastSync, currentUser]);
-
   return (
-    <SyncContext.Provider value={{ syncing, lastSync, syncReady, syncPulse, syncCollection, syncDocument, deleteFromCollection, pendingCount }}>
+    <SyncContext.Provider value={{ syncing, lastSync, syncReady, syncPulse, isOnline, pendingCount, syncCollection, syncDocument, deleteFromCollection }}>
       {children}
     </SyncContext.Provider>
   );

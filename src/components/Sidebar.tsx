@@ -3,11 +3,13 @@ import React, { useEffect, useState } from 'react';
 import {
   X, User, House, GearSix, ClockCounterClockwise, SignOut, CalendarBlank,
   ChatText, ShieldCheck, ChartPieSlice,
-  Users, Crown, Image as ImageIconPh, ChartBar
+  Users, Crown, Image as ImageIconPh, ChartBar,
+  CloudSlash, CloudArrowUp, CloudCheck
 } from '@phosphor-icons/react';
 import { useNotificationScheduler } from '../hooks/useNotificationScheduler';
 
 import { useAuth } from '../contexts/AuthContext';
+import { useSync } from '../contexts/SyncContext';
 import { usePaywall } from '../hooks/usePaywall';
 import AdBanner from './AdBanner';
 import SidebarNotifications from './sidebar/SidebarNotifications';
@@ -50,6 +52,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
   const { isPro, daysRemaining } = usePaywall();
+  const { isOnline, syncing, pendingCount } = useSync();
 
   // Dispara notificaciones nativas del sistema una vez al día
   useNotificationScheduler();
@@ -180,6 +183,35 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
             onClose={onClose}
           />
         </div>
+
+        {/* ── SYNC INDICATOR ── */}
+        {currentUser && (
+          <div style={{
+            background: !isOnline ? 'rgba(239,68,68,0.1)' : syncing ? 'rgba(59,130,246,0.1)' : 'rgba(16,185,129,0.08)',
+            borderBottom: '1px solid var(--color-border)',
+            padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '0.7rem',
+            fontSize: '0.75rem', fontWeight: 700,
+            color: !isOnline ? '#ef4444' : syncing ? '#3b82f6' : '#10b981',
+            transition: 'all 0.3s ease'
+          }}>
+            {!isOnline ? (
+              <>
+                <CloudSlash size={16} weight="bold" />
+                <span>Modo Offline ({pendingCount} pendientes)</span>
+              </>
+            ) : syncing ? (
+              <>
+                <CloudArrowUp size={16} weight="bold" className="animate-pulse" />
+                <span>Sincronizando {pendingCount > 0 ? `(${pendingCount} pendientes)` : ''}...</span>
+              </>
+            ) : (
+              <>
+                <CloudCheck size={16} weight="bold" />
+                <span>Nube al día {pendingCount > 0 ? `(${pendingCount} listos)` : ''}</span>
+              </>
+            )}
+          </div>
+        )}
 
         {/* ── NAVIGATION ── */}
         <nav style={{
