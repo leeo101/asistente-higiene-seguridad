@@ -70,10 +70,16 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         await new Promise(resolve => setTimeout(resolve, 500));
 
         const isMobileCanvas = window.innerWidth < 768 || ('ontouchstart' in window);
-        const dynamicScale = isMobileCanvas ? 1.5 : 2;
+        let dynamicScale = isMobileCanvas ? 1.5 : 2;
+
+        // Limitar la altura máxima del canvas para que no crashee en celulares (Límite típico: ~4000px en iOS)
+        const totalHeight = clone.scrollHeight + 100;
+        if (isMobileCanvas && (totalHeight * dynamicScale > 4000)) {
+            dynamicScale = Math.max(1, 4000 / totalHeight);
+        }
 
         const opt = {
-            margin: [10, 0, 12, 0], // Top: 10mm, Right: 0, Bottom: 12mm, Left: 0. Evita que el contenido se pegue al borde superior en las páginas 2 en adelante.
+            margin: [10, 0, 15, 0], // Top: 10mm, Right: 0, Bottom: 15mm (espacio para el pie), Left: 0
             filename: 'documento.pdf',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { 
@@ -82,14 +88,39 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
                 allowTaint: true,
                 logging: false,
                 windowWidth: isLandscape ? 1122 : 794,
-                windowHeight: clone.scrollHeight + 100 // ensure full height is captured
+                windowHeight: totalHeight // ensure full height is captured
             },
             jsPDF: { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' },
             pagebreak: { mode: ['css', 'legacy'], avoid: '.avoid-break' }
         };
 
         // html2pdf procesa automáticamente las clases pageBreakInside: avoid y no corta los elementos por la mitad
-        const pdfBlob = await html2pdf().set(opt as any).from(clone).output('blob');
+        const pdfBlob = await html2pdf().set(opt as any).from(clone).toPdf().get('pdf').then((pdf: any) => {
+            const totalPages = pdf.internal.getNumberOfPages();
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            
+            // Agregar pie de página a todas las páginas para garantizar que siempre salga
+            for (let i = 1; i <= totalPages; i++) {
+                pdf.setPage(i);
+                pdf.setFontSize(7);
+                pdf.setTextColor(150, 163, 184); // color slate-400
+                pdf.text(
+                    'Generado con Asistente HYS — La plataforma de Higiene y Seguridad con IA',
+                    pageWidth / 2, 
+                    pageHeight - 6, 
+                    { align: 'center' }
+                );
+                // Número de página
+                pdf.text(
+                    `Página ${i} de ${totalPages}`,
+                    pageWidth - 10,
+                    pageHeight - 6,
+                    { align: 'right' }
+                );
+            }
+        }).output('blob');
+        
         return pdfBlob;
 
     } finally {
