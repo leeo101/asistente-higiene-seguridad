@@ -9,6 +9,7 @@ import QRModal from '../components/QRModal';
 import { downloadCSV } from '../services/exportCsv';
 import ShareModal from '../components/ShareModal';
 import AiReportPdfGenerator from '../components/AiReportPdfGenerator';
+import PremiumHeader from '../components/PremiumHeader';
 
 function DeleteConfirm({ onConfirm, onCancel }) {
     if (typeof document === 'undefined') return null;
@@ -111,28 +112,38 @@ export default function AIGeneralCameraManager(): React.ReactElement | null {
                 document.body
             )}
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', minWidth: '200px' }}>
-                    <button onClick={() => navigate('/#tools')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <ArrowLeft />
-                    </button>
-                    <div>
-                        <h1 style={{ margin: 0, fontSize: 'clamp(1.2rem, 4vw, 1.6rem)', fontWeight: 900, lineHeight: 1.2 }}>Riesgos IA</h1>
-                        <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Análisis de entorno y hallazgos</p>
-                    </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                    {history.length > 0 && (
-                        <button onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '12px', padding: '0.8rem 1rem', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer', color: 'var(--color-text)' }}>
-                            <Download size={16} /> EXPORTAR
-                        </button>
-                    )}
-                    <button 
-                        onClick={() => navigate('/ai-general-camera')} 
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem', background: 'var(--color-primary)', color: '#ffffff', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', boxShadow: '0 4px 15px rgba(var(--color-primary-rgb), 0.3)' }}
+            <PremiumHeader
+                title="Riesgos IA"
+                subtitle="Análisis de entorno y hallazgos"
+                icon={<ShieldAlert size={36} />}
+            />
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginTop: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                <button onClick={() => navigate('/#tools')} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', padding: '0.8rem 1.2rem', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 700 }}>
+                    <ArrowLeft size={18} /> Volver
+                </button>
+
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                    <button
+                        onClick={() => navigate('/ai-general-camera')}
+                        style={{
+                            display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
+                            background: '#36B37E', color: 'white', border: 'none', borderRadius: '12px',
+                            fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
+                            boxShadow: '0 4px 15px rgba(54, 179, 126, 0.4)'
+                        }}
                     >
                         <ShieldAlert size={20} /> NUEVO ANÁLISIS
                     </button>
+                    {history.length > 0 && (
+                        <button onClick={handleExportCSV} style={{
+                            display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
+                            background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)',
+                            borderRadius: '12px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer'
+                        }}>
+                            <Download size={20} /> EXPORTAR CSV
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -249,9 +260,6 @@ export default function AIGeneralCameraManager(): React.ReactElement | null {
                         <ShieldAlert size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
                         <h3 style={{ margin: '0 0 0.5rem', fontWeight: 800, color: 'var(--color-text)' }}>No hay análisis de riesgos</h3>
                         <p>No se registraron análisis de entorno con IA todavía.</p>
-                        <button onClick={() => navigate('/ai-general-camera')} className="btn-primary" style={{ marginTop: '1.5rem', borderRadius: '12px', padding: '0.8rem 1.5rem' }}>
-                            Iniciar Primer Análisis
-                        </button>
                     </div>
                 )}
             </div>

@@ -96,11 +96,11 @@ const ExtintoresManager = lazyWithRetry(() => import('./pages/ExtintoresManager'
 const ExtinguisherInspection = lazyWithRetry(() => import('./pages/ExtinguisherInspection'));
 const ThermalStress = lazyWithRetry(() => import('./pages/ThermalStress'));
 const Drills = lazyWithRetry(() => import('./pages/Drills'));
-const DrillsHistory = lazyWithRetry(() => import('./pages/DrillsHistory'));
+const DrillsForm = lazyWithRetry(() => import('./pages/DrillsForm'));
 const RiskMapGenerator = lazyWithRetry(() => import('./pages/RiskMapGenerator'));
 const RiskMapHistory = lazyWithRetry(() => import('./pages/RiskMapHistory'));
+const StopCardsForm = lazyWithRetry(() => import('./pages/StopCardsForm'));
 const StopCards = lazyWithRetry(() => import('./pages/StopCards'));
-const StopCardsHistory = lazyWithRetry(() => import('./pages/StopCardsHistory'));
 const LogoSettings = lazyWithRetry(() => import('./pages/LogoSettings'));
 const PublicView = lazyWithRetry(() => import('./pages/PublicView'));
 const ExtinguisherAI = lazyWithRetry(() => import('./pages/ExtinguisherAI'));
@@ -414,6 +414,7 @@ function App() {
               }}>
               <button
                 onClick={() => setIsSidebarOpen(true)}
+                aria-label="Abrir menú"
                 style={{
                   background: 'var(--color-background)',
                   border: '1px solid var(--color-border)',
@@ -436,6 +437,7 @@ function App() {
               </Link>
               <button
                 onClick={() => setIsSearchOpen(true)}
+                aria-label="Buscar"
                 title="Buscar (Ctrl+K)"
                 style={{
                   background: 'var(--color-background)',
@@ -560,11 +562,11 @@ function App() {
                   <Route path="/extintores/inspect/:id" element={<ProtectedRoute><ExtinguisherInspection /></ProtectedRoute>} />
                   <Route path="/thermal-stress" element={<ProtectedRoute><ThermalStress /></ProtectedRoute>} />
                   <Route path="/drills" element={<ProtectedRoute><Drills /></ProtectedRoute>} />
-                  <Route path="/drills-history" element={<ProtectedRoute><DrillsHistory /></ProtectedRoute>} />
+                  <Route path="/drills/new" element={<ProtectedRoute><DrillsForm /></ProtectedRoute>} />
                   <Route path="/risk-maps" element={<ProtectedRoute><RiskMapGenerator /></ProtectedRoute>} />
                   <Route path="/risk-maps-history" element={<ProtectedRoute><RiskMapHistory /></ProtectedRoute>} />
                   <Route path="/stop-cards" element={<ProtectedRoute><StopCards /></ProtectedRoute>} />
-                  <Route path="/stop-cards-history" element={<ProtectedRoute><StopCardsHistory /></ProtectedRoute>} />
+                  <Route path="/stop-cards/new" element={<ProtectedRoute><StopCardsForm /></ProtectedRoute>} />
                   <Route path="/logo-settings" element={<ProtectedRoute><LogoSettings /></ProtectedRoute>} />
                   <Route path="/contractors" element={<ProtectedRoute><ContractorManagement /></ProtectedRoute>} />
                   <Route path="/lifting-form" element={<ProtectedRoute><LiftingForm /></ProtectedRoute>} />

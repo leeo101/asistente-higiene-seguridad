@@ -8,6 +8,7 @@ import WorkingAtHeightPdf from '../components/WorkingAtHeightPdf';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
+import PremiumHeader from '../components/PremiumHeader';
 
 const WORK_TYPES = [
     { id: 'scaffolding', name: 'Andamios', icon: '🏗️' },
@@ -195,46 +196,26 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
     } as any;
 
     return (
-        <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem' }}>
-            <div style={{
-                background: 'var(--color-surface)',
-                borderBottom: '1px solid var(--color-border)',
-                padding: '1rem 1.5rem',
-                position: 'sticky',
-                top: '5.5rem',
-                zIndex: 100,
-                backdropFilter: 'blur(20px)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem'
-            }}>
-                <button
-                    onClick={() => navigate(-1)}
-                    style={{
-                        padding: '0.5rem',
-                        background: 'var(--color-background)',
-                        border: '1px solid var(--color-border)',
-                        borderRadius: 'var(--radius-lg)',
-                        cursor: 'pointer',
-                        color: 'var(--color-text)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                    }}
+        <div className="container page-transition" style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '4rem' }}>
+            <main style={{ maxWidth: '1000px', margin: '0 auto' }}>
+                <PremiumHeader
+                    title={isEdit ? 'Editar Permiso en Altura' : 'Permiso de Trabajo en Altura'}
+                    subtitle="Gestión de permisos según OSHA 1926.501"
+                    icon={<ArrowDown size={36} />}
                 >
-                    <ArrowLeft size={20} />
-                </button>
-                <div style={{ flex: 1 }}>
-                    <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.3rem', fontWeight: 900 }}>
-                        <ArrowDown size={20} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />
-                        {isEdit ? 'Editar Permiso en Altura' : 'Permiso de Trabajo en Altura'}
-                    </h1>
-                </div>
-                {/* Header Buttons Removed as they are now in the floating bar */}
-            </div>
+                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1rem', justifyContent: 'center' }}>
+                        <button
+                            onClick={() => navigate(-1)}
+                            className="btn-secondary"
+                            style={{ padding: '0.75rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                        >
+                            <ArrowLeft size={18} />
+                            Volver
+                        </button>
+                    </div>
+                </PremiumHeader>
 
-            <main style={{ padding: '3.5rem 1.5rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
-                <div className="card" style={{ padding: '2rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)' }}>
+                <div className="card animate-fade-in" style={{ padding: '2.5rem', background: 'rgba(var(--color-surface-rgb), 0.3)', borderTop: '4px solid #f59e0b', borderRadius: 'var(--radius-xl)', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.08)' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem' }}>
                         <div style={isMobile ? {} : { gridColumn: 'span 2' }}>
                             <label style={labelStyle}>Nombre del Trabajador *</label>

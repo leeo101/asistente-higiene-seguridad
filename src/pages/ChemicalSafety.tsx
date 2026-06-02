@@ -11,6 +11,7 @@ import ChemicalSafetyPdf from '../components/ChemicalSafetyPdf';
 import CompanyLogo from '../components/CompanyLogo';
 import LazyImage from '../components/LazyImage';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
+import PremiumHeader from '../components/PremiumHeader';
 
 // Pictogramas GHS/SGA
 const GHS_PICTOGRAMS = {
@@ -217,59 +218,27 @@ export default function ChemicalSafety(): React.ReactElement | null {
                 {shareItem && <ChemicalSafetyPdf data={shareItem} />}
             </div>
             {/* Header Premium */}
-            <div style={{
-                marginBottom: '2rem',
-                padding: '1.5rem',
-                background: 'var(--gradient-card)',
-                borderRadius: 'var(--radius-2xl)',
-                border: '1px solid var(--glass-border)',
-                boxShadow: 'var(--glass-shadow)',
-                backdropFilter: 'blur(20px)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '1rem'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div style={{
-                        width: '56px',
-                        height: '56px',
-                        background: 'linear-gradient(135deg, #10b981, #059669)',
-                        borderRadius: 'var(--radius-lg)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        boxShadow: '0 4px 20px rgba(16, 185, 129, 0.3)'
-                    }}>
-                        <FlaskConical size={32} color="#ffffff" strokeWidth={2} />
-                    </div>
-                    <div>
-                        <h1 style={{ 
-                            margin: 0, 
-                            fontSize: '1.5rem', 
-                            fontWeight: 900,
-                            color: 'var(--color-text)',
-                            letterSpacing: '-0.5px'
-                        }}>
-                            Productos Químicos
-                        </h1>
-                        <p style={{ 
-                            margin: '0.25rem 0 0 0', 
-                            color: 'var(--color-text-muted)',
-                            fontSize: '0.85rem',
-                            fontWeight: 600
-                        }}>
-                            Gestión GHS/SGA • {chemicals.length} productos
-                        </p>
-                    </div>
-                </div>
+            <PremiumHeader
+                title="Productos Químicos"
+                subtitle={`Gestión GHS/SGA • ${chemicals.length} productos`}
+                icon={<FlaskConical size={36} />}
+            />
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginTop: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                <button onClick={() => navigate('/#tools')} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', padding: '0.8rem 1.2rem', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 700 }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver
+                </button>
 
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', width: isMobile ? '100%' : 'auto' }}>
                     <button
                         onClick={() => navigate('/chemical-safety/new')}
-                        className="btn-primary"
-                        style={{ width: isMobile ? '100%' : 'auto', display: 'flex', justifyContent: 'center' }}
+                        style={{
+                            width: isMobile ? '100%' : 'auto', display: 'flex', justifyContent: 'center',
+                            alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
+                            background: '#36B37E', color: 'white', border: 'none', borderRadius: '12px',
+                            fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
+                            boxShadow: '0 4px 15px rgba(54, 179, 126, 0.4)'
+                        }}
                     >
                         <Plus size={20} /> Nuevo Producto
                     </button>
@@ -439,7 +408,6 @@ export default function ChemicalSafety(): React.ReactElement | null {
                 <EmptyStateIllustrated 
                     title="Sin Productos Químicos"
                     description="Registrá sustancias químicas según el Sistema Globalmente Armonizado (SGA/GHS)."
-                    onAction={() => navigate('/chemical-safety/new')}
                     icon={<FlaskConical />}
                 />
             ) : viewMode === 'grid' ? (

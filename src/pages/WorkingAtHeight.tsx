@@ -5,12 +5,13 @@ import {
     FileText, Eye, Edit3, Trash2, CheckCircle2, 
     XCircle, Clock, User, Users, Calendar,
     Shield, ArrowDown, Ruler, Anchor, CheckSquare,
-    BarChart3, AlertCircle, Activity, Layers, Share2
+    BarChart3, AlertCircle, Activity, Layers, Share2, ArrowLeft
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import WorkingAtHeightPdf from '../components/WorkingAtHeightPdf';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import { usePaywall } from '../hooks/usePaywall';
+import PremiumHeader from '../components/PremiumHeader';
 
 // Límites según OSHA 1926.501 y normas internacionales
 const HEIGHT_LIMITS = {
@@ -240,69 +241,28 @@ export default function WorkingAtHeight(): React.ReactElement | null {
                 {shareItem && <WorkingAtHeightPdf data={shareItem} />}
             </div>
             {/* Header Premium */}
-            <div style={{
-                marginBottom: '2rem',
-                padding: '1.5rem',
-                background: 'var(--gradient-card)',
-                borderRadius: 'var(--radius-2xl)',
-                border: '1px solid var(--glass-border)',
-                boxShadow: 'var(--glass-shadow)',
-                backdropFilter: 'blur(20px)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '1rem'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div style={{
-                        width: '56px',
-                        height: '56px',
-                        background: 'linear-gradient(135deg, #dc2626, #991b1b)',
-                        borderRadius: 'var(--radius-lg)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        boxShadow: '0 4px 20px rgba(220, 38, 38, 0.3)'
-                    }}>
-                        <HardHat size={32} color="#ffffff" strokeWidth={2} />
-                    </div>
-                    <div>
-                        <h1 style={{ 
-                            margin: 0, 
-                            fontSize: '1.5rem', 
-                            fontWeight: 900,
-                            color: 'var(--color-text)',
-                            letterSpacing: '-0.5px'
-                        }}>
-                            Trabajo en Altura
-                        </h1>
-                        <p style={{ 
-                            margin: '0.25rem 0 0 0', 
-                            color: 'var(--color-text-muted)',
-                            fontSize: '0.85rem',
-                            fontWeight: 600
-                        }}>
-                            OSHA 1926.501 • {activePermits.length} activos
-                        </p>
-                    </div>
-                </div>
+            <PremiumHeader
+                title="Trabajo en Altura"
+                subtitle={`OSHA 1926.501 • ${activePermits.length} activos`}
+                icon={<HardHat size={36} />}
+            />
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginTop: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                <button onClick={() => navigate('/#activity')} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', padding: '0.8rem 1.2rem', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 700 }}>
+                    <ArrowLeft size={18} /> Volver
+                </button>
 
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                     <button
                         onClick={handleCreatePermit}
-                        className="btn-primary"
                         style={{
-                            width: 'auto',
-                            margin: 0,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            padding: '0.75rem 1.25rem'
+                            display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
+                            background: '#36B37E', color: 'white', border: 'none', borderRadius: '12px',
+                            fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
+                            boxShadow: '0 4px 15px rgba(54, 179, 126, 0.4)'
                         }}
                     >
-                        <Plus size={20} strokeWidth={2.5} />
-                        Nuevo Permiso
+                        <Plus size={20} weight="bold" /> Nuevo Permiso
                     </button>
                 </div>
             </div>
@@ -451,7 +411,6 @@ export default function WorkingAtHeight(): React.ReactElement | null {
                         <EmptyStateIllustrated 
                             title="Sin Permisos de Trabajo en Altura"
                             description="Todavía no hay permisos creados. Creá el primero para gestionar la seguridad según OSHA 1.8m."
-                            onAction={handleCreatePermit}
                             icon={<HardHat />}
                         />
                     ) : (

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, Users, Target, ShieldCheck, Printer, Share2, Timer, Pencil } from 'lucide-react';
+import { ArrowLeft, Save, Users, Target, ShieldCheck, Printer, Share2, Timer, Pencil, Building2, Search } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import PremiumHeader from '../components/PremiumHeader';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
@@ -189,44 +190,31 @@ export default function EvacuationSimulatorForm(): React.ReactElement | null {
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem', paddingTop: isMobile ? '7.5rem' : '6.5rem' }}>
-            <div style={{
-                background: 'var(--color-surface)',
-                borderBottom: '1px solid var(--color-border)',
-                padding: '1rem 1.5rem',
-                position: 'sticky',
-                top: isMobile ? '6.5rem' : '5.5rem',
-                zIndex: 100,
-                backdropFilter: 'blur(20px)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem'
-            }}>
-                <button
-                    onClick={() => navigate(-1)}
-                    style={{
-                        padding: '0.5rem',
-                        background: 'var(--color-background)',
-                        border: '1px solid var(--color-border)',
-                        borderRadius: 'var(--radius-lg)',
-                        cursor: 'pointer',
-                        color: 'var(--color-text)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                    }}
-                >
-                    <ArrowLeft size={20} />
-                </button>
-                <div style={{ flex: 1 }}>
-                    <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.3rem', fontWeight: 900 }}>
-                        <Timer size={20} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />
-                        {isEdit ? 'Editar Simulación de Evacuación' : 'Simulador de Evacuación (Teórico)'}
-                    </h1>
-                </div>
-            </div>
+            <main style={{ padding: '0rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
+                <PremiumHeader
+                    title={isEdit ? 'Editar Simulación de Evacuación' : 'Simulador de Evacuación (Teórico)'}
+                    subtitle="Cálculo de tiempos teóricos de escape"
+                    icon={<Timer size={36} />}
+                />
 
-            <main style={{ padding: '3.5rem 1.5rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
-                <div className="card" style={{ padding: '2rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginTop: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                    <button onClick={() => navigate(-1)} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', padding: '0.8rem 1.2rem', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 700 }}>
+                        <ArrowLeft size={18} /> Volver
+                    </button>
+
+                    <button onClick={() => navigate('/evacuation-history')} style={{
+                        display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 1.2rem',
+                        background: 'var(--color-surface)', border: '1px solid var(--color-primary)', color: 'var(--color-primary)',
+                        borderRadius: '12px', fontSize: '0.9rem', fontWeight: 700, cursor: 'pointer'
+                    }}>
+                        <Search size={18} /> Ver Historial
+                    </button>
+                </div>
+
+                <div className="card" style={{ padding: '2rem', borderTop: '4px solid #3b82f6', background: 'linear-gradient(180deg, rgba(59,130,246,0.03) 0%, rgba(0,0,0,0) 100%)', marginBottom: '2rem' }}>
+                    <h2 style={{ fontSize: '1.25rem', margin: '0 0 1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#3b82f6', fontWeight: 800 }}>
+                        <Building2 size={24} /> Datos del Establecimiento
+                    </h2>
                     
                     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
                         <div>
@@ -242,10 +230,12 @@ export default function EvacuationSimulatorForm(): React.ReactElement | null {
                             <input type="text" value={form.evaluator} onChange={(e) => setForm({ ...form, evaluator: e.target.value })} style={inputStyle} />
                         </div>
                     </div>
+                </div>
 
-                    <h3 style={{ margin: '2rem 0 1rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.5rem' }}>
-                        <Users size={22} /> Parámetros de Cálculo
-                    </h3>
+                <div className="card" style={{ padding: '2rem', borderTop: '4px solid #f97316', background: 'linear-gradient(180deg, rgba(249,115,22,0.03) 0%, rgba(0,0,0,0) 100%)', marginBottom: '2rem' }}>
+                    <h2 style={{ fontSize: '1.25rem', margin: '0 0 1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#f97316', fontWeight: 800 }}>
+                        <Users size={24} /> Parámetros de Cálculo
+                    </h2>
 
                     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '1.5rem' }}>
                         <div>
@@ -313,6 +303,7 @@ export default function EvacuationSimulatorForm(): React.ReactElement | null {
                             placeholder="El tiempo de evacuación teórico es aceptable. Se recomienda realizar simulacro práctico para validar tiempos reales."
                         />
                     </div>
+                </div>
 
                     {/* Firmas y Autorizaciones */}
                     <div className="card animate-fade-in" style={{ marginTop: '2.5rem', background: 'rgba(var(--color-surface-rgb), 0.3)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', padding: '2.5rem', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.08)' }}>
@@ -469,7 +460,6 @@ export default function EvacuationSimulatorForm(): React.ReactElement | null {
                             )}
                         </div>
                     </div>
-                </div>
             </main>
 
             <div className="no-print floating-action-bar">

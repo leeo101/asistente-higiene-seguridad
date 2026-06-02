@@ -33,6 +33,7 @@ export default function RoiCalculator() {
 
                     <input 
                         type="range" 
+                        aria-label="Cantidad de informes o ATS por semana" 
                         min="1" 
                         max="50" 
                         value={reportsPerWeek} 

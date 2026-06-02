@@ -8,6 +8,7 @@ import ChemicalSafetyPdf from '../components/ChemicalSafetyPdf';
 import PdfSignatures from '../components/PdfSignatures';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
+import PremiumHeader from '../components/PremiumHeader';
 
 const GHS_PICTOGRAMS = {
     explosive: { icon: '🧨', name: 'Explosivo', color: '#dc2626' },
@@ -206,45 +207,35 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem' }}>
-            <div style={{
-                background: 'var(--color-surface)',
-                borderBottom: '1px solid var(--color-border)',
-                padding: '1rem 1.5rem',
-                position: 'sticky',
-                top: '5.5rem',
-                zIndex: 100,
-                backdropFilter: 'blur(20px)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem'
-            }}>
-                <button
-                    onClick={() => navigate(-1)}
-                    style={{
-                        padding: '0.5rem',
-                        background: 'var(--color-background)',
-                        border: '1px solid var(--color-border)',
-                        borderRadius: 'var(--radius-lg)',
-                        cursor: 'pointer',
-                        color: 'var(--color-text)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                    }}
-                >
-                    <ArrowLeft size={20} />
-                </button>
-                <div style={{ flex: 1 }}>
-                    <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.3rem', fontWeight: 900 }}>
-                        <FlaskConical size={20} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />
-                        {isEdit ? 'Editar Producto Químico' : 'Nuevo Producto Químico'}
-                    </h1>
-                </div>
-                {/* Header Buttons Removed as they are now in the floating bar */}
-            </div>
+            <main style={{ padding: '4rem 1.5rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
+                <PremiumHeader
+                    title={isEdit ? 'Editar Producto Químico' : 'Nuevo Producto Químico'}
+                    subtitle="Ficha Técnica de Seguridad (SGA)"
+                    icon={<FlaskConical size={36} />}
+                />
 
-            <main style={{ padding: '3.5rem 1.5rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
-                <div className="card" style={{ padding: '2rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '1.5rem', marginBottom: '2rem' }}>
+                    <button
+                        onClick={() => navigate(-1)}
+                        style={{
+                            padding: '0.8rem 1.2rem',
+                            background: 'var(--color-surface)',
+                            border: '1px solid var(--color-border)',
+                            borderRadius: '12px',
+                            cursor: 'pointer',
+                            color: 'var(--color-text)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            fontSize: '0.9rem',
+                            fontWeight: 700
+                        }}
+                    >
+                        <ArrowLeft size={18} /> Volver
+                    </button>
+                </div>
+
+                <div className="card" style={{ padding: '2rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)', borderRadius: '24px', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem' }}>
                         <div style={isMobile ? {} : { gridColumn: 'span 2' }}>
                             <label style={labelStyle}>Nombre del Producto *</label>

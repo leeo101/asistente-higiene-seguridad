@@ -10,6 +10,11 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
   <link rel="icon" type="image/png" href="/logo.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/logo.png" />
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+  
   <meta name="theme-color" content="#1e3a8a" />
   <meta name="description"
     content="Asistente HYS: La plataforma líder para profesionales de Higiene y Seguridad en Argentina. Calcula Carga de Fuego, Iluminación, ATS y más con Inteligencia Artificial." />
@@ -91,12 +96,21 @@
     });
   </script>
 
+  <!-- Microsoft Clarity -->
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "x0g47mn2ca");
+  </script>
+
 </head>
 
 <body>
   <div id="root"><!--app-html--></div>
   <div id="modal-root"></div>
-  <script type="module" src="/src/main.jsx"></script>
+  <script type="module" src="/src/main.tsx"></script>
 </body>
 
 </html>

@@ -21,7 +21,8 @@ export default function PremiumHeader({
     <div style={{
       background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)',
       padding: 'clamp(1rem, 3vw, 2rem)',
-      borderRadius: '0 0 20px 20px',
+      borderRadius: '20px',
+      marginTop: '1.5rem',
       marginBottom: '0',
       position: 'relative',
       overflow: 'hidden',

@@ -53,7 +53,8 @@ const QUICK_ACTIONS = [
   { nav: '/ats',         label: 'Nuevo ATS',               color: '#10b981', bg: 'rgba(16,185,129,0.12)', icon: <Plus size={16}/> },
   { nav: '/work-permit', label: 'Nuevo Permiso de Trabajo', color: '#2563eb', bg: 'rgba(37,99,235,0.12)',  icon: <Plus size={16}/> },
   { nav: '/fire-load',   label: 'Nueva Carga de Fuego',    color: '#f97316', bg: 'rgba(249,115,22,0.12)', icon: <Plus size={16}/> },
-  { nav: '/drills',      label: 'Nuevo Simulacro',         color: '#ef4444', bg: 'rgba(239,68,68,0.12)',  icon: <Plus size={16}/> },
+  { nav: '/drills/new',      label: 'Nuevo Simulacro',         color: '#ef4444', bg: 'rgba(239,68,68,0.12)',  icon: <Plus size={16}/> },
+  { nav: '/stop-cards/new',  label: 'Nueva Tarjeta STOP',      color: '#ef4444', bg: 'rgba(239,68,68,0.12)',  icon: <Plus size={16}/> },
   { nav: '/ai-advisor',  label: 'Consultar Asesor IA',     color: '#a855f7', bg: 'rgba(168,85,247,0.12)', icon: <Zap size={16}/> },
 ];
 
@@ -149,13 +150,14 @@ export default function GlobalSearch({ onClose }: GlobalSearchProps): React.Reac
             ref={inputRef}
             type="text"
             placeholder="Buscar módulo, registro o acción…"
+            aria-label="Buscar módulo, registro o acción"
             value={query}
             onChange={e => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             style={{ flex:1, border:'none', outline:'none', background:'transparent', fontSize:'1.05rem', color:'var(--color-text)', fontWeight:600, fontFamily:'inherit', minWidth:0 }}
           />
           {query ? (
-            <button onClick={() => setQuery('')} style={{ background:'none', border:'none', cursor:'pointer', color:'var(--color-text-muted)', display:'flex', padding:'0.25rem', borderRadius:'6px', flexShrink:0 }}>
+            <button onClick={() => setQuery('')} aria-label="Limpiar búsqueda" style={{ background:'none', border:'none', cursor:'pointer', color:'var(--color-text-muted)', display:'flex', padding:'0.25rem', borderRadius:'6px', flexShrink:0 }}>
               <X size={18} />
             </button>
           ) : (

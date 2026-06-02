@@ -215,8 +215,8 @@ export default function History(): React.ReactElement | null {
         { title: 'Mapas de Riesgo', icon: <Map size={24} />, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', path: '/risk-maps-history', countKey: 'riskmaps' },
         { title: 'Matrices de Riesgo', icon: <TriangleAlert size={24} />, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', path: '/risk-matrix-history', countKey: 'matrices', view: 'matrices' },
         { title: 'Permisos de Trabajo', icon: <KeySquare size={24} />, color: '#2563eb', bg: 'rgba(37,99,235,0.1)', path: '/work-permit-history', countKey: 'workPermits' },
-        { title: 'Simulacros', icon: <Siren size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/drills-history', countKey: 'drills' },
-        { title: 'Tarjetas STOP', icon: <TriangleAlert size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/stop-cards-history', countKey: 'stopCards' },
+        { title: 'Simulacros', icon: <Siren size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/drills', countKey: 'drills' },
+        { title: 'Tarjetas STOP', icon: <TriangleAlert size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/stop-cards', countKey: 'stopCards' },
         { title: 'Simulador de Evacuación', icon: <Timer size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/evacuation-history', countKey: 'evacuationSimulator' },
     ];
 

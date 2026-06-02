@@ -624,8 +624,8 @@ export default function Home(): React.ReactElement {
 
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-              gap: '1rem',
+              gridTemplateColumns: isMobile ? 'repeat(auto-fill, minmax(140px, 1fr))' : 'repeat(auto-fill, minmax(180px, 1fr))',
+              gap: isMobile ? '0.75rem' : '1.5rem',
               gridAutoRows: 'auto'
             }}>
               {filteredLinks.length > 0 ? filteredLinks.map((link, i) => (
@@ -635,26 +635,30 @@ export default function Home(): React.ReactElement {
                   className="card"
                   style={{
                     textDecoration: 'none',
-                    padding: '1rem',
-                    borderRadius: '16px',
+                    padding: isMobile ? '1.25rem 0.5rem' : '1.5rem 1rem',
+                    borderRadius: '24px', // Sin puntas
                     background: `linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))`,
                     border: '1px solid var(--color-border)',
-                    transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                    transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                     display: 'flex',
+                    flexDirection: 'column',
                     alignItems: 'center',
-                    gap: '1rem',
+                    justifyContent: 'center',
+                    textAlign: 'center',
+                    gap: '0.8rem',
                     position: 'relative',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    aspectRatio: '1 / 1'
                   }}
                   onMouseOver={e => {
                     e.currentTarget.style.borderColor = `${link.color}50`;
-                    e.currentTarget.style.boxShadow = `0 8px 25px ${link.color}15`;
-                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = `0 12px 30px ${link.color}15`;
+                    e.currentTarget.style.transform = 'translateY(-4px)';
                     e.currentTarget.style.background = `linear-gradient(145deg, ${link.bg}, rgba(255,255,255,0.02))`;
                   }}
                   onMouseOut={e => {
                     e.currentTarget.style.borderColor = 'var(--color-border)';
-                    e.currentTarget.style.boxShadow = 'none';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
                     e.currentTarget.style.transform = 'none';
                     e.currentTarget.style.background = `linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))`;
                   }}
@@ -667,7 +671,7 @@ export default function Home(): React.ReactElement {
                       right: '0.8rem',
                       background: `linear-gradient(135deg, ${link.color}, ${link.color}cc)`,
                       color: '#fff',
-                      padding: '0.15rem 0.5rem',
+                      padding: '0.2rem 0.5rem',
                       borderRadius: '100px',
                       fontSize: '0.65rem',
                       fontWeight: 800,
@@ -679,28 +683,25 @@ export default function Home(): React.ReactElement {
                   )}
 
                   <div className={`premium-icon-box ${link.category === 'ia' ? 'ai-magic-box' : ''}`} style={{
-                    width: '44px',
-                    height: '44px',
+                    width: isMobile ? '50px' : '56px',
+                    height: isMobile ? '50px' : '56px',
                     color: link.color,
-                    flexShrink: 0
+                    flexShrink: 0,
+                    marginBottom: '0.2rem'
                   }}>
                     {React.cloneElement(link.icon as React.ReactElement<any>, { 
-                      size: 24, 
+                      size: isMobile ? 28 : 30, 
                       className: `${link.category === 'ia' ? 'ai-magic-icon' : 'icon-glow-soft'}` 
                     })}
                   </div>
                   
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <div style={{ width: '100%', padding: '0 0.2rem' }}>
+                    <h3 style={{ margin: 0, fontSize: isMobile ? '0.9rem' : '0.95rem', fontWeight: 800, color: 'var(--color-text)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {link.label}
                     </h3>
-                    <p style={{ margin: '0.15rem 0 0', fontSize: '0.75rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.4, opacity: 0.8 }}>
+                    <p style={{ margin: '0.3rem 0 0', fontSize: isMobile ? '0.75rem' : '0.8rem', color: 'var(--color-text-muted)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.3, opacity: 0.8 }}>
                       {link.sub}
                     </p>
-                  </div>
-
-                  <div style={{ display: 'flex', opacity: 0.4, transition: 'all 0.3s' }} className="chevron-icon">
-                    <CaretRight weight="bold" size={18} color="var(--color-text-muted)" />
                   </div>
                 </Link>
               )) : (
