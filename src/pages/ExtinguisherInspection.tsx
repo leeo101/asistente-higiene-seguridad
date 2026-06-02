@@ -26,6 +26,7 @@ export default function ExtinguisherInspection() {
     const [inspectorName, setInspectorName] = useState('');
     const [generalPhotos, setGeneralPhotos] = useState([]);
     const [generalObservations, setGeneralObservations] = useState('');
+    const [manualResult, setManualResult] = useState<'APROBADO' | 'RECHAZADO' | null>(null);
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
@@ -146,6 +147,10 @@ export default function ExtinguisherInspection() {
             toast.error('Por favor, completa todos los puntos del checklist.');
             return;
         }
+        if (!manualResult) {
+            toast.error('Por favor, seleccione si la inspección está Aprobada o Rechazada.');
+            return;
+        }
 
         setIsSaving(true);
         const report = {
@@ -157,7 +162,7 @@ export default function ExtinguisherInspection() {
             items: checklist,
             fotos: generalPhotos,
             observaciones: generalObservations,
-            resultado: checklist.some((c: any) => c.status === 'NC') ? 'RECHAZADO' : 'APROBADO'
+            resultado: manualResult
         };
 
         const historyRaw = localStorage.getItem('extintores_history');
@@ -325,7 +330,39 @@ export default function ExtinguisherInspection() {
                 />
             </div>
 
-            <div className="card" style={{ padding: '1.2rem', background: 'var(--color-surface)', border: '2px solid var(--color-border)' }}>
+            <div className="card" style={{ padding: '1.2rem', marginBottom: '1.5rem', background: 'var(--color-surface)', border: '2px solid var(--color-border)' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 900, color: 'var(--color-text)', textTransform: 'uppercase', marginBottom: '0.8rem' }}>
+                    Resultado de Inspección <span style={{ color: '#ef4444' }}>*</span>
+                </label>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                    <button 
+                        onClick={() => setManualResult('APROBADO')}
+                        style={{ 
+                            flex: 1, padding: '1rem', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s',
+                            background: manualResult === 'APROBADO' ? '#10b981' : 'rgba(16, 185, 129, 0.1)',
+                            color: manualResult === 'APROBADO' ? '#ffffff' : '#10b981',
+                            border: manualResult === 'APROBADO' ? 'none' : '1px solid rgba(16, 185, 129, 0.3)',
+                            boxShadow: manualResult === 'APROBADO' ? '0 8px 20px rgba(16, 185, 129, 0.3)' : 'none'
+                        }}
+                    >
+                        APROBADO
+                    </button>
+                    <button 
+                        onClick={() => setManualResult('RECHAZADO')}
+                        style={{ 
+                            flex: 1, padding: '1rem', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s',
+                            background: manualResult === 'RECHAZADO' ? '#ef4444' : 'rgba(239, 68, 68, 0.1)',
+                            color: manualResult === 'RECHAZADO' ? '#ffffff' : '#ef4444',
+                            border: manualResult === 'RECHAZADO' ? 'none' : '1px solid rgba(239, 68, 68, 0.3)',
+                            boxShadow: manualResult === 'RECHAZADO' ? '0 8px 20px rgba(239, 68, 68, 0.3)' : 'none'
+                        }}
+                    >
+                        RECHAZADO
+                    </button>
+                </div>
+            </div>
+
+            <div className="card" style={{ padding: '1.2rem', background: 'var(--color-surface)', border: '2px solid var(--color-border)', marginBottom: '4rem' }}>
                 <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Firma del Inspector</label>
                 <input 
                     type="text" 

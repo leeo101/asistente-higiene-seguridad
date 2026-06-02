@@ -30,16 +30,17 @@ const getPHExpirationStatus = (dateStr: string) => {
     return { text: 'Vigente', color: '#10b981', expirationDate: d.toLocaleDateString('es-AR') };
 };
 
-const getLifespanStatus = (fechaFab) => {
-    if (!fechaFab) return null;
+const getLifespanStatus = (fechaFab: string) => {
+    if (!fechaFab) return { text: 'Sin Datos', color: '#64748b', expirationDate: null };
     const d = new Date(fechaFab);
     const limitDate = new Date(d);
     limitDate.setFullYear(limitDate.getFullYear() + 20);
     const today = new Date();
     const diffDays = Math.ceil((limitDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    if (diffDays < 0) return { text: 'DAR DE BAJA (Cumplió 20 años)', color: '#dc2626' };
-    if (diffDays <= 180) return { text: 'Por vencer vida útil (20 años)', color: '#f59e0b' };
-    return { text: 'Vigente', color: '#10b981' };
+    const expDate = limitDate.toLocaleDateString('es-AR');
+    if (diffDays < 0) return { text: 'DAR DE BAJA', color: '#dc2626', expirationDate: expDate };
+    if (diffDays <= 180) return { text: 'Por vencer', color: '#f59e0b', expirationDate: expDate };
+    return { text: 'Vigente', color: '#10b981', expirationDate: expDate };
 };
 
 export default function ExtinguisherProfilePdf({ data, onBack = () => window.history.back(), isHeadless = false }: { data: any, onBack?: () => void, isHeadless?: boolean }): React.ReactElement | null {
@@ -77,17 +78,13 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
 
     let latestInspection = null;
     try {
-        // Buscar en extintores_history (módulo ExtintoresManager - checklist NFPA 10)
         const historyRaw = localStorage.getItem('extintores_history');
         if (historyRaw) {
             const history = JSON.parse(historyRaw);
             latestInspection = history.find(h => String(h.extintorId) === String(data.id)) || null;
         }
-        // Si no hay en history, buscar en el array inspections[] del objeto
-        // (módulo Extinguishers.tsx - inspección mensual rápida)
         if (!latestInspection && data.inspections && data.inspections.length > 0) {
             const last = data.inspections[data.inspections.length - 1];
-            // Adaptar formato para que sea compatible con el template del PDF
             latestInspection = {
                 fecha: last.fechaVisita ? last.fechaVisita + 'T12:00:00Z' : new Date().toISOString(),
                 inspector: '-',
@@ -186,7 +183,6 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                         `}
                     </style>
 
-                    {/* Header */}
                     <div style={{ borderBottom: '3px solid #1e293b', paddingBottom: '15px', marginBottom: '25px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
                             <h1 style={{ margin: '0 0 5px 0', fontSize: '22pt', color: '#1e293b', fontWeight: 900, textTransform: 'uppercase' }}>
@@ -206,9 +202,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                         />
                     </div>
 
-                    {/* Content Section */}
                     <div style={{ display: 'flex', gap: '20px', marginBottom: '30px' }}>
-                        {/* Foto */}
                         <div style={{ width: '150px', flexShrink: 0 }}>
                             {data.foto ? (
                                 <img src={data.foto} alt="Extintor" style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #cbd5e1' }} />
@@ -219,7 +213,6 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                             )}
                         </div>
 
-                        {/* Detalles */}
                         <div style={{ flex: 1 }}>
                             <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '15px' }}>
                                 <h3 style={{ margin: '0 0 15px 0', fontSize: '14pt', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #cbd5e1', paddingBottom: '8px' }}>
@@ -262,7 +255,6 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                         </div>
                     </div>
 
-                    {/* Vencimientos */}
                     <div style={{ marginBottom: '30px' }}>
                         <h3 style={{ margin: '0 0 15px 0', fontSize: '14pt', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '2px solid #1e293b', paddingBottom: '8px' }}>
                             <Calendar size={20} color="#f59e0b" /> Control de Vencimientos
@@ -271,9 +263,10 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10pt', fontFamily: 'sans-serif' }}>
                             <thead>
                                 <tr style={{ background: '#f1f5f9' }}>
-                                    <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left', width: '33%', fontWeight: 800 }}>Vencimiento Recarga</th>
-                                    <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left', width: '33%', fontWeight: 800 }}>Vencimiento P.H. (5 Años)</th>
-                                    <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left', width: '33%', fontWeight: 800 }}>Vida Útil (20 Años)</th>
+                                    <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left', width: '25%', fontWeight: 800 }}>Vencimiento Recarga</th>
+                                    <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left', width: '25%', fontWeight: 800 }}>Vencimiento P.H. (5 Años)</th>
+                                    <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left', width: '25%', fontWeight: 800 }}>Fecha Fabricación</th>
+                                    <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left', width: '25%', fontWeight: 800 }}>Vida Útil (20 Años)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -287,8 +280,10 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                         <div style={{ color: phStatus.color, fontWeight: 800, marginTop: '4px', fontSize: '9pt' }}>{phStatus.text}</div>
                                     </td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '12px' }}>
-                                        <div style={{ fontSize: '10pt', color: '#64748b', fontWeight: 600 }}>Fecha Fabricación:</div>
                                         <div style={{ fontSize: '12pt', fontWeight: 900 }}>{data.fechaFabricacion ? new Date(data.fechaFabricacion).toLocaleDateString('es-AR') : '-'}</div>
+                                    </td>
+                                    <td style={{ border: '1px solid #cbd5e1', padding: '12px' }}>
+                                        <div style={{ fontSize: '12pt', fontWeight: 900 }}>{lifespanStatus.expirationDate || '-'}</div>
                                         {lifespanStatus && (
                                             <div style={{ color: lifespanStatus.color, fontWeight: 800, marginTop: '4px', fontSize: '9pt' }}>{lifespanStatus.text}</div>
                                         )}
@@ -298,7 +293,6 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                         </table>
                     </div>
 
-                    {/* Última Inspección */}
                     <div style={{ marginBottom: '30px', flex: 1 }}>
                         <h3 style={{ margin: '0 0 15px 0', fontSize: '14pt', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '2px solid #1e293b', paddingBottom: '8px' }}>
                             <ShieldCheck size={20} color="#10b981" /> Última Inspección Registrada
