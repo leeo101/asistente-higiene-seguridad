@@ -95,7 +95,9 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         };
 
         // html2pdf procesa automáticamente las clases pageBreakInside: avoid y no corta los elementos por la mitad
-        const pdfBlob = await html2pdf().set(opt as any).from(clone).toPdf().get('pdf').then((pdf: any) => {
+        const worker = html2pdf().set(opt as any).from(clone).toPdf();
+        
+        await worker.get('pdf').then((pdf: any) => {
             const totalPages = pdf.internal.getNumberOfPages();
             const pageWidth = pdf.internal.pageSize.getWidth();
             const pageHeight = pdf.internal.pageSize.getHeight();
@@ -119,8 +121,9 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
                     { align: 'right' }
                 );
             }
-        }).output('blob');
+        });
         
+        const pdfBlob = await worker.output('blob');
         return pdfBlob;
 
     } finally {
