@@ -1527,6 +1527,7 @@ label {
      lo que crea un "bloque vacío" después del contenido imprimible.
      Forzar height:auto los colapsa al tamaño real del contenido. */
   html, body {
+    display: block !important;
     height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
