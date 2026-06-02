@@ -175,17 +175,11 @@ function SectionHeader({ icon, title, rightContent }: { icon: React.ReactNode; t
 function IconInput({ icon, label, ...props }: { icon: React.ReactNode; label: string; [key: string]: any }) {
     return (
         <div>
-            <label style={{
-                display: 'block', fontSize: '0.7rem', fontWeight: 800,
-                textTransform: 'uppercase', letterSpacing: '0.06em',
-                color: 'var(--color-text-muted)', marginBottom: '0.4rem'
-            }}>
-                {label}
-            </label>
+            <label className="toolbox-input-label">{label}</label>
             <div style={{ position: 'relative' }}>
                 <div style={{
-                    position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
-                    color: 'var(--color-text-muted)', pointerEvents: 'none', display: 'flex'
+                    position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)',
+                    color: '#64748b', pointerEvents: 'none', display: 'flex'
                 }}>
                     {icon}
                 </div>
@@ -573,55 +567,55 @@ export default function ToolboxTalk(): React.ReactElement {
 
                             {/* ── Tema con plantillas ── */}
                             <div style={{ marginTop: '1.25rem' }}>
-                                <label style={{
-                                    display: 'block', fontSize: '0.7rem', fontWeight: 800,
-                                    textTransform: 'uppercase', letterSpacing: '0.06em',
-                                    color: 'var(--color-text-muted)', marginBottom: '0.4rem'
-                                }}>
-                                    Tema de la Charla *
-                                </label>
-                                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'stretch' }}>
+                                <label className="toolbox-input-label">Tema de la Charla *</label>
+                                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                                     <input type="text" value={form.tema}
                                         onChange={e => setForm(f => ({ ...f, tema: e.target.value }))}
                                         placeholder="Ingresá o seleccioná un tema..."
                                         className="toolbox-input-plain toolbox-focus-glow"
-                                        style={{ flex: 1 }}
+                                        style={{ paddingRight: '110px' }}
                                     />
                                     <button
                                         onClick={() => setShowTopics(s => !s)}
                                         style={{
-                                            padding: '0 1.1rem',
-                                            background: 'linear-gradient(135deg, #0052CC, #0077ff)',
-                                            color: '#fff', border: 'none', borderRadius: 12,
+                                            position: 'absolute', right: '6px',
+                                            padding: '0.4rem 0.8rem',
+                                            background: showTopics ? 'rgba(0,82,204,0.1)' : 'linear-gradient(135deg, #0052CC, #0077ff)',
+                                            color: showTopics ? '#0052CC' : '#fff', 
+                                            border: 'none', borderRadius: '10px',
                                             fontWeight: 700, cursor: 'pointer',
                                             display: 'flex', alignItems: 'center', gap: '0.35rem',
-                                            whiteSpace: 'nowrap', fontSize: '0.85rem',
-                                            boxShadow: '0 4px 12px rgba(0,82,204,0.25)',
-                                            transition: 'all 0.2s'
+                                            fontSize: '0.75rem',
+                                            boxShadow: showTopics ? 'none' : '0 2px 8px rgba(0,82,204,0.25)',
+                                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
                                         }}
                                     >
-                                        <ChevronDown size={18} style={{
+                                        <ChevronDown size={14} style={{
                                             transition: 'transform 0.25s',
                                             transform: showTopics ? 'rotate(180deg)' : 'rotate(0deg)'
-                                        }} /> Plantillas
+                                        }} /> 
+                                        {showTopics ? 'Cerrar' : 'Plantillas'}
                                     </button>
                                 </div>
 
                                 {/* ── Topic Chips Gallery ── */}
                                 {showTopics && (
                                     <div style={{
-                                        marginTop: '0.75rem',
+                                        marginTop: '0.85rem',
                                         display: 'grid',
                                         gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))',
-                                        gap: '0.5rem',
+                                        gap: '0.6rem',
                                         animation: 'fadeIn 0.25s ease-out'
                                     }}>
                                         {TOPICS_TEMPLATES.map(t => (
                                             <button key={t.label}
                                                 className="toolbox-topic-chip"
-                                                onClick={() => { setForm(f => ({ ...f, tema: `${t.icon} ${t.label}` })); setShowTopics(false); }}
+                                                onClick={() => {
+                                                    setForm(f => ({ ...f, tema: t.label }));
+                                                    setShowTopics(false);
+                                                }}
                                             >
-                                                <span style={{ fontSize: '1.1rem' }}>{t.icon}</span> {t.label}
+                                                <span>{t.icon}</span> <span style={{ flex: 1, textAlign: 'left' }}>{t.label}</span>
                                             </button>
                                         ))}
                                     </div>
@@ -630,18 +624,12 @@ export default function ToolboxTalk(): React.ReactElement {
 
                             {/* ── Desarrollo ── */}
                             <div style={{ marginTop: '1.25rem' }}>
-                                <label style={{
-                                    display: 'block', fontSize: '0.7rem', fontWeight: 800,
-                                    textTransform: 'uppercase', letterSpacing: '0.06em',
-                                    color: 'var(--color-text-muted)', marginBottom: '0.4rem'
-                                }}>
-                                    Desarrollo / Puntos Tratados
-                                </label>
+                                <label className="toolbox-input-label">Desarrollo / Puntos Tratados</label>
                                 <textarea value={form.desarrollo}
                                     onChange={e => setForm(f => ({ ...f, desarrollo: e.target.value }))}
-                                    placeholder="Describí los puntos principales de la charla..."
+                                    placeholder="Describí los puntos principales de la charla, consultas del personal, acuerdos..."
                                     className="toolbox-input-plain toolbox-focus-glow"
-                                    style={{ minHeight: 100, resize: 'vertical', fontFamily: 'inherit' }}
+                                    style={{ minHeight: '120px', resize: 'vertical', lineHeight: '1.5' }}
                                 />
                             </div>
 
