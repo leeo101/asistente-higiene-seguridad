@@ -339,6 +339,9 @@ export const SYNC_COLLECTIONS: string[] = [
   'risk_map_history',
   'contractors_data',
   'workers_data',
+  'extinguishers_inventory',
+  'extintores_inventory',
+  'extintores_history'
 ];
 
 
