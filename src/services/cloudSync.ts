@@ -329,3 +329,32 @@ export async function pullAllFromCloud(uid: string): Promise<void> {
     }
   }
 }
+
+/**
+ * Sube TODO desde localStorage → Firestore (Force Sync / Backup).
+ */
+export async function pushAllToCloud(uid: string): Promise<void> {
+  if (!uid) return;
+  
+  for (const key of SYNC_COLLECTIONS) {
+    const raw = localStorage.getItem(key);
+    if (raw) {
+      try {
+        await saveCollection(uid, key, JSON.parse(raw));
+      } catch {
+        // ignore
+      }
+    }
+  }
+  
+  for (const key of SYNC_DOCUMENTS) {
+    const raw = localStorage.getItem(key);
+    if (raw) {
+      try {
+        await saveDocument(uid, key, JSON.parse(raw));
+      } catch {
+        // ignore
+      }
+    }
+  }
+}
