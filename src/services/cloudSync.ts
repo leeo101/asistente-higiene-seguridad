@@ -341,7 +341,22 @@ export const SYNC_COLLECTIONS: string[] = [
   'workers_data',
   'extinguishers_inventory',
   'extintores_inventory',
-  'extintores_history'
+  'extintores_history',
+  'accident_history',
+  'drills_history',
+  'ehs_audit_findings_db',
+  'ehs_drills_db',
+  'evacuation_simulator_db',
+  'fleet_inspections_db',
+  'lifting_plans_db',
+  'noise_workers_db',
+  'safety_calendar_events',
+  'stop_cards_history',
+  'training_history',
+  'training_sessions_db',
+  'thermal_history',
+  'legislation_favorites',
+  'legislation_notes'
 ];
 
 
