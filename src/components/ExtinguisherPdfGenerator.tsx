@@ -88,6 +88,10 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
                                 padding-bottom: 0 !important;
                                 min-height: 0 !important;
                                 margin: 0 !important;
+                                display: block !important;
+                            }
+                            #extinguisher-pdf-wrap > div {
+                                display: block !important;
                             }
                             .company-logo {
                                 -webkit-print-color-adjust: exact !important;
