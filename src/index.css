@@ -2736,8 +2736,9 @@ svg.ph-duotone [opacity="0.2"] {
 
 /* Solo mostrar el offscreen que contiene el elemento marcado para imprimir */
 body.printing-isolated .ats-pdf-offscreen:has(.isolated-print-target) {
-  position: static !important;
-  left: auto !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
   opacity: 1 !important;
   width: 100% !important;
   overflow: visible !important;
@@ -2770,8 +2771,9 @@ body.printing-isolated #pdf-content.ats-pdf-root,
   /* Mostrar el offscreen que contiene el target marcado o el #pdf-content */
   body:not(.printing-isolated) .ats-pdf-offscreen:has(.isolated-print-target),
   body:not(.printing-isolated) .ats-pdf-offscreen:has(#pdf-content) {
-    position: static !important;
-    left: auto !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
     opacity: 1 !important;
     width: 100% !important;
     pointer-events: none;
