@@ -22,7 +22,8 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         'position: absolute', // absolute allows element to grow indefinitely without viewport clipping
         'left: -9999px', // Mover lejos del viewport para que no se vea debajo del modal
         'top: 0',
-        'width: ' + (isLandscape ? '1122px' : '794px'), // Ancho exacto en px para evitar recortes en móvil
+        'width: ' + (isLandscape ? '1280px' : '1024px'), // Ancho de desktop para forzar CSS grid y media queries
+
         'height: auto',
         'overflow: visible',
         'visibility: visible',
@@ -58,7 +59,30 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
     offscreenContainer.appendChild(clone);
     document.body.appendChild(offscreenContainer);
 
-    // Prevent html2canvas from clipping on mobile due to overflow-x: hidden
+    // Eliminar restricciones de altura y overflow en todos los elementos del clon
+    // que puedan causar recortes en html2canvas
+    const allChildren = clone.querySelectorAll('*');
+    allChildren.forEach((el: Element) => {
+        const htmlEl = el as HTMLElement;
+        const style = window.getComputedStyle(htmlEl);
+        if (style.overflow === 'hidden' || style.overflow === 'auto' || style.overflowY === 'auto' || style.overflowY === 'scroll') {
+            // Evitar remover overflow:hidden de elementos pequeños que lo usan para border-radius (ej. avatares, progress bars)
+            if (htmlEl.clientHeight > 200) {
+                htmlEl.style.setProperty('overflow', 'visible', 'important');
+                htmlEl.style.setProperty('overflow-y', 'visible', 'important');
+            }
+        }
+        if (style.maxHeight !== 'none' && htmlEl.clientHeight > 200) {
+            htmlEl.style.setProperty('max-height', 'none', 'important');
+        }
+        if (htmlEl.classList.contains('h-screen') || htmlEl.classList.contains('max-h-screen') || htmlEl.classList.contains('overflow-y-auto') || htmlEl.classList.contains('overflow-hidden')) {
+            htmlEl.classList.remove('h-screen', 'max-h-screen', 'overflow-y-auto');
+            if (htmlEl.clientHeight > 200) {
+                htmlEl.classList.remove('overflow-hidden');
+            }
+        }
+    });
+
     document.documentElement.classList.add('pdf-export-mode');
     document.body.classList.add('pdf-export-mode');
 
@@ -72,20 +96,22 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         const isMobileCanvas = window.innerWidth < 768 || ('ontouchstart' in window);
         
         // El límite máximo seguro de área para un canvas en iOS/Safari móvil es ~16.777.216 píxeles.
-        // Superar este límite causa recortes (canvas en blanco) o crashes de memoria.
-        const MAX_CANVAS_AREA = 16000000;
-        const widthPx = isLandscape ? 1122 : 794;
-        const totalHeight = clone.scrollHeight;
+        // Superar este límite causa recortes (canvas en blanco, solo 1 hoja) o crashes de memoria.
+        const MAX_CANVAS_AREA = 15000000; // Un poco menos de 16M para margen de seguridad
+        const widthPx = isLandscape ? 1280 : 1024;
+        const totalHeight = Math.max(clone.scrollHeight, clone.clientHeight);
         const totalArea = widthPx * totalHeight;
         
-        // Calculamos la escala máxima permitida matemáticamente para no exceder los 16 millones de píxeles
+        // Calculamos la escala máxima permitida matemáticamente para no exceder el límite
         const maxSafeScale = Math.sqrt(MAX_CANVAS_AREA / totalArea);
         
         // En desktop usamos scale 2 (máxima calidad). En móvil, empezamos con 1.5 o bajamos si es muy largo.
         let dynamicScale = isMobileCanvas ? Math.min(1.5, maxSafeScale) : Math.min(2, maxSafeScale);
         
-        // Evitamos que baje de 0.8 para no perder legibilidad
-        dynamicScale = Math.max(0.8, dynamicScale);
+        // NUNCA superar maxSafeScale o el canvas se cortará en iOS.
+        // Si el reporte es kilométrico, el scale será < 1, perdiendo algo de nitidez pero asegurando que no se corte.
+        dynamicScale = Math.min(dynamicScale, maxSafeScale);
+
 
         const opt = {
             margin: [10, 0, 15, 0], // Top: 10mm, Right: 0, Bottom: 15mm (espacio para el pie), Left: 0
@@ -96,7 +122,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
                 useCORS: true, 
                 allowTaint: true,
                 logging: false,
-                windowWidth: isLandscape ? 1122 : 794,
+                windowWidth: isLandscape ? 1280 : 1024,
                 windowHeight: totalHeight // ensure full height is captured
             },
             jsPDF: { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' },
