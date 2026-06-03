@@ -111,7 +111,15 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
             overflowX: 'auto'
         }}>
             {/* Table layout: the most stable structure for html2canvas — avoids flexbox clipping */}
-            <table style={{ width: '100%', minWidth: '550px', borderCollapse: 'separate', borderSpacing: '8px', tableLayout: 'fixed' }}>
+            <table style={{ 
+                width: boxes.length === 1 ? '38%' : (boxes.length === 2 ? '75%' : '100%'), 
+                minWidth: `${boxes.length * 200}px`, 
+                marginLeft: 'auto',
+                marginRight: boxes.length === 1 ? '0' : 'auto',
+                borderCollapse: 'separate', 
+                borderSpacing: '8px', 
+                tableLayout: 'fixed' 
+            }}>
                 <tbody>
                     <tr>
                         {boxes.map((box, idx) => {

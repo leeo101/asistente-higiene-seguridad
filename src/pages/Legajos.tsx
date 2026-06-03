@@ -86,7 +86,7 @@ export default function Legajos() {
     // Give it a moment to render the hidden DOM before calling print
     setTimeout(() => {
         window.print();
-        setTimeout(() => setPrintingLegajo(null), 1000);
+        setTimeout(() => setPrintingLegajo(null), 8000); // Increased to 8s to give Android print spooler time to capture DOM before unmount
     }, 500);
   };
 

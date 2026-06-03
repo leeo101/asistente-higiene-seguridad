@@ -252,19 +252,15 @@ export default function ExtintoresManager() {
         setPrintItem(filtered);
         
         setTimeout(() => {
-            const element = document.getElementById('pdf-content');
-            if (!element) return;
-            
-            // Forzar ocultamiento del contenedor raíz para evitar problemas de centrado vertical 
-            // en navegadores móviles que no soportan bien CSS :has()
-            const root = document.getElementById('root');
-            if (root) root.style.display = 'none';
+            // Ya no ocultamos el root, porque si el body queda vacío (sin altura), 
+            // Android Chrome centra verticalmente los elementos con position: absolute.
+            // Al dejar el root invisible (por CSS) pero ocupando espacio, y el PDF en position: absolute top 0,
+            // garantizamos que quede pegado arriba.
             
             window.print();
             
             // Wait 10 seconds before clearing to allow Android's print spooler to capture the DOM
             setTimeout(() => {
-                if (root) root.style.display = '';
                 setPrintItem(null);
             }, 10000);
         }, 500);
@@ -503,7 +499,11 @@ export default function ExtintoresManager() {
                 fileName={Array.isArray(shareItem) ? `Inventario_Extintores_${filterEmpresa || 'Completo'}.pdf` : `Ficha_Extintor_${shareItem?.numero || 'Reporte'}.pdf`} 
             />
             {createPortal(
-                <div className="ats-pdf-offscreen" aria-hidden="true">
+                <div 
+                    className="ats-pdf-offscreen" 
+                    aria-hidden="true"
+                    style={printItem ? { position: 'relative', top: 0, left: 0, width: '100%', display: 'block', margin: 0, padding: 0 } : {}}
+                >
                     {(printItem && !Array.isArray(printItem)) || (shareItem && !Array.isArray(shareItem)) ? (
                         <ExtinguisherProfilePdf data={printItem || shareItem || formData} isHeadless={true} />
                     ) : (

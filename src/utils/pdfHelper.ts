@@ -70,13 +70,22 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         await new Promise(resolve => setTimeout(resolve, 500));
 
         const isMobileCanvas = window.innerWidth < 768 || ('ontouchstart' in window);
-        let dynamicScale = isMobileCanvas ? 1.5 : 2;
-
-        // Limitar la altura máxima del canvas para que no crashee en celulares (Límite típico: ~4000px en iOS)
-        const totalHeight = clone.scrollHeight + 100;
-        if (isMobileCanvas && (totalHeight * dynamicScale > 4000)) {
-            dynamicScale = Math.max(1, 4000 / totalHeight);
-        }
+        
+        // El límite máximo seguro de área para un canvas en iOS/Safari móvil es ~16.777.216 píxeles.
+        // Superar este límite causa recortes (canvas en blanco) o crashes de memoria.
+        const MAX_CANVAS_AREA = 16000000;
+        const widthPx = isLandscape ? 1122 : 794;
+        const totalHeight = clone.scrollHeight;
+        const totalArea = widthPx * totalHeight;
+        
+        // Calculamos la escala máxima permitida matemáticamente para no exceder los 16 millones de píxeles
+        const maxSafeScale = Math.sqrt(MAX_CANVAS_AREA / totalArea);
+        
+        // En desktop usamos scale 2 (máxima calidad). En móvil, empezamos con 1.5 o bajamos si es muy largo.
+        let dynamicScale = isMobileCanvas ? Math.min(1.5, maxSafeScale) : Math.min(2, maxSafeScale);
+        
+        // Evitamos que baje de 0.8 para no perder legibilidad
+        dynamicScale = Math.max(0.8, dynamicScale);
 
         const opt = {
             margin: [10, 0, 15, 0], // Top: 10mm, Right: 0, Bottom: 15mm (espacio para el pie), Left: 0

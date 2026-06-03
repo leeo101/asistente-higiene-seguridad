@@ -170,6 +170,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
                                                 <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
                                                     <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>CHAPA</th>
                                                     <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>TIPO / CAP.</th>
+                                                    <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>F. FABRICACIÓN</th>
                                                     <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>UBICACIÓN</th>
                                                     <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>VENC. CARGA</th>
                                                     <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>VENC. PH</th>
@@ -182,10 +183,21 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
                                                     const sPH = getPHStatus(ext?.ultimaPH || ext?.vencimientoPH);
                                                     const lastInspection = ext?.inspections && ext.inspections.length > 0 ? ext.inspections[ext.inspections.length - 1] : null;
 
+                                                    let fFabricacionStr = '-';
+                                                    if (ext?.fechaFabricacion) {
+                                                        try {
+                                                            const f = new Date(ext.fechaFabricacion + 'T12:00:00Z');
+                                                            if (!isNaN(f.getTime())) {
+                                                                fFabricacionStr = f.toLocaleDateString('es-AR');
+                                                            }
+                                                        } catch (e) { }
+                                                    }
+
                                                     return (
                                                         <tr key={`${empresa}-${idx}`} style={{ borderBottom: '1px solid #e2e8f0', background: idx % 2 === 0 ? '#ffffff' : '#f8fafc', pageBreakInside: 'avoid' }}>
                                                             <td style={{ padding: '8px', fontWeight: 900, color: '#0f172a' }}>{ext?.chapa || ext?.numero || '-'}</td>
                                                             <td style={{ padding: '8px', color: '#334155', fontWeight: 600 }}>{ext?.tipo || 'N/A'} {ext?.capacidad ? `- ${ext.capacidad}` : ''}</td>
+                                                            <td style={{ padding: '8px', color: '#475569', fontWeight: 600 }}>{fFabricacionStr}</td>
                                                             <td style={{ padding: '8px', color: '#475569' }}>{ext?.ubicacion || 'Sin ubicación'}</td>
                                                             <td style={{ padding: '8px', color: sCarga.color, fontWeight: 700 }}>{sCarga.vto}</td>
                                                             <td style={{ padding: '8px', color: sPH.color, fontWeight: 700 }}>{sPH.vto}</td>

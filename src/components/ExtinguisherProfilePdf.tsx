@@ -350,6 +350,42 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                     {latestInspection.observaciones}
                                 </div>
                             )}
+
+                            {/* FOTOS DE INSPECCIÓN */}
+                            {((latestInspection.fotos && latestInspection.fotos.length > 0) || (latestInspection.items && latestInspection.items.some(i => i.photos && i.photos.length > 0))) && (
+                                <div style={{ marginTop: '15px', borderTop: '2px dashed #cbd5e1', paddingTop: '15px', pageBreakInside: 'avoid' }}>
+                                    <h4 style={{ margin: '0 0 10px 0', fontSize: '10pt', color: '#0f172a', fontWeight: 800 }}>📸 Evidencia Fotográfica</h4>
+                                    
+                                    {/* Fotos Generales */}
+                                    {latestInspection.fotos && latestInspection.fotos.length > 0 && (
+                                        <div style={{ marginBottom: '10px' }}>
+                                            <span style={{ fontSize: '9pt', fontWeight: 700, color: '#64748b', display: 'block', marginBottom: '6px' }}>General:</span>
+                                            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                                                {latestInspection.fotos.map((foto, fIdx) => (
+                                                    <img key={`gen-f-${fIdx}`} src={foto} alt="Evidencia" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #cbd5e1' }} />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Fotos por Ítem */}
+                                    {latestInspection.items && latestInspection.items.some(i => i.photos && i.photos.length > 0) && (
+                                        <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                                            {latestInspection.items.filter(i => i.photos && i.photos.length > 0).map((item, idx) => (
+                                                <div key={`item-f-${idx}`} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                                    <span style={{ fontSize: '8pt', fontWeight: 700, color: '#475569', maxWidth: '120px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.text}</span>
+                                                    <div style={{ display: 'flex', gap: '5px' }}>
+                                                        {item.photos.map((foto, pIdx) => (
+                                                            <img key={`ip-${idx}-${pIdx}`} src={foto} alt="Evidencia Ítem" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             </div>
                         )}
                         </div>

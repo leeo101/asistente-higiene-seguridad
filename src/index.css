@@ -2762,10 +2762,18 @@ body.printing-isolated #pdf-content.ats-pdf-root,
 }
 
 @media print {
-  /* To prevent the main app from taking vertical space and pushing offscreen portals down */
-  body:has(.ats-pdf-offscreen:has(.isolated-print-target)) #root,
-  body:has(.ats-pdf-offscreen:has(#pdf-content)) #root {
-    display: none !important;
+  /* En lugar de ocultar #root con display:none (lo que causa el bug de centrado en Android),
+     lo removemos del flujo del documento con position: absolute y height: 0. 
+     Así el contenedor PDF (que es relative/static) sube directamente al top: 0 y
+     proporciona la altura del documento, evitando el centrado vertical. */
+  #root {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    visibility: hidden !important;
   }
 }
 
@@ -3752,7 +3760,7 @@ body.printing-isolated #pdf-content.ats-pdf-root,
 /* --- FIX BLANK PAGES ON PRINT --- */
 @media print {
     .report-print, .print-area, #pdf-content {
-        min-height: 99vh !important;
+        min-height: auto !important;
         height: auto !important;
     }
 }
@@ -3760,7 +3768,7 @@ body.printing-isolated #pdf-content.ats-pdf-root,
 .ats-pdf-offscreen .report-print,
 .ats-pdf-offscreen .print-area,
 .ats-pdf-offscreen #pdf-content {
-    min-height: 99vh !important;
+    min-height: auto !important;
     height: auto !important;
 }
 

@@ -264,23 +264,22 @@ export default function ExtinguisherInspection() {
                                 
                                 <label style={{ padding: '0 0.8rem', background: 'rgba(37,99,235,0.05)', color: '#2563eb', border: '1px solid rgba(37,99,235,0.2)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', marginLeft: 'auto' }} title="Agregar Foto">
                                     <Camera size={18} />
-                                    <input type="file" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={e => handlePhoto(idx, e.target.files)} />
+                                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handlePhoto(idx, e.target.files)} />
                                 </label>
                             </div>
 
-                            {item.status === 'NC' && (
-                                <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px dashed var(--color-border)' }}>
-                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                        <input 
-                                            type="text" 
-                                            placeholder="Detallar anomalía..." 
-                                            value={item.notes} 
-                                            onChange={e => handleNotes(idx, e.target.value)} 
-                                            style={{ flex: 1, padding: '0.6rem', fontSize: '0.8rem', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--color-surface)', outline: 'none' }} 
-                                        />
-                                    </div>
+                            <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px dashed var(--color-border)' }}>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <input 
+                                        type="text" 
+                                        placeholder="Observaciones / Detalles..." 
+                                        value={item.notes} 
+                                        onChange={e => handleNotes(idx, e.target.value)} 
+                                        style={{ flex: 1, padding: '0.6rem', fontSize: '0.8rem', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--color-surface)', outline: 'none' }} 
+                                    />
                                 </div>
-                            )}
+                            </div>
+                            
                             {item.photos.length > 0 && (
                                 <div className="animate-fade-in" style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
                                     {item.photos.map((p, pIdx) => (
@@ -304,8 +303,8 @@ export default function ExtinguisherInspection() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-text)', textTransform: 'uppercase' }}>Evidencia General</label>
                     <label style={{ padding: '0.5rem 1rem', background: 'rgba(37,99,235,0.1)', color: '#2563eb', border: '1px solid rgba(37,99,235,0.2)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', fontWeight: 700 }}>
-                        <Camera size={16} /> Capturar
-                        <input type="file" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={e => handleGeneralPhoto(e.target.files)} />
+                        <Camera size={16} /> Agregar Foto
+                        <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleGeneralPhoto(e.target.files)} />
                     </label>
                 </div>
                 {generalPhotos.length > 0 && (
