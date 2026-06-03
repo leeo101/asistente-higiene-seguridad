@@ -54,8 +54,8 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
     };
 
     return (
-        <div id="extinguisher-pdf-wrap" className="container" style={{ paddingBottom: '3rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ flex: 1, display: 'flex', justifyContent: 'center', overflowX: 'auto' }}>
+        <div id="extinguisher-pdf-wrap" className="container" style={{ paddingBottom: '3rem' }}>
+            <div style={{ overflowX: 'auto' }}>
                 <div
                     id="pdf-content"
                     className="pdf-container card print-area"

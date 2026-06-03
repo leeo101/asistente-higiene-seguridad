@@ -2781,6 +2781,10 @@ body.printing-isolated #pdf-content.ats-pdf-root,
   body:not(.printing-isolated) .ats-pdf-offscreen:has(#pdf-content) {
     position: static !important;
     left: auto !important;
+    top: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+    min-height: 0 !important;
     opacity: 1 !important;
     width: 100% !important;
     pointer-events: none;
