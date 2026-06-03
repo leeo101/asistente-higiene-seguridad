@@ -6,7 +6,7 @@ import {
     XCircle, Clock, User, Calendar,
     Zap, Shield, AlertTriangle, BarChart3,
     TrendingUp, Target, Activity, Share2, Volume2,
-    Wind, Info, Play, Printer, VolumeX, Mic
+    Wind, Info, Play, Printer, VolumeX, Mic, ArrowLeft
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import NoiseAssessmentPdf from '../components/NoiseAssessmentPdf';
@@ -202,6 +202,16 @@ export default function NoiseAssessment(): React.ReactElement | null {
                 gap: '1rem'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás" style={{
+                        background: 'rgba(255,255,255,0.1)',
+                        border: 'none',
+                        borderRadius: '12px',
+                        padding: '10px',
+                        cursor: 'pointer',
+                        color: 'white'
+                    }}>
+                        <ArrowLeft size={20} />
+                    </button>
                     <div style={{
                         width: '56px',
                         height: '56px',

@@ -657,6 +657,34 @@ a:hover {
   box-shadow: var(--shadow-md);
 }
 
+.btn-back-premium {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.btn-back-premium:hover {
+  transform: translateX(-3px);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background: var(--color-surface-hover);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-back-premium:active {
+  transform: translateX(-1px);
+}
+
 .btn-success {
   background: linear-gradient(135deg, #10b981, #059669);
   color: white;
@@ -2727,11 +2755,11 @@ svg.ph-duotone [opacity="0.2"] {
 /* ─── ATS PDF / Print ─── */
 .ats-pdf-offscreen {
   position: absolute;
-  left: -12000px;
+  left: 0;
   top: 0;
   width: 210mm;
   pointer-events: none;
-  z-index: -1;
+  z-index: -9999;
   overflow: visible;
 }
 
@@ -2762,19 +2790,7 @@ body.printing-isolated #pdf-content.ats-pdf-root,
 }
 
 @media print {
-  /* En lugar de ocultar #root con display:none (lo que causa el bug de centrado en Android),
-     lo removemos del flujo del documento con position: absolute y height: 0. 
-     Así el contenedor PDF (que es relative/static) sube directamente al top: 0 y
-     proporciona la altura del documento, evitando el centrado vertical. */
-  #root {
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    height: 0 !important;
-    min-height: 0 !important;
-    overflow: hidden !important;
-    visibility: hidden !important;
-  }
+  /* Removed broken #root print hide rule that was causing blank PDF generation */
 }
 
 @media print {

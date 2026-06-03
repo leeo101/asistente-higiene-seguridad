@@ -5,7 +5,7 @@ import {
     FileText, Eye, Edit3, Trash2, CheckCircle2, 
     XCircle, Clock, User, Calendar,
     Shield, TrendingUp, AlertTriangle, BarChart3,
-    Activity, CheckSquare, XSquare, Star, Target, Share2
+    Activity, CheckSquare, XSquare, Star, Target, Share2, ArrowLeft
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import AuditPdf from '../components/AuditPdf';
@@ -305,6 +305,9 @@ export default function AuditManager(): React.ReactElement | null {
                 gap: '1rem'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                        <ArrowLeft size={20} />
+                    </button>
                     <div style={{
                         width: '56px',
                         height: '56px',

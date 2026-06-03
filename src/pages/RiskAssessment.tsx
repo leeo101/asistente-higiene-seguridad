@@ -210,8 +210,7 @@ export default function RiskAssessment(): React.ReactElement | null {
 
             {/* Floating Action Bar */}
             <div className="no-print floating-action-bar">
-                <button
-                    onClick={handleSave}
+                <button onClick={handleSave}
                     className="btn-floating-action"
                     style={{ background: '#36B37E', color: '#ffffff' }}
                 >
@@ -235,9 +234,9 @@ export default function RiskAssessment(): React.ReactElement | null {
 
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-                <button onClick={() => navigate(-1)} style={{ padding: '0.6rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '12px', cursor: 'pointer', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
-                    <ArrowLeft size={20} />
-                </button>
+                <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft size={20}  />
+                        </button>
                 <div>
                     <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 800 }}>
                         {editData ? 'Editar Matriz de Riesgo' : 'Evaluación de Riesgo'}

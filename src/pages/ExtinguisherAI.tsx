@@ -438,8 +438,8 @@ export default function ExtinguisherAI(): React.ReactElement | null {
                 <>
                 {/* Floating action bar for form mode */}
                 <div className="no-print floating-action-bar">
-                    <button onClick={() => { setIsCameraVisible(false); setAnalysisResult(null); setCapturedImage(null); }} className="btn-floating-action" style={{ background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}>
-                        <ArrowLeft size={18} /> ATRÁS
+                    <button onClick={() => { setIsCameraVisible(false); setAnalysisResult(null); setCapturedImage(null); } } className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft size={18} /> ATRÁS
                     </button>
                     {analysisResult && (
                         <>
@@ -522,8 +522,8 @@ export default function ExtinguisherAI(): React.ReactElement | null {
                                     backdropFilter: 'blur(10px)'
                                 }}
                             >
-                                <FlipHorizontal size={20} />
-                            </button>
+                                <FlipHorizontal size={20}  />
+                        </button>
                             
                             <button
                                 onClick={handleCapture}

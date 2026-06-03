@@ -214,9 +214,9 @@ export default function ExtinguisherInspection() {
         <div className="container" style={{ maxWidth: '600px', paddingBottom: '6rem' }}>
             {/* Mobile-optimized Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-                <button onClick={() => navigate('/extintores')} style={{ padding: '0.6rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '12px', cursor: 'pointer', color: 'var(--color-text)' }}>
-                    <ArrowLeft size={20} />
-                </button>
+                <button onClick={() => navigate('/extintores')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft size={20}  />
+                        </button>
                 <div>
                     <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-text)' }}>
                         <Flame size={20} color="#ef4444" /> {extintor.numero}

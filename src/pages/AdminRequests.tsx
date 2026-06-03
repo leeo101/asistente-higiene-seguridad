@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
-import { UserPlus, Trash2, Mail, Phone, Briefcase, RefreshCw, AlertCircle } from 'lucide-react';
+import { UserPlus, Trash2, Mail, Phone, Briefcase, RefreshCw, AlertCircle, ArrowLeft } from 'lucide-react';
 
 import toast from 'react-hot-toast';
 
@@ -61,7 +61,10 @@ export default function AdminRequests(): React.ReactElement | null {
         <div className="container pb-20">
             <header className="header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div className="icon-wrapper" style={{ cursor: 'pointer' }} onClick={() => navigate(-1)}>
+                    <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                        <ArrowLeft size={20} />
+                    </button>
+                    <div className="icon-wrapper">
                         <UserPlus className="text-primary" size={24} />
                     </div>
                     <div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Crown } from 'lucide-react';
+import { Sparkles, Crown, ArrowLeft } from 'lucide-react';
 
 interface PremiumHeaderProps {
   title: string;
@@ -8,6 +8,7 @@ interface PremiumHeaderProps {
   size?: string;
   color?: string;
   gradient?: string;
+  onBack?: () => void;
   children?: React.ReactNode;
 }
 
@@ -15,6 +16,7 @@ export default function PremiumHeader({
   title,
   subtitle,
   icon,
+  onBack,
   children
 }: PremiumHeaderProps): React.ReactElement {
   return (
@@ -53,6 +55,21 @@ export default function PremiumHeader({
         justifyContent: 'center',
         textAlign: 'center'
       }}>
+        {onBack && (
+          <button 
+            onClick={onBack} 
+            className="btn-back-premium" 
+            title="Volver" 
+            aria-label="Volver atrás"
+            style={{
+              marginRight: '0.5rem',
+              flexShrink: 0
+            }}
+          >
+            <ArrowLeft size={20} />
+          </button>
+        )}
+
         {icon && (
           <div style={{
             width: 'clamp(50px, 15vw, 70px)',

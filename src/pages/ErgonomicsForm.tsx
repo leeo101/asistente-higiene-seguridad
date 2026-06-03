@@ -127,6 +127,7 @@ export default function ErgonomicsForm(): React.ReactElement | null {
                 title={editData ? 'Editar Estudio Ergonómico' : 'Nuevo Estudio Ergonómico'}
                 subtitle="Protocolo Res. SRT 886/15"
                 icon={<Accessibility size={36} />}
+                onBack={() => navigate(-1)}
             />
 
             {/* Stepper Header */}

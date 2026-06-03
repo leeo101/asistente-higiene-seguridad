@@ -235,9 +235,9 @@ export default function ContractorManagement() {
             gap: isMobile ? '1rem' : '0'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%' }}>
-              <button onClick={() => navigate(-1)} className="icon-btn" style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: 'white', padding: '0.5rem', borderRadius: '8px', cursor: 'pointer', flexShrink: 0 }}>
-                <ArrowLeft size={20} />
-              </button>
+              <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft size={20}  />
+                        </button>
               <div style={{ flex: 1 }}>
                 <h1 style={{ margin: 0, fontSize: isMobile ? '1.2rem' : '1.5rem', fontWeight: 800, color: 'var(--color-heading)' }}>Contratistas</h1>
                 <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Control documental</p>

@@ -5,7 +5,7 @@ import {
     FileText, Eye, Edit3, Trash2, CheckCircle2,
     XCircle, Clock, User, Calendar,
     Shield, Zap, Settings, AlertCircle,
-    TrendingUp, BarChart3, Activity, Share2
+    TrendingUp, BarChart3, Activity, Share2, ArrowLeft
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import LOTOPdf from '../components/LOTOPdf';
@@ -250,6 +250,9 @@ export default function LOTOManager(): React.ReactElement | null {
                 color: '#fff'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                        <ArrowLeft size={20} />
+                    </button>
                     <div style={{
                         width: '56px',
                         height: '56px',

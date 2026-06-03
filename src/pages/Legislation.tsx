@@ -156,12 +156,9 @@ export default function Legislation(): React.ReactElement | null {
     return (
         <div className="container" style={{ paddingBottom: '3rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', marginTop: '1rem' }}>
-                <button
-                    onClick={() => navigate('/#tools')}
-                    style={{ background: 'none', border: 'none', padding: 0, color: 'var(--color-text)', cursor: 'pointer' }}
-                >
-                    <ArrowLeft size={24} />
-                </button>
+                <button onClick={() => navigate('/#tools')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft size={24}  />
+                        </button>
                 <div style={{ flex: 1 }}>
                     <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Leyes y Normas</h1>
                     <select 

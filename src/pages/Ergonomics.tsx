@@ -69,8 +69,9 @@ export default function Ergonomics(): React.ReactElement | null {
 
             <PremiumHeader
                 title="Protocolo de Ergonomía"
-                subtitle="Res. SRT 886/15 — Evaluación disergonómica"
+                subtitle="Res. SRT 886/15 • Evaluación disergonómica"
                 icon={<Accessibility size={36} />}
+                onBack={() => navigate(-1)}
             />
 
             <button

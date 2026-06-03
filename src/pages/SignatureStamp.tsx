@@ -193,8 +193,7 @@ export default function SignatureStamp(): React.ReactElement | null {
             )}
 
             <div style={{ display: 'flex', gap: '0.8rem', marginTop: '1rem' }}>
-                <button
-                    onClick={() => clearCanvas(type)}
+                <button onClick={() => clearCanvas(type)}
                     style={{
                         flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
                         padding: '0.8rem',
@@ -260,10 +259,9 @@ export default function SignatureStamp(): React.ReactElement | null {
                         transition: 'all 0.2s'
                     }}
                     onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-surface-hover)'}
-                    onMouseLeave={(e) => e.currentTarget.style.background = 'var(--color-surface)'}
-                >
-                    <ArrowLeft size={20} />
-                </button>
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'var(--color-surface)'} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft size={20}  />
+                        </button>
                 <div>
                     <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, letterSpacing: '-0.5px' }}>Firma y Sello Digital</h1>
                     <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>Dibujá o subí tu firma y sello profesional</p>

@@ -78,9 +78,9 @@ export default function Photos(): React.ReactElement | null {
     return (
         <div className="container" style={{ paddingBottom: '5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                <button onClick={() => navigate(-1)} style={{ padding: '0.8rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '12px', cursor: 'pointer', color: 'var(--color-text)', display: 'flex' }}>
-                    <ArrowLeft size={20} />
-                </button>
+                <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft size={20}  />
+                        </button>
                 <div>
                     <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Registro Fotográfico</h1>
                     <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>

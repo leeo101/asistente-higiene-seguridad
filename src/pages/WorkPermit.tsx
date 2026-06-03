@@ -417,8 +417,8 @@ export default function WorkPermit(): React.ReactElement | null {
             ) : (
                 <AnimatedPage>
                     <div style={{ marginBottom: '1.5rem' }}>
-                        <button onClick={() => setShowForm(false)} className="hover-lift" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '8px', cursor: 'pointer', color: 'var(--color-text)', fontWeight: 800, fontSize: '0.85rem' }}>
-                            <ArrowLeft size={18} /> VOLVER
+                        <button onClick={() => setShowForm(false)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft size={18} /> 
                         </button>
                     </div>
             <ShareModal
@@ -598,8 +598,8 @@ export default function WorkPermit(): React.ReactElement | null {
                                 </div>
                                 <div className="no-print text-right">
                                     <button onClick={() => removeChecklistItem(item.id)} style={{ background: 'transparent', border: 'none', color: '#ff4d4f', cursor: 'pointer' }}>
-                                        <Trash2 size={16} />
-                                    </button>
+                                        <Trash2 size={16}  />
+                        </button>
                                 </div>
                             </div>
                         ))}

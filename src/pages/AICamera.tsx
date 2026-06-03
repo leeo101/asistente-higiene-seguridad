@@ -355,9 +355,9 @@ export default function AICamera(): React.ReactElement | null {
     return (
         <div className="container" style={{ paddingBottom: '3rem', position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', zIndex: 10 }}>
-                <button onClick={() => navigate('/ai-camera-manager')} style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.1)', border: 'none', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-primary)' }}>
-                    <ArrowLeft />
-                </button>
+                <button onClick={() => navigate('/ai-camera-manager')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft  size={20} />
+                        </button>
                 <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Escaneo con IA</h1>
             </div>
 

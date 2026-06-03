@@ -227,22 +227,9 @@ export default function EmergencyBot(): React.ReactElement | null {
                 borderRadius: '12px',
                 color: '#ffffff'
             }}>
-                <button 
-                    onClick={() => navigate('/#tools')} 
-                    style={{ 
-                        padding: '0.5rem', 
-                        background: 'rgba(255,255,255,0.2)', 
-                        border: 'none', 
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        color: '#ffffff',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                    }}
-                >
-                    <ArrowLeft size={20} />
-                </button>
+                <button onClick={() => navigate('/#tools')} style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '8px', cursor: 'pointer', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft size={20}  />
+                        </button>
                 <div style={{ flex: 1 }}>
                     <h1 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 900 }}>
                         🚨 Chatbot de Emergencias

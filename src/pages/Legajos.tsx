@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, FileText, Download, Trash2, Edit, AlertCircle, Building2, Search, Filter, CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
+import { Plus, FileText, Download, Trash2, Edit, AlertCircle, Building2, Search, Filter, CheckCircle2, Clock, AlertTriangle, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
 import { db } from '../firebase';
@@ -164,6 +164,9 @@ export default function Legajos() {
           boxShadow: '0 10px 40px rgba(212,175,55,0.3)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+            <ArrowLeft size={20} />
+          </button>
           <div style={{ 
               width: '56px', height: '56px', borderRadius: '16px', 
               background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center',

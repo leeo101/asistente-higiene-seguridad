@@ -342,7 +342,9 @@ export default function AccidentInvestigation(): React.ReactElement | null {
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <button onClick={() => navigate('/#tools')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}><ArrowLeft size={20} /></button>
+                        <button onClick={() => navigate('/#tools')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft size={20}  />
+                        </button>
                         <div>
                             <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800 }}>Investigaciones de Accidentes</h1>
                             <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Registros de siniestros</p>
@@ -374,17 +376,12 @@ export default function AccidentInvestigation(): React.ReactElement | null {
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '6rem', paddingTop: '5.5rem' }}>
-            <div style={{ padding: '0 1rem 1rem 1rem', background: 'var(--color-background)', display: 'flex', alignItems: 'center' }}>
-                <button onClick={() => { setIsFormVisible(false); loadHistory(); }} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, color: 'var(--color-primary)' }}>
-                    <ArrowLeft size={18} /> Volver al Historial
-                </button>
-            </div>
-            
             <PremiumHeader 
                 title={isEdit ? 'Editar Investigación' : 'Investigación de Accidente'}
                 subtitle="Metodología Árbol de Causas"
                 icon={<AlertTriangle />}
                 color="#ef4444"
+                onBack={() => { setIsFormVisible(false); loadHistory(); }}
             />
 
             <main style={{ padding: '2rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
@@ -519,8 +516,8 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                                             style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: 'none', padding: '0.5rem', borderRadius: '8px', cursor: 'pointer' }}
                                             title="Eliminar Testigo"
                                         >
-                                            <Trash2 size={16} />
-                                        </button>
+                                            <Trash2 size={16}  />
+                        </button>
                                     )}
                                     <label style={labelStyle}>Nombre del Testigo {i + 1}</label>
                                     <input type="text" placeholder="Nombre completo o cargo" value={t.nombre} onChange={e => handleArrayChange('testigos', i, 'nombre', e.target.value)} style={{ ...inputStyle, marginBottom: '1rem' }} />

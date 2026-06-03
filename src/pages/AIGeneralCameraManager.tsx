@@ -115,13 +115,11 @@ export default function AIGeneralCameraManager(): React.ReactElement | null {
             <PremiumHeader
                 title="Riesgos IA"
                 subtitle="Análisis de entorno y hallazgos"
-                icon={<ShieldAlert size={36} />}
+                icon={<ShieldAlert size={36} />} onBack={() => navigate('/#tools')}
             />
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginTop: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-                <button onClick={() => navigate('/#tools')} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', padding: '0.8rem 1.2rem', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 700 }}>
-                    <ArrowLeft size={18} /> Volver
-                </button>
+                
 
                 <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                     <button
@@ -244,8 +242,8 @@ export default function AIGeneralCameraManager(): React.ReactElement | null {
                                     style={{ padding: '0.8rem', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: '12px', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                     title="Generar QR"
                                 >
-                                    <QrCode size={18} />
-                                </button>
+                                    <QrCode size={18}  />
+                        </button>
                                 <button
                                     onClick={() => setDeleteTarget(item.id)}
                                     style={{ padding: '0.8rem', background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '12px', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}

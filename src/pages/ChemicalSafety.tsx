@@ -4,7 +4,7 @@ import {
     FlaskConical, Plus, Search, Filter, Download,
     AlertTriangle, CheckCircle2, XCircle, FileText,
     Eye, Edit3, Trash2, Upload, Shield, Droplets,
-    Flame, Skull, Zap, Wind, Thermometer, Printer, Share2
+    Flame, Skull, Zap, Wind, Thermometer, Printer, Share2, ArrowLeft
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import ChemicalSafetyPdf from '../components/ChemicalSafetyPdf';
@@ -221,13 +221,11 @@ export default function ChemicalSafety(): React.ReactElement | null {
             <PremiumHeader
                 title="Productos Químicos"
                 subtitle={`Gestión GHS/SGA • ${chemicals.length} productos`}
-                icon={<FlaskConical size={36} />}
+                icon={<FlaskConical size={36} />} onBack={() => navigate(-1)}
             />
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginTop: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-                <button onClick={() => navigate('/#tools')} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', padding: '0.8rem 1.2rem', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 700 }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver
-                </button>
+                
 
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', width: isMobile ? '100%' : 'auto' }}>
                     <button

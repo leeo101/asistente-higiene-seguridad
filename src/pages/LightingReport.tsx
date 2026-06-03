@@ -304,7 +304,7 @@ export default function LightingReport(): React.ReactElement | null {
                 <PremiumHeader 
                     title="Estudios de Iluminación"
                     subtitle="Gestión e historial de estudios de iluminación y luxometría."
-                    icon={<Lightbulb size={32} color="#ffffff" />}
+                    icon={<Lightbulb size={32} color="#ffffff" />} onBack={() => setIsFormVisible(false)}
                     color="linear-gradient(135deg, #eab308, #ca8a04)"
                 />
                 
@@ -324,8 +324,7 @@ export default function LightingReport(): React.ReactElement | null {
                                 }}
                             />
                         </div>
-                        <button
-                            onClick={() => {
+                        <button onClick={() => {
                                 setFormData({
                                     empresa: '', sector: '', descripcionActividad: '', tipoTarea: '', luxRequerido: 500, conclusion: '',
                                     operatorSignature: '', supervisorSignature: '', mediciones: [{ id: Date.now().toString(), ubicacion: 'Puesto 1', luxMedido: 0 as any }]
@@ -412,9 +411,7 @@ export default function LightingReport(): React.ReactElement | null {
 
             {/* Floating Action Buttons */}
             <div className="no-print floating-action-bar">
-                <button onClick={() => setIsFormVisible(false)} className="btn-floating-action" style={{ background: '#64748b', color: 'white' }}>
-                    <ArrowLeft size={18} /> ATRÁS
-                </button>
+                
                 <button
                     onClick={saveReport}
                     className="btn-floating-action"
@@ -610,8 +607,8 @@ export default function LightingReport(): React.ReactElement | null {
                                                         style={{ background: 'rgba(239, 68, 68, 0.1)', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.5rem', borderRadius: '10px', display: 'inline-flex' }}
                                                         className="hover-lift"
                                                     >
-                                                        <Trash2 size={18} />
-                                                    </button>
+                                                        <Trash2 size={18}  />
+                        </button>
                                                 </td>
                                             </tr>
                                         ))}

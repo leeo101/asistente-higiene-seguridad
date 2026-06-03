@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     BarChart3, TrendingUp, TrendingDown, Shield, AlertTriangle,
     Clock, Users, Calendar, RefreshCw, Info, Target, Activity,
-    ChevronDown, ChevronUp, Save, Printer, X
+    ChevronDown, ChevronUp, Save, Printer, X, ArrowLeft
 } from 'lucide-react';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -284,6 +284,9 @@ export default function SafetyKPIs(): React.ReactElement {
                         boxShadow: '0 10px 40px rgba(212,175,55,0.3)'
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás" style={{ flexShrink: 0 }}>
+                                <ArrowLeft size={20} />
+                            </button>
                             <div style={{
                                 width: 56, height: 56, background: 'rgba(255,255,255,0.2)',
                                 borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -485,6 +488,7 @@ export default function SafetyKPIs(): React.ReactElement {
                     subtitle="Registrá los datos mensuales para calcular tus índices de seguridad automáticamente."
                     icon={<BarChart3 size={32} color="#ffffff" />}
                     color="linear-gradient(135deg, #d4af37, #b8860b)"
+                    onBack={() => { setShowForm(false); setEditing(null); }}
                 />
                 
                 <div className="card" style={{ padding: '2.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '24px', boxShadow: 'var(--shadow-lg)', marginTop: '1rem' }}>

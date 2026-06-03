@@ -125,6 +125,7 @@ function urgencyBadge(days: number) {
 
 export default function SafetyCalendar(): React.ReactElement | null {
     useDocumentTitle('Calendario HYS');
+    const navigate = useNavigate();
     const today = new Date();
     const [currentMonth, setCurrentMonth] = useState(today.getMonth());
     const [currentYear,  setCurrentYear]  = useState(today.getFullYear());

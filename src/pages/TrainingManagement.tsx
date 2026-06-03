@@ -373,9 +373,9 @@ export default function TrainingManagement(): React.ReactElement | null {
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                <button onClick={() => setShowExamForm(false)} className="btn-secondary hover-lift" style={{ padding: '0.5rem', borderRadius: '50%', background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}>
-                                    <ArrowLeft size={20} />
-                                </button>
+                                <button onClick={() => setShowExamForm(false)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft size={20}  />
+                        </button>
                                 <div>
                                     <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800 }}>Generador de Exámenes</h1>
                                     <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Cree plantillas en blanco para evaluar capacitaciones</p>
@@ -457,9 +457,9 @@ export default function TrainingManagement(): React.ReactElement | null {
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                <button onClick={() => { setShowForm(false); setEditingId(null); setFormData(initialFormState); setShowSignatures(initialFormState.showSignatures); }} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <ArrowLeft size={20} />
-                                </button>
+                                <button onClick={() => { setShowForm(false); setEditingId(null); setFormData(initialFormState); setShowSignatures(initialFormState.showSignatures); } } className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft size={20}  />
+                        </button>
                                 <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>{editingId ? 'Editar Capacitación' : 'Nueva Capacitación'}</h1>
                             </div>
                         </div>
@@ -627,9 +627,9 @@ export default function TrainingManagement(): React.ReactElement | null {
                         {/* HISTORY VIEW */}
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                <button onClick={() => navigate('/')} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)' }}>
-                                    <ArrowLeft size={20} />
-                                </button>
+                                <button onClick={() => navigate('/')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft size={20}  />
+                        </button>
                                 <div>
                                     <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800 }}>Gestión de Capacitaciones</h1>
                                     <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Registros de formación del personal</p>

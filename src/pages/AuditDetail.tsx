@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { XCircle, ClipboardCheck, AlertTriangle, Clock, CheckCircle2, Shield } from 'lucide-react';
+import { XCircle, ClipboardCheck, AlertTriangle, Clock, CheckCircle2, Shield, ArrowLeft } from 'lucide-react';
 
 const AUDIT_TYPES = [
     { id: 'internal', name: 'Auditoría Interna', icon: '📋', color: '#3b82f6' },
@@ -111,17 +111,8 @@ export default function AuditDetail(): React.ReactElement | null {
                 alignItems: 'center'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <button onClick={() => navigate('/audit')} style={{
-                        padding: '0.5rem',
-                        background: 'var(--color-background)',
-                        border: 'none',
-                        borderRadius: 'var(--radius-md)',
-                        cursor: 'pointer',
-                        color: 'var(--color-text)',
-                        display: 'flex',
-                        alignItems: 'center'
-                    }}>
-                        <XCircle size={24} />
+                    <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                        <ArrowLeft size={20} />
                     </button>
                     <div style={{
                         width: '64px',

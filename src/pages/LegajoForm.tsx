@@ -155,9 +155,7 @@ function AdjuntosSection({
         onChange={handleFiles}
         style={{ display: 'none' }}
       />
-      <button
-        type="button"
-        onClick={() => fileRef.current?.click()}
+      <button type="button" onClick={() => fileRef.current?.click()}
         style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -387,21 +385,9 @@ export default function LegajoForm() {
           gap: '1rem'
       }}>
           <button
-              onClick={() => navigate('/legajos')}
-              style={{
-                  padding: '0.5rem',
-                  background: 'var(--color-background)',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 'var(--radius-lg)',
-                  cursor: 'pointer',
-                  color: 'var(--color-text)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-              }}
-          >
-              <ArrowLeft size={20} />
-          </button>
+              onClick={() => navigate('/legajos')} style={{ padding: '0.5rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', cursor: 'pointer', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft size={20}  />
+                        </button>
           <div style={{ flex: 1 }}>
               <h1 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 900 }}>
                   {id ? 'Editar Legajo Técnico' : 'Nuevo Legajo Técnico'}

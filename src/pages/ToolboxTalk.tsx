@@ -527,8 +527,8 @@ export default function ToolboxTalk(): React.ReactElement {
                 ) : (
                     <>
                         <div className="no-print" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-                            <button onClick={() => setShowForm(false)} style={{ background: 'var(--color-background)', border: '2px solid var(--color-border)', borderRadius: '12px', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, cursor: 'pointer', color: 'var(--color-text)' }}>
-                                <ArrowLeft size={18} /> Volver
+                            <button onClick={() => setShowForm(false)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft size={18} /> 
                             </button>
                         </div>
 
@@ -712,8 +712,8 @@ export default function ToolboxTalk(): React.ReactElement {
                                                 onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.12)'; e.currentTarget.style.borderColor = '#ef4444'; }}
                                                 onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.06)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.2)'; }}
                                             >
-                                                <Trash2 size={15} />
-                                            </button>
+                                                <Trash2 size={15}  />
+                        </button>
                                         </div>
                                     </div>
                                 ))}

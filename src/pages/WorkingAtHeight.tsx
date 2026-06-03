@@ -244,13 +244,11 @@ export default function WorkingAtHeight(): React.ReactElement | null {
             <PremiumHeader
                 title="Trabajo en Altura"
                 subtitle={`OSHA 1926.501 • ${activePermits.length} activos`}
-                icon={<HardHat size={36} />}
+                icon={<HardHat size={36} />} onBack={() => navigate('/#activity')}
             />
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginTop: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-                <button onClick={() => navigate('/#activity')} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', padding: '0.8rem 1.2rem', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 700 }}>
-                    <ArrowLeft size={18} /> Volver
-                </button>
+                
 
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                     <button
@@ -610,8 +608,8 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
                         }}
                         title="Autorizar Permiso"
                     >
-                        <CheckCircle2 size={18} />
-                    </button>
+                        <CheckCircle2 size={18}  />
+                        </button>
                 )}
                 {permit.status === 'active' && (
                     <>

@@ -85,9 +85,9 @@ export default function Profile(): React.ReactElement | null {
                     transition: 'all 0.2s'
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-surface-hover)'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'var(--color-surface)'}>
-                    <ArrowLeft size={20} />
-                </button>
+                onMouseLeave={(e) => e.currentTarget.style.background = 'var(--color-surface)'} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft size={20}  />
+                        </button>
                 <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, letterSpacing: '-0.5px' }}>Perfil Profesional</h1>
             </div>
 

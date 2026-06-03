@@ -132,8 +132,7 @@ export default function RiskMatrix(): React.ReactElement | null {
 
             {/* Floating Action Buttons */}
             <div className="no-print floating-action-bar">
-                <button
-                    onClick={handleSave}
+                <button onClick={handleSave}
                     className="btn-floating-action"
                     style={{ background: '#36B37E', color: '#ffffff' }}
                 >
@@ -163,12 +162,9 @@ export default function RiskMatrix(): React.ReactElement | null {
                 boxShadow: '0 4px 24px rgba(0,0,0,0.04)'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
-                    <button onClick={() => navigate('/')} style={{
-                        padding: '0.6rem', background: 'var(--color-background)', borderRadius: '12px',
-                        border: 'none', cursor: 'pointer', display: 'flex', color: 'var(--color-text-muted)'
-                    }}>
-                        <ArrowLeft size={20} />
-                    </button>
+                    <button onClick={() => navigate('/')} style={{ padding: '0.6rem', background: 'var(--color-background)', borderRadius: '12px', border: 'none', cursor: 'pointer', display: 'flex', color: 'var(--color-text-muted)' }} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft size={20}  />
+                        </button>
                     <div>
                         <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, color: 'var(--color-text)', letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
                             <TriangleAlert size={28} color="#f59e0b" /> Matriz de Riesgos

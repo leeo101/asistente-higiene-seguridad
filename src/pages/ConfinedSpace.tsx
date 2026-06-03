@@ -285,6 +285,7 @@ export default function ConfinedSpace(): React.ReactElement | null {
                 title="Espacios Confinados"
                 subtitle={`OSHA 1910.146 • ${activePermits.length} activos`}
                 icon={<Tent size={36} />}
+                onBack={() => navigate(-1)}
             />
 
             <button

@@ -237,13 +237,10 @@ export default function Drills(): React.ReactElement | null {
                     title={editData ? 'Editar Acta de Simulacro' : 'Registro de Simulacro'}
                     subtitle="Gestión de Simulacros y Evacuación"
                     icon={<Siren size={36} />}
+                    onBack={() => navigate('/drills')}
                 />
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginTop: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-                    <button onClick={() => navigate('/drills')} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', padding: '0.8rem 1.2rem', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 700 }}>
-                        <ArrowLeft size={18} /> Volver
-                    </button>
-
                     <button onClick={() => navigate('/drills')} style={{
                         display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 1.2rem',
                         background: 'var(--color-surface)', border: '1px solid var(--color-primary)', color: 'var(--color-primary)',

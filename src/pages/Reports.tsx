@@ -249,8 +249,8 @@ export default function Reports(): React.ReactElement | null {
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', minWidth: '200px' }}>
-                        <button onClick={() => navigate('/#tools')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
-                            <ArrowLeft />
+                        <button onClick={() => navigate('/#tools')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft  size={20} />
                         </button>
                         <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800 }}>Informes Profesionales</h1>
                     </div>
@@ -359,16 +359,12 @@ export default function Reports(): React.ReactElement | null {
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '6rem', paddingTop: '5.5rem' }}>
-            <div style={{ padding: '0 1rem 1rem 1rem', background: 'var(--color-background)', display: 'flex', alignItems: 'center' }}>
-                <button onClick={() => { setIsFormVisible(false); loadHistory(); }} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, color: 'var(--color-primary)' }}>
-                    <ArrowLeft size={18} /> Volver a Informes
-                </button>
-            </div>
             <PremiumHeader 
                 title="Generar Informe"
                 subtitle="Documentación Profesional de Seguridad e Higiene"
                 icon={<FileText />}
                 color="#ec4899"
+                onBack={() => { setIsFormVisible(false); loadHistory(); }}
             />
 
             <main style={{ padding: '2rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
@@ -569,8 +565,8 @@ export default function Reports(): React.ReactElement | null {
                                             disabled={personnel.length === 1}
                                             className="hover-lift"
                                         >
-                                            <Trash2 size={18} />
-                                        </button>
+                                            <Trash2 size={18}  />
+                        </button>
                                     </div>
                                 ))}
                             </div>

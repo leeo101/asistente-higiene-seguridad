@@ -227,13 +227,12 @@ export default function History(): React.ReactElement | null {
                 {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <button onClick={() => navigate('/#activity')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer' }}>
-                            <ArrowLeft />
+                        <button onClick={() => navigate('/#activity')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft  size={20} />
                         </button>
                         <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Historiales</h1>
                     </div>
-                    <button
-                        onClick={async () => {
+                    <button onClick={async () => {
                             const { exportAllDataToExcel } = await import('../services/exportCsv');
                             exportAllDataToExcel();
                         }}
@@ -297,8 +296,8 @@ export default function History(): React.ReactElement | null {
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', minWidth: '200px' }}>
-                        <button onClick={() => setView('hub')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
-                            <ArrowLeft />
+                        <button onClick={() => setView('hub')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft  size={20} />
                         </button>
                         <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800 }}>Historial de Matrices</h1>
                     </div>
@@ -428,9 +427,9 @@ export default function History(): React.ReactElement | null {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-                <button onClick={() => setView('hub')} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
-                    <ArrowLeft />
-                </button>
+                <button onClick={() => setView('hub')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft  size={20} />
+                        </button>
                 <div style={{ display: 'flex', gap: '0.8rem', marginTop: 'auto' }}>
                     <button onClick={() => {
                         downloadCSV(historicalData.map(h => ({

@@ -19,10 +19,11 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
     offscreenContainer.setAttribute('data-pdf-offscreen', 'true');
     offscreenContainer.classList.add('ats-pdf-offscreen'); // Add class to trigger CSS height fixes
     offscreenContainer.style.cssText = [
-        'position: absolute', // absolute allows element to grow indefinitely without viewport clipping
-        'left: -9999px', // Mover lejos del viewport para que no se vea debajo del modal
+        'position: absolute',
+        'left: 0',
         'top: 0',
-        'width: ' + (isLandscape ? '1280px' : '1024px'), // Ancho de desktop para forzar CSS grid y media queries
+        'z-index: -9999',
+        'width: ' + (isLandscape ? '1280px' : '1024px'),
 
         'height: auto',
         'overflow: visible',

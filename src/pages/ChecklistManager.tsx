@@ -833,8 +833,8 @@ export default function ChecklistManager(): React.ReactElement | null {
             ) : (
                 <>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-                        <button onClick={() => { setShowForm(false); setSearchParams({}); }} style={{ background: 'var(--color-background)', border: '2px solid var(--color-border)', borderRadius: '12px', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, cursor: 'pointer', color: 'var(--color-text)' }}>
-                            <ArrowLeft size={18} /> Volver
+                        <button onClick={() => { setShowForm(false); setSearchParams({} ); }} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft size={18} /> 
                         </button>
                     </div>
 
@@ -946,7 +946,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1.5rem', flexWrap: 'wrap' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                         <button onClick={() => navigate('/#tools')} style={{ padding: '0.6rem', background: 'var(--color-background)', borderRadius: '12px', border: 'none', cursor: 'pointer', color: 'var(--color-text)', display: 'flex' }}>
-                            <ArrowLeft size={22} />
+                            <ArrowLeft size={22}  />
                         </button>
                         <div>
                             <h2 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 900, color: 'var(--color-text)', letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>

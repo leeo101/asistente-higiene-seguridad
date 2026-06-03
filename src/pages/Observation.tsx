@@ -48,9 +48,9 @@ export default function Observation(): React.ReactElement | null {
     return (
         <div className="container" style={{ maxWidth: '600px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text)' }}>
-                    <ArrowLeft />
-                </button>
+                <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft  size={20} />
+                        </button>
                 <div>
                     <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Registro de Hallazgo</h1>
                     <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{category ? `Categoría: ${category}` : 'Observación planificada de seguridad'}</p>

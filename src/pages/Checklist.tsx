@@ -129,19 +129,9 @@ export default function Checklist(): React.ReactElement | null {
                 <div style={{ position: 'absolute', bottom: -30, left: -30, width: 120, height: 120, background: 'radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', position: 'relative', zIndex: 1 }}>
-                    <button
-                        onClick={() => navigate(-1)}
-                        style={{
-                            width: 40, height: 40,
-                            background: 'rgba(255,255,255,0.15)',
-                            backdropFilter: 'blur(12px)',
-                            borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', color: '#fff',
-                            boxShadow: '0 4px 16px rgba(0,0,0,0.15)'
-                        }}
-                    >
-                        <ArrowLeft size={18} />
-                    </button>
+                    <button onClick={() => navigate(-1)} style={{ width: 40, height: 40, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(12px)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', color: '#fff', boxShadow: '0 4px 16px rgba(0,0,0,0.15)' }} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft size={18}  />
+                        </button>
                     <div style={{
                         width: 56, height: 56,
                         background: 'rgba(255,255,255,0.15)',

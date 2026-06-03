@@ -497,8 +497,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                             Esta acción eliminará todos los elementos y el plano base. No se puede deshacer.
                         </p>
                         <div style={{ display: 'flex', gap: '1rem' }}>
-                            <button
-                                onClick={() => setShowClearConfirm(false)}
+                            <button onClick={() => setShowClearConfirm(false)}
                                 style={{
                                     flex: 1, padding: '0.8rem', borderRadius: '10px',
                                     border: '1px solid var(--color-border)', background: 'transparent',
@@ -534,7 +533,9 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                 {/* Header row */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <button onClick={() => navigate('/risk-maps-history')} style={{ padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer', borderRadius: '50%', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}><ArrowLeft size={18} /></button>
+                        <button onClick={() => navigate('/risk-maps-history')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft size={18}  />
+                        </button>
                         <h1 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 900, background: 'linear-gradient(to right, var(--color-primary), #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                             {editData ? 'Editar Mapa' : 'Editor de Mapa de Riesgos'}
                         </h1>

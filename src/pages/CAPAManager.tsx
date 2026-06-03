@@ -6,7 +6,7 @@ import {
     XCircle, Clock, User, Calendar,
     Shield, TrendingUp, AlertTriangle, BarChart3,
     Activity, CheckSquare, Target, Layers,
-    Zap, AlertCircle, RefreshCw, ThumbsUp, Share2
+    Zap, AlertCircle, RefreshCw, ThumbsUp, Share2, ArrowLeft
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import CAPAPdf from '../components/CAPAPdf';
@@ -327,6 +327,9 @@ export default function CAPAManager(): React.ReactElement | null {
                 gap: '1rem'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                        <ArrowLeft size={20} />
+                    </button>
                     <div style={{
                         width: '56px',
                         height: '56px',

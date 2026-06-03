@@ -151,8 +151,7 @@ export default function LogoSettings(): React.ReactElement | null {
         <div className="container animate-fade-in" style={{ maxWidth: '850px', paddingBottom: '5rem' }}>
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', marginBottom: '3rem' }}>
-                <button
-                    onClick={() => navigate(-1)}
+                <button onClick={() => navigate(-1)}
                     style={{
                         padding: '0.8rem', background: 'var(--color-surface)',
                         border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px',
@@ -162,10 +161,9 @@ export default function LogoSettings(): React.ReactElement | null {
                         boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
                     }}
                     onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.1)'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)'; }}
-                >
-                    <ArrowLeft size={22} />
-                </button>
+                    onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)'; } } className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                            <ArrowLeft size={22}  />
+                        </button>
                 <div>
                     <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: 900, letterSpacing: '-0.8px', background: 'linear-gradient(135deg, #fff, #a1a1aa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                         Identidad Visual

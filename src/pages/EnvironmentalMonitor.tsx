@@ -251,6 +251,7 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
                 title="Monitoreo Ambiental"
                 subtitle={`ISO 14001 • ${stats.stations} estaciones`}
                 icon={<Leaf size={36} />}
+                onBack={() => navigate(-1)}
             >
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1rem' }}>
                     <button
