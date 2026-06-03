@@ -254,10 +254,17 @@ export default function ExtintoresManager() {
         setTimeout(() => {
             const element = document.getElementById('pdf-content');
             if (!element) return;
+            
+            // Forzar ocultamiento del contenedor raíz para evitar problemas de centrado vertical 
+            // en navegadores móviles que no soportan bien CSS :has()
+            const root = document.getElementById('root');
+            if (root) root.style.display = 'none';
+            
             window.print();
             
             // Wait 10 seconds before clearing to allow Android's print spooler to capture the DOM
             setTimeout(() => {
+                if (root) root.style.display = '';
                 setPrintItem(null);
             }, 10000);
         }, 500);
