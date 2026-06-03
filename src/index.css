@@ -3752,7 +3752,7 @@ body.printing-isolated #pdf-content.ats-pdf-root,
 /* --- FIX BLANK PAGES ON PRINT --- */
 @media print {
     .report-print, .print-area, #pdf-content {
-        min-height: auto !important;
+        min-height: 99vh !important;
         height: auto !important;
     }
 }
@@ -3760,7 +3760,7 @@ body.printing-isolated #pdf-content.ats-pdf-root,
 .ats-pdf-offscreen .report-print,
 .ats-pdf-offscreen .print-area,
 .ats-pdf-offscreen #pdf-content {
-    min-height: auto !important;
+    min-height: 99vh !important;
     height: auto !important;
 }
 

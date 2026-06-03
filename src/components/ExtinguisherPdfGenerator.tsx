@@ -81,7 +81,6 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
                                 max-width: none !important; 
                                 border: 1px solid #1e293b !important;
                                 border-radius: 0 !important;
-                                min-height: 0 !important;
                                 height: auto !important;
                             }
                             #extinguisher-pdf-wrap {
