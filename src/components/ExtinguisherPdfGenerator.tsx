@@ -54,8 +54,8 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
     };
 
     return (
-        <div id="extinguisher-pdf-wrap" className="container" style={{ paddingBottom: '3rem' }}>
-            <div style={{ overflowX: 'auto' }}>
+        <div id="extinguisher-pdf-wrap" style={{ paddingBottom: '0' }}>
+            <div style={{ overflowX: 'visible' }}>
                 <div
                     id="pdf-content"
                     className="pdf-container card print-area"
@@ -85,6 +85,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
                                 height: auto !important;
                             }
                             #extinguisher-pdf-wrap {
+                                padding-top: 0 !important;
                                 padding-bottom: 0 !important;
                                 min-height: 0 !important;
                                 margin: 0 !important;
