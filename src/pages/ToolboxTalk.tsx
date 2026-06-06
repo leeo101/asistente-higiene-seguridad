@@ -18,6 +18,7 @@ import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
 import { DataTable } from '../components/DataTable';
 import { downloadCSV } from '../services/exportCsv';
+import PremiumHeader from '../components/PremiumHeader';
 
 function DeleteConfirm({ onConfirm, onCancel }) {
     return (
@@ -221,6 +222,10 @@ export default function ToolboxTalk(): React.ReactElement {
     }, []);
 
     useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [showForm]);
+
+    useEffect(() => {
         if (form.showSignatures) {
             setShowSignatures(form.showSignatures);
         }
@@ -419,43 +424,11 @@ export default function ToolboxTalk(): React.ReactElement {
 
                 {!showForm ? (
                     <>
-                        {/* ═══ Premium Header ═══ */}
-                        <div style={{
-                            marginBottom: '1.5rem', padding: '1.5rem 2rem',
-                            background: 'linear-gradient(135deg, #0052CC 0%, #003d99 50%, #001a66 100%)',
-                            borderRadius: 24, display: 'flex', justifyContent: 'space-between',
-                            alignItems: 'center', flexWrap: 'wrap', gap: '1rem',
-                            boxShadow: '0 10px 40px rgba(0,82,204,0.35), 0 0 80px rgba(0,82,204,0.1)',
-                            position: 'relative', overflow: 'hidden'
-                        }}>
-                            {/* Background glow */}
-                            <div style={{ position: 'absolute', top: -40, right: -40, width: 180, height: 180, background: 'radial-gradient(circle, rgba(0,197,255,0.2) 0%, transparent 70%)', pointerEvents: 'none' }} />
-                            <div style={{ position: 'absolute', bottom: -30, left: -30, width: 120, height: 120, background: 'radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
-
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', position: 'relative', zIndex: 1 }}>
-                                <div style={{
-                                    width: 56, height: 56,
-                                    background: 'rgba(255,255,255,0.15)',
-                                    backdropFilter: 'blur(12px)',
-                                    borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    border: '1px solid rgba(255,255,255,0.2)',
-                                    boxShadow: '0 8px 32px rgba(0,0,0,0.15)'
-                                }}>
-                                    <MessageSquare size={30} color="#fff" strokeWidth={2.5} />
-                                </div>
-                                <div>
-                                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.5px' }}>
-                                        Charla de 5 Minutos
-                                    </h1>
-                                    <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem', fontWeight: 600, letterSpacing: '0.3px' }}>
-                                        Registro de asistentes y firma digital
-                                    </p>
-                                </div>
-                            </div>
-                            <div style={{ display: 'flex', gap: '0.5rem', position: 'relative', zIndex: 1 }}>
-                                {/* Tabs removed, using DataTable pattern */}
-                            </div>
-                        </div>
+                        <PremiumHeader 
+                            title="Charla de 5 Minutos" 
+                            subtitle="Registro de asistentes y firma digital" 
+                            icon={<MessageSquare size={36} color="#ffffff" />} 
+                        />
 
                         {/* ═══ Stats Dashboard ═══ */}
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
@@ -489,6 +462,14 @@ export default function ToolboxTalk(): React.ReactElement {
                             />
                         </div>
                         <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                            <button onClick={() => navigate('/', { state: { scrollTo: 'toolbox-talk' } })} style={{
+                                display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
+                                background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)',
+                                borderRadius: '12px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
+                                boxShadow: 'var(--shadow-sm)'
+                            }}>
+                                <ArrowLeft size={20} /> INICIO
+                            </button>
                             <button
                                 onClick={() => { 
                                     setForm(emptyTalk());
@@ -526,10 +507,36 @@ export default function ToolboxTalk(): React.ReactElement {
                     </>
                 ) : (
                     <>
-                        <div className="no-print" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-                            <button onClick={() => setShowForm(false)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={18} /> 
-                            </button>
+                        <div className="no-print">
+                            <PremiumHeader 
+                                title={editId ? 'Editar Charla' : 'Nueva Charla'} 
+                                subtitle="Registro de asistentes y firma digital" 
+                                icon={<MessageSquare size={36} color="#ffffff" />} 
+                            />
+                            <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem', zIndex: 10 }}>
+                                <button 
+                                    onClick={() => setShowForm(false)} 
+                                    style={{ 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        gap: '0.5rem', 
+                                        padding: '0.5rem 1.25rem', 
+                                        background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)', 
+                                        border: 'none', 
+                                        borderRadius: '12px', 
+                                        color: '#ffffff', 
+                                        fontWeight: 800,
+                                        cursor: 'pointer',
+                                        boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)',
+                                        transition: 'all 0.2s',
+                                        letterSpacing: '0.3px'
+                                    }}
+                                    onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(54, 179, 126, 0.4)'; }}
+                                    onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(54, 179, 126, 0.3)'; }}
+                                >
+                                    <ArrowLeft size={18} strokeWidth={2.5} /> Volver
+                                </button>
+                            </div>
                         </div>
 
                         {/* ═══ DATOS GENERALES ═══ */}

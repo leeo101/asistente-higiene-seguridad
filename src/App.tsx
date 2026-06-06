@@ -479,6 +479,7 @@ function App() {
                   {/* Public Routes */}
                   <Route path="/" element={<Home />} />
                   <Route path="/ats" element={<ProtectedRoute><ATS /></ProtectedRoute>} />
+                  <Route path="/ats/nuevo" element={<ProtectedRoute><ATS /></ProtectedRoute>} />
                   <Route path="/fire-load" element={<ProtectedRoute><FireLoad /></ProtectedRoute>} />
 
                   <Route path="/legislation" element={<Legislation />} />
@@ -490,6 +491,7 @@ function App() {
                   <Route path="/ai-camera" element={<ProtectedRoute><AICamera /></ProtectedRoute>} />
                   <Route path="/ai-general-camera" element={<ProtectedRoute><AIGeneralCamera /></ProtectedRoute>} />
                   <Route path="/ai-advisor" element={<ProtectedRoute><AIChatAdvisor /></ProtectedRoute>} />
+                  <Route path="/ai-advisor/nueva" element={<ProtectedRoute><AIChatAdvisor /></ProtectedRoute>} />
                   <Route path="/ai-report" element={<ProtectedRoute><AIReport /></ProtectedRoute>} />
                   <Route path="/extinguisher-ai" element={<ProtectedRoute><ExtinguisherAI /></ProtectedRoute>} />
 

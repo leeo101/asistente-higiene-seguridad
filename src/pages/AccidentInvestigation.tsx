@@ -107,6 +107,7 @@ export default function AccidentInvestigation(): React.ReactElement | null {
     };
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         loadHistory();
         
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -332,7 +333,14 @@ export default function AccidentInvestigation(): React.ReactElement | null {
         ];
 
         return (
-            <div className="container" style={{ paddingBottom: '3rem' }}>
+            <div className="container" style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '7rem', paddingTop: '5.5rem' }}>
+                <PremiumHeader 
+                    title="Investigaciones de Accidentes"
+                    subtitle="Registros de siniestros"
+                    icon={<AlertTriangle size={32} color="#ffffff" />}
+                    color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+                />
+
                 {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
                 {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
                 <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Investigación de Accidente - ${shareItem?.victimaNombre || ''}`} text={shareItem ? `⚠️ Informe de Investigación\n👤 Accidentado: ${shareItem.victimaNombre}\n🏢 Empresa: ${shareItem.empresa}\n📅 Fecha: ${shareItem.fecha}\n⚠️ Gravedad: ${shareItem.gravedad}` : ''} rawMessage={shareItem ? `⚠️ Informe de Investigación\n👤 Accidentado: ${shareItem.victimaNombre}\n🏢 Empresa: ${shareItem.empresa}` : ''} elementIdToPrint="pdf-content" fileName={`Accidente_${shareItem?.victimaNombre || 'Reporte'}.pdf`} />
@@ -340,27 +348,41 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                     {shareItem && <AccidentPdfGenerator report={{...shareItem, id: shareItem.id || Date.now()}} isHeadless={true} />}
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <button onClick={() => navigate('/#tools')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={20}  />
+                <main style={{ padding: '0 0 2rem 0', maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
+                    {/* Botones de Navegación */}
+                    <div style={{ display: 'flex', gap: '1rem', padding: '0 1rem', marginBottom: '1rem' }}>
+                        <button
+                            onClick={() => navigate('/', { state: { scrollTo: 'accident-investigation' } })}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '0.5rem 1rem',
+                                background: 'var(--color-surface)',
+                                color: 'var(--color-text)',
+                                border: '1px solid var(--color-border)',
+                                borderRadius: '8px',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease'
+                            }}
+                        >
+                            INICIO
                         </button>
-                        <div>
-                            <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800 }}>Investigaciones de Accidentes</h1>
-                            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Registros de siniestros</p>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap', padding: '0 1rem' }}>
+                        <div style={{ display: 'flex', gap: '0.8rem' }}>
+                            {history.length > 0 && (
+                                <button onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '10px', padding: '0.6rem 1rem', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff' }}>
+                                    <Download size={14} /> EXCEL
+                                </button>
+                            )}
+                            <button onClick={() => setIsFormVisible(true)} className="btn-primary hover-lift" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.2rem', width: 'auto', margin: 0, background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 800, boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)' }}>
+                                <Plus size={18} /> NUEVA INVESTIGACIÓN
+                            </button>
                         </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '0.8rem', marginTop: 'auto' }}>
-                        {history.length > 0 && (
-                            <button onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '10px', padding: '0.6rem 1rem', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff' }}>
-                                <Download size={14} /> EXCEL
-                            </button>
-                        )}
-                        <button onClick={() => setIsFormVisible(true)} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.2rem', width: 'auto', marginTop: 0, background: '#10b981', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 800 }}>
-                            <Plus size={18} /> NUEVA INVESTIGACIÓN
-                        </button>
-                    </div>
-                </div>
 
                 <DataTable
                     data={history}
@@ -370,6 +392,7 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                     emptyMessage="No hay investigaciones registradas."
                     emptyIcon={<FileText size={48} />}
                 />
+                </main>
             </div>
         );
     }
@@ -380,11 +403,31 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                 title={isEdit ? 'Editar Investigación' : 'Investigación de Accidente'}
                 subtitle="Metodología Árbol de Causas"
                 icon={<AlertTriangle />}
-                color="#ef4444"
-                onBack={() => { setIsFormVisible(false); loadHistory(); }}
+                color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
             />
 
             <main style={{ padding: '2rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
+                <div style={{ marginBottom: '1.5rem' }}>
+                    <button
+                        onClick={() => { setIsFormVisible(false); loadHistory(); window.scrollTo(0, 0); }}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '0.75rem 1.5rem',
+                            background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '12px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)',
+                            transition: 'all 0.2s ease'
+                        }}
+                    >
+                        <ArrowLeft size={20} /> Volver
+                    </button>
+                </div>
                 {/* Actualización Normativa */}
                 <div style={{
                     marginBottom: '2.5rem', padding: '1.25rem', borderRadius: '16px',

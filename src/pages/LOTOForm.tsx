@@ -8,6 +8,7 @@ import LOTOPdf from '../components/LOTOPdf';
 import PdfSignatures from '../components/PdfSignatures';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
+import PremiumHeader from '../components/PremiumHeader';
 
 const ENERGY_TYPES = [
     { id: 'electrical', name: 'Eléctrica', icon: '⚡', color: '#fbbf24' },
@@ -107,6 +108,7 @@ export default function LOTOForm(): React.ReactElement | null {
     }, [location.state]);
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         handleResize();
         window.addEventListener('resize', handleResize);
@@ -193,28 +195,34 @@ export default function LOTOForm(): React.ReactElement | null {
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem' }}>
-            <div style={{
-                background: 'var(--color-surface)',
-                borderBottom: '1px solid var(--color-border)',
-                padding: '1rem 1.5rem',
-                position: 'sticky',
-                top: '5.5rem',
-                zIndex: 100,
-                backdropFilter: 'blur(20px)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem'
-            }}>
-                <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', cursor: 'pointer', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={20}  />
-                        </button>
-                <div style={{ flex: 1 }}>
-                    <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.3rem', fontWeight: 900 }}>
-                        <Lock size={20} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />
-                        {isEdit ? 'Editar Procedimiento LOTO' : 'Nuevo Procedimiento LOTO'}
-                    </h1>
-                </div>
-                {/* Header Buttons Removed as they are now in the floating bar */}
+            <PremiumHeader 
+                title={isEdit ? 'Editar LOTO' : 'Nuevo LOTO'}
+                subtitle="Procedimiento de Bloqueo y Etiquetado"
+                icon={<Lock size={32} color="#ffffff" />}
+                color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+            />
+
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', marginTop: '1.5rem', padding: '0 1.5rem', maxWidth: '800px', margin: '1.5rem auto 0' }}>
+                <button
+                    onClick={() => navigate('/loto')}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        padding: '0.5rem 1rem',
+                        background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        boxShadow: '0 4px 15px rgba(54, 179, 126, 0.3)'
+                    }}
+                >
+                    <ArrowLeft size={18} />
+                    VOLVER
+                </button>
             </div>
 
             <main style={{ padding: '3.5rem 1.5rem 1.5rem', maxWidth: '800px', margin: '0 auto' }}>

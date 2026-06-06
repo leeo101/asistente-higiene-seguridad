@@ -102,6 +102,7 @@ export default function Reports(): React.ReactElement | null {
     };
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         loadHistory();
         
         if (location.state?.editData) {
@@ -229,7 +230,14 @@ export default function Reports(): React.ReactElement | null {
 
     if (!isFormVisible) {
         return (
-            <div className="container" style={{ paddingBottom: '3rem' }}>
+            <div className="container" style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '7rem', paddingTop: '5.5rem' }}>
+                <PremiumHeader 
+                    title="Informes Profesionales"
+                    subtitle="Gestión e historial de informes técnicos."
+                    icon={<FileText size={32} color="#ffffff" />}
+                    color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+                />
+
                 {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
                 
                 <ShareModal
@@ -247,33 +255,50 @@ export default function Reports(): React.ReactElement | null {
                     {shareItem?.type === 'report' && <ProfessionalReportPdfGenerator currentReport={shareItem.data} />}
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', minWidth: '200px' }}>
-                        <button onClick={() => navigate('/#tools')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft  size={20} />
-                        </button>
-                        <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800 }}>Informes Profesionales</h1>
-                    </div>
-                    <div style={{ display: 'flex', gap: '0.8rem', marginTop: 'auto' }}>
-                        <button onClick={() => {
-                            // downloadCSV
-                        }} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '10px', padding: '0.6rem 1rem', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff' }}>
-                            <Download size={14} /> EXCEL
-                        </button>
-                        <button onClick={() => {
-                            setProjectData({
-                                title: '', company: '', location: '', date: new Date().toISOString().split('T')[0],
-                                responsable: professional.name || ''
-                            });
-                            setContent('');
-                            setPhotos([]);
-                            setTemplate('general');
-                            setIsFormVisible(true);
-                        }} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.2rem', width: 'auto', marginTop: 0, background: '#10b981', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 800 }}>
-                            <Plus size={18} /> NUEVO INFORME
+                <main style={{ padding: '0 0 2rem 0', maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
+                    {/* Botones de Navegación */}
+                    <div style={{ display: 'flex', gap: '1rem', padding: '0 1rem', marginBottom: '1rem' }}>
+                        <button
+                            onClick={() => navigate('/', { state: { scrollTo: 'reports' } })}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '0.5rem 1rem',
+                                background: 'var(--color-surface)',
+                                color: 'var(--color-text)',
+                                border: '1px solid var(--color-border)',
+                                borderRadius: '8px',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease'
+                            }}
+                        >
+                            INICIO
                         </button>
                     </div>
-                </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap', padding: '0 1rem' }}>
+                        <div style={{ display: 'flex', gap: '0.8rem' }}>
+                            <button onClick={() => {
+                                // downloadCSV
+                            }} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '10px', padding: '0.6rem 1rem', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff' }}>
+                                <Download size={14} /> EXCEL
+                            </button>
+                            <button onClick={() => {
+                                setProjectData({
+                                    title: '', company: '', location: '', date: new Date().toISOString().split('T')[0],
+                                    responsable: professional.name || ''
+                                });
+                                setContent('');
+                                setPhotos([]);
+                                setTemplate('general');
+                                setIsFormVisible(true);
+                            }} className="btn-primary hover-lift" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.2rem', width: 'auto', margin: 0, background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 800, boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)' }}>
+                                <Plus size={18} /> NUEVO INFORME
+                            </button>
+                        </div>
+                    </div>
 
                 <div style={{ padding: '0 0 2rem 0' }}>
                     <DataTable 
@@ -353,6 +378,7 @@ export default function Reports(): React.ReactElement | null {
                         ]}
                     />
                 </div>
+                </main>
             </div>
         );
     }
@@ -363,11 +389,31 @@ export default function Reports(): React.ReactElement | null {
                 title="Generar Informe"
                 subtitle="Documentación Profesional de Seguridad e Higiene"
                 icon={<FileText />}
-                color="#ec4899"
-                onBack={() => { setIsFormVisible(false); loadHistory(); }}
+                color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
             />
 
             <main style={{ padding: '2rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
+                <div style={{ marginBottom: '1.5rem' }}>
+                    <button
+                        onClick={() => { setIsFormVisible(false); loadHistory(); window.scrollTo(0, 0); }}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '0.75rem 1.5rem',
+                            background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '12px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)',
+                            transition: 'all 0.2s ease'
+                        }}
+                    >
+                        <ArrowLeft size={20} /> Volver
+                    </button>
+                </div>
 
                 {/* Template Selector */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem', marginBottom: '2.5rem' }}>

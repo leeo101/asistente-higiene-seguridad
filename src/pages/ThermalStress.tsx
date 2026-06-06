@@ -139,6 +139,7 @@ export default function ThermalStress(): React.ReactElement | null {
     const showSignatures = formData.showSignatures || { operator: true, professional: true, supervisor: true };
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener('resize', handleResize);
 
@@ -413,29 +414,39 @@ export default function ThermalStress(): React.ReactElement | null {
 
             {!isFormVisible ? (
                 <div className="animate-fade-in" style={{ padding: '0 1rem', width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
-                    <Breadcrumbs />
                     <PremiumHeader
                         title="Evaluaciones de Estrés Térmico"
                         subtitle={`Res. SRT 30/2023 • ${history.length} registros`}
-                        icon={<ThermometerSun size={36} />}
+                        icon={<ThermometerSun size={36} color="#ffffff" />}
                     />
                     
-                    <button
-                        onClick={() => {
-                            setFormData({
-                                puesto: '', sector: '', tarea: '', fecha: new Date().toISOString().split('T')[0],
-                                cargaSolar: false, tbh: '', tg: '', tbs: '', viento: '',
-                                aptaMedica: false, aclimatado: false, ritmo: 'moderado', ciclo: 'continuo',
-                                operatorSignature: '', supervisorSignature: '', signature: '',
-                                showSignatures: { operator: true, professional: true, supervisor: true }
-                            });
-                            setIsFormVisible(true);
-                        }}
-                        className="btn-primary"
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', width: '100%', padding: '0.85rem', border: '1px solid #36B37E', background: '#36B37E', color: '#ffffff', cursor: 'pointer', fontSize: '0.92rem', marginBottom: '1.5rem', borderRadius: '12px' }}
-                    >
-                        <Plus size={18} /> NUEVO ESTUDIO
-                    </button>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                            <button onClick={() => navigate('/', { state: { scrollTo: 'thermal-stress' } })} style={{
+                                display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
+                                background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)',
+                                borderRadius: '12px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
+                                boxShadow: 'var(--shadow-sm)'
+                            }}>
+                                <ArrowLeft size={20} /> INICIO
+                            </button>
+                        </div>
+                        <button
+                            onClick={() => {
+                                setFormData({
+                                    puesto: '', sector: '', tarea: '', fecha: new Date().toISOString().split('T')[0],
+                                    cargaSolar: false, tbh: '', tg: '', tbs: '', viento: '',
+                                    aptaMedica: false, aclimatado: false, ritmo: 'moderado', ciclo: 'continuo',
+                                    operatorSignature: '', supervisorSignature: '', signature: '',
+                                    showSignatures: { operator: true, professional: true, supervisor: true }
+                                });
+                                setIsFormVisible(true);
+                            }}
+                            style={{ flex: '0 1 auto', padding: '0.8rem 1.5rem', borderRadius: '12px', background: '#36B37E', color: '#fff', border: 'none', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(54,179,126,0.3)', whiteSpace: 'nowrap' }}
+                        >
+                            <Plus size={20} /> Nuevo Estudio
+                        </button>
+                    </div>
 
                     <DataTable
                         data={history}
@@ -444,8 +455,6 @@ export default function ThermalStress(): React.ReactElement | null {
                         searchFields={['puesto', 'sector', 'tarea']}
                         emptyMessage="No hay evaluaciones térmicas registradas."
                         emptyIcon={<ThermometerSun size={48} />}
-                        onEmptyAction={() => setIsFormVisible(true)}
-                        emptyActionLabel="Nueva Medición"
                     />
 
                     {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
@@ -491,12 +500,36 @@ export default function ThermalStress(): React.ReactElement | null {
                     </div>
 
                     <div className="no-print animate-fade-in">
-                        <Breadcrumbs />
                         <PremiumHeader
                             title={editData ? 'Editar Estrés Térmico' : 'Estrés Térmico Calculadora'}
                             subtitle="Res. SRT 30/2023 — reemplaza Res. 295/03 (derogada)"
-                            icon={<ThermometerSun size={36} />}
+                            icon={<ThermometerSun size={36} color="#ffffff" />}
                         />
+
+                        <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem', zIndex: 10 }} className="no-print">
+                            <button 
+                                onClick={() => setIsFormVisible(false)} 
+                                style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    gap: '0.5rem', 
+                                    padding: '0.5rem 1.25rem', 
+                                    background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)', 
+                                    border: 'none', 
+                                    borderRadius: '12px', 
+                                    color: '#ffffff', 
+                                    fontWeight: 800,
+                                    cursor: 'pointer',
+                                    boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)',
+                                    transition: 'all 0.2s',
+                                    letterSpacing: '0.3px'
+                                }}
+                                onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(54, 179, 126, 0.4)'; }}
+                                onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(54, 179, 126, 0.3)'; }}
+                            >
+                                <ArrowLeft size={18} strokeWidth={2.5} /> Volver
+                            </button>
+                        </div>
 
                         <div className="grid-2-cols" style={{ gap: '1.5rem', marginTop: '2rem' }}>
 

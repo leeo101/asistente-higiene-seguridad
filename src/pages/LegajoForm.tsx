@@ -19,6 +19,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import LegajoPdf from '../components/LegajoPdf';
+import PremiumHeader from '../components/PremiumHeader';
 
 const TABS = [
   { id: 'empresa', label: 'Empresa', icon: Building2, color: '#2563eb' },
@@ -252,6 +253,7 @@ export default function LegajoForm() {
   const [formData, setFormData] = useState({ ...DEFAULT_FORM_DATA });
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     if (id && currentUser) {
       loadLegajo(id);
     }
@@ -372,31 +374,35 @@ export default function LegajoForm() {
               <LegajoPdf data={{ ...formData, professionalName: currentUser?.displayName || 'Profesional H&S' }} />
           </div>
       </div>
-      <div style={{
-          background: 'var(--color-surface)',
-          borderBottom: '1px solid var(--color-border)',
-          padding: '1rem 1.5rem',
-          position: 'sticky',
-          top: '5.5rem',
-          zIndex: 100,
-          backdropFilter: 'blur(20px)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem'
-      }}>
-          <button
-              onClick={() => navigate('/legajos')} style={{ padding: '0.5rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', cursor: 'pointer', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={20}  />
-                        </button>
-          <div style={{ flex: 1 }}>
-              <h1 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 900 }}>
-                  {id ? 'Editar Legajo Técnico' : 'Nuevo Legajo Técnico'}
-              </h1>
-              <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Decreto 351/79</p>
-          </div>
-      </div>
-
       <main style={{ padding: '2rem 1.5rem', maxWidth: '1000px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <PremiumHeader 
+            title={id ? 'Editar Legajo Técnico' : 'Nuevo Legajo Técnico'}
+            subtitle="Decreto 351/79"
+            icon={<Building2 size={32} color="#ffffff" />}
+            color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+        />
+
+        <div>
+            <button
+                onClick={() => { navigate('/legajos'); }}
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.75rem 1.5rem',
+                    background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)',
+                    transition: 'all 0.2s ease'
+                }}
+            >
+                <ArrowLeft size={20} /> Volver
+            </button>
+        </div>
 
       {/* ═══ Tabs ═══ */}
       <div style={{

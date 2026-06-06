@@ -118,6 +118,7 @@ export default function AuditManager(): React.ReactElement | null {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
@@ -285,7 +286,7 @@ export default function AuditManager(): React.ReactElement | null {
                 fileName={`Auditoria_${shareItem?.auditTitle.replace(/\s+/g, '_') || 'Reporte'}.pdf`}
             />
 
-            <div style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0, pointerEvents: 'none' }}>
+            <div style={{ position: 'fixed', left: 0, opacity: 0, top: 0, pointerEvents: 'none' }}>
                 {shareItem && <AuditPdf data={shareItem} />}
             </div>
 
@@ -305,9 +306,7 @@ export default function AuditManager(): React.ReactElement | null {
                 gap: '1rem'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                        <ArrowLeft size={20} />
-                    </button>
+
                     <div style={{
                         width: '56px',
                         height: '56px',
@@ -341,6 +340,9 @@ export default function AuditManager(): React.ReactElement | null {
                 </div>
 
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    <button onClick={() => navigate('/', { state: { scrollTo: 'audit' } })} style={{ flex: '0 1 auto', padding: '0.75rem 1.5rem', borderRadius: '16px', background: 'var(--color-background)', border: '2px solid var(--color-border)', color: 'var(--color-text)', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', whiteSpace: 'nowrap', transition: 'all 0.2s' }} className="hover-scale">
+                        <ArrowLeft size={20} /> Inicio
+                    </button>
                     <button
                         onClick={() => navigate('/audit/new')}
                         style={{
@@ -363,15 +365,6 @@ export default function AuditManager(): React.ReactElement | null {
                     >
                         <Plus size={20} strokeWidth={2.5} />
                         Nueva Auditoría
-                    </button>
-                    <button
-                        onClick={() => navigate('/history')}
-                        className="btn-outline"
-                        style={{
-                            padding: '0.75rem 1rem'
-                        }}
-                    >
-                        <FileText size={20} />
                     </button>
                 </div>
             </div>

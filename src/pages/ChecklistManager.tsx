@@ -778,6 +778,14 @@ export default function ChecklistManager(): React.ReactElement | null {
             {!showForm ? (
                 <>
                     <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                        <button onClick={() => navigate('/', { state: { scrollTo: 'checklists' } })} style={{
+                            display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
+                            background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)',
+                            borderRadius: '12px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
+                            boxShadow: 'var(--shadow-sm)'
+                        }}>
+                            <ArrowLeft size={20} /> INICIO
+                        </button>
                         <button
                             onClick={() => { setSearchParams({}); setShowForm(true); }}
                             style={{ flex: '0 1 auto', padding: '1rem 1.5rem', borderRadius: '16px', background: '#36B37E', color: '#fff', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(54,179,126,0.3)', whiteSpace: 'nowrap' }}
@@ -832,9 +840,28 @@ export default function ChecklistManager(): React.ReactElement | null {
                 </>
             ) : (
                 <>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-                        <button onClick={() => { setShowForm(false); setSearchParams({} ); }} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={18} /> 
+                    <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem', zIndex: 10 }} className="no-print">
+                        <button 
+                            onClick={() => { setShowForm(false); setSearchParams({}); }} 
+                            style={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: '0.5rem', 
+                                padding: '0.5rem 1.25rem', 
+                                background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)', 
+                                border: 'none', 
+                                borderRadius: '12px', 
+                                color: '#ffffff', 
+                                fontWeight: 800,
+                                cursor: 'pointer',
+                                boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)',
+                                transition: 'all 0.2s',
+                                letterSpacing: '0.3px'
+                            }}
+                            onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(54, 179, 126, 0.4)'; }}
+                            onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(54, 179, 126, 0.3)'; }}
+                        >
+                            <ArrowLeft size={18} strokeWidth={2.5} /> Volver
                         </button>
                     </div>
 
@@ -945,9 +972,6 @@ export default function ChecklistManager(): React.ReactElement | null {
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1.5rem', flexWrap: 'wrap' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <button onClick={() => navigate('/#tools')} style={{ padding: '0.6rem', background: 'var(--color-background)', borderRadius: '12px', border: 'none', cursor: 'pointer', color: 'var(--color-text)', display: 'flex' }}>
-                            <ArrowLeft size={22}  />
-                        </button>
                         <div>
                             <h2 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 900, color: 'var(--color-text)', letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                                 <ShieldCheck className="text-blue-600" size={24} />

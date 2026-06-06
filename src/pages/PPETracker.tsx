@@ -97,6 +97,10 @@ export default function PPETracker(): React.ReactElement | null {
         if (saved) setItems(JSON.parse(saved));
     }, []);
 
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [isFormVisible]);
+
     const save = async (updated) => {
         setItems(updated);
         localStorage.setItem('ppe_items', JSON.stringify(updated));
@@ -157,28 +161,36 @@ export default function PPETracker(): React.ReactElement | null {
 
     return (
         <div className="container" style={{ maxWidth: '750px', paddingBottom: '4rem', paddingTop: '6rem' }}>
-            {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', minWidth: '180px' }}>
-                    <button onClick={() => navigate('/#tools')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft  size={20} />
+            <PremiumHeader 
+                title="Control de EPP"
+                subtitle="Res. SIyC 18/25 · Res. SRT 299/11"
+                icon={<HardHat size={32} color="#ffffff" />}
+            />
+
+            {!isFormVisible && (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                        <button onClick={() => navigate('/', { state: { scrollTo: 'ppe-tracker' } })} style={{
+                            display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
+                            background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)',
+                            borderRadius: '12px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
+                            boxShadow: 'var(--shadow-sm)'
+                        }}>
+                            <ArrowLeft size={20} /> INICIO
                         </button>
-                    <div>
-                        <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800, lineHeight: 1.2 }}>Control de EPP</h1>
-                        <p style={{ margin: 0, fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Res. SIyC 18/25 · Res. SRT 299/11</p>
                     </div>
+                    {items.length > 0 && (
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <button onClick={() => requirePro(() => window.print())} style={{ background: '#2563eb', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)' }}>
+                                <span className="hidden sm:inline">IMPRIMIR RES. 299/11</span><span className="inline sm:hidden">RES 299/11</span>
+                            </button>
+                            <button onClick={handleExport} style={{ background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                <Download size={14} /> <span className="hidden sm:inline">EXCEL</span>
+                            </button>
+                        </div>
+                    )}
                 </div>
-                {items.length > 0 && (
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <button onClick={() => requirePro(() => window.print())} style={{ background: '#2563eb', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)' }}>
-                            <span className="hidden sm:inline">IMPRIMIR RES. 299/11</span><span className="inline sm:hidden">RES 299/11</span>
-                        </button>
-                        <button onClick={handleExport} style={{ background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                            <Download size={14} /> <span className="hidden sm:inline">EXCEL</span>
-                        </button>
-                    </div>
-                )}
-            </div>
+            )}
 
             {/* Banner normativa actualizada */}
             <div style={{
@@ -488,12 +500,30 @@ export default function PPETracker(): React.ReactElement | null {
             </>
             ) : (
                 <div className="animate-fade-in">
-                    <PremiumHeader 
-                        title="Nuevo Registro de EPP"
-                        subtitle="Registrá un nuevo Elemento de Protección Personal y hacele seguimiento a su vida útil."
-                        icon={<Shield size={32} color="#ffffff" />}
-                        color="linear-gradient(135deg, #10b981, #059669)"
-                    />
+                    <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem', zIndex: 10 }} className="no-print">
+                        <button 
+                            onClick={() => setIsFormVisible(false)} 
+                            style={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: '0.5rem', 
+                                padding: '0.5rem 1.25rem', 
+                                background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)', 
+                                border: 'none', 
+                                borderRadius: '12px', 
+                                color: '#ffffff', 
+                                fontWeight: 800,
+                                cursor: 'pointer',
+                                boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)',
+                                transition: 'all 0.2s',
+                                letterSpacing: '0.3px'
+                            }}
+                            onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(54, 179, 126, 0.4)'; }}
+                            onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(54, 179, 126, 0.3)'; }}
+                        >
+                            <ArrowLeft size={18} strokeWidth={2.5} /> Volver
+                        </button>
+                    </div>
                     <div className="card" style={{ padding: '2.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '24px', boxShadow: 'var(--shadow-lg)', marginTop: '1rem' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
                             {/* 🪖 EPP Visual Grid Selector */}

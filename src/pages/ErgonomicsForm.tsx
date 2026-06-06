@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
-    ChevronRight, ChevronLeft,
+    ChevronRight, ChevronLeft, ArrowLeft,
     Save, Accessibility, AlertCircle, Info, Building2, Sparkles, Loader2
 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
@@ -17,8 +17,11 @@ export default function ErgonomicsForm(): React.ReactElement | null {
     const { syncCollection } = useSync();
     const location = useLocation();
     const editData = location.state?.editData;
-
     const [step, setStep] = useState(1);
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
     const [formData, setFormData] = useState(editData || {
         empresa: '',
         cuit: '',
@@ -121,14 +124,36 @@ export default function ErgonomicsForm(): React.ReactElement | null {
 
     return (
         <div className="container print:pt-0 print:pb-0" style={{ paddingBottom: '8rem', maxWidth: '1000px' }}>
-            <Breadcrumbs />
-
             <PremiumHeader
                 title={editData ? 'Editar Estudio Ergonómico' : 'Nuevo Estudio Ergonómico'}
                 subtitle="Protocolo Res. SRT 886/15"
-                icon={<Accessibility size={36} />}
-                onBack={() => navigate(-1)}
+                icon={<Accessibility size={36} color="#ffffff" />}
             />
+
+            <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem', zIndex: 10 }} className="no-print">
+                <button 
+                    onClick={() => navigate(-1)} 
+                    style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '0.5rem', 
+                        padding: '0.5rem 1.25rem', 
+                        background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)', 
+                        border: 'none', 
+                        borderRadius: '12px', 
+                        color: '#ffffff', 
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)',
+                        transition: 'all 0.2s',
+                        letterSpacing: '0.3px'
+                    }}
+                    onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(54, 179, 126, 0.4)'; }}
+                    onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(54, 179, 126, 0.3)'; }}
+                >
+                    <ArrowLeft size={18} strokeWidth={2.5} /> Volver
+                </button>
+            </div>
 
             {/* Stepper Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem', position: 'relative' }}>

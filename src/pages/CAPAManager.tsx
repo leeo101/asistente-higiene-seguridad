@@ -11,6 +11,7 @@ import {
 import ShareModal from '../components/ShareModal';
 import CAPAPdf from '../components/CAPAPdf';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
+import PremiumHeader from '../components/PremiumHeader';
 
 // Form styles
 const labelStyle = { 
@@ -107,6 +108,7 @@ export default function CAPAManager(): React.ReactElement | null {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
@@ -311,92 +313,32 @@ export default function CAPAManager(): React.ReactElement | null {
             <div style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0, pointerEvents: 'none' }}>
                 {shareItem && <CAPAPdf data={shareItem} />}
             </div>
-            {/* Header Premium */}
-            <div style={{
-                marginBottom: '2rem',
-                padding: '1.5rem',
-                background: 'var(--gradient-card)',
-                borderRadius: 'var(--radius-2xl)',
-                border: '1px solid var(--glass-border)',
-                boxShadow: 'var(--glass-shadow)',
-                backdropFilter: 'blur(20px)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '1rem'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                        <ArrowLeft size={20} />
-                    </button>
-                    <div style={{
-                        width: '56px',
-                        height: '56px',
-                        background: 'linear-gradient(135deg, #10b981, #059669)',
-                        borderRadius: 'var(--radius-lg)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        boxShadow: '0 4px 20px rgba(16, 185, 129, 0.3)'
-                    }}>
-                        <RefreshCw size={32} color="#ffffff" strokeWidth={2} />
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                        <h1 style={{ 
-                            margin: 0, 
-                            fontSize: isMobile ? '1.2rem' : '1.5rem', 
-                            fontWeight: 900,
-                            color: 'var(--color-text)',
-                            letterSpacing: '-0.5px',
-                            overflowWrap: 'break-word',
-                            wordBreak: 'normal',
-                            lineHeight: 1.2
-                        }}>
-                            CAPA - Acciones Correctivas / Preventivas
-                        </h1>
-                        <p style={{ 
-                            margin: '0.25rem 0 0 0', 
-                            color: 'var(--color-text-muted)',
-                            fontSize: isMobile ? '0.75rem' : '0.85rem',
-                            fontWeight: 600
-                        }}>
-                            ISO 9001 / ISO 45001 • {stats.open} abiertas
-                        </p>
-                    </div>
-                </div>
+            <PremiumHeader 
+                title="CAPA - Acciones Correctivas"
+                subtitle={`ISO 9001 / ISO 45001 • ${stats.open} abiertas`}
+                icon={<RefreshCw size={36} color="#ffffff" />}
+            />
 
-                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginTop: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                    <button onClick={() => navigate('/', { state: { scrollTo: 'capa' } })} style={{
+                        display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
+                        background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)',
+                        borderRadius: '12px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
+                        boxShadow: 'var(--shadow-sm)'
+                    }}>
+                        <ArrowLeft size={20} /> INICIO
+                    </button>
                     <button
                         onClick={() => navigate('/capa/new')}
-                        className="btn-primary"
                         style={{
-                            width: isMobile ? '100%' : 'auto',
-                            margin: 0,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '0.5rem',
-                            padding: '0.75rem 1.25rem',
-                            background: '#36B37E',
-                            borderColor: '#36B37E',
-                            color: '#ffffff'
+                            display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
+                            background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)', color: 'white', border: 'none', borderRadius: '12px',
+                            fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
+                            boxShadow: '0 4px 15px rgba(54, 179, 126, 0.4)'
                         }}
                     >
-                        <Plus size={20} strokeWidth={2.5} />
-                        Nueva CAPA
-                    </button>
-                    <button
-                        onClick={() => navigate('/history')}
-                        className="btn-outline"
-                        style={{
-                            padding: '0.75rem 1rem',
-                            width: isMobile ? '100%' : 'auto',
-                            display: 'flex',
-                            justifyContent: 'center'
-                        }}
-                    >
-                        <FileText size={20} />
+                        <Plus size={20} strokeWidth={2.5} /> NUEVA CAPA
                     </button>
                 </div>
             </div>

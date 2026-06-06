@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import {
-    Plus, FileText,
+    Plus, FileText, ArrowLeft,
     Accessibility, Clock, Trash2, Search, Calendar, Building2, TriangleAlert
 } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
@@ -41,6 +41,7 @@ export default function Ergonomics(): React.ReactElement | null {
     const [deleteTarget, setDeleteTarget] = useState(null);
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         const saved = localStorage.getItem('ergonomics_history');
         if (saved) setHistory(JSON.parse(saved));
     }, [syncPulse]);
@@ -63,24 +64,32 @@ export default function Ergonomics(): React.ReactElement | null {
 
     return (
         <div className="container" style={{ maxWidth: '1200px', paddingBottom: '8rem' }}>
-            <Breadcrumbs />
-            
             {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
 
             <PremiumHeader
                 title="Protocolo de Ergonomía"
                 subtitle="Res. SRT 886/15 • Evaluación disergonómica"
-                icon={<Accessibility size={36} />}
-                onBack={() => navigate(-1)}
+                icon={<Accessibility size={36} color="#ffffff" />}
             />
 
-            <button
-                onClick={() => navigate('/ergonomics-form')}
-                className="btn-primary"
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', width: '100%', padding: '0.85rem', border: '1px solid #36B37E', background: '#36B37E', color: '#ffffff', cursor: 'pointer', fontSize: '0.92rem', marginBottom: '1.5rem', borderRadius: '12px' }}
-            >
-                <Plus size={18} /> <span className="hidden sm:inline">Nuevo Estudio de Ergonomía</span><span className="inline sm:hidden">NUEVO ESTUDIO</span>
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <button onClick={() => navigate('/', { state: { scrollTo: 'ergonomics' } })} style={{
+                        display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
+                        background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)',
+                        borderRadius: '12px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
+                        boxShadow: 'var(--shadow-sm)'
+                    }}>
+                        <ArrowLeft size={20} /> INICIO
+                    </button>
+                </div>
+                <button
+                    onClick={() => navigate('/ergonomics-form')}
+                    style={{ flex: '0 1 auto', padding: '0.8rem 1.5rem', borderRadius: '12px', background: '#36B37E', color: '#fff', border: 'none', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(54,179,126,0.3)', whiteSpace: 'nowrap' }}
+                >
+                    <Plus size={20} /> Nuevo Estudio
+                </button>
+            </div>
 
             {/* Search */}
             <div style={{ position: 'relative', marginBottom: '2rem' }}>

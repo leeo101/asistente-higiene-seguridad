@@ -223,6 +223,7 @@ export default function AuditForm(): React.ReactElement | null {
     }, [location.state]);
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         handleResize();
         window.addEventListener('resize', handleResize);
@@ -264,11 +265,36 @@ export default function AuditForm(): React.ReactElement | null {
                 title={isEdit ? 'Editar Auditoría' : 'Nueva Auditoría EHS'}
                 subtitle={isEdit ? 'Actualice la información de la auditoría en curso.' : 'Registre una nueva inspección o auditoría para evaluar el cumplimiento de EHS.'}
                 icon={<Shield size={32} color="#ffffff" />}
-                color="linear-gradient(135deg, #10b981, #059669)"
             />
 
+            <div style={{ maxWidth: '1000px', margin: '1rem auto 0', padding: '0 1rem', display: 'flex' }}>
+                <button 
+                    onClick={() => navigate('/audit')}
+                    style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '0.5rem', 
+                        padding: '0.5rem 1.25rem', 
+                        background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)', 
+                        border: 'none', 
+                        borderRadius: '12px', 
+                        color: '#ffffff', 
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)',
+                        transition: 'all 0.2s',
+                        letterSpacing: '0.3px'
+                    }}
+                    onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(54, 179, 126, 0.4)'; }}
+                    onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(54, 179, 126, 0.3)'; }}
+                >
+                    <ArrowLeft size={18} strokeWidth={2.5} />
+                    Volver
+                </button>
+            </div>
+
             <main style={{ padding: '0 0 2rem 0', maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
-                <div className="card animate-fade-in" style={{ padding: '2.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '24px', boxShadow: 'var(--shadow-lg)' }}>
+                <div className="card animate-fade-in" style={{ padding: '2.5rem', background: 'linear-gradient(145deg, var(--color-surface) 0%, rgba(16, 185, 129, 0.05) 100%)', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '24px', boxShadow: '0 10px 40px -10px rgba(16, 185, 129, 0.1)' }}>
                     {/* Metadatos Principales */}
                     <div style={{ 
                         display: 'grid', 
@@ -765,7 +791,7 @@ export default function AuditForm(): React.ReactElement | null {
                 fileName={`Auditoria_${audit.title || 'Sin_Nombre'}.pdf`}
             />
 
-            <div className="print-only" id="pdf-content" style={{ position: 'fixed', left: '-9999px', top: 0, opacity: 0.01, pointerEvents: 'none' }}>
+            <div className="print-only" id="pdf-content" style={{ position: 'fixed', left: '-9999px', top: 0, opacity: 0, pointerEvents: 'none' }}>
                 <AuditPdf data={{ ...audit, showSignatures, createdAt: audit.createdAt || new Date().toISOString() }} />
             </div>
         </div>

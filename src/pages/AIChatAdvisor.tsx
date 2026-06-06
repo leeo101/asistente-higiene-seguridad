@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
     ArrowLeft, Send, ShieldAlert, HardHat,
@@ -144,8 +144,10 @@ const QUICK_PROMPTS = [
 ];
 
 export default function AIChatAdvisor(): React.ReactElement | null {
+    useDocumentTitle('Asesor IA - H&S');
     const navigate = useNavigate();
-    useDocumentTitle('Asesor de Seguridad IA');
+    const location = useLocation();
+    const [showForm, setShowForm] = useState(location.pathname.includes('/nueva'));
     const [task, setTask] = useState('');
     const [loading, setLoading] = useState(false);
     const [loadingTextIndex, setLoadingTextIndex] = useState(0);
@@ -155,12 +157,18 @@ export default function AIChatAdvisor(): React.ReactElement | null {
     
     const { syncCollection, syncPulse } = useSync();
     const [history, setHistory] = useState([]);
-    const [showForm, setShowForm] = useState(false);
+
     const [searchTerm, setSearchTerm] = useState('');
     const [shareItem, setShareItem] = useState(null);
     const [qrTarget, setQrTarget] = useState(null);
     const [deleteTarget, setDeleteTarget] = useState(null);
     const currentUser = auth.currentUser;
+
+    useEffect(() => {
+        const isNew = location.pathname.includes('/nueva');
+        setShowForm(isNew);
+        window.scrollTo(0, 0);
+    }, [location.pathname]);
 
     useEffect(() => {
         try {
@@ -636,10 +644,13 @@ export default function AIChatAdvisor(): React.ReactElement | null {
             {!showForm ? (
                 <>
                     <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                        <button onClick={() => navigate('/', { state: { scrollTo: 'ai-advisor' } })} style={{ flex: '0 1 auto', padding: '1rem 1.5rem', borderRadius: '16px', background: 'var(--color-background)', border: '2px solid var(--color-border)', color: 'var(--color-text)', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', whiteSpace: 'nowrap', transition: 'all 0.2s' }} className="hover-scale">
+                            <ArrowLeft size={20} /> Inicio
+                        </button>
                         <button
                             onClick={() => { 
                                 handleNewQuery();
-                                setShowForm(true); 
+                                navigate('/ai-advisor/nueva');
                             }}
                             style={{ flex: '0 1 auto', padding: '1rem 1.5rem', borderRadius: '16px', background: '#36B37E', color: '#fff', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(54,179,126,0.3)', whiteSpace: 'nowrap' }}
                         >
@@ -690,7 +701,7 @@ export default function AIChatAdvisor(): React.ReactElement | null {
             ) : (
                 <>
                     <div className="no-print" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-                        <button onClick={() => setShowForm(false)} style={{ background: 'var(--color-background)', border: '2px solid var(--color-border)', borderRadius: '12px', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, cursor: 'pointer', color: 'var(--color-text)' }}>
+                        <button onClick={() => navigate('/ai-advisor')} style={{ background: 'var(--color-background)', border: '2px solid var(--color-border)', borderRadius: '12px', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, cursor: 'pointer', color: 'var(--color-text)' }}>
                             <ArrowLeft size={18} /> Volver
                         </button>
                     </div>
@@ -934,7 +945,10 @@ export default function AIChatAdvisor(): React.ReactElement | null {
                     {/* Nueva Consulta Button */}
                     <div style={{ marginTop: '3rem', textAlign: 'center' }}>
                         <button
-                            onClick={handleNewQuery}
+                            onClick={() => {
+                                handleNewQuery();
+                                navigate('/ai-advisor/nueva');
+                            }}
                             style={{
                                 display: 'inline-flex', alignItems: 'center', gap: '0.8rem',
                                 padding: '1rem 2.5rem',

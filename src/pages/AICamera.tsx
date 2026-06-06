@@ -33,6 +33,7 @@ export default function AICamera(): React.ReactElement | null {
     };
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         startCamera();
         return () => {
             stopStream();
@@ -354,11 +355,30 @@ export default function AICamera(): React.ReactElement | null {
 
     return (
         <div className="container" style={{ paddingBottom: '3rem', position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', zIndex: 10 }}>
-                <button onClick={() => navigate('/ai-camera-manager')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft  size={20} />
-                        </button>
-                <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Escaneo con IA</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', zIndex: 10, marginTop: '1rem' }}>
+                <button 
+                    onClick={() => navigate('/ai-camera-manager')} 
+                    style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '0.5rem', 
+                        padding: '0.5rem 1.25rem', 
+                        background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)', 
+                        border: 'none', 
+                        borderRadius: '12px', 
+                        color: '#ffffff', 
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)',
+                        transition: 'all 0.2s',
+                        letterSpacing: '0.3px'
+                    }}
+                    onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(54, 179, 126, 0.4)'; }}
+                    onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(54, 179, 126, 0.3)'; }}
+                >
+                    <ArrowLeft size={18} strokeWidth={2.5} /> Volver
+                </button>
+                <h1 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--color-text)' }}>Escaneo con IA</h1>
             </div>
 
             <div style={{ flex: 1, position: 'relative', borderRadius: '24px', overflow: 'hidden', background: 'var(--color-text)', border: '4px solid var(--color-border)', boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>

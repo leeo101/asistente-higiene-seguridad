@@ -17,18 +17,22 @@ export default function PremiumHeader({
   subtitle,
   icon,
   onBack,
+  color,
+  gradient,
   children
 }: PremiumHeaderProps): React.ReactElement {
+  const bg = gradient || color || 'linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)';
+
   return (
     <div style={{
-      background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)',
+      background: bg,
       padding: 'clamp(1rem, 3vw, 2rem)',
       borderRadius: '20px',
       marginTop: '1.5rem',
       marginBottom: '0',
       position: 'relative',
       overflow: 'hidden',
-      boxShadow: '0 10px 30px rgba(245, 158, 11, 0.3)',
+      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.15)',
       width: '100%',
       boxSizing: 'border-box'
     }}>
@@ -58,12 +62,32 @@ export default function PremiumHeader({
         {onBack && (
           <button 
             onClick={onBack} 
-            className="btn-back-premium" 
             title="Volver" 
             aria-label="Volver atrás"
             style={{
               marginRight: '0.5rem',
-              flexShrink: 0
+              flexShrink: 0,
+              width: '40px',
+              height: '40px',
+              background: 'rgba(255,255,255,0.2)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '1px solid rgba(255,255,255,0.3)',
+              cursor: 'pointer',
+              color: '#ffffff',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.3)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.2)';
+              e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
             <ArrowLeft size={20} />

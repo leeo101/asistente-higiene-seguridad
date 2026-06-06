@@ -155,6 +155,10 @@ export default function CAPAForm(): React.ReactElement | null {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     const handleSave = () => {
         if (!capa.title || !capa.description) {
             toast.error('Por favor complete los campos obligatorios (*)');
@@ -191,8 +195,32 @@ export default function CAPAForm(): React.ReactElement | null {
                     title={isEdit ? 'Editar Acción CAPA' : 'Nueva Acción CAPA'}
                     subtitle={isEdit ? 'Actualice la información de la acción correctiva o preventiva en curso.' : 'Registre una nueva acción para el proceso de mejora continua.'}
                     icon={<Shield size={32} color="#ffffff" />}
-                    color="linear-gradient(135deg, #36B37E, #059669)"
                 />
+                
+                <div style={{ marginTop: '1.5rem', marginBottom: '1rem' }}>
+                    <button 
+                        onClick={() => navigate('/capa')} 
+                        style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '0.5rem', 
+                            padding: '0.5rem 1.25rem', 
+                            background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)', 
+                            border: 'none', 
+                            borderRadius: '12px', 
+                            color: '#ffffff', 
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)',
+                            transition: 'all 0.2s',
+                            letterSpacing: '0.3px'
+                        }}
+                        onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(54, 179, 126, 0.4)'; }}
+                        onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(54, 179, 126, 0.3)'; }}
+                    >
+                        <ArrowLeft size={18} strokeWidth={2.5} /> Volver
+                    </button>
+                </div>
             </div>
 
             <main style={{ padding: isMobile ? '0 1rem 1.5rem' : '0 1.5rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>

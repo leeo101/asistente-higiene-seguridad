@@ -12,6 +12,7 @@ import TrainingExamPdfGenerator from '../components/TrainingExamPdfGenerator';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import PremiumHeader from '../components/PremiumHeader';
 import toast from 'react-hot-toast';
 import { usePaywall } from '../hooks/usePaywall';
 import AdBanner from '../components/AdBanner';
@@ -95,6 +96,10 @@ export default function TrainingManagement(): React.ReactElement | null {
     const [isMobile, setIsMobile] = useState(false);
 
     useDocumentTitle(showExamForm ? 'Generador de Exámenes' : showForm ? (editingId ? 'Editar Capacitación' : 'Nueva Capacitación') : 'Gestión de Capacitaciones');
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [showForm, showExamForm]);
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -371,16 +376,34 @@ export default function TrainingManagement(): React.ReactElement | null {
                                 <FileText size={18} /> IMPRIMIR EXAMEN
                             </button>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                <button onClick={() => setShowExamForm(false)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={20}  />
-                        </button>
-                                <div>
-                                    <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800 }}>Generador de Exámenes</h1>
-                                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Cree plantillas en blanco para evaluar capacitaciones</p>
-                                </div>
-                            </div>
+                        <PremiumHeader
+                            title="Generador de Exámenes"
+                            subtitle="Cree plantillas en blanco para evaluar capacitaciones"
+                            icon={<FileText size={36} color="#ffffff" />}
+                        />
+                        <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem', zIndex: 10 }}>
+                            <button 
+                                onClick={() => setShowExamForm(false)} 
+                                style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    gap: '0.5rem', 
+                                    padding: '0.5rem 1.25rem', 
+                                    background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)', 
+                                    border: 'none', 
+                                    borderRadius: '12px', 
+                                    color: '#ffffff', 
+                                    fontWeight: 800,
+                                    cursor: 'pointer',
+                                    boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)',
+                                    transition: 'all 0.2s',
+                                    letterSpacing: '0.3px'
+                                }}
+                                onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(54, 179, 126, 0.4)'; }}
+                                onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(54, 179, 126, 0.3)'; }}
+                            >
+                                <ArrowLeft size={18} strokeWidth={2.5} /> Volver
+                            </button>
                         </div>
 
                         <div className="glass-card" style={{ padding: '2rem', marginBottom: '1.5rem', borderRadius: 'var(--radius-2xl)', border: '1px solid var(--glass-border)', boxShadow: 'var(--glass-shadow)', backdropFilter: 'blur(12px)' }}>
@@ -455,13 +478,34 @@ export default function TrainingManagement(): React.ReactElement | null {
                                 <Printer size={18} /> IMPRIMIR PDF
                             </button>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                <button onClick={() => { setShowForm(false); setEditingId(null); setFormData(initialFormState); setShowSignatures(initialFormState.showSignatures); } } className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={20}  />
-                        </button>
-                                <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>{editingId ? 'Editar Capacitación' : 'Nueva Capacitación'}</h1>
-                            </div>
+                        <PremiumHeader
+                            title={editingId ? 'Editar Capacitación' : 'Nueva Capacitación'}
+                            subtitle="Complete los detalles y la asistencia de la charla"
+                            icon={<BookOpen size={36} color="#ffffff" />}
+                        />
+                        <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem', zIndex: 10 }}>
+                            <button 
+                                onClick={() => { setShowForm(false); setEditingId(null); setFormData(initialFormState); setShowSignatures(initialFormState.showSignatures); } }
+                                style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    gap: '0.5rem', 
+                                    padding: '0.5rem 1.25rem', 
+                                    background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)', 
+                                    border: 'none', 
+                                    borderRadius: '12px', 
+                                    color: '#ffffff', 
+                                    fontWeight: 800,
+                                    cursor: 'pointer',
+                                    boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)',
+                                    transition: 'all 0.2s',
+                                    letterSpacing: '0.3px'
+                                }}
+                                onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(54, 179, 126, 0.4)'; }}
+                                onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(54, 179, 126, 0.3)'; }}
+                            >
+                                <ArrowLeft size={18} strokeWidth={2.5} /> Volver
+                            </button>
                         </div>
 
                         {/* General Metadata Panel */}
@@ -625,26 +669,30 @@ export default function TrainingManagement(): React.ReactElement | null {
                 ) : (
                     <>
                         {/* HISTORY VIEW */}
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                <button onClick={() => navigate('/')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={20}  />
-                        </button>
-                                <div>
-                                    <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800 }}>Gestión de Capacitaciones</h1>
-                                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Registros de formación del personal</p>
-                                </div>
-                            </div>
-                            <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
+                        <PremiumHeader
+                            title="Gestión de Capacitaciones"
+                            subtitle="Registros de formación del personal"
+                            icon={<Users size={36} color="#ffffff" />}
+                        />
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginTop: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                                <button onClick={() => navigate('/', { state: { scrollTo: 'training-management' } })} style={{
+                                    display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
+                                    background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)',
+                                    borderRadius: '12px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
+                                    boxShadow: 'var(--shadow-sm)'
+                                }}>
+                                    <ArrowLeft size={20} /> INICIO
+                                </button>
                                 <button
                                     onClick={() => setShowExamForm(true)}
-                                    style={{ flex: '0 1 auto', padding: '1rem 1.5rem', borderRadius: '16px', background: '#8E44AD', color: '#fff', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(142,68,173,0.3)', whiteSpace: 'nowrap', margin: 0 }}
+                                    style={{ flex: '0 1 auto', padding: '0.8rem 1.5rem', borderRadius: '12px', background: '#8E44AD', color: '#fff', border: 'none', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(142,68,173,0.3)', whiteSpace: 'nowrap', margin: 0 }}
                                 >
                                     <FileText size={20} strokeWidth={3} /> Crear Examen
                                 </button>
                                 <button
                                     onClick={() => setShowForm(true)}
-                                    style={{ flex: '0 1 auto', padding: '1rem 1.5rem', borderRadius: '16px', background: '#36B37E', color: '#fff', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(54,179,126,0.3)', whiteSpace: 'nowrap', margin: 0 }}
+                                    style={{ flex: '0 1 auto', padding: '0.8rem 1.5rem', borderRadius: '12px', background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)', color: '#fff', border: 'none', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(54,179,126,0.3)', whiteSpace: 'nowrap', margin: 0 }}
                                 >
                                     <Plus size={20} strokeWidth={3} /> Nueva Charla
                                 </button>

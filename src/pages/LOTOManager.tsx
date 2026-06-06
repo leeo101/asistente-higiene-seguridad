@@ -10,6 +10,7 @@ import {
 import ShareModal from '../components/ShareModal';
 import LOTOPdf from '../components/LOTOPdf';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
+import PremiumHeader from '../components/PremiumHeader';
 
 // Tipos de energía según OSHA 1910.147
 const ENERGY_TYPES = [
@@ -92,6 +93,7 @@ export default function LOTOManager(): React.ReactElement | null {
     });
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         const loadData = () => {
             const savedProcedures = localStorage.getItem('loto_procedures_db');
             const savedActiveLOTOs = localStorage.getItem('loto_active_db');
@@ -233,60 +235,32 @@ export default function LOTOManager(): React.ReactElement | null {
             <div style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0, pointerEvents: 'none' }}>
                 {shareItem && <LOTOPdf data={shareItem} />}
             </div>
-            {/* Header Premium */}
-            <div style={{
-                marginBottom: '2rem',
-                padding: '1.5rem',
-                background: 'linear-gradient(135deg, #d4af37, #aa8222)',
-                borderRadius: 'var(--radius-2xl)',
-                border: '1px solid rgba(212, 175, 55, 0.3)',
-                boxShadow: '0 8px 32px rgba(212, 175, 55, 0.2)',
-                backdropFilter: 'blur(20px)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '1rem',
-                color: '#fff'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                        <ArrowLeft size={20} />
-                    </button>
-                    <div style={{
-                        width: '56px',
-                        height: '56px',
-                        background: 'linear-gradient(135deg, #dc2626, #991b1b)',
-                        borderRadius: 'var(--radius-lg)',
+            <PremiumHeader 
+                title="Lockout/Tagout (LOTO)"
+                subtitle={`OSHA 1910.147 • ${activeLOTOs.length} activos`}
+                icon={<Lock size={32} color="#ffffff" />}
+                color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+            />
+
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', marginTop: '1.5rem' }}>
+                <button
+                    onClick={() => navigate('/', { state: { scrollTo: 'loto' } })}
+                    style={{
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center',
-                        boxShadow: '0 4px 20px rgba(220, 38, 38, 0.3)'
-                    }}>
-                        <Lock size={32} color="#ffffff" strokeWidth={2} />
-                    </div>
-                    <div>
-                        <h1 style={{ 
-                            margin: 0, 
-                            fontSize: '1.5rem', 
-                            fontWeight: 900,
-                            color: '#fff',
-                            letterSpacing: '-0.5px'
-                        }}>
-                            Lockout/Tagout (LOTO)
-                        </h1>
-                        <p style={{ 
-                            margin: '0.25rem 0 0 0', 
-                            color: 'rgba(255,255,255,0.9)',
-                            fontSize: '0.85rem',
-                            fontWeight: 600
-                        }}>
-                            OSHA 1910.147 • {activeLOTOs.length} activos
-                        </p>
-                    </div>
-                </div>
-
-                
+                        gap: '0.5rem',
+                        padding: '0.5rem 1rem',
+                        background: 'var(--color-surface)',
+                        color: 'var(--color-text)',
+                        border: '1px solid var(--color-border)',
+                        borderRadius: '8px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                    }}
+                >
+                    INICIO
+                </button>
             </div>
 
             <div style={{ marginBottom: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>

@@ -58,8 +58,12 @@ const EXTINTOR_INFO = {
 export default function ExtinguisherAI(): React.ReactElement | null {
     const navigate = useNavigate();
     useDocumentTitle('Reconocimiento de Extintores IA');
-        const { requirePro } = usePaywall();
+    const { requirePro } = usePaywall();
     const { syncCollection } = useSync();
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
     
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
@@ -315,20 +319,30 @@ export default function ExtinguisherAI(): React.ReactElement | null {
 
             {!isCameraVisible ? (
                 <div className="animate-fade-in" style={{ padding: '0 1rem', width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
-                    <Breadcrumbs />
                     <PremiumHeader
                         title="Reconocimiento Extintores IA"
                         subtitle={`Inspecciones de extintores • ${history.length} registros`}
-                        icon={<Flame size={36} />}
+                        icon={<Flame size={36} color="#ffffff" />}
                     />
                     
-                    <button
-                        onClick={() => setIsCameraVisible(true)}
-                        className="btn-primary"
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', width: '100%', padding: '0.85rem', border: '1px solid #36B37E', background: '#36B37E', color: '#ffffff', cursor: 'pointer', fontSize: '0.92rem', marginBottom: '1.5rem', borderRadius: '12px' }}
-                    >
-                        <Plus size={18} /> NUEVA INSPECCIÓN
-                    </button>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                            <button onClick={() => navigate('/', { state: { scrollTo: 'extinguisher-ai' } })} style={{
+                                display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
+                                background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)',
+                                borderRadius: '12px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
+                                boxShadow: 'var(--shadow-sm)'
+                            }}>
+                                <ArrowLeft size={20} /> INICIO
+                            </button>
+                        </div>
+                        <button
+                            onClick={() => setIsCameraVisible(true)}
+                            style={{ flex: '0 1 auto', padding: '0.8rem 1.5rem', borderRadius: '12px', background: '#36B37E', color: '#fff', border: 'none', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(54,179,126,0.3)', whiteSpace: 'nowrap' }}
+                        >
+                            <Plus size={20} /> Nueva Inspección
+                        </button>
+                    </div>
 
                     {/* Stats panel */}
                     {total > 0 && (
@@ -438,9 +452,6 @@ export default function ExtinguisherAI(): React.ReactElement | null {
                 <>
                 {/* Floating action bar for form mode */}
                 <div className="no-print floating-action-bar">
-                    <button onClick={() => { setIsCameraVisible(false); setAnalysisResult(null); setCapturedImage(null); } } className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={18} /> ATRÁS
-                    </button>
                     {analysisResult && (
                         <>
                             <button
@@ -474,6 +485,38 @@ export default function ExtinguisherAI(): React.ReactElement | null {
                     )}
                 </div>
                 <div className="animate-fade-in" style={{ paddingTop: '1rem' }}>
+                    <div className="no-print">
+                        <PremiumHeader
+                            title="Reconocimiento de Extintores"
+                            subtitle="Captura y analiza el estado del extintor"
+                            icon={<Flame size={36} color="#ffffff" />}
+                        />
+                        
+                        <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem', zIndex: 10 }}>
+                            <button 
+                                onClick={() => { setIsCameraVisible(false); setAnalysisResult(null); setCapturedImage(null); }} 
+                                style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    gap: '0.5rem', 
+                                    padding: '0.5rem 1.25rem', 
+                                    background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)', 
+                                    border: 'none', 
+                                    borderRadius: '12px', 
+                                    color: '#ffffff', 
+                                    fontWeight: 800,
+                                    cursor: 'pointer',
+                                    boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)',
+                                    transition: 'all 0.2s',
+                                    letterSpacing: '0.3px'
+                                }}
+                                onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(54, 179, 126, 0.4)'; }}
+                                onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(54, 179, 126, 0.3)'; }}
+                            >
+                                <ArrowLeft size={18} strokeWidth={2.5} /> Volver
+                            </button>
+                        </div>
+                    </div>
 
             {/* Camera / Image Display */}
             <div id="extinguisher-pdf-content" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>

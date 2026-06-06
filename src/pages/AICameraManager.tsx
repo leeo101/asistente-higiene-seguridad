@@ -40,6 +40,7 @@ export default function AICameraManager(): React.ReactElement | null {
     const [shareItem, setShareItem] = useState(null);
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         const raw = localStorage.getItem('ai_camera_history');
         if (!raw) return;
         try {
@@ -143,18 +144,25 @@ export default function AICameraManager(): React.ReactElement | null {
             <PremiumHeader
                 title="Cámara IA (EPP)"
                 subtitle="Detección y cumplimiento de EPP"
-                icon={<Camera size={36} />} onBack={() => navigate('/#tools')}
+                icon={<Camera size={36} color="#ffffff" />}
             />
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginTop: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                 
-
                 <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                    <button onClick={() => navigate('/', { state: { scrollTo: 'ai-camera-manager' } })} style={{
+                        display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
+                        background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)',
+                        borderRadius: '12px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
+                        boxShadow: 'var(--shadow-sm)'
+                    }}>
+                        <ArrowLeft size={20} /> INICIO
+                    </button>
                     <button
                         onClick={() => navigate('/ai-camera')}
                         style={{
                             display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
-                            background: '#36B37E', color: 'white', border: 'none', borderRadius: '12px',
+                            background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)', color: 'white', border: 'none', borderRadius: '12px',
                             fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
                             boxShadow: '0 4px 15px rgba(54, 179, 126, 0.4)'
                         }}

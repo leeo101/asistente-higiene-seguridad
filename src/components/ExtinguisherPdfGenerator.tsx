@@ -144,10 +144,9 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
 
                             return sortedCompanies.map(empresa => {
                                 const group = grouped[empresa].sort((a, b) => {
-                                    const numA = parseInt(a.chapa || a.numero || '0', 10);
-                                    const numB = parseInt(b.chapa || b.numero || '0', 10);
-                                    if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
-                                    return String(a.chapa || a.numero || '').localeCompare(String(b.chapa || b.numero || ''));
+                                    const valA = String(a.chapa || a.numero || '');
+                                    const valB = String(b.chapa || b.numero || '');
+                                    return valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' });
                                 });
 
                                 return (
@@ -204,8 +203,8 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
                                                             <td style={{ padding: '8px' }}>
                                                                 {lastInspection ? (
                                                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                                                        <span style={{ fontWeight: 800, color: lastInspection.resultado === 'C' ? '#166534' : '#dc2626' }}>
-                                                                            {new Date(lastInspection.fechaVisita + 'T12:00:00Z').toLocaleDateString('es-AR')} - {lastInspection.resultado === 'C' ? 'CUMPLE' : 'NO CUMPLE'}
+                                                                        <span style={{ fontWeight: 800, color: '#1e293b' }}>
+                                                                            {new Date(lastInspection.fechaVisita + 'T12:00:00Z').toLocaleDateString('es-AR')} - Res: <span style={{ display: 'inline-block', width: '50px', borderBottom: '1px solid #1e293b', verticalAlign: 'middle' }}></span>
                                                                         </span>
                                                                         {lastInspection.observacion && <span style={{ fontSize: '7.5pt', color: '#64748b', fontStyle: 'italic' }}>Obs: {lastInspection.observacion}</span>}
                                                                     </div>

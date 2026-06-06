@@ -4,6 +4,7 @@ import { ShieldCheck, ArrowLeft, Camera, CheckCircle2, Save, X, Flame, Plus } fr
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
+import PremiumHeader from '../components/PremiumHeader';
 
 const NFPA10_CHECKLIST = [
     { id: 'c1', text: 'Ubicación correcta y asignada' },
@@ -26,10 +27,11 @@ export default function ExtinguisherInspection() {
     const [inspectorName, setInspectorName] = useState('');
     const [generalPhotos, setGeneralPhotos] = useState([]);
     const [generalObservations, setGeneralObservations] = useState('');
-    const [manualResult, setManualResult] = useState<'APROBADO' | 'RECHAZADO' | null>(null);
+    const [inspectionDate, setInspectionDate] = useState(new Date().toISOString().split('T')[0]);
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         // Cargar inventario y buscar el extintor
         // Se compara tanto como string como número para compatibilidad con IDs viejos y nuevos
         const tryLoad = (storageKey: string) => {
@@ -147,22 +149,20 @@ export default function ExtinguisherInspection() {
             toast.error('Por favor, completa todos los puntos del checklist.');
             return;
         }
-        if (!manualResult) {
-            toast.error('Por favor, seleccione si la inspección está Aprobada o Rechazada.');
-            return;
-        }
+
+        const calculatedResult = checklist.every(c => c.status === 'C' || c.status === 'NA') ? 'APROBADO' : 'RECHAZADO';
 
         setIsSaving(true);
         const report = {
             id: Date.now().toString(),
             extintorId: extintor.id,
             extintorNum: extintor.numero || extintor.chapa || '',
-            fecha: new Date().toISOString(),
+            fecha: `${inspectionDate}T12:00:00.000Z`,
             inspector: inspectorName,
             items: checklist,
             fotos: generalPhotos,
             observaciones: generalObservations,
-            resultado: manualResult
+            resultado: calculatedResult
         };
 
         const historyRaw = localStorage.getItem('extintores_history');
@@ -212,24 +212,34 @@ export default function ExtinguisherInspection() {
 
     return (
         <div className="container" style={{ maxWidth: '600px', paddingBottom: '6rem' }}>
-            {/* Mobile-optimized Header */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-                <button onClick={() => navigate('/extintores')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={20}  />
-                        </button>
-                <div>
-                    <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-text)' }}>
-                        <Flame size={20} color="#ef4444" /> {extintor.numero}
-                    </h2>
-                    <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>
-                        {extintor.tipo} - {extintor.ubicacion} {extintor.marca ? `(${extintor.marca})` : ''}
-                    </p>
-                    {extintor.numeroSerie && (
-                        <p style={{ margin: 0, fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-text-muted)', marginTop: '0.1rem' }}>
-                            S/N: {extintor.numeroSerie}
-                        </p>
-                    )}
-                </div>
+            <PremiumHeader
+                title={`Inspección: ${extintor.numero}`}
+                subtitle={`${extintor.tipo} - ${extintor.ubicacion} ${extintor.marca ? `(${extintor.marca})` : ''}`}
+                icon={<ShieldCheck size={32} color="#ffffff" />}
+                color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+            />
+
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
+                <button
+                    onClick={() => navigate('/extintores')}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        padding: '0.5rem 1rem',
+                        background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        boxShadow: '0 4px 15px rgba(54, 179, 126, 0.3)'
+                    }}
+                >
+                    <ArrowLeft size={18} />
+                    VOLVER
+                </button>
             </div>
 
             <div className="card" style={{ padding: '1.2rem', marginBottom: '1.5rem', background: 'var(--color-surface)', border: '2px solid var(--color-border)' }}>
@@ -329,47 +339,26 @@ export default function ExtinguisherInspection() {
                 />
             </div>
 
-            <div className="card" style={{ padding: '1.2rem', marginBottom: '1.5rem', background: 'var(--color-surface)', border: '2px solid var(--color-border)' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 900, color: 'var(--color-text)', textTransform: 'uppercase', marginBottom: '0.8rem' }}>
-                    Resultado de Inspección <span style={{ color: '#ef4444' }}>*</span>
-                </label>
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                    <button 
-                        onClick={() => setManualResult('APROBADO')}
-                        style={{ 
-                            flex: 1, padding: '1rem', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s',
-                            background: manualResult === 'APROBADO' ? '#10b981' : 'rgba(16, 185, 129, 0.1)',
-                            color: manualResult === 'APROBADO' ? '#ffffff' : '#10b981',
-                            border: manualResult === 'APROBADO' ? 'none' : '1px solid rgba(16, 185, 129, 0.3)',
-                            boxShadow: manualResult === 'APROBADO' ? '0 8px 20px rgba(16, 185, 129, 0.3)' : 'none'
-                        }}
-                    >
-                        APROBADO
-                    </button>
-                    <button 
-                        onClick={() => setManualResult('RECHAZADO')}
-                        style={{ 
-                            flex: 1, padding: '1rem', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s',
-                            background: manualResult === 'RECHAZADO' ? '#ef4444' : 'rgba(239, 68, 68, 0.1)',
-                            color: manualResult === 'RECHAZADO' ? '#ffffff' : '#ef4444',
-                            border: manualResult === 'RECHAZADO' ? 'none' : '1px solid rgba(239, 68, 68, 0.3)',
-                            boxShadow: manualResult === 'RECHAZADO' ? '0 8px 20px rgba(239, 68, 68, 0.3)' : 'none'
-                        }}
-                    >
-                        RECHAZADO
-                    </button>
-                </div>
-            </div>
-
             <div className="card" style={{ padding: '1.2rem', background: 'var(--color-surface)', border: '2px solid var(--color-border)', marginBottom: '4rem' }}>
-                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Firma del Inspector</label>
-                <input 
-                    type="text" 
-                    placeholder="Nombre completo" 
-                    value={inspectorName} 
-                    onChange={e => setInspectorName(e.target.value)} 
-                    style={{ width: '100%', padding: '0.8rem', borderRadius: '10px', border: '1px solid var(--color-border)', outline: 'none', fontWeight: 700 }} 
-                />
+                <div style={{ marginBottom: '1rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Fecha de Inspección</label>
+                    <input 
+                        type="date" 
+                        value={inspectionDate} 
+                        onChange={e => setInspectionDate(e.target.value)} 
+                        style={{ width: '100%', padding: '0.8rem', borderRadius: '10px', border: '1px solid var(--color-border)', outline: 'none', fontWeight: 700, fontFamily: 'inherit' }} 
+                    />
+                </div>
+                <div>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Firma del Inspector</label>
+                    <input 
+                        type="text" 
+                        placeholder="Nombre completo" 
+                        value={inspectorName} 
+                        onChange={e => setInspectorName(e.target.value)} 
+                        style={{ width: '100%', padding: '0.8rem', borderRadius: '10px', border: '1px solid var(--color-border)', outline: 'none', fontWeight: 700 }} 
+                    />
+                </div>
             </div>
 
             {/* Mobile Floating Save Button */}

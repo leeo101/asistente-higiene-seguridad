@@ -2761,6 +2761,7 @@ svg.ph-duotone [opacity="0.2"] {
   pointer-events: none;
   z-index: -9999;
   overflow: visible;
+  opacity: 0;
 }
 
 /* Solo mostrar el offscreen que contiene el elemento marcado para imprimir */

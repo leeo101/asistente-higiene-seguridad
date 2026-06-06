@@ -9,6 +9,7 @@ import ShareModal from '../components/ShareModal';
 import QRModal from '../components/QRModal';
 import { usePaywall } from '../hooks/usePaywall';
 import AnimatedPage from '../components/AnimatedPage';
+import PremiumHeader from '../components/PremiumHeader';
 
 export default function RiskMapHistory(): React.ReactElement | null {
     useDocumentTitle('Historial de Mapas de Riesgo');
@@ -25,6 +26,7 @@ export default function RiskMapHistory(): React.ReactElement | null {
     const [shareItem, setShareItem] = useState(null);
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         const h = JSON.parse(localStorage.getItem('risk_map_history') || '[]');
         setHistory(h.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     }, [syncing]);
@@ -80,37 +82,32 @@ export default function RiskMapHistory(): React.ReactElement | null {
                 {shareItem && <RiskMapPdfGenerator data={shareItem} />}
             </div>
 
-            {/* Premium Header */}
-            <div style={{
-                background: 'linear-gradient(135deg, #d4af37, #b8860b)',
-                border: '1px solid rgba(212,175,55,0.2)',
-                borderRadius: '24px',
-                padding: '1.5rem 2rem',
-                marginBottom: '1rem',
-                display: 'flex',
-                flexWrap: 'wrap',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: '1rem',
-                boxShadow: '0 10px 40px rgba(212,175,55,0.3)'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <div style={{ 
-                    width: '56px', height: '56px', borderRadius: '16px', 
-                    background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)'
-                }}>
-                    <MapIcon size={30} color="#fff" strokeWidth={2.5} />
-                </div>
-                <div>
-                    <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.5px', textShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
-                    Mapas de Riesgos
-                    </h1>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'rgba(255,255,255,0.85)', fontWeight: 600 }}>
-                    Croquis e Identificación ISO
-                    </p>
-                </div>
-                </div>
+            <PremiumHeader 
+                title="Mapas de Riesgos"
+                subtitle="Croquis e Identificación ISO"
+                icon={<MapIcon size={32} color="#ffffff" />}
+                color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+            />
+
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
+                <button
+                    onClick={() => navigate('/', { state: { scrollTo: 'risk-maps-history' } })}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        padding: '0.5rem 1rem',
+                        background: 'var(--color-surface)',
+                        color: 'var(--color-text)',
+                        border: '1px solid var(--color-border)',
+                        borderRadius: '8px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                    }}
+                >
+                    INICIO
+                </button>
             </div>
 
             <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'flex-start' }}>

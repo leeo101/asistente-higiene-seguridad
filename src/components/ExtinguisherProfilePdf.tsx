@@ -321,7 +321,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '10pt', background: '#f8fafc', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                                 <div><strong style={{ color: '#64748b' }}>Fecha:</strong> <span style={{ fontWeight: 800 }}>{new Date(latestInspection.fecha).toLocaleDateString('es-AR')}</span></div>
                                 <div><strong style={{ color: '#64748b' }}>Inspector:</strong> <span style={{ fontWeight: 800 }}>{latestInspection.inspector || '-'}</span></div>
-                                <div><strong style={{ color: '#64748b' }}>Resultado:</strong> <span style={{ color: latestInspection.resultado === 'APROBADO' ? '#10b981' : '#ef4444', fontWeight: 900 }}>{latestInspection.resultado}</span></div>
+                                <div><strong style={{ color: '#64748b' }}>Resultado de inspección:</strong> <span style={{ display: 'inline-block', width: '150px', borderBottom: '1px solid #64748b', marginLeft: '5px' }}></span></div>
                             </div>
                             
                             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9pt', fontFamily: 'sans-serif' }}>

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import {
   ClipboardText, House, ClockCounterClockwise, User, Users, GearSix,
@@ -177,6 +177,7 @@ const CounterItem: React.FC<CounterItemProps> = ({ value, label, suffix = '' }) 
 
 export default function Home(): React.ReactElement {
   const navigate = useNavigate();
+  const location = useLocation();
   const { currentUser } = useAuth() as { currentUser: FirebaseUser | null };
   const { syncPulse } = useSync();
   const { isPro, daysRemaining } = usePaywall();
@@ -369,7 +370,16 @@ export default function Home(): React.ReactElement {
         }
       }, 500);
     }
-  }, [syncPulse, currentUser]);
+
+    if (location.state?.scrollTo) {
+      setTimeout(() => {
+        const el = document.getElementById(`module-${location.state.scrollTo}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'auto', block: 'center' });
+        }
+      }, 100);
+    }
+  }, [syncPulse, currentUser, location]);
 
   return (
     <AnimatedPage>
@@ -639,6 +649,7 @@ export default function Home(): React.ReactElement {
                 <Link
                   key={i}
                   to={link.to}
+                  id={`module-${link.to.replace('/', '')}`}
                   className="card"
                   style={{
                     textDecoration: 'none',

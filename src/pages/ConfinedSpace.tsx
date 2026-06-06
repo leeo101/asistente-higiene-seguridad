@@ -5,7 +5,7 @@ import {
     FileText, Eye, Edit3, Trash2, CheckCircle2, 
     XCircle, Clock, User, Users, Calendar,
     Shield, Wind, Droplets, Thermometer, Activity,
-    BarChart3, AlertCircle, CheckSquare, XSquare, Share2
+    BarChart3, AlertCircle, CheckSquare, XSquare, Share2, ArrowLeft
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import ConfinedSpacePdf from '../components/ConfinedSpacePdf';
@@ -116,6 +116,7 @@ export default function ConfinedSpace(): React.ReactElement | null {
     const semaphoreLabel = allCriticalDone && preEntryPct === 100 ? '✅ AUTORIZADO PARA INGRESAR' : allCriticalDone ? '⚠️ INCOMPLETO — Verificar items opcionales' : '🚫 ENTRADA PROHIBIDA — Items críticos pendientes';
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         const loadData = () => {
             const savedPermits = localStorage.getItem('confined_space_permits_db');
             const savedActive = localStorage.getItem('confined_space_active_db');
@@ -279,22 +280,31 @@ export default function ConfinedSpace(): React.ReactElement | null {
             <div style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0, pointerEvents: 'none' }}>
                 {shareItem && <ConfinedSpacePdf data={shareItem} />}
             </div>
-            <Breadcrumbs />
 
             <PremiumHeader
                 title="Espacios Confinados"
                 subtitle={`OSHA 1910.146 • ${activePermits.length} activos`}
-                icon={<Tent size={36} />}
-                onBack={() => navigate(-1)}
+                icon={<Tent size={36} color="#ffffff" />}
             />
 
-            <button
-                onClick={() => navigate('/confined-space/new')}
-                className="btn-primary"
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', width: '100%', padding: '0.85rem', border: '1px solid #36B37E', background: '#36B37E', color: '#ffffff', cursor: 'pointer', fontSize: '0.92rem', marginBottom: '1.5rem', borderRadius: '12px' }}
-            >
-                <Plus size={18} /> <span className="hidden sm:inline">Nuevo Permiso de Espacio Confinado</span><span className="inline sm:hidden">NUEVO PERMISO</span>
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <button onClick={() => navigate('/', { state: { scrollTo: 'confined-space' } })} style={{
+                        display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
+                        background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)',
+                        borderRadius: '12px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
+                        boxShadow: 'var(--shadow-sm)'
+                    }}>
+                        <ArrowLeft size={20} /> INICIO
+                    </button>
+                </div>
+                <button
+                    onClick={() => navigate('/confined-space/new')}
+                    style={{ flex: '0 1 auto', padding: '0.8rem 1.5rem', borderRadius: '12px', background: '#36B37E', color: '#fff', border: 'none', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(54,179,126,0.3)', whiteSpace: 'nowrap' }}
+                >
+                    <Plus size={20} /> Nuevo Permiso
+                </button>
+            </div>
 
             {/* Stats Cards */}
             <div style={{

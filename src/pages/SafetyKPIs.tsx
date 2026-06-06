@@ -180,6 +180,10 @@ export default function SafetyKPIs(): React.ReactElement {
         }
     }, []);
 
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [showForm]);
+
     const save = (data: KPIEntry[]) => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
         setEntries(data.sort((a, b) => a.period.localeCompare(b.period)));
@@ -270,39 +274,35 @@ export default function SafetyKPIs(): React.ReactElement {
 
     return (
         <div className="container" style={{ paddingTop: '6rem', paddingBottom: '6rem', maxWidth: 1100 }}>
-            <Breadcrumbs />
-
             {/* Dashboard View */}
             {!showForm ? (
                 <>
-                    {/* Header */}
-                    <div style={{
-                        marginBottom: '1rem', padding: '1.5rem 2rem',
-                        background: 'linear-gradient(135deg, #d4af37, #b8860b)',
-                        borderRadius: 24, display: 'flex', justifyContent: 'space-between',
-                        alignItems: 'center', flexWrap: 'wrap', gap: '1rem',
-                        boxShadow: '0 10px 40px rgba(212,175,55,0.3)'
-                    }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                            <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás" style={{ flexShrink: 0 }}>
-                                <ArrowLeft size={20} />
-                            </button>
-                            <div style={{
-                                width: 56, height: 56, background: 'rgba(255,255,255,0.2)',
-                                borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)'
-                            }}>
-                                <BarChart3 size={30} color="#fff" strokeWidth={2.5} />
-                            </div>
-                            <div>
-                                <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.5px', textShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
-                                    KPIs de Seguridad
-                                </h1>
-                                <p style={{ margin: 0, color: 'rgba(255,255,255,0.85)', fontSize: '0.85rem', fontWeight: 600 }}>
-                                    LTIFR • TRIFR • Severidad • Incidencia — Estándar ISO 45001
-                                </p>
-                            </div>
-                        </div>
+                    <PremiumHeader 
+                        title="KPIs de Seguridad"
+                        subtitle="LTIFR • TRIFR • Severidad • Incidencia — Estándar ISO 45001"
+                        icon={<BarChart3 size={32} color="#ffffff" />}
+                        color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+                    />
+
+                    <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+                        <button
+                            onClick={() => navigate('/', { state: { scrollTo: 'safety-kpis' } })}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '0.5rem 1rem',
+                                background: 'var(--color-surface)',
+                                color: 'var(--color-text)',
+                                border: '1px solid var(--color-border)',
+                                borderRadius: '8px',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease'
+                            }}
+                        >
+                            INICIO
+                        </button>
                     </div>
                     
                     <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'flex-start' }}>
@@ -487,9 +487,30 @@ export default function SafetyKPIs(): React.ReactElement {
                     title={editing ? 'Editar Período KPI' : 'Ingresar Período KPI'}
                     subtitle="Registrá los datos mensuales para calcular tus índices de seguridad automáticamente."
                     icon={<BarChart3 size={32} color="#ffffff" />}
-                    color="linear-gradient(135deg, #d4af37, #b8860b)"
-                    onBack={() => { setShowForm(false); setEditing(null); }}
+                    color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
                 />
+                
+                <div style={{ marginBottom: '1.5rem', marginTop: '1.5rem' }}>
+                    <button
+                        onClick={() => { setShowForm(false); setEditing(null); }}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '0.75rem 1.5rem',
+                            background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '12px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)',
+                            transition: 'all 0.2s ease'
+                        }}
+                    >
+                        <ArrowLeft size={20} /> Volver
+                    </button>
+                </div>
                 
                 <div className="card" style={{ padding: '2.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '24px', boxShadow: 'var(--shadow-lg)', marginTop: '1rem' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.25rem', marginBottom: '1.5rem' }}>

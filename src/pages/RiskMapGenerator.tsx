@@ -5,7 +5,7 @@ import html2canvas from 'html2canvas';
 import {
     ArrowLeft, Save, Trash2, Printer, Image as ImageIcon,
     ZoomIn, ZoomOut, Download, Share2, Eye, EyeOff,
-    Maximize2, HelpCircle, Layers, MousePointer2, Move
+    Maximize2, HelpCircle, Layers, MousePointer2, Move, Map as MapIcon
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import RiskMapPdfGenerator from '../components/RiskMapPdfGenerator';
@@ -18,6 +18,7 @@ import toast from 'react-hot-toast';
 import { usePaywall } from '../hooks/usePaywall';
 import AdBanner from '../components/AdBanner';
 import { SAFETY_ICONS } from '../data/mapIcons';
+import PremiumHeader from '../components/PremiumHeader';
 
 // ─── Layer helpers ─────────────────────────────────────────────────────────
 const getLayer = (el) => {
@@ -42,6 +43,10 @@ export default function RiskMapGenerator(): React.ReactElement | null {
         sector: editData?.sector || '',
         fecha: editData?.fecha || new Date().toISOString().split('T')[0]
     });
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     // ─── Canvas state ───────────────────────────────────────────────────────
     const [elements, setElements] = useState(editData?.elements || []);
@@ -530,17 +535,38 @@ export default function RiskMapGenerator(): React.ReactElement | null {
             </div>
 
             <div className="no-print" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                {/* Header row */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <button onClick={() => navigate('/risk-maps-history')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={18}  />
-                        </button>
-                        <h1 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 900, background: 'linear-gradient(to right, var(--color-primary), #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                            {editData ? 'Editar Mapa' : 'Editor de Mapa de Riesgos'}
-                        </h1>
-                    </div>
-                    <button onClick={clearCanvas} className="btn-outline hover-lift" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, padding: '0.5rem 1rem', borderColor: 'rgba(239, 68, 68, 0.3)', color: '#ef4444', borderRadius: '12px', fontWeight: 700 }}><Trash2 size={16} /> Borrar Todo</button>
+                <PremiumHeader 
+                    title={editData ? 'Editar Mapa' : 'Nuevo Mapa'}
+                    subtitle="Editor de Mapa de Riesgos"
+                    icon={<MapIcon size={32} color="#ffffff" />}
+                    color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+                />
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                    <button
+                        onClick={() => navigate('/risk-maps-history')}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '0.5rem 1rem',
+                            background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            boxShadow: '0 4px 15px rgba(54, 179, 126, 0.3)'
+                        }}
+                    >
+                        <ArrowLeft size={18} />
+                        VOLVER
+                    </button>
+                    
+                    <button onClick={clearCanvas} className="btn-outline hover-lift" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, padding: '0.5rem 1rem', borderColor: 'rgba(239, 68, 68, 0.3)', color: '#ef4444', borderRadius: '12px', fontWeight: 700 }}>
+                        <Trash2 size={16} /> Borrar Todo
+                    </button>
                 </div>
 
                 {/* Metadata bar */}

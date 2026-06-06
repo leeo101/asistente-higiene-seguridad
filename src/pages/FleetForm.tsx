@@ -70,6 +70,10 @@ export default function FleetForm(): React.ReactElement | null {
     const [inspections, setInspections] = useState<any[]>([]);
 
     useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
+    useEffect(() => {
         const saved = JSON.parse(localStorage.getItem('fleet_inspections_db') || '[]');
         setInspections(saved);
     }, [isFormVisible]);
@@ -243,10 +247,32 @@ export default function FleetForm(): React.ReactElement | null {
                     title="Control de Flota y Vehículos"
                     subtitle="Gestión e historial de inspecciones pre-operacionales."
                     icon={<CarFront size={32} color="#ffffff" />}
-                    color="linear-gradient(135deg, #0ea5e9, #0284c7)"
+                    color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
                 />
                 
                 <main style={{ padding: '0 0 2rem 0', maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
+                    {/* Botones de Navegación */}
+                    <div style={{ display: 'flex', gap: '1rem', padding: '0 1rem', marginBottom: '1rem' }}>
+                        <button
+                            onClick={() => navigate('/', { state: { scrollTo: 'fleet-form' } })}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '0.5rem 1rem',
+                                background: 'var(--color-surface)',
+                                color: 'var(--color-text)',
+                                border: '1px solid var(--color-border)',
+                                borderRadius: '8px',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease'
+                            }}
+                        >
+                            INICIO
+                        </button>
+                    </div>
+
                     <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap', padding: '0 1rem' }}>
                         <div style={{ position: 'relative', flex: '1 1 300px' }}>
                             <Search size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
@@ -358,10 +384,32 @@ export default function FleetForm(): React.ReactElement | null {
                 title={isEdit ? 'Editar Inspección' : 'Nueva Inspección Vehicular'}
                 subtitle="Complete el checklist pre-operacional para autorizar el uso del vehículo."
                 icon={<CarFront size={32} color="#ffffff" />}
-                color="linear-gradient(135deg, #0ea5e9, #0284c7)"
+                color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
             />
 
             <main style={{ padding: '3.5rem 1.5rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
+                <div style={{ marginBottom: '1.5rem' }}>
+                    <button
+                        onClick={() => { setIsFormVisible(false); setIsEdit(false); window.scrollTo(0, 0); }}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '0.75rem 1.5rem',
+                            background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '12px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)',
+                            transition: 'all 0.2s ease'
+                        }}
+                    >
+                        <ArrowLeft size={20} /> Volver
+                    </button>
+                </div>
+
                 <div className="card animate-fade-in" style={{ padding: '2.5rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem' }}>
                         <div>
@@ -645,13 +693,6 @@ export default function FleetForm(): React.ReactElement | null {
             </main>
 
             <div className="no-print floating-action-bar">
-                <button
-                    onClick={() => { setIsFormVisible(false); setIsEdit(false); }}
-                    className="btn-floating-action"
-                    style={{ background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}
-                >
-                    <ArrowLeft size={18} /> ATRÁS
-                </button>
                 <button
                     onClick={() => requirePro(() => setShowShareModal(true))}
                     className="btn-floating-action"

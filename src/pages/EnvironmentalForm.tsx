@@ -8,6 +8,7 @@ import EnvironmentalPdf from '../components/EnvironmentalPdf';
 import PdfSignatures from '../components/PdfSignatures';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
+import PremiumHeader from '../components/PremiumHeader';
 
 const labelStyle: React.CSSProperties = {
     fontSize: '0.85rem',
@@ -95,6 +96,7 @@ export default function EnvironmentalForm(): React.ReactElement | null {
     const showSignatures = measurement.showSignatures || { operator: true, professional: true, supervisor: true };
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         if (location.state?.editData) {
             const ed = location.state.editData;
             setMeasurement({
@@ -181,31 +183,39 @@ export default function EnvironmentalForm(): React.ReactElement | null {
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem' }}>
-            <div style={{
-                background: 'var(--color-surface)',
-                borderBottom: '1px solid var(--color-border)',
-                padding: '1rem 1.5rem',
-                position: 'sticky',
-                top: '5.5rem',
-                zIndex: 100,
-                backdropFilter: 'blur(20px)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem'
-            }}>
-                <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', cursor: 'pointer', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={20}  />
-                        </button>
-                <div style={{ flex: 1 }}>
-                    <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.3rem', fontWeight: 900 }}>
-                        <Leaf size={20} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />
-                        {isEdit ? 'Editar Monitoreo Ambiental' : 'Nuevo Monitoreo Ambiental'}
-                    </h1>
+            <div className="no-print" style={{ padding: '2rem 1.5rem 0', maxWidth: '1000px', margin: '0 auto' }}>
+                <PremiumHeader
+                    title={isEdit ? 'Editar Monitoreo Ambiental' : 'Nuevo Monitoreo Ambiental'}
+                    subtitle="Registro de Parámetros y Condiciones"
+                    icon={<Leaf size={32} color="#ffffff" />}
+                    color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+                />
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginTop: '1rem' }}>
+                    <button
+                        onClick={() => navigate('/environmental')}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '0.5rem 1rem',
+                            background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            boxShadow: '0 4px 15px rgba(54, 179, 126, 0.3)'
+                        }}
+                    >
+                        <ArrowLeft size={18} />
+                        VOLVER
+                    </button>
                 </div>
-                {/* Header Buttons Removed as they are now in the floating bar */}
             </div>
 
-            <main style={{ padding: '3.5rem 1.5rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
+            <main style={{ padding: '1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
                 <div className="card" style={{ padding: '2rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem' }}>
                         <div style={isMobile ? {} : { gridColumn: 'span 2' }}>

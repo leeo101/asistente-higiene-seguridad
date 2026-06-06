@@ -83,6 +83,10 @@ export default function FireLoad(): React.ReactElement | null {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [showForm]);
+
     const [formData, setFormData] = useState({
         empresa: '',
         sector: '',
@@ -481,17 +485,24 @@ export default function FireLoad(): React.ReactElement | null {
                 <FireLoadPdfGenerator data={shareItem} />
             </div>
 
-            <div className="no-print">
-                <PremiumHeader
-                    title="Carga de Fuego"
-                    subtitle={`Cálculo según ${countryNorms.fire}`}
-                    icon={<Flame size={36} />}
-                />
-            </div>
-
             {!showForm ? (
                 <>
-                    <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <div className="no-print">
+                        <PremiumHeader
+                            title="Carga de Fuego"
+                            subtitle={`Cálculo según ${countryNorms.fire}`}
+                            icon={<Flame size={36} color="#ffffff" />}
+                        />
+                    </div>
+                    <div style={{ marginBottom: '1.5rem', marginTop: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                        <button onClick={() => navigate('/', { state: { scrollTo: 'fire-load' } })} style={{
+                            display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
+                            background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)',
+                            borderRadius: '12px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
+                            boxShadow: 'var(--shadow-sm)'
+                        }}>
+                            <ArrowLeft size={20} /> INICIO
+                        </button>
                         <div style={{ flex: 1, minWidth: '250px', position: 'relative' }}>
                             <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }}>
                                 <Flame size={18} />
@@ -631,13 +642,35 @@ export default function FireLoad(): React.ReactElement | null {
                     </div>
                 </div>
 
-                <div className="no-print" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                    <button onClick={() => setShowForm(false)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={20}  />
+                <div className="no-print">
+                    <PremiumHeader
+                        title={editData ? 'Editar Carga de Fuego' : 'Estudio de Carga de Fuego'}
+                        subtitle={`Cálculo según ${countryNorms.fire}`}
+                        icon={<Flame size={36} color="#ffffff" />}
+                    />
+                    <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem', zIndex: 10 }}>
+                        <button 
+                            onClick={() => setShowForm(false)} 
+                            style={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: '0.5rem', 
+                                padding: '0.5rem 1.25rem', 
+                                background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)', 
+                                border: 'none', 
+                                borderRadius: '12px', 
+                                color: '#ffffff', 
+                                fontWeight: 800,
+                                cursor: 'pointer',
+                                boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)',
+                                transition: 'all 0.2s',
+                                letterSpacing: '0.3px'
+                            }}
+                            onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(54, 179, 126, 0.4)'; }}
+                            onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(54, 179, 126, 0.3)'; }}
+                        >
+                            <ArrowLeft size={18} strokeWidth={2.5} /> Volver
                         </button>
-                    <div>
-                        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-text)' }}>{editData ? 'Editar Carga de Fuego' : 'Estudio de Carga de Fuego'}</h1>
-                        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Cálculo según {countryNorms.fire}</p>
                     </div>
                 </div>
 

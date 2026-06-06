@@ -10,6 +10,7 @@ import { API_BASE_URL } from '../config';
 import { legislationData, countryList, regionalData, municipalData } from '../data/legislationData';
 import toast from 'react-hot-toast';
 import { auth } from '../firebase';
+import PremiumHeader from '../components/PremiumHeader';
 
 export default function Legislation(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -45,6 +46,7 @@ export default function Legislation(): React.ReactElement | null {
 
     // 2. Efecto para cargar país del perfil
     useEffect(() => {
+        window.scrollTo(0, 0);
         const savedData = localStorage.getItem('personalData');
         if (savedData) {
             try {
@@ -155,12 +157,34 @@ export default function Legislation(): React.ReactElement | null {
 
     return (
         <div className="container" style={{ paddingBottom: '3rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', marginTop: '1rem' }}>
-                <button onClick={() => navigate('/#tools')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={24}  />
-                        </button>
-                <div style={{ flex: 1 }}>
-                    <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Leyes y Normas</h1>
+            <PremiumHeader 
+                title="Legislación"
+                subtitle="Biblioteca Legal y Normativa"
+                icon={<Gavel size={32} color="#ffffff" />}
+                color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+            />
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
+                <button
+                    onClick={() => navigate('/', { state: { scrollTo: 'legislation' } })}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        padding: '0.5rem 1rem',
+                        background: 'var(--color-surface)',
+                        color: 'var(--color-text)',
+                        border: '1px solid var(--color-border)',
+                        borderRadius: '8px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                    }}
+                >
+                    INICIO
+                </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--color-surface)', padding: '0.5rem 1rem', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>País:</span>
                     <select 
                         value={userCountry}
                         onChange={(e) => {

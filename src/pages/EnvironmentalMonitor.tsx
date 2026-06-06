@@ -111,6 +111,7 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
     });
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         const loadData = () => {
             const saved = localStorage.getItem('environmental_measurements_db');
             if (saved) setMeasurements(JSON.parse(saved));
@@ -246,14 +247,25 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
 
             <Breadcrumbs />
 
-            {/* Header Premium */}
             <PremiumHeader
                 title="Monitoreo Ambiental"
                 subtitle={`ISO 14001 • ${stats.stations} estaciones`}
-                icon={<Leaf size={36} />}
-                onBack={() => navigate(-1)}
+                icon={<Leaf size={32} color="#ffffff" />}
+                color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
             >
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1rem' }}>
+                    <button
+                        onClick={() => navigate('/', { state: { scrollTo: 'environmental' } })}
+                        style={{
+                            flex: '0 1 auto', padding: '1rem 1.5rem', borderRadius: '16px',
+                            background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)',
+                            fontWeight: 800, fontSize: '1rem', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', gap: '0.5rem',
+                            whiteSpace: 'nowrap'
+                        }}
+                    >
+                        INICIO
+                    </button>
                     <button
                         onClick={() => navigate('/environmental/new')}
                         style={{

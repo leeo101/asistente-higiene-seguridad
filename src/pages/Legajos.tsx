@@ -8,6 +8,7 @@ import { collection, query, getDocs, deleteDoc, doc, orderBy } from 'firebase/fi
 import { useNavigate } from 'react-router-dom';
 import AnimatedPage from '../components/AnimatedPage';
 import LegajoPdf from '../components/LegajoPdf';
+import PremiumHeader from '../components/PremiumHeader';
 
 interface Legajo {
   id: string;
@@ -91,6 +92,7 @@ export default function Legajos() {
   };
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     fetchLegajos();
   }, [currentUser]);
 
@@ -149,40 +151,32 @@ export default function Legajos() {
           </div>
       )}
 
-      {/* Premium Header */}
-      <div style={{
-          background: 'linear-gradient(135deg, #d4af37, #b8860b)',
-          border: '1px solid rgba(212,175,55,0.2)',
-          borderRadius: '24px',
-          padding: '1.5rem 2rem',
-          marginBottom: '1rem',
-          display: 'flex',
-          flexWrap: 'wrap',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          gap: '1rem',
-          boxShadow: '0 10px 40px rgba(212,175,55,0.3)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-            <ArrowLeft size={20} />
+      <PremiumHeader 
+          title="Legajos Técnicos"
+          subtitle="Decreto 351/79 — Ley 19.587 · ISO 45001"
+          icon={<Building2 size={32} color="#ffffff" />}
+          color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+      />
+
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', marginTop: '1.5rem' }}>
+          <button
+              onClick={() => navigate('/', { state: { scrollTo: 'legajos' } })}
+              style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.5rem 1rem',
+                  background: 'var(--color-surface)',
+                  color: 'var(--color-text)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: '8px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+              }}
+          >
+              INICIO
           </button>
-          <div style={{ 
-              width: '56px', height: '56px', borderRadius: '16px', 
-              background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)'
-          }}>
-              <Building2 size={30} color="#fff" strokeWidth={2.5} />
-          </div>
-          <div>
-            <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.5px', textShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
-              Legajos Técnicos
-            </h1>
-            <p style={{ margin: 0, fontSize: '0.85rem', color: 'rgba(255,255,255,0.85)', fontWeight: 600 }}>
-              Decreto 351/79 — Ley 19.587 · ISO 45001
-            </p>
-          </div>
-        </div>
       </div>
 
       <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'flex-start' }}>

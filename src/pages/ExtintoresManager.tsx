@@ -60,6 +60,7 @@ export default function ExtintoresManager() {
     const [professionalData, setProfessionalData] = useState({ name: '', license: '', signature: null, stamp: null });
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         try {
             const lsPersonal = localStorage.getItem('personalData');
             const lsStamp = localStorage.getItem('signatureStampData');
@@ -480,13 +481,37 @@ export default function ExtintoresManager() {
 
     return (
         <div className="container" style={{ maxWidth: '1200px', paddingBottom: '8rem' }}>
-            <Breadcrumbs />
+            {!showForm && (
+                <>
+                    <PremiumHeader
+                        title="Control de Matafuegos"
+                        subtitle="Inventario, trazabilidad NFPA 10 y Códigos QR"
+                        icon={<Flame size={32} color="#ffffff" />}
+                        color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+                    />
 
-            <PremiumHeader
-                title="Control de Matafuegos"
-                subtitle="Inventario, trazabilidad NFPA 10 y Códigos QR"
-                icon={<Flame size={36} />}
-            />
+                    <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
+                        <button
+                            onClick={() => navigate('/', { state: { scrollTo: 'extintores' } })}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '0.5rem 1rem',
+                                background: 'var(--color-surface)',
+                                color: 'var(--color-text)',
+                                border: '1px solid var(--color-border)',
+                                borderRadius: '8px',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease'
+                            }}
+                        >
+                            INICIO
+                        </button>
+                    </div>
+                </>
+            )}
 
             <ShareModal 
                 isOpen={!!shareItem} 
@@ -502,7 +527,7 @@ export default function ExtintoresManager() {
                 <div 
                     className="ats-pdf-offscreen" 
                     aria-hidden="true"
-                    style={printItem ? { position: 'relative', top: 0, left: 0, width: '100%', display: 'block', margin: 0, padding: 0 } : {}}
+                    style={printItem ? { position: 'absolute', top: 0, left: 0, width: '100%', display: 'block', margin: 0, padding: 0 } : {}}
                 >
                     {(printItem && !Array.isArray(printItem)) || (shareItem && !Array.isArray(shareItem)) ? (
                         <ExtinguisherProfilePdf data={printItem || shareItem || formData} isHeadless={true} />
@@ -513,7 +538,7 @@ export default function ExtintoresManager() {
                 document.body
             )}
 
-            {expiredLifespans.length > 0 && (
+            {!showForm && expiredLifespans.length > 0 && (
                 <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', padding: '1rem 1.5rem', borderRadius: '12px', display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.5rem' }}>
                     <AlertTriangle color="#ef4444" size={24} style={{ flexShrink: 0, marginTop: '0.2rem' }} />
                     <div>
@@ -527,11 +552,39 @@ export default function ExtintoresManager() {
 
 
             {showForm ? (
-                <div className="card animate-fade-in ats-editor-panel" style={{ padding: '2rem', border: '2px solid var(--color-primary)' }}>
-                    <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--color-primary)', marginTop: 0 }}>
-                        <Flame size={24} /> {editingId ? 'Editar Extintor' : 'Registrar Nuevo Extintor'}
-                    </h2>
-                    <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '1.5rem' }}>
+                <div className="card animate-fade-in ats-editor-panel" style={{ padding: '0', border: 'none', background: 'transparent' }}>
+                    <div className="no-print" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2rem' }}>
+                        <PremiumHeader 
+                            title={editingId ? 'Editar Extintor' : 'Registrar Nuevo Extintor'}
+                            subtitle="Ficha Técnica del Extintor"
+                            icon={<Flame size={32} color="#ffffff" />}
+                            color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+                        />
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                            <button
+                                onClick={() => { setShowForm(false); setEditingId(null); }}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem',
+                                    padding: '0.5rem 1rem',
+                                    background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)',
+                                    color: '#ffffff',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s ease',
+                                    boxShadow: '0 4px 15px rgba(54, 179, 126, 0.3)'
+                                }}
+                            >
+                                <ArrowLeft size={18} />
+                                VOLVER
+                            </button>
+                        </div>
+                    </div>
+                    <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'var(--color-surface)', padding: '2rem', borderRadius: '12px', border: '2px solid var(--color-primary)' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
                             <div>
                                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>Nº CHAPA / ID</label>
