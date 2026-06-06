@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { uploadImageToStorage } from '../services/storageService';
 import { safeSetLocalStorage } from '../utils/storageHelper';
+import PremiumHeader from '../components/PremiumHeader';
 
 export default function AIGeneralCamera(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -32,6 +33,7 @@ export default function AIGeneralCamera(): React.ReactElement | null {
     };
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         startCamera();
         return () => {
             stopStream();
@@ -388,23 +390,38 @@ export default function AIGeneralCamera(): React.ReactElement | null {
 
     return (
         <div className="container" style={{ paddingBottom: '3rem', position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', zIndex: 10 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <button onClick={() => navigate('/ai-general-camera-manager')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft  size={20} />
-                        </button>
-                    <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Detector de Riesgos IA</h1>
+            <div className="no-print" style={{ marginBottom: '2rem' }}>
+                <PremiumHeader 
+                    title="Detector de Riesgos IA"
+                    subtitle="Análisis de entorno en tiempo real"
+                    icon={<ShieldCheck size={32} color="#ffffff" />}
+                    color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginTop: '1rem' }}>
+                    <button
+                        onClick={() => navigate('/ai-general-camera-manager')}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '0.5rem 1rem',
+                            background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            boxShadow: '0 4px 15px rgba(54, 179, 126, 0.3)'
+                        }}
+                    >
+                        <ArrowLeft size={18} />
+                        VOLVER AL HISTORIAL
+                    </button>
                 </div>
-                <button 
-                    onClick={() => navigate('/ai-general-camera-manager')}
-                    className="btn-outline"
-                    style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', fontSize: '0.85rem' }}
-                >
-                    <span className="hidden sm:inline">Historial</span>
-                </button>
             </div>
 
-            <div style={{ flex: 1, position: 'relative', borderRadius: '24px', overflow: 'hidden', background: 'var(--color-text)', border: '4px solid var(--color-border)', boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
+            <div style={{ flex: 1, position: 'relative', minHeight: '65vh', borderRadius: '24px', overflow: 'hidden', background: 'var(--color-text)', border: '4px solid var(--color-border)', boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
                 {!capturedImage ? (
                     <>
                         <video

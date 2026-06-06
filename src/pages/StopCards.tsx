@@ -47,6 +47,7 @@ export default function StopCards(): React.ReactElement | null {
     const { requirePro } = usePaywall();
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         const history = JSON.parse(localStorage.getItem('stop_cards_history') || '[]');
         setCards(history);
     }, [syncPulse]);
@@ -124,29 +125,56 @@ export default function StopCards(): React.ReactElement | null {
                     {shareCard && <StopCardPdfGenerator card={shareCard} />}
                 </div>
 
-                <PremiumHeader
-                    title="Tarjetas STOP"
-                    subtitle="Observaciones de seguridad y actos subestándar"
-                    icon={<Warning size={36} />}
-                />
-
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginTop: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-                    <button onClick={() => navigate('/#activity')} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', padding: '0.8rem 1.2rem', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 700 }}>
-                        <ArrowLeft size={18} /> Volver
-                    </button>
-
-                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <div className="no-print" style={{ marginBottom: '2rem' }}>
+                    <PremiumHeader 
+                        title="Tarjetas STOP"
+                        subtitle="Observaciones de seguridad y actos subestándar"
+                        icon={<Warning size={32} color="#ffffff" />}
+                        color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginTop: '1rem' }}>
                         <button
-                            onClick={() => navigate('/stop-cards/new')}
+                            onClick={() => navigate('/', { state: { scrollTo: 'stop-cards' } })}
                             style={{
-                                display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
-                                background: '#36B37E', color: 'white', border: 'none', borderRadius: '12px',
-                                fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
-                                boxShadow: '0 4px 15px rgba(54, 179, 126, 0.4)'
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '0.5rem 1rem',
+                                background: 'var(--color-surface)',
+                                color: 'var(--color-text)',
+                                border: '1px solid var(--color-border)',
+                                borderRadius: '8px',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease'
                             }}
                         >
-                            <Plus size={20} weight="bold" /> Nueva Tarjeta STOP
+                            INICIO
                         </button>
+                        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                            <button
+                                onClick={() => navigate('/stop-cards/new')}
+                                style={{
+                                    width: 'auto',
+                                    margin: 0,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem',
+                                    padding: '0.75rem 1.25rem',
+                                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                    color: '#ffffff',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)',
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                <Plus size={20} weight="bold" />
+                                Nueva Tarjeta STOP
+                            </button>
+                        </div>
                     </div>
                 </div>
 

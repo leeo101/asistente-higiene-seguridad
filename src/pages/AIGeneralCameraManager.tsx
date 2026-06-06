@@ -40,6 +40,7 @@ export default function AIGeneralCameraManager(): React.ReactElement | null {
     const [shareItem, setShareItem] = useState(null);
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         const raw = localStorage.getItem('ai_camera_history');
         if (!raw) return;
         try {
@@ -115,8 +116,30 @@ export default function AIGeneralCameraManager(): React.ReactElement | null {
             <PremiumHeader
                 title="Riesgos IA"
                 subtitle="Análisis de entorno y hallazgos"
-                icon={<ShieldAlert size={36} />} onBack={() => navigate('/#tools')}
+                icon={<ShieldAlert size={32} color="#ffffff" />}
+                color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
             />
+
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
+                <button
+                    onClick={() => navigate('/', { state: { scrollTo: 'ai-general-camera-manager' } })}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        padding: '0.5rem 1rem',
+                        background: 'var(--color-surface)',
+                        color: 'var(--color-text)',
+                        border: '1px solid var(--color-border)',
+                        borderRadius: '8px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                    }}
+                >
+                    INICIO
+                </button>
+            </div>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginTop: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                 

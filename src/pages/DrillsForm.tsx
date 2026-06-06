@@ -81,6 +81,7 @@ export default function Drills(): React.ReactElement | null {
     const [viewMode, setViewMode] = useState('edit'); // 'edit' or 'report'
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         if (editData) {
             setFormData({
                 ...editData,
@@ -233,21 +234,35 @@ export default function Drills(): React.ReactElement | null {
                     </button>
                 </div>
 
-                <PremiumHeader
-                    title={editData ? 'Editar Acta de Simulacro' : 'Registro de Simulacro'}
-                    subtitle="Gestión de Simulacros y Evacuación"
-                    icon={<Siren size={36} />}
-                    onBack={() => navigate('/drills')}
-                />
-
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginTop: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-                    <button onClick={() => navigate('/drills')} style={{
-                        display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 1.2rem',
-                        background: 'var(--color-surface)', border: '1px solid var(--color-primary)', color: 'var(--color-primary)',
-                        borderRadius: '12px', fontSize: '0.9rem', fontWeight: 700, cursor: 'pointer'
-                    }}>
-                        <Search size={18} /> Ver Historial
-                    </button>
+                <div className="no-print" style={{ marginBottom: '2rem' }}>
+                    <PremiumHeader 
+                        title={editData ? 'Editar Acta de Simulacro' : 'Registro de Simulacro'}
+                        subtitle="Gestión de Simulacros y Evacuación"
+                        icon={<Siren size={32} color="#ffffff" />}
+                        color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginTop: '1rem' }}>
+                        <button
+                            onClick={() => navigate(-1)}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '0.5rem 1rem',
+                                background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)',
+                                color: '#ffffff',
+                                border: 'none',
+                                borderRadius: '8px',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease',
+                                boxShadow: '0 4px 15px rgba(54, 179, 126, 0.3)'
+                            }}
+                        >
+                            <ArrowLeft size={18} />
+                            VOLVER
+                        </button>
+                    </div>
                 </div>
 
                 {/* Cronómetro Flotante */}

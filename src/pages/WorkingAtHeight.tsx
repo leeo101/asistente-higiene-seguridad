@@ -109,6 +109,7 @@ export default function WorkingAtHeight(): React.ReactElement | null {
     });
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         const loadData = () => {
             const savedPermits = localStorage.getItem('working_height_permits_db');
             const savedActive = localStorage.getItem('working_height_active_db');
@@ -240,28 +241,56 @@ export default function WorkingAtHeight(): React.ReactElement | null {
             <div style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0, pointerEvents: 'none' }}>
                 {shareItem && <WorkingAtHeightPdf data={shareItem} />}
             </div>
-            {/* Header Premium */}
-            <PremiumHeader
-                title="Trabajo en Altura"
-                subtitle={`OSHA 1926.501 • ${activePermits.length} activos`}
-                icon={<HardHat size={36} />} onBack={() => navigate('/#activity')}
-            />
-
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginTop: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-                
-
-                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            
+            <div className="no-print" style={{ marginBottom: '2rem' }}>
+                <PremiumHeader 
+                    title="Trabajo en Altura"
+                    subtitle={`OSHA 1926.501 • ${activePermits.length} activos`}
+                    icon={<HardHat size={32} color="#ffffff" />}
+                    color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginTop: '1rem' }}>
                     <button
-                        onClick={handleCreatePermit}
+                        onClick={() => navigate('/', { state: { scrollTo: 'working-at-height' } })}
                         style={{
-                            display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
-                            background: '#36B37E', color: 'white', border: 'none', borderRadius: '12px',
-                            fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
-                            boxShadow: '0 4px 15px rgba(54, 179, 126, 0.4)'
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '0.5rem 1rem',
+                            background: 'var(--color-surface)',
+                            color: 'var(--color-text)',
+                            border: '1px solid var(--color-border)',
+                            borderRadius: '8px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
                         }}
                     >
-                        <Plus size={20} strokeWidth={3} /> Nuevo Permiso
+                        INICIO
                     </button>
+                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                        <button
+                            onClick={handleCreatePermit}
+                            style={{
+                                width: 'auto',
+                                margin: 0,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '0.75rem 1.25rem',
+                                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                color: '#ffffff',
+                                border: 'none',
+                                borderRadius: '8px',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)',
+                                transition: 'all 0.2s ease'
+                            }}
+                        >
+                            <Plus size={20} strokeWidth={3} /> Nuevo Permiso
+                        </button>
+                    </div>
                 </div>
             </div>
 

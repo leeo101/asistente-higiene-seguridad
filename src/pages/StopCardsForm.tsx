@@ -37,6 +37,10 @@ export default function StopCardsForm(): React.ReactElement | null {
     const [isProcessingAI, setIsProcessingAI] = useState(false);
     const { requirePro } = usePaywall();
 
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -140,16 +144,38 @@ export default function StopCardsForm(): React.ReactElement | null {
     return (
         <div className="container page-transition" style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '4rem' }}>
             <main style={{ maxWidth: '1000px', margin: '0 auto' }}>
-                <PremiumHeader
-                    title={editData ? 'Editar Tarjeta STOP' : 'Nueva Tarjeta STOP'}
-                    subtitle="Reporte de condiciones o actos inseguros"
-                    icon={<AlertTriangle size={36} />}
-                />
+                <div className="no-print" style={{ marginBottom: '2rem' }}>
+                    <PremiumHeader 
+                        title={editData ? 'Editar Tarjeta STOP' : 'Nueva Tarjeta STOP'}
+                        subtitle="Reporte de condiciones o actos inseguros"
+                        icon={<AlertTriangle size={32} color="#ffffff" />}
+                        color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginTop: '1rem' }}>
+                        <button
+                            onClick={() => navigate(-1)}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '0.5rem 1rem',
+                                background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)',
+                                color: '#ffffff',
+                                border: 'none',
+                                borderRadius: '8px',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease',
+                                boxShadow: '0 4px 15px rgba(54, 179, 126, 0.3)'
+                            }}
+                        >
+                            <ArrowLeft size={18} />
+                            VOLVER
+                        </button>
+                    </div>
+                </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginTop: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-                    <button onClick={() => navigate(editData ? '/stop-cards' : '/#tools')} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', padding: '0.8rem 1.2rem', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 700 }}>
-                        <ArrowLeft size={18} /> Volver
-                    </button>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
 
                     <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                         {!editData && (

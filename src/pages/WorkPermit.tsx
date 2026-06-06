@@ -89,6 +89,7 @@ export default function WorkPermit(): React.ReactElement | null {
 
     // Load data for editing
     useEffect(() => {
+        window.scrollTo(0, 0);
         if (location.state?.editData) {
             const ed = location.state.editData;
             setFormData({
@@ -371,9 +372,30 @@ export default function WorkPermit(): React.ReactElement | null {
                     <PremiumHeader
                         title="Permisos de Trabajo"
                         subtitle="Gestión de Tareas Críticas y Especiales"
-                        icon={<ShieldCheck size={36} />}
-                        color="#3b82f6"
+                        icon={<ShieldCheck size={32} color="#ffffff" />}
+                        color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
                     />
+
+                    <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
+                        <button
+                            onClick={() => navigate('/', { state: { scrollTo: 'work-permit' } })}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '0.5rem 1rem',
+                                background: 'var(--color-surface)',
+                                color: 'var(--color-text)',
+                                border: '1px solid var(--color-border)',
+                                borderRadius: '8px',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease'
+                            }}
+                        >
+                            INICIO
+                        </button>
+                    </div>
 
                     <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
                         <button onClick={() => setShowForm(true)} className="hover-lift" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#36B37E', color: 'white', border: 'none', borderRadius: '12px', padding: '0.8rem 1.5rem', fontSize: '0.9rem', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 15px rgba(54, 179, 126, 0.3)' }}>
@@ -416,10 +438,35 @@ export default function WorkPermit(): React.ReactElement | null {
                 </AnimatedPage>
             ) : (
                 <AnimatedPage>
-                    <div style={{ marginBottom: '1.5rem' }}>
-                        <button onClick={() => setShowForm(false)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={18} /> 
-                        </button>
+                    <div className="no-print" style={{ marginBottom: '2rem' }}>
+                        <PremiumHeader 
+                            title={editData ? 'Editar Permiso de Trabajo' : 'Nuevo Permiso de Trabajo'}
+                            subtitle="Gestión de Riesgos Especiales"
+                            icon={<ShieldCheck size={32} color="#ffffff" />}
+                            color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+                        />
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginTop: '1rem' }}>
+                            <button
+                                onClick={() => setShowForm(false)}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem',
+                                    padding: '0.5rem 1rem',
+                                    background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)',
+                                    color: '#ffffff',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s ease',
+                                    boxShadow: '0 4px 15px rgba(54, 179, 126, 0.3)'
+                                }}
+                            >
+                                <ArrowLeft size={18} />
+                                VOLVER
+                            </button>
+                        </div>
                     </div>
             <ShareModal
                 isOpen={showShare}
@@ -449,15 +496,7 @@ export default function WorkPermit(): React.ReactElement | null {
 
             {/* Quick Templates + Progress */}
             <div className="no-print" style={{ marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.5rem', background: 'rgba(var(--color-surface-rgb), 0.7)', backdropFilter: 'blur(12px)', borderRadius: '24px', border: '1px solid var(--glass-border)', boxShadow: 'var(--glass-shadow)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.8rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                        <div>
-                            <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.5rem)', fontWeight: 900, color: 'var(--color-text)' }}>
-                                {editData ? 'Editar Permiso de Trabajo' : 'Permisos de Trabajo'}
-                            </h1>
-                            <p style={{ margin: 0, color: 'var(--color-text-muted)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase' }}>Gestión de Riesgos Especiales</p>
-                        </div>
-                    </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', flexWrap: 'wrap', gap: '0.8rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <span style={{ fontSize: '1.3rem', fontWeight: 900, color: wpColor }}>{wpPct}%</span>
                         <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>{wpPct === 100 ? 'Listo ✅' : 'Completando...'}</span>

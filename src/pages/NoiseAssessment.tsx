@@ -12,6 +12,7 @@ import ShareModal from '../components/ShareModal';
 import NoiseAssessmentPdf from '../components/NoiseAssessmentPdf';
 import CompanyLogo from '../components/CompanyLogo';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
+import PremiumHeader from '../components/PremiumHeader';
 
 // Límites según ISO 9612 y directivas internacionales
 const NOISE_LIMITS = {
@@ -87,6 +88,7 @@ export default function NoiseAssessment(): React.ReactElement | null {
     });
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         const loadData = () => {
             const savedMeasurements = localStorage.getItem('noise_assessments_db');
             const savedWorkers = localStorage.getItem('noise_workers_db');
@@ -187,89 +189,65 @@ export default function NoiseAssessment(): React.ReactElement | null {
                 {shareItem && <NoiseAssessmentPdf data={shareItem} />}
             </div>
             {/* Header Premium */}
-            <div style={{
-                marginBottom: '2rem',
-                padding: '1.5rem',
-                background: 'var(--gradient-card)',
-                borderRadius: 'var(--radius-2xl)',
-                border: '1px solid var(--glass-border)',
-                boxShadow: 'var(--glass-shadow)',
-                backdropFilter: 'blur(20px)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '1rem'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás" style={{
-                        background: 'rgba(255,255,255,0.1)',
-                        border: 'none',
-                        borderRadius: '12px',
-                        padding: '10px',
-                        cursor: 'pointer',
-                        color: 'white'
-                    }}>
-                        <ArrowLeft size={20} />
-                    </button>
-                    <div style={{
-                        width: '56px',
-                        height: '56px',
-                        background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
-                        borderRadius: 'var(--radius-lg)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        boxShadow: '0 4px 20px rgba(139, 92, 246, 0.3)'
-                    }}>
-                        <Volume2 size={32} color="#ffffff" strokeWidth={2} />
-                    </div>
-                    <div>
-                        <h1 style={{ 
-                            margin: 0, 
-                            fontSize: '1.5rem', 
-                            fontWeight: 900,
-                            color: 'var(--color-text)',
-                            letterSpacing: '-0.5px'
-                        }}>
-                            Evaluación de Ruido
-                        </h1>
-                        <p style={{ 
-                            margin: '0.25rem 0 0 0', 
-                            color: 'var(--color-text-muted)',
-                            fontSize: '0.85rem',
-                            fontWeight: 600
-                        }}>
-                            ISO 9612 • {measurements.length} mediciones
-                        </p>
-                    </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <div className="no-print" style={{ marginBottom: '2rem' }}>
+                <PremiumHeader 
+                    title="Evaluación de Ruido"
+                    subtitle={`ISO 9612 • ${measurements.length} mediciones`}
+                    icon={<Volume2 size={32} color="#ffffff" />}
+                    color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginTop: '1rem' }}>
                     <button
-                        onClick={handleAddMeasurement}
-                        className="btn-primary"
+                        onClick={() => navigate('/', { state: { scrollTo: 'noise-assessment' } })}
                         style={{
-                            width: 'auto',
-                            margin: 0,
                             display: 'flex',
                             alignItems: 'center',
                             gap: '0.5rem',
-                            padding: '0.75rem 1.25rem'
+                            padding: '0.5rem 1rem',
+                            background: 'var(--color-surface)',
+                            color: 'var(--color-text)',
+                            border: '1px solid var(--color-border)',
+                            borderRadius: '8px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
                         }}
                     >
-                        <Plus size={20} strokeWidth={2.5} />
-                        Nueva Medición
+                        INICIO
                     </button>
-                    <button
-                        onClick={() => navigate('/history')}
-                        className="btn-outline"
-                        style={{
-                            padding: '0.75rem 1rem'
-                        }}
-                    >
-                        <FileText size={20} />
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                        <button
+                            onClick={handleAddMeasurement}
+                            style={{
+                                width: 'auto',
+                                margin: 0,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '0.75rem 1.25rem',
+                                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                color: '#ffffff',
+                                border: 'none',
+                                borderRadius: '8px',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)',
+                                transition: 'all 0.2s ease'
+                            }}
+                        >
+                            <Plus size={20} strokeWidth={2.5} />
+                            Nueva Medición
+                        </button>
+                        <button
+                            onClick={() => navigate('/history')}
+                            className="btn-outline"
+                            style={{
+                                padding: '0.75rem 1rem'
+                            }}
+                        >
+                            <FileText size={20} />
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -407,7 +385,6 @@ export default function NoiseAssessment(): React.ReactElement | null {
                         <EmptyStateIllustrated 
                             title="Sin Mediciones de Ruido"
                             description="Comenzá a evaluar la exposición al ruido según ISO 9612 para proteger la salud auditiva."
-                            onAction={handleAddMeasurement}
                             icon={<Volume2 />}
                         />
                     ) : (

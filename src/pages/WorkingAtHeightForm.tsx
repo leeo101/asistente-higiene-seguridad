@@ -123,6 +123,7 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
 
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         handleResize();
         window.addEventListener('resize', handleResize);
@@ -198,22 +199,36 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
     return (
         <div className="container page-transition" style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '4rem' }}>
             <main style={{ maxWidth: '1000px', margin: '0 auto' }}>
-                <PremiumHeader
-                    title={isEdit ? 'Editar Permiso en Altura' : 'Permiso de Trabajo en Altura'}
-                    subtitle="Gestión de permisos según OSHA 1926.501"
-                    icon={<ArrowDown size={36} />}
-                >
-                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1rem', justifyContent: 'center' }}>
+                <div className="no-print" style={{ marginBottom: '2rem' }}>
+                    <PremiumHeader 
+                        title={isEdit ? 'Editar Permiso en Altura' : 'Permiso de Trabajo en Altura'}
+                        subtitle="Gestión de permisos según OSHA 1926.501"
+                        icon={<ArrowDown size={32} color="#ffffff" />}
+                        color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginTop: '1rem' }}>
                         <button
                             onClick={() => navigate(-1)}
-                            className="btn-secondary"
-                            style={{ padding: '0.75rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '0.5rem 1rem',
+                                background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)',
+                                color: '#ffffff',
+                                border: 'none',
+                                borderRadius: '8px',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease',
+                                boxShadow: '0 4px 15px rgba(54, 179, 126, 0.3)'
+                            }}
                         >
                             <ArrowLeft size={18} />
-                            Volver
+                            VOLVER
                         </button>
                     </div>
-                </PremiumHeader>
+                </div>
 
                 <div className="card animate-fade-in" style={{ padding: '2.5rem', background: 'rgba(var(--color-surface-rgb), 0.3)', borderTop: '4px solid #f59e0b', borderRadius: 'var(--radius-xl)', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.08)' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem' }}>
