@@ -19,7 +19,7 @@ import { useAuth } from '../contexts/AuthContext';
 // Tipos de extintores y sus características
 const EXTINTOR_INFO = {
     'ABC': {
-        name: 'Extintor ABC (Polvo Químico)',
+        name: 'Extintor HCFC',
         fires: 'Clase A (sólidos), B (líquidos), C (eléctricos)',
         color: '#ef4444',
         icon: '🧯',
@@ -53,6 +53,14 @@ const EXTINTOR_INFO = {
         icon: '🍳',
         usage: 'Específico para cocinas industriales'
     }
+};
+
+const formatType = (tipo: string) => {
+    if (!tipo) return 'N/A';
+    const t = String(tipo).toUpperCase();
+    if (t === 'ABC') return 'HCFC';
+    if (t === 'BC') return 'CO2';
+    return tipo;
 };
 
 export default function ExtinguisherAI(): React.ReactElement | null {
@@ -395,7 +403,7 @@ export default function ExtinguisherAI(): React.ReactElement | null {
                                                 <Flame size={22} />
                                             </div>
                                             <div>
-                                                <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700 }}>Extintor {item.type || 'Desconocido'}</h3>
+                                                <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700 }}>Extintor {formatType(item.type) || 'Desconocido'}</h3>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
                                                     <Calendar size={14} /> {item.date ? new Date(item.date).toLocaleDateString('es-AR') : new Date(item.savedAt).toLocaleDateString('es-AR')} — <Crosshair size={14} /> {item.confidence ? `${Math.round(item.confidence * 100)}%` : 'N/A'}
                                                 </div>

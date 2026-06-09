@@ -11,7 +11,7 @@ import {
 export interface Column<T> {
   header: string;
   accessor: keyof T | string;
-  render?: (item: T) => React.ReactNode;
+  render?: (item: T, index: number) => React.ReactNode;
   sortable?: boolean;
 }
 
@@ -211,7 +211,7 @@ export function DataTable<T extends Record<string, any>>({
                 <tr key={rowIndex} style={{ borderBottom: '1px solid var(--color-border)', transition: 'background var(--transition-fast)' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.02)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                   {columns.map((col, colIndex) => (
                     <td key={colIndex} style={{ padding: '1rem 1.25rem', color: 'var(--color-text)', fontSize: '0.9rem', verticalAlign: 'middle' }}>
-                      {col.render ? col.render(row) : (row[col.accessor as keyof T] as unknown as string) || '—'}
+                      {col.render ? col.render(row, (currentPage - 1) * itemsPerPage + rowIndex) : (row[col.accessor as keyof T] as unknown as string) || '—'}
                     </td>
                   ))}
                 </tr>

@@ -20,6 +20,15 @@ import { DataTable } from '../components/DataTable';
 import ExtinguisherPdfGenerator from '../components/ExtinguisherPdfGenerator';
 import ExcelJS from 'exceljs';
 
+const formatType = (tipo: string) => {
+    if (!tipo) return 'N/A';
+    const t = String(tipo).toUpperCase();
+    if (t === 'ABC') return 'HCFC';
+    if (t === 'BC') return 'CO2';
+    return tipo;
+};
+
+
 export default function ExtintoresManager() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
@@ -289,7 +298,7 @@ export default function ExtintoresManager() {
             filtered.forEach(ext => {
                 worksheet.addRow({
                     chapa: ext.numero,
-                    tipo: ext.tipo,
+                    tipo: formatType(ext.tipo),
                     capacidad: ext.capacidad,
                     ubicacion: ext.ubicacion,
                     empresa: ext.empresa || '',
@@ -315,7 +324,7 @@ export default function ExtintoresManager() {
 
     const uniqueEmpresas = [...new Set(extintores.map(e => e.empresa).filter(Boolean))];
 
-    const types = ['ABC', 'CO2', 'K', 'Agua', 'HCFC', 'Espuma'];
+    const types = ['HCFC', 'CO2', 'K', 'Agua', 'Espuma'];
 
     const expiredLifespans = extintores.filter(ext => {
         const st = getLifespanStatus(ext.fechaFabricacion);
@@ -323,6 +332,16 @@ export default function ExtintoresManager() {
     });
 
     const columns = [
+        {
+            header: 'Nº',
+            accessor: 'index',
+            width: '60px',
+            render: (_: any, idx: number) => (
+                <div style={{ fontWeight: 900, color: 'var(--color-text-muted)', fontSize: '1rem', textAlign: 'center', background: 'var(--color-background)', padding: '0.2rem 0.5rem', borderRadius: '8px' }}>
+                    {idx + 1}
+                </div>
+            )
+        },
         {
             header: 'Chapa',
             accessor: 'numero',
@@ -366,7 +385,7 @@ export default function ExtintoresManager() {
             render: (item: any) => (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
                     <span style={{ padding: '0.2rem 0.6rem', background: 'var(--color-background)', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, width: 'fit-content' }}>
-                        {item.tipo} — {item.capacidad}
+                        {formatType(item.tipo)} — {item.capacidad}
                     </span>
                     {item.fechaFabricacion && (
                         <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>
@@ -604,7 +623,7 @@ export default function ExtintoresManager() {
                             </div>
                             <div>
                                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>TIPO DE AGENTE</label>
-                                <select value={formData.tipo} onChange={e => setFormData({...formData, tipo: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--color-border)', outline: 'none', background: 'var(--color-background)' }}>
+                                <select value={formatType(formData.tipo)} onChange={e => setFormData({...formData, tipo: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--color-border)', outline: 'none', background: 'var(--color-background)' }}>
                                     {types.map(t => <option key={t} value={t}>{t}</option>)}
                                 </select>
                             </div>

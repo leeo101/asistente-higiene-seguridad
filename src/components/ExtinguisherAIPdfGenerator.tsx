@@ -5,7 +5,7 @@ import { Flame, Calendar, Info, CheckCircle2, AlertTriangle, Crosshair, Package 
 
 const EXTINTOR_INFO: Record<string, { name: string; fires: string; color: string; icon: string; usage: string }> = {
     'ABC': {
-        name: 'Extintor ABC (Polvo Químico)',
+        name: 'Extintor HCFC',
         fires: 'Clase A (sólidos), B (líquidos), C (eléctricos)',
         color: '#ef4444',
         icon: '🧯',

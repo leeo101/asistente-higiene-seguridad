@@ -569,6 +569,7 @@ export default function ChecklistManager(): React.ReactElement | null {
             equipo: inspectionInfo.item || 'Inspección General',
             serial: inspectionInfo.serial || 'S/N',
             fecha: (new Date()).toISOString(),
+            title: checklistTitle,
             type: 'Checklist'
         };
 
@@ -694,6 +695,16 @@ export default function ChecklistManager(): React.ReactElement | null {
 
     const columns = [
         {
+            header: 'Nº',
+            accessor: 'index',
+            width: '60px',
+            render: (_: any, idx: number) => (
+                <div style={{ fontWeight: 900, color: 'var(--color-text-muted)', fontSize: '1rem', textAlign: 'center', background: 'var(--color-background)', padding: '0.2rem 0.5rem', borderRadius: '8px' }}>
+                    {idx + 1}
+                </div>
+            )
+        },
+        {
             header: 'Fecha',
             accessor: 'fecha',
             sortable: true,
@@ -704,20 +715,37 @@ export default function ChecklistManager(): React.ReactElement | null {
             )
         },
         {
-            header: 'Equipo',
+            header: 'Checklist / Equipo',
             accessor: 'equipo',
             sortable: true,
-            render: (item: any) => (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                    <div style={{ background: 'rgba(59,130,246,0.1)', padding: '0.5rem', borderRadius: '8px', color: '#3b82f6' }}>
-                        <ClipboardList size={16} />
+            render: (item: any) => {
+                let title = item.title;
+                if (!title) {
+                    try {
+                        const parsed = JSON.parse(localStorage.getItem('checklist_' + item.id) || '{}');
+                        title = parsed.checklistTitle;
+                        if (!title && parsed.activeSections && parsed.activeSections.length > 0) {
+                            title = parsed.activeSections.map((s: any) => s.title).join(' + ');
+                        }
+                        title = title || 'General';
+                    } catch { title = 'General'; }
+                }
+                
+                // Limpiar prefijo "Checklist (de)"
+                title = title.replace(/^CHECKLIST\s*(DE\s*)?/i, '').trim();
+
+                return (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                        <div style={{ background: 'rgba(59,130,246,0.1)', padding: '0.5rem', borderRadius: '8px', color: '#3b82f6' }}>
+                            <ClipboardList size={16} />
+                        </div>
+                        <div>
+                            <div style={{ fontWeight: 800, fontSize: '0.85rem' }}>{title}</div>
+                            <div style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>{item.equipo || 'Sin equipo'} • #{item.serial || 'S/N'}</div>
+                        </div>
                     </div>
-                    <div>
-                        <div style={{ fontWeight: 700 }}>{item.equipo || 'Sin nombre'}</div>
-                        <div style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)' }}>#{item.serial}</div>
-                    </div>
-                </div>
-            )
+                );
+            }
         },
         {
             header: 'Empresa',

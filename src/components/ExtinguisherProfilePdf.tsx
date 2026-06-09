@@ -43,6 +43,15 @@ const getLifespanStatus = (fechaFab: string) => {
     return { text: 'Vigente', color: '#10b981', expirationDate: expDate };
 };
 
+const formatType = (tipo: string) => {
+    if (!tipo) return 'N/A';
+    const t = String(tipo).toUpperCase();
+    if (t === 'ABC') return 'HCFC';
+    if (t === 'BC') return 'CO2';
+    return tipo;
+};
+
+
 export default function ExtinguisherProfilePdf({ data, onBack = () => window.history.back(), isHeadless = false }: { data: any, onBack?: () => void, isHeadless?: boolean }): React.ReactElement | null {
     const componentRef = useRef<HTMLDivElement>(null);
     const [showShare, setShowShare] = useState(false);
@@ -226,7 +235,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                     </div>
                                     <div>
                                         <div style={{ fontSize: '9pt', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Tipo y Capacidad</div>
-                                        <div style={{ fontSize: '11pt', fontWeight: 700, color: '#0f172a' }}>{data.tipo} - {data.capacidad}</div>
+                                        <div style={{ fontSize: '11pt', fontWeight: 700, color: '#0f172a' }}>{formatType(data.tipo)} - {data.capacidad}</div>
                                     </div>
                                     <div>
                                         <div style={{ fontSize: '9pt', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Ubicación</div>
