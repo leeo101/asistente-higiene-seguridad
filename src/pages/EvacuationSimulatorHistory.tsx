@@ -91,7 +91,7 @@ export default function EvacuationSimulatorHistory(): React.ReactElement | null 
                                     transition: 'all 0.2s ease'
                                 }}
                             >
-                                <Plus size={20} weight="bold" />
+                                <Plus size={20} strokeWidth={3} />
                                 Nueva Simulación
                             </button>
                         </div>
