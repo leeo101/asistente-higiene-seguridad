@@ -9,6 +9,7 @@ import ShareModal from '../components/ShareModal';
 import NoiseAssessmentPdf from '../components/NoiseAssessmentPdf';
 import CompanyLogo from '../components/CompanyLogo';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
+import ConfirmModal from '../components/ConfirmModal';
 
 const NOISE_LIMITS = {
     actionLevel: 80,
@@ -25,6 +26,7 @@ export default function NoiseAssessmentPage(): React.ReactElement | null {
     const [selectedMeasurement, setSelectedMeasurement] = useState<any>(null);
     const [showShareModal, setShowShareModal] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -50,9 +52,14 @@ export default function NoiseAssessmentPage(): React.ReactElement | null {
     };
 
     const deleteMeasurement = (id: string) => {
-        if (confirm('¿Eliminar esta medición?')) {
-            saveMeasurements(measurements.filter(m => m.id !== id));
+        setConfirmModal({ isOpen: true, payload: id });
+    };
+
+    const executeDelete = () => {
+        if (confirmModal.payload) {
+            saveMeasurements(measurements.filter(m => m.id !== confirmModal.payload));
         }
+        setConfirmModal({ isOpen: false, payload: null });
     };
 
     const filteredMeasurements = measurements.filter(m =>
@@ -223,6 +230,15 @@ export default function NoiseAssessmentPage(): React.ReactElement | null {
             <div className="print-only" style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0 }}>
                 <NoiseAssessmentPdf data={selectedMeasurement} />
             </div>
+
+            <ConfirmModal 
+                isOpen={confirmModal.isOpen} 
+                onClose={() => setConfirmModal({ isOpen: false, payload: null })} 
+                onConfirm={executeDelete} 
+                title="¿Eliminar medición?" 
+                message="Esta acción no se puede deshacer." 
+                iconEmoji="🗑️" 
+            />
         </div>
     );
 }

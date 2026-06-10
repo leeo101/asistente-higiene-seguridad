@@ -18,6 +18,7 @@ import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
 import { DataTable } from '../components/DataTable';
 import ExtinguisherPdfGenerator from '../components/ExtinguisherPdfGenerator';
+import ConfirmModal from '../components/ConfirmModal';
 import ExcelJS from 'exceljs';
 
 const formatType = (tipo: string) => {
@@ -71,6 +72,7 @@ export default function ExtintoresManager() {
         professionalLicense: ''
     });
     const [professionalData, setProfessionalData] = useState({ name: '', license: '', signature: null, stamp: null });
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -203,11 +205,16 @@ export default function ExtintoresManager() {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('¿Eliminar este extintor del inventario?')) {
-            const updated = extintores.filter(ext => ext.id !== id);
+        setConfirmModal({ isOpen: true, payload: id });
+    };
+
+    const executeDelete = async () => {
+        if (confirmModal.payload) {
+            const updated = extintores.filter(ext => ext.id !== confirmModal.payload);
             await saveToStorage(updated);
             toast.success('Extintor eliminado');
         }
+        setConfirmModal({ isOpen: false, payload: null });
     };
 
     const generateQR = async (ext) => {
@@ -987,6 +994,16 @@ export default function ExtintoresManager() {
 
                 </>
             )}
+
+            {/* Confirm Modal */}
+            <ConfirmModal 
+                isOpen={confirmModal.isOpen} 
+                onClose={() => setConfirmModal({ isOpen: false, payload: null })} 
+                onConfirm={executeDelete} 
+                title="¿Eliminar extintor?" 
+                message="Esta acción no se puede deshacer." 
+                iconEmoji="🗑️" 
+            />
 
             {/* QR Modal */}
             {showQrModal && qrData && (

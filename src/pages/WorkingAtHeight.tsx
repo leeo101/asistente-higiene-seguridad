@@ -12,6 +12,7 @@ import WorkingAtHeightPdf from '../components/WorkingAtHeightPdf';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import { usePaywall } from '../hooks/usePaywall';
 import PremiumHeader from '../components/PremiumHeader';
+import ConfirmModal from '../components/ConfirmModal';
 
 // Límites según OSHA 1926.501 y normas internacionales
 const HEIGHT_LIMITS = {
@@ -81,6 +82,7 @@ export default function WorkingAtHeight(): React.ReactElement | null {
     const [selectedPermit, setSelectedPermit] = useState(null);
     const [activeTab, setActiveTab] = useState('permits');
     const [shareItem, setShareItem] = useState(null);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
     const { isPro, requirePro } = usePaywall();
 
     const [newPermit, setNewPermit] = useState({
@@ -197,10 +199,15 @@ export default function WorkingAtHeight(): React.ReactElement | null {
     };
 
     const deletePermit = (id) => {
-        if (confirm('¿Eliminar este permiso de trabajo en altura?')) {
-            savePermits(permits.filter(p => p.id !== id));
-            saveActivePermits(activePermits.filter(p => p.id !== id));
+        setConfirmModal({ isOpen: true, payload: id });
+    };
+
+    const executeDelete = () => {
+        if (confirmModal.payload) {
+            savePermits(permits.filter(p => p.id !== confirmModal.payload));
+            saveActivePermits(activePermits.filter(p => p.id !== confirmModal.payload));
         }
+        setConfirmModal({ isOpen: false, payload: null });
     };
 
     const filteredPermits = permits.filter(p => {
@@ -487,6 +494,15 @@ export default function WorkingAtHeight(): React.ReactElement | null {
                     HEIGHT_LIMITS={HEIGHT_LIMITS}
                 />
             )}
+
+            <ConfirmModal 
+                isOpen={confirmModal.isOpen} 
+                onClose={() => setConfirmModal({ isOpen: false, payload: null })} 
+                onConfirm={executeDelete} 
+                title="¿Eliminar permiso?" 
+                message="Esta acción no se puede deshacer." 
+                iconEmoji="🗑️" 
+            />
         </div>
     );
 }

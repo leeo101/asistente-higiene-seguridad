@@ -12,6 +12,7 @@ import ConfinedSpacePdf from '../components/ConfinedSpacePdf';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
+import ConfirmModal from '../components/ConfirmModal';
 
 // Límites atmosféricos según OSHA 1910.146
 const ATMOSPHERIC_LIMITS = {
@@ -91,6 +92,7 @@ export default function ConfinedSpace(): React.ReactElement | null {
     const [currentPermitForReading, setCurrentPermitForReading] = useState(null);
     const [shareItem, setShareItem] = useState(null);
     const [selectedPermit, setSelectedPermit] = useState(null);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
 
     // --- Pre-Entry Checklist State ---
     const PRE_ENTRY_ITEMS = [
@@ -201,10 +203,15 @@ export default function ConfinedSpace(): React.ReactElement | null {
     };
 
     const deletePermit = (id) => {
-        if (confirm('¿Eliminar este permiso de espacio confinado?')) {
-            savePermits(permits.filter(p => p.id !== id));
-            saveActivePermits(activePermits.filter(p => p.id !== id));
+        setConfirmModal({ isOpen: true, payload: id });
+    };
+
+    const executeDelete = () => {
+        if (confirmModal.payload) {
+            savePermits(permits.filter(p => p.id !== confirmModal.payload));
+            saveActivePermits(activePermits.filter(p => p.id !== confirmModal.payload));
         }
+        setConfirmModal({ isOpen: false, payload: null });
     };
 
     const addAtmosphericReading = (reading) => {
@@ -599,6 +606,15 @@ export default function ConfinedSpace(): React.ReactElement | null {
                     limits={ATMOSPHERIC_LIMITS}
                 />
             )}
+
+            <ConfirmModal 
+                isOpen={confirmModal.isOpen} 
+                onClose={() => setConfirmModal({ isOpen: false, payload: null })} 
+                onConfirm={executeDelete} 
+                title="¿Eliminar permiso?" 
+                message="Esta acción no se puede deshacer." 
+                iconEmoji="🗑️" 
+            />
         </div>
     );
 }

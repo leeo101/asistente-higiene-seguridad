@@ -13,6 +13,7 @@ import NoiseAssessmentPdf from '../components/NoiseAssessmentPdf';
 import CompanyLogo from '../components/CompanyLogo';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import PremiumHeader from '../components/PremiumHeader';
+import ConfirmModal from '../components/ConfirmModal';
 
 // Límites según ISO 9612 y directivas internacionales
 const NOISE_LIMITS = {
@@ -62,6 +63,7 @@ export default function NoiseAssessment(): React.ReactElement | null {
     const [selectedMeasurement, setSelectedMeasurement] = useState<any>(null);
     const [activeTab, setActiveTab] = useState('measurements'); // measurements, workers, statistics
     const [shareItem, setShareItem] = useState<any>(null);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
 
     const [newMeasurement, setNewMeasurement] = useState({
         id: '',
@@ -146,6 +148,13 @@ export default function NoiseAssessment(): React.ReactElement | null {
         // Método NRR (Noise Reduction Rating) simplificado
         const attenuation = (protection.nrr - 7) / 2;
         return Math.max(level - attenuation, 0).toFixed(1);
+    };
+
+    const executeDelete = () => {
+        if (confirmModal.payload) {
+            saveMeasurements(measurements.filter(m => m.id !== confirmModal.payload));
+        }
+        setConfirmModal({ isOpen: false, payload: null });
     };
 
     const filteredMeasurements = measurements.filter(m => {
@@ -398,9 +407,7 @@ export default function NoiseAssessment(): React.ReactElement | null {
                                     onEdit={() => navigate('/noise-assessment/new', { state: { editData: measurement } })}
                                     onShare={() => setShareItem(measurement)}
                                     onDelete={() => {
-                                        if (confirm('¿Eliminar esta medición?')) {
-                                            saveMeasurements(measurements.filter(m => m.id !== measurement.id));
-                                        }
+                                        setConfirmModal({ isOpen: true, payload: measurement.id });
                                     }}
                                 />
                             ))}
@@ -436,6 +443,15 @@ export default function NoiseAssessment(): React.ReactElement | null {
                     NOISE_LIMITS={NOISE_LIMITS}
                 />
             )}
+
+            <ConfirmModal 
+                isOpen={confirmModal.isOpen} 
+                onClose={() => setConfirmModal({ isOpen: false, payload: null })} 
+                onConfirm={executeDelete} 
+                title="¿Eliminar medición?" 
+                message="Esta acción no se puede deshacer." 
+                iconEmoji="🗑️" 
+            />
         </div>
     );
 }

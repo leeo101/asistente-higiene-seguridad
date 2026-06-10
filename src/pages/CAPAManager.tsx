@@ -12,6 +12,7 @@ import ShareModal from '../components/ShareModal';
 import CAPAPdf from '../components/CAPAPdf';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import PremiumHeader from '../components/PremiumHeader';
+import ConfirmModal from '../components/ConfirmModal';
 
 // Form styles
 const labelStyle = { 
@@ -106,6 +107,7 @@ export default function CAPAManager(): React.ReactElement | null {
     const [currentCapaForAction, setCurrentCapaForAction] = useState(null);
     const [shareItem, setShareItem] = useState(null);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -269,9 +271,14 @@ export default function CAPAManager(): React.ReactElement | null {
     };
 
     const deleteCapa = (id) => {
-        if (confirm('¿Eliminar esta CAPA?')) {
-            saveCapas(capas.filter(c => c.id !== id));
+        setConfirmModal({ isOpen: true, payload: id });
+    };
+
+    const executeDelete = () => {
+        if (confirmModal.payload) {
+            saveCapas(capas.filter(c => c.id !== confirmModal.payload));
         }
+        setConfirmModal({ isOpen: false, payload: null });
     };
 
     const filteredCapas = capas.filter(c => {
@@ -627,6 +634,15 @@ export default function CAPAManager(): React.ReactElement | null {
                     CONTROL_HIERARCHY={CONTROL_HIERARCHY}
                 />
             )}
+
+            <ConfirmModal 
+                isOpen={confirmModal.isOpen} 
+                onClose={() => setConfirmModal({ isOpen: false, payload: null })} 
+                onConfirm={executeDelete} 
+                title="¿Eliminar CAPA?" 
+                message="Esta acción no se puede deshacer." 
+                iconEmoji="🗑️" 
+            />
         </div>
     );
 }

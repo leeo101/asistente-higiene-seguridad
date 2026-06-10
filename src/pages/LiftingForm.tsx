@@ -10,6 +10,7 @@ import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
 import LiftingPdfGenerator from '../components/LiftingPdfGenerator';
+import ConfirmModal from '../components/ConfirmModal';
 
 const labelStyle: React.CSSProperties = {
     display: 'block',
@@ -45,6 +46,7 @@ export default function LiftingForm(): React.ReactElement | null {
     const [isFormVisible, setIsFormVisible] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [plans, setPlans] = useState<any[]>([]);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -54,12 +56,17 @@ export default function LiftingForm(): React.ReactElement | null {
 
     const handleDelete = (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
-        if (window.confirm('¿Está seguro de eliminar este registro?')) {
-            const updated = plans.filter((p: any) => p.id !== id);
+        setConfirmModal({ isOpen: true, payload: id });
+    };
+
+    const executeDelete = () => {
+        if (confirmModal.payload) {
+            const updated = plans.filter((p: any) => p.id !== confirmModal.payload);
             localStorage.setItem('lifting_plans_db', JSON.stringify(updated));
             setPlans(updated);
             toast.success('Registro eliminado');
         }
+        setConfirmModal({ isOpen: false, payload: null });
     };
 
     const filteredPlans = plans.filter((p: any) => 
@@ -383,6 +390,14 @@ export default function LiftingForm(): React.ReactElement | null {
                         )}
                     </div>
                 </main>
+                <ConfirmModal 
+                    isOpen={confirmModal.isOpen} 
+                    onClose={() => setConfirmModal({ isOpen: false, payload: null })} 
+                    onConfirm={executeDelete} 
+                    title="¿Eliminar registro?" 
+                    message="Esta acción no se puede deshacer." 
+                    iconEmoji="🗑️" 
+                />
             </div>
         );
     }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ConfirmModal from '../components/ConfirmModal';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
@@ -24,21 +25,16 @@ import { DataTable } from '../components/DataTable';
 import QRModal from '../components/QRModal';
 import FireLoadPdfGenerator from '../components/FireLoadPdfGenerator';
 
-function DeleteConfirm({ onConfirm, onCancel }) {
+function DeleteConfirm({ onConfirm, onCancel }: any) {
     return (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(12px)' }}>
-            <div className="glass-card" style={{ padding: '2rem', maxWidth: '380px', width: '90%', textAlign: 'center', borderRadius: 'var(--radius-2xl)', border: '1px solid var(--glass-border)', boxShadow: 'var(--glass-shadow)' }}>
-                <div style={{ fontSize: '2.8rem', marginBottom: '1rem', display: 'inline-block', filter: 'drop-shadow(0 0 10px rgba(239, 68, 68, 0.3))' }}>🗑️</div>
-                <h3 style={{ margin: '0 0 0.5rem', fontWeight: 900, fontSize: '1.2rem', color: 'var(--color-text)' }}>¿Eliminar estudio?</h3>
-                <p style={{ margin: '0 0 1.5rem', color: 'var(--color-text-muted)', fontSize: '0.85rem', fontWeight: 500, lineHeight: 1.4 }}>
-                    Esta acción no se puede deshacer y el registro se eliminará de todo el historial.
-                </p>
-                <div style={{ display: 'flex', gap: '0.8rem' }}>
-                    <button onClick={onCancel} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: 'var(--color-surface)', border: '1px solid var(--glass-border-subtle)', cursor: 'pointer', fontWeight: 800, color: 'var(--color-text)', transition: 'all 0.2s' }}>Cancelar</button>
-                    <button onClick={onConfirm} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: 'linear-gradient(135deg, #ef4444, #dc2626)', border: 'none', cursor: 'pointer', fontWeight: 800, color: '#fff', boxShadow: '0 4px 12px rgba(239, 68, 68, 0.25)', transition: 'all 0.2s' }}>Eliminar</button>
-                </div>
-            </div>
-        </div>
+        <ConfirmModal
+            isOpen={true}
+            onClose={onCancel}
+            onConfirm={onConfirm}
+            title="¿Eliminar registro?"
+            message="Esta acción no se puede deshacer."
+            iconEmoji="🗑️"
+        />
     );
 }
 

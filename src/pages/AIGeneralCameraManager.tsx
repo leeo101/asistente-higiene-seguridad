@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ConfirmModal from '../components/ConfirmModal';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, Trash2, Camera, Calendar, Building2, Share2, Info, FileText, QrCode, Download, BarChart2, TriangleAlert, ShieldAlert } from 'lucide-react';
@@ -11,21 +12,16 @@ import ShareModal from '../components/ShareModal';
 import AiReportPdfGenerator from '../components/AiReportPdfGenerator';
 import PremiumHeader from '../components/PremiumHeader';
 
-function DeleteConfirm({ onConfirm, onCancel }) {
-    if (typeof document === 'undefined') return null;
-    return createPortal(
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
-            <div style={{ background: 'var(--color-surface)', borderRadius: '20px', padding: '2rem', maxWidth: '360px', width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)', textAlign: 'center' }}>
-                <div style={{ fontSize: '2.5rem', marginBottom: '0.8rem' }}>🗑️</div>
-                <h3 style={{ margin: '0 0 0.5rem', fontWeight: 900, color: 'var(--color-text)' }}>¿Eliminar análisis?</h3>
-                <p style={{ margin: '0 0 1.5rem', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>Esta acción no se puede deshacer.</p>
-                <div style={{ display: 'flex', gap: '0.8rem' }}>
-                    <button onClick={onCancel} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: 'var(--color-background)', border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: '0.85rem', color: 'var(--color-text)' }}>Cancelar</button>
-                    <button onClick={onConfirm} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: 'linear-gradient(135deg,#ef4444,#dc2626)', border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: '0.85rem', color: '#ffffff' }}>Eliminar</button>
-                </div>
-            </div>
-        </div>,
-        document.body
+function DeleteConfirm({ onConfirm, onCancel }: any) {
+    return (
+        <ConfirmModal
+            isOpen={true}
+            onClose={onCancel}
+            onConfirm={onConfirm}
+            title="¿Eliminar registro?"
+            message="Esta acción no se puede deshacer."
+            iconEmoji="🗑️"
+        />
     );
 }
 

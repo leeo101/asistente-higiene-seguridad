@@ -20,6 +20,7 @@ import { API_BASE_URL } from '../config';
 import { getCountryNormativa } from '../data/legislationData';
 import { auth } from '../firebase';
 import { Search } from 'lucide-react';
+import ConfirmModal from '../components/ConfirmModal';
 
 const inputStyle: React.CSSProperties = {
     width: '100%',
@@ -70,6 +71,7 @@ export default function LightingReport(): React.ReactElement | null {
     const [isFormVisible, setIsFormVisible] = useState(false);
     const [history, setHistory] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -82,12 +84,17 @@ export default function LightingReport(): React.ReactElement | null {
 
     const handleDelete = (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
-        if (window.confirm('¿Está seguro de eliminar este estudio?')) {
-            const updated = history.filter((p: any) => p.id !== id);
+        setConfirmModal({ isOpen: true, payload: id });
+    };
+
+    const executeDelete = () => {
+        if (confirmModal.payload) {
+            const updated = history.filter((p: any) => p.id !== confirmModal.payload);
             localStorage.setItem('lighting_history', JSON.stringify(updated));
             setHistory(updated);
             toast.success('Estudio eliminado');
         }
+        setConfirmModal({ isOpen: false, payload: null });
     };
 
     const filteredHistory = history.filter((item: any) =>
@@ -422,6 +429,14 @@ export default function LightingReport(): React.ReactElement | null {
                         )}
                     </div>
                 </main>
+                <ConfirmModal 
+                    isOpen={confirmModal.isOpen} 
+                    onClose={() => setConfirmModal({ isOpen: false, payload: null })} 
+                    onConfirm={executeDelete} 
+                    title="¿Eliminar estudio?" 
+                    message="Esta acción no se puede deshacer." 
+                    iconEmoji="🗑️" 
+                />
             </div>
         );
     }

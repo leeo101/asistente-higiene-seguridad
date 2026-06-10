@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, Plus, Trash2, Calendar, FileText, Timer } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import PremiumHeader from '../components/PremiumHeader';
+import ConfirmModal from '../components/ConfirmModal';
 
 export default function EvacuationSimulatorHistory(): React.ReactElement | null {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [simulations, setSimulations] = useState([]);
     const [isMobile, setIsMobile] = useState(false);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -25,12 +27,17 @@ export default function EvacuationSimulatorHistory(): React.ReactElement | null 
 
     const handleDelete = (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
-        if (window.confirm('¿Está seguro de eliminar esta simulación?')) {
-            const updated = simulations.filter((p: any) => p.id !== id);
+        setConfirmModal({ isOpen: true, payload: id });
+    };
+
+    const executeDelete = () => {
+        if (confirmModal.payload) {
+            const updated = simulations.filter((p: any) => p.id !== confirmModal.payload);
             localStorage.setItem('evacuation_simulator_db', JSON.stringify(updated));
             setSimulations(updated);
             toast.success('Simulación eliminada');
         }
+        setConfirmModal({ isOpen: false, payload: null });
     };
 
     const handleEdit = (form: any) => {
@@ -197,6 +204,15 @@ export default function EvacuationSimulatorHistory(): React.ReactElement | null 
                     )}
                 </div>
             </main>
+
+            <ConfirmModal 
+                isOpen={confirmModal.isOpen} 
+                onClose={() => setConfirmModal({ isOpen: false, payload: null })} 
+                onConfirm={executeDelete} 
+                title="¿Eliminar simulación?" 
+                message="Esta acción no se puede deshacer." 
+                iconEmoji="🗑️" 
+            />
         </div>
     );
 }

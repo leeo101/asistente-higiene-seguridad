@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import RiskMapPdfGenerator from '../components/RiskMapPdfGenerator';
+import ConfirmModal from '../components/ConfirmModal';
 import MapPropertiesPanel from '../components/MapPropertiesPanel';
 import MapHelpPanel from '../components/MapHelpPanel';
 import { useAuth } from '../contexts/AuthContext';
@@ -470,61 +471,14 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                 fileName={`Mapa_${meta.empresa}.pdf`}
             />
 
-            {/* Clear Canvas Confirm Modal */}
-            {showClearConfirm && (
-                <div style={{
-                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                    background: 'rgba(0,0,0,0.5)', zIndex: 9999,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    backdropFilter: 'blur(4px)'
-                }}>
-                    <div style={{
-                        background: 'var(--color-surface)',
-                        padding: '2rem',
-                        borderRadius: '16px',
-                        width: '90%',
-                        maxWidth: '400px',
-                        boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
-                        textAlign: 'center'
-                    }}>
-                        <div style={{
-                            width: '60px', height: '60px', borderRadius: '50%',
-                            background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            margin: '0 auto 1.5rem auto'
-                        }}>
-                            <Trash2 size={32} />
-                        </div>
-                        <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text)' }}>
-                            ¿Borrar todo el mapa?
-                        </h2>
-                        <p style={{ margin: '0 0 2rem 0', color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>
-                            Esta acción eliminará todos los elementos y el plano base. No se puede deshacer.
-                        </p>
-                        <div style={{ display: 'flex', gap: '1rem' }}>
-                            <button onClick={() => setShowClearConfirm(false)}
-                                style={{
-                                    flex: 1, padding: '0.8rem', borderRadius: '10px',
-                                    border: '1px solid var(--color-border)', background: 'transparent',
-                                    color: 'var(--color-text)', fontWeight: 700, cursor: 'pointer'
-                                }}
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                onClick={confirmClearCanvas}
-                                style={{
-                                    flex: 1, padding: '0.8rem', borderRadius: '10px',
-                                    border: 'none', background: '#ef4444', color: 'white',
-                                    fontWeight: 700, cursor: 'pointer'
-                                }}
-                            >
-                                Sí, borrar todo
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ConfirmModal 
+                isOpen={showClearConfirm} 
+                onClose={() => setShowClearConfirm(false)} 
+                onConfirm={confirmClearCanvas} 
+                title="¿Borrar todo el mapa?" 
+                message="Esta acción eliminará todos los elementos y el plano base. No se puede deshacer." 
+                iconEmoji="🗑️" 
+            />
 
             {/* Floating actions */}
             <div className="no-print floating-action-bar" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center' }}>

@@ -11,6 +11,7 @@ import ShareModal from '../components/ShareModal';
 import LOTOPdf from '../components/LOTOPdf';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import PremiumHeader from '../components/PremiumHeader';
+import ConfirmModal from '../components/ConfirmModal';
 
 // Tipos de energía según OSHA 1910.147
 const ENERGY_TYPES = [
@@ -72,6 +73,7 @@ export default function LOTOManager(): React.ReactElement | null {
     const [selectedProcedure, setSelectedProcedure] = useState(null);
     const [activeTab, setActiveTab] = useState('procedures');
     const [shareItem, setShareItem] = useState(null);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
 
     const [newProcedure, setNewProcedure] = useState({
         id: '',
@@ -191,10 +193,15 @@ export default function LOTOManager(): React.ReactElement | null {
     };
 
     const deleteProcedure = (id) => {
-        if (confirm('¿Eliminar este procedimiento LOTO?')) {
-            saveProcedures(procedures.filter(p => p.id !== id));
-            saveActiveLOTOs(activeLOTOs.filter(l => l.id !== id));
+        setConfirmModal({ isOpen: true, payload: id });
+    };
+
+    const executeDelete = () => {
+        if (confirmModal.payload) {
+            saveProcedures(procedures.filter(p => p.id !== confirmModal.payload));
+            saveActiveLOTOs(activeLOTOs.filter(l => l.id !== confirmModal.payload));
         }
+        setConfirmModal({ isOpen: false, payload: null });
     };
 
     const filteredProcedures = procedures.filter(p => {
@@ -481,6 +488,15 @@ export default function LOTOManager(): React.ReactElement | null {
                     LOTO_DEVICES={LOTO_DEVICES}
                 />
             )}
+
+            <ConfirmModal 
+                isOpen={confirmModal.isOpen} 
+                onClose={() => setConfirmModal({ isOpen: false, payload: null })} 
+                onConfirm={executeDelete} 
+                title="¿Eliminar procedimiento?" 
+                message="Esta acción no se puede deshacer." 
+                iconEmoji="🗑️" 
+            />
         </div>
     );
 }

@@ -14,6 +14,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useSync } from '../contexts/SyncContext';
 import { auth } from '../firebase';
 import ShareModal from '../components/ShareModal';
+import ConfirmModal from '../components/ConfirmModal';
 import ATSPdfGenerator from '../components/ATSPdfGenerator';
 import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
@@ -93,22 +94,6 @@ const PRESETS = {
     ]
 };
 
-function DeleteConfirm({ onConfirm, onCancel }) {
-    return (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
-            <div style={{ background: 'var(--color-surface)', borderRadius: '20px', padding: '2rem', maxWidth: '360px', width: '90%', textAlign: 'center' }}>
-                <div style={{ fontSize: '2.5rem', marginBottom: '0.8rem' }}>🗑️</div>
-                <h3 style={{ margin: '0 0 0.5rem', fontWeight: 900 }}>¿Eliminar ATS?</h3>
-                <p style={{ margin: '0 0 1.5rem', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>Esta acción no se puede deshacer.</p>
-                <div style={{ display: 'flex', gap: '0.8rem' }}>
-                    <button onClick={onCancel} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: 'var(--color-background)', border: 'none', cursor: 'pointer', fontWeight: 800 }}>Cancelar</button>
-                    <button onClick={onConfirm} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: 'linear-gradient(135deg,#ef4444,#dc2626)', border: 'none', cursor: 'pointer', fontWeight: 800, color: '#fff' }}>Eliminar</button>
-                </div>
-            </div>
-        </div>
-    );
-}
-
 export default function ATS(): React.ReactElement | null {
     const navigate = useNavigate();
     const location = useLocation();
@@ -127,7 +112,7 @@ export default function ATS(): React.ReactElement | null {
         window.scrollTo(0, 0);
     }, [location.pathname]);
     const [history, setHistory] = useState([]);
-    const [deleteTarget, setDeleteTarget] = useState(null);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, type: '', payload: null as any });
     const [qrTarget, setQrTarget] = useState(null);
     const [shareItem, setShareItem] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -219,12 +204,8 @@ export default function ATS(): React.ReactElement | null {
         }
     };
 
-    const handleApplyPreset = (name) => {
+    const applyPresetTasks = (name) => {
         const tasks = PRESETS[name];
-        if (!tasks) return;
-        
-        if (formData.tareas.length > 2 && !window.confirm('¿Deseas reemplazar los pasos actuales por esta plantilla?')) return;
-        
         setFormData(prev => ({
             ...prev,
             tareas: tasks.map((t, i) => ({ ...t, id: Date.now() + i }))
@@ -232,8 +213,19 @@ export default function ATS(): React.ReactElement | null {
         toast.success(`Plantilla de ${name} aplicada.`);
     };
 
-    const handleClearForm = () => {
-        if (!window.confirm('¿Seguro que deseas reiniciar el formulario? Se perderán los cambios no guardados.')) return;
+    const handleApplyPreset = (name) => {
+        const tasks = PRESETS[name];
+        if (!tasks) return;
+        
+        if (formData.tareas.length > 2) {
+            setConfirmModal({ isOpen: true, type: 'template', payload: name });
+            return;
+        }
+        
+        applyPresetTasks(name);
+    };
+
+    const executeClearForm = () => {
         setFormData({
             id: '',
             empresa: '', cuit: '', obra: '', tarea: '',
@@ -245,6 +237,10 @@ export default function ATS(): React.ReactElement | null {
             tareas: []
         });
         toast.success('Formulario reiniciado');
+    };
+
+    const handleClearForm = () => {
+        setConfirmModal({ isOpen: true, type: 'clear', payload: null });
     };
 
     const [professional, setProfessional] = useState({
@@ -395,12 +391,19 @@ export default function ATS(): React.ReactElement | null {
     const progressLabel = progressPct === 100 ? 'Listo para guardar ✅' : progressPct >= 66 ? 'Casi completo' : progressPct >= 33 ? 'En progreso' : 'Pendiente';
     const progressColor = progressPct === 100 ? '#10b981' : progressPct >= 66 ? '#f59e0b' : progressPct >= 33 ? '#3b82f6' : '#94a3b8';
 
-    const confirmDelete = () => {
-        const updated = history.filter((item: any) => item.id !== deleteTarget);
-        setHistory(updated);
-        localStorage.setItem('ats_history', JSON.stringify(updated));
-        syncCollection('ats_history', updated);
-        setDeleteTarget(null);
+    const executeConfirmAction = () => {
+        if (confirmModal.type === 'delete') {
+            const updated = history.filter((item: any) => item.id !== confirmModal.payload);
+            setHistory(updated);
+            localStorage.setItem('ats_history', JSON.stringify(updated));
+            syncCollection('ats_history', updated);
+            toast.success('ATS eliminado del historial');
+        } else if (confirmModal.type === 'template') {
+            applyPresetTasks(confirmModal.payload);
+        } else if (confirmModal.type === 'clear') {
+            executeClearForm();
+        }
+        setConfirmModal({ isOpen: false, type: '', payload: null });
     };
 
     const handleExportCSV = () => {
@@ -462,7 +465,7 @@ export default function ATS(): React.ReactElement | null {
                     <button onClick={() => { setFormData(item); setShowForm(true); }} style={{ padding: '0.4rem 0.8rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '4px' }}><FileText size={15} /> Ver</button>
                     <button onClick={() => requirePro(() => { const url = `${window.location.origin}/v/${currentUser?.uid}/ats/${item.id}?print=true`; setQrTarget({ text: url, title: `ATS — ${item.empresa}` } as any); })} style={{ padding: '0.4rem', background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer' }} title="QR"><QrCode size={15} /></button>
                     <button onClick={() => requirePro(() => setShareItem(JSON.parse(localStorage.getItem('ats_' + item.id) || 'null') || item))} style={{ padding: '0.4rem', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '8px', color: '#16a34a', cursor: 'pointer' }} title="Compartir"><Share2 size={15} /></button>
-                    <button onClick={() => setDeleteTarget(item.id)} style={{ padding: '0.4rem', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}><Trash2 size={15} /></button>
+                    <button onClick={() => setConfirmModal({ isOpen: true, type: 'delete', payload: item.id })} style={{ padding: '0.4rem', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}><Trash2 size={15} /></button>
                 </div>
             )
         }
@@ -538,7 +541,29 @@ export default function ATS(): React.ReactElement | null {
                         />
 
                         {qrTarget && <QRModal text={(qrTarget as any).text} title={(qrTarget as any).title} onClose={() => setQrTarget(null)} />}
-                        {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
+                        
+                        <ConfirmModal 
+                            isOpen={confirmModal.isOpen} 
+                            onClose={() => setConfirmModal({ isOpen: false, type: '', payload: null })} 
+                            onConfirm={executeConfirmAction} 
+                            title={
+                                confirmModal.type === 'delete' ? '¿Eliminar ATS?' :
+                                confirmModal.type === 'template' ? '¿Reemplazar tareas?' :
+                                '¿Reiniciar formulario?'
+                            }
+                            message={
+                                confirmModal.type === 'delete' ? 'Esta acción no se puede deshacer.' :
+                                confirmModal.type === 'template' ? 'Se borrarán las tareas actuales para cargar la plantilla seleccionada.' :
+                                'Se perderán todos los datos y tareas que no hayas guardado.'
+                            }
+                            type={confirmModal.type === 'delete' ? 'danger' : 'warning'}
+                            iconEmoji={
+                                confirmModal.type === 'delete' ? '🗑️' :
+                                confirmModal.type === 'template' ? '🔄' :
+                                '⚠️'
+                            }
+                        />
+
                         <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`ATS - ${(shareItem as any)?.obra || ''}`} rawMessage={shareItem ? `📋 ATS\n🏗️ Empresa: ${(shareItem as any).empresa}\n🚧 Obra: ${(shareItem as any).obra}\n📅 Fecha: ${(shareItem as any).fecha}` : ''} text={shareItem ? `📋 ATS\n🏗️ Empresa: ${(shareItem as any).empresa}\n🚧 Obra: ${(shareItem as any).obra}\n📅 Fecha: ${(shareItem as any).fecha}` : ''} elementIdToPrint="pdf-content" fileName={`ATS_${(shareItem as any)?.empresa?.replace(/\s+/g, '_') || 'Reporte'}.pdf`} />
                         <div className="ats-pdf-offscreen">
                             <ATSPdfGenerator atsData={shareItem} />

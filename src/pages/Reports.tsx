@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ConfirmModal from '../components/ConfirmModal';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Save, FileText, AlertCircle, GraduationCap, ClipboardCheck, Package, Plus, Trash2, History, Share2, Printer, Clock, Edit2, CheckCircle2, Download, Calendar } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
@@ -36,19 +37,16 @@ const labelStyle: React.CSSProperties = {
     letterSpacing: '0.5px'
 };
 
-function DeleteConfirm({ onConfirm, onCancel }: { onConfirm: () => void, onCancel: () => void }) {
+function DeleteConfirm({ onConfirm, onCancel }: any) {
     return (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-            <div style={{ background: 'var(--color-surface)', padding: '2rem', borderRadius: '16px', maxWidth: '400px', width: '90%', textAlign: 'center' }}>
-                <Trash2 size={48} color="#ef4444" style={{ marginBottom: '1rem' }} />
-                <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.25rem' }}>¿Eliminar informe?</h3>
-                <p style={{ color: 'var(--color-text-muted)', marginBottom: '1.5rem', fontSize: '0.95rem' }}>Esta acción no se puede deshacer.</p>
-                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-                    <button onClick={onCancel} style={{ padding: '0.8rem 1.5rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, color: 'var(--color-text)' }}>Cancelar</button>
-                    <button onClick={onConfirm} style={{ padding: '0.8rem 1.5rem', background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 700 }}>Sí, Eliminar</button>
-                </div>
-            </div>
-        </div>
+        <ConfirmModal
+            isOpen={true}
+            onClose={onCancel}
+            onConfirm={onConfirm}
+            title="¿Eliminar registro?"
+            message="Esta acción no se puede deshacer."
+            iconEmoji="🗑️"
+        />
     );
 }
 

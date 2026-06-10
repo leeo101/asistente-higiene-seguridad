@@ -4,6 +4,7 @@ import { ArrowLeft, Plus, Search, CheckCircle2, XCircle, Clock, User, Calendar, 
 import ShareModal from '../components/ShareModal';
 import WorkingAtHeightPdf from '../components/WorkingAtHeightPdf';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
+import ConfirmModal from '../components/ConfirmModal';
 
 const WORK_TYPES = [{ id: 'scaffolding', name: 'Andamios', icon: '🏗️' }, { id: 'ladder', name: 'Escalera', icon: '🪜' }, { id: 'roof', name: 'Techos', icon: '🏠' }, { id: 'platform', name: 'Plataforma', icon: '📦' }, { id: 'lift', name: 'Elevador', icon: '⬆️' }, { id: 'structure', name: 'Estructura', icon: '🔩' }];
 const PRIORITY = { critical: { label: 'CRÍTICA', color: '#dc2626', days: 3 }, high: { label: 'ALTA', color: '#f59e0b', days: 7 }, medium: { label: 'MEDIA', color: '#3b82f6', days: 15 }, low: { label: 'BAJA', color: '#16a34a', days: 30 } };
@@ -16,6 +17,7 @@ export default function WorkingAtHeightPage(): React.ReactElement | null {
     const [selected, setSelected] = useState<any>(null);
     const [showShareModal, setShowShareModal] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -28,7 +30,15 @@ export default function WorkingAtHeightPage(): React.ReactElement | null {
 
     const save = (data: any[]) => { localStorage.setItem('working_at_height_permits', JSON.stringify(data)); setPermits(data); };
     const updateStatus = (id: string, s: string) => save(permits.map((p: any) => p.id === id ? { ...p, status: s } : p));
-    const del = (id: string) => { if (confirm('¿Eliminar?')) save(permits.filter((p: any) => p.id !== id)); };
+    const del = (id: string) => { setConfirmModal({ isOpen: true, payload: id }); };
+
+    const executeDelete = () => {
+        if (confirmModal.payload) {
+            save(permits.filter((p: any) => p.id !== confirmModal.payload));
+        }
+        setConfirmModal({ isOpen: false, payload: null });
+    };
+
     const filtered = permits.filter(p => p.workerName.toLowerCase().includes(searchTerm.toLowerCase()));
     const stats = { total: permits.length, open: permits.filter(p => p.status === 'open' || p.status === 'in_progress').length, completed: permits.filter(p => p.status === 'completed').length, critical: permits.filter(p => p.priority === 'critical' && p.status !== 'completed').length };
 
@@ -79,6 +89,15 @@ export default function WorkingAtHeightPage(): React.ReactElement | null {
             <div className="print-only" style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0 }}>
                 <WorkingAtHeightPdf data={selected} />
             </div>
+
+            <ConfirmModal 
+                isOpen={confirmModal.isOpen} 
+                onClose={() => setConfirmModal({ isOpen: false, payload: null })} 
+                onConfirm={executeDelete} 
+                title="¿Eliminar permiso?" 
+                message="Esta acción no se puede deshacer." 
+                iconEmoji="🗑️" 
+            />
         </div>
     );
 }

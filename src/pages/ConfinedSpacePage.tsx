@@ -4,6 +4,7 @@ import { ArrowLeft, Plus, Search, CheckCircle2, XCircle, Clock, User, Calendar, 
 import ShareModal from '../components/ShareModal';
 import ConfinedSpacePdf from '../components/ConfinedSpacePdf';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
+import ConfirmModal from '../components/ConfirmModal';
 
 const PERMIT_STATUS = {
     draft: { label: 'BORRADOR', color: '#6b7280', bg: '#f3f4f6' },
@@ -19,6 +20,7 @@ export default function ConfinedSpacePage(): React.ReactElement | null {
     const [selectedPermit, setSelectedPermit] = useState<any>(null);
     const [showShareModal, setShowShareModal] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -32,7 +34,12 @@ export default function ConfinedSpacePage(): React.ReactElement | null {
     const savePermits = (data: any[]) => { localStorage.setItem('confined_space_permits_db', JSON.stringify(data)); setPermits(data); };
 
     const updateStatus = (id: string, status: string) => { savePermits(permits.map((p: any) => p.id === id ? { ...p, status } : p)); };
-    const deletePermit = (id: string) => { if (confirm('¿Eliminar este permiso?')) savePermits(permits.filter((p: any) => p.id !== id)); };
+    const deletePermit = (id: string) => { setConfirmModal({ isOpen: true, payload: id }); };
+
+    const executeDelete = () => {
+        if (confirmModal.payload) savePermits(permits.filter((p: any) => p.id !== confirmModal.payload));
+        setConfirmModal({ isOpen: false, payload: null });
+    };
 
     const filtered = permits.filter(p => p.spaceName.toLowerCase().includes(searchTerm.toLowerCase()) || p.location?.toLowerCase().includes(searchTerm.toLowerCase()));
     const stats = { total: permits.length, active: permits.filter(p => p.status === 'active').length, pending: permits.filter(p => p.status === 'pending').length, completed: permits.filter(p => p.status === 'completed').length };
@@ -43,68 +50,6 @@ export default function ConfinedSpacePage(): React.ReactElement | null {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', maxWidth: '1400px', margin: '0 auto' }}>
                     <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
                             <ArrowLeft size={20}  />
-                        </button>
-                    <div style={{ flex: 1 }}>
-                        <h1 style={{ margin: 0, fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: 900 }}><Tent size={isMobile ? 20 : 24} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />Espacios Confinados</h1>
-                        <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>OSHA 1910.146 • {stats.active} activos</p>
-                    </div>
-                    <button onClick={() => navigate('/confined-space/new')} className="btn-primary" style={{ width: 'auto', margin: 0, padding: '0.75rem 1.25rem', display: isMobile ? 'none' : 'flex', alignItems: 'center', gap: '0.5rem' }}><Plus size={20} strokeWidth={2.5} />Nuevo Permiso</button>
-                </div>
-            </div>
-
-            <div style={{ marginTop: isMobile ? '1rem' : '1.5rem' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: '1rem', padding: isMobile ? '1rem' : '1.5rem', maxWidth: '1400px', margin: '0 auto' }}>
-                <StatCard label="Total" value={stats.total} color="#3B82F6" icon={<Tent size={20} />} />
-                <StatCard label="Activos" value={stats.active} color="#16a34a" icon={<CheckCircle2 size={20} />} />
-                <StatCard label="Pendientes" value={stats.pending} color="#f59e0b" icon={<Clock size={20} />} />
-                <StatCard label="Completados" value={stats.completed} color="#8b5cf6" icon={<CheckCircle2 size={20} />} />
-            </div>
-
-            {isMobile && (
-                <div style={{ padding: '0 1rem 1rem', display: 'flex', gap: '0.75rem' }}>
-                    <div style={{ flex: 1, position: 'relative' }}>
-                        <Search size={18} color="var(--color-text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
-                        <input type="text" placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 2.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)', background: 'var(--color-surface)', fontSize: '0.95rem' }} />
-                    </div>
-                    <button onClick={() => navigate('/confined-space/new')} className="btn-primary" style={{ width: 'auto', margin: 0, padding: '0 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Plus size={20} /></button>
-                </div>
-            )}
-
-            <div style={{ padding: isMobile ? '0 1rem' : '0 1.5rem', maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {filtered.length === 0 ? (
-                    <EmptyStateIllustrated 
-                        title="Sin Permisos de Ingreso"
-                        description="Creá permisos de ingreso a espacios confinados según OSHA 1910.146 para garantizar la seguridad del personal."
-                        onAction={() => navigate('/confined-space/new')}
-                        icon={<Tent />}
-                    />
-                ) : filtered.map(p => (
-                    <PermitCard key={p.id} permit={p} statusConfig={(PERMIT_STATUS as any)[p.status] || PERMIT_STATUS.pending} onStart={() => updateStatus(p.id, 'active')} onComplete={() => updateStatus(p.id, 'completed')} onView={() => setSelectedPermit(p)} onDelete={() => deletePermit(p.id)} isMobile={isMobile} />
-                ))}
-            </div>
-
-            </div>
-
-            {selectedPermit && <DetailModal permit={selectedPermit} onClose={() => setSelectedPermit(null)} isMobile={isMobile} onPrint={() => setShowShareModal(true)} />}
-
-            {/* @ts-ignore */}
-            <ShareModal 
-                isOpen={showShareModal}
-                onClose={() => setShowShareModal(false)}
-                elementIdToPrint="pdf-content"
-                title="Permiso de Ingreso"
-                fileName={`Permiso_${selectedPermit?.spaceName || 'Sin_Nombre'}.pdf`}
-            />
-
-            <div className="print-only" style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0 }}>
-                <ConfinedSpacePdf data={selectedPermit} />
-            </div>
-        </div>
-    );
-}
-
-function StatCard({ label, value, color, icon }: any) {
-    return (<div className="card" style={{ padding: '1.25rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border-subtle)', display: 'flex', alignItems: 'center', gap: '1rem' }}><div style={{ width: '48px', height: '48px', background: `linear-gradient(135deg, ${color}, ${color}cc)`, borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>{icon}</div><div><div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>{label}</div><div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--color-text)', lineHeight: 1 }}>{value}</div></div></div>);
 }
 
 function PermitCard({ permit, statusConfig, onStart, onComplete, onView, onDelete, isMobile }: any) {

@@ -9,6 +9,7 @@ import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
 import FleetPdfGenerator from '../components/FleetPdfGenerator';
+import ConfirmModal from '../components/ConfirmModal';
 
 const labelStyle: React.CSSProperties = {
     display: 'block',
@@ -68,6 +69,7 @@ export default function FleetForm(): React.ReactElement | null {
     const [isFormVisible, setIsFormVisible] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [inspections, setInspections] = useState<any[]>([]);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -80,12 +82,17 @@ export default function FleetForm(): React.ReactElement | null {
 
     const handleDelete = (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
-        if (window.confirm('¿Está seguro de eliminar este registro?')) {
-            const updated = inspections.filter((p: any) => p.id !== id);
+        setConfirmModal({ isOpen: true, payload: id });
+    };
+
+    const executeDelete = () => {
+        if (confirmModal.payload) {
+            const updated = inspections.filter((p: any) => p.id !== confirmModal.payload);
             localStorage.setItem('fleet_inspections_db', JSON.stringify(updated));
             setInspections(updated);
             toast.success('Registro eliminado');
         }
+        setConfirmModal({ isOpen: false, payload: null });
     };
 
     const filteredInspections = inspections.filter((p: any) => 
@@ -374,6 +381,14 @@ export default function FleetForm(): React.ReactElement | null {
                         )}
                     </div>
                 </main>
+                <ConfirmModal 
+                    isOpen={confirmModal.isOpen} 
+                    onClose={() => setConfirmModal({ isOpen: false, payload: null })} 
+                    onConfirm={executeDelete} 
+                    title="¿Eliminar registro?" 
+                    message="Esta acción no se puede deshacer." 
+                    iconEmoji="🗑️" 
+                />
             </div>
         );
     }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ConfirmModal from '../components/ConfirmModal';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
     ClipboardCheck, Printer, Plus,
@@ -370,19 +371,16 @@ const getNormsForCountry = (country) => {
     return [...countryNorms, ...internationalNorms];
 };
 
-function DeleteConfirm({ onConfirm, onCancel }) {
+function DeleteConfirm({ onConfirm, onCancel }: any) {
     return (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
-            <div style={{ background: 'var(--color-surface)', borderRadius: '20px', padding: '2rem', maxWidth: '360px', width: '90%', textAlign: 'center' }}>
-                <div style={{ fontSize: '2.5rem', marginBottom: '0.8rem' }}>🗑️</div>
-                <h3 style={{ margin: '0 0 0.5rem', fontWeight: 900 }}>¿Eliminar checklist?</h3>
-                <p style={{ margin: '0 0 1.5rem', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>Esta acción no se puede deshacer.</p>
-                <div style={{ display: 'flex', gap: '0.8rem' }}>
-                    <button onClick={onCancel} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: 'var(--color-background)', border: 'none', cursor: 'pointer', fontWeight: 800 }}>Cancelar</button>
-                    <button onClick={onConfirm} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: 'linear-gradient(135deg,#ef4444,#dc2626)', border: 'none', cursor: 'pointer', fontWeight: 800, color: '#fff' }}>Eliminar</button>
-                </div>
-            </div>
-        </div>
+        <ConfirmModal
+            isOpen={true}
+            onClose={onCancel}
+            onConfirm={onConfirm}
+            title="¿Eliminar registro?"
+            message="Esta acción no se puede deshacer."
+            iconEmoji="🗑️"
+        />
     );
 }
 

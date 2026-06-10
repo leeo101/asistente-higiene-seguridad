@@ -1,4 +1,11 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { createPortal } from 'react-dom';
+import { 
+  Users, UserPlus, Buildings, Plus, X, MagnifyingGlass, 
+  Trash, ArrowLeft, DownloadSimple, ShieldCheck, Warning, FileText, Camera, Cpu, Spinner
+} from '@phosphor-icons/react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import { 
@@ -14,6 +21,7 @@ import { usePaywall } from '../hooks/usePaywall';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../config';
+import ConfirmModal from '../components/ConfirmModal';
 
 // Interfaces
 export interface Contractor {
@@ -59,6 +67,8 @@ export default function ContractorManagement() {
   const [isMobile, setIsMobile] = useState(false);
   const [isAnalyzingContractor, setIsAnalyzingContractor] = useState(false);
   const [isAnalyzingWorker, setIsAnalyzingWorker] = useState(false);
+  
+  const [confirmModal, setConfirmModal] = useState<{isOpen: boolean, type: 'contractor' | 'worker', payload: string | null}>({isOpen: false, type: 'contractor', payload: null});
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -106,7 +116,7 @@ export default function ContractorManagement() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'expired': return <span style={{ background: 'rgba(239,68,68,0.2)', color: '#f87171', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 800 }}>VENCIDO</span>;
-      case 'warning': return <span style={{ background: 'rgba(245,158,11,0.2)', color: '#fbbf24', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 800 }}>PRÃ“XIMO A VENCER</span>;
+      case 'warning': return <span style={{ background: 'rgba(245,158,11,0.2)', color: '#fbbf24', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 800 }}>PRÓXIMO A VENCER</span>;
       case 'ok': return <span style={{ background: 'rgba(16,185,129,0.2)', color: '#34d399', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 800 }}>VIGENTE</span>;
       default: return <span style={{ background: 'rgba(255,255,255,0.1)', color: '#aaa', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 800 }}>SIN DATO</span>;
     }
@@ -129,7 +139,7 @@ export default function ContractorManagement() {
   const handleAddWorker = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isPro && workers.length >= 5) {
-      alert("La versiÃ³n Freemium permite hasta 5 trabajadores. Actualiza a Pro para carga ilimitada.");
+      alert("La versión Freemium permite hasta 5 trabajadores. Actualiza a Pro para carga ilimitada.");
       return;
     }
 
@@ -144,16 +154,21 @@ export default function ContractorManagement() {
   };
 
   const handleDeleteContractor = (id: string) => {
-    if (window.confirm('Â¿Eliminar contratista y todos sus trabajadores asociados?')) {
-      saveContractors(contractors.filter(c => c.id !== id));
-      saveWorkers(workers.filter(w => w.contractorId !== id));
-    }
+    setConfirmModal({ isOpen: true, type: 'contractor', payload: id });
   };
 
   const handleDeleteWorker = (id: string) => {
-    if (window.confirm('Â¿Eliminar trabajador?')) {
-      saveWorkers(workers.filter(w => w.id !== id));
+    setConfirmModal({ isOpen: true, type: 'worker', payload: id });
+  };
+
+  const executeConfirmAction = () => {
+    if (confirmModal.type === 'contractor' && confirmModal.payload) {
+      saveContractors(contractors.filter(c => c.id !== confirmModal.payload));
+      saveWorkers(workers.filter(w => w.contractorId !== confirmModal.payload));
+    } else if (confirmModal.type === 'worker' && confirmModal.payload) {
+      saveWorkers(workers.filter(w => w.id !== confirmModal.payload));
     }
+    setConfirmModal({ isOpen: false, type: 'contractor', payload: null });
   };
 
   const handleDocumentUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'contractor' | 'worker') => {
@@ -179,7 +194,7 @@ export default function ContractorManagement() {
               });
 
               if (!response.ok) {
-                  throw new Error('Error en el anÃ¡lisis de IA');
+                  throw new Error('Error en el análisis de IA');
               }
 
               const data = await response.json();
@@ -191,7 +206,7 @@ export default function ContractorManagement() {
                       cuit: data.idNumber || prev.cuit,
                       documentExpiresAt: data.expiryDate || prev.documentExpiresAt
                   }));
-                  toast.success('âœ¨ Datos de empresa extraÃ­dos con IA');
+                  toast.success('✨ Datos de empresa extraídos con IA');
               } else {
                   setWorkerForm(prev => ({
                       ...prev,
@@ -200,7 +215,7 @@ export default function ContractorManagement() {
                       artExpiresAt: data.documentType === 'ART' ? data.expiryDate : prev.artExpiresAt,
                       lifeInsuranceExpiresAt: data.documentType === 'SEGURO' ? data.expiryDate : prev.lifeInsuranceExpiresAt
                   }));
-                  toast.success('âœ¨ Datos de trabajador extraÃ­dos con IA');
+                  toast.success('✨ Datos de trabajador extraídos con IA');
               }
           };
           reader.readAsDataURL(file);
@@ -252,7 +267,7 @@ export default function ContractorManagement() {
             }}>
               {!isPro && (
                 <div style={{ padding: '0.4rem 0.8rem', background: 'rgba(245,158,11,0.1)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700, textAlign: 'center' }}>
-                  LÃ­mite Freemium: {workers.length}/5
+                  Límite Freemium: {workers.length}/5
                 </div>
               )}
               <div style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
@@ -345,7 +360,7 @@ export default function ContractorManagement() {
                   <div style={{ fontSize: '0.85rem', color: 'var(--color-text)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Contacto:</span> <strong>{contractor.contactPhone}</strong></div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span>Seguro/ClÃ¡usulas:</span> 
+                      <span>Seguro/Cláusulas:</span> 
                       {getStatusBadge(checkExpiryStatus(contractor.documentExpiresAt))}
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -394,7 +409,7 @@ export default function ContractorManagement() {
                             {getStatusBadge(checkExpiryStatus(worker.lifeInsuranceExpiresAt))}
                           </div>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-                            <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>INDUCCIÃ“N</span>
+                            <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>INDUCCIÓN</span>
                             {getStatusBadge(checkExpiryStatus(worker.inductionExpiresAt))}
                           </div>
                         </div>
@@ -411,7 +426,7 @@ export default function ContractorManagement() {
                         <th style={{ padding: '1rem' }}>Empresa</th>
                         <th style={{ padding: '1rem' }}>Vto. ART</th>
                         <th style={{ padding: '1rem' }}>Vto. Seguro Vida</th>
-                        <th style={{ padding: '1rem' }}>InducciÃ³n</th>
+                        <th style={{ padding: '1rem' }}>Inducción</th>
                         <th style={{ padding: '1rem', width: '50px' }}></th>
                       </tr>
                     </thead>
@@ -470,7 +485,7 @@ export default function ContractorManagement() {
               onClick={e => e.stopPropagation()}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <h2 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 900, color: 'var(--color-heading)', letterSpacing: '-0.5px' }}>AÃ±adir Contratista</h2>
+                <h2 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 900, color: 'var(--color-heading)', letterSpacing: '-0.5px' }}>Añadir Contratista</h2>
                 <button 
                   onClick={() => setIsContractorModalOpen(false)} 
                   style={{ 
@@ -507,7 +522,7 @@ export default function ContractorManagement() {
                                   <Cpu size={24} weight="duotone" />
                               </div>
                               <span style={{ fontWeight: 700 }}>Autocompletar con IA</span>
-                              <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>SubÃ­ un Constancia AFIP o Seguro</span>
+                              <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>Subí un Constancia AFIP o Seguro</span>
                               <input type="file" accept="image/*" capture="environment" onChange={(e) => handleDocumentUpload(e, 'contractor')} style={{ display: 'none' }} />
                           </label>
                       </>
@@ -515,13 +530,13 @@ export default function ContractorManagement() {
               </div>
 
               <form onSubmit={handleAddContractor} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div><label>RazÃ³n Social / Empresa</label><input required type="text" value={contractorForm.name || ''} onChange={e => setContractorForm({...contractorForm, name: e.target.value})} className="form-input" style={{ width: '100%' }} /></div>
+                <div><label>Razón Social / Empresa</label><input required type="text" value={contractorForm.name || ''} onChange={e => setContractorForm({...contractorForm, name: e.target.value})} className="form-input" style={{ width: '100%' }} /></div>
                 <div><label>CUIT</label><input required type="text" value={contractorForm.cuit || ''} onChange={e => setContractorForm({...contractorForm, cuit: e.target.value})} className="form-input" style={{ width: '100%' }} /></div>
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem' }}>
                   <div><label>Email Contacto</label><input type="email" value={contractorForm.contactEmail || ''} onChange={e => setContractorForm({...contractorForm, contactEmail: e.target.value})} className="form-input" style={{ width: '100%' }} /></div>
-                  <div><label>TelÃ©fono</label><input type="tel" value={contractorForm.contactPhone || ''} onChange={e => setContractorForm({...contractorForm, contactPhone: e.target.value})} className="form-input" style={{ width: '100%' }} /></div>
+                  <div><label>Teléfono</label><input type="tel" value={contractorForm.contactPhone || ''} onChange={e => setContractorForm({...contractorForm, contactPhone: e.target.value})} className="form-input" style={{ width: '100%' }} /></div>
                 </div>
-                <div><label>Vencimiento Doc. Principal (ART/ClÃ¡usulas Grales)</label><input type="date" required value={contractorForm.documentExpiresAt || ''} onChange={e => setContractorForm({...contractorForm, documentExpiresAt: e.target.value})} className="form-input" style={{ width: '100%' }} /></div>
+                <div><label>Vencimiento Doc. Principal (ART/Cláusulas Grales)</label><input type="date" required value={contractorForm.documentExpiresAt || ''} onChange={e => setContractorForm({...contractorForm, documentExpiresAt: e.target.value})} className="form-input" style={{ width: '100%' }} /></div>
                 <button type="submit" className="primary-btn" style={{ marginTop: '1rem', padding: '0.8rem', borderRadius: '8px', border: 'none', background: 'var(--color-primary)', color: 'white', fontWeight: 700, cursor: 'pointer' }}>Guardar Contratista</button>
               </form>
             </div>
@@ -550,7 +565,7 @@ export default function ContractorManagement() {
               onClick={e => e.stopPropagation()}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <h2 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 900, color: 'var(--color-heading)', letterSpacing: '-0.5px' }}>AÃ±adir Trabajador</h2>
+                <h2 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 900, color: 'var(--color-heading)', letterSpacing: '-0.5px' }}>Añadir Trabajador</h2>
                 <button 
                   onClick={() => setIsWorkerModalOpen(false)} 
                   style={{ 
@@ -609,13 +624,23 @@ export default function ContractorManagement() {
                 </div>
                 <div><label>Vencimiento ART</label><input required type="date" value={workerForm.artExpiresAt || ''} onChange={e => setWorkerForm({...workerForm, artExpiresAt: e.target.value})} className="form-input" style={{ width: '100%' }} /></div>
                 <div><label>Vencimiento Seguro Vida</label><input required type="date" value={workerForm.lifeInsuranceExpiresAt || ''} onChange={e => setWorkerForm({...workerForm, lifeInsuranceExpiresAt: e.target.value})} className="form-input" style={{ width: '100%' }} /></div>
-                <div><label>Vencimiento InducciÃ³n/CapacitaciÃ³n</label><input type="date" value={workerForm.inductionExpiresAt || ''} onChange={e => setWorkerForm({...workerForm, inductionExpiresAt: e.target.value})} className="form-input" style={{ width: '100%' }} /></div>
+                <div><label>Vencimiento Inducción/Capacitación</label><input type="date" value={workerForm.inductionExpiresAt || ''} onChange={e => setWorkerForm({...workerForm, inductionExpiresAt: e.target.value})} className="form-input" style={{ width: '100%' }} /></div>
                 <button type="submit" className="primary-btn" style={{ marginTop: '1rem', padding: '0.8rem', borderRadius: '8px', border: 'none', background: 'var(--color-primary)', color: 'white', fontWeight: 700, cursor: 'pointer' }}>Guardar Trabajador</button>
               </form>
             </div>
           </div>,
           document.getElementById('modal-root') || document.body
         )}
+
+        <ConfirmModal 
+          isOpen={confirmModal.isOpen} 
+          onClose={() => setConfirmModal({ isOpen: false, type: 'contractor', payload: null })} 
+          onConfirm={executeConfirmAction} 
+          title={confirmModal.type === 'contractor' ? '¿Eliminar contratista?' : '¿Eliminar trabajador?'}
+          message={confirmModal.type === 'contractor' ? 'Se eliminará el contratista y todos sus trabajadores asociados. Esta acción no se puede deshacer.' : 'Esta acción no se puede deshacer.'}
+          iconEmoji="🗑️" 
+          type="danger"
+        />
 
       </div>
     </AnimatedPage>

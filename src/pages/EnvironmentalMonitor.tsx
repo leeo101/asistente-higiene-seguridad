@@ -13,6 +13,7 @@ import EnvironmentalPdf from '../components/EnvironmentalPdf';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
+import ConfirmModal from '../components/ConfirmModal';
 // Tipos de monitoreo ambiental
 const MONITORING_TYPES = [
     { id: 'air', name: 'Calidad de Aire', icon: '💨', color: '#3b82f6' },
@@ -84,6 +85,7 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
     const [selectedMeasurement, setSelectedMeasurement] = useState(null);
     const [activeTab, setActiveTab] = useState('measurements');
     const [shareItem, setShareItem] = useState(null);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
 
     const [newMeasurement, setNewMeasurement] = useState({
         id: '',
@@ -203,9 +205,14 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
     };
 
     const deleteMeasurement = (id) => {
-        if (confirm('¿Eliminar esta medición ambiental?')) {
-            saveMeasurements(measurements.filter(m => m.id !== id));
+        setConfirmModal({ isOpen: true, payload: id });
+    };
+
+    const executeDelete = () => {
+        if (confirmModal.payload) {
+            saveMeasurements(measurements.filter(m => m.id !== confirmModal.payload));
         }
+        setConfirmModal({ isOpen: false, payload: null });
     };
 
     const filteredMeasurements = measurements.filter(m => {
@@ -565,6 +572,15 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
             <div className="ats-pdf-offscreen">
                 <EnvironmentalPdf data={selectedMeasurement || newMeasurement} id="pdf-content-modal" />
             </div>
+
+            <ConfirmModal 
+                isOpen={confirmModal.isOpen} 
+                onClose={() => setConfirmModal({ isOpen: false, payload: null })} 
+                onConfirm={executeDelete} 
+                title="¿Eliminar medición?" 
+                message="Esta acción no se puede deshacer." 
+                iconEmoji="🗑️" 
+            />
         </div>
     );
 }

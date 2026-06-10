@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import AnimatedPage from '../components/AnimatedPage';
 import LegajoPdf from '../components/LegajoPdf';
 import PremiumHeader from '../components/PremiumHeader';
+import ConfirmModal from '../components/ConfirmModal';
 
 interface Legajo {
   id: string;
@@ -75,6 +76,7 @@ export default function Legajos() {
   const hasAccess = isPro || isAdmin;
   const navigate = useNavigate();
   const [printingLegajo, setPrintingLegajo] = useState<Legajo | null>(null);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
 
   const handleGeneratePDF = (e: React.MouseEvent, legajo: Legajo) => {
     e.stopPropagation();
@@ -114,15 +116,22 @@ export default function Legajos() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!currentUser || !window.confirm('¿Estás seguro de eliminar este Legajo Técnico? Esta acción no se puede deshacer.')) return;
-    try {
-      await deleteDoc(doc(db, 'users', currentUser.uid, 'legajos', id));
-      setLegajos(legajos.filter(l => l.id !== id));
-    } catch (error) {
-      console.error("Error deleting legajo:", error);
-      alert("Hubo un error al eliminar el legajo.");
+  const handleDelete = (id: string) => {
+    if (!currentUser) return;
+    setConfirmModal({ isOpen: true, payload: id });
+  };
+
+  const executeDelete = async () => {
+    if (confirmModal.payload && currentUser) {
+      try {
+        await deleteDoc(doc(db, 'users', currentUser.uid, 'legajos', confirmModal.payload));
+        setLegajos(legajos.filter(l => l.id !== confirmModal.payload));
+      } catch (error) {
+        console.error("Error deleting legajo:", error);
+        alert("Hubo un error al eliminar el legajo.");
+      }
     }
+    setConfirmModal({ isOpen: false, payload: null });
   };
 
   const filteredLegajos = legajos.filter(l => {
@@ -384,6 +393,15 @@ export default function Legajos() {
           })}
         </div>
       )}
+
+      <ConfirmModal 
+        isOpen={confirmModal.isOpen} 
+        onClose={() => setConfirmModal({ isOpen: false, payload: null })} 
+        onConfirm={executeDelete} 
+        title="¿Eliminar Legajo?" 
+        message="Esta acción no se puede deshacer." 
+        iconEmoji="🗑️" 
+      />
     </div>
     </AnimatedPage>
   );

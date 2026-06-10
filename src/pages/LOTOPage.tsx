@@ -7,6 +7,7 @@ import {
 import ShareModal from '../components/ShareModal';
 import LOTOPdf from '../components/LOTOPdf';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
+import ConfirmModal from '../components/ConfirmModal';
 
 const LOTO_STATUS = {
     draft: { label: 'BORRADOR', color: '#6b7280', bg: '#f3f4f6' },
@@ -22,6 +23,7 @@ export default function LOTOPage(): React.ReactElement | null {
     const [selectedProcedure, setSelectedProcedure] = useState<any>(null);
     const [showShareModal, setShowShareModal] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -50,9 +52,14 @@ export default function LOTOPage(): React.ReactElement | null {
     };
 
     const deleteProcedure = (id: string) => {
-        if (confirm('¿Eliminar este procedimiento LOTO?')) {
-            saveProcedures(procedures.filter(p => p.id !== id));
+        setConfirmModal({ isOpen: true, payload: id });
+    };
+
+    const executeDelete = () => {
+        if (confirmModal.payload) {
+            saveProcedures(procedures.filter(p => p.id !== confirmModal.payload));
         }
+        setConfirmModal({ isOpen: false, payload: null });
     };
 
     const filteredProcedures = procedures.filter(p =>
@@ -169,6 +176,15 @@ export default function LOTOPage(): React.ReactElement | null {
             <div className="print-only" style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0 }}>
                 <LOTOPdf data={selectedProcedure} />
             </div>
+
+            <ConfirmModal 
+                isOpen={confirmModal.isOpen} 
+                onClose={() => setConfirmModal({ isOpen: false, payload: null })} 
+                onConfirm={executeDelete} 
+                title="¿Eliminar procedimiento?" 
+                message="Esta acción no se puede deshacer." 
+                iconEmoji="🗑️" 
+            />
         </div>
     );
 }

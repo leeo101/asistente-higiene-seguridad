@@ -10,6 +10,7 @@ import {
 import ShareModal from '../components/ShareModal';
 import AuditPdf from '../components/AuditPdf';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
+import ConfirmModal from '../components/ConfirmModal';
 
 // Tipos de auditoría según ISO 45001
 const AUDIT_TYPES = [
@@ -116,6 +117,7 @@ export default function AuditManager(): React.ReactElement | null {
     const [currentAuditForFinding, setCurrentAuditForFinding] = useState(null);
     const [shareItem, setShareItem] = useState<any>(null);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -227,10 +229,15 @@ export default function AuditManager(): React.ReactElement | null {
     };
 
     const deleteAudit = (id: any) => {
-        if (confirm('¿Eliminar esta auditoría?')) {
-            saveAudits(audits.filter(a => a.id !== id));
-            saveFindings(findings.filter(f => f.auditId !== id));
+        setConfirmModal({ isOpen: true, payload: id });
+    };
+
+    const executeDelete = () => {
+        if (confirmModal.payload) {
+            saveAudits(audits.filter(a => a.id !== confirmModal.payload));
+            saveFindings(findings.filter(f => f.auditId !== confirmModal.payload));
         }
+        setConfirmModal({ isOpen: false, payload: null });
     };
 
     const addFinding = (finding: any) => {
@@ -596,6 +603,15 @@ export default function AuditManager(): React.ReactElement | null {
                     areas={AUDIT_AREAS}
                 />
             )}
+
+            <ConfirmModal 
+                isOpen={confirmModal.isOpen} 
+                onClose={() => setConfirmModal({ isOpen: false, payload: null })} 
+                onConfirm={executeDelete} 
+                title="¿Eliminar auditoría?" 
+                message="Esta acción no se puede deshacer." 
+                iconEmoji="🗑️" 
+            />
         </div>
     );
 }

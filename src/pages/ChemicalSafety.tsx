@@ -12,6 +12,7 @@ import CompanyLogo from '../components/CompanyLogo';
 import LazyImage from '../components/LazyImage';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import PremiumHeader from '../components/PremiumHeader';
+import ConfirmModal from '../components/ConfirmModal';
 
 // Pictogramas GHS/SGA
 const GHS_PICTOGRAMS = {
@@ -50,6 +51,7 @@ export default function ChemicalSafety(): React.ReactElement | null {
     const [viewMode, setViewMode] = useState('grid'); // grid o list
     const [shareItem, setShareItem] = useState(null);
     const [isMobile, setIsMobile] = useState(false);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
 
     const [selectedChemical, setSelectedChemical] = useState(null);
     const [showShareModal, setShowShareModal] = useState(false);
@@ -166,10 +168,15 @@ export default function ChemicalSafety(): React.ReactElement | null {
     };
 
     const handleDelete = (id: string) => {
-        if (confirm('¿Eliminar este producto químico?')) {
-            const updated = chemicals.filter(c => c.id !== id);
+        setConfirmModal({ isOpen: true, payload: id });
+    };
+
+    const executeDelete = () => {
+        if (confirmModal.payload) {
+            const updated = chemicals.filter(c => c.id !== confirmModal.payload);
             saveToStorage(updated);
         }
+        setConfirmModal({ isOpen: false, payload: null });
     };
 
     const filteredChemicals = chemicals.filter(c => {
@@ -511,6 +518,15 @@ export default function ChemicalSafety(): React.ReactElement | null {
             <div className="print-only" style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0 }}>
                 <ChemicalSafetyPdf data={selectedChemical} />
             </div>
+
+            <ConfirmModal 
+                isOpen={confirmModal.isOpen} 
+                onClose={() => setConfirmModal({ isOpen: false, payload: null })} 
+                onConfirm={executeDelete} 
+                title="¿Eliminar producto químico?" 
+                message="Esta acción no se puede deshacer." 
+                iconEmoji="🗑️" 
+            />
         </div>
     );
 }

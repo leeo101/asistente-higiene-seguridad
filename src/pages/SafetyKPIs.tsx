@@ -12,6 +12,7 @@ import {
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
+import ConfirmModal from '../components/ConfirmModal';
 import toast from 'react-hot-toast';
 
 const STORAGE_KEY = 'ehs_kpi_data';
@@ -150,6 +151,13 @@ export default function SafetyKPIs(): React.ReactElement {
     const [showForm, setShowForm] = useState(false);
     const [editing, setEditing] = useState<KPIEntry | null>(null);
     const [expandedInfo, setExpandedInfo] = useState('');
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        actionType: '', // 'delete' | 'overwrite'
+        payload: null as any
+    });
 
     const now = new Date();
     const currentPeriod = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -200,28 +208,59 @@ export default function SafetyKPIs(): React.ReactElement {
             label: getPeriodLabel(form.period),
             createdAt: editing?.createdAt || new Date().toISOString()
         };
-        let updated: KPIEntry[];
+        
         if (editing) {
-            updated = entries.map(e => e.id === editing.id ? entry : e);
+            const updated = entries.map(e => e.id === editing.id ? entry : e);
+            save(updated);
+            setShowForm(false);
+            setEditing(null);
+            setForm(emptyForm);
+            toast.success('KPIs actualizados 📊');
         } else {
             const exists = entries.find(e => e.period === form.period);
             if (exists) {
-                if (!confirm(`Ya existe un registro para ${getPeriodLabel(form.period)}. ¿Sobreescribir?`)) return;
-                updated = entries.map(e => e.period === form.period ? entry : e);
+                setConfirmModal({
+                    isOpen: true,
+                    title: '¿Sobreescribir período?',
+                    message: `Ya existe un registro para ${getPeriodLabel(form.period)}.`,
+                    actionType: 'overwrite',
+                    payload: entry
+                });
+                return;
             } else {
-                updated = [...entries, entry];
+                const updated = [...entries, entry];
+                save(updated);
+                setShowForm(false);
+                setEditing(null);
+                setForm(emptyForm);
+                toast.success('KPIs guardados 📊');
             }
         }
-        save(updated);
-        setShowForm(false);
-        setEditing(null);
-        setForm(emptyForm);
-        toast.success('KPIs guardados 📊');
     };
 
     const handleDelete = (id: string) => {
-        if (!confirm('¿Eliminar este período?')) return;
-        save(entries.filter(e => e.id !== id));
+        setConfirmModal({
+            isOpen: true,
+            title: '¿Eliminar período?',
+            message: 'Esta acción no se puede deshacer.',
+            actionType: 'delete',
+            payload: id
+        });
+    };
+
+    const handleConfirmAction = () => {
+        if (confirmModal.actionType === 'delete') {
+            save(entries.filter(e => e.id !== confirmModal.payload));
+            toast.success('Período eliminado');
+        } else if (confirmModal.actionType === 'overwrite') {
+            const updated = entries.map(e => e.period === form.period ? confirmModal.payload : e);
+            save(updated);
+            setShowForm(false);
+            setEditing(null);
+            setForm(emptyForm);
+            toast.success('KPIs sobreescritos 📊');
+        }
+        setConfirmModal({ isOpen: false, title: '', message: '', actionType: '', payload: null });
     };
 
     // Calculate days without accidents from accident_history
@@ -597,6 +636,15 @@ export default function SafetyKPIs(): React.ReactElement {
                 </div>
             </div>
             )}
+
+            <ConfirmModal 
+                isOpen={confirmModal.isOpen} 
+                onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })} 
+                onConfirm={handleConfirmAction} 
+                title={confirmModal.title} 
+                message={confirmModal.message} 
+                iconEmoji={confirmModal.actionType === 'delete' ? '🗑️' : '⚠️'} 
+            />
         </div>
     );
 }
