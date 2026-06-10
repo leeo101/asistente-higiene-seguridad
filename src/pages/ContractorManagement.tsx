@@ -5,13 +5,6 @@ import {
   Users, UserPlus, Buildings, Plus, X, MagnifyingGlass, 
   Trash, ArrowLeft, DownloadSimple, ShieldCheck, Warning, FileText, Camera, Cpu, Spinner
 } from '@phosphor-icons/react';
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { createPortal } from 'react-dom';
-import { 
-  Users, UserPlus, Buildings, Plus, X, MagnifyingGlass, 
-  Trash, ArrowLeft, DownloadSimple, ShieldCheck, Warning, FileText, Camera, Cpu, Spinner
-} from '@phosphor-icons/react';
 import { Loader2 } from 'lucide-react';
 import { DataTable } from '../components/DataTable';
 import { auth } from '../firebase';
