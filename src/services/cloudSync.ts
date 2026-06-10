@@ -168,6 +168,26 @@ export async function saveValue<T = string | boolean>(
 }
 
 /**
+ * Carga un valor simple desde Firestore (complemento de saveValue).
+ */
+export async function getValue<T = string | boolean>(
+  uid: string,
+  key: string
+): Promise<T | null> {
+  if (!uid) return null;
+  try {
+    const snap = await getDoc(userDocRef(uid, key));
+    if (snap.exists()) {
+      const data = snap.data() as { value?: T };
+      return data.value ?? null;
+    }
+  } catch (error) {
+    console.warn(`[Sync] Error loading value ${key}:`, (error as Error).message);
+  }
+  return null;
+}
+
+/**
  * Guarda un array de items a Firestore para el usuario.
  */
 export async function saveCollection<T = SyncItem>(
@@ -381,10 +401,24 @@ export async function pullAllFromCloud(uid: string): Promise<void> {
     }
   }
   
+  // Documents handled differently based on how they were stored:
+  // companyLogo and showCompanyLogo use saveValue ({value: X}), read as raw strings.
+  // Other documents use saveDocument ({...fields}).
+  const VALUE_KEYS = ['companyLogo', 'showCompanyLogo'];
+  
   for (const key of SYNC_DOCUMENTS) {
-    const data = await loadDocument(uid, key);
-    if (data) {
-      localStorage.setItem(key, JSON.stringify(data));
+    if (VALUE_KEYS.includes(key)) {
+      // These were saved via saveValue → stored as { value: X } in Firestore
+      const val = await getValue(uid, key);
+      if (val !== null && val !== undefined) {
+        // Store as plain string in localStorage (how CompanyLogo and LogoSettings read them)
+        localStorage.setItem(key, String(val));
+      }
+    } else {
+      const data = await loadDocument(uid, key);
+      if (data) {
+        localStorage.setItem(key, JSON.stringify(data));
+      }
     }
   }
 }
