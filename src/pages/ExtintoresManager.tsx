@@ -569,7 +569,7 @@ export default function ExtintoresManager() {
                                         title="" 
                                         height={100}
                                         onSave={(sig) => setGlobalSignaturesData(prev => ({ ...prev, operatorSignature: sig }))}
-                                        initialSignature={globalSignaturesData.operatorSignature}
+                                        initialImage={globalSignaturesData.operatorSignature}
                                     />
                                 </div>
                             </div>
@@ -602,7 +602,7 @@ export default function ExtintoresManager() {
                                         title="" 
                                         height={100}
                                         onSave={(sig) => setGlobalSignaturesData(prev => ({ ...prev, supervisorSignature: sig }))}
-                                        initialSignature={globalSignaturesData.supervisorSignature}
+                                        initialImage={globalSignaturesData.supervisorSignature}
                                     />
                                 </div>
                             </div>
