@@ -12,6 +12,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import InstallBanner from './components/InstallBanner';
 import GlobalSearch from './components/GlobalSearch';
+import BottomNav from './components/BottomNav';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SyncProvider, useSync } from './contexts/SyncContext';
 import { Toaster, toast } from 'react-hot-toast';
@@ -413,6 +414,7 @@ function App() {
                 transition: 'all var(--transition-base)'
               }}>
               <button
+                className="hide-on-mobile"
                 onClick={() => setIsSidebarOpen(true)}
                 aria-label="Abrir menú"
                 style={{
@@ -591,6 +593,7 @@ function App() {
             <InstallBanner />
           </div>
           <FloatingAssistant />
+          <BottomNav onMenuClick={() => setIsSidebarOpen(true)} />
         </div>
       </SyncProvider>
     </AuthProvider >

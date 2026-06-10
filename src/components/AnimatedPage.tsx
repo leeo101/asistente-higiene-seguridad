@@ -10,22 +10,22 @@ interface AnimatedPageProps {
 const pageVariants = {
   initial: {
     opacity: 0,
-    y: 15,
+    x: 20, // Slide in from right
   },
   in: {
     opacity: 1,
-    y: 0,
+    x: 0,
   },
   out: {
     opacity: 0,
-    y: -15,
+    x: -20, // Slide out to left
   },
 };
 
 const pageTransition = {
   type: 'tween',
-  ease: 'easeInOut',
-  duration: 0.3,
+  ease: [0.25, 0.1, 0.25, 1], // Native-like curve
+  duration: 0.35,
 } as any;
 
 const AnimatedPage: React.FC<AnimatedPageProps> = ({ children, className, style }) => {

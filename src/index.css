@@ -122,27 +122,27 @@
 }
 
 :root.dark {
-  /* Dark Mode Premium */
-  --color-background: #020617;
-  --color-background-gradient: linear-gradient(135deg, #020617 0%, #0F172A 100%);
+  /* Dark Mode Premium - True Black (OLED Friendly) */
+  --color-background: #000000;
+  --color-background-gradient: linear-gradient(135deg, #000000 0%, #080A10 100%);
   --color-surface: rgba(15, 23, 42, 0.75);
-  --color-surface-solid: #0F172A;
-  --color-text: #F1F5F9;
+  --color-surface-solid: #0A0A0A;
+  --color-text: #F8FAFC;
   --color-text-muted: #94A3B8;
   --color-text-light: #64748B;
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-hover: rgba(59, 130, 246, 0.3);
-  --color-surface-hover: rgba(30, 41, 59, 0.8);
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border-hover: rgba(59, 130, 246, 0.4);
+  --color-surface-hover: rgba(255, 255, 255, 0.05);
 
   /* Dark Gradients */
   --gradient-surface: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(2, 6, 23, 0.95) 100%);
   --gradient-card: linear-gradient(180deg, rgba(30,41,59,0.95) 0%, rgba(15,23,42,0.9) 100%);
 
   /* Dark Glassmorphism */
-  --glass-bg: rgba(15, 23, 42, 0.85);
-  --glass-bg-header: rgba(2, 6, 23, 0.9);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-border-subtle: rgba(255, 255, 255, 0.04);
+  --glass-bg: rgba(10, 10, 10, 0.85);
+  --glass-bg-header: rgba(0, 0, 0, 0.9);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-border-subtle: rgba(255, 255, 255, 0.06);
   --glass-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.4);
   --glass-shadow-hover: 0 16px 48px -8px rgba(0, 0, 0, 0.6);
   --glass-thick: rgba(15, 23, 42, 0.95);
@@ -182,6 +182,7 @@ body {
   font-family: var(--font-family);
   background: var(--color-background-gradient);
   transition: background var(--transition-slow);
+  overscroll-behavior-y: contain; /* Evita que se vea blanco detrás al estirar */
 }
 
 #root {
@@ -208,6 +209,7 @@ button {
   color: var(--color-text);
   box-shadow: var(--shadow-sm);
   letter-spacing: 0.01em;
+  min-height: 48px; /* Touch target accessibility */
 }
 
 button:hover {
@@ -260,7 +262,18 @@ a:hover {
 
 @media (max-width: 768px) {
   .container {
-    padding-top: 9rem !important;
+    padding-top: 6.5rem !important;
+    padding-bottom: 5.5rem !important; /* Espacio para BottomNav */
+  }
+
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .hide-on-desktop {
+    display: none !important;
   }
 }
 
