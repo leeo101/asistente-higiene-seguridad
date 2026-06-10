@@ -50,7 +50,7 @@ const formatType = (tipo: string) => {
     return tipo;
 };
 
-export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguishers: any[] }): React.ReactElement | null {
+export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures, globalSignatures }: { extinguishers: any[], showSignatures?: { operator: boolean, professional: boolean, supervisor: boolean }, globalSignatures?: { operatorSignature?: string, supervisorSignature?: string } }): React.ReactElement | null {
     const componentRef = useRef<HTMLDivElement>(null);
     const isLandscape = (extinguishers || []).length > 15; // Auto rotate if many
 
@@ -226,7 +226,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
                                                         <tbody key={`${empresa}-${idx}`} style={{ pageBreakInside: 'avoid' }}>
                                                             <tr style={{ borderTop: '1px solid #e2e8f0', background: rowBg }}>
                                                                 <td style={{ padding: '8px', textAlign: 'center', fontWeight: 900, color: '#0f172a', fontSize: '10pt' }}>
-                                                                    {extinguishers.findIndex(e => e.id === ext.id) + 1}
+                                                                    {idx + 1}
                                                                 </td>
                                                                 <td style={{ padding: '8px', color: '#334155', fontWeight: 600 }}>{formatType(ext?.tipo)} {ext?.capacidad ? `- ${ext.capacidad}` : ''}</td>
                                                                 <td style={{ padding: '8px', color: '#475569', backgroundColor: fFabBg, WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
@@ -276,6 +276,12 @@ export default function ExtinguisherPdfGenerator({ extinguishers }: { extinguish
                             });
                         })()}
                     </div>
+                    {/* Add Signatures here */}
+                    {showSignatures && (showSignatures.operator || showSignatures.professional || showSignatures.supervisor) && (
+                        <div style={{ marginTop: '20px', pageBreakInside: 'avoid' }}>
+                            <PdfSignatures data={{ showSignatures, operatorSignature: globalSignatures?.operatorSignature, supervisorSignature: globalSignatures?.supervisorSignature }} />
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

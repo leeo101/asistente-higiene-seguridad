@@ -45,6 +45,10 @@ export default function ExtintoresManager() {
     const [shareItem, setShareItem] = useState<any | null>(null);
     const [printItem, setPrintItem] = useState<any | null>(null);
 
+    const [globalShowSignatures, setGlobalShowSignatures] = useState({ operator: false, professional: true, supervisor: false });
+    const [globalSignaturesData, setGlobalSignaturesData] = useState({ operatorSignature: '', supervisorSignature: '' });
+    const [showGlobalSignatureModal, setShowGlobalSignatureModal] = useState(false);
+
     const [formData, setFormData] = useState({
         numero: '',
         numeroSerie: '',
@@ -111,6 +115,17 @@ export default function ExtintoresManager() {
         };
         reader.readAsDataURL(files[0]);
     };
+
+    useEffect(() => {
+        if (showGlobalSignatureModal) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'auto';
+        }
+        return () => {
+            document.body.style.overflow = 'auto';
+        };
+    }, [showGlobalSignatureModal]);
 
     useEffect(() => {
         const loadData = async () => {
@@ -532,6 +547,79 @@ export default function ExtintoresManager() {
                 </>
             )}
 
+            {showGlobalSignatureModal && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflowY: 'auto', padding: '6rem 1rem 2rem 1rem' }}>
+                    <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '850px', background: '#fff', borderRadius: '12px', padding: '1.2rem 1.5rem', boxShadow: '0 10px 25px rgba(0,0,0,0.2)', margin: '0 auto' }}>
+                        <h3 style={{ marginTop: 0, color: '#1e293b', fontWeight: 800, borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem', marginBottom: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem' }}>
+                            <Pencil size={20} color="#3b82f6" /> Firmas del Reporte Global
+                        </h3>
+                        <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1rem', lineHeight: 1.4 }}>
+                            Seleccioná qué firmas aparecerán en el reporte final y dibujalas a continuación.
+                        </p>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4" style={{ marginBottom: '1.5rem' }}>
+                            {/* Operador */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', background: globalShowSignatures.operator ? '#f8fafc' : '#f1f5f9', padding: '1rem', borderRadius: '10px', border: globalShowSignatures.operator ? '2px solid #cbd5e1' : '1px solid #e2e8f0', opacity: globalShowSignatures.operator ? 1 : 0.6, transition: 'all 0.2s' }}>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', color: '#334155', fontWeight: 700, fontSize: '0.9rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.4rem' }}>
+                                    <input type="checkbox" checked={globalShowSignatures.operator} onChange={(e) => setGlobalShowSignatures(prev => ({ ...prev, operator: e.target.checked }))} style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
+                                    Operador / Responsable
+                                </label>
+                                <div style={{ background: '#fff', borderRadius: '8px', border: 'none', display: 'flex', flexDirection: 'column', pointerEvents: globalShowSignatures.operator ? 'auto' : 'none' }}>
+                                    <SignatureCanvas 
+                                        title="" 
+                                        height={100}
+                                        onSave={(sig) => setGlobalSignaturesData(prev => ({ ...prev, operatorSignature: sig }))}
+                                        initialSignature={globalSignaturesData.operatorSignature}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Profesional Actuante */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', background: globalShowSignatures.professional ? '#f0fdf4' : '#f1f5f9', padding: '1rem', borderRadius: '10px', border: globalShowSignatures.professional ? '2px solid #86efac' : '1px solid #e2e8f0', opacity: globalShowSignatures.professional ? 1 : 0.6, transition: 'all 0.2s' }}>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', color: '#166534', fontWeight: 700, fontSize: '0.9rem', borderBottom: '1px solid #bbf7d0', paddingBottom: '0.4rem' }}>
+                                    <input type="checkbox" checked={globalShowSignatures.professional} onChange={(e) => setGlobalShowSignatures(prev => ({ ...prev, professional: e.target.checked }))} style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
+                                    Profesional Actuante
+                                </label>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, minHeight: '150px', background: '#fff', border: '2px dashed var(--color-border)', borderRadius: '12px', padding: '0.5rem', textAlign: 'center' }}>
+                                    {professionalData?.signature ? (
+                                        <img src={professionalData.signature} alt="Firma Profesional" style={{ maxHeight: '65px', objectFit: 'contain', marginBottom: '0.4rem' }} />
+                                    ) : (
+                                        <span style={{ color: '#94a3b8', fontStyle: 'italic', marginBottom: '0.4rem', fontSize: '0.8rem' }}>Sin firma</span>
+                                    )}
+                                    <p style={{ margin: 0, fontWeight: 800, color: '#334155', fontSize: '0.85rem' }}>{professionalData?.name || 'No configurado'}</p>
+                                    <p style={{ margin: 0, fontWeight: 600, color: '#64748b', fontSize: '0.75rem' }}>{professionalData?.license ? `Mat. ${professionalData.license}` : 'Sin matrícula'}</p>
+                                </div>
+                            </div>
+
+                            {/* Supervisor */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', background: globalShowSignatures.supervisor ? '#f8fafc' : '#f1f5f9', padding: '1rem', borderRadius: '10px', border: globalShowSignatures.supervisor ? '2px solid #cbd5e1' : '1px solid #e2e8f0', opacity: globalShowSignatures.supervisor ? 1 : 0.6, transition: 'all 0.2s' }}>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', color: '#334155', fontWeight: 700, fontSize: '0.9rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.4rem' }}>
+                                    <input type="checkbox" checked={globalShowSignatures.supervisor} onChange={(e) => setGlobalShowSignatures(prev => ({ ...prev, supervisor: e.target.checked }))} style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
+                                    Supervisión / Cierre
+                                </label>
+                                <div style={{ background: '#fff', borderRadius: '8px', border: 'none', display: 'flex', flexDirection: 'column', pointerEvents: globalShowSignatures.supervisor ? 'auto' : 'none' }}>
+                                    <SignatureCanvas 
+                                        title="" 
+                                        height={100}
+                                        onSave={(sig) => setGlobalSignaturesData(prev => ({ ...prev, supervisorSignature: sig }))}
+                                        initialSignature={globalSignaturesData.supervisorSignature}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.8rem' }}>
+                            <button onClick={() => setShowGlobalSignatureModal(false)} style={{ background: '#e2e8f0', color: '#475569', padding: '0.6rem 1.2rem', borderRadius: '8px', border: 'none', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'all 0.2s ease', fontSize: '0.9rem' }} className="hover-scale">
+                                Cancelar
+                            </button>
+                            <button onClick={() => setShowGlobalSignatureModal(false)} style={{ background: '#3b82f6', color: '#fff', padding: '0.6rem 1.2rem', borderRadius: '8px', border: 'none', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'all 0.2s ease', fontSize: '0.9rem', boxShadow: '0 4px 15px rgba(59, 130, 246, 0.3)' }} onMouseOver={(e) => e.currentTarget.style.background = '#2563eb'} onMouseOut={(e) => e.currentTarget.style.background = '#3b82f6'} className="hover-scale">
+                                <CheckCircle2 size={18} /> Guardar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <ShareModal 
                 isOpen={!!shareItem} 
                 open={!!shareItem} 
@@ -542,16 +630,15 @@ export default function ExtintoresManager() {
                 elementIdToPrint="pdf-content" 
                 fileName={Array.isArray(shareItem) ? `Inventario_Extintores_${filterEmpresa || 'Completo'}.pdf` : `Ficha_Extintor_${shareItem?.numero || 'Reporte'}.pdf`} 
             />
-            {createPortal(
+            {(printItem || shareItem) && createPortal(
                 <div 
-                    className="ats-pdf-offscreen" 
+                    className="ats-pdf-offscreen active-portal-print" 
                     aria-hidden="true"
-                    style={printItem ? { position: 'absolute', top: 0, left: 0, width: '100%', display: 'block', margin: 0, padding: 0 } : {}}
                 >
                     {(printItem && !Array.isArray(printItem)) || (shareItem && !Array.isArray(shareItem)) ? (
                         <ExtinguisherProfilePdf data={printItem || shareItem || formData} isHeadless={true} />
                     ) : (
-                        <ExtinguisherPdfGenerator extinguishers={Array.isArray(printItem) ? printItem : (Array.isArray(shareItem) ? shareItem : [])} />
+                        <ExtinguisherPdfGenerator extinguishers={Array.isArray(printItem) ? printItem : (Array.isArray(shareItem) ? shareItem : [])} showSignatures={globalShowSignatures} globalSignatures={globalSignaturesData} />
                     )}
                 </div>,
                 document.body
@@ -872,6 +959,9 @@ export default function ExtintoresManager() {
                                         }
                                     `}
                                 </style>
+                                <button onClick={() => requirePro(() => setShowGlobalSignatureModal(true))} className="action-btn-premium" style={{ background: '#475569', boxShadow: '0 4px 15px rgba(71, 85, 105, 0.3)' }}>
+                                    <Pencil size={16} /> FIRMAS PDF
+                                </button>
                                 <button onClick={() => requirePro(handlePrintPdf)} className="action-btn-premium btn-pdf">
                                     <Printer size={16} /> IMPRIMIR PDF
                                 </button>

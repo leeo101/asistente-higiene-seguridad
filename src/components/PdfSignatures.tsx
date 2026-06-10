@@ -47,6 +47,8 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
         } catch(e) {}
     }
     
+    let operatorSignature = getVal(['operatorSignature', 'operadorFirma']);
+
     if (!actName || !actLic) {
         try {
             const lsPersonal = typeof window !== 'undefined' ? localStorage.getItem('personalData') : null;
@@ -61,7 +63,7 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
     const defaultBox1: SignatureBoxProps = {
         title: 'OPERADOR / RESPONSABLE',
         subtitle: 'Aclaración y Firma',
-        signatureUrl: null,
+        signatureUrl: operatorSignature || null,
         isProfessional: false
     };
 
@@ -110,37 +112,32 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
             paddingBottom: '1rem',
             overflowX: 'auto'
         }}>
-            {/* Table layout: the most stable structure for html2canvas — avoids flexbox clipping */}
-            <table style={{ 
-                width: boxes.length === 1 ? '38%' : (boxes.length === 2 ? '75%' : '100%'), 
-                minWidth: `${boxes.length * 200}px`, 
-                marginLeft: 'auto',
-                marginRight: boxes.length === 1 ? '0' : 'auto',
-                borderCollapse: 'separate', 
-                borderSpacing: '8px', 
-                tableLayout: 'fixed' 
+            <div style={{ 
+                display: 'flex', 
+                gap: '1rem', 
+                justifyContent: 'flex-end', // Alinear a la derecha como suele ser en las firmas
+                width: '100%'
             }}>
-                <tbody>
-                    <tr>
-                        {boxes.map((box, idx) => {
-                            const isPro = box.isProfessional;
-                            const borderCol = isPro ? '#bbf7d0' : '#e2e8f0';
-                            const bgCol = isPro ? '#f0fdf4' : '#f8fafc';
-                            const textCol = isPro ? '#166534' : '#334155';
-                            const subTextCol = isPro ? '#15803d' : '#64748b';
-                            const lineCol = isPro ? '#86efac' : '#cbd5e1';
+                {boxes.map((box, idx) => {
+                    const isPro = box.isProfessional;
+                    const borderCol = isPro ? '#bbf7d0' : '#e2e8f0';
+                    const bgCol = isPro ? '#f0fdf4' : '#f8fafc';
+                    const textCol = isPro ? '#166534' : '#334155';
+                    const subTextCol = isPro ? '#15803d' : '#64748b';
+                    const lineCol = isPro ? '#86efac' : '#cbd5e1';
 
-                            return (
-                                <td key={idx} style={{
-                                    border: `1px solid ${borderCol}`,
-                                    background: bgCol,
-                                    borderRadius: '6px',
-                                    padding: '0.8rem',
-                                    textAlign: 'center',
-                                    verticalAlign: 'top',
-                                    width: `${Math.floor(100 / boxes.length)}%`
-                                }}>
-                                    {/* Signature / Stamp image row */}
+                    return (
+                        <div key={idx} style={{
+                            border: `1px solid ${borderCol}`,
+                            background: bgCol,
+                            borderRadius: '6px',
+                            padding: '0.8rem',
+                            textAlign: 'center',
+                            flex: '0 0 calc(33.333% - 0.66rem)', // Exactamente el mismo tamaño que si hubieran 3
+                            maxWidth: '280px', // Evitar que crezca demasiado en pantallas/hojas grandes
+                            boxSizing: 'border-box'
+                        }}>
+                            {/* Signature / Stamp image row */}
                                     <div style={{
                                         minHeight: '60px',
                                         height: 'auto',
@@ -191,9 +188,7 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
                                             />
                                         )}
                                         {!box.signatureUrl && !box.stampUrl && (
-                                            <span style={{ fontSize: '0.6rem', color: lineCol, lineHeight: '60px' }}>
-                                                {isPro ? 'Sello y Firma Digital' : 'Firma original'}
-                                            </span>
+                                            <div style={{ height: '60px', width: '100%' }}></div>
                                         )}
                                     </div>
                                     <p style={{ margin: 0, fontWeight: 700, fontSize: '0.7rem', color: textCol, textTransform: 'uppercase', wordBreak: 'break-word', overflowWrap: 'break-word', lineHeight: 1.2 }}>{box.title}</p>
@@ -202,12 +197,10 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
                                         <p style={{ margin: '4px 0 0 0', fontSize: '0.55rem', color: '#16a34a', wordBreak: 'break-word' }}>Mat.: {box.license}</p>
                                     )}
                                     {box.customContent}
-                                </td>
+                                </div>
                             );
                         })}
-                    </tr>
-                </tbody>
-            </table>
+            </div>
         </div>
     );
 }

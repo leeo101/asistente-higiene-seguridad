@@ -2815,6 +2815,10 @@ body.printing-isolated #pdf-content.ats-pdf-root,
     pointer-events: none;
   }
 
+  body:has(.active-portal-print) > #root {
+    display: none !important;
+  }
+
   /* Ocultar los offscreen que NO contienen ni el target activo ni #pdf-content */
   body:not(.printing-isolated) .ats-pdf-offscreen:not(:has(.isolated-print-target)):not(:has(#pdf-content)) {
     display: none !important;
