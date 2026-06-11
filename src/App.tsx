@@ -13,6 +13,7 @@ import Login from './pages/Login';
 import InstallBanner from './components/InstallBanner';
 import GlobalSearch from './components/GlobalSearch';
 import BottomNav from './components/BottomNav';
+import PaywallModal from './components/PaywallModal';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SyncProvider, useSync } from './contexts/SyncContext';
 import { Toaster, toast } from 'react-hot-toast';
@@ -343,6 +344,7 @@ function ScrollToTop() {
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [showPaywallModal, setShowPaywallModal] = useState(false);
   const location = useLocation();
   const showMenuButton = location.pathname !== '/login' && location.pathname !== '/subscribe' && location.pathname !== '/ai-camera';
 
@@ -362,6 +364,12 @@ function App() {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
+  }, []);
+
+  useEffect(() => {
+    const handleShowPaywall = () => setShowPaywallModal(true);
+    window.addEventListener('show-paywall', handleShowPaywall);
+    return () => window.removeEventListener('show-paywall', handleShowPaywall);
   }, []);
 
   return (
@@ -594,6 +602,7 @@ function App() {
           </div>
           <FloatingAssistant />
           <BottomNav onMenuClick={() => setIsSidebarOpen(true)} />
+          <PaywallModal isOpen={showPaywallModal} onClose={() => setShowPaywallModal(false)} />
         </div>
       </SyncProvider>
     </AuthProvider >

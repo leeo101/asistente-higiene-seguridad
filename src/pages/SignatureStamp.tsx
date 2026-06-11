@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { usePaywall } from '../hooks/usePaywall';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, Trash2, Upload, PenTool, CheckCircle } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
 
 export default function SignatureStamp(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const { syncDocument } = useSync();
     const signatureCanvasRef = useRef(null);
@@ -292,7 +294,7 @@ export default function SignatureStamp(): React.ReactElement | null {
                 })}
 
                 <button
-                    onClick={handleSave}
+                    onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
                     style={{
                         display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.6rem',
                         padding: '1.1rem', width: '100%',

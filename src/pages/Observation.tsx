@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { usePaywall } from '../hooks/usePaywall';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ArrowLeft, Camera, Shield, Save, Clock, User } from 'lucide-react';
 
 export default function Observation(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const location = useLocation();
     const { itemId, category } = location.state || {};
@@ -140,7 +142,7 @@ export default function Observation(): React.ReactElement | null {
                 <div style={{ display: 'flex', gap: '1rem' }}>
                     <button
                         className="btn-primary"
-                        onClick={handleSave}
+                        onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
                         style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '1rem' }}
                     >
                         <Camera size={20} /> Tomar Foto

@@ -27,10 +27,10 @@ function DeleteConfirm({ onConfirm, onCancel }: any) {
 }
 
 export default function RiskAssessmentHistory(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const { syncCollection, syncPulse } = useSync();
     const { currentUser } = useAuth();
-    const { requirePro } = usePaywall();
     useDocumentTitle('Historial Evaluación de Riesgos');
 
     const [data, setData] = useState([]);

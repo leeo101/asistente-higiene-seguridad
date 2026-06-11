@@ -409,10 +409,10 @@ const getChecklistStatus = (id) => {
 };
 
 export default function ChecklistManager(): React.ReactElement | null {
+    const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const { currentUser } = useAuth();
     const { syncCollection, syncPulse } = useSync();
-    const { requirePro } = usePaywall();
     const [searchParams, setSearchParams] = useSearchParams();
 
     const [showForm, setShowForm] = useState(false);
@@ -952,7 +952,7 @@ export default function ChecklistManager(): React.ReactElement | null {
             {/* Floating Action Buttons */}
             <div className="no-print floating-action-bar">
                 <button
-                    onClick={handleSave}
+                    onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
                     className="btn-floating-action"
                     style={{ background: '#36B37E', color: '#ffffff' }}
                 >

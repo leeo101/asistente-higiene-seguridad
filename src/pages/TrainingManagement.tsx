@@ -52,11 +52,11 @@ function StatCard({ icon, label, value, color, gradient }: { icon: React.ReactNo
 }
 
 export default function TrainingManagement(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const location = useLocation();
     const { currentUser } = useAuth();
     const { syncCollection, syncing } = useSync();
-    const { requirePro } = usePaywall();
     const [searchParams] = useSearchParams();
     
     // Core state
@@ -468,7 +468,7 @@ export default function TrainingManagement(): React.ReactElement | null {
                     <>
                         {/* FORM VIEW */}
                         <div className="floating-action-bar no-print">
-                            <button onClick={handleSave} className="btn-floating-action" style={{ background: '#36B37E', color: '#ffffff' }}>
+                            <button onClick={(e) => { e.preventDefault(); requirePro(handleSave); }} className="btn-floating-action" style={{ background: '#36B37E', color: '#ffffff' }}>
                                 <Save size={18} /> GUARDAR
                             </button>
                             <button onClick={() => requirePro(() => setShareItem(formData))} className="btn-floating-action" style={{ background: '#0052CC', color: '#ffffff' }}>

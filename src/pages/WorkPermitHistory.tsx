@@ -14,10 +14,10 @@ import { DataTable } from '../components/DataTable';
 import AnimatedPage from '../components/AnimatedPage';
 
 export default function WorkPermitHistory(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const { syncCollection } = useSync();
     const { currentUser } = useAuth();
-    const { requirePro } = usePaywall();
     const [history, setHistory] = useState([]);
     const [qrTarget, setQrTarget] = useState(null);
     const [shareItem, setShareItem] = useState(null);

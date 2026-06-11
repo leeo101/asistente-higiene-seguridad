@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { usePaywall } from '../hooks/usePaywall';
 import { useNavigate } from 'react-router-dom';
 import {
     Tent, AlertTriangle, Plus, Search, 
@@ -82,6 +83,7 @@ const POTENTIAL_HAZARDS = [
 ];
 
 export default function ConfinedSpace(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const [permits, setPermits] = useState([]);
     const [activePermits, setActivePermits] = useState([]);
@@ -1704,7 +1706,7 @@ function AtmosphericReadingModal({ permit, onSave, onClose, limits }) {
                         Cancelar
                     </button>
                     <button
-                        onClick={handleSave}
+                        onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
                         className="btn-primary"
                         style={{ flex: 1 }}
                     >

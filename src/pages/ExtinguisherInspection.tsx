@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { usePaywall } from '../hooks/usePaywall';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ShieldCheck, ArrowLeft, Camera, CheckCircle2, Save, X, Flame, Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -17,6 +18,7 @@ const NFPA10_CHECKLIST = [
 ];
 
 export default function ExtinguisherInspection() {
+  const { requirePro } = usePaywall();
     const { id } = useParams();
     const navigate = useNavigate();
     const { syncCollection } = useSync();
@@ -364,7 +366,7 @@ export default function ExtinguisherInspection() {
             {/* Mobile Floating Save Button */}
             <div style={{ position: 'fixed', bottom: '1rem', left: '1rem', right: '1rem', zIndex: 10 }}>
                 <button 
-                    onClick={handleSave} 
+                    onClick={(e) => { e.preventDefault(); requirePro(handleSave); }} 
                     disabled={isSaving}
                     style={{ width: '100%', padding: '1rem', background: 'var(--color-primary)', color: '#fff', border: 'none', borderRadius: '16px', fontWeight: 900, fontSize: '1rem', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', boxShadow: '0 8px 25px rgba(37,99,235,0.4)' }}
                 >

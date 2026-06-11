@@ -63,7 +63,8 @@ export function usePaywall() {
       return;
     }
     if (!isActive) {
-      navigate('/subscribe');
+      const event = new CustomEvent('show-paywall');
+      window.dispatchEvent(event);
       return;
     }
     if (typeof action === 'function') action();

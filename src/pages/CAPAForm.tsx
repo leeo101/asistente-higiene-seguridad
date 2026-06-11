@@ -49,12 +49,13 @@ const inputStyle = (isMobile: boolean) => ({
 });
 
 export default function CAPAForm(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const location = useLocation();
     const [isMobile, setIsMobile] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
-    const { isPro, requirePro } = usePaywall();
+  const { isPro } = usePaywall();
 
     const [showSignatures, setShowSignatures] = useState({
         operator: true,
@@ -602,7 +603,7 @@ export default function CAPAForm(): React.ReactElement | null {
                     <Printer size={18} /> IMPRIMIR PDF
                 </button>
                 <button
-                    onClick={handleSave}
+                    onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
                     className="btn-floating-action"
                     style={{ background: '#36B37E', color: '#ffffff' }}
                 >

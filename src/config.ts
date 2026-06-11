@@ -13,4 +13,5 @@ export const API_BASE_URL: string = import.meta.env.DEV ? '' : '';
 
 export const ADMIN_EMAILS: string[] = [
   'enzorodriguez31@gmail.com',
+  'arielalaniz9@gmail.com',
 ];

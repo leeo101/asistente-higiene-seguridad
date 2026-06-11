@@ -34,6 +34,7 @@ const typeConfig = {
 };
 
 export default function StopCards(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     useDocumentTitle('Historial Tarjetas STOP');
     const navigate = useNavigate();
     const { syncCollection, syncPulse } = useSync();
@@ -42,7 +43,6 @@ export default function StopCards(): React.ReactElement | null {
     const [qrTarget, setQrTarget] = useState(null);
     const [shareCard, setShareCard] = useState(null);
     const { currentUser } = useAuth();
-    const { requirePro } = usePaywall();
 
     useEffect(() => {
         window.scrollTo(0, 0);

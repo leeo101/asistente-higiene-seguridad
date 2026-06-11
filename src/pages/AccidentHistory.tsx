@@ -20,11 +20,11 @@ const severityConfig = {
 };
 
 export default function AccidentHistory(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     useDocumentTitle('Historial de Accidentes');
     const navigate = useNavigate();
     const { currentUser } = useAuth();
     const { syncing, syncCollection } = useSync();
-    const { requirePro } = usePaywall();
     const [history, setHistory] = useState([]);
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [qrTarget, setQrTarget] = useState(null);

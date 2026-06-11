@@ -12,6 +12,7 @@ import { usePaywall } from '../hooks/usePaywall';
 import { auth } from '../firebase';
 
 export default function StopCardsForm(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const location = useLocation();
     const editData = location.state?.editData;
@@ -35,7 +36,6 @@ export default function StopCardsForm(): React.ReactElement | null {
 
     const [isListening, setIsListening] = useState(false);
     const [isProcessingAI, setIsProcessingAI] = useState(false);
-    const { requirePro } = usePaywall();
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -270,7 +270,7 @@ export default function StopCardsForm(): React.ReactElement | null {
 
             <div className="no-print floating-action-bar">
                 <button
-                    onClick={handleSave}
+                    onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
                     className="btn-floating-action"
                     style={{ background: '#36B37E', color: '#ffffff' }}
                 >

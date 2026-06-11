@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 
 // SVG Animated Gauge
 const Gauge = ({ score, color }: any) => {
+  const { requirePro } = usePaywall();
     const maxScore = 9;
     const percentage = Math.min(100, Math.max(0, (score / maxScore) * 100));
 
@@ -76,7 +77,6 @@ export default function RiskAssessment(): React.ReactElement | null {
     const navigate = useNavigate();
     const location = useLocation();
     const { syncCollection } = useSync();
-    const { requirePro } = usePaywall();
     
     const editData = location.state?.editData;
     useDocumentTitle(editData ? 'Editar Evaluación de Riesgo' : 'Evaluación de Riesgo');
@@ -210,7 +210,7 @@ export default function RiskAssessment(): React.ReactElement | null {
 
             {/* Floating Action Bar */}
             <div className="no-print floating-action-bar">
-                <button onClick={handleSave}
+                <button onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
                     className="btn-floating-action"
                     style={{ background: '#36B37E', color: '#ffffff' }}
                 >
@@ -432,7 +432,7 @@ export default function RiskAssessment(): React.ReactElement | null {
 
             {/* Footer Button */}
             <button
-                onClick={handleSave}
+                onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
                 className="btn-primary"
                 style={{
                     display: 'flex',

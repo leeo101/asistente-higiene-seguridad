@@ -12,10 +12,10 @@ import AnimatedPage from '../components/AnimatedPage';
 import PremiumHeader from '../components/PremiumHeader';
 
 export default function DrillsHistory(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const { currentUser } = useAuth();
     const { syncing, syncCollection } = useSync();
-    const { requirePro } = usePaywall();
     const [history, setHistory] = useState([]);
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [qrTarget, setQrTarget] = useState(null);

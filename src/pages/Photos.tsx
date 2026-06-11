@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { usePaywall } from '../hooks/usePaywall';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ArrowLeft, Camera, Trash2, CheckCircle2, RefreshCw, Upload } from 'lucide-react';
 
 export default function Photos(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const location = useLocation();
     const { fromObservation, itemId } = location.state || {};
@@ -160,7 +162,7 @@ export default function Photos(): React.ReactElement | null {
                 </button>
                 <button
                     className="btn-primary"
-                    onClick={handleSave}
+                    onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
                     style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '1rem', borderRadius: '12px', fontWeight: 800 }}
                 >
                     <CheckCircle2 size={20} /> GUARDAR Y VOLVER

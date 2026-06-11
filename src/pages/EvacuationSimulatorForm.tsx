@@ -32,12 +32,12 @@ const inputStyle: React.CSSProperties = {
 };
 
 export default function EvacuationSimulatorForm(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const location = useLocation();
     const [isMobile, setIsMobile] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
-    const { requirePro } = usePaywall();
 
     useDocumentTitle(isEdit ? 'Editar Simulador de Evacuación' : 'Simulador de Evacuación');
 
@@ -490,7 +490,7 @@ export default function EvacuationSimulatorForm(): React.ReactElement | null {
                     <Printer size={18} /> IMPRIMIR PDF
                 </button>
                 <button
-                    onClick={handleSave}
+                    onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
                     className="btn-floating-action"
                     style={{ background: '#36B37E', color: '#ffffff' }}
                 >

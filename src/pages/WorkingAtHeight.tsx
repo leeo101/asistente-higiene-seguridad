@@ -73,6 +73,7 @@ const PERMIT_STATUS = {
 };
 
 export default function WorkingAtHeight(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const [permits, setPermits] = useState([]);
     const [activePermits, setActivePermits] = useState([]);
@@ -83,7 +84,7 @@ export default function WorkingAtHeight(): React.ReactElement | null {
     const [activeTab, setActiveTab] = useState('permits');
     const [shareItem, setShareItem] = useState(null);
     const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
-    const { isPro, requirePro } = usePaywall();
+  const { isPro } = usePaywall();
 
     const [newPermit, setNewPermit] = useState({
         id: '',

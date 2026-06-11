@@ -239,6 +239,7 @@ function calcTabProgress(section: Record<string, any>): number {
 }
 
 export default function LegajoForm() {
+    const { requirePro } = usePaywall();
   const { id } = useParams();
   const { currentUser } = useAuth();
   const { isPro } = usePaywall();
@@ -1245,7 +1246,7 @@ export default function LegajoForm() {
             </button>
           )}
           <button
-              onClick={handleSave}
+              onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
               className="btn-floating-action"
               style={{ background: '#36B37E', color: '#ffffff' }}
           >

@@ -12,8 +12,8 @@ import { uploadImageToStorage } from '../services/storageService';
 import { safeSetLocalStorage } from '../utils/storageHelper';
 
 export default function AICamera(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
-    const { requirePro } = usePaywall();
     const { syncCollection } = useSync();
     useDocumentTitle('Cámara Inteligente EPP');
     const videoRef = useRef(null);

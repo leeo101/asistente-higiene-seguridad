@@ -606,7 +606,7 @@ export default function ATS(): React.ReactElement | null {
                         <Trash2 size={18} /> LIMPIAR
                     </button>
                     <button
-                        onClick={handleSave}
+                        onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
                         className="btn-floating-action"
                         style={{ background: '#36B37E', color: '#ffffff' }}
                     >

@@ -10,9 +10,9 @@ import PdfSignatures from '../components/PdfSignatures';
 import { toast } from 'react-hot-toast';
 
 export default function AIReport(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const { currentUser } = useAuth();
-    const { requirePro } = usePaywall();
     const [data, setData] = useState(null);
     const [profile, setProfile] = useState(null);
     const [signature, setSignature] = useState(null);

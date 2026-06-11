@@ -64,9 +64,9 @@ const formatType = (tipo: string) => {
 };
 
 export default function ExtinguisherAI(): React.ReactElement | null {
+    const { requirePro } = usePaywall();
     const navigate = useNavigate();
     useDocumentTitle('Reconocimiento de Extintores IA');
-    const { requirePro } = usePaywall();
     const { syncCollection } = useSync();
 
     useEffect(() => {

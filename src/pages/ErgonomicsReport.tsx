@@ -12,9 +12,9 @@ import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import Breadcrumbs from '../components/Breadcrumbs';
 
 export default function ErgonomicsReport(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const { currentUser } = useAuth();
-    const { requirePro } = usePaywall();
     const [searchParams] = useSearchParams();
     const [data, setData] = useState(null);
     const [profile, setProfile] = useState(null);

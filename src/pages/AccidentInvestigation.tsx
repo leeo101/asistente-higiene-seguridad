@@ -65,11 +65,11 @@ function DeleteConfirm({ onConfirm, onCancel }: any) {
 }
 
 export default function AccidentInvestigation(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const location = useLocation();
     const { currentUser } = useAuth();
     const { syncCollection } = useSync();
-    const { requirePro } = usePaywall();
     
     useDocumentTitle('Investigación de Accidentes');
 
@@ -797,7 +797,7 @@ export default function AccidentInvestigation(): React.ReactElement | null {
 
             <div className="no-print floating-action-bar">
                 <button
-                    onClick={handleSave}
+                    onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
                     className="btn-floating-action"
                     style={{ background: '#36B37E', color: '#ffffff' }}
                 >

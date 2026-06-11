@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { usePaywall } from '../hooks/usePaywall';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
@@ -13,6 +14,7 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
 
 export default function ErgonomicsForm(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const { syncCollection } = useSync();
     const location = useLocation();
@@ -396,7 +398,7 @@ export default function ErgonomicsForm(): React.ReactElement | null {
                             <ChevronLeft size={20} /> ATRÁS
                         </button>
                         <button
-                            onClick={handleSave}
+                            onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
                             style={{ flex: 2, minWidth: '200px', padding: '1rem', background: '#36B37E', color: '#ffffff', border: 'none', borderRadius: '12px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', cursor: 'pointer', boxShadow: '0 4px 15px rgba(54,179,126,0.3)' }}
                         >
                             <Save size={20} /> GUARDAR ESTUDIO

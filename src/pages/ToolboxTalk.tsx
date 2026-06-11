@@ -187,10 +187,10 @@ function IconInput({ icon, label, ...props }: { icon: React.ReactNode; label: st
 }
 
 export default function ToolboxTalk(): React.ReactElement {
+  const { requirePro } = usePaywall();
     useDocumentTitle('Charla de 5 Minutos');
     const navigate = useNavigate();
     const { currentUser } = useAuth();
-    const { requirePro } = usePaywall();
 
     const [talks, setTalks] = useState<ToolboxTalk[]>([]);
     const [form, setForm] = useState<ToolboxTalk>(emptyTalk());
@@ -409,7 +409,7 @@ export default function ToolboxTalk(): React.ReactElement {
                 {/* Floating Action Buttons */}
                 {showForm && (
                     <div className="no-print floating-action-bar">
-                        <button onClick={handleSave} className="btn-floating-action" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff' }}>
+                        <button onClick={(e) => { e.preventDefault(); requirePro(handleSave); }} className="btn-floating-action" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff' }}>
                             <Save size={18} /> GUARDAR
                         </button>
                         <button onClick={() => requirePro(() => window.print())} className="btn-floating-action" style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#fff' }}>

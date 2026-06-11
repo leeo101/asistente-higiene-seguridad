@@ -12,11 +12,11 @@ import AnimatedPage from '../components/AnimatedPage';
 import PremiumHeader from '../components/PremiumHeader';
 
 export default function RiskMapHistory(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     useDocumentTitle('Historial de Mapas de Riesgo');
     const navigate = useNavigate();
     const { currentUser } = useAuth();
     const { syncing, syncCollection } = useSync();
-    const { requirePro } = usePaywall();
 
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');

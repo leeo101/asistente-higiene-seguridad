@@ -52,12 +52,13 @@ const inputStyle: React.CSSProperties = {
 };
 
 export default function ChemicalSafetyForm(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const location = useLocation();
     const [isMobile, setIsMobile] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
-    const { isPro, requirePro } = usePaywall();
+  const { isPro } = usePaywall();
 
     useDocumentTitle(isEdit ? 'Editar Producto Químico' : 'Nuevo Producto Químico');
     const [chemical, setChemical] = useState<any>({
@@ -520,7 +521,7 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
                     <Printer size={18} /> IMPRIMIR PDF
                 </button>
                 <button
-                    onClick={handleSave}
+                    onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
                     className="btn-floating-action"
                     style={{ background: '#36B37E', color: '#ffffff' }}
                 >

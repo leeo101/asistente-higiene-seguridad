@@ -48,10 +48,10 @@ const METABOLIC_PREFS = [
 ];
 
 export default function ThermalStress(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const location = useLocation();
     const { currentUser } = useAuth();
-    const { requirePro } = usePaywall();
     const { syncCollection } = useSync();
 
     const editData = location.state?.editData;
@@ -465,7 +465,7 @@ export default function ThermalStress(): React.ReactElement | null {
                         <button onClick={() => setIsFormVisible(false)} className="btn-floating-action" style={{ background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}>
                             <ArrowLeft size={18} /> ATRÁS
                         </button>
-                        <button onClick={handleSave} className="btn-floating-action" style={{ background: '#36B37E', color: '#ffffff' }}>
+                        <button onClick={(e) => { e.preventDefault(); requirePro(handleSave); }} className="btn-floating-action" style={{ background: '#36B37E', color: '#ffffff' }}>
                             <Save size={18} /> GUARDAR
                         </button>
                         <button onClick={() => {

@@ -12,9 +12,9 @@ import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import { getCountryNormativa } from '../data/legislationData';
 
 export default function ReportsReport(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const { currentUser } = useAuth();
-    const { requirePro } = usePaywall();
     const [report, setReport] = useState(null);
     const [profile, setProfile] = useState(null);
     const [signature, setSignature] = useState(null);

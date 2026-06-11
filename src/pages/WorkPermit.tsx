@@ -27,11 +27,11 @@ import PremiumHeader from '../components/PremiumHeader';
 import WorkPermitPdfGenerator from '../components/WorkPermitPdfGenerator';
 
 export default function WorkPermit(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const location = useLocation();
     const { currentUser } = useAuth();
     const { syncCollection } = useSync();
-    const { requirePro } = usePaywall();
     const editData = location.state?.editData;
     useDocumentTitle(editData ? 'Editar Permiso de Trabajo' : 'Permiso de Trabajo');
 
@@ -481,7 +481,7 @@ export default function WorkPermit(): React.ReactElement | null {
 
             {/* Action Bar */}
             <div className="no-print floating-action-bar">
-                <button onClick={handleSave} className="btn-floating-action" style={{ background: '#36B37E', color: '#ffffff' }}>
+                <button onClick={(e) => { e.preventDefault(); requirePro(handleSave); }} className="btn-floating-action" style={{ background: '#36B37E', color: '#ffffff' }}>
                     <Save size={18} /> GUARDAR
                 </button>
                 <button onClick={handleShare} className="btn-floating-action" style={{ background: '#0052CC', color: '#ffffff' }}>

@@ -104,9 +104,9 @@ function RiskMatrixGrid() {
 
 // ─── Main Report ────────────────────────────────────────────────────
 export default function RiskMatrixReport(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const { currentUser } = useAuth();
-    const { requirePro } = usePaywall();
     const [matrix, setMatrix] = useState(null);
     const [profile, setProfile] = useState(null);
     const [signature, setSignature] = useState(null);

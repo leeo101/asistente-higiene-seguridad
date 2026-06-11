@@ -19,6 +19,7 @@ import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
 
 export default function Drills(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const location = useLocation();
     const editData = location.state?.editData;
 
@@ -26,7 +27,6 @@ export default function Drills(): React.ReactElement | null {
     const navigate = useNavigate();
     const { currentUser } = useAuth();
     const { syncCollection } = useSync();
-    const { requirePro } = usePaywall();
 
     // Timer state
     const [isRunning, setIsRunning] = useState(false);
@@ -223,7 +223,7 @@ export default function Drills(): React.ReactElement | null {
                 />
 
                 <div className="floating-action-bar">
-                    <button onClick={handleSave} className="btn-floating-action" style={{ background: '#36B37E', color: '#ffffff' }}>
+                    <button onClick={(e) => { e.preventDefault(); requirePro(handleSave); }} className="btn-floating-action" style={{ background: '#36B37E', color: '#ffffff' }}>
                         <Save size={18} /> GUARDAR
                     </button>
                     <button onClick={() => requirePro(() => setShowShareModal(true))} className="btn-floating-action" style={{ background: '#0052CC', color: '#ffffff' }}>

@@ -48,11 +48,12 @@ const visualTasks = [
 ];
 
 export default function LightingReport(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const location = useLocation();
     const { currentUser } = useAuth();
     const { syncCollection } = useSync();
-    const { isPro, requirePro } = usePaywall();
+  const { isPro } = usePaywall();
 
     const [formData, setFormData] = useState({
         empresa: '',

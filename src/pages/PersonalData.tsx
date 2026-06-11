@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { usePaywall } from '../hooks/usePaywall';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, User, Mail, CreditCard, Award, Phone, MapPin, Camera, Trash2, GraduationCap, Globe, CheckCircle } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
@@ -20,6 +21,7 @@ const FieldGroup = ({ icon, label, children }: { icon: React.ReactNode; label: s
 );
 
 export default function PersonalData(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const { syncDocument } = useSync();
     const [saved, setSaved] = useState(false);
@@ -267,7 +269,7 @@ export default function PersonalData(): React.ReactElement | null {
                 </FieldGroup>
 
                 <button
-                    onClick={handleSave}
+                    onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
                     style={{
                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem',
                         marginTop: '0.5rem', padding: '1.1rem', width: '100%',

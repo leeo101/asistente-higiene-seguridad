@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { usePaywall } from '../hooks/usePaywall';
 import ConfirmModal from '../components/ConfirmModal';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Save, FileText, AlertCircle, GraduationCap, ClipboardCheck, Package, Plus, Trash2, History, Share2, Printer, Clock, Edit2, CheckCircle2, Download, Calendar } from 'lucide-react';
@@ -51,6 +52,7 @@ function DeleteConfirm({ onConfirm, onCancel }: any) {
 }
 
 export default function Reports(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const location = useLocation();
     const { syncCollection } = useSync();
@@ -759,7 +761,7 @@ export default function Reports(): React.ReactElement | null {
                 {/* Floating Action Buttons */}
                 <div className="no-print floating-action-bar">
                     <button
-                        onClick={handleSave}
+                        onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
                         className="btn-floating-action"
                         style={{ background: '#36B37E', color: 'white' }}
                     >

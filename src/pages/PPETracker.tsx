@@ -77,9 +77,9 @@ function StatusBadge({ days }) {
 const EMPTY_FORM = { type: '', custom: '', responsible: '', purchaseDate: '', lifeMonths: '', certStandard: '', certNumber: '' };
 
 export default function PPETracker(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const { syncCollection } = useSync();
-    const { requirePro } = usePaywall();
     const [items, setItems] = useState<any[]>([]);
     const [isFormVisible, setIsFormVisible] = useState(false);
     const [form, setForm] = useState(EMPTY_FORM);

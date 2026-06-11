@@ -16,9 +16,9 @@ import PdfSignatures from '../components/PdfSignatures';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 export default function Report(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const { currentUser } = useAuth();
-    const { requirePro } = usePaywall();
     const [showShare, setShowShare] = useState(false);
     const [inspectionData, setInspectionData] = useState(null);
     const [riskAssessment, setRiskAssessment] = useState(null);

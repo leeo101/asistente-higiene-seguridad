@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { usePaywall } from '../hooks/usePaywall';
 import { useNavigate } from 'react-router-dom';
 import {
     BarChart3, TrendingUp, TrendingDown, Shield, AlertTriangle,
@@ -144,6 +145,7 @@ function getPeriodLabel(period: string) {
 }
 
 export default function SafetyKPIs(): React.ReactElement {
+  const { requirePro } = usePaywall();
     useDocumentTitle('KPIs de Seguridad');
     const navigate = useNavigate();
 
@@ -627,7 +629,7 @@ export default function SafetyKPIs(): React.ReactElement {
                         <X size={18} /> CANCELAR
                     </button>
                     <button
-                        onClick={handleSave}
+                        onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
                         className="btn-floating-action"
                         style={{ background: '#10b981', color: '#ffffff', border: 'none' }}
                     >

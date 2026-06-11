@@ -13,8 +13,8 @@ import { safeSetLocalStorage } from '../utils/storageHelper';
 import PremiumHeader from '../components/PremiumHeader';
 
 export default function AIGeneralCamera(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
-    const { requirePro } = usePaywall();
     const { syncCollection } = useSync();
     useDocumentTitle('Detección de Riesgos IA');
     const videoRef = useRef(null);

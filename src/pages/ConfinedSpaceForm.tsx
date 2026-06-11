@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { usePaywall } from '../hooks/usePaywall';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
     ArrowLeft, Save, Tent, ClipboardCheck, CheckCircle2,
@@ -61,6 +62,7 @@ const POTENTIAL_HAZARDS = [
 ];
 
 export default function ConfinedSpaceForm(): React.ReactElement | null {
+  const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const location = useLocation();
     const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
@@ -532,7 +534,7 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                 <button onClick={() => setShowShareModal(true)} className="btn-floating-action" style={{ background: '#0052CC', color: '#ffffff' }}>
                     <Share2 size={18} /> COMPARTIR
                 </button>
-                <button onClick={handleSave} className="btn-floating-action" style={{ background: '#16a34a', color: '#ffffff' }}>
+                <button onClick={(e) => { e.preventDefault(); requirePro(handleSave); }} className="btn-floating-action" style={{ background: '#16a34a', color: '#ffffff' }}>
                     <Save size={18} /> GENERAR PERMISO
                 </button>
             </div>
