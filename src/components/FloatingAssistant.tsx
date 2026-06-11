@@ -249,18 +249,27 @@ export default function FloatingAssistant() {
     ];
 
     return (
-        <div style={{ position: 'fixed', bottom: isMobile ? '5.5rem' : '2rem', right: isMobile ? '1rem' : '2rem', zIndex: 9999, pointerEvents: 'none', transition: 'bottom 0.3s ease' }}>
-            {/* Menu Panel */}
+        <>
+            {/* Menu Panel - Moved outside so it can be freely centered */}
             {isOpen && (
                 <div 
                     ref={menuRef}
                     className="glass-mockup assistant-panel-anim"
                     style={{
-                        position: 'absolute',
-                        bottom: '5rem',
-                        right: 0,
-                        width: 'min(360px, calc(100vw - 4rem))',
-                        maxHeight: 'min(560px, calc(100vh - 10rem))',
+                        position: 'fixed',
+                        zIndex: 10000,
+                        ...(isMobile ? {
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                            width: 'calc(100vw - 2rem)',
+                            maxHeight: 'calc(100vh - 8rem)',
+                        } : {
+                            bottom: 'calc(2rem + 5rem)',
+                            right: '2rem',
+                            width: '360px',
+                            maxHeight: 'calc(100vh - 10rem)',
+                        }),
                         pointerEvents: 'all',
                         display: 'flex',
                         flexDirection: 'column',
@@ -669,8 +678,17 @@ export default function FloatingAssistant() {
             
             {isScannerOpen && <GlobalQRScanner onClose={() => setIsScannerOpen(false)} />}
 
-            {/* Main Trigger Button */}
-            <button
+            {/* Backdrop for mobile to click outside and close easily */}
+            {isOpen && isMobile && (
+                <div 
+                    style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9998, backdropFilter: 'blur(2px)' }} 
+                    onClick={() => setIsOpen(false)}
+                />
+            )}
+
+            <div style={{ position: 'fixed', bottom: isMobile ? '5.5rem' : '2rem', right: isMobile ? '1rem' : '2rem', zIndex: 9999, pointerEvents: 'none', transition: 'bottom 0.3s ease' }}>
+                {/* Main Trigger Button */}
+                <button
                 onClick={toggleAssistant}
                 className={!isOpen ? "assistant-trigger-active" : ""}
                 style={{
@@ -712,6 +730,7 @@ export default function FloatingAssistant() {
                     </div>
                 )}
             </button>
-        </div>
+            </div>
+        </>
     );
 }

@@ -698,7 +698,6 @@ export default function Dashboard(): React.ReactElement {
           }
         `}
       </style>
-      </div>
     </AnimatedPage>
   );
 }
