@@ -3,12 +3,12 @@ import { usePaywall } from '../../hooks/usePaywall';
 import { useLocation } from 'react-router-dom';
 
 export default function AutoAdsManager() {
-  const { isPro, isLoading } = usePaywall();
+  const { isPro, loading } = usePaywall();
   const location = useLocation();
 
   useEffect(() => {
     // Wait until we know if the user is PRO
-    if (isLoading) return;
+    if (loading) return;
 
     // Si es PRO, nos aseguramos de no inyectar nada
     if (isPro) return;
