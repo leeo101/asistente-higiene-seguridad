@@ -13,13 +13,6 @@ export default function BottomNav({ onMenuClick }: BottomNavProps): React.ReactE
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
-  // Ocultar en vistas donde no queremos BottomNav
-  const hideOnPaths = ['/login', '/subscribe', '/ai-camera'];
-  if (hideOnPaths.includes(location.pathname)) return null;
-
-  // Solo mostrar a usuarios autenticados para que la estructura tenga sentido
-  if (!currentUser) return null;
-
   // Lógica para ocultar/mostrar al hacer scroll down/up
   useEffect(() => {
     const handleScroll = () => {
@@ -36,6 +29,13 @@ export default function BottomNav({ onMenuClick }: BottomNavProps): React.ReactE
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
+
+  // Ocultar en vistas donde no queremos BottomNav
+  const hideOnPaths = ['/login', '/subscribe', '/ai-camera'];
+  if (hideOnPaths.includes(location.pathname)) return null;
+
+  // Solo mostrar a usuarios autenticados para que la estructura tenga sentido
+  if (!currentUser) return null;
 
   const navItems = [
     { to: '/', icon: <House size={24} weight={location.pathname === '/' ? 'fill' : 'regular'} />, label: 'Inicio' },
