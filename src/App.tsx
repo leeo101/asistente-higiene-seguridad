@@ -18,6 +18,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SyncProvider, useSync } from './contexts/SyncContext';
 import { Toaster, toast } from 'react-hot-toast';
 import { usePaywall } from './hooks/usePaywall';
+import AutoAdsManager from './components/ads/AutoAdsManager';
 // Custom lazy loader that catches chunk errors and reloads
 const lazyWithRetry = (componentImport: () => Promise<any>) =>
   lazy(async () => {
@@ -603,6 +604,7 @@ function App() {
           <FloatingAssistant />
           <BottomNav onMenuClick={() => setIsSidebarOpen(true)} />
           <PaywallModal isOpen={showPaywallModal} onClose={() => setShowPaywallModal(false)} />
+          <AutoAdsManager />
         </div>
       </SyncProvider>
     </AuthProvider >
