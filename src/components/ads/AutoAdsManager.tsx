@@ -23,7 +23,7 @@ export default function AutoAdsManager() {
       script.crossOrigin = 'anonymous';
       document.head.appendChild(script);
     }
-  }, [isPro, isLoading]);
+  }, [isPro, loading]);
 
   return null;
 }
