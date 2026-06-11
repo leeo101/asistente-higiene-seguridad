@@ -21,6 +21,7 @@ export default function FloatingAssistant() {
     const { isPro } = usePaywall();
     const [isOpen, setIsOpen] = useState(false);
     const [isListening, setIsListening] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
     const [activeTab, setActiveTab] = useState<'actions' | 'chat' | 'id'>('actions');
     const [safetyScore, setSafetyScore] = useState(0);
     const [chatInput, setChatInput] = useState('');
@@ -92,6 +93,13 @@ export default function FloatingAssistant() {
     }, []);
 
     // Scroll automático en chat
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     useEffect(() => {
         if (chatEndRef.current) {
             chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -241,7 +249,7 @@ export default function FloatingAssistant() {
     ];
 
     return (
-        <div style={{ position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 9999, pointerEvents: 'none' }}>
+        <div style={{ position: 'fixed', bottom: isMobile ? '5.5rem' : '2rem', right: isMobile ? '1rem' : '2rem', zIndex: 9999, pointerEvents: 'none', transition: 'bottom 0.3s ease' }}>
             {/* Menu Panel */}
             {isOpen && (
                 <div 
@@ -249,7 +257,7 @@ export default function FloatingAssistant() {
                     className="glass-mockup assistant-panel-anim"
                     style={{
                         position: 'absolute',
-                        bottom: '5.5rem',
+                        bottom: '5rem',
                         right: 0,
                         width: 'min(360px, calc(100vw - 4rem))',
                         maxHeight: 'min(560px, calc(100vh - 10rem))',
