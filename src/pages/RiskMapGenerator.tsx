@@ -23,13 +23,14 @@ import PremiumHeader from '../components/PremiumHeader';
 
 // ─── Layer helpers ─────────────────────────────────────────────────────────
 const getLayer = (el) => {
-  const { requirePro } = usePaywall();
+      
     if (['line', 'rect', 'circle', 'arrow', 'polyline'].includes(el.type)) return 'structure';
     if (el.type === 'icon') return 'signage';
     return 'annotations';
 };
 
 export default function RiskMapGenerator(): React.ReactElement | null {
+    const { requirePro } = usePaywall();
     useDocumentTitle('Creador de Mapas de Riesgo');
     const navigate = useNavigate();
     const location = useLocation();
@@ -482,7 +483,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
 
             {/* Floating actions */}
             <div className="no-print floating-action-bar" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center' }}>
-                <button onClick={(e) => { e.preventDefault(); requirePro(handleSave); }} className="glow-button hover-lift" style={{ padding: '0.6rem 1.2rem', background: 'linear-gradient(135deg, #10b981, #059669)', border: 'none', borderRadius: '12px', color: 'white', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}><Save size={16} /> GUARDAR</button>
+                <button onClick={(e) => { e.preventDefault(); requirePro(() => handleSave()); }} className="glow-button hover-lift" style={{ padding: '0.6rem 1.2rem', background: 'linear-gradient(135deg, #10b981, #059669)', border: 'none', borderRadius: '12px', color: 'white', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}><Save size={16} /> GUARDAR</button>
                 <button onClick={() => requirePro(() => setShowShareModal(true))} className="glow-button hover-lift" style={{ padding: '0.6rem 1.2rem', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', border: 'none', borderRadius: '12px', color: 'white', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}><Share2 size={16} /> COMPARTIR</button>
                 <button onClick={() => requirePro(() => window.print())} className="glow-button hover-lift" style={{ padding: '0.6rem 1.2rem', background: 'linear-gradient(135deg, #f59e0b, #d97706)', border: 'none', borderRadius: '12px', color: 'white', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}><Printer size={16} /> IMPRIMIR</button>
                 <button onClick={handleExportPNG} className="glow-button hover-lift" style={{ padding: '0.6rem 1.2rem', background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', border: 'none', borderRadius: '12px', color: 'white', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}><Download size={16} /> PNG</button>

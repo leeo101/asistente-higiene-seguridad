@@ -22,7 +22,7 @@ import ConfirmModal from '../components/ConfirmModal';
 import ExcelJS from 'exceljs';
 
 const formatType = (tipo: string) => {
-  const { requirePro } = usePaywall();
+  
     if (!tipo) return 'N/A';
     const t = String(tipo).toUpperCase();
     if (t === 'ABC') return 'HCFC';
@@ -32,6 +32,8 @@ const formatType = (tipo: string) => {
 
 
 export default function ExtintoresManager() {
+    const { requirePro } = usePaywall();
+    
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const { syncCollection } = useSync();
@@ -697,7 +699,7 @@ export default function ExtintoresManager() {
                             </button>
                         </div>
                     </div>
-                    <form onSubmit={(e) => { e.preventDefault(); requirePro(handleSave); }} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'var(--color-surface)', padding: '2rem', borderRadius: '12px', border: '2px solid var(--color-primary)' }}>
+                    <form onSubmit={(e) => { e.preventDefault(); requirePro(() => handleSave(e)); }} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'var(--color-surface)', padding: '2rem', borderRadius: '12px', border: '2px solid var(--color-primary)' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
                             <div>
                                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>Nº CHAPA / ID</label>

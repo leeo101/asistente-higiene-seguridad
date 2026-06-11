@@ -24,7 +24,7 @@ const PROB_LABELS = ['', 'Baja', 'Media', 'Alta', 'Muy Alta'];
 const SEV_LABELS = ['', 'Leve', 'Moderada', 'Grave', 'Crítica'];
 
 const getRiskLevel = (p, s) => {
-  const { requirePro } = usePaywall();
+      
     const val = p * s;
     if (val <= 4) return { label: 'BAJO', bg: '#dcfce7', color: '#16a34a', border: '#86efac', score: val };
     if (val <= 9) return { label: 'MODERADO', bg: '#fef9c3', color: '#ca8a04', border: '#fde047', score: val };
@@ -40,6 +40,7 @@ const emptyRow = () => {
 };
 
 export default function RiskMatrix(): React.ReactElement | null {
+    const { requirePro } = usePaywall();
     const navigate = useNavigate();
     const location = useLocation();
     const { syncCollection } = useSync();
@@ -132,7 +133,7 @@ export default function RiskMatrix(): React.ReactElement | null {
 
             {/* Floating Action Buttons */}
             <div className="no-print floating-action-bar">
-                <button onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
+                <button onClick={(e) => { e.preventDefault(); requirePro(() => handleSave()); }}
                     className="btn-floating-action"
                     style={{ background: '#36B37E', color: '#ffffff' }}
                 >

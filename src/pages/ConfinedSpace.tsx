@@ -83,7 +83,8 @@ const POTENTIAL_HAZARDS = [
 ];
 
 export default function ConfinedSpace(): React.ReactElement | null {
-  const { requirePro } = usePaywall();
+    const { requirePro } = usePaywall();
+  
     const navigate = useNavigate();
     const [permits, setPermits] = useState([]);
     const [activePermits, setActivePermits] = useState([]);
@@ -122,6 +123,7 @@ export default function ConfinedSpace(): React.ReactElement | null {
     useEffect(() => {
         window.scrollTo(0, 0);
         const loadData = () => {
+    
             const savedPermits = localStorage.getItem('confined_space_permits_db');
             const savedActive = localStorage.getItem('confined_space_active_db');
             if (savedPermits) setPermits(JSON.parse(savedPermits));
@@ -1706,7 +1708,7 @@ function AtmosphericReadingModal({ permit, onSave, onClose, limits }) {
                         Cancelar
                     </button>
                     <button
-                        onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
+                        onClick={(e) => { e.preventDefault(); handleSave(); }}
                         className="btn-primary"
                         style={{ flex: 1 }}
                     >
