@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 export interface ExpiryNotification {
   id: string;
-  type: 'ppe' | 'extinguisher' | 'contractor' | 'worker';
+  type: 'ppe' | 'extinguisher' | 'contractor' | 'worker' | 'capa' | 'training';
   label: string;
   responsible?: string;
   daysLeft: number;
@@ -136,6 +136,47 @@ export function useExpiryNotifications() {
               daysLeft,
               isExpired: daysLeft < 0,
               itemId: w.id,
+            });
+          }
+        }
+      });
+    } catch { /* ignore */ }
+
+    // ─── CAPA (Acciones Correctivas) ────────────────────────
+    try {
+      const capas = JSON.parse(localStorage.getItem('ehs_capa_db') || '[]');
+      capas.forEach((c: any) => {
+        if (c.status !== 'Cerrada' && c.targetDate) {
+          const daysLeft = getDaysLeft(c.targetDate);
+          if (daysLeft !== null && daysLeft <= 7) {
+            items.push({
+              id: `capa-${c.id}`,
+              type: 'capa',
+              label: `CAPA: ${c.title || 'Acción Correctiva'}`,
+              responsible: c.responsible,
+              daysLeft,
+              isExpired: daysLeft < 0,
+              itemId: c.id,
+            });
+          }
+        }
+      });
+    } catch { /* ignore */ }
+
+    // ─── Capacitaciones ──────────────────────────────────────
+    try {
+      const trainings = JSON.parse(localStorage.getItem('training_history') || '[]');
+      trainings.forEach((t: any) => {
+        if (t.nextTrainingDate) {
+          const daysLeft = getDaysLeft(t.nextTrainingDate);
+          if (daysLeft !== null && daysLeft <= 15) {
+            items.push({
+              id: `trn-${t.id}`,
+              type: 'training',
+              label: `Capacitación: ${t.topic || 'Pendiente'}`,
+              daysLeft,
+              isExpired: daysLeft < 0,
+              itemId: t.id,
             });
           }
         }

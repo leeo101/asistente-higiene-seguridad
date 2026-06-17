@@ -12,7 +12,6 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { usePaywall } from '../hooks/usePaywall';
 import AdBanner from './AdBanner';
-import SidebarNotifications from './sidebar/SidebarNotifications';
 import SidebarUserProfile from './sidebar/SidebarUserProfile';
 
 // Tipos
@@ -164,8 +163,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               
-              <SidebarNotifications currentUser={currentUser} />
-
               <button onClick={onClose} style={{ padding: 0, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#ffffff', backdropFilter: 'blur(10px)', transition: 'all 0.3s ease' }}
                 onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; e.currentTarget.style.transform = 'rotate(90deg)'; }}
                 onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.transform = 'rotate(0)'; }}

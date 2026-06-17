@@ -12,6 +12,7 @@ import InstallBanner from './components/InstallBanner';
 import GlobalSearch from './components/GlobalSearch';
 import BottomNav from './components/BottomNav';
 import PaywallModal from './components/PaywallModal';
+import HeaderNotifications from './components/HeaderNotifications';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SyncProvider, useSync } from './contexts/SyncContext';
 import { Toaster, toast } from 'react-hot-toast';
@@ -469,6 +470,7 @@ function App() {
               >
                 <Search weight="bold" size={20} />
               </button>
+              <HeaderNotifications />
               <CloudStatusIndicator />
             </div>
           )}
