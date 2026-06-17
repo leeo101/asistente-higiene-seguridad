@@ -60,14 +60,12 @@ export default function WallOfLove() {
                     gap: '1.5rem' 
                 }}>
                     {testimonials.map((t, i) => (
-                        <div key={i} style={{ 
-                            background: 'rgba(255,255,255,0.03)', 
-                            border: '1px solid rgba(255,255,255,0.08)', 
-                            borderRadius: '20px', 
+                        <div key={i} className="glass-card-premium stagger-up" style={{ 
                             padding: '1.5rem',
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: '1rem'
+                            gap: '1rem',
+                            marginTop: i % 2 === 0 ? '0' : '2rem'
                         }}>
                             <div style={{ display: 'flex', gap: '0.2rem' }}>
                                 {[...Array(t.rating)].map((_, idx) => (

@@ -5,6 +5,7 @@ import {
   Users, BarChart3, Globe, Sparkles,
   ArrowRight
 } from 'lucide-react';
+import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 
 
 const valueProps = [
@@ -36,8 +37,12 @@ interface MarketingLandingProps {
 }
 
 export default function MarketingLanding({ onStart }: MarketingLandingProps) {
+  useIntersectionObserver();
+
   return (
-    <div style={{ color: 'var(--color-text)', maxWidth: '1200px', margin: '0 auto', padding: '0 1rem' }}>
+    <div style={{ color: 'var(--color-text)', maxWidth: '1200px', margin: '0 auto', padding: '0 1rem', position: 'relative' }}>
+      <div className="mesh-bg-1" />
+      <div className="mesh-bg-2" />
       {/* 0. Trusted By Marquee */}
       <section className="stagger-item" style={{ padding: '2rem 0', marginTop: '2rem', borderBottom: '1px solid var(--color-border)' }}>
         <p style={{ textAlign: 'center', fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>
@@ -102,9 +107,8 @@ export default function MarketingLanding({ onStart }: MarketingLandingProps) {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '2rem' }}>
           {valueProps.map((prop, i) => (
-            <div key={i} className="glass-card hover-lift" style={{ 
+            <div key={i} className="glass-card-premium stagger-up" style={{ 
               padding: '2.5rem 2rem', 
-              borderRadius: '24px',
               transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
               position: 'relative',
               overflow: 'hidden'
@@ -144,9 +148,8 @@ export default function MarketingLanding({ onStart }: MarketingLandingProps) {
             { step: "02", title: "Procesamiento IA", desc: "Nuestra inteligencia artificial cruza los datos con normativas de H&S y propone controles." },
             { step: "03", title: "Exportación Profesional", desc: "Descargá un PDF ejecutivo con tu logo, listo para firmar y presentar al cliente." }
           ].map((s, i) => (
-            <div key={i} className="hover-lift" style={{ 
-              background: 'var(--color-surface)', border: '1px solid var(--color-border)',
-              borderRadius: '24px', padding: '2.5rem', position: 'relative' 
+            <div key={i} className="glass-card-premium stagger-up" style={{ 
+              padding: '2.5rem', position: 'relative' 
             }}>
               <div style={{ 
                 position: 'absolute', top: '-20px', left: '2.5rem',

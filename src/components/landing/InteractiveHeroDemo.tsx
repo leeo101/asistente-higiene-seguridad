@@ -16,7 +16,8 @@ export default function InteractiveHeroDemo() {
     };
 
     return (
-        <div className="glass-mockup" style={{ 
+        <div className="glass-mockup hover-glow" style={{ 
+            animation: 'float 6s ease-in-out infinite',
             padding: '1.4rem', 
             transition: 'all 0.4s ease', 
             maxWidth: '420px', 
