@@ -8,8 +8,6 @@ import LoadingScreen from './components/LoadingScreen';
 import NetworkBadge from './components/NetworkBadge';
 import OfflineIndicator from './components/OfflineIndicator';
 import FloatingAssistant from './components/FloatingAssistant';
-import Home from './pages/Home';
-import Login from './pages/Login';
 import InstallBanner from './components/InstallBanner';
 import GlobalSearch from './components/GlobalSearch';
 import BottomNav from './components/BottomNav';
@@ -47,7 +45,9 @@ const lazyWithRetry = (componentImport: () => Promise<any>) =>
     }
   });
 
-// LAZY LOADED PAGES
+// LAZY LOADED PAGES — incluyendo Home y Login para reducir bundle inicial
+const Home = lazyWithRetry(() => import('./pages/Home'));
+const Login = lazyWithRetry(() => import('./pages/Login'));
 const CreateInspection = lazyWithRetry(() => import('./pages/CreateInspection'));
 const Checklist = lazyWithRetry(() => import('./pages/Checklist'));
 const Observation = lazyWithRetry(() => import('./pages/Observation'));
@@ -120,6 +120,8 @@ const ToolboxTalk = lazyWithRetry(() => import('./pages/ToolboxTalk'));
 const ContractorManagement = lazyWithRetry(() => import('./pages/ContractorManagement'));
 const Legajos = lazyWithRetry(() => import('./pages/Legajos'));
 const LegajoForm = lazyWithRetry(() => import('./pages/LegajoForm'));
+const FleetManager = lazyWithRetry(() => import('./pages/FleetManager'));
+const AccidentHistory = lazyWithRetry(() => import('./pages/AccidentHistory'));
 
 // SAFETY MODULE FORMS
 const AuditForm = lazyWithRetry(() => import('./pages/AuditForm'));

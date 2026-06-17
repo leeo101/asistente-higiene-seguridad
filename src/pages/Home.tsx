@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import {
   ClipboardText, House, ClockCounterClockwise, User, Users, GearSix,
   Fire, ChartBar, CaretRight, Plus, Gavel, Siren,
@@ -24,14 +24,14 @@ import AdBanner from '../components/AdBanner';
 import StarryBackground from '../components/StarryBackground';
 import StickyCtaBanner from '../components/StickyCtaBanner';
 import StatsBar from '../components/StatsBar';
-
 import NewsWidget from '../components/NewsWidget';
-import MarketingLanding from '../components/MarketingLanding';
-import InteractiveHeroDemo from '../components/landing/InteractiveHeroDemo';
-import BeforeAndAfter from '../components/landing/BeforeAndAfter';
-import WallOfLove from '../components/landing/WallOfLove';
-import RoiCalculator from '../components/landing/RoiCalculator';
 
+// Landing components — lazy porque solo se renderizan para usuarios no autenticados
+const MarketingLanding = lazy(() => import('../components/MarketingLanding'));
+const InteractiveHeroDemo = lazy(() => import('../components/landing/InteractiveHeroDemo'));
+const BeforeAndAfter = lazy(() => import('../components/landing/BeforeAndAfter'));
+const WallOfLove = lazy(() => import('../components/landing/WallOfLove'));
+const RoiCalculator = lazy(() => import('../components/landing/RoiCalculator'));
 
 // Tipos
 interface StatItem {
@@ -453,7 +453,9 @@ export default function Home(): React.ReactElement {
             
             {/* Interactive Hero Demo */}
             <div className="stagger-item hidden-mobile" style={{ animationDelay: '0.4s', perspective: '1000px' }}>
-              <InteractiveHeroDemo />
+              <Suspense fallback={<div style={{ height: '300px' }} />}>
+                <InteractiveHeroDemo />
+              </Suspense>
             </div>
           </div>
         </div>
@@ -539,7 +541,8 @@ export default function Home(): React.ReactElement {
 
       {/* Marketing Landing Content - Primary for visitors */}
       {!currentUser && (
-        <div style={{ marginTop: '0' }}>
+        <Suspense fallback={<div style={{ padding: '4rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>Cargando...</div>}>
+          <div style={{ marginTop: '0' }}>
           <WallOfLove />
           <BeforeAndAfter />
           <RoiCalculator />
@@ -558,6 +561,7 @@ export default function Home(): React.ReactElement {
             <FaqSection />
           </div>
         </div>
+        </Suspense>
       )}
 
 
