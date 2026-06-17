@@ -16,6 +16,8 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import toast from 'react-hot-toast';
 import confetti from 'canvas-confetti';
 import DailyNewsWidget from '../components/DailyNewsWidget';
+import DailyAIInsight from '../components/DailyAIInsight';
+import { Plus, Heartbeat } from '@phosphor-icons/react';
 
 // Tipos
 interface KPIData {
@@ -463,6 +465,68 @@ export default function Dashboard(): React.ReactElement {
       </div>
 
       {/* Header */}
+
+      {/* Mejora #7: Dashboard Inteligente (Salud del Sistema & IA) */}
+      {!loading && (
+        <div style={{ marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          
+          {/* Salud del Sistema & IA Insight */}
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.5fr 2fr', gap: '1.5rem' }}>
+            
+            {/* Health Score Bar */}
+            <div className="card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Heartbeat size={24} weight="fill" color={kpis.complianceRate > 85 ? '#10b981' : kpis.complianceRate > 60 ? '#f59e0b' : '#ef4444'} />
+                  Salud del Sistema
+                </h3>
+                <span style={{ 
+                  fontSize: '1.5rem', 
+                  fontWeight: 900, 
+                  color: kpis.complianceRate > 85 ? '#10b981' : kpis.complianceRate > 60 ? '#f59e0b' : '#ef4444' 
+                }}>
+                  {kpis.complianceRate}%
+                </span>
+              </div>
+              <div style={{ width: '100%', height: '16px', background: 'var(--color-border)', borderRadius: '8px', overflow: 'hidden' }}>
+                <div style={{ 
+                  width: `${kpis.complianceRate}%`, 
+                  height: '100%', 
+                  background: kpis.complianceRate > 85 ? '#10b981' : kpis.complianceRate > 60 ? '#f59e0b' : '#ef4444',
+                  transition: 'width 1s cubic-bezier(0.16, 1, 0.3, 1)'
+                }} />
+              </div>
+              <p style={{ margin: '0.8rem 0 0', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+                Basado en cumplimiento de EPP, capacitaciones e incidentes.
+              </p>
+            </div>
+
+            {/* Daily AI Insight */}
+            <DailyAIInsight 
+              healthScore={kpis.complianceRate} 
+              alertsCount={kpis.alerts.length} 
+              criticalRisksCount={kpis.riskMatrixStatus.critical || 0} 
+            />
+
+          </div>
+
+          {/* Quick Actions */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+            <button onClick={() => navigate('/inspections/new')} className="btn-primary" style={{ padding: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', borderRadius: '12px', fontWeight: 700 }}>
+              <Plus size={18} weight="bold" /> Nueva Inspección
+            </button>
+            <button onClick={() => navigate('/permits/new')} style={{ padding: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', borderRadius: '12px', background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontWeight: 700, cursor: 'pointer' }}>
+              <Plus size={18} weight="bold" /> Nuevo Permiso
+            </button>
+            <button onClick={() => navigate('/trainings')} style={{ padding: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', borderRadius: '12px', background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontWeight: 700, cursor: 'pointer' }}>
+              <Plus size={18} weight="bold" /> Cargar Capacitación
+            </button>
+            <button onClick={() => navigate('/accidents')} style={{ padding: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', borderRadius: '12px', background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontWeight: 700, cursor: 'pointer' }}>
+              <Plus size={18} weight="bold" /> Registrar Incidente
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* KPI Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
