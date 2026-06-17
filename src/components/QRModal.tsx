@@ -3,14 +3,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import QRCode from 'qrcode';
 import { X, Download } from 'lucide-react';
 
-/**
- * QRModal — muestra un código QR generado desde texto.
- * Props:
- *   text: string     — contenido del QR
- *   title: string    — título del modal
- *   onClose: fn
- */
-export default function QRModal({ text, title = 'Código QR', onClose }) {
+interface QRModalProps {
+  text: string;
+  title?: string;
+  onClose: () => void;
+}
+
+export default function QRModal({ text, title = 'Código QR', onClose }: QRModalProps) {
     const canvasRef = useRef(null);
     const [dataUrl, setDataUrl] = useState(null);
 

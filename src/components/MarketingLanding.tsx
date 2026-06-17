@@ -30,7 +30,12 @@ const valueProps = [
   }
 ];
 
-export default function MarketingLanding({ onStart }) {
+
+interface MarketingLandingProps {
+  onStart: () => void;
+}
+
+export default function MarketingLanding({ onStart }: MarketingLandingProps) {
   return (
     <div style={{ color: 'var(--color-text)', maxWidth: '1200px', margin: '0 auto', padding: '0 1rem' }}>
       {/* 0. Trusted By Marquee */}

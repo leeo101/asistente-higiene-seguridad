@@ -27,7 +27,12 @@ const MOCK_ADS = [
     }
 ];
 
-export default function AdBanner({ placement = 'general' }) {
+
+interface AdBannerProps {
+  placement?: 'general' | 'home' | 'dashboard' | 'sidebar';
+}
+
+export default function AdBanner({ placement = 'general' }: AdBannerProps) {
     const { isPro } = usePaywall();
     const [currentAd, setCurrentAd] = useState(null);
 

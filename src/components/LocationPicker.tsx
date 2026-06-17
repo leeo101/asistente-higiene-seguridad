@@ -4,13 +4,27 @@ import { useGeolocation } from '../hooks/useGeolocation';
 import toast from 'react-hot-toast';
 import { getErrorMessage } from '../utils/errorUtils';
 
+interface LocationCoords {
+  latitude: string | number;
+  longitude: string | number;
+  accuracy?: number | null;
+  address?: string | null;
+  timestamp?: string;
+  manual?: boolean;
+}
+
+interface LocationPickerProps {
+  onLocationSelect: (coords: LocationCoords) => void;
+  initialLocation?: { latitude: string; longitude: string };
+}
+
 /**
  * Componente para capturar y mostrar ubicación en inspecciones
  * @param {Object} props
  * @param {Function} props.onLocationSelect - Callback cuando se selecciona ubicación
  * @param {Object} props.initialLocation - Ubicación inicial {latitude, longitude, address}
  */
-export default function LocationPicker({ onLocationSelect, initialLocation }) {
+export default function LocationPicker({ onLocationSelect, initialLocation }: LocationPickerProps) {
     const { latitude, longitude, accuracy, address, loading, error, getLocation } = useGeolocation();
     const [manualLocation, setManualLocation] = useState(initialLocation || { latitude: '', longitude: '' });
 

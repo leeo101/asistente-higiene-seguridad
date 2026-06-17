@@ -11,7 +11,11 @@ const STATS_CONFIG = [
     { key: 'work_permits_history', label: 'Permisos', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', icon: <HardHat size={18} /> },
 ];
 
-function AnimatedNumber({ value }) {
+interface AnimatedNumberProps {
+    value: number;
+}
+
+function AnimatedNumber({ value }: AnimatedNumberProps) {
     const [displayed, setDisplayed] = useState(0);
     useEffect(() => {
         let curr = 0;
