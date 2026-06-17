@@ -19,6 +19,13 @@ if (import.meta.env.VITE_SENTRY_DSN) {
   });
 }
 
+// Fix BFCache issues when returning from external gateways (e.g. MercadoPago)
+window.addEventListener('pageshow', (event) => {
+  if (event.persisted) {
+    window.location.reload();
+  }
+});
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>
