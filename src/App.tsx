@@ -13,6 +13,7 @@ import GlobalSearch from './components/GlobalSearch';
 import BottomNav from './components/BottomNav';
 import PaywallModal from './components/PaywallModal';
 import HeaderNotifications from './components/HeaderNotifications';
+import PWAReloadPrompt from './components/PWAReloadPrompt';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SyncProvider, useSync } from './contexts/SyncContext';
 import { Toaster, toast } from 'react-hot-toast';
@@ -403,6 +404,7 @@ function App() {
             error: { style: { background: '#ef4444', color: '#fff' } },
           }}
         />
+        <PWAReloadPrompt />
         <div className="app-container" style={{ position: 'relative' }}>
           {showMenuButton && (
             <div
