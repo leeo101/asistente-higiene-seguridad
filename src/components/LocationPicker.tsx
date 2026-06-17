@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { MapPin, Navigation, Loader2, AlertCircle, Crosshair } from 'lucide-react';
 import { useGeolocation } from '../hooks/useGeolocation';
 import toast from 'react-hot-toast';
+import { getErrorMessage } from '../utils/errorUtils';
 
 /**
  * Componente para capturar y mostrar ubicación en inspecciones
@@ -29,7 +30,7 @@ export default function LocationPicker({ onLocationSelect, initialLocation }) {
                 });
             }
         } catch (err) {
-            toast.error(err.message || 'No se pudo obtener la ubicación');
+            toast.error(getErrorMessage(err) || 'No se pudo obtener la ubicación');
         }
     };
 

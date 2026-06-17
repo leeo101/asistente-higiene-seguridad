@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { uploadImageToStorage } from '../services/storageService';
 import { safeSetLocalStorage } from '../utils/storageHelper';
+import { getErrorMessage } from '../utils/errorUtils';
 
 export default function AICamera(): React.ReactElement | null {
   const { requirePro } = usePaywall();
@@ -221,7 +222,7 @@ export default function AICamera(): React.ReactElement | null {
             setAnalysisResult(data);
         } catch (error) {
             console.error("Red / Error crítico de IA:", error);
-            const detail = error.message || "Error desconocido";
+            const detail = getErrorMessage(error) || "Error desconocido";
             let msg = "Error de conexión.";
             if (detail.includes('404')) msg = "Modelo no disponible.";
             if (detail.includes('413')) msg = "Imagen demasiado pesada para el servidor.";

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Shield, Key, Fingerprint, Smartphone, ChevronRight, Lock, Eye, EyeOff, CheckCircle2, Moon, Sun, Check, ExternalLink } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { useAuth } from '../contexts/AuthContext';
+import { isError, getErrorMessage } from '../utils/errorUtils';
 
 export default function Security(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -69,8 +70,9 @@ export default function Security(): React.ReactElement | null {
             }
         } catch (error) {
             console.error('[SECURITY] Password reset error:', error);
-            const errorMsg = error.name === 'AbortError' ? 'El servidor tardó demasiado en responder.' : 'Error de conexión con el servidor.';
-            setStatus({ type: 'error', message: errorMsg, details: error.message, suggestion: 'Asegúrate de que el servidor backend esté corriendo.', resetLink: '', code: '' });
+            const isAbort = isError(error) && error.name === 'AbortError';
+            const errorMsg = isAbort ? 'El servidor tardó demasiado en responder.' : 'Error de conexión con el servidor.';
+            setStatus({ type: 'error', message: errorMsg, details: getErrorMessage(error), suggestion: 'Asegúrate de que el servidor backend esté corriendo.', resetLink: '', code: '' });
         }
     };
 

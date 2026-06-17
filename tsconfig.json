@@ -23,6 +23,13 @@
     "allowJs": true,
     "checkJs": false,
 
+    /* Strict flags habilitados progresivamente — 0 errores validados */
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "useUnknownInCatchVariables": true,
+    "noImplicitOverride": true,
+    /* Pendiente: noImplicitAny (1847 errores) y strictNullChecks (1006 errores) */
+
     /* Types */
     "types": ["vitest/globals", "node"],
 

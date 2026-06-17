@@ -6,6 +6,7 @@ import { API_BASE_URL } from '../config';
 import { auth } from '../firebase';
 import { confirmPasswordReset, verifyPasswordResetCode } from 'firebase/auth';
 import toast from 'react-hot-toast';
+import { getErrorCode } from '../utils/errorUtils';
 
 export default function ResetPassword(): React.ReactElement | null {
     const navigate = useNavigate();
@@ -77,9 +78,10 @@ export default function ResetPassword(): React.ReactElement | null {
         } catch (error) {
             console.error("Firebase Reset Error:", error);
             let errorMessage = 'El enlace ha expirado o ya fue utilizado.';
-            if (error.code === 'auth/weak-password') {
+            const code = getErrorCode(error);
+            if (code === 'auth/weak-password') {
                 errorMessage = 'La contraseña es muy débil. Debe tener 8+ caracteres, mayúscula, minúscula, número y carácter especial.';
-            } else if (error.code === 'auth/invalid-action-code') {
+            } else if (code === 'auth/invalid-action-code') {
                 errorMessage = 'El enlace de recuperación es inválido o ya ha caducado.';
             }
             setStatus({ type: 'error', message: errorMessage });

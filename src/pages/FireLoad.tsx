@@ -18,6 +18,7 @@ import CompanyLogo from '../components/CompanyLogo';
 import PdfSignatures from '../components/PdfSignatures';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import PremiumHeader from '../components/PremiumHeader';
+import { getErrorMessage } from '../utils/errorUtils';
 import { API_BASE_URL } from '../config';
 import { auth } from '../firebase';
 import { getCountryNormativa } from '../data/legislationData';
@@ -278,7 +279,7 @@ export default function FireLoad(): React.ReactElement | null {
             setFormData(prev => ({ ...prev, conclusion: data.conclusion }));
             toast.success('Conclusión generada con éxito ✨', { id: loadingToast });
         } catch (error) {
-            toast.error(`Error al generar: ${error.message}`, { id: loadingToast });
+            toast.error(`Error al generar: ${getErrorMessage(error)}`, { id: loadingToast });
         } finally {
             setIsGeneratingConclusion(false);
         }
@@ -366,7 +367,7 @@ export default function FireLoad(): React.ReactElement | null {
             setHistory(newHistory);
             setShowForm(false);
         } catch (error) {
-            toast.error('Error al guardar: ' + error.message);
+            toast.error('Error al guardar: ' + getErrorMessage(error));
         }
     };
 

@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import { UserPlus, Trash2, Mail, Phone, Briefcase, RefreshCw, AlertCircle, ArrowLeft } from 'lucide-react';
+import { getErrorMessage } from '../utils/errorUtils';
 
 import toast from 'react-hot-toast';
 
@@ -22,7 +23,7 @@ export default function AdminRequests(): React.ReactElement | null {
             const data = await response.json();
             setRequests(data);
         } catch (err) {
-            setError(err.message);
+            setError(getErrorMessage(err));
         } finally {
             setLoading(false);
         }
@@ -47,7 +48,7 @@ export default function AdminRequests(): React.ReactElement | null {
                             setRequests(requests.filter(req => req.id !== id));
                             toast.success('Solicitud eliminada');
                         } catch (err) {
-                            toast.error(err.message);
+                            toast.error(getErrorMessage(err));
                         }
                     }}
                     style={{ background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem' }}

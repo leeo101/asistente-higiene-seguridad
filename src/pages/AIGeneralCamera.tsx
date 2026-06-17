@@ -11,6 +11,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { uploadImageToStorage } from '../services/storageService';
 import { safeSetLocalStorage } from '../utils/storageHelper';
 import PremiumHeader from '../components/PremiumHeader';
+import { getErrorMessage } from '../utils/errorUtils';
 
 export default function AIGeneralCamera(): React.ReactElement | null {
   const { requirePro } = usePaywall();
@@ -318,7 +319,7 @@ export default function AIGeneralCamera(): React.ReactElement | null {
             toast.success('Análisis guardado en historial');
         } catch (error) {
             console.error("Error en análisis de riesgos:", error);
-            toast.error(`Error de IA: ${error.message}`);
+            toast.error(`Error de IA: ${getErrorMessage(error)}`);
             handleRetry();
         } finally {
             setIsAnalyzing(false);

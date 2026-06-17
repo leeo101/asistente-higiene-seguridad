@@ -26,6 +26,7 @@ import PdfSignatures from '../components/PdfSignatures';
 import SignatureCanvas from '../components/SignatureCanvas';
 import { API_BASE_URL } from '../config';
 import AdModal from '../components/ads/AdModal';
+import { getErrorMessage } from '../utils/errorUtils';
 
 const printStyles = `
 @media print {
@@ -198,7 +199,7 @@ export default function ATS(): React.ReactElement | null {
             toast.success('ATS Autocompletado con IA ✨', { id: loadingToast });
         } catch (error) {
             console.error('Error generating ATS:', error);
-            toast.error(`Error al generar: ${error.message}`, { id: loadingToast });
+            toast.error(`Error al generar: ${getErrorMessage(error)}`, { id: loadingToast });
         } finally {
             setIsGeneratingATS(false);
         }

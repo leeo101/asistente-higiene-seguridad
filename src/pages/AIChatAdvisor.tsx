@@ -24,6 +24,7 @@ import QRModal from '../components/QRModal';
 import ShareModal from '../components/ShareModal';
 import AiAdvisorPdfGenerator from '../components/AiAdvisorPdfGenerator';
 import { downloadCSV } from '../services/exportCsv';
+import { getErrorMessage } from '../utils/errorUtils';
 
 function DeleteConfirm({ onConfirm, onCancel }: any) {
     return (
@@ -552,7 +553,7 @@ export default function AIChatAdvisor(): React.ReactElement | null {
             }
         } catch (error) {
             console.error('Error:', error);
-            toast.error(`Error: ${error.message}. Por favor, verifica tu conexión o intenta más tarde.`);
+            toast.error(`Error: ${getErrorMessage(error)}. Por favor, verifica tu conexión o intenta más tarde.`);
         } finally {
             setLoading(false);
         }

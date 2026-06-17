@@ -16,6 +16,7 @@ import CompanyLogo from '../components/CompanyLogo';
 import PdfSignatures from '../components/PdfSignatures';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PremiumHeader from '../components/PremiumHeader';
+import { getErrorMessage } from '../utils/errorUtils';
 import { API_BASE_URL } from '../config';
 import { getCountryNormativa } from '../data/legislationData';
 import { auth } from '../firebase';
@@ -132,7 +133,7 @@ export default function LightingReport(): React.ReactElement | null {
             setFormData(prev => ({ ...prev, conclusion: data.conclusion }));
             toast.success('Conclusión generada con éxito ✨', { id: loadingToast });
         } catch (error) {
-            toast.error(`Error al generar: ${error.message}`, { id: loadingToast });
+            toast.error(`Error al generar: ${getErrorMessage(error)}`, { id: loadingToast });
         } finally {
             setIsGeneratingConclusion(false);
         }

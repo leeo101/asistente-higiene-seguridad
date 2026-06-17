@@ -12,6 +12,7 @@ import { API_BASE_URL } from '../config';
 import { auth } from '../firebase';
 import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
+import { getErrorMessage } from '../utils/errorUtils';
 
 export default function ErgonomicsForm(): React.ReactElement | null {
   const { requirePro } = usePaywall();
@@ -118,7 +119,7 @@ export default function ErgonomicsForm(): React.ReactElement | null {
             setFormData(prev => ({ ...prev, recomendaciones: data.conclusion }));
             toast.success('Recomendaciones generadas con éxito ✨', { id: loadingToast });
         } catch (error) {
-            toast.error(`Error al generar: ${error.message}`, { id: loadingToast });
+            toast.error(`Error al generar: ${getErrorMessage(error)}`, { id: loadingToast });
         } finally {
             setIsGeneratingConclusion(false);
         }

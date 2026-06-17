@@ -15,6 +15,7 @@ import ExtinguisherAIPdfGenerator from '../components/ExtinguisherAIPdfGenerator
 import PremiumHeader from '../components/PremiumHeader';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { useAuth } from '../contexts/AuthContext';
+import { getErrorMessage } from '../utils/errorUtils';
 
 // Tipos de extintores y sus características
 const EXTINTOR_INFO = {
@@ -228,7 +229,7 @@ export default function ExtinguisherAI(): React.ReactElement | null {
                 toast.success('✅ Extintor analizado correctamente');
             } catch (error) {
                 console.error('Analysis error:', error);
-                toast.error(error.message || 'Error analizando la imagen');
+                toast.error(getErrorMessage(error) || 'Error analizando la imagen');
                 setCapturedImage(null);
                 startCamera();
             } finally {
