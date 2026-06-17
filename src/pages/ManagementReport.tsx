@@ -5,8 +5,6 @@ import { ArrowLeft, Download, FileText, Calendar, TrendingUp, ShieldCheck, Shiel
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { API_BASE_URL } from '../config';
 import toast from 'react-hot-toast';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import AdBanner from '../components/AdBanner';
 
@@ -115,8 +113,11 @@ export default function ManagementReport(): React.ReactElement | null {
     
     const chartData = getChartData();
 
-    const handleExportPDF = () => {
+    const handleExportPDF = async () => {
         try {
+            const toastId = toast.loading('Generando reporte en PDF...');
+            const { jsPDF } = await import('jspdf');
+            const autoTable = (await import('jspdf-autotable')).default;
             const personalData = JSON.parse(localStorage.getItem('personalData') || '{}');
             const profName = personalData.fullName || personalData.name || 'Profesional de HyS';
             const company = personalData.company || 'Empresa No Definida';
@@ -255,10 +256,10 @@ export default function ManagementReport(): React.ReactElement | null {
             }
 
             doc.save(`Informe_Gestion_${monthName.replace(/ /g, '_')}.pdf`);
-            toast.success('Informe PDF descargado con éxito');
+            toast.success('Reporte exportado exitosamente', { id: toastId });
         } catch (error) {
-            console.error(error);
-            toast.error('Error al generar el PDF.');
+            console.error('Error exportando PDF:', error);
+            toast.error('Error al generar el PDF');
         }
     };
 
