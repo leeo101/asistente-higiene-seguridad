@@ -253,8 +253,6 @@ export default function FloatingAssistant() {
             {/* Menu Panel - Moved outside so it can be freely centered */}
             {isOpen && (
                 <div 
-                    ref={menuRef}
-                    className="glass-mockup assistant-panel-anim"
                     style={{
                         position: 'fixed',
                         zIndex: 10000,
@@ -263,22 +261,31 @@ export default function FloatingAssistant() {
                             left: '50%',
                             transform: 'translate(-50%, -50%)',
                             width: 'calc(100vw - 2rem)',
-                            maxHeight: 'calc(100vh - 8rem)',
                         } : {
                             bottom: 'calc(2rem + 5rem)',
                             right: '2rem',
                             width: '360px',
-                            maxHeight: 'calc(100vh - 10rem)',
                         }),
-                        pointerEvents: 'all',
+                        pointerEvents: 'none',
                         display: 'flex',
-                        flexDirection: 'column',
-                        padding: '1.4rem',
-                        overflow: 'hidden',
-                        boxShadow: '0 30px 60px rgba(0,0,0,0.3), 0 0 40px rgba(59,130,246,0.15)',
-                        border: '1px solid rgba(255,255,255,0.2)'
+                        flexDirection: 'column'
                     }}
                 >
+                    <div 
+                        ref={menuRef}
+                        className="glass-mockup assistant-panel-anim"
+                        style={{
+                            width: '100%',
+                            maxHeight: isMobile ? 'calc(100vh - 8rem)' : 'calc(100vh - 10rem)',
+                            pointerEvents: 'all',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            padding: '1.4rem',
+                            overflow: 'hidden',
+                            boxShadow: '0 30px 60px rgba(0,0,0,0.3), 0 0 40px rgba(59,130,246,0.15)',
+                            border: '1px solid rgba(255,255,255,0.2)'
+                        }}
+                    >
                     {/* Header */}
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.2rem', padding: '0 0.2rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.9rem' }}>
@@ -674,6 +681,7 @@ export default function FloatingAssistant() {
                         )}
                     </div>
                 </div>
+            </div>
             )}
             
             {isScannerOpen && <GlobalQRScanner onClose={() => setIsScannerOpen(false)} />}

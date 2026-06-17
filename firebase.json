@@ -12,6 +12,14 @@
         "function": "analyzeImage"
       },
       {
+        "source": "/api/create-subscription",
+        "function": "createSubscription"
+      },
+      {
+        "source": "/api/forgot-password",
+        "function": "forgotPassword"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
