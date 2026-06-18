@@ -28,6 +28,13 @@ export default function LogoSettings(): React.ReactElement | null {
     const [secondaryColor, setSecondaryColor] = useState('#10B981');
     const [isUploading, setIsUploading] = useState(false);
     const [dragActive, setDragActive] = useState(false);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         const savedLogo = localStorage.getItem('companyLogo');
@@ -141,7 +148,7 @@ export default function LogoSettings(): React.ReactElement | null {
         backdropFilter: 'blur(20px)',
         border: '1px solid rgba(255,255,255,0.05)',
         borderRadius: '24px',
-        padding: '2.5rem',
+        padding: isMobile ? '1.5rem' : '2.5rem',
         position: 'relative',
         overflow: 'hidden',
         boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
@@ -149,17 +156,17 @@ export default function LogoSettings(): React.ReactElement | null {
 
     if (!isPro) {
         return (
-            <div className="container animate-fade-in" style={{ maxWidth: '850px', paddingBottom: '5rem', textAlign: 'center', marginTop: '6rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', background: 'var(--color-surface)', padding: '4rem 2rem', borderRadius: '32px', border: '1px solid var(--color-border)', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
-                    <ShieldCheck size={72} color="var(--color-primary)" style={{ marginBottom: '1rem' }} />
-                    <h1 className="gradient-text" style={{ fontSize: '2.5rem', margin: 0, fontWeight: 900, letterSpacing: '-1px' }}>Exclusivo Premium</h1>
-                    <p style={{ color: 'var(--color-text-secondary)', fontSize: '1.1rem', maxWidth: '400px', lineHeight: 1.6 }}>
+            <div className="container animate-fade-in" style={{ maxWidth: '850px', paddingBottom: '5rem', textAlign: 'center', marginTop: isMobile ? '3rem' : '6rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', background: 'var(--color-surface)', padding: isMobile ? '2.5rem 1.5rem' : '4rem 2rem', borderRadius: '32px', border: '1px solid var(--color-border)', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
+                    <ShieldCheck size={isMobile ? 56 : 72} color="var(--color-primary)" weight="duotone" style={{ marginBottom: '1rem' }} />
+                    <h1 className="gradient-text" style={{ fontSize: isMobile ? '2rem' : '2.5rem', margin: 0, fontWeight: 900, letterSpacing: '-1px' }}>Exclusivo Premium</h1>
+                    <p style={{ color: 'var(--color-text-secondary)', fontSize: isMobile ? '0.95rem' : '1.1rem', maxWidth: '400px', lineHeight: 1.6 }}>
                         La personalización de la identidad visual con logo y colores corporativos es una característica del plan Pro.
                     </p>
-                    <button onClick={() => navigate('/subscription')} className="primary-btn" style={{ padding: '1rem 2.5rem', borderRadius: '16px', marginTop: '1.5rem', fontWeight: 800, fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <button onClick={() => navigate('/subscription')} className="primary-btn" style={{ padding: isMobile ? '0.8rem 2rem' : '1rem 2.5rem', borderRadius: '16px', marginTop: '1.5rem', fontWeight: 800, fontSize: isMobile ? '1rem' : '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', width: isMobile ? '100%' : 'auto', justifyContent: 'center' }}>
                         <Sparkles size={20} /> Mejorar a Pro
                     </button>
-                    <button onClick={() => navigate(-1)} style={{ background: 'transparent', border: 'none', color: 'var(--color-text-muted)', marginTop: '1rem', cursor: 'pointer', fontWeight: 600, padding: '0.5rem' }}>
+                    <button onClick={() => navigate(-1)} style={{ background: 'transparent', border: 'none', color: 'var(--color-text-muted)', marginTop: '1rem', cursor: 'pointer', fontWeight: 600, padding: '0.5rem', width: isMobile ? '100%' : 'auto' }}>
                         Volver atrás
                     </button>
                 </div>
@@ -225,12 +232,12 @@ export default function LogoSettings(): React.ReactElement | null {
                                 <div style={{
                                     display: 'flex', alignItems: 'center', gap: '2.5rem',
                                     background: 'rgba(255,255,255,0.02)',
-                                    padding: '2rem', borderRadius: '24px',
+                                    padding: isMobile ? '1.5rem' : '2rem', borderRadius: '24px',
                                     border: '1px solid rgba(255,255,255,0.06)',
-                                    flexWrap: 'wrap'
+                                    flexDirection: isMobile ? 'column' : 'row'
                                 }}>
                                     <div style={{
-                                        width: '180px', height: '180px', background: '#ffffff',
+                                        width: isMobile ? '100%' : '180px', height: isMobile ? '160px' : '180px', background: '#ffffff',
                                         borderRadius: '24px', padding: '1.5rem', 
                                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                                         boxShadow: '0 20px 40px rgba(0,0,0,0.2)', flexShrink: 0,
@@ -244,10 +251,10 @@ export default function LogoSettings(): React.ReactElement | null {
                                             <CheckCircle size={22} />
                                             <span style={{ fontWeight: 800, fontSize: '1.1rem', letterSpacing: '-0.3px' }}>Logo Configurado</span>
                                         </div>
-                                        <p style={{ margin: '0 0 2rem 0', fontSize: '0.95rem', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+                                        <p style={{ margin: '0 0 2rem 0', fontSize: '0.95rem', color: 'var(--color-text-secondary)', lineHeight: 1.6, textAlign: isMobile ? 'center' : 'left' }}>
                                             Tu logo ha sido optimizado y está listo para ser incluido en todos los reportes generados.
                                         </p>
-                                        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                                        <div style={{ display: 'flex', gap: '1rem', flexDirection: isMobile ? 'column' : 'row' }}>
                                             <button
                                                 onClick={() => document.getElementById('logo-file-input')?.click()}
                                                 style={{
@@ -255,7 +262,7 @@ export default function LogoSettings(): React.ReactElement | null {
                                                     background: 'var(--color-text)', color: 'var(--color-background)', 
                                                     border: 'none', borderRadius: '14px',
                                                     fontSize: '0.95rem', fontWeight: 800, cursor: 'pointer',
-                                                    display: 'flex', alignItems: 'center', gap: '0.6rem',
+                                                    display: 'flex', alignItems: 'center', gap: '0.6rem', justifyContent: 'center',
                                                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                                                 }}
                                                 onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 10px 25px rgba(255,255,255,0.2)'; }}
@@ -268,13 +275,13 @@ export default function LogoSettings(): React.ReactElement | null {
                                                 style={{
                                                     padding: '0.8rem 1.6rem',
                                                     background: 'transparent', color: '#ef4444',
-                                                    border: '1px solid rgba(239,68,68,0.3)',
-                                                    borderRadius: '14px', fontSize: '0.95rem', fontWeight: 700,
-                                                    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.6rem',
-                                                    transition: 'all 0.2s'
+                                                    border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '14px',
+                                                    fontSize: '0.95rem', fontWeight: 700, cursor: 'pointer',
+                                                    display: 'flex', alignItems: 'center', gap: '0.6rem', justifyContent: 'center',
+                                                    transition: 'all 0.3s'
                                                 }}
-                                                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(239,68,68,0.1)'}
-                                                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                                                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'; }}
+                                                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                                             >
                                                 <X size={18} /> Eliminar
                                             </button>
@@ -335,7 +342,7 @@ export default function LogoSettings(): React.ReactElement | null {
                                 onDragLeave={handleDragLeave}
                                 onClick={() => document.getElementById('logo-file-input')?.click()}
                                 style={{
-                                    width: '100%', padding: '5rem 2rem', boxSizing: 'border-box',
+                                    width: '100%', padding: isMobile ? '3rem 1.5rem' : '5rem 2rem', boxSizing: 'border-box',
                                     border: `2px dashed ${dragActive ? '#38bdf8' : 'rgba(255, 255, 255, 0.15)'}`,
                                     background: dragActive ? 'rgba(56, 189, 248, 0.05)' : 'rgba(0, 0, 0, 0.2)',
                                     borderRadius: '24px',
@@ -412,7 +419,7 @@ export default function LogoSettings(): React.ReactElement | null {
                         </div>
 
                         {/* Color Pickers */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2.5rem' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '2rem', marginBottom: '2.5rem' }}>
                             {[
                                 { label: 'Primario', type: 'primary' as const, value: primaryColor, desc: 'Acentos, botones y encabezados.' },
                                 { label: 'Secundario', type: 'secondary' as const, value: secondaryColor, desc: 'Notificaciones, éxitos y gráficos.' }
