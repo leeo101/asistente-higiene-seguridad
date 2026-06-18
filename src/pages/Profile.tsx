@@ -100,7 +100,7 @@ export default function Profile(): React.ReactElement | null {
 
             <div className="card" style={{ 
                 textAlign: 'center', 
-                padding: '3rem 2rem',
+                padding: isMobile ? '2rem 1.5rem' : '3rem 2rem',
                 background: 'linear-gradient(180deg, var(--color-surface) 0%, rgba(var(--color-surface-rgb), 0.5) 100%)',
                 border: '1px solid var(--glass-border)',
                 backdropFilter: 'blur(12px)',
@@ -185,7 +185,7 @@ export default function Profile(): React.ReactElement | null {
                     {!isSubscribed && (
                         <div style={{ 
                             marginTop: '2rem', 
-                            padding: '1.5rem', 
+                            padding: isMobile ? '1.2rem' : '1.5rem', 
                             background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.08), rgba(139, 92, 246, 0.08))', 
                             borderRadius: '20px', 
                             border: '1px solid rgba(56, 189, 248, 0.2)',
@@ -301,7 +301,7 @@ export default function Profile(): React.ReactElement | null {
             {/* ─── Invitar a un Colega ─────────────────────── */}
             <div className="card" style={{
                 marginTop: '1.5rem',
-                padding: '1.8rem',
+                padding: isMobile ? '1.5rem' : '1.8rem',
                 background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(16, 185, 129, 0.08))',
                 border: '1px solid rgba(37, 99, 235, 0.15)',
                 borderRadius: '24px',
