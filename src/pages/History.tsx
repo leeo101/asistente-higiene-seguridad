@@ -186,13 +186,7 @@ export default function History(): React.ReactElement | null {
         </button>
     );
 
-    const historyCategories = [
 
-
-                </div>
-            </div>
-        );
-    }
 
     // ─── MATRICES ─────────────────────────────────────────────────
     if (view === 'matrices') {
