@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { ShieldCheck, CreditCard, Sparkles, CheckCircle2, Lock, ArrowRight, ArrowLeft, Calendar, TriangleAlert } from 'lucide-react';
+import { ShieldCheck, CreditCard, Sparkles, CheckCircle2, Lock, ArrowRight, ArrowLeft, Calendar, TriangleAlert, Handshake } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { usePaywall } from '../hooks/usePaywall';
 import { useAuth } from '../contexts/AuthContext';
@@ -399,9 +399,20 @@ export default function Subscription(): React.ReactElement | null {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            gap: '0.5rem'
+                            gap: '0.75rem'
                         }}
                     >
+                        <div style={{
+                            background: '#ffffff',
+                            borderRadius: '50%',
+                            width: '28px',
+                            height: '28px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}>
+                            <Handshake size={16} color="#009ee3" />
+                        </div>
                         {loading ? 'Generando link...' : 'Pagar con Mercado Pago'}
                     </button>
 
