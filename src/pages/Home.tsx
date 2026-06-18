@@ -952,7 +952,7 @@ export default function Home(): React.ReactElement {
                   alignItems: 'center',
                   gap: '0.4rem'
                 }}>
-                  {work.type} <ArrowRight size={12} weight="bold" />
+                  {work.type} <ArrowRight size={16} weight="bold" />
                 </div>
               </div>
             ))}

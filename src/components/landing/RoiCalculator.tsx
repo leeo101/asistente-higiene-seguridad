@@ -326,7 +326,7 @@ export default function RoiCalculator() {
                   boxShadow: '0 8px 20px rgba(52,211,153,0.25)',
                 }}
               >
-                Empezar gratis <ArrowRight size={14} weight="bold" />
+                Empezar gratis <ArrowRight size={18} weight="bold" />
               </button>
             </div>
           </div>

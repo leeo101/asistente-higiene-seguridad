@@ -113,7 +113,7 @@ export default function StickyCtaBanner() {
                     (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)';
                 }}
             >
-                Empezar gratis <ArrowRight size={14} weight="bold" />
+                Empezar gratis <ArrowRight size={18} weight="bold" />
             </button>
 
             <button
