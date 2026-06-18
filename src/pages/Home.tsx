@@ -727,34 +727,10 @@ export default function Home(): React.ReactElement {
                     Herramientas y módulos avanzados para tu gestión de seguridad.
                   </p>
                 </div>
-                
-                {/* Search Bar */}
-                <div style={{ position: 'relative', minWidth: '250px', flex: '1 1 auto', maxWidth: '400px' }}>
-                  <MagnifyingGlass weight="bold" size={18} color="var(--color-text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
-                  <input 
-                    type="text" 
-                    placeholder="Buscar herramientas..." 
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '0.8rem 1rem 0.8rem 2.8rem',
-                      borderRadius: '12px',
-                      border: '1px solid var(--color-border)',
-                      background: 'rgba(255,255,255,0.03)',
-                      color: 'var(--color-text)',
-                      fontSize: '0.95rem',
-                      outline: 'none',
-                      transition: 'all 0.3s'
-                    }}
-                    onFocus={(e) => { e.target.style.borderColor = 'var(--color-primary)'; e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}
-                    onBlur={(e) => { e.target.style.borderColor = 'var(--color-border)'; e.target.style.boxShadow = 'none'; }}
-                  />
-                </div>
               </div>
 
               {/* Categories Tabs */}
-              <div className="hide-scrollbar" style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+              <div className="hide-scrollbar" style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', padding: '0.2rem 0.2rem 0.7rem 0.2rem' }}>
                 {categories.map((cat) => (
                   <button
                     key={cat.id}
