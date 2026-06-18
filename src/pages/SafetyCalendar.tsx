@@ -289,7 +289,7 @@ export default function SafetyCalendar(): React.ReactElement | null {
             </div>
 
             {/* ── Category Filters ─────────────────────────────────────── */}
-            <div style={{ display:'flex', gap:'0.5rem', overflowX:'auto', paddingBottom:'0.5rem', marginBottom:'1rem' }} className="hide-scrollbar">
+            <div style={{ display:'flex', gap:'0.5rem', overflowX:'auto', paddingTop:'0.3rem', paddingBottom:'0.5rem', marginBottom:'1rem' }} className="hide-scrollbar">
                 <button 
                     onClick={()=>setActiveFilter(null)} 
                     style={{ padding:'0.4rem 0.8rem', borderRadius:'20px', border:'1px solid var(--color-border)', background: !activeFilter ? 'var(--color-primary)' : 'var(--color-surface)', color: !activeFilter ? '#fff' : 'var(--color-text)', fontSize:'0.75rem', fontWeight:700, cursor:'pointer', whiteSpace:'nowrap', transition:'all 0.2s', display:'flex', alignItems:'center', gap:'0.3rem' }}
@@ -309,7 +309,7 @@ export default function SafetyCalendar(): React.ReactElement | null {
 
             {/* ── Main layout ───────────────────────────────────────────── */}
             <div style={{ display:'grid', gridTemplateColumns:'1fr', gap:'1.25rem' }}>
-                <div style={{ display:'grid', gridTemplateColumns:'minmax(0,1fr) 320px', gap:'1.25rem', alignItems:'start' }} className="cal-main-grid">
+                <div style={{ display:'grid', gap:'1.25rem', alignItems:'start' }} className="cal-main-grid">
 
                     {/* ── Calendar / List panel ─────────────────────────── */}
                     <div className="card" style={{ padding:'0', overflow:'visible', border:'1px solid var(--color-border)', boxShadow:'0 10px 40px -10px rgba(0,0,0,0.05)', position:'relative', zIndex:10 }}>

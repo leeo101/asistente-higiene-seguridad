@@ -5,6 +5,7 @@
 *::before,
 *::after {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 :root {
@@ -4066,6 +4067,11 @@ html.pdf-export-mode, body.pdf-export-mode {
 @media (max-width: 768px) {
     .bento-container { grid-template-columns: 1fr; gap: 1rem; }
     .bento-main, .bento-quick, .bento-recent, .bento-stats, .bento-wide { grid-column: span 1; grid-row: span 1; }
+}
+
+.cal-main-grid { grid-template-columns: minmax(0, 1fr) 320px; }
+@media (max-width: 1024px) {
+  .cal-main-grid { grid-template-columns: 1fr !important; }
 }
 
 .top-header-panel { gap: 1rem; padding: 0.75rem 1.25rem; }
