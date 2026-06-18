@@ -12,6 +12,13 @@ export default function Profile(): React.ReactElement | null {
   const { isPro } = usePaywall();
   useDocumentTitle('Mi Perfil');
     const [linkCopied, setLinkCopied] = useState(false);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
     const [userData, setUserData] = useState({
         name: 'Usuario',
         license: '---',
@@ -88,7 +95,7 @@ export default function Profile(): React.ReactElement | null {
                 onMouseLeave={(e) => e.currentTarget.style.background = 'var(--color-surface)'} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
                             <ArrowLeft size={20}  />
                         </button>
-                <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, letterSpacing: '-0.5px' }}>Perfil Profesional</h1>
+                <h1 className="gradient-text" style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, letterSpacing: '-0.5px' }}>Perfil Profesional</h1>
             </div>
 
             <div className="card" style={{ 
@@ -228,12 +235,9 @@ export default function Profile(): React.ReactElement | null {
 
             <div style={{ 
                 marginTop: '1.5rem',
-                background: 'rgba(var(--color-surface-rgb), 0.5)',
-                backdropFilter: 'blur(12px)',
-                borderRadius: '24px',
-                border: '1px solid var(--glass-border)',
-                overflow: 'hidden',
-                padding: '0.5rem'
+                display: 'grid',
+                gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
+                gap: '1rem',
             }}>
                 {menuItems.map((item, idx) => (
                     <div
@@ -242,35 +246,54 @@ export default function Profile(): React.ReactElement | null {
                         style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '1rem',
-                            padding: '1.2rem 1.5rem',
+                            gap: '1.2rem',
+                            padding: '1.5rem',
                             cursor: 'pointer',
-                            borderBottom: idx === menuItems.length - 1 ? 'none' : '1px solid var(--color-border)',
-                            transition: 'all 0.2s ease',
-                            borderRadius: '16px'
+                            background: 'rgba(255, 255, 255, 0.02)',
+                            backdropFilter: 'blur(12px)',
+                            border: '1px solid rgba(255, 255, 255, 0.05)',
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            borderRadius: '24px',
+                            boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
+                            gridColumn: !isMobile && idx === 0 ? 'span 2' : 'span 1'
                         }}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'var(--color-surface)';
-                            e.currentTarget.style.transform = 'translateX(4px)';
+                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
+                            e.currentTarget.style.transform = 'translateY(-4px)';
+                            e.currentTarget.style.boxShadow = '0 12px 25px rgba(0,0,0,0.1)';
+                            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'transparent';
+                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
                             e.currentTarget.style.transform = 'none';
+                            e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.05)';
+                            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.05)';
                         }}
                     >
                         <div style={{ 
-                            background: 'rgba(56, 189, 248, 0.1)', 
-                            padding: '0.6rem', 
-                            borderRadius: '12px',
+                            background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(59, 130, 246, 0.15))', 
+                            padding: '0.8rem', 
+                            borderRadius: '16px',
                             color: 'var(--color-primary)',
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'center'
+                            justifyContent: 'center',
+                            boxShadow: '0 4px 10px rgba(56, 189, 248, 0.1)'
                         }}>
                             {item.icon}
                         </div>
-                        <span style={{ flex: 1, fontWeight: 700, fontSize: '1.05rem', color: 'var(--color-text)' }}>{item.label}</span>
-                        <ChevronRight size={20} color="var(--color-text-secondary)" />
+                        <div style={{ flex: 1 }}>
+                            <span style={{ display: 'block', fontWeight: 800, fontSize: '1.1rem', color: 'var(--color-text)', letterSpacing: '-0.3px' }}>{item.label}</span>
+                            <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginTop: '0.2rem' }}>Gestionar {item.label.toLowerCase()}</span>
+                        </div>
+                        <div style={{
+                            width: '32px', height: '32px', borderRadius: '50%',
+                            background: 'rgba(255,255,255,0.03)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            color: 'var(--color-text-secondary)'
+                        }}>
+                            <ChevronRight size={18} />
+                        </div>
                     </div>
                 ))}
             </div>
@@ -318,7 +341,7 @@ export default function Profile(): React.ReactElement | null {
                     <p style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', marginBottom: '1.5rem', lineHeight: 1.6, fontWeight: 500 }}>
                         ¿Tenés colegas de Higiene y Seguridad? Invitalos a usar la plataforma — es completamente <strong>gratuita</strong>.
                     </p>
-                    <div style={{ display: 'flex', gap: '1rem' }}>
+                    <div style={{ display: 'flex', gap: '1rem', flexDirection: isMobile ? 'column' : 'row' }}>
                         <a
                             href={`https://wa.me/?text=${encodeURIComponent(`🛡️ ¡Hola! Te comparto esta plataforma gratuita para profesionales de Higiene y Seguridad.\n\n*Asistente HYS* te permite:\n🔥 Calcular Carga de Fuego (${countryNorms.fire})\n💡 Estudios de Iluminación\n📋 Hacer ATS y Matrices de Riesgo\n🤖 Consultar la IA legal\n\n¡Y todo gratis!\n🔗 https://asistentehs.com`)}`}
                             target="_blank" rel="noreferrer"
