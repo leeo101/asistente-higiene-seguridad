@@ -303,6 +303,7 @@ export default function ContractorManagement() {
               display: 'flex', 
               gap: '0.5rem',
               width: isMobile ? '100%' : 'auto',
+              flexDirection: isMobile ? 'column' : 'row',
               background: 'rgba(255,255,255,0.05)',
               padding: '0.3rem',
               borderRadius: '16px',
@@ -419,16 +420,16 @@ export default function ContractorManagement() {
                         <span style={{ fontSize: '0.85rem', color: 'var(--color-primary)', fontWeight: 700 }}>{contractor?.name || 'Desconocida'}</span>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.8rem', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem', textAlign: 'center' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '0.8rem', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', justifyContent: isMobile ? 'space-between' : 'center', alignItems: 'center', gap: '0.4rem', textAlign: 'center' }}>
                             <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Vto. ART</span>
                             {getStatusBadge(checkExpiryStatus(worker.artExpiresAt))}
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem', textAlign: 'center' }}>
+                        <div style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', justifyContent: isMobile ? 'space-between' : 'center', alignItems: 'center', gap: '0.4rem', textAlign: 'center' }}>
                             <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Vto. Seguro</span>
                             {getStatusBadge(checkExpiryStatus(worker.lifeInsuranceExpiresAt))}
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem', textAlign: 'center' }}>
+                        <div style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', justifyContent: isMobile ? 'space-between' : 'center', alignItems: 'center', gap: '0.4rem', textAlign: 'center' }}>
                             <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Inducción</span>
                             {getStatusBadge(checkExpiryStatus(worker.inductionExpiresAt))}
                         </div>
