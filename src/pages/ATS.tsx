@@ -372,11 +372,20 @@ export default function ATS(): React.ReactElement | null {
             }
             document.body.classList.add('printing-isolated');
             element.classList.add('isolated-print-target');
-            window.print();
-            setTimeout(() => {
+            
+            const cleanup = () => {
                 document.body.classList.remove('printing-isolated');
                 element.classList.remove('isolated-print-target');
-            }, 8000);
+                window.removeEventListener('afterprint', cleanup);
+                window.removeEventListener('focus', cleanup);
+            };
+            
+            window.addEventListener('afterprint', cleanup);
+            window.addEventListener('focus', cleanup);
+            
+            // Small timeout for browsers where print() is entirely synchronous and doesn't fire focus
+            setTimeout(cleanup, 1500);
+            window.print();
         });
     };
 
