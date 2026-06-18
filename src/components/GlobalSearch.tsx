@@ -4,7 +4,9 @@ import {
   Search, X, ArrowRight, ShieldCheck, Flame, ClipboardList,
   AlertTriangle, ScrollText, Lightbulb, KeySquare, Bot,
   HardHat, Users, Siren, Map, Accessibility, Scale, Camera,
-  ShieldAlert, ThermometerSun, Shield, Plus, Zap
+  ShieldAlert, ThermometerSun, Shield, Plus, Zap, CheckCircle, 
+  MessageSquare, PieChart, Lock, Droplets, Volume2, Beaker, 
+  ArrowUp, Truck, Timer, FileText
 } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -25,27 +27,40 @@ interface GlobalSearchProps { onClose: () => void; }
 
 // ─── Módulos ──────────────────────────────────────────────────────────────────
 const MODULES = [
-  { nav: '/ats',                    icon: <ShieldCheck size={17}/>,     label: 'Análisis de Trabajo Seguro',  sub: 'ATS',           color: '#10b981', bg: 'rgba(16,185,129,0.12)' },
-  { nav: '/work-permit',            icon: <KeySquare size={17}/>,        label: 'Permisos de Trabajo',         sub: 'WorkPermit',    color: '#2563eb', bg: 'rgba(37,99,235,0.12)' },
-  { nav: '/fire-load',              icon: <Flame size={17}/>,            label: 'Carga de Fuego',              sub: 'Dec. 351',      color: '#f97316', bg: 'rgba(249,115,22,0.12)' },
-  { nav: '/extintores',          icon: <Flame size={17}/>,            label: 'Matafuegos',                  sub: 'Vencimientos',  color: '#dc2626', bg: 'rgba(220,38,38,0.12)' },
-  { nav: '/thermal-stress',         icon: <ThermometerSun size={17}/>,   label: 'Estrés Térmico',              sub: 'TGBH',          color: '#f97316', bg: 'rgba(249,115,22,0.12)' },
-  { nav: '/lighting',               icon: <Lightbulb size={17}/>,        label: 'Iluminación',                 sub: 'Mediciones',    color: '#eab308', bg: 'rgba(234,179,8,0.12)' },
-  { nav: '/drills',                 icon: <Siren size={17}/>,            label: 'Simulacros',                  sub: 'Evacuación',    color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
-  { nav: '/accident-investigation', icon: <Siren size={17}/>,            label: 'Investigación Accidentes',    sub: 'OHSAS',         color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
-  { nav: '/training-management',    icon: <Users size={17}/>,            label: 'Capacitaciones',              sub: 'Planillas',     color: '#3b82f6', bg: 'rgba(59,130,246,0.12)' },
-  { nav: '/checklists',             icon: <ClipboardList size={17}/>,    label: 'Checklists',                  sub: 'Herramientas',  color: '#14b8a6', bg: 'rgba(20,184,166,0.12)' },
-  { nav: '/risk',                   icon: <Shield size={17}/>,           label: 'Evaluación de Riesgo',        sub: 'IPER',          color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
-  { nav: '/risk-maps',              icon: <Map size={17}/>,              label: 'Mapas de Riesgo',             sub: 'Croquis',       color: '#8b5cf6', bg: 'rgba(139,92,246,0.12)' },
-  { nav: '/ergonomics',             icon: <Accessibility size={17}/>,    label: 'Ergonomía',                   sub: 'Res. SRT 886',  color: '#3b82f6', bg: 'rgba(59,130,246,0.12)' },
-  { nav: '/legislation',            icon: <Scale size={17}/>,            label: 'Legislación',                 sub: 'Biblioteca',    color: '#8b5cf6', bg: 'rgba(139,92,246,0.12)' },
-  { nav: '/ai-camera',              icon: <Camera size={17}/>,           label: 'Cámara IA',                   sub: 'EPP',           color: '#0ea5e9', bg: 'rgba(14,165,233,0.12)' },
-  { nav: '/ai-advisor',             icon: <Bot size={17}/>,              label: 'Asesor IA',                   sub: 'Consultas',     color: '#a855f7', bg: 'rgba(168,85,247,0.12)' },
-  { nav: '/reports',                icon: <ScrollText size={17}/>,       label: 'Informes Técnicos',           sub: 'Reportes',      color: '#ec4899', bg: 'rgba(236,72,153,0.12)' },
-  { nav: '/contractors',            icon: <Users size={17}/>,            label: 'Contratistas y Legajos',      sub: 'Empresas y Operarios', color: '#3b82f6', bg: 'rgba(59,130,246,0.12)' },
-  { nav: '/ppe-tracker',            icon: <HardHat size={17}/>,          label: 'Control EPP',                 sub: 'Entregas',      color: '#10b981', bg: 'rgba(16,185,129,0.12)' },
-  { nav: '/confined-space',         icon: <ShieldAlert size={17}/>,      label: 'Espacios Confinados',         sub: 'OSHA 1910.146', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
-  { nav: '/stop-cards',             icon: <AlertTriangle size={17}/>,    label: 'Stop Cards',                  sub: 'Observaciones', color: '#f43f5e', bg: 'rgba(244,63,94,0.12)' },
+  { nav: '/ai-advisor',             icon: <Bot size={17}/>,              label: 'Asesor IA',                   sub: 'Consultas de Seguridad', color: '#a855f7', bg: 'rgba(168,85,247,0.1)' },
+  { nav: '/ats',                    icon: <ShieldCheck size={17}/>,     label: 'ATS',                         sub: 'Análisis Trabajo Seguro', color: '#10b981', bg: 'rgba(16,185,129,0.1)' },
+  { nav: '/audit',                  icon: <ClipboardList size={17}/>,   label: 'Auditorías',                  sub: 'Control Interno y EHS', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
+  { nav: '/ai-camera-manager',      icon: <Camera size={17}/>,           label: 'Cámara IA',                   sub: 'Detección EPP', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)' },
+  { nav: '/capa',                   icon: <CheckCircle size={17}/>,      label: 'CAPA',                        sub: 'Acciones Correctivas', color: '#10b981', bg: 'rgba(16,185,129,0.1)' },
+  { nav: '/training-management',    icon: <Users size={17}/>,            label: 'Capacitar',                   sub: 'Planillas y Asistencia', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
+  { nav: '/fire-load',              icon: <Flame size={17}/>,            label: 'Carga Fuego',                 sub: 'Dec. 351/79', color: '#f97316', bg: 'rgba(249,115,22,0.1)' },
+  { nav: '/toolbox-talk',           icon: <MessageSquare size={17}/>,    label: 'Charlas 5 Min',               sub: 'Registro de Capacitación Diaria', color: '#0052CC', bg: 'rgba(0,82,204,0.1)' },
+  { nav: '/checklists',             icon: <ClipboardList size={17}/>,    label: 'Checklists',                  sub: 'Herramientas y Equipos', color: '#14b8a6', bg: 'rgba(20,184,166,0.1)' },
+  { nav: '/ppe-tracker',            icon: <HardHat size={17}/>,          label: 'Control EPP',                 sub: 'Vencimientos', color: '#10b981', bg: 'rgba(16,185,129,0.08)' },
+  { nav: '/ergonomics',             icon: <Accessibility size={17}/>,    label: 'Ergonomía',                   sub: 'Res. SRT 886', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
+  { nav: '/confined-space',         icon: <ShieldAlert size={17}/>,      label: 'Espacios Confinados',         sub: 'Permisos y Control', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
+  { nav: '/thermal-stress',         icon: <ThermometerSun size={17}/>,   label: 'Estrés Térmico',              sub: 'Carga Térmica', color: '#f97316', bg: 'rgba(249,115,22,0.1)' },
+  { nav: '/extinguisher-ai',        icon: <Flame size={17}/>,            label: 'Extintores IA',               sub: 'Reconocimiento', color: '#dc2626', bg: 'rgba(220,38,38,0.1)' },
+  { nav: '/lighting',               icon: <Lightbulb size={17}/>,        label: 'Iluminación',                 sub: 'Mediciones', color: '#eab308', bg: 'rgba(234,179,8,0.1)' },
+  { nav: '/reports',                icon: <ScrollText size={17}/>,       label: 'Informes',                    sub: 'Técnicos', color: '#ec4899', bg: 'rgba(236,72,153,0.1)' },
+  { nav: '/accident-investigation', icon: <Siren size={17}/>,            label: 'Investigación',               sub: 'Accidentes / Árbol', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
+  { nav: '/safety-kpis',            icon: <PieChart size={17}/>,         label: 'KPIs Seguridad',              sub: 'Índices de Siniestralidad', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
+  { nav: '/legislation',            icon: <Scale size={17}/>,            label: 'Legislación',                 sub: 'Biblioteca Legal', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
+  { nav: '/loto',                   icon: <Lock size={17}/>,             label: 'LOTO',                        sub: 'Bloqueo y Etiquetado', color: '#dc2626', bg: 'rgba(220,38,38,0.1)' },
+  { nav: '/risk-maps-history',      icon: <Map size={17}/>,              label: 'Mapas',                       sub: 'Croquis de Riesgos', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
+  { nav: '/extintores',             icon: <Flame size={17}/>,            label: 'Matafuegos',                  sub: 'Control y Vencimientos', color: '#dc2626', bg: 'rgba(220,38,38,0.1)' },
+  { nav: '/environmental',          icon: <Droplets size={17}/>,         label: 'Medio Ambiente',              sub: 'Monitoreo y Control', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)' },
+  { nav: '/work-permit',            icon: <KeySquare size={17}/>,        label: 'Permisos',                    sub: 'Tareas Críticas', color: '#2563eb', bg: 'rgba(37,99,235,0.1)' },
+  { nav: '/ai-general-camera-manager', icon: <ShieldAlert size={17}/>,   label: 'Riesgos IA',                  sub: 'Análisis de Entorno', color: '#f43f5e', bg: 'rgba(244, 63, 94, 0.1)' },
+  { nav: '/noise-assessment',       icon: <Volume2 size={17}/>,          label: 'Ruido',                       sub: 'Evaluación de Niveles Sonoros', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
+  { nav: '/chemical-safety',        icon: <Beaker size={17}/>,           label: 'Seguridad Química',           sub: 'Gestión de Sustancias y SGA', color: '#ec4899', bg: 'rgba(236,72,153,0.1)' },
+  { nav: '/drills',                 icon: <Siren size={17}/>,            label: 'Simulacros',                  sub: 'Actas de Evacuación', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
+  { nav: '/stop-cards',             icon: <AlertTriangle size={17}/>,    label: 'Tarjetas STOP',               sub: 'Observaciones', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
+  { nav: '/working-at-height',      icon: <ArrowUp size={17}/>,          label: 'Trabajo en Altura',           sub: 'Permisos y EPP Crítico', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
+  { nav: '/lifting-form',           icon: <Truck size={17}/>,            label: 'Izaje y Grúas',               sub: 'Plan de Izaje Crítico', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
+  { nav: '/fleet-form',             icon: <Truck size={17}/>,            label: 'Flota y Vehículos',           sub: 'Inspección Pre-Operacional', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)' },
+  { nav: '/evacuation-history',     icon: <Timer size={17}/>,            label: 'Simulador de Evacuación',     sub: 'Cálculo de Tiempos', color: '#ec4899', bg: 'rgba(236,72,153,0.1)' },
+  { nav: '/legajos',                icon: <FileText size={17}/>,         label: 'Legajos Técnicos',            sub: 'Decreto 351/79', color: '#eab308', bg: 'rgba(234,179,8,0.1)' }
 ];
 
 // ─── Acciones Rápidas ─────────────────────────────────────────────────────────
