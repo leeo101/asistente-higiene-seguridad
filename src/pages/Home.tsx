@@ -631,49 +631,53 @@ export default function Home(): React.ReactElement {
               </div>
 
               {/* BENTO 2: Accesos Rápidos Top 4 (bento-quick) */}
-              <div className="bento-item bento-quick" style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'rgba(255,255,255,0.08)' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'white', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Star size={18} color="#f59e0b" weight="fill" /> Favoritos y Más Usados
-                </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.8rem', flex: 1 }}>
-                  {quickLinks.filter(l => l.featured).slice(0, 4).map((link, i) => (
-                    <div key={i} onClick={() => navigate(link.to)} className="hover-glow" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', padding: '1rem', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                      <div style={{ color: link.color, marginBottom: '0.5rem' }}>
-                        {/* @ts-ignore */}
-                        {React.cloneElement(link.icon, { size: 24 })}
+              {!isMobile && (
+                <div className="bento-item bento-quick" style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'rgba(255,255,255,0.08)' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'white', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Star size={18} color="#f59e0b" weight="fill" /> Favoritos y Más Usados
+                  </h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.8rem', flex: 1 }}>
+                    {quickLinks.filter(l => l.featured).slice(0, 4).map((link, i) => (
+                      <div key={i} onClick={() => navigate(link.to)} className="hover-glow" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', padding: '1rem', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        <div style={{ color: link.color, marginBottom: '0.5rem' }}>
+                          {/* @ts-ignore */}
+                          {React.cloneElement(link.icon, { size: 24 })}
+                        </div>
+                        <div style={{ color: 'white', fontWeight: 700, fontSize: '0.9rem' }}>{link.label}</div>
                       </div>
-                      <div style={{ color: 'white', fontWeight: 700, fontSize: '0.9rem' }}>{link.label}</div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* BENTO 3: Historial y Actividad Reciente (bento-recent) */}
-              <div className="bento-item bento-recent" style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'rgba(255,255,255,0.08)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'white', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <ClockCounterClockwise size={18} color="#3b82f6" /> Recientes
-                  </h3>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', flex: 1, overflowY: 'auto' }} className="hide-scrollbar">
-                  {recentWorks.length > 0 ? recentWorks.slice(0, 4).map((work, i) => {
-                    const tColor = typeColors[work.type] || typeColors['ATS'];
-                    return (
-                      <div key={i} onClick={() => handleRecentWorkClick(work.type)} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem', background: 'rgba(0,0,0,0.2)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer' }} className="hover-scale">
-                        <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: tColor.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: tColor.text, flexShrink: 0 }}>
-                          {tColor.icon}
+              {!isMobile && (
+                <div className="bento-item bento-recent" style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'rgba(255,255,255,0.08)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'white', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <ClockCounterClockwise size={18} color="#3b82f6" /> Recientes
+                    </h3>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', flex: 1, overflowY: 'auto' }} className="hide-scrollbar">
+                    {recentWorks.length > 0 ? recentWorks.slice(0, 4).map((work, i) => {
+                      const tColor = typeColors[work.type] || typeColors['ATS'];
+                      return (
+                        <div key={i} onClick={() => handleRecentWorkClick(work.type)} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem', background: 'rgba(0,0,0,0.2)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer' }} className="hover-scale">
+                          <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: tColor.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: tColor.text, flexShrink: 0 }}>
+                            {tColor.icon}
+                          </div>
+                          <div style={{ overflow: 'hidden' }}>
+                            <div style={{ color: 'white', fontSize: '0.85rem', fontWeight: 600, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{work.title}</div>
+                            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginTop: '2px' }}>{work.type} • {new Date(work.date).toLocaleDateString()}</div>
+                          </div>
                         </div>
-                        <div style={{ overflow: 'hidden' }}>
-                          <div style={{ color: 'white', fontSize: '0.85rem', fontWeight: 600, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{work.title}</div>
-                          <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginTop: '2px' }}>{work.type} • {new Date(work.date).toLocaleDateString()}</div>
-                        </div>
-                      </div>
-                    );
-                  }) : (
-                    <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', textAlign: 'center', margin: 'auto' }}>No hay actividad reciente</div>
-                  )}
+                      );
+                    }) : (
+                      <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', textAlign: 'center', margin: 'auto' }}>No hay actividad reciente</div>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* BENTO 4: Indicadores KPI (bento-stats) */}
               <div className="bento-item bento-stats" style={{ background: 'linear-gradient(135deg, rgba(239,68,68,0.1) 0%, rgba(249,115,22,0.05) 100%)', borderColor: 'rgba(239,68,68,0.2)' }}>
