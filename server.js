@@ -69,7 +69,10 @@ function isOriginAllowed(origin) {
         'http://localhost:5173',
         'http://localhost:4173',
         'https://asistentehs-b594e.web.app',
-        'https://asistentehs-b594e.firebaseapp.com'
+        'https://asistentehs-b594e.firebaseapp.com',
+        'http://localhost',
+        'https://localhost',
+        'capacitor://localhost'
     ];
     return (
         allowedOrigins.includes(origin) ||
