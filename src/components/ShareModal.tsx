@@ -139,7 +139,7 @@ export default function ShareModal({
                     await Share.share({
                         title: title || 'Reporte de Seguridad',
                         text: message || 'Adjunto el reporte PDF.',
-                        url: savedFile.uri,
+                        files: [savedFile.uri],
                         dialogTitle: 'Compartir PDF'
                     });
                     toast.success('¡Compartido con éxito!', { id: 'pdf-gen' });
