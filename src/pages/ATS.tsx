@@ -543,8 +543,6 @@ export default function ATS(): React.ReactElement | null {
                             searchPlaceholder="Buscar..."
                             emptyMessage="No se encontraron registros de ATS."
                             emptyIcon={<ClipboardList size={48} />}
-                            onEmptyAction={() => setShowForm(true)}
-                            emptyActionLabel="Crear mi primer ATS"
                         />
 
                         {qrTarget && <QRModal text={(qrTarget as any).text} title={(qrTarget as any).title} onClose={() => setQrTarget(null)} />}
