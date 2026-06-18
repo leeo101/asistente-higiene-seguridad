@@ -27,11 +27,22 @@ export default function HeaderNotifications() {
                     width: '36px', height: '36px', borderRadius: '10px',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     cursor: 'pointer', color: notifications.length > 0 ? '#fca5a5' : '#ffffff',
-                    transition: 'all 0.2s ease',
+                    transition: 'all 0.3s ease',
+                    boxShadow: notifications.length > 0 ? '0 0 15px rgba(239, 68, 68, 0.4)' : 'none',
+                    animation: notifications.length > 0 ? 'bell-shake 2s infinite cubic-bezier(.36,.07,.19,.97) both' : 'none',
                 }}
                 title={`${notifications.length} alerta${notifications.length !== 1 ? 's' : ''} de vencimiento`}
             >
-                <Bell weight="duotone" size={20} />
+                <style>
+                    {`
+                    @keyframes bell-shake {
+                        0%, 100% { transform: rotate(0); }
+                        10%, 30%, 50%, 70%, 90% { transform: rotate(-8deg); }
+                        20%, 40%, 60%, 80% { transform: rotate(8deg); }
+                    }
+                    `}
+                </style>
+                <Bell weight={notifications.length > 0 ? "fill" : "duotone"} size={20} />
                 {notifications.length > 0 && (
                     <span style={{
                         position: 'absolute', top: '-5px', right: '-5px',
@@ -41,6 +52,7 @@ export default function HeaderNotifications() {
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         border: '2px solid var(--color-hero-bg, #0f172a)',
                         animation: 'pulse 2s infinite',
+                        boxShadow: '0 0 8px rgba(239, 68, 68, 0.8)'
                     }}>
                         {notifications.length > 9 ? '9+' : notifications.length}
                     </span>
@@ -96,9 +108,36 @@ export default function HeaderNotifications() {
                         </div>
                     ) : (
                         <>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase' }}>Alertas de Vencimiento</span>
-                                <button onClick={dismissAll} style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer', padding: '0.1rem 0.3rem', fontWeight: 700 }}>Descartar todo</button>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase' }}>Alertas de Vencimiento</span>
+                                    <button onClick={dismissAll} style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer', padding: '0.1rem 0.3rem', fontWeight: 700 }}>Descartar todo</button>
+                                </div>
+                                <button 
+                                    onClick={async () => {
+                                        try {
+                                            const res = await fetch('http://localhost:5000/api/send-expiry-email', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({
+                                                    email: currentUser?.email,
+                                                    name: currentUser?.displayName || 'Usuario',
+                                                    notifications
+                                                })
+                                            });
+                                            if (res.ok) {
+                                                alert('¡Correo de prueba enviado con éxito!');
+                                            } else {
+                                                alert('Error al enviar correo (asegurate de tener el servidor local encendido en el puerto 5000)');
+                                            }
+                                        } catch (e) {
+                                            alert('No se pudo conectar con el servidor para enviar el correo.');
+                                        }
+                                    }}
+                                    style={{ width: '100%', padding: '0.4rem', borderRadius: '6px', background: 'rgba(245, 158, 11, 0.2)', color: '#fde68a', border: '1px solid rgba(245, 158, 11, 0.4)', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem' }}
+                                >
+                                    ✉️ Enviar a mi correo (Prueba)
+                                </button>
                             </div>
                             {notifications.map((n: any) => (
                                 <div key={n.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.5rem', borderRadius: '8px', background: n.isExpired ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)', marginBottom: '0.3rem' }}>

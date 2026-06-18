@@ -2,6 +2,16 @@ import cron from 'node-cron';
 import admin from 'firebase-admin';
 import { Resend } from 'resend';
 
+function getDaysLeft(dateStr, lifespanMonths = 0) {
+    if (!dateStr) return null;
+    const base = new Date(dateStr);
+    if (isNaN(base.getTime())) return null;
+    if (lifespanMonths) {
+        base.setMonth(base.getMonth() + Number(lifespanMonths));
+    }
+    return Math.ceil((base.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+}
+
 export const initCronJobs = () => {
     if (!process.env.RESEND_API_KEY) {
         console.warn('[CRON] RESEND_API_KEY no configurada. Las notificaciones automáticas por correo no funcionarán.');
@@ -12,7 +22,7 @@ export const initCronJobs = () => {
 
     // Ejecutar todos los días a las 08:00 AM (hora del servidor)
     cron.schedule('0 8 * * *', async () => {
-        console.log('[CRON] Ejecutando revisión diaria de extintores (Vencimientos a 30 días)...');
+        console.log('[CRON] Ejecutando revisión diaria de vencimientos generales...');
         try {
             if (!admin.apps.length) {
                 console.error('[CRON] Firebase Admin no está inicializado.');
@@ -20,107 +30,133 @@ export const initCronJobs = () => {
             }
 
             const db = admin.firestore();
-            
-            // Buscar en todas las subcolecciones 'extintores' de la BD
-            const extintoresSnapshot = await db.collectionGroup('extintores').get();
-            
-            const today = new Date();
+            const usersSnapshot = await db.collection('users').get();
             let notificationsSent = 0;
-            const userAlerts = {};
 
-            extintoresSnapshot.forEach(doc => {
-                const ext = doc.data();
-                const userId = doc.ref.parent.parent?.id; // ID del usuario dueño del equipo
-                
-                if (!userId || !ext.vencimientoRecarga) return;
-
-                const vto = new Date(ext.vencimientoRecarga + 'T12:00:00Z');
-                
-                // Calcular días restantes
-                const diffDays = Math.ceil((vto.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-                
-                // Si faltan exactamente entre 1 y 30 días para vencer
-                if (diffDays > 0 && diffDays <= 30) {
-                    // Solo alertar si no se mandó una alerta recientemente (en los últimos 28 días)
-                    const lastAlert = ext.alertSentAt ? new Date(ext.alertSentAt).getTime() : 0;
-                    if (today.getTime() - lastAlert > (1000 * 60 * 60 * 24 * 28)) {
-                        if (!userAlerts[userId]) userAlerts[userId] = [];
-                        userAlerts[userId].push({ id: doc.id, ref: doc.ref, ...ext });
-                    }
-                }
-            });
-
-            // Enviar un solo correo resumen por cada usuario con equipos por vencer
-            for (const userId of Object.keys(userAlerts)) {
-                const userDoc = await db.collection('users').doc(userId).get();
-                if (!userDoc.exists) continue;
-                
+            for (const userDoc of usersSnapshot.docs) {
                 const userData = userDoc.data();
                 const email = userData.email;
                 if (!email) continue;
 
-                const extintores = userAlerts[userId];
-                
-                let html = `
-                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b; background-color: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden;">
-                        <div style="background-color: #ef4444; color: #ffffff; padding: 20px; text-align: center;">
-                            <h2 style="margin: 0; font-size: 20px;">⚠️ Alerta de Vencimiento de Matafuegos</h2>
-                        </div>
-                        <div style="padding: 20px;">
-                            <p style="font-size: 16px;">Hola ${userData.name || ''},</p>
-                            <p style="font-size: 15px; color: #475569;">Te informamos que los siguientes <strong>${extintores.length} extintores</strong> están a punto de vencer en los próximos 30 días y requieren recarga o inspección:</p>
-                            
-                            <table style="width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px;">
-                                <thead>
-                                    <tr style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1;">
-                                        <th style="padding: 12px 8px; text-align: left; color: #0f172a;">Chapa / Empresa</th>
-                                        <th style="padding: 12px 8px; text-align: left; color: #0f172a;">Ubicación</th>
-                                        <th style="padding: 12px 8px; text-align: left; color: #0f172a;">Vencimiento</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                `;
+                const dataRef = db.collection('users').doc(userDoc.id).collection('data');
+                const alerts = [];
 
-                for (const ext of extintores) {
-                    const vtoFormateado = new Date(ext.vencimientoRecarga + 'T12:00:00Z').toLocaleDateString('es-AR');
-                    const emp = ext.empresa ? ` (${ext.empresa})` : '';
-                    html += `
-                        <tr style="border-bottom: 1px solid #e2e8f0;">
-                            <td style="padding: 12px 8px;"><strong>${ext.numero || ext.chapa || 'S/N'}</strong><br><span style="color: #64748b; font-size: 12px;">${emp}</span></td>
-                            <td style="padding: 12px 8px; color: #475569;">${ext.ubicacion || 'N/A'}</td>
-                            <td style="padding: 12px 8px; color: #dc2626; font-weight: bold;">${vtoFormateado}</td>
-                        </tr>
+                const fetchItems = async (key) => {
+                    const snap = await dataRef.doc(key).get();
+                    return snap.exists ? (snap.data().items || []) : [];
+                };
+
+                const ppeItems = await fetchItems('ppe_items');
+                ppeItems.forEach(item => {
+                    const daysLeft = getDaysLeft(item.purchaseDate, item.lifeMonths ?? 12);
+                    if (daysLeft !== null && daysLeft <= 30) alerts.push({ type: 'EPP', label: item.type, daysLeft, isExpired: daysLeft < 0 });
+                });
+
+                const extinguishers = await fetchItems('extinguishers_inventory');
+                extinguishers.forEach(ext => {
+                    if (ext.ultimaCarga) {
+                        const daysLeft = getDaysLeft(ext.ultimaCarga, 12);
+                        if (daysLeft !== null && daysLeft <= 30) alerts.push({ type: 'Extintor (Recarga)', label: `Chapa #${ext.chapa}`, daysLeft, isExpired: daysLeft < 0 });
+                    }
+                    if (ext.ultimaPH) {
+                        const daysLeft = getDaysLeft(ext.ultimaPH, 60);
+                        if (daysLeft !== null && daysLeft <= 30) alerts.push({ type: 'Extintor (PH)', label: `Chapa #${ext.chapa}`, daysLeft, isExpired: daysLeft < 0 });
+                    }
+                });
+
+                const contractors = await fetchItems('contractors_data');
+                contractors.forEach(c => {
+                    if (c.documentExpiresAt) {
+                        const daysLeft = getDaysLeft(c.documentExpiresAt);
+                        if (daysLeft !== null && daysLeft <= 15) alerts.push({ type: 'Contratista', label: `Doc. Principal de ${c.name}`, daysLeft, isExpired: daysLeft < 0 });
+                    }
+                });
+
+                const workers = await fetchItems('workers_data');
+                workers.forEach(w => {
+                    if (w.artExpiresAt) {
+                        const daysLeft = getDaysLeft(w.artExpiresAt);
+                        if (daysLeft !== null && daysLeft <= 15) alerts.push({ type: 'Trabajador', label: `ART de ${w.name}`, daysLeft, isExpired: daysLeft < 0 });
+                    }
+                    if (w.lifeInsuranceExpiresAt) {
+                        const daysLeft = getDaysLeft(w.lifeInsuranceExpiresAt);
+                        if (daysLeft !== null && daysLeft <= 15) alerts.push({ type: 'Trabajador', label: `Seguro de Vida de ${w.name}`, daysLeft, isExpired: daysLeft < 0 });
+                    }
+                });
+
+                const capas = await fetchItems('ehs_capa_db');
+                capas.forEach(c => {
+                    if (c.status !== 'Cerrada' && c.targetDate) {
+                        const daysLeft = getDaysLeft(c.targetDate);
+                        if (daysLeft !== null && daysLeft <= 7) alerts.push({ type: 'Acción Correctiva', label: c.title || 'CAPA Pendiente', daysLeft, isExpired: daysLeft < 0 });
+                    }
+                });
+
+                const trainings = await fetchItems('training_history');
+                trainings.forEach(t => {
+                    if (t.nextTrainingDate) {
+                        const daysLeft = getDaysLeft(t.nextTrainingDate);
+                        if (daysLeft !== null && daysLeft <= 15) alerts.push({ type: 'Capacitación', label: t.topic || 'Re-entrenamiento', daysLeft, isExpired: daysLeft < 0 });
+                    }
+                });
+
+                if (alerts.length > 0) {
+                    let html = `
+                        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+                            <div style="background-color: #ef4444; color: #ffffff; padding: 20px; text-align: center;">
+                                <h2 style="margin: 0;">⚠️ Tienes ${alerts.length} alertas de vencimiento</h2>
+                            </div>
+                            <div style="padding: 20px;">
+                                <p>Hola ${userData.name || 'Usuario'},</p>
+                                <p>El sistema ha detectado los siguientes elementos próximos a vencer o ya vencidos:</p>
+                                <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                                    <thead>
+                                        <tr style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1;">
+                                            <th style="padding: 10px; text-align: left;">Categoría</th>
+                                            <th style="padding: 10px; text-align: left;">Elemento</th>
+                                            <th style="padding: 10px; text-align: left;">Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
                     `;
-                    // Registrar que se envió la alerta para no volver a enviar mañana
-                    await ext.ref.update({ alertSentAt: new Date().toISOString() });
-                }
 
-                html += `
-                                </tbody>
-                            </table>
-                            <div style="margin-top: 30px; text-align: center;">
-                                <a href="https://asistentehs.com" style="background-color: #3b82f6; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Ingresar al Sistema</a>
+                    alerts.forEach(a => {
+                        const stateText = a.isExpired ? `<span style="color:#ef4444; font-weight:bold;">Vencido hace ${Math.abs(a.daysLeft)} días</span>` : `<span style="color:#f59e0b; font-weight:bold;">Vence en ${a.daysLeft} días</span>`;
+                        html += `
+                            <tr style="border-bottom: 1px solid #e2e8f0;">
+                                <td style="padding: 10px;"><strong>${a.type}</strong></td>
+                                <td style="padding: 10px;">${a.label}</td>
+                                <td style="padding: 10px;">${stateText}</td>
+                            </tr>
+                        `;
+                    });
+
+                    html += `
+                                    </tbody>
+                                </table>
+                                <div style="margin-top: 30px; text-align: center;">
+                                    <a href="https://asistentehs.com" style="background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Revisar en el Sistema</a>
+                                </div>
+                            </div>
+                            <div style="background-color: #f8fafc; padding: 15px; text-align: center; color: #94a3b8; font-size: 12px; border-top: 1px solid #e2e8f0;">
+                                Este es un aviso automático generado por Asistente HS.
                             </div>
                         </div>
-                        <div style="background-color: #f8fafc; padding: 15px; text-align: center; color: #94a3b8; font-size: 12px; border-top: 1px solid #e2e8f0;">
-                            Este es un aviso automático generado por Asistente HS.<br>
-                            Si deseas deshabilitar estas alertas, contacta a soporte.
-                        </div>
-                    </div>
-                `;
+                    `;
 
-                if (process.env.RESEND_API_KEY) {
-                    try {
-                        await resend.emails.send({
-                            from: 'Asistente HYS <soporte@asistentehs.com>',
-                            to: email,
-                            subject: `⚠️ Alerta: ${extintores.length} extintor(es) por vencer`,
-                            html: html
-                        });
-                        notificationsSent++;
-                        console.log(`[CRON] Correo de alerta enviado a ${email} (${extintores.length} extintores).`);
-                    } catch (emailErr) {
-                        console.error(`[CRON] Error enviando correo a ${email}:`, emailErr);
+                    if (process.env.RESEND_API_KEY) {
+                        try {
+                            await resend.emails.send({
+                                from: 'Asistente HYS <soporte@asistentehs.com>',
+                                to: email,
+                                subject: `⚠️ Alerta Diaria: ${alerts.length} vencimientos detectados`,
+                                html: html
+                            });
+                            notificationsSent++;
+                            console.log(`[CRON] Correo enviado a ${email} (${alerts.length} elementos).`);
+                        } catch (emailErr) {
+                            console.error(`[CRON] Error enviando correo a ${email}:`, emailErr);
+                        }
                     }
                 }
             }
