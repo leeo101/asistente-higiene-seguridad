@@ -626,7 +626,7 @@ export default function ATS(): React.ReactElement | null {
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1.5rem', flexWrap: 'wrap' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                            <button onClick={() => navigate('/ats')} style={{ padding: '0.8rem', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', borderRadius: '12px', border: 'none', cursor: 'pointer', color: '#ffffff', display: 'flex', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)' }} className="hover-scale" title="Volver al historial">
+                            <button onClick={() => { setShowForm(false); navigate('/ats'); }} style={{ padding: '0.8rem', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', borderRadius: '12px', border: 'none', cursor: 'pointer', color: '#ffffff', display: 'flex', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)' }} className="hover-scale" title="Volver al historial">
                                 <ArrowLeft size={22}  />
                             </button>
                             <div>
