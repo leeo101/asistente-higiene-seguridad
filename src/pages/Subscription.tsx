@@ -250,7 +250,12 @@ export default function Subscription(): React.ReactElement | null {
     }
 
     return (
-        <div className="subscription-layout" style={{
+        <div style={{ position: 'relative', overflow: 'hidden' }}>
+            {/* Ambient Background Glows */}
+            <div className="ambient-glow blue" style={{ top: '20%', left: '-10%', width: '500px', height: '500px' }} />
+            <div className="ambient-glow purple" style={{ bottom: '10%', right: '-5%', width: '600px', height: '600px', animationDelay: '2s' }} />
+
+            <div className="subscription-layout stagger-item" style={{
             padding: '2rem 1rem', // Added horizontal padding for mobile
             maxWidth: '1200px',
             margin: '0 auto',
@@ -310,8 +315,9 @@ export default function Subscription(): React.ReactElement | null {
                     <span style={{ fontWeight: '800', letterSpacing: '2px', fontSize: '1.3rem', textTransform: 'uppercase', color: 'var(--color-text)' }}>ASISTENTE H&S</span>
                 </div>
 
-                <h1 style={{ fontSize: '3rem', fontWeight: '900', marginBottom: '1.5rem', lineHeight: '1.2', color: 'var(--color-text)' }}>
-                    Potencia tu trabajo como <span style={{ color: '#3b82f6' }}>Profesional</span>
+                <h1 style={{ fontSize: 'clamp(2.5rem, 5vw, 3.5rem)', fontWeight: '900', marginBottom: '1.5rem', lineHeight: '1.2', color: 'var(--color-text)' }}>
+                    Potencia tu trabajo como <br />
+                    <span className="gradient-text">Profesional</span>
                 </h1>
 
                 <p style={{ fontSize: '1.15rem', color: 'var(--color-text-secondary)', marginBottom: '2rem', lineHeight: '1.6', maxWidth: '600px' }}>
@@ -319,18 +325,20 @@ export default function Subscription(): React.ReactElement | null {
                     Olvídate de perder horas redactando informes. Genera relevamientos de riesgos, constancias de carga de fuego, matrices, reportes fotográficos y más en segundos, desde cualquier lugar.
                 </p>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem' }}>
                     {[
-                        { icon: <ShieldCheck />, title: 'Informes Instantáneos', desc: 'Genera PDFs profesionales con tu logo y firma listos para enviar al cliente.' },
-                        { icon: <CreditCard />, title: 'Todo en un solo lugar', desc: 'Gestiona historiales, inspecciones, ATS y cálculos ergonómicos centralizados.' },
-                        { icon: <Lock />, title: '100% Confidencial', desc: 'Tus datos y los de tus clientes están completamente seguros y cifrados.' },
-                        { icon: <CheckCircle2 />, title: 'Actualizaciones', desc: 'Soporte para nuevas normativas y herramientas constantemente añadidas.' }
+                        { icon: <ShieldCheck />, title: 'Informes Instantáneos', desc: 'Genera PDFs profesionales listos para enviar al cliente.', delay: '1' },
+                        { icon: <CreditCard />, title: 'Todo centralizado', desc: 'Gestiona inspecciones, ATS y cálculos ergonómicos.', delay: '2' },
+                        { icon: <Lock />, title: '100% Confidencial', desc: 'Tus datos están completamente seguros y cifrados.', delay: '3' },
+                        { icon: <CheckCircle2 />, title: 'Actualizaciones', desc: 'Soporte para nuevas normativas y herramientas.', delay: '4' }
                     ].map((item, i) => (
-                        <div key={i} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                            <div style={{ color: '#3b82f6', background: 'rgba(59, 130, 246, 0.1)', padding: '0.5rem', borderRadius: '8px' }}>{item.icon}</div>
+                        <div key={i} className={`glass-card hover-lift stagger-item-delay-${item.delay}`} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'flex-start' }}>
+                            <div style={{ color: '#ffffff', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', padding: '0.8rem', borderRadius: '12px', boxShadow: '0 8px 16px rgba(59,130,246,0.3)' }}>
+                                {item.icon}
+                            </div>
                             <div>
-                                <div style={{ fontWeight: '700', marginBottom: '0.25rem', fontSize: '1rem' }}>{item.title}</div>
-                                <div style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', lineHeight: '1.4' }}>{item.desc}</div>
+                                <div style={{ fontWeight: '800', marginBottom: '0.4rem', fontSize: '1.05rem', color: 'var(--color-text)' }}>{item.title}</div>
+                                <div style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', lineHeight: '1.5' }}>{item.desc}</div>
                             </div>
                         </div>
                     ))}
@@ -338,12 +346,8 @@ export default function Subscription(): React.ReactElement | null {
             </div>
 
             {/* Pricing Card */}
-            <div className="pricing-card" style={{
-                background: 'var(--color-surface)',
-                borderRadius: '40px',
-                padding: '3rem',
-                border: '1px solid var(--color-border)',
-                boxShadow: '0 40px 80px rgba(0,0,0,0.15)',
+            <div className="pricing-card glass-mockup hover-lift stagger-item-delay-2" style={{
+                padding: '3rem 2.5rem',
                 textAlign: 'center',
                 position: 'relative'
             }}>
@@ -359,15 +363,16 @@ export default function Subscription(): React.ReactElement | null {
                     fontSize: '0.9rem',
                     fontWeight: '800',
                     boxShadow: '0 10px 20px rgba(59, 130, 246, 0.4)',
-                    whiteSpace: 'nowrap'
+                    whiteSpace: 'nowrap',
+                    zIndex: 2
                 }}>
                     SUSCRIPCIÓN MENSUAL PRO
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', margin: '3rem 0 1rem' }}>
-                    <span style={{ fontSize: '2rem', fontWeight: '800', marginRight: '0.5rem' }}>$</span>
-                    <span style={{ fontSize: '5rem', fontWeight: '900', letterSpacing: '-2px' }}>2.00</span>
-                    <span style={{ fontSize: '1.5rem', color: 'var(--color-text-secondary)', marginLeft: '0.5rem' }}>USD / MES</span>
+                    <span className="gradient-text" style={{ fontSize: '2.5rem', fontWeight: '800', marginRight: '0.2rem' }}>$</span>
+                    <span className="gradient-text" style={{ fontSize: '5.5rem', fontWeight: '900', letterSpacing: '-2px' }}>2.00</span>
+                    <span style={{ fontSize: '1.5rem', color: 'var(--color-text-secondary)', marginLeft: '0.8rem', fontWeight: '700' }}>/ MES</span>
                 </div>
 
                 <p style={{ color: 'var(--color-text-secondary)', marginBottom: '2rem', fontSize: '0.95rem' }}>
@@ -400,10 +405,11 @@ export default function Subscription(): React.ReactElement | null {
 
                 </div>
 
-                <p style={{ marginTop: '1rem', fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>
+                <p style={{ marginTop: '1.5rem', fontSize: '0.85rem', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
                     Pagos 100% seguros y encriptados. Activación instantánea.
                 </p>
             </div>
+        </div>
         </div>
     );
 }
