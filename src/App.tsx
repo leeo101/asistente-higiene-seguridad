@@ -18,6 +18,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SyncProvider, useSync } from './contexts/SyncContext';
 import { Toaster, toast } from 'react-hot-toast';
 import { usePaywall } from './hooks/usePaywall';
+import NativePermissionRequester from './components/NativePermissionRequester';
 import AutoAdsManager from './components/ads/AutoAdsManager';
 // Custom lazy loader that catches chunk errors and reloads
 const lazyWithRetry = (componentImport: () => Promise<any>) =>
@@ -379,6 +380,7 @@ function App() {
 
   return (
     <AuthProvider>
+      <NativePermissionRequester />
       <SyncProvider>
         <ScrollToTop />
         <GlobalPrintGuard />

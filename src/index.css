@@ -180,22 +180,21 @@
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
-  min-height: 100vh;
+  min-height: 100dvh;
   padding-top: var(--safe-area-top);
   padding-bottom: max(var(--safe-area-bottom), 5rem);
   font-family: var(--font-family);
   background: var(--color-background-gradient);
   transition: background var(--transition-slow);
+  overscroll-behavior-y: none; /* Prevents white gaps when pulling to refresh */
 }
 
 #root {
   width: 100%;
   max-width: 1280px;
   margin: 0 auto;
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   text-align: left;
