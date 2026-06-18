@@ -346,11 +346,7 @@ export default function Subscription(): React.ReactElement | null {
             </div>
 
             {/* Pricing Card */}
-            <div className="pricing-card glass-mockup hover-lift stagger-item-delay-2" style={{
-                padding: '3rem 2.5rem',
-                textAlign: 'center',
-                position: 'relative'
-            }}>
+            <div className="stagger-item-delay-2" style={{ position: 'relative', marginTop: '20px' }}>
                 <div style={{
                     position: 'absolute',
                     top: '-20px',
@@ -364,13 +360,19 @@ export default function Subscription(): React.ReactElement | null {
                     fontWeight: '800',
                     boxShadow: '0 10px 20px rgba(59, 130, 246, 0.4)',
                     whiteSpace: 'nowrap',
-                    zIndex: 2
+                    zIndex: 10
                 }}>
                     SUSCRIPCIÓN MENSUAL PRO
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', margin: '3rem 0 1rem' }}>
-                    <span className="gradient-text" style={{ fontSize: '2.5rem', fontWeight: '800', marginRight: '0.2rem' }}>$</span>
+                <div className="pricing-card glass-mockup hover-lift" style={{
+                    padding: '3rem 2.5rem',
+                    textAlign: 'center',
+                    position: 'relative'
+                }}>
+
+                    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', margin: '3rem 0 1rem' }}>
+                        <span className="gradient-text" style={{ fontSize: '2.5rem', fontWeight: '800', marginRight: '0.2rem' }}>$</span>
                     <span className="gradient-text" style={{ fontSize: '5.5rem', fontWeight: '900', letterSpacing: '-2px' }}>2.00</span>
                     <span style={{ fontSize: '1.5rem', color: 'var(--color-text-secondary)', marginLeft: '0.8rem', fontWeight: '700' }}>/ MES</span>
                 </div>
@@ -408,6 +410,7 @@ export default function Subscription(): React.ReactElement | null {
                 <p style={{ marginTop: '1.5rem', fontSize: '0.85rem', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
                     Pagos 100% seguros y encriptados. Activación instantánea.
                 </p>
+            </div>
             </div>
         </div>
         </div>
