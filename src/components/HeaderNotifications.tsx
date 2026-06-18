@@ -103,7 +103,7 @@ export default function HeaderNotifications() {
                             ✅ Sin vencimientos próximos
                         </div>
                     ) : notifications.length === 0 ? (
-                        <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', padding: '0.3rem' }}>
+                        <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', padding: '0.3rem', marginBottom: '0.5rem' }}>
                             No hay alertas pendientes
                         </div>
                     ) : (
@@ -113,31 +113,6 @@ export default function HeaderNotifications() {
                                     <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase' }}>Alertas de Vencimiento</span>
                                     <button onClick={dismissAll} style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer', padding: '0.1rem 0.3rem', fontWeight: 700 }}>Descartar todo</button>
                                 </div>
-                                <button 
-                                    onClick={async () => {
-                                        try {
-                                            const res = await fetch('http://localhost:5000/api/send-expiry-email', {
-                                                method: 'POST',
-                                                headers: { 'Content-Type': 'application/json' },
-                                                body: JSON.stringify({
-                                                    email: currentUser?.email,
-                                                    name: currentUser?.displayName || 'Usuario',
-                                                    notifications
-                                                })
-                                            });
-                                            if (res.ok) {
-                                                alert('¡Correo de prueba enviado con éxito!');
-                                            } else {
-                                                alert('Error al enviar correo (asegurate de tener el servidor local encendido en el puerto 5000)');
-                                            }
-                                        } catch (e) {
-                                            alert('No se pudo conectar con el servidor para enviar el correo.');
-                                        }
-                                    }}
-                                    style={{ width: '100%', padding: '0.4rem', borderRadius: '6px', background: 'rgba(245, 158, 11, 0.2)', color: '#fde68a', border: '1px solid rgba(245, 158, 11, 0.4)', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem' }}
-                                >
-                                    ✉️ Enviar a mi correo (Prueba)
-                                </button>
                             </div>
                             {notifications.map((n: any) => (
                                 <div key={n.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.5rem', borderRadius: '8px', background: n.isExpired ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)', marginBottom: '0.3rem' }}>
@@ -155,6 +130,33 @@ export default function HeaderNotifications() {
                             ))}
                         </>
                     )}
+
+                    {/* Botón de envío de correo de prueba siempre visible */}
+                    <button 
+                        onClick={async () => {
+                            try {
+                                const res = await fetch('http://localhost:5000/api/send-expiry-email', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        email: currentUser?.email,
+                                        name: currentUser?.displayName || 'Usuario',
+                                        notifications: notifications.length > 0 ? notifications : [{ type: 'Prueba', label: 'Sin vencimientos, todo en orden ✅', daysLeft: 0, isExpired: false }]
+                                    })
+                                });
+                                if (res.ok) {
+                                    alert('¡Correo de prueba enviado con éxito!');
+                                } else {
+                                    alert('Error al enviar correo (asegurate de tener el servidor local encendido en el puerto 5000)');
+                                }
+                            } catch (e) {
+                                alert('No se pudo conectar con el servidor para enviar el correo.');
+                            }
+                        }}
+                        style={{ width: '100%', padding: '0.4rem', marginTop: '0.5rem', borderRadius: '6px', background: 'rgba(245, 158, 11, 0.2)', color: '#fde68a', border: '1px solid rgba(245, 158, 11, 0.4)', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem' }}
+                    >
+                        ✉️ Enviar a mi correo (Prueba)
+                    </button>
                 </div>
             )}
         </div>
