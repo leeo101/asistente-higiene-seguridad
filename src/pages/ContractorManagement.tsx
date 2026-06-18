@@ -223,13 +223,20 @@ export default function ContractorManagement() {
 
   return (
     <AnimatedPage>
-      <div className="page-transition" style={{ padding: isMobile ? '7.5rem 0 2rem 0' : '6.5rem 0 2rem 0', minHeight: '100vh', background: 'var(--color-background)' }}>
+      <div className="page-transition" style={{ padding: isMobile ? '7.5rem 0 2rem 0' : '6.5rem 0 2rem 0', minHeight: '100vh', background: 'var(--color-background)', position: 'relative', overflow: 'hidden' }}>
         
+        {/* Ambient Glows */}
+        <div className="ambient-glow blue" style={{ top: '-10%', left: '-5%' }}></div>
+        <div className="ambient-glow purple" style={{ top: '20%', right: '-10%', width: '400px', height: '400px' }}></div>
+        <div className="ambient-glow primary" style={{ bottom: '-10%', left: '30%', opacity: 0.1 }}></div>
+
         {/* Header */}
         <div style={{ 
-          background: 'var(--color-surface)', 
+          background: 'rgba(255, 255, 255, 0.03)', 
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
           padding: isMobile ? '1rem' : '1.5rem', 
-          borderBottom: '1px solid var(--color-border)', 
+          borderBottom: '1px solid rgba(255,255,255,0.05)', 
           position: 'relative', 
           zIndex: 10
         }}>
@@ -247,8 +254,8 @@ export default function ContractorManagement() {
                             <ArrowLeft size={20}  />
                         </button>
               <div style={{ flex: 1 }}>
-                <h1 style={{ margin: 0, fontSize: isMobile ? '1.2rem' : '1.5rem', fontWeight: 800, color: 'var(--color-heading)' }}>Contratistas</h1>
-                <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Control documental</p>
+                <h1 className="gradient-text" style={{ margin: 0, fontSize: isMobile ? '1.5rem' : '2rem', fontWeight: 900, letterSpacing: '-0.5px' }}>Contratistas</h1>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 500 }}>Control documental y personal</p>
               </div>
             </div>
             
@@ -295,16 +302,21 @@ export default function ContractorManagement() {
             <div style={{ 
               display: 'flex', 
               gap: '0.5rem',
-              width: isMobile ? '100%' : 'auto'
+              width: isMobile ? '100%' : 'auto',
+              background: 'rgba(255,255,255,0.05)',
+              padding: '0.3rem',
+              borderRadius: '16px',
+              border: '1px solid rgba(255,255,255,0.05)'
             }}>
               <button 
                 onClick={() => setActiveTab('contractors')}
                 style={{
                   flex: isMobile ? 1 : 'none',
-                  padding: '0.6rem 1rem', borderRadius: '12px', fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'all 0.2s',
-                  background: activeTab === 'contractors' ? 'var(--color-primary)' : 'rgba(255,255,255,0.05)',
+                  padding: '0.6rem 1.2rem', borderRadius: '12px', fontWeight: 800, border: 'none', cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  background: activeTab === 'contractors' ? 'var(--color-primary)' : 'transparent',
                   color: activeTab === 'contractors' ? 'white' : 'var(--color-text-muted)',
-                  fontSize: '0.85rem'
+                  fontSize: '0.85rem',
+                  boxShadow: activeTab === 'contractors' ? '0 4px 15px rgba(59, 130, 246, 0.4)' : 'none'
                 }}
               >
                 Empresas ({contractors.length})
@@ -313,10 +325,11 @@ export default function ContractorManagement() {
                 onClick={() => setActiveTab('workers')}
                 style={{
                   flex: isMobile ? 1 : 'none',
-                  padding: '0.6rem 1rem', borderRadius: '12px', fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'all 0.2s',
-                  background: activeTab === 'workers' ? 'var(--color-primary)' : 'rgba(255,255,255,0.05)',
+                  padding: '0.6rem 1.2rem', borderRadius: '12px', fontWeight: 800, border: 'none', cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  background: activeTab === 'workers' ? 'var(--color-primary)' : 'transparent',
                   color: activeTab === 'workers' ? 'white' : 'var(--color-text-muted)',
-                  fontSize: '0.85rem'
+                  fontSize: '0.85rem',
+                  boxShadow: activeTab === 'workers' ? '0 4px 15px rgba(59, 130, 246, 0.4)' : 'none'
                 }}
               >
                 Trabajadores ({workers.length})
@@ -337,119 +350,99 @@ export default function ContractorManagement() {
 
           {/* Contractors View */}
           {activeTab === 'contractors' && (
-            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1rem' }}>
+            <div className="bento-container" style={{ gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.5rem', position: 'relative', zIndex: 10 }}>
               {contractors.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.cuit.includes(searchQuery)).map(contractor => (
-                <div key={contractor.id} className="card hover-lift" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '12px', padding: '1.2rem', position: 'relative' }}>
-                  <button onClick={() => handleDeleteContractor(contractor.id)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer' }}><Trash size={18} /></button>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1rem' }}>
-                    <div style={{ width: '40px', height: '40px', background: 'rgba(59,130,246,0.1)', color: '#3b82f6', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div key={contractor.id} className="glass-card hover-lift" style={{ borderRadius: '24px', padding: '1.5rem', position: 'relative' }}>
+                  <button onClick={() => handleDeleteContractor(contractor.id)} style={{ position: 'absolute', top: '1.2rem', right: '1.2rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#f87171', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }} onMouseOver={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'} onMouseOut={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}><Trash size={16} weight="bold" /></button>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.2rem' }}>
+                    <div style={{ width: '48px', height: '48px', background: 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(139,92,246,0.2))', border: '1px solid rgba(255,255,255,0.1)', color: '#60a5fa', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 16px rgba(0,0,0,0.2), inset 0 2px 4px rgba(255,255,255,0.1)' }}>
                       <Buildings size={24} weight="duotone" />
                     </div>
                     <div>
-                      <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: 'white' }}>{contractor.name}</h3>
-                      <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>CUIT: {contractor.cuit}</p>
+                      <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: 'white', letterSpacing: '-0.3px' }}>{contractor.name}</h3>
+                      <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-primary)', fontWeight: 700 }}>CUIT: {contractor.cuit}</p>
                     </div>
                   </div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--color-text)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Contacto:</span> <strong>{contractor.contactPhone}</strong></div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--color-text)', display: 'flex', flexDirection: 'column', gap: '0.8rem', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span>Seguro/Cláusulas:</span> 
+                        <span style={{ color: 'var(--color-text-muted)' }}>Contacto:</span> 
+                        <strong style={{ fontWeight: 700 }}>{contractor.contactPhone}</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ color: 'var(--color-text-muted)' }}>Seguro Grales:</span> 
                       {getStatusBadge(checkExpiryStatus(contractor.documentExpiresAt))}
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span>Vencimiento:</span>
-                        <strong>{contractor.documentExpiresAt ? new Date(contractor.documentExpiresAt).toLocaleDateString() : 'N/A'}</strong>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ color: 'var(--color-text-muted)' }}>Vencimiento:</span>
+                        <strong style={{ fontWeight: 700 }}>{contractor.documentExpiresAt ? new Date(contractor.documentExpiresAt).toLocaleDateString() : 'N/A'}</strong>
                     </div>
-                    <div style={{ borderTop: '1px solid var(--color-border)', marginTop: '0.5rem', paddingTop: '0.5rem', display: 'flex', justifyContent: 'space-between' }}>
-                      <span>Trabajadores asoc:</span> <strong>{workers.filter(w => w.contractorId === contractor.id).length}</strong>
+                    <div style={{ borderTop: '1px dashed rgba(255,255,255,0.1)', marginTop: '0.2rem', paddingTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ color: 'var(--color-text-muted)' }}>Trabajadores asoc:</span> 
+                      <span style={{ background: 'rgba(255,255,255,0.1)', padding: '0.2rem 0.6rem', borderRadius: '20px', fontWeight: 800, color: 'white' }}>{workers.filter(w => w.contractorId === contractor.id).length}</span>
                     </div>
                   </div>
                 </div>
               ))}
               {contractors.length === 0 && (
-                <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
-                  <Buildings size={48} weight="duotone" style={{ opacity: 0.5, marginBottom: '1rem' }} />
-                  <p>No hay contratistas registrados.</p>
+                <div className="glass-card" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '4rem', color: 'var(--color-text-muted)', borderRadius: '24px' }}>
+                  <Buildings size={56} weight="duotone" style={{ opacity: 0.5, marginBottom: '1rem' }} />
+                  <h3 style={{ margin: '0 0 0.5rem 0', color: 'white', fontWeight: 700 }}>No hay contratistas</h3>
+                  <p style={{ margin: 0 }}>Registrá tu primera empresa para comenzar el seguimiento documental.</p>
                 </div>
               )}
             </div>
           )}
 
-          {/* Workers View */}
+          {/* Workers View (Bento Grid) */}
           {activeTab === 'workers' && (
-            <div>
-              {isMobile ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {workers.filter(w => w.name.toLowerCase().includes(searchQuery.toLowerCase()) || w.dni.includes(searchQuery)).map(worker => {
-                    const contractor = contractors.find(c => c.id === worker.contractorId);
-                    return (
-                      <div key={worker.id} className="card" style={{ padding: '1rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '12px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                          <div>
-                            <div style={{ fontWeight: 800, color: 'white', fontSize: '1rem' }}>{worker.name}</div>
-                            <div style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem' }}>DNI: {worker.dni} | {worker.position}</div>
-                            <div style={{ color: 'var(--color-primary)', fontSize: '0.8rem', fontWeight: 700, marginTop: '0.2rem' }}>{contractor?.name || 'Desconocida'}</div>
-                          </div>
-                          <button onClick={() => handleDeleteWorker(worker.id)} style={{ background: 'none', border: 'none', color: '#ef4444', padding: '0.5rem' }}><Trash size={18} /></button>
+            <div className="bento-container" style={{ gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(360px, 1fr))', gap: '1.5rem', position: 'relative', zIndex: 10 }}>
+                {workers.filter(w => w.name.toLowerCase().includes(searchQuery.toLowerCase()) || w.dni.includes(searchQuery)).map(worker => {
+                const contractor = contractors.find(c => c.id === worker.contractorId);
+                return (
+                    <div key={worker.id} className="glass-card hover-lift" style={{ borderRadius: '24px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.2rem', position: 'relative' }}>
+                    
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <div style={{ width: '46px', height: '46px', borderRadius: '50%', background: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(59,130,246,0.2))', border: '1px solid rgba(255,255,255,0.1)', color: '#34d399', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.2)' }}>
+                                <Users size={22} weight="duotone" />
+                            </div>
+                            <div>
+                                <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: 'white', letterSpacing: '-0.3px' }}>{worker.name}</h3>
+                                <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>DNI: {worker.dni} | {worker.position}</p>
+                            </div>
                         </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-                            <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>VTO. ART</span>
+                        <button onClick={() => handleDeleteWorker(worker.id)} style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#f87171', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }} onMouseOver={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'} onMouseOut={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}><Trash size={16} weight="bold" /></button>
+                    </div>
+
+                    <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.6rem 1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Buildings size={16} color="var(--color-primary)" weight="duotone" />
+                        <span style={{ fontSize: '0.85rem', color: 'var(--color-primary)', fontWeight: 700 }}>{contractor?.name || 'Desconocida'}</span>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.8rem', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem', textAlign: 'center' }}>
+                            <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Vto. ART</span>
                             {getStatusBadge(checkExpiryStatus(worker.artExpiresAt))}
-                          </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-                            <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>VTO. SEGURO</span>
-                            {getStatusBadge(checkExpiryStatus(worker.lifeInsuranceExpiresAt))}
-                          </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-                            <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>INDUCCIÓN</span>
-                            {getStatusBadge(checkExpiryStatus(worker.inductionExpiresAt))}
-                          </div>
                         </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              ) : (
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-                    <thead>
-                      <tr style={{ background: 'var(--color-surface)', textAlign: 'left', borderBottom: '1px solid var(--color-border)' }}>
-                        <th style={{ padding: '1rem' }}>Trabajador</th>
-                        <th style={{ padding: '1rem' }}>Empresa</th>
-                        <th style={{ padding: '1rem' }}>Vto. ART</th>
-                        <th style={{ padding: '1rem' }}>Vto. Seguro Vida</th>
-                        <th style={{ padding: '1rem' }}>Inducción</th>
-                        <th style={{ padding: '1rem', width: '50px' }}></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {workers.filter(w => w.name.toLowerCase().includes(searchQuery.toLowerCase()) || w.dni.includes(searchQuery)).map(worker => {
-                        const contractor = contractors.find(c => c.id === worker.contractorId);
-                        return (
-                          <tr key={worker.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
-                            <td style={{ padding: '1rem' }}>
-                              <div style={{ fontWeight: 700, color: 'white' }}>{worker.name}</div>
-                              <div style={{ color: 'var(--color-text-muted)', fontSize: '0.75rem' }}>DNI: {worker.dni} | {worker.position}</div>
-                            </td>
-                            <td style={{ padding: '1rem', color: 'white' }}>{contractor?.name || 'Desconocida'}</td>
-                            <td style={{ padding: '1rem' }}>{getStatusBadge(checkExpiryStatus(worker.artExpiresAt))} <div style={{fontSize:'0.7rem', color:'#aaa', marginTop:'2px'}}>{worker.artExpiresAt}</div></td>
-                            <td style={{ padding: '1rem' }}>{getStatusBadge(checkExpiryStatus(worker.lifeInsuranceExpiresAt))}</td>
-                            <td style={{ padding: '1rem' }}>{getStatusBadge(checkExpiryStatus(worker.inductionExpiresAt))}</td>
-                            <td style={{ padding: '1rem' }}>
-                              <button onClick={() => handleDeleteWorker(worker.id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer' }}><Trash size={18} /></button>
-                            </td>
-                          </tr>
-                        )
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem', textAlign: 'center' }}>
+                            <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Vto. Seguro</span>
+                            {getStatusBadge(checkExpiryStatus(worker.lifeInsuranceExpiresAt))}
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem', textAlign: 'center' }}>
+                            <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Inducción</span>
+                            {getStatusBadge(checkExpiryStatus(worker.inductionExpiresAt))}
+                        </div>
+                    </div>
+
+                    </div>
+                )
+                })}
+              
               {workers.length === 0 && (
-                <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
-                  <Users size={48} weight="duotone" style={{ opacity: 0.5, marginBottom: '1rem' }} />
-                  <p>No hay trabajadores registrados.</p>
+                <div className="glass-card" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '4rem', color: 'var(--color-text-muted)', borderRadius: '24px' }}>
+                  <Users size={56} weight="duotone" style={{ opacity: 0.5, marginBottom: '1rem' }} />
+                  <h3 style={{ margin: '0 0 0.5rem 0', color: 'white', fontWeight: 700 }}>No hay trabajadores</h3>
+                  <p style={{ margin: 0 }}>Registrá al primer trabajador para controlar sus documentos.</p>
                 </div>
               )}
             </div>
@@ -463,17 +456,16 @@ export default function ContractorManagement() {
             onClick={() => setIsContractorModalOpen(false)}
           >
             <div 
+              className="glass-panel"
               style={{ 
-                background: 'var(--color-surface)', 
                 width: '100%', 
                 maxWidth: '500px', 
                 borderRadius: isMobile ? '24px 24px 0 0' : '24px', 
                 padding: '2rem', 
-                border: '1px solid var(--color-border)', 
                 maxHeight: isMobile ? '90vh' : '85vh', 
                 overflowY: 'auto',
-                boxShadow: '0 25px 70px -10px rgba(0, 0, 0, 0.5)',
-                position: 'relative' 
+                position: 'relative',
+                boxShadow: '0 25px 70px -10px rgba(0, 0, 0, 0.7)'
               }} 
               onClick={e => e.stopPropagation()}
             >
@@ -543,17 +535,16 @@ export default function ContractorManagement() {
             onClick={() => setIsWorkerModalOpen(false)}
           >
             <div 
+              className="glass-panel"
               style={{ 
-                background: 'var(--color-surface)', 
                 width: '100%', 
                 maxWidth: '500px', 
                 borderRadius: isMobile ? '24px 24px 0 0' : '24px', 
                 padding: '2rem', 
-                border: '1px solid var(--color-border)', 
                 maxHeight: isMobile ? '90vh' : '85vh', 
                 overflowY: 'auto',
-                boxShadow: '0 25px 70px -10px rgba(0, 0, 0, 0.5)',
-                position: 'relative' 
+                position: 'relative',
+                boxShadow: '0 25px 70px -10px rgba(0, 0, 0, 0.7)'
               }} 
               onClick={e => e.stopPropagation()}
             >
