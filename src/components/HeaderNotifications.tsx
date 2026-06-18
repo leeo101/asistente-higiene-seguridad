@@ -22,7 +22,7 @@ export default function HeaderNotifications() {
             <button
                 onClick={() => setShowAlerts(v => !v)}
                 style={{
-                    padding: 0, position: 'relative',
+                    padding: 0, position: 'relative', flexShrink: 0,
                     background: notifications.length > 0 ? 'rgba(255, 0, 0, 0.25)' : 'rgba(15, 23, 42, 0.05)',
                     border: notifications.length > 0 ? '1px solid rgba(255, 0, 0, 0.8)' : '1px solid rgba(15, 23, 42, 0.1)',
                     width: '36px', height: '36px', borderRadius: '10px',

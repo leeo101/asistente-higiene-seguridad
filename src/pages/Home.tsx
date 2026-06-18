@@ -802,7 +802,7 @@ export default function Home(): React.ReactElement {
                     gap: isMobile ? '0.5rem' : '0.8rem',
                     position: 'relative',
                     overflow: 'hidden',
-                    aspectRatio: '1 / 1',
+                    minHeight: isMobile ? '140px' : '180px',
                     boxShadow: 'var(--shadow-sm)'
                   }}
                   onMouseOver={e => {
@@ -854,7 +854,7 @@ export default function Home(): React.ReactElement {
                     <h3 style={{ margin: 0, fontSize: isMobile ? '0.8rem' : '0.95rem', fontWeight: 800, color: 'var(--color-text)', wordBreak: 'break-word', hyphens: 'auto', lineHeight: 1.2, textAlign: 'center' }}>
                       {link.label}
                     </h3>
-                    <p style={{ margin: '0.2rem 0 0', fontSize: isMobile ? '0.65rem' : '0.8rem', color: 'var(--color-text-muted)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.3, opacity: 0.8 }}>
+                    <p style={{ margin: '0.2rem 0 0', fontSize: isMobile ? '0.65rem' : '0.8rem', color: 'var(--color-text-muted)', lineHeight: 1.3, opacity: 0.8, wordBreak: 'break-word', hyphens: 'auto' }}>
                       {link.sub}
                     </p>
                   </div>

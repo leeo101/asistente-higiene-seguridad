@@ -4080,6 +4080,11 @@ html.pdf-export-mode, body.pdf-export-mode {
   .header-title { display: none !important; }
 }
 
+.no-scroll {
+  overflow: hidden !important;
+  touch-action: none !important;
+}
+
 /* --- PREMIUM SUBSCRIPTION UPGRADES --- */
 .gradient-text {
   background: linear-gradient(135deg, var(--color-primary), #8b5cf6);
