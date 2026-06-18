@@ -145,40 +145,27 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
       >
         {/* ── HEADER ── */}
         <div style={{
-          background: 'var(--color-hero-bg)',
-          padding: '1.5rem 1.2rem 1.8rem',
+          padding: '1.5rem 1.2rem',
           position: 'relative', overflow: 'hidden',
           flexShrink: 0,
           borderBottom: '1px solid var(--color-border)'
         }}>
-          <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '120px', height: '120px', borderRadius: '50%', background: 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
-
           {/* Top row: Logo + close */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-              <div style={{ width: '48px', height: '48px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '14px', padding: '8px', flexShrink: 0, backdropFilter: 'blur(10px)', boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}>
+              <div style={{ width: '42px', height: '42px', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '12px', padding: '6px', flexShrink: 0, boxShadow: 'var(--shadow-sm)' }}>
                 <img src="/logo.png" alt="Logo de Asistente HYS" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               </div>
-              <span style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--color-hero-text)', letterSpacing: '-0.8px', fontFamily: 'var(--font-heading)' }}>Asistente HYS</span>
+              <span style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--color-text)', letterSpacing: '-0.5px', fontFamily: 'var(--font-heading)' }}>Asistente HYS</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              
-              <button onClick={onClose} style={{ padding: 0, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#ffffff', backdropFilter: 'blur(10px)', transition: 'all 0.3s ease' }}
-                onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; e.currentTarget.style.transform = 'rotate(90deg)'; }}
-                onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.transform = 'rotate(0)'; }}
-              >
-                <X weight="bold" size={20} />
-              </button>
-            </div>
+            
+            <button onClick={onClose} style={{ padding: 0, background: 'var(--color-background)', border: '1px solid var(--color-border)', width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--color-text-muted)', transition: 'all 0.2s ease' }}
+              onMouseOver={e => { e.currentTarget.style.background = 'var(--color-border)'; e.currentTarget.style.color = 'var(--color-text)'; }}
+              onMouseOut={e => { e.currentTarget.style.background = 'var(--color-background)'; e.currentTarget.style.color = 'var(--color-text-muted)'; }}
+            >
+              <X weight="bold" size={20} />
+            </button>
           </div>
-
-          <SidebarUserProfile 
-            currentUser={currentUser}
-            userInfo={userInfo}
-            isPro={isPro}
-            daysRemaining={daysRemaining}
-            onClose={onClose}
-          />
         </div>
 
         {/* ── SYNC INDICATOR ── */}
@@ -220,50 +207,56 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
               {visibleItems.map((item, i) => {
                 const active = isActive(item.to);
                 return (
-                  <Link key={i} className="stagger-item" to={item.to} onClick={onClose} style={{ textDecoration: 'none', animationDelay: `${0.1 + (i * 0.03)}s` }}>
+                  <Link key={i} className="stagger-item" to={item.to} onClick={onClose} style={{ textDecoration: 'none', animationDelay: `${0.05 + (i * 0.03)}s` }}>
                     <div style={{
                       display: 'flex', alignItems: 'center', gap: '0.9rem',
-                      padding: '0.8rem 1rem', borderRadius: '14px',
-                      color: active ? '#ffffff' : 'var(--color-text)',
-                      background: active ? 'var(--gradient-premium)' : 'transparent',
-                      fontWeight: active ? 800 : 500,
+                      padding: '0.75rem 1rem', borderRadius: '12px',
+                      color: active ? 'var(--color-primary)' : 'var(--color-text)',
+                      background: active ? 'rgba(59, 130, 246, 0.08)' : 'transparent',
+                      fontWeight: active ? 700 : 500,
                       fontSize: '0.9rem',
-                      transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                      boxShadow: active ? '0 10px 20px rgba(59, 130, 246, 0.3)' : 'none',
-                      border: active ? '1px solid rgba(255,255,255,0.1)' : '1px solid transparent',
+                      transition: 'all 0.2s ease',
+                      border: '1px solid transparent',
+                      position: 'relative',
                     }}
-                      onMouseOver={e => { if (!active) { e.currentTarget.style.background = 'var(--color-surface-hover)'; e.currentTarget.style.transform = 'translateX(4px)'; } }}
-                      onMouseOut={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.transform = 'translateX(0)'; } }}
+                      onMouseOver={e => { if (!active) { e.currentTarget.style.background = 'var(--color-surface-hover)'; } }}
+                      onMouseOut={e => { if (!active) { e.currentTarget.style.background = 'transparent'; } }}
                     >
-                      <span style={{ color: active ? 'white' : 'var(--color-primary)', flexShrink: 0, transition: 'transform 0.3s ease' }} className={active ? 'scale-110' : ''}>
+                      {active && (
+                        <div style={{ position: 'absolute', left: '-0.8rem', top: '15%', height: '70%', width: '4px', background: 'var(--color-primary)', borderRadius: '0 4px 4px 0', boxShadow: '0 0 8px rgba(59,130,246,0.5)' }} />
+                      )}
+                      <span style={{ color: active ? 'var(--color-primary)' : 'var(--color-text-muted)', flexShrink: 0 }}>
                         {item.icon}
                       </span>
-                      <span style={{ letterSpacing: active ? '0.2px' : '0' }}>{item.label}</span>
+                      <span>{item.label}</span>
                     </div>
                   </Link>
                 );
               })}
 
-          <div style={{ height: '1px', background: 'var(--color-border)', margin: '0.8rem 0.5rem' }} />
+          <div style={{ height: '1px', background: 'var(--color-border)', margin: '1rem 0.5rem' }} />
 
-          <a href="mailto:asistente.hs.soporte@gmail.com?subject=Sugerencia - Asistente HYS" onClick={onClose} style={{ textDecoration: 'none' }}>
+          <a href="mailto:asistente.hs.soporte@gmail.com?subject=Sugerencia - Asistente HYS" onClick={onClose} style={{ textDecoration: 'none', padding: '0 0.5rem' }}>
             <div style={{
-              display: 'flex', alignItems: 'center', gap: '0.9rem',
-              padding: '0.7rem 1rem', borderRadius: '12px',
-              color: 'var(--color-text)', fontWeight: 500, fontSize: '0.9rem',
-              marginBottom: '0.5rem'
+              display: 'flex', alignItems: 'center', gap: '0.8rem',
+              padding: '0.8rem', borderRadius: '12px',
+              color: 'var(--color-text-muted)',
+              fontSize: '0.85rem', fontWeight: 600,
+              background: 'var(--color-background)',
+              border: '1px solid var(--color-border)',
+              transition: 'all 0.2s ease'
             }}
-              onMouseOver={e => e.currentTarget.style.background = 'var(--color-background)'}
-              onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+              onMouseOver={e => { e.currentTarget.style.borderColor = 'var(--color-primary)'; e.currentTarget.style.color = 'var(--color-primary)'; }}
+              onMouseOut={e => { e.currentTarget.style.borderColor = 'var(--color-border)'; e.currentTarget.style.color = 'var(--color-text-muted)'; }}
             >
-              <ChatText weight="duotone" size={20} color="var(--color-text-muted)" />
-              <span>Sugerencias y Mejoras</span>
+              <ChatText size={18} weight="duotone" />
+              Soporte y Sugerencias
             </div>
           </a>
 
           {/* PRO banner */}
           {!isPro && (
-            <Link to="/subscribe" onClick={onClose} style={{ textDecoration: 'none', marginBottom: '0.5rem' }}>
+            <Link to="/subscribe" onClick={onClose} style={{ textDecoration: 'none', marginBottom: '0.5rem', marginTop: '1rem' }}>
               <div style={{
                 display: 'flex', alignItems: 'center', gap: '0.9rem',
                 padding: '1rem', borderRadius: '16px',

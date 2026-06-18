@@ -148,6 +148,12 @@ export default function ATS(): React.ReactElement | null {
     const [aiTaskInput, setAiTaskInput] = useState('');
     const [isAdModalOpen, setIsAdModalOpen] = useState(true);
 
+    const [currentStep, setCurrentStep] = useState(1);
+    const totalSteps = 4;
+    
+    const nextStep = () => { if (currentStep < totalSteps) { setCurrentStep(c => c + 1); window.scrollTo(0,0); } };
+    const prevStep = () => { if (currentStep > 1) { setCurrentStep(c => c - 1); window.scrollTo(0,0); } };
+
     const handleGenerateAI = () => {
         setAiTaskInput('');
         setShowAIModal(true);
@@ -597,37 +603,7 @@ export default function ATS(): React.ReactElement | null {
                     />
                 </div>
 
-                {/* Floating Action Buttons */}
-                <div className="no-print floating-action-bar">
-                    <button
-                        onClick={handleClearForm}
-                        className="btn-floating-action"
-                        style={{ background: 'var(--color-surface)', color: '#ef4444', border: '1px solid #ef4444' }}
-                    >
-                        <Trash2 size={18} /> LIMPIAR
-                    </button>
-                    <button
-                        onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
-                        className="btn-floating-action"
-                        style={{ background: '#36B37E', color: '#ffffff' }}
-                    >
-                        <Save size={18} /> GUARDAR
-                    </button>
-                    <button
-                        onClick={handleShare}
-                        className="btn-floating-action"
-                        style={{ background: '#0052CC', color: '#ffffff' }}
-                    >
-                        <Share2 size={18} /> COMPARTIR
-                    </button>
-                    <button
-                        onClick={handlePrint}
-                        className="btn-floating-action"
-                        style={{ background: '#FF8B00', color: '#ffffff' }}
-                    >
-                        <Printer size={18} /> IMPRIMIR PDF
-                    </button>
-                </div>
+
 
 
                 <div className="no-print" style={{
@@ -661,28 +637,27 @@ export default function ATS(): React.ReactElement | null {
                     </div>
 
                     {/* Progress Bar */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginTop: '1rem' }}>
                         <div style={{ height: '8px', background: 'var(--color-background)', borderRadius: '999px', overflow: 'hidden' }}>
                             <div style={{
                                 height: '100%',
-                                width: `${progressPct}%`,
-                                background: progressColor,
+                                width: `${(currentStep / totalSteps) * 100}%`,
+                                background: 'var(--gradient-premium)',
                                 borderRadius: '999px',
                                 transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-                                boxShadow: `0 0 8px ${progressColor}88`
+                                boxShadow: '0 0 10px rgba(59,130,246,0.5)'
                             }} />
                         </div>
-                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                            {progressItems.map((item) => (
-                                <span key={item.label} style={{
-                                    fontSize: '0.65rem', fontWeight: 700, padding: '0.2rem 0.5rem',
-                                    borderRadius: '999px',
-                                    background: item.done ? 'rgba(16,185,129,0.12)' : 'var(--color-background)',
-                                    color: item.done ? '#10b981' : 'var(--color-text-muted)',
-                                    border: `1px solid ${item.done ? 'rgba(16,185,129,0.3)' : 'var(--color-border)'}`,
-                                    display: 'flex', alignItems: 'center', gap: '0.3rem'
+                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 4px' }}>
+                            {['Datos', 'Tareas', 'Checklist', 'Firmas'].map((label, idx) => (
+                                <span key={label} style={{
+                                    fontSize: '0.75rem', fontWeight: 900,
+                                    color: currentStep >= idx + 1 ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                                    transition: 'color 0.3s',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.5px'
                                 }}>
-                                    {item.done ? '✓' : '○'} {item.label}
+                                    {label}
                                 </span>
                             ))}
                         </div>
@@ -714,7 +689,10 @@ export default function ATS(): React.ReactElement | null {
                         </div>
                     </div>
 
-                    <div style={{ border: '2px solid var(--color-border)', borderRadius: '16px', marginBottom: '2.5rem', width: '100%', overflow: 'hidden', background: 'var(--color-surface)', boxShadow: 'var(--shadow-sm)', transition: 'all 0.3s' }} className="hover:border-blue-400/50 hover:shadow-md">
+                    {/* STEP 1 */}
+                    {currentStep === 1 && (
+                        <div className="wizard-step-anim">
+                            <div style={{ border: '2px solid var(--color-border)', borderRadius: '16px', marginBottom: '2.5rem', width: '100%', overflow: 'hidden', background: 'var(--color-surface)', boxShadow: 'var(--shadow-sm)', transition: 'all 0.3s' }} className="hover:border-blue-400/50 hover:shadow-md">
                         <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4" style={{ borderBottom: '2px solid var(--color-border)', width: '100%' }}>
                             <div className="sm:col-span-2 print:col-span-2"><DocBox label="CLIENTE / EMPRESA" value={formData.empresa} onChange={v => setFormData({ ...formData, empresa: v })} large icon={<Building2 size={14} />} /></div>
                             <div className="sm:col-span-1 print:col-span-1"><DocBox label="CUIT / CUIL" value={formData.cuit} onChange={v => setFormData({ ...formData, cuit: v })} borderLeft icon={<ShieldCheck size={14} />} /></div>
@@ -728,10 +706,13 @@ export default function ATS(): React.ReactElement | null {
                             <div className="sm:col-span-2 print:col-span-2"><DocBox label="RESPONSABLE" value={formData.capatazNombre} onChange={v => setFormData({ ...formData, capatazNombre: v })} icon={<User size={14} />} /></div>
                             <div className="sm:col-span-2 print:col-span-2"><DocBox label="PROFESIONAL HYS" value={professional.name} onChange={() => { }} borderLeft icon={<ShieldCheck size={14} />} /></div>
                         </div>
-                    </div>
+                        </div>
+                        </div>
+                    )}
 
-                    {/* Sección de Secuencia de Tareas */}
-                    <div style={{ marginTop: '3rem', marginBottom: '3rem' }}>
+                    {/* STEP 2: Sección de Secuencia de Tareas */}
+                    {currentStep === 2 && (
+                        <div className="wizard-step-anim" style={{ marginTop: '3rem', marginBottom: '3rem' }}>
                         <div className="no-print" style={{ marginBottom: '1.5rem' }}>
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3" style={{ marginBottom: '1.25rem' }}>
                                 <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
@@ -935,9 +916,12 @@ export default function ATS(): React.ReactElement | null {
                                 ))}
                             </div>
                         </div>
-                    </div>
+                        </div>
+                    )}
 
-                    <div style={{ marginTop: '3rem' }}>
+                    {/* STEP 3 */}
+                    {currentStep === 3 && (
+                        <div className="wizard-step-anim" style={{ marginTop: '3rem' }}>
                         <h3 style={{ marginTop: 0, marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
                             <ShieldCheck size={24} className="text-blue-600" /> Verificación de Seguridad
                         </h3>
@@ -1048,9 +1032,12 @@ export default function ATS(): React.ReactElement | null {
                                 </div>
                             </div>
                         ))}
-                    </div>
+                        </div>
+                    )}
 
-                    <div className="card animate-fade-in" style={{ marginTop: '2.5rem', background: 'rgba(var(--color-surface-rgb), 0.3)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', padding: '2.5rem', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.08)' }}>
+                    {/* STEP 4 */}
+                    {currentStep === 4 && (
+                        <div className="wizard-step-anim card animate-fade-in" style={{ marginTop: '2.5rem', background: 'rgba(var(--color-surface-rgb), 0.3)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', padding: '2.5rem', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.08)' }}>
                         <h3 style={{ marginTop: 0, marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.25rem', textTransform: 'uppercase', letterSpacing: '1.2px' }}>
                             <Pencil size={22} style={{ color: 'var(--color-primary)' }} /> Firmas y Autorizaciones
                         </h3>
@@ -1158,7 +1145,61 @@ export default function ATS(): React.ReactElement | null {
                                 </div>
                             )}
                         </div>
+                        </div>
+                    )}
+
+                    {/* Wizard Footer Controls */}
+                    <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '3rem', paddingTop: '1.5rem', borderTop: '2px solid var(--color-border)' }}>
+                        <button 
+                            onClick={prevStep} 
+                            disabled={currentStep === 1}
+                            style={{ padding: '0.8rem 1.5rem', borderRadius: '14px', background: currentStep === 1 ? 'transparent' : 'var(--color-surface)', border: currentStep === 1 ? '2px solid transparent' : '2px solid var(--color-border)', color: currentStep === 1 ? 'transparent' : 'var(--color-text)', fontWeight: 800, cursor: currentStep === 1 ? 'default' : 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                        >
+                            <ArrowLeft size={18} /> Atrás
+                        </button>
+                        
+                        {currentStep < totalSteps ? (
+                            <button 
+                                onClick={nextStep}
+                                style={{ padding: '0.8rem 2rem', borderRadius: '14px', background: 'var(--gradient-premium)', border: 'none', color: '#fff', fontWeight: 900, cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(59,130,246,0.3)' }}
+                                className="hover-scale"
+                            >
+                                Siguiente Paso
+                            </button>
+                        ) : (
+                            <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                                <button
+                                    onClick={handleClearForm}
+                                    style={{ padding: '0.8rem 1.2rem', borderRadius: '14px', background: 'transparent', border: '2px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                                    className="hover:bg-red-50 dark:hover:bg-red-900/10"
+                                >
+                                    <Trash2 size={18} /> Limpiar
+                                </button>
+                                <button
+                                    onClick={handlePrint}
+                                    style={{ padding: '0.8rem 1.2rem', borderRadius: '14px', background: 'var(--color-surface)', border: '2px solid rgba(245, 158, 11, 0.3)', color: '#f59e0b', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                                    className="hover:bg-amber-50 dark:hover:bg-amber-900/10"
+                                >
+                                    <Printer size={18} /> Imprimir
+                                </button>
+                                <button
+                                    onClick={handleShare}
+                                    style={{ padding: '0.8rem 1.2rem', borderRadius: '14px', background: 'var(--color-surface)', border: '2px solid rgba(59, 130, 246, 0.3)', color: '#3b82f6', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                                    className="hover:bg-blue-50 dark:hover:bg-blue-900/10"
+                                >
+                                    <Share2 size={18} /> Compartir
+                                </button>
+                                <button 
+                                    onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
+                                    style={{ padding: '0.8rem 2rem', borderRadius: '14px', background: '#10b981', border: 'none', color: '#fff', fontWeight: 900, cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(16,185,129,0.3)' }}
+                                    className="hover-scale"
+                                >
+                                    <Save size={18} /> Guardar ATS
+                                </button>
+                            </div>
+                        )}
                     </div>
+
                     <PdfBrandingFooter />
                 </div>
                 </>

@@ -10,7 +10,7 @@ import {
   ChatText, Sun, Moon, Star, ChartPieSlice,
   CreditCard, Crown, Image as ImageIconPh, UploadSimple,
   CheckCircle, Info, Bell, Pulse as Activity,
-  Tent, Drop as Droplets, SpeakerHigh, Flask, MagnifyingGlass, TrendUp as TrendingUp, Truck, Crane, Timer
+  Tent, Drop as Droplets, SpeakerHigh, Flask, MagnifyingGlass, TrendUp as TrendingUp, Truck, Crane, Timer, Sparkle
 } from '@phosphor-icons/react';
 import { User as FirebaseUser } from 'firebase/auth';
 import { getCountryNormativa } from '../data/legislationData';
@@ -27,11 +27,15 @@ import StatsBar from '../components/StatsBar';
 import NewsWidget from '../components/NewsWidget';
 
 // Landing components — lazy porque solo se renderizan para usuarios no autenticados
-const MarketingLanding = lazy(() => import('../components/MarketingLanding'));
 const InteractiveHeroDemo = lazy(() => import('../components/landing/InteractiveHeroDemo'));
-const BeforeAndAfter = lazy(() => import('../components/landing/BeforeAndAfter'));
 const WallOfLove = lazy(() => import('../components/landing/WallOfLove'));
+const BeforeAndAfter = lazy(() => import('../components/landing/BeforeAndAfter'));
 const RoiCalculator = lazy(() => import('../components/landing/RoiCalculator'));
+const StatsShowcase = lazy(() => import('../components/landing/StatsShowcase'));
+const FeaturesShowcase = lazy(() => import('../components/landing/FeaturesShowcase'));
+const ModulesGrid = lazy(() => import('../components/landing/ModulesGrid'));
+const PricingDark = lazy(() => import('../components/landing/PricingDark'));
+const FaqAndCtaDark = lazy(() => import('../components/landing/FaqAndCtaDark'));
 
 // Tipos
 interface StatItem {
@@ -175,12 +179,49 @@ const CounterItem: React.FC<CounterItemProps> = ({ value, label, suffix = '' }) 
   );
 };
 
+// Typewriter hook for hero headline
+function useTypewriter(words: string[], speed = 80, pause = 2000) {
+  const [displayed, setDisplayed] = React.useState('');
+  const [wordIdx, setWordIdx] = React.useState(0);
+  const [charIdx, setCharIdx] = React.useState(0);
+  const [deleting, setDeleting] = React.useState(false);
+
+  React.useEffect(() => {
+    const current = words[wordIdx];
+    if (!deleting && charIdx < current.length) {
+      const t = setTimeout(() => setCharIdx(c => c + 1), speed);
+      return () => clearTimeout(t);
+    }
+    if (!deleting && charIdx === current.length) {
+      const t = setTimeout(() => setDeleting(true), pause);
+      return () => clearTimeout(t);
+    }
+    if (deleting && charIdx > 0) {
+      const t = setTimeout(() => setCharIdx(c => c - 1), speed / 2);
+      return () => clearTimeout(t);
+    }
+    if (deleting && charIdx === 0) {
+      setDeleting(false);
+      setWordIdx(w => (w + 1) % words.length);
+    }
+  }, [charIdx, deleting, wordIdx, words, speed, pause]);
+
+  React.useEffect(() => {
+    setDisplayed(words[wordIdx].slice(0, charIdx));
+  }, [charIdx, wordIdx, words]);
+
+  return displayed;
+}
+
 export default function Home(): React.ReactElement {
   const navigate = useNavigate();
   const location = useLocation();
   const { currentUser } = useAuth() as { currentUser: FirebaseUser | null };
   const { syncPulse } = useSync();
   const { isPro, daysRemaining } = usePaywall();
+
+  const heroWords = ['ATS', 'Carga de Fuego', 'Auditorías', 'Matrices de Riesgo', 'Capacitaciones'];
+  const typedWord = useTypewriter(heroWords);
 
   const typeColors: Record<string, { bg: string, text: string, icon: React.ReactElement }> = {
     'ATS': { bg: 'rgba(16, 185, 129, 0.1)', text: '#059669', icon: <ShieldCheck weight="duotone" size={20} /> },
@@ -421,19 +462,23 @@ export default function Home(): React.ReactElement {
           }} />
 
           <StarryBackground />
-          <div style={{ position: 'relative', zIndex: 1, maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 1fr)', gap: '4rem', alignItems: 'center' }}>
-            <div className="stagger-item" style={{ animationDelay: '0.1s' }}>
+          <div style={{ position: 'relative', zIndex: 1, maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'minmax(0, 1.2fr) minmax(0, 1fr)', gap: isMobile ? '2rem' : '4rem', alignItems: 'center' }}>
+            <div className="stagger-item" style={{ animationDelay: '0.1s', textAlign: isMobile ? 'center' : 'left' }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.5rem 1rem', background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '100px', marginBottom: '2rem' }}>
                 <ShieldCheck size={16} color="#60a5fa" />
                 <span style={{ color: '#60a5fa', fontSize: '0.85rem', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase' }}>Plataforma H&S con IA</span>
               </div>
               <h1 style={{ fontSize: 'clamp(2.8rem, 6vw, 4.5rem)', fontWeight: 900, color: 'white', margin: '0 0 1.5rem', lineHeight: 1.1, letterSpacing: '-2px', fontFamily: 'var(--font-heading)' }}>
-                El futuro de la prevención <span style={{ background: 'linear-gradient(to right, #60a5fa, #a855f7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>ya llegó.</span>
+                Creá tus{' '}
+                <span style={{ background: 'linear-gradient(to right, #60a5fa, #a855f7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block', minWidth: '5ch' }}>
+                  {typedWord}<span style={{ animation: 'pulse-soft 0.8s ease-in-out infinite', opacity: 1, color: '#60a5fa' }}>|</span>
+                </span>
+                {' '}en minutos.{' '}
               </h1>
-              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.25rem', marginBottom: '2.5rem', fontWeight: 500, maxWidth: '550px', lineHeight: 1.6 }}>
-                Creá ATS, Carga de Fuego e Informes Técnicos en minutos. Validado por la normativa de toda la región.
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.2rem', marginBottom: '2.5rem', fontWeight: 500, maxWidth: '540px', lineHeight: 1.65 }}>
+                La plataforma de Higiene y Seguridad con IA que redacta, calcula y genera PDFs profesionales. Validado por la normativa de toda la región.
               </p>
-              <div className="hero-buttons stagger-item" style={{ animationDelay: '0.3s', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              <div className="hero-buttons stagger-item" style={{ animationDelay: '0.3s', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: isMobile ? 'center' : 'flex-start' }}>
                 <button onClick={() => navigate('/login', { state: { view: 'register' } })} className="glow-button hover-lift" style={{ padding: '1.1rem 2.5rem', fontSize: '1.1rem' }}>
                   Generar mi primer ATS Gratis <ArrowRight size={20} style={{ display: 'inline', verticalAlign: 'middle', margin: '-2px 0 0 0.5rem' }} />
                 </button>
@@ -444,10 +489,36 @@ export default function Home(): React.ReactElement {
                   Ver Demo de IA
                 </button>
               </div>
+              {/* Social proof avatars */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1.5rem', justifyContent: isMobile ? 'center' : 'flex-start' }}>
+                <div style={{ display: 'flex' }}>
+                  {['#3b82f6','#10b981','#a855f7','#f97316','#ec4899'].map((c, i) => (
+                    <div key={i} style={{
+                      width: '36px', height: '36px', borderRadius: '50%',
+                      background: `linear-gradient(135deg, ${c}, ${c}99)`,
+                      border: '2px solid rgba(2,6,23,0.8)',
+                      marginLeft: i === 0 ? 0 : '-10px',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: 'white', fontWeight: 900, fontSize: '0.75rem',
+                      flexShrink: 0,
+                    }}>{['J','M','C','L','R'][i]}</div>
+                  ))}
+                </div>
+                <div>
+                  <div style={{ display: 'flex', gap: '1px', marginBottom: '2px' }}>
+                    {[...Array(5)].map((_, i) => <span key={i} style={{ color: '#fbbf24', fontSize: '11px' }}>★</span>)}
+                  </div>
+                  <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.8rem', fontWeight: 500 }}>
+                    +1,240 profesionales ya la usan
+                  </span>
+                </div>
+              </div>
+
               {/* Stats inline */}
-              <div style={{ display: 'flex', gap: '2.5rem', marginTop: '3.5rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem' }}>
+              <div style={{ display: 'flex', gap: isMobile ? '1.5rem' : '2.5rem', marginTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem', justifyContent: isMobile ? 'center' : 'flex-start', flexWrap: 'wrap' }}>
                 <CounterItem value={1240} label="Profesionales" suffix="+" />
                 <CounterItem value={8500} label="Reportes" suffix="+" />
+                <CounterItem value={5} label="Países" suffix="" />
               </div>
             </div>
             
@@ -465,75 +536,136 @@ export default function Home(): React.ReactElement {
           <StarryBackground />
           <div style={{ position: 'relative', zIndex: 1, maxWidth: '1200px', margin: '0 auto' }}>
             <div className="stagger-item" style={{ animationDelay: '0.1s' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.8rem', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', marginBottom: '1.5rem', backdropFilter: 'blur(8px)' }}>
-                <Shield size={14} color="#60a5fa" />
-                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'white', textTransform: 'uppercase', letterSpacing: '1px' }}>Dashboard Privado</span>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.8rem', background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: '100px', marginBottom: '2rem', backdropFilter: 'blur(8px)' }}>
+                <Shield size={14} color="#60a5fa" weight="bold" />
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '1px' }}>Dashboard Privado</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                <div style={{ width: '64px', height: '64px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '16px', padding: '10px', backdropFilter: 'blur(10px)', flexShrink: 0 }}>
+              
+              <div style={{ 
+                display: 'flex', alignItems: 'center', gap: '1.5rem',
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                padding: '1.5rem',
+                borderRadius: '24px',
+                boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+                backdropFilter: 'blur(12px)',
+                position: 'relative',
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  position: 'absolute', top: '-50%', left: '-10%', width: '150px', height: '150px',
+                  background: 'radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%)', pointerEvents: 'none'
+                }}/>
+                <div style={{ width: '70px', height: '70px', background: 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02))', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '18px', padding: '12px', flexShrink: 0, boxShadow: '0 8px 16px rgba(0,0,0,0.2)' }}>
                   <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                 </div>
-                <div>
-                  <h1 style={{ fontSize: 'clamp(2rem, 5vw, 2.8rem)', fontWeight: 900, color: 'white', margin: 0, lineHeight: 1.1, fontFamily: 'var(--font-heading)' }}>
-                    Hola, {userName} {isSubscribed && <Crown size={22} color="#f59e0b" weight="fill" style={{ display: 'inline', verticalAlign: 'middle', marginLeft: '0.5rem' }}/>}
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  <h1 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.4rem)', fontWeight: 900, color: 'white', margin: 0, lineHeight: 1.1, fontFamily: 'var(--font-heading)' }}>
+                    Hola, {userName} {isSubscribed && <Crown size={24} color="#f59e0b" weight="fill" style={{ display: 'inline', verticalAlign: 'middle', marginLeft: '0.5rem', filter: 'drop-shadow(0 2px 8px rgba(245,158,11,0.4))' }}/>}
                   </h1>
-                  <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem', margin: '0.5rem 0 0', fontWeight: 500 }}>
-                    Gestioná riesgos, ATS y cumplimiento normativo con IA.
+                  <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '1.05rem', margin: '0.4rem 0 0', fontWeight: 500 }}>
+                    Tu centro de control de Higiene y Seguridad con IA.
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Stats for logged users */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '1rem', marginTop: '2.5rem' }}>
-              {stats.map((stat, i) => (
-                <div key={i}
-                  onClick={() => navigate('/history')}
-                  className="glass-card stagger-item hover-lift"
-                  style={{
-                    borderRadius: '20px',
-                    padding: '1.2rem 1rem',
-                    textAlign: 'center',
-                    cursor: 'pointer',
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    animationDelay: `${0.2 + (i * 0.05)}s`
-                  }}
-                >
-                  <div style={{ color: 'var(--color-primary)', marginBottom: '0.8rem', opacity: 0.9 }}>
-                    {/* @ts-ignore */}
-                    {React.cloneElement(stat.icon, { size: 24 })}
+            {/* --- BENTO GRID DASHBOARD --- */}
+            <div className="bento-container stagger-item" style={{ animationDelay: '0.2s' }}>
+              
+              {/* BENTO 1: Bienvenido & Daily Insight (bento-main) */}
+              <div className="bento-item bento-main">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+                  <div>
+                    <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: 'white', margin: 0, lineHeight: 1.1 }}>
+                      Resumen Diario
+                    </h2>
+                    <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem', margin: '0.4rem 0 0' }}>
+                      Actividad y consejos de tu asistente IA
+                    </p>
                   </div>
-                  <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#ffffff', lineHeight: 1 }}>{stat.value}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', marginTop: '0.5rem' }}>{stat.label}</div>
+                  <Sparkle size={32} weight="duotone" color="#a855f7" />
                 </div>
-              ))}
-            </div>
-            {/* Daily Insight */}
-            {currentUser && dailyInsight && (
-              <div className="stagger-item" style={{
-                marginTop: '1.5rem',
-                padding: '1.2rem',
-                borderRadius: '20px',
-                background: 'rgba(59, 130, 246, 0.1)',
-                border: '1px solid rgba(59,130,246,0.2)',
-                display: 'flex',
-                gap: '1rem',
-                alignItems: 'center',
-                animationDelay: '0.5s'
-              }}>
-                <div style={{ background: 'var(--color-primary)', color: 'white', padding: '0.8rem', borderRadius: '15px', display: 'flex' }}>
-                  <Lightbulb size={20} weight="fill" />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--color-primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Consejo del día · {dailyInsight.category}</span>
+                
+                {currentUser && dailyInsight ? (
+                  <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.2rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    <span style={{ fontSize: '0.75rem', color: '#c084fc', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem', display: 'block' }}>Tip IA · {dailyInsight.category}</span>
+                    <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', fontWeight: 800, color: '#ffffff' }}>{dailyInsight.title}</h4>
+                    <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>{dailyInsight.content}</p>
                   </div>
-                  <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#ffffff' }}>{dailyInsight.title}</h4>
-                  <p style={{ margin: '0.2rem 0 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.4 }}>{dailyInsight.content}</p>
+                ) : (
+                  <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.2rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ color: 'rgba(255,255,255,0.5)' }}>Cargando análisis diario...</span>
+                  </div>
+                )}
+              </div>
+
+              {/* BENTO 2: Accesos Rápidos Top 4 (bento-quick) */}
+              <div className="bento-item bento-quick" style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'rgba(255,255,255,0.08)' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'white', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Star size={18} color="#f59e0b" weight="fill" /> Favoritos y Más Usados
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.8rem', flex: 1 }}>
+                  {quickLinks.filter(l => l.featured).slice(0, 4).map((link, i) => (
+                    <div key={i} onClick={() => navigate(link.to)} className="hover-glow" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', padding: '1rem', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                      <div style={{ color: link.color, marginBottom: '0.5rem' }}>
+                        {/* @ts-ignore */}
+                        {React.cloneElement(link.icon, { size: 24 })}
+                      </div>
+                      <div style={{ color: 'white', fontWeight: 700, fontSize: '0.9rem' }}>{link.label}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            )}
+
+              {/* BENTO 3: Historial y Actividad Reciente (bento-recent) */}
+              <div className="bento-item bento-recent" style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'rgba(255,255,255,0.08)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'white', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <ClockCounterClockwise size={18} color="#3b82f6" /> Recientes
+                  </h3>
+                  <button onClick={() => navigate('/history')} style={{ background: 'none', border: 'none', color: '#60a5fa', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}>Ver todo</button>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', flex: 1, overflowY: 'auto' }} className="hide-scrollbar">
+                  {recentWorks.length > 0 ? recentWorks.slice(0, 4).map((work, i) => {
+                    const tColor = typeColors[work.type] || typeColors['ATS'];
+                    return (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem', background: 'rgba(0,0,0,0.2)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: tColor.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: tColor.text, flexShrink: 0 }}>
+                          {tColor.icon}
+                        </div>
+                        <div style={{ overflow: 'hidden' }}>
+                          <div style={{ color: 'white', fontSize: '0.85rem', fontWeight: 600, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{work.title}</div>
+                          <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginTop: '2px' }}>{work.type} • {new Date(work.date).toLocaleDateString()}</div>
+                        </div>
+                      </div>
+                    );
+                  }) : (
+                    <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', textAlign: 'center', margin: 'auto' }}>No hay actividad reciente</div>
+                  )}
+                </div>
+              </div>
+
+              {/* BENTO 4: Indicadores KPI (bento-stats) */}
+              <div className="bento-item bento-stats" style={{ background: 'linear-gradient(135deg, rgba(239,68,68,0.1) 0%, rgba(249,115,22,0.05) 100%)', borderColor: 'rgba(239,68,68,0.2)' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'white', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <ChartPieSlice size={18} color="#ef4444" /> KPIs Rápidos
+                </h3>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.8rem', justifyContent: 'center' }}>
+                  {stats.filter(s => ['ATS', 'Accidentes', 'Permisos'].includes(s.label)).slice(0,3).map((stat, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', padding: '0.8rem 1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        {/* @ts-ignore */}
+                        {React.cloneElement(stat.icon, { size: 16, color: stat.color })}
+                        <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.85rem', fontWeight: 600 }}>{stat.label}</span>
+                      </div>
+                      <span style={{ color: 'white', fontWeight: 900, fontSize: '1.1rem' }}>{stat.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            {/* --- FIN BENTO GRID --- */}
           </div>
         </div>
       )}
@@ -543,24 +675,15 @@ export default function Home(): React.ReactElement {
       {!currentUser && (
         <Suspense fallback={<div style={{ padding: '4rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>Cargando...</div>}>
           <div style={{ marginTop: '0' }}>
+          <StatsShowcase />
+          <ModulesGrid />
+          <FeaturesShowcase />
           <WallOfLove />
           <BeforeAndAfter />
           <RoiCalculator />
-          <MarketingLanding onStart={() => navigate('/login', { state: { view: 'register' } })} />
-          
-          <div style={{ marginTop: '4rem', maxWidth: '800px', margin: '4rem auto 0' }}>
-            <h2 style={{
-              fontSize: 'clamp(1.3rem, 4vw, 1.5rem)',
-              fontWeight: 900,
-              textAlign: 'center',
-              marginBottom: '2rem',
-              color: 'var(--color-text)'
-            }}>
-              Preguntas Frecuentes
-            </h2>
-            <FaqSection />
+          <PricingDark onStart={() => navigate('/login', { state: { view: 'register' } })} />
+          <FaqAndCtaDark />
           </div>
-        </div>
         </Suspense>
       )}
 
@@ -658,8 +781,8 @@ export default function Home(): React.ReactElement {
                   style={{
                     textDecoration: 'none',
                     padding: isMobile ? '1rem 0.4rem' : '1.5rem 1rem',
-                    borderRadius: isMobile ? '16px' : '24px', // Sin puntas
-                    background: `linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))`,
+                    borderRadius: isMobile ? '16px' : '24px',
+                    background: 'var(--color-surface)',
                     border: '1px solid var(--color-border)',
                     transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                     display: 'flex',
@@ -670,19 +793,20 @@ export default function Home(): React.ReactElement {
                     gap: isMobile ? '0.5rem' : '0.8rem',
                     position: 'relative',
                     overflow: 'hidden',
-                    aspectRatio: '1 / 1'
+                    aspectRatio: '1 / 1',
+                    boxShadow: 'var(--shadow-sm)'
                   }}
                   onMouseOver={e => {
                     e.currentTarget.style.borderColor = `${link.color}50`;
                     e.currentTarget.style.boxShadow = `0 12px 30px ${link.color}15`;
                     e.currentTarget.style.transform = 'translateY(-4px)';
-                    e.currentTarget.style.background = `linear-gradient(145deg, ${link.bg}, rgba(255,255,255,0.02))`;
+                    e.currentTarget.style.background = `linear-gradient(145deg, ${link.bg}, var(--color-surface-hover))`;
                   }}
                   onMouseOut={e => {
                     e.currentTarget.style.borderColor = 'var(--color-border)';
                     e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
                     e.currentTarget.style.transform = 'none';
-                    e.currentTarget.style.background = `linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))`;
+                    e.currentTarget.style.background = 'var(--color-surface)';
                   }}
                 >
                   {/* Badge */}
@@ -761,59 +885,66 @@ export default function Home(): React.ReactElement {
                   padding: '1.2rem',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '1rem',
-                  transition: 'transform 0.2s'
+                  gap: '1.2rem',
+                  transition: 'all 0.2s ease',
+                  background: 'var(--color-surface)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: '16px',
+                  cursor: 'pointer',
+                  boxShadow: 'var(--shadow-sm)'
                 }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLDivElement).style.background = 'var(--color-surface-hover)';
+                  (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--color-border-hover)';
+                  (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)';
+                  (e.currentTarget as HTMLDivElement).style.boxShadow = 'var(--shadow-md)';
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLDivElement).style.background = 'var(--color-surface)';
+                  (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--color-border)';
+                  (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
+                  (e.currentTarget as HTMLDivElement).style.boxShadow = 'var(--shadow-sm)';
+                }}
+                onClick={() => navigate('/history')}
               >
                 <div style={{
-                  width: '45px',
-                  height: '45px',
+                  width: '48px',
+                  height: '48px',
                   background: typeColors[work.type]?.bg || 'rgba(59,130,246,0.1)',
-                  borderRadius: '10px',
+                  borderRadius: '12px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: typeColors[work.type]?.text || '#3b82f6',
-                  flexShrink: 0
+                  flexShrink: 0,
+                  boxShadow: `0 4px 12px ${typeColors[work.type]?.bg || 'rgba(59,130,246,0.1)'}`
                 }}>
-                  {typeColors[work.type]?.icon || <FileText size={20} />}
+                  {typeColors[work.type]?.icon || <FileText size={22} weight="duotone" />}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {work.title}
                   </h3>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.3rem' }}>
                     <span>{work.subtitle}</span>
                     <span>•</span>
                     <span>{new Date(work.date).toLocaleDateString('es-AR')}</span>
-                    <span>•</span>
-                    <span style={{
-                      padding: '0.2rem 0.6rem',
-                      background: typeColors[work.type]?.bg || 'rgba(59,130,246,0.1)',
-                      color: typeColors[work.type]?.text || '#3b82f6',
-                      borderRadius: '20px',
-                      fontSize: '0.7rem',
-                      fontWeight: 700
-                    }}>
-                      {work.type}
-                    </span>
                   </div>
                 </div>
-                <button
-                  onClick={() => navigate('/history')}
-                  style={{
-                    padding: '0.6rem 1rem',
-                    background: 'var(--color-surface)',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: '8px',
-                    color: 'var(--color-text)',
-                    cursor: 'pointer',
-                    fontWeight: 700,
-                    fontSize: '0.8rem'
-                  }}
-                >
-                  Ver
-                </button>
+                <div style={{
+                  padding: '0.3rem 0.8rem',
+                  background: 'var(--color-background)',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text-muted)',
+                  borderRadius: '100px',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem'
+                }}>
+                  {work.type} <ArrowRight size={12} weight="bold" />
+                </div>
               </div>
             ))}
           </div>
@@ -854,7 +985,7 @@ export default function Home(): React.ReactElement {
   );
 }
 
-// FAQ Component
+// FAQ Component — Premium Accordion
 function FaqSection(): React.ReactElement {
   const [open, setOpen] = React.useState<number | null>(null);
   const savedData = localStorage.getItem('personalData');
@@ -881,19 +1012,89 @@ function FaqSection(): React.ReactElement {
   ];
 
   return (
-    <div style={{ marginBottom: '2rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '2rem' }}>
       {items.map((item, i) => (
-        <div key={i} className="card" style={{ marginBottom: '0.6rem', padding: '0', overflow: 'hidden' }}>
-          <button onClick={() => setOpen(open === i ? null : i)}
-            style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '1rem 1.2rem', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-text)' }}>
-            {item.q}
-            <span style={{ flexShrink: 0, transform: open === i ? 'rotate(45deg)' : 'rotate(0)', transition: 'transform 0.2s', fontSize: '1.3rem', color: 'var(--color-primary)', lineHeight: 1 }}>+</span>
+        <div
+          key={i}
+          style={{
+            borderRadius: '16px',
+            overflow: 'hidden',
+            border: open === i ? '1px solid rgba(59,130,246,0.3)' : '1px solid var(--color-border)',
+            background: open === i ? 'rgba(59,130,246,0.04)' : 'var(--color-surface)',
+            transition: 'all 0.25s ease',
+            boxShadow: open === i ? '0 4px 20px rgba(59,130,246,0.08)' : 'none',
+          }}
+        >
+          <button
+            onClick={() => setOpen(open === i ? null : i)}
+            style={{
+              width: '100%',
+              textAlign: 'left',
+              background: 'none',
+              border: 'none',
+              padding: '1.1rem 1.4rem',
+              cursor: 'pointer',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: '1rem',
+              fontWeight: 700,
+              fontSize: '0.95rem',
+              color: open === i ? 'var(--color-primary)' : 'var(--color-text)',
+              transition: 'color 0.2s',
+              minHeight: '48px',
+            }}
+          >
+            <span style={{ flex: 1 }}>{item.q}</span>
+            <div
+              style={{
+                width: '28px',
+                height: '28px',
+                borderRadius: '50%',
+                background: open === i ? 'var(--color-primary)' : 'rgba(59,130,246,0.08)',
+                border: `1px solid ${open === i ? 'var(--color-primary)' : 'rgba(59,130,246,0.15)'}`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                transition: 'all 0.3s ease',
+              }}
+            >
+              <span
+                style={{
+                  fontSize: '1.1rem',
+                  color: open === i ? 'white' : 'var(--color-primary)',
+                  lineHeight: 1,
+                  display: 'block',
+                  transform: open === i ? 'rotate(45deg)' : 'rotate(0)',
+                  transition: 'transform 0.3s ease',
+                  fontWeight: 300,
+                }}
+              >
+                +
+              </span>
+            </div>
           </button>
-          {open === i && (
-            <div style={{ padding: '0 1.2rem 1rem', fontSize: '0.85rem', color: 'var(--color-text-muted)', lineHeight: 1.6 }}>
+          <div
+            style={{
+              maxHeight: open === i ? '300px' : '0',
+              overflow: 'hidden',
+              transition: 'max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+          >
+            <div
+              style={{
+                padding: '0 1.4rem 1.2rem',
+                fontSize: '0.9rem',
+                color: 'var(--color-text-muted)',
+                lineHeight: 1.7,
+                borderTop: '1px solid var(--color-border)',
+                paddingTop: '1rem',
+              }}
+            >
               {item.a}
             </div>
-          )}
+          </div>
         </div>
       ))}
     </div>

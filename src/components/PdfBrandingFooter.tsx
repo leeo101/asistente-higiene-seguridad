@@ -12,96 +12,89 @@ export default function PdfBrandingFooter() {
                     .pdf-brand-container {
                         display: flex !important;
                         flex-direction: column;
-                        margin-top: 2rem;
+                        margin-top: 3rem;
                         padding-top: 1.5rem;
-                        border-top: 1px solid #e2e8f0;
-                        gap: 1rem;
+                        border-top: 2px solid #1e293b;
+                        gap: 1.5rem;
                         page-break-inside: avoid;
+                        background-color: #ffffff;
                     }
                 }
                 .force-pdf-print .pdf-brand-container {
                     display: flex !important;
                     flex-direction: column;
-                    margin-top: 2rem;
+                    margin-top: 3rem;
                     padding-top: 1.5rem;
-                    border-top: 1px solid #e2e8f0;
-                    gap: 1rem;
+                    border-top: 2px solid #1e293b;
+                    gap: 1.5rem;
+                    background-color: #ffffff;
                 }
                 
-                @media print {
+                .pdf-legal-box {
+                    border: 1px solid #cbd5e1;
+                    background-color: #f8fafc;
+                    padding: 1.25rem;
+                    border-radius: 4px;
+                }
+
+                @media print, .force-pdf-print {
                     .pdf-legal-text {
-                        font-size: 0.55rem;
-                        color: #64748b;
-                        line-height: 1.5;
-                        text-align: justify;
+                        font-size: 0.65rem !important;
+                        color: #334155 !important;
+                        line-height: 1.6 !important;
+                        text-align: justify !important;
+                        font-family: 'Times New Roman', Times, serif;
+                        font-style: italic;
                     }
                     .pdf-legal-text strong {
-                        color: #475569;
+                        color: #0f172a !important;
+                        font-style: normal;
+                        font-family: 'Inter', sans-serif;
+                        text-transform: uppercase;
+                        letter-spacing: 0.05em;
+                        font-size: 0.7rem !important;
+                        display: block;
+                        margin-bottom: 0.5rem;
+                        border-bottom: 1px solid #cbd5e1;
+                        padding-bottom: 0.3rem;
                     }
                     .pdf-brand {
                         display: flex;
                         align-items: center;
                         justify-content: center;
                         gap: 0.5rem;
-                        font-size: 0.7rem;
-                        color: #94a3b8;
-                        font-weight: 600;
+                        font-size: 0.7rem !important;
+                        color: #64748b !important;
+                        font-weight: 600 !important;
                         letter-spacing: 0.02em;
                         margin-top: 0.5rem;
+                        font-family: 'Inter', sans-serif;
                     }
                     .pdf-brand img {
-                        width: 18px;
-                        height: 18px;
+                        width: 16px;
+                        height: 16px;
                         object-fit: contain;
-                        opacity: 0.7;
+                        opacity: 0.8;
+                        filter: grayscale(100%);
                     }
                     .pdf-brand a {
-                        color: #2563eb;
-                        font-weight: 700;
+                        color: #0f172a !important;
+                        font-weight: 800 !important;
                         text-decoration: none;
                     }
                 }
-
-                .force-pdf-print .pdf-legal-text {
-                    font-size: 0.55rem;
-                    color: #64748b;
-                    line-height: 1.5;
-                    text-align: justify;
-                }
-                .force-pdf-print .pdf-legal-text strong {
-                    color: #475569;
-                }
-                .force-pdf-print .pdf-brand {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 0.5rem;
-                    font-size: 0.7rem;
-                    color: #94a3b8;
-                    font-weight: 600;
-                    letter-spacing: 0.02em;
-                    margin-top: 0.5rem;
-                }
-                .force-pdf-print .pdf-brand img {
-                    width: 18px;
-                    height: 18px;
-                    object-fit: contain;
-                    opacity: 0.7;
-                }
-                .force-pdf-print .pdf-brand a {
-                    color: #2563eb;
-                    font-weight: 700;
-                    text-decoration: none;
-                }
             `}</style>
             
-            <div className="pdf-legal-text">
-                <strong>AVISO LEGAL Y DECLARACIÓN JURADA:</strong> Este documento reviste carácter de Declaración Jurada. Quienes suscriben declaran haber sido notificados e instruidos sobre los riesgos inherentes a las tareas a realizar, comprendiendo plenamente los procedimientos de trabajo seguro y comprometiéndose a utilizar los Elementos de Protección Personal (EPP) y salvaguardas correspondientes. Todo el personal involucrado tiene el derecho, la autoridad y la obligación de detener inmediatamente cualquier tarea (Stop Work Authority) si las condiciones de seguridad descriptas cambian y representan un riesgo inaceptable o peligro inminente. La validez de este documento se limita exclusivamente a la jornada, área y tareas especificadas, debiendo emitirse uno nuevo ante cualquier modificación eventual del entorno, tareas o personal. Documento elaborado en concordancia con los requerimientos de la Ley N° 19.587 de Higiene y Seguridad en el Trabajo, sus Decretos Reglamentarios y la Ley N° 24.557 de Riesgos del Trabajo de la República Argentina. Los datos y firmas aquí recabados serán tratados conforme a la Ley N° 25.326 de Protección de Datos Personales, con fines exclusivos de cumplimiento registral en materia de gestión de seguridad laboral.
+            <div className="pdf-legal-box">
+                <div className="pdf-legal-text">
+                    <strong>Aviso Legal y Declaración Jurada</strong>
+                    Quienes suscriben el presente documento declaran haber sido notificados e instruidos exhaustivamente sobre los riesgos inherentes a las tareas a realizar, comprendiendo plenamente los procedimientos de trabajo seguro y comprometiéndose irrevocablemente a utilizar los Elementos de Protección Personal (EPP) y salvaguardas correspondientes. Todo el personal involucrado retiene el derecho, la autoridad y la obligación indelegable de detener inmediatamente cualquier tarea (Stop Work Authority) si las condiciones de seguridad descriptas sufrieran modificaciones que representen un riesgo inaceptable o peligro inminente. La validez de este documento se circunscribe de manera exclusiva a la jornada, área y tareas aquí especificadas, debiendo emitirse un nuevo instrumento ante cualquier modificación eventual del entorno, maquinarias o personal asignado. Documento elaborado en estricta concordancia con los lineamientos exigidos por la Ley N° 19.587 de Higiene y Seguridad en el Trabajo, sus Decretos Reglamentarios (Dec. 351/79, 911/96) y la Ley N° 24.557 de Riesgos del Trabajo de la República Argentina. Los datos biométricos y firmas recabados serán resguardados conforme a la Ley N° 25.326 de Protección de Datos Personales, con fines de cumplimiento registral auditorable en materia de gestión de Prevención de Riesgos Laborales.
+                </div>
             </div>
 
             <div className="pdf-brand">
                 <img src="/logo.png" alt="Asistente HYS" />
-                <span>Generado con <a href="https://asistentehs.com">Asistente HYS</a> — La plataforma de Higiene y Seguridad con IA</span>
+                <span>Documento oficial auditado mediante tecnología de <a href="https://asistentehs.com">Asistente H&S</a></span>
             </div>
         </div>
     );

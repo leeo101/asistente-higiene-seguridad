@@ -49,9 +49,9 @@ export default function SidebarUserProfile({ currentUser, userInfo, isPro, daysR
                     <User weight="duotone" size={26} color="rgba(255,255,255,0.9)" />
                 )}
             </div>
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--color-hero-text)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {currentUser ? userInfo.name : 'Invitado'}
                         {isPro && (
                             <div
@@ -78,34 +78,32 @@ export default function SidebarUserProfile({ currentUser, userInfo, isPro, daysR
                         onClick={(e) => { e.stopPropagation(); toggleTheme(); }}
                         style={{
                             padding: 0,
-                            background: 'rgba(255,255,255,0.1)',
-                            border: '1px solid rgba(255,255,255,0.2)',
-                            width: '36px',
-                            height: '36px',
-                            borderRadius: '10px',
+                            background: 'var(--color-background)',
+                            border: '1px solid var(--color-border)',
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '8px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             cursor: 'pointer',
-                            color: '#ffffff',
+                            color: 'var(--color-text-muted)',
                             flexShrink: 0,
                             transition: 'all 0.2s ease',
-                            boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
-                            backdropFilter: 'blur(8px)'
                         }}
                         title={isDarkMode ? 'Activar Modo Claro' : 'Activar Modo Oscuro'}
-                        onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'; }}
-                        onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
+                        onMouseOver={e => { e.currentTarget.style.background = 'var(--color-border)'; e.currentTarget.style.color = 'var(--color-text)'; }}
+                        onMouseOut={e => { e.currentTarget.style.background = 'var(--color-background)'; e.currentTarget.style.color = 'var(--color-text-muted)'; }}
                     >
                         {isDarkMode ? (
-                            <Sun weight="bold" size={22} color="#ffffff" />
+                            <Sun weight="bold" size={18} />
                         ) : (
-                            <Moon weight="bold" size={22} color="#ffffff" />
+                            <Moon weight="bold" size={18} />
                         )}
                     </button>
                 </div>
                 {currentUser ? (
-                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)', marginTop: '0.1rem' }}>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {userInfo.profession || 'Profesional H&S'}
                     </div>
                 ) : (

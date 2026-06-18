@@ -316,18 +316,58 @@ export default function MarketingLanding({ onStart }: MarketingLandingProps) {
       <section className="stagger-item" style={{ 
         padding: '6rem 2rem', 
         textAlign: 'center',
-        background: 'var(--gradient-premium)',
         color: 'white',
         borderRadius: '32px',
         margin: '2rem 0 6rem',
         position: 'relative',
         overflow: 'hidden',
-        boxShadow: '0 30px 60px rgba(59, 130, 246, 0.3)'
       }}>
-        <div style={{ position: 'absolute', top: '-50%', left: '-10%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: '-20%', right: '-5%', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(16,185,129,0.2) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        {/* Animated gradient background */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 25%, #8b5cf6 50%, #3b82f6 75%, #1e40af 100%)',
+          backgroundSize: '300% 300%',
+          animation: 'gradient-shift 8s ease infinite',
+          borderRadius: '32px',
+        }} />
+        {/* Glow orbs */}
+        <div style={{ position: 'absolute', top: '-50%', left: '-10%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 1 }} />
+        <div style={{ position: 'absolute', bottom: '-20%', right: '-5%', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(16,185,129,0.2) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 1 }} />
+        {/* Particle dots */}
+        {[...Array(6)].map((_, i) => (
+          <div key={i} style={{
+            position: 'absolute',
+            width: `${6 + i * 3}px`,
+            height: `${6 + i * 3}px`,
+            borderRadius: '50%',
+            background: 'rgba(255,255,255,0.15)',
+            top: `${15 + i * 12}%`,
+            left: `${10 + i * 14}%`,
+            animation: `particle-float ${3 + i * 0.8}s ease-in-out infinite`,
+            animationDelay: `${i * 0.5}s`,
+            pointerEvents: 'none',
+            zIndex: 1,
+          }} />
+        ))}
         
-        <div style={{ position: 'relative', zIndex: 1 }}>
+        <div style={{ position: 'relative', zIndex: 2 }}>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.4rem 1rem',
+            background: 'rgba(255,255,255,0.15)',
+            border: '1px solid rgba(255,255,255,0.25)',
+            borderRadius: '100px',
+            marginBottom: '2rem',
+          }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#34d399', display: 'inline-block', animation: 'pulse-soft 2s ease infinite' }} />
+            <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.8rem', fontWeight: 700 }}>
+              Más de 50 profesionales se registraron esta semana
+            </span>
+          </div>
+
           <Sparkles size={48} style={{ marginBottom: '1.5rem', opacity: 0.9, color: '#fcd34d' }} />
           <h2 style={{ fontSize: 'clamp(2.2rem, 5vw, 3.5rem)', fontWeight: 900, marginBottom: '1.5rem', fontFamily: 'var(--font-heading)' }}>
             Llevá tu gestión al próximo nivel
@@ -337,27 +377,33 @@ export default function MarketingLanding({ onStart }: MarketingLandingProps) {
           </p>
           <button 
             onClick={onStart}
-            className="hover-lift"
+            className="hover-lift btn-shimmer"
             style={{ 
               padding: '1.4rem 3.5rem', 
               borderRadius: '100px', 
               border: 'none', 
               background: 'white', 
-              color: 'var(--color-primary-dark)', 
+              color: '#1e3a8a', 
               fontWeight: 900, 
               fontSize: '1.2rem',
               cursor: 'pointer',
-              boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.25)',
               display: 'inline-flex',
               alignItems: 'center',
               gap: '1rem',
-              transition: 'all 0.3s ease'
+              transition: 'all 0.3s ease',
+              position: 'relative',
+              overflow: 'hidden',
             }}
           >
             Crear mi cuenta gratis <ArrowRight size={22} />
           </button>
+          <p style={{ marginTop: '1.5rem', opacity: 0.6, fontSize: '0.85rem' }}>
+            Sin tarjeta de crédito · Sin contratos · Sin cargos ocultos
+          </p>
         </div>
       </section>
+
     </div>
   );
 }
