@@ -3,6 +3,9 @@ import { X, Mail, Copy, Check, Printer, Download } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { createPortal } from 'react-dom';
 import { useMemo } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { Share } from '@capacitor/share';
+import { Filesystem, Directory } from '@capacitor/filesystem';
 import { usePaywall } from '../hooks/usePaywall';
 import { generatePdfBlob } from '../utils/pdfHelper';
 
@@ -67,6 +70,11 @@ export default function ShareModal({
             return;
         }
 
+        if (Capacitor.isNativePlatform()) {
+            handleNativeShare('Imprimir');
+            return;
+        }
+
         if (!elementIdToPrint) {
             toast.error("No se ha especificado el contenido a imprimir.");
             return;
@@ -110,6 +118,37 @@ export default function ShareModal({
                 ? (propFileName.endsWith('.pdf') ? propFileName : `${propFileName}.pdf`)
                 : `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'reporte'}.pdf`;
             const fileName = safeName;
+
+            if (Capacitor.isNativePlatform()) {
+                try {
+                    // Convert blob to base64
+                    const base64Data = await new Promise<string>((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onerror = reject;
+                        reader.onload = () => resolve(reader.result as string);
+                        reader.readAsDataURL(pdfBlob);
+                    });
+                    const base64String = base64Data.split(',')[1];
+                    
+                    const savedFile = await Filesystem.writeFile({
+                        path: fileName,
+                        data: base64String,
+                        directory: Directory.Cache
+                    });
+                    
+                    await Share.share({
+                        title: title || 'Reporte de Seguridad',
+                        text: message || 'Adjunto el reporte PDF.',
+                        url: savedFile.uri,
+                        dialogTitle: 'Compartir PDF'
+                    });
+                    toast.success('¡Compartido con éxito!', { id: 'pdf-gen' });
+                } catch (nativeErr) {
+                    console.error("Error nativo al compartir:", nativeErr);
+                    toast.error('Error al compartir en dispositivo móvil.', { id: 'pdf-gen' });
+                }
+                return;
+            }
 
             const triggerDownload = () => {
                 const url = window.URL.createObjectURL(pdfBlob);
@@ -174,6 +213,11 @@ export default function ShareModal({
         }
 
         if (!elementIdToPrint) return;
+
+        if (Capacitor.isNativePlatform()) {
+            handleNativeShare('Descargar');
+            return;
+        }
         
         // Trigger native print for true vector PDF quality instead of html2canvas screenshots
         toast.success('Para obtener la mejor calidad (sin capturas), selecciona "Guardar como PDF" en la siguiente ventana.', { duration: 5000 });
