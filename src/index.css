@@ -3933,7 +3933,11 @@ input, textarea, [contenteditable="true"] {
    MOBILE RESPONSIVENESS PATCH (Global)
    ========================================================================== */
 @media (max-width: 768px) {
-    html, body, #root, .app-container {
+    html, body {
+        width: 100vw;
+        max-width: 100%;
+    }
+    #root, .app-container {
         overflow-x: hidden !important; 
         width: 100vw;
         max-width: 100%;
