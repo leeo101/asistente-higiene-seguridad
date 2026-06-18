@@ -187,8 +187,6 @@ body {
   padding-bottom: max(var(--safe-area-bottom), 5rem);
   font-family: var(--font-family);
   background: var(--color-background-gradient);
-  transition: background var(--transition-slow);
-  overscroll-behavior-y: none; /* Prevents white gaps when pulling to refresh */
 }
 
 #root {
@@ -253,6 +251,7 @@ a:hover {
   box-shadow: var(--shadow-sm);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  transform: translateZ(0);
 }
 
 .container {
