@@ -1,88 +1,100 @@
 {
-    "short_name": "Asistente HYS",
-    "name": "Asistente de Higiene y Seguridad",
-    "description": "Herramientas inteligentes para profesionales de Higiene y Seguridad en Argentina. Cálculos normativos, ATS, Carga de Fuego, Iluminación, Matrices de Riesgo y asesoría por IA.",
-    "categories": [
-        "productivity",
-        "education",
-        "utilities"
-    ],
-    "icons": [
+  "short_name": "Asistente HYS",
+  "name": "Asistente de Higiene y Seguridad",
+  "description": "Herramientas inteligentes para profesionales de Higiene y Seguridad en Argentina. Cálculos normativos, ATS, Carga de Fuego, Iluminación, Matrices de Riesgo y asesoría por IA.",
+  "categories": [
+    "productivity",
+    "education",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "../icons/icon-48.webp",
+      "type": "image/png",
+      "sizes": "48x48",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../icons/icon-72.webp",
+      "type": "image/png",
+      "sizes": "72x72",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../icons/icon-96.webp",
+      "type": "image/png",
+      "sizes": "96x96",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../icons/icon-128.webp",
+      "type": "image/png",
+      "sizes": "128x128",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../icons/icon-192.webp",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../icons/icon-256.webp",
+      "type": "image/png",
+      "sizes": "256x256",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../icons/icon-512.webp",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nuevo ATS",
+      "short_name": "ATS",
+      "description": "Crear un Análisis de Trabajo Seguro",
+      "url": "/ats",
+      "icons": [
         {
-            "src": "/favicon-16.png",
-            "type": "image/png",
-            "sizes": "16x16",
-            "purpose": "any"
-        },
-        {
-            "src": "/favicon-32.png",
-            "type": "image/png",
-            "sizes": "32x32",
-            "purpose": "any"
-        },
-        {
-            "src": "/favicon-48.png",
-            "type": "image/png",
-            "sizes": "48x48",
-            "purpose": "any"
-        },
-        {
-            "src": "/logo.png",
-            "type": "image/png",
-            "sizes": "192x192",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "/logo.png",
-            "type": "image/png",
-            "sizes": "512x512",
-            "purpose": "any maskable"
+          "src": "/logo.png",
+          "sizes": "96x96"
         }
-    ],
-    "shortcuts": [
+      ]
+    },
+    {
+      "name": "Carga de Fuego",
+      "short_name": "Fuego",
+      "description": "Calcular carga de fuego según Dec. 351/79",
+      "url": "/fire-load",
+      "icons": [
         {
-            "name": "Nuevo ATS",
-            "short_name": "ATS",
-            "description": "Crear un Análisis de Trabajo Seguro",
-            "url": "/ats",
-            "icons": [
-                {
-                    "src": "/logo.png",
-                    "sizes": "96x96"
-                }
-            ]
-        },
-        {
-            "name": "Carga de Fuego",
-            "short_name": "Fuego",
-            "description": "Calcular carga de fuego según Dec. 351/79",
-            "url": "/fire-load",
-            "icons": [
-                {
-                    "src": "/logo.png",
-                    "sizes": "96x96"
-                }
-            ]
-        },
-        {
-            "name": "Asesor IA",
-            "short_name": "IA",
-            "description": "Consultar al Asesor de Seguridad con IA",
-            "url": "/ai-advisor",
-            "icons": [
-                {
-                    "src": "/logo.png",
-                    "sizes": "96x96"
-                }
-            ]
+          "src": "/logo.png",
+          "sizes": "96x96"
         }
-    ],
-    "start_url": "/",
-    "background_color": "#0f172a",
-    "theme_color": "#2563eb",
-    "display": "standalone",
-    "scope": "/",
-    "lang": "es-AR",
-    "dir": "ltr",
-    "orientation": "portrait-primary"
+      ]
+    },
+    {
+      "name": "Asesor IA",
+      "short_name": "IA",
+      "description": "Consultar al Asesor de Seguridad con IA",
+      "url": "/ai-advisor",
+      "icons": [
+        {
+          "src": "/logo.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0f172a",
+  "theme_color": "#2563eb",
+  "display": "standalone",
+  "scope": "/",
+  "lang": "es-AR",
+  "dir": "ltr",
+  "orientation": "portrait-primary"
 }

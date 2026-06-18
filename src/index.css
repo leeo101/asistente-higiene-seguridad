@@ -49,7 +49,12 @@
   /* Glassmorphism Premium */
   --glass-bg: rgba(255, 255, 255, 0.85);
   --glass-bg-header: rgba(255, 255, 255, 0.9);
-  --glass-border: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.08);
+
+  /* Safe Area Insets for Mobile */
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+
   --glass-border-subtle: rgba(15, 23, 42, 0.05);
   --glass-shadow: 0 4px 24px -2px rgba(15, 23, 42, 0.04);
   --glass-shadow-hover: 0 12px 32px -4px rgba(15, 23, 42, 0.08);
@@ -175,14 +180,15 @@
 
 body {
   margin: 0;
-  
-  
+  display: flex;
+  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  padding-top: var(--safe-area-top);
+  padding-bottom: max(var(--safe-area-bottom), 5rem);
   font-family: var(--font-family);
   background: var(--color-background-gradient);
   transition: background var(--transition-slow);
-  
 }
 
 #root {
@@ -1180,7 +1186,7 @@ label {
   border-color: #e2e8f0;
 }
 
-/* ─── Global Scroll Lock strictly for Mobile Sidebar ─── */
+/* â”€â”€â”€ Global Scroll Lock strictly for Mobile Sidebar â”€â”€â”€ */
 @media (max-width: 768px) {
   .sidebar-open-lock {
     overflow: hidden !important;
@@ -1563,10 +1569,10 @@ label {
     size: A4 portrait;
   }
 
-  /* ── CLAVE: eliminar la hoja en blanco extra ──
+  /* â”€â”€ CLAVE: eliminar la hoja en blanco extra â”€â”€
      html/body/#root en runtime tienen height:100vh o height:100%
-     lo que crea un "bloque vacío" después del contenido imprimible.
-     Forzar height:auto los colapsa al tamaño real del contenido. */
+     lo que crea un "bloque vacÃ­o" despuÃ©s del contenido imprimible.
+     Forzar height:auto los colapsa al tamaÃ±o real del contenido. */
   html, body {
     display: block !important;
     height: auto !important;
@@ -1878,14 +1884,14 @@ label {
   }
 }
 
-/* ── GlobalSearch ESC button: desktop only ── */
+/* â”€â”€ GlobalSearch ESC button: desktop only â”€â”€ */
 @media (min-width: 640px) {
   .search-esc-btn {
     display: flex !important;
   }
 }
 
-/* ── PhotoAttachments: touch devices show overlay always ── */
+/* â”€â”€ PhotoAttachments: touch devices show overlay always â”€â”€ */
 @media (hover: none) {
   .photo-overlay {
     opacity: 1 !important;
@@ -1893,7 +1899,7 @@ label {
   }
 }
 
-/* ── Minimum touch target size (WCAG 2.5.5) ── */
+/* â”€â”€ Minimum touch target size (WCAG 2.5.5) â”€â”€ */
 @media (max-width: 768px) {
 
   button,
@@ -1913,7 +1919,7 @@ label {
   }
 }
 
-/* ── Safe area inset for notched phones (iOS) ── */
+/* â”€â”€ Safe area inset for notched phones (iOS) â”€â”€ */
 @supports (padding: max(0px)) {
   .container {
     padding-left: max(1rem, env(safe-area-inset-left));
@@ -2358,7 +2364,7 @@ label {
   background: #e11d48;
 }
 
-/* ── Responsive List Cards (Mobile-first dynamic rows) ── */
+/* â”€â”€ Responsive List Cards (Mobile-first dynamic rows) â”€â”€ */
 .responsive-list-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -2658,7 +2664,7 @@ label {
   }
 
   body.not-pro-user .app-container::before {
-    content: "⚠️ FUNCIÓN EXCLUSIVA PARA USUARIOS PRO 💎";
+    content: "âš ï¸ FUNCIÃ“N EXCLUSIVA PARA USUARIOS PRO ðŸ’Ž";
     display: block;
     text-align: center;
     padding: 100px 40px;
@@ -2673,7 +2679,7 @@ label {
   }
 
   body.not-pro-user .app-container::after {
-    content: "Para imprimir o exportar sus informes profesionales, por favor active su suscripción PRO en la sección de Planes.";
+    content: "Para imprimir o exportar sus informes profesionales, por favor active su suscripciÃ³n PRO en la secciÃ³n de Planes.";
     display: block;
     text-align: center;
     font-family: 'Inter', sans-serif;
@@ -2765,7 +2771,7 @@ svg.ph-duotone [opacity="0.2"] {
   }
 }
 
-/* ─── ATS PDF / Print ─── */
+/* â”€â”€â”€ ATS PDF / Print â”€â”€â”€ */
 .ats-pdf-offscreen {
   position: absolute;
   left: 0;
@@ -2843,7 +2849,7 @@ body.printing-isolated #pdf-content.ats-pdf-root,
   }
 }
 
-/* ─── ATS Modernization Styles ─── */
+/* â”€â”€â”€ ATS Modernization Styles â”€â”€â”€ */
 
 .ats-sequence-container {
     background: var(--color-surface);
@@ -2854,7 +2860,7 @@ body.printing-isolated #pdf-content.ats-pdf-root,
     box-shadow: var(--shadow-lg);
 }
 
-/* Secuencia ATS — móvil: tarjetas apiladas | escritorio: tabla tipo PDF */
+/* Secuencia ATS â€” mÃ³vil: tarjetas apiladas | escritorio: tabla tipo PDF */
 .ats-seq-header {
     display: none;
 }
@@ -3283,7 +3289,7 @@ body.printing-isolated #pdf-content.ats-pdf-root,
   }
 }
 
-/* ─── CAPA Modernization Styles ─── */
+/* â”€â”€â”€ CAPA Modernization Styles â”€â”€â”€ */
 
 .capa-why-container {
     position: relative;
@@ -3355,7 +3361,7 @@ body.printing-isolated #pdf-content.ats-pdf-root,
     background: rgba(16, 185, 129, 0.08) !important;
 }
 
-/* Conmutadores de verificación estilo pastillas */
+/* Conmutadores de verificaciÃ³n estilo pastillas */
 .capa-verify-pill-group {
     display: flex;
     flex-direction: column;
@@ -3422,7 +3428,7 @@ body.printing-isolated #pdf-content.ats-pdf-root,
     border-color: var(--color-primary);
 }
 
-/* ─── Training Modernization Styles ─── */
+/* â”€â”€â”€ Training Modernization Styles â”€â”€â”€ */
 
 .training-stat-card {
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -3513,7 +3519,7 @@ body.printing-isolated #pdf-content.ats-pdf-root,
     box-shadow: 0 0 10px rgba(var(--color-primary-rgb), 0.15);
 }
 
-/* ─── Fire Load Modernization Styles ─── */
+/* â”€â”€â”€ Fire Load Modernization Styles â”€â”€â”€ */
 
 .fireload-stat-card {
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -3594,7 +3600,7 @@ body.printing-isolated #pdf-content.ats-pdf-root,
     box-shadow: 0 0 10px rgba(249, 115, 22, 0.15);
 }
 
-/* ─── Toolbox Talk (Charlas 5 Min) Modernization Styles ─── */
+/* â”€â”€â”€ Toolbox Talk (Charlas 5 Min) Modernization Styles â”€â”€â”€ */
 
 .toolbox-stat-card {
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
