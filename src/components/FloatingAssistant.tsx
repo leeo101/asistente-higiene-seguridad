@@ -106,16 +106,26 @@ export default function FloatingAssistant() {
         }
     }, [messages, activeTab]);
 
-    // Cerrar al hacer clic fuera
+    // Cerrar al hacer clic fuera y bloquear scroll en móvil
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
                 setIsOpen(false);
             }
         };
-        if (isOpen) document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [isOpen]);
+        if (isOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+            if (isMobile) {
+                document.body.style.overflow = 'hidden';
+            }
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.body.style.overflow = '';
+        };
+    }, [isOpen, isMobile]);
 
     const toggleAssistant = () => setIsOpen(!isOpen);
 
@@ -643,21 +653,21 @@ export default function FloatingAssistant() {
                                                 onMouseOver={e => { if (!isListening) { e.currentTarget.style.background = 'rgba(59,130,246,0.1)'; e.currentTarget.style.color = 'var(--color-primary)'; } }}
                                                 onMouseOut={e => { if (!isListening) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--color-text-muted)'; } }}
                                             >
-                                                {isListening ? <Activity size={18} className="animate-pulse" /> : <Volume2 size={18} />}
+                                                {isListening ? <Activity size={22} className="animate-pulse" /> : <Volume2 size={22} />}
                                             </button>
                                             <button 
                                                 type="submit"
                                                 disabled={!chatInput.trim() || isTyping}
                                                 style={{
                                                     background: 'var(--gradient-premium)', border: 'none', borderRadius: '14px',
-                                                    width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                    width: '46px', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center',
                                                     color: 'white', cursor: 'pointer', transition: 'all 0.3s ease',
                                                     opacity: !chatInput.trim() || isTyping ? 0.5 : 1, padding: 0,
                                                     boxShadow: !chatInput.trim() || isTyping ? 'none' : '0 4px 12px rgba(59, 130, 246, 0.4)',
                                                     transform: (!chatInput.trim() || isTyping) ? 'scale(0.95)' : 'scale(1)'
                                                 }}
                                             >
-                                                <Send size={18} strokeWidth={2.5} style={{ marginLeft: '2px' }} />
+                                                <Send size={22} strokeWidth={2.5} style={{ marginLeft: '2px' }} />
                                             </button>
                                         </div>
                                     </div>

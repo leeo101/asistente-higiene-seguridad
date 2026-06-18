@@ -851,7 +851,7 @@ export default function Home(): React.ReactElement {
                   </div>
                   
                   <div style={{ width: '100%', padding: '0 0.2rem' }}>
-                    <h3 style={{ margin: 0, fontSize: isMobile ? '0.8rem' : '0.95rem', fontWeight: 800, color: 'var(--color-text)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.2 }}>
+                    <h3 style={{ margin: 0, fontSize: isMobile ? '0.8rem' : '0.95rem', fontWeight: 800, color: 'var(--color-text)', wordBreak: 'break-word', hyphens: 'auto', lineHeight: 1.2, textAlign: 'center' }}>
                       {link.label}
                     </h3>
                     <p style={{ margin: '0.2rem 0 0', fontSize: isMobile ? '0.65rem' : '0.8rem', color: 'var(--color-text-muted)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.3, opacity: 0.8 }}>

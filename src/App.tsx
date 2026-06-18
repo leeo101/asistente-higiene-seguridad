@@ -410,7 +410,7 @@ function App() {
         <div className="app-container" style={{ position: 'relative' }}>
           {showMenuButton && (
             <div
-              className="glass-panel no-print"
+              className="glass-panel top-header-panel no-print"
               style={{
                 position: 'fixed',
                 top: '1rem',
@@ -418,9 +418,7 @@ function App() {
                 right: '1rem',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '1rem',
                 zIndex: 10,
-                padding: '0.75rem 1.25rem',
                 background: 'var(--glass-bg-header)',
                 backdropFilter: 'blur(20px)',
                 WebkitBackdropFilter: 'blur(20px)',

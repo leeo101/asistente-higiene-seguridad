@@ -4068,6 +4068,12 @@ html.pdf-export-mode, body.pdf-export-mode {
     .bento-main, .bento-quick, .bento-recent, .bento-stats, .bento-wide { grid-column: span 1; grid-row: span 1; }
 }
 
+.top-header-panel { gap: 1rem; padding: 0.75rem 1.25rem; }
+@media (max-width: 768px) {
+  .top-header-panel { gap: 0.5rem; padding: 0.5rem; left: 0.5rem !important; right: 0.5rem !important; top: 0.5rem !important; }
+  .header-title { display: none !important; }
+}
+
 /* --- PREMIUM SUBSCRIPTION UPGRADES --- */
 .gradient-text {
   background: linear-gradient(135deg, var(--color-primary), #8b5cf6);
