@@ -257,6 +257,23 @@ export default function Home(): React.ReactElement {
   const [isMobile, setIsMobile] = useState(false);
   const [showRewardModal, setShowRewardModal] = useState<boolean>(false);
 
+  const handleRecentWorkClick = (type: string) => {
+    const typeRoutes: Record<string, string> = {
+      'ATS': '/ats',
+      'Carga Fuego': '/fire-load',
+      'Inspección': '/history', // fallback to history for inspections
+      'Matriz': '/risk-matrix-history',
+      'Informe': '/reports',
+      'Checklist': '/tool-inspection-history',
+      'Iluminación': '/lighting',
+      'Permiso': '/work-permit',
+      'Eval. Riesgo': '/risk-assessment-history',
+      'Accidente': '/accident-investigation'
+    };
+    const route = typeRoutes[type] || '/';
+    navigate(route);
+  };
+
   const categories = [
     { id: 'all', label: 'Todos' },
     { id: 'ia', label: 'IA y Automatización' },
@@ -637,13 +654,12 @@ export default function Home(): React.ReactElement {
                   <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'white', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <ClockCounterClockwise size={18} color="#3b82f6" /> Recientes
                   </h3>
-                  <button onClick={() => navigate('/history')} style={{ background: 'none', border: 'none', color: '#60a5fa', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}>Ver todo</button>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', flex: 1, overflowY: 'auto' }} className="hide-scrollbar">
                   {recentWorks.length > 0 ? recentWorks.slice(0, 4).map((work, i) => {
                     const tColor = typeColors[work.type] || typeColors['ATS'];
                     return (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem', background: 'rgba(0,0,0,0.2)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                      <div key={i} onClick={() => handleRecentWorkClick(work.type)} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem', background: 'rgba(0,0,0,0.2)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer' }} className="hover-scale">
                         <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: tColor.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: tColor.text, flexShrink: 0 }}>
                           {tColor.icon}
                         </div>
@@ -894,7 +910,7 @@ export default function Home(): React.ReactElement {
                   (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
                   (e.currentTarget as HTMLDivElement).style.boxShadow = 'var(--shadow-sm)';
                 }}
-                onClick={() => navigate('/history')}
+                onClick={() => handleRecentWorkClick(work.type)}
               >
                 <div style={{
                   width: '48px',

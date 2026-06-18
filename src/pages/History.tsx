@@ -35,7 +35,7 @@ export default function History(): React.ReactElement | null {
     const navigate = useNavigate();
     const location = useLocation();
     const { syncCollection, syncPulse } = useSync();
-    const [view, setView] = useState(location.state?.view || 'hub');
+    const [view, setView] = useState(location.state?.view || 'inspections');
     useDocumentTitle('Historial');
 
     useEffect(() => {
@@ -189,64 +189,6 @@ export default function History(): React.ReactElement | null {
     const historyCategories = [
 
 
-        { title: 'Evaluaciones de Riesgo', icon: <Shield size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/risk-assessment-history', countKey: 'riskAssessments' },
-        { title: 'Inspecciones', icon: <ClipboardCheck size={24} />, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', path: '/history', countKey: 'inspections', view: 'inspections' },
-        { title: 'Mapas de Riesgo', icon: <Map size={24} />, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', path: '/risk-maps-history', countKey: 'riskmaps' },
-        { title: 'Matrices de Riesgo', icon: <TriangleAlert size={24} />, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', path: '/risk-matrix-history', countKey: 'matrices', view: 'matrices' },
-        { title: 'Permisos de Trabajo', icon: <KeySquare size={24} />, color: '#2563eb', bg: 'rgba(37,99,235,0.1)', path: '/work-permit-history', countKey: 'workPermits' },
-        { title: 'Simulacros', icon: <Siren size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/drills', countKey: 'drills' },
-        { title: 'Tarjetas STOP', icon: <TriangleAlert size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/stop-cards', countKey: 'stopCards' },
-        { title: 'Simulador de Evacuación', icon: <Timer size={24} />, color: '#ef4444', bg: 'rgba(239,68,68,0.1)', path: '/evacuation-history', countKey: 'evacuationSimulator' },
-    ];
-
-    // ─── HUB ──────────────────────────────────────────────────────
-    if (view === 'hub') {
-        return (
-            <div className="container page-transition" style={{ paddingBottom: '3rem' }}>
-                {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <button onClick={() => navigate('/#activity')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft  size={20} />
-                        </button>
-                        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Historiales</h1>
-                    </div>
-                    <button onClick={async () => {
-                            const { exportAllDataToExcel } = await import('../services/exportCsv');
-                            exportAllDataToExcel();
-                        }}
-                        className="btn-primary"
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.6rem 1.2rem', width: 'auto', margin: 0 }}
-                    >
-                        <FileText size={18} /> Exportar Toda mi Gestión
-                    </button>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: '0.9rem' }}>
-                    {historyCategories.map((cat, i) => (
-                        <div
-                            key={i}
-                            className="card"
-                            style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.1rem 1.2rem', cursor: 'pointer', transition: 'border-color 0.2s, box-shadow 0.2s', border: '1.5px solid var(--color-border)' }}
-                            onClick={() => {
-                                if (cat.view) setView(cat.view);
-                                else navigate(cat.path);
-                            }}
-                            onMouseEnter={e => { e.currentTarget.style.borderColor = cat.color; e.currentTarget.style.boxShadow = `0 4px 16px ${cat.color}22`; }}
-                            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--color-border)'; e.currentTarget.style.boxShadow = ''; }}
-                        >
-                            <div style={{ background: cat.bg || `${cat.color}15`, color: cat.color, padding: '0.85rem', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                {cat.icon}
-                            </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                                <h3 style={{ margin: '0 0 0.25rem', fontSize: '0.92rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cat.title}</h3>
-                                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: (counts[cat.countKey] ?? 0) > 0 ? cat.color : 'var(--color-text-muted)', background: (counts[cat.countKey] ?? 0) > 0 ? (cat.bg || `${cat.color}15`) : 'transparent', padding: (counts[cat.countKey] ?? 0) > 0 ? '2px 8px' : '0', borderRadius: '20px', display: 'inline-block' }}>
-                                    {counts[cat.countKey] ?? 0} registros
-                                </span>
-                            </div>
-                            <ChevronRight size={16} color={cat.color} style={{ opacity: 0.6, flexShrink: 0 }} />
-                        </div>
-                    ))}
                 </div>
             </div>
         );
@@ -275,7 +217,7 @@ export default function History(): React.ReactElement | null {
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', minWidth: '200px' }}>
-                        <button onClick={() => setView('hub')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                        <button onClick={() => navigate('/')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
                             <ArrowLeft  size={20} />
                         </button>
                         <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800 }}>Historial de Matrices</h1>
@@ -406,7 +348,7 @@ export default function History(): React.ReactElement | null {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-                <button onClick={() => setView('hub')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
+                <button onClick={() => navigate('/')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
                             <ArrowLeft  size={20} />
                         </button>
                 <div style={{ display: 'flex', gap: '0.8rem', marginTop: 'auto' }}>
