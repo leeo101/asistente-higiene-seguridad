@@ -4076,8 +4076,7 @@ html.pdf-export-mode, body.pdf-export-mode {
 
 .top-header-panel { gap: 1rem; padding: 0.75rem 1.25rem; }
 @media (max-width: 768px) {
-  .top-header-panel { gap: 0.5rem; padding: 0.5rem; left: 0.5rem !important; right: 0.5rem !important; top: 0.5rem !important; justify-content: center !important; }
-  .top-header-panel > a { flex: 0 1 auto !important; }
+  .top-header-panel { gap: 0.5rem; padding: 0.5rem; left: 0.5rem !important; right: 0.5rem !important; top: 0.5rem !important; width: auto !important; }
   .header-title { display: none !important; }
 }
 
