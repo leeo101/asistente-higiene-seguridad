@@ -147,6 +147,26 @@ export default function LogoSettings(): React.ReactElement | null {
         boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
     };
 
+    if (!isPro) {
+        return (
+            <div className="container animate-fade-in" style={{ maxWidth: '850px', paddingBottom: '5rem', textAlign: 'center', marginTop: '6rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', background: 'var(--color-surface)', padding: '4rem 2rem', borderRadius: '32px', border: '1px solid var(--color-border)', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
+                    <ShieldCheck size={72} color="var(--color-primary)" style={{ marginBottom: '1rem' }} />
+                    <h1 className="gradient-text" style={{ fontSize: '2.5rem', margin: 0, fontWeight: 900, letterSpacing: '-1px' }}>Exclusivo Premium</h1>
+                    <p style={{ color: 'var(--color-text-secondary)', fontSize: '1.1rem', maxWidth: '400px', lineHeight: 1.6 }}>
+                        La personalización de la identidad visual con logo y colores corporativos es una característica del plan Pro.
+                    </p>
+                    <button onClick={() => navigate('/subscription')} className="primary-btn" style={{ padding: '1rem 2.5rem', borderRadius: '16px', marginTop: '1.5rem', fontWeight: 800, fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Sparkles size={20} /> Mejorar a Pro
+                    </button>
+                    <button onClick={() => navigate(-1)} style={{ background: 'transparent', border: 'none', color: 'var(--color-text-muted)', marginTop: '1rem', cursor: 'pointer', fontWeight: 600, padding: '0.5rem' }}>
+                        Volver atrás
+                    </button>
+                </div>
+            </div>
+        )
+    }
+
     return (
         <div className="container animate-fade-in" style={{ maxWidth: '850px', paddingBottom: '5rem' }}>
             {/* Header */}
@@ -165,7 +185,7 @@ export default function LogoSettings(): React.ReactElement | null {
                             <ArrowLeft size={22}  />
                         </button>
                 <div>
-                    <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: 900, letterSpacing: '-0.8px', background: 'linear-gradient(135deg, #fff, #a1a1aa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                    <h1 className="gradient-text" style={{ margin: 0, fontSize: '2rem', fontWeight: 900, letterSpacing: '-0.8px' }}>
                         Identidad Visual
                     </h1>
                     <p style={{ margin: '0.3rem 0 0 0', color: 'var(--color-text-secondary)', fontSize: '0.95rem', fontWeight: 500 }}>
