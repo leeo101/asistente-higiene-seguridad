@@ -4082,7 +4082,6 @@ html.pdf-export-mode, body.pdf-export-mode {
 
 .no-scroll {
   overflow: hidden !important;
-  touch-action: none !important;
 }
 
 /* --- PREMIUM SUBSCRIPTION UPGRADES --- */
