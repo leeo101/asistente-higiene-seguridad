@@ -158,7 +158,7 @@ export default function LogoSettings(): React.ReactElement | null {
         return (
             <div className="container animate-fade-in" style={{ maxWidth: '850px', paddingBottom: '5rem', textAlign: 'center', marginTop: isMobile ? '3rem' : '6rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', background: 'var(--color-surface)', padding: isMobile ? '2.5rem 1.5rem' : '4rem 2rem', borderRadius: '32px', border: '1px solid var(--color-border)', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
-                    <ShieldCheck size={isMobile ? 56 : 72} color="var(--color-primary)" weight="duotone" style={{ marginBottom: '1rem' }} />
+                    <ShieldCheck size={isMobile ? 56 : 72} color="var(--color-primary)" strokeWidth={1.5} style={{ marginBottom: '1rem' }} />
                     <h1 className="gradient-text" style={{ fontSize: isMobile ? '2rem' : '2.5rem', margin: 0, fontWeight: 900, letterSpacing: '-1px' }}>Exclusivo Premium</h1>
                     <p style={{ color: 'var(--color-text-secondary)', fontSize: isMobile ? '0.95rem' : '1.1rem', maxWidth: '400px', lineHeight: 1.6 }}>
                         La personalización de la identidad visual con logo y colores corporativos es una característica del plan Pro.
