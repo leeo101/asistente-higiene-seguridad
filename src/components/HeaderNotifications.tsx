@@ -7,6 +7,7 @@ import {
     sendTestNotification,
 } from '../services/notificationService';
 import { useAuth } from '../contexts/AuthContext';
+import { API_BASE_URL } from '../config';
 
 export default function HeaderNotifications() {
     const { currentUser } = useAuth();
@@ -135,7 +136,7 @@ export default function HeaderNotifications() {
                     <button 
                         onClick={async () => {
                             try {
-                                const res = await fetch('http://localhost:5000/api/send-expiry-email', {
+                                const res = await fetch(`${API_BASE_URL}/api/send-expiry-email`, {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify({
@@ -147,7 +148,7 @@ export default function HeaderNotifications() {
                                 if (res.ok) {
                                     alert('¡Correo de prueba enviado con éxito!');
                                 } else {
-                                    alert('Error al enviar correo (asegurate de tener el servidor local encendido en el puerto 5000)');
+                                    alert('Error al enviar correo (asegurate de tener el servidor local encendido)');
                                 }
                             } catch (e) {
                                 alert('No se pudo conectar con el servidor para enviar el correo.');
