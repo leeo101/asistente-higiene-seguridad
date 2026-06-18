@@ -23,11 +23,11 @@ export default function HeaderNotifications() {
                 onClick={() => setShowAlerts(v => !v)}
                 style={{
                     padding: 0, position: 'relative',
-                    background: notifications.length > 0 ? 'rgba(255, 0, 0, 0.25)' : 'rgba(255,255,255,0.1)',
-                    border: notifications.length > 0 ? '1px solid rgba(255, 0, 0, 0.8)' : '1px solid rgba(255,255,255,0.15)',
+                    background: notifications.length > 0 ? 'rgba(255, 0, 0, 0.25)' : 'rgba(15, 23, 42, 0.05)',
+                    border: notifications.length > 0 ? '1px solid rgba(255, 0, 0, 0.8)' : '1px solid rgba(15, 23, 42, 0.1)',
                     width: '36px', height: '36px', borderRadius: '10px',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'pointer', color: notifications.length > 0 ? '#ff4444' : '#ffffff',
+                    cursor: 'pointer', color: notifications.length > 0 ? '#ff4444' : '#64748b',
                     transition: 'all 0.3s ease',
                     boxShadow: notifications.length > 0 ? '0 0 20px rgba(255, 0, 0, 0.7), inset 0 0 10px rgba(255, 0, 0, 0.3)' : 'none',
                     animation: notifications.length > 0 ? 'bell-shake 2s infinite cubic-bezier(.36,.07,.19,.97) both' : 'none',
