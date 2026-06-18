@@ -373,6 +373,12 @@ export default function Home(): React.ReactElement {
     };
 
     const loadDailyInsight = async (): Promise<void> => {
+      const fallbackInsight = {
+        title: "Revisá tus permisos de trabajo",
+        content: "Recordá que los permisos de trabajo en altura vencen diariamente. Verificá que todos estén firmados por el supervisor antes de iniciar la jornada.",
+        category: "Seguridad Preventiva"
+      };
+
       try {
         const today = new Date().toDateString();
         const cached = localStorage.getItem('daily_insight_cache');
@@ -390,11 +396,18 @@ export default function Home(): React.ReactElement {
         });
         if (response.ok) {
           const data = await response.json();
-          setDailyInsight(data.insight);
-          localStorage.setItem('daily_insight_cache', JSON.stringify({ date: today, data: data.insight }));
+          if (data && data.insight) {
+            setDailyInsight(data.insight);
+            localStorage.setItem('daily_insight_cache', JSON.stringify({ date: today, data: data.insight }));
+            return;
+          }
         }
+        
+        // If we reach here, API didn't return a valid insight
+        setDailyInsight(fallbackInsight);
       } catch (err) {
         console.error("Error fetching daily insight:", err);
+        setDailyInsight(fallbackInsight);
       }
     };
 
