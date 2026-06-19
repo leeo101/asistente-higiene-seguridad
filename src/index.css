@@ -1486,6 +1486,18 @@ label {
   pointer-events: none !important;
 }
 
+.force-pdf-print.print-only,
+.force-pdf-print .print-only,
+.force-pdf-print.print-only-strict,
+.force-pdf-print .print-only-strict {
+  position: static !important;
+  left: auto !important;
+  top: auto !important;
+  visibility: visible !important;
+  display: block !important;
+  opacity: 1 !important;
+}
+
 .force-pdf-print.pdf-container,
 .force-pdf-print .pdf-container {
   box-shadow: none !important;
