@@ -1486,6 +1486,15 @@ label {
   pointer-events: none !important;
 }
 
+/* Ocultar botones de retroceso visuales (Navegación Nativa habilitada) */
+button[title*="Volver"],
+button[aria-label*="Volver"],
+button[aria-label*="Atrás"],
+.btn-back,
+.back-button-ui {
+  display: none !important;
+}
+
 .force-pdf-print.print-only,
 .force-pdf-print .print-only,
 .force-pdf-print.print-only-strict,

@@ -59,40 +59,9 @@ export default function PremiumHeader({
         justifyContent: 'center',
         textAlign: 'center'
       }}>
-        {onBack && (
-          <button 
-            onClick={onBack} 
-            title="Volver" 
-            aria-label="Volver atrás"
-            style={{
-              marginRight: '0.5rem',
-              flexShrink: 0,
-              width: '40px',
-              height: '40px',
-              background: 'rgba(255,255,255,0.2)',
-              backdropFilter: 'blur(10px)',
-              borderRadius: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: '1px solid rgba(255,255,255,0.3)',
-              cursor: 'pointer',
-              color: '#ffffff',
-              boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.3)';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.2)';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            <ArrowLeft size={20} />
-          </button>
-        )}
+        {/* El botón visual de retroceso ha sido removido a pedido del usuario. 
+            Ahora se utiliza navegación nativa (hardware back button en Android y swipe en iOS).
+        */}
 
         {icon && (
           <div style={{

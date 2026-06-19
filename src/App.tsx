@@ -347,12 +347,17 @@ function ScrollToTop() {
   return null;
 }
 
+import { useHardwareBackButton } from './hooks/useHardwareBackButton';
+
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   const location = useLocation();
   const showMenuButton = location.pathname !== '/login' && location.pathname !== '/subscribe' && location.pathname !== '/ai-camera';
+
+  // Habilitar el botón de retroceso físico en Android
+  useHardwareBackButton();
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
