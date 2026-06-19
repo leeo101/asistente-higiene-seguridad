@@ -622,7 +622,9 @@ function TabButton({ active, onClick, icon, label, count }) {
                 fontWeight: 700,
                 fontSize: '0.9rem',
                 transition: 'all var(--transition-fast)',
-                position: 'relative'
+                position: 'relative',
+                whiteSpace: 'nowrap',
+                flexShrink: 0
             }}
         >
             {icon}
