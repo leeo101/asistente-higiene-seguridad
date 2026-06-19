@@ -231,20 +231,7 @@ export default function SafetyCalendar(): React.ReactElement | null {
     return (
         <div className="container" style={{ maxWidth:'1100px', paddingTop:'6rem', paddingBottom:'6rem' }}>
 
-            {/* ── Notification banners ──────────────────────────────────── */}
-            {permStatus === 'default' && (
-                <div style={{ background:'var(--color-primary)', color:'#fff', padding:'0.85rem 1.2rem', borderRadius:'14px', marginBottom:'1.2rem', display:'flex', alignItems:'center', justifyContent:'space-between', gap:'1rem', flexWrap:'wrap', boxShadow:'0 4px 16px rgba(59,130,246,0.35)' }}>
-                    <div style={{ display:'flex', alignItems:'center', gap:'0.7rem', fontSize:'0.9rem', fontWeight:700 }}>
-                        <Bell size={18}/> Activá las notificaciones para recibir alertas de vencimientos
-                    </div>
-                    <button onClick={async()=>{ await requestNotificationPermission(); setPermStatus(Notification.permission); }} style={{ background:'#fff', color:'var(--color-primary)', border:'none', padding:'0.5rem 1.1rem', borderRadius:'8px', fontWeight:800, cursor:'pointer', fontSize:'0.8rem', flexShrink:0 }}>ACTIVAR</button>
-                </div>
-            )}
-            {isNotificationDenied() && (
-                <div style={{ background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.25)', color:'#ef4444', padding:'0.85rem 1.2rem', borderRadius:'14px', marginBottom:'1.2rem', display:'flex', alignItems:'center', gap:'0.7rem', fontSize:'0.85rem', fontWeight:600 }}>
-                    <ShieldAlert size={18}/> Notificaciones bloqueadas — habilitálas en la configuración del navegador.
-                </div>
-            )}
+{/* Banners removed as per user request */}
 
             {/* ── Header ───────────────────────────────────────────────── */}
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'1rem', flexWrap:'wrap', gap:'0.85rem' }}>
