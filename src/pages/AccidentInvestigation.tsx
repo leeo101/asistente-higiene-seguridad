@@ -333,10 +333,10 @@ export default function AccidentInvestigation(): React.ReactElement | null {
 
         return (
             <div className="container" style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '7rem', paddingTop: '5.5rem' }}>
-                <PremiumHeader 
+                <PremiumHeader onBack={isFormVisible ? () => { setIsFormVisible(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined} 
                     title="Investigaciones de Accidentes"
                     subtitle="Registros de siniestros"
-                    icon={<AlertTriangle size={32} color="#ffffff" />}
+                    icon={<AlertTriangle size={32} color="#ffffff"  />}
                     color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
                 />
 
@@ -381,10 +381,10 @@ export default function AccidentInvestigation(): React.ReactElement | null {
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '6rem', paddingTop: '5.5rem' }}>
-            <PremiumHeader 
+            <PremiumHeader onBack={isFormVisible ? () => { setIsFormVisible(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined} 
                 title={isEdit ? 'Editar Investigación' : 'Investigación de Accidente'}
                 subtitle="Metodología Árbol de Causas"
-                icon={<AlertTriangle />}
+                icon={<AlertTriangle  />}
                 color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
             />
 

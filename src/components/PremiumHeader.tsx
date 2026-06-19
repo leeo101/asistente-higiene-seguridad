@@ -1,5 +1,6 @@
 import React from 'react';
-import { Sparkles, Crown, ArrowLeft } from 'lucide-react';
+import { Sparkles, Crown, ArrowLeft, Home } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface PremiumHeaderProps {
   title: string;
@@ -22,6 +23,7 @@ export default function PremiumHeader({
   children
 }: PremiumHeaderProps): React.ReactElement {
   const bg = gradient || color || 'linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)';
+  const navigate = useNavigate();
 
   return (
     <div style={{
@@ -59,9 +61,25 @@ export default function PremiumHeader({
         justifyContent: 'center',
         textAlign: 'center'
       }}>
-        {/* El botón visual de retroceso ha sido removido a pedido del usuario. 
-            Ahora se utiliza navegación nativa (hardware back button en Android y swipe en iOS).
-        */}
+        {/* Botones de navegación para desktop (ocultos en móvil mediante CSS) */}
+        <div className="desktop-nav-buttons no-print" style={{ marginRight: 'auto', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <button 
+                onClick={() => { if(onBack) onBack(); else navigate(-1); }}
+                style={{ background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.3)', color: '#fff', borderRadius: '8px', padding: '0.4rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem', backdropFilter: 'blur(10px)', transition: 'background 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.3)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
+            >
+                <ArrowLeft size={16} /> VOLVER
+            </button>
+            <button 
+                onClick={() => navigate('/')}
+                style={{ background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.3)', color: '#fff', borderRadius: '8px', padding: '0.4rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem', backdropFilter: 'blur(10px)', transition: 'background 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.3)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
+            >
+                <Home size={16} /> INICIO
+            </button>
+        </div>
 
         {icon && (
           <div style={{
@@ -138,6 +156,11 @@ export default function PremiumHeader({
             .premium-header-content {
               flex-direction: column;
               text-align: center;
+            }
+          }
+          @media (max-width: 768px) {
+            .desktop-nav-buttons {
+              display: none !important;
             }
           }
         `}

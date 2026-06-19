@@ -14,8 +14,10 @@ function processDir(dir) {
             // Match each button independently
             content = content.replace(/<button[\s\S]*?<\/button>/gi, (match) => {
                 // If it's a navigation button back or a visual back button
-                if ((match.includes('navigate') || match.includes('ArrowLeft')) && 
-                    (match.includes('Volver') || match.includes('VOLVER') || match.includes('Inicio'))) {
+                const hasNavAction = /navigate|ArrowLeft/.test(match);
+                const hasBackWord = /volver|inicio|volver atrás|volver al historial/i.test(match);
+                
+                if (hasNavAction && hasBackWord) {
                     return '<></>';
                 }
                 return match;

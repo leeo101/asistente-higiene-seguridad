@@ -318,10 +318,10 @@ export default function SafetyKPIs(): React.ReactElement {
             {/* Dashboard View */}
             {!showForm ? (
                 <>
-                    <PremiumHeader 
+                    <PremiumHeader onBack={showForm ? () => { setShowForm(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined} 
                         title="KPIs de Seguridad"
                         subtitle="LTIFR • TRIFR • Severidad • Incidencia — Estándar ISO 45001"
-                        icon={<BarChart3 size={32} color="#ffffff" />}
+                        icon={<BarChart3 size={32} color="#ffffff"  />}
                         color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
                     />
 
@@ -507,10 +507,10 @@ export default function SafetyKPIs(): React.ReactElement {
             ) : (
             <div className="animate-fade-in">
                 {/* Form Full View */}
-                <PremiumHeader 
+                <PremiumHeader onBack={showForm ? () => { setShowForm(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined} 
                     title={editing ? 'Editar Período KPI' : 'Ingresar Período KPI'}
                     subtitle="Registrá los datos mensuales para calcular tus índices de seguridad automáticamente."
-                    icon={<BarChart3 size={32} color="#ffffff" />}
+                    icon={<BarChart3 size={32} color="#ffffff"  />}
                     color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
                 />
                 

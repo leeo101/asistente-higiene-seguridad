@@ -5,7 +5,7 @@ import {
     ClipboardCheck, Printer, Plus,
     Settings, TriangleAlert, Building2, Calendar,
     Check, ShieldCheck, Trash2, Edit3, X,
-    Share2, Save, ArrowLeft, Info, Pencil, Camera,
+    Share2, Save, ArrowLeft, ArrowRight, Info, Pencil, Camera,
     Flame, Zap, Siren, Lightbulb, Activity, CheckCircle2,
     Search, QrCode, Download, FileText, ClipboardList
 } from 'lucide-react';
@@ -447,6 +447,12 @@ export default function ChecklistManager(): React.ReactElement | null {
     const [activeSections, setActiveSections] = useState([]);
     const [observations, setObservations] = useState('');
     const [showShare, setShowShare] = useState(false);
+    const [currentStep, setCurrentStep] = useState(1);
+    const totalSteps = 4;
+    
+    const nextStep = () => { if (currentStep < totalSteps) { setCurrentStep(c => c + 1); window.scrollTo(0,0); } };
+    const prevStep = () => { if (currentStep > 1) { setCurrentStep(c => c - 1); window.scrollTo(0,0); } };
+
     const [showSignatures, setShowSignatures] = useState({
         operator: true,
         supervisor: true,
@@ -586,6 +592,7 @@ export default function ChecklistManager(): React.ReactElement | null {
         // Go back to the list
         setSearchParams({});
         setShowForm(false);
+        setCurrentStep(1);
     };
 
     
@@ -796,10 +803,10 @@ export default function ChecklistManager(): React.ReactElement | null {
         <div className="container" style={{ maxWidth: '1100px', paddingBottom: '8rem' }}>
             <Breadcrumbs />
 
-            <PremiumHeader
+            <PremiumHeader onBack={showForm ? () => { setShowForm(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined}
                 title="Control de Checklists"
                 subtitle="Relevamiento preventivo y control de condiciones de seguridad"
-                icon={<ClipboardCheck size={36} />}
+                icon={<ClipboardCheck size={36}  />}
             />
 
             {!showForm ? (
@@ -807,7 +814,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                     <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
                         <></>
                         <button
-                            onClick={() => { setSearchParams({}); setShowForm(true); }}
+                            onClick={() => { setSearchParams({}); setShowForm(true); setCurrentStep(1); }}
                             style={{ flex: '0 1 auto', padding: '1rem 1.5rem', borderRadius: '16px', background: '#36B37E', color: '#fff', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(54,179,126,0.3)', whiteSpace: 'nowrap' }}
                         >
                             <Plus size={20} /> Nuevo Checklist
@@ -834,11 +841,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                                 ))}
                             </select>
                         </div>
-                        {history.length > 0 && (
-                            <button onClick={handleExportCSV} style={{ flex: '0 1 auto', display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'var(--color-primary)', border: 'none', borderRadius: '16px', padding: '1rem 1.5rem', fontSize: '1rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
-                                <Download size={20} /> Excel
-                            </button>
-                        )}
+
                     </div>
 
                     <DataTable
@@ -847,8 +850,6 @@ export default function ChecklistManager(): React.ReactElement | null {
                         searchPlaceholder="Buscar..."
                         emptyMessage="No se encontraron registros de Checklists."
                         emptyIcon={<ClipboardList size={48} />}
-                        onEmptyAction={() => { setSearchParams({}); setShowForm(true); }}
-                        emptyActionLabel="Realizar Control Nuevo"
                     />
 
                     {qrTarget && <QRModal text={(qrTarget as any).text} title={(qrTarget as any).title} onClose={() => setQrTarget(null)} />}
@@ -922,39 +923,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                 />
             </div>
 
-            {/* Floating Action Buttons */}
-            <div className="no-print floating-action-bar">
-                <button
-                    onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
-                    className="btn-floating-action"
-                    style={{ background: '#36B37E', color: '#ffffff' }}
-                >
-                    <Save size={18} /> GUARDAR
-                </button>
-                <button
-                    onClick={() => requirePro(() => setShowShare(true))}
-                    className="btn-floating-action"
-                    style={{ background: '#0052CC', color: '#ffffff' }}
-                >
-                    <Share2 size={18} /> COMPARTIR
-                </button>
-                <button
-                    onClick={() => requirePro(() => {
-                        const el = document.getElementById('pdf-content-editor');
-                        if (el) el.classList.add('isolated-print-target');
-                        document.body.classList.add('printing-isolated');
-                        window.print();
-                        setTimeout(() => {
-                            if (el) el.classList.remove('isolated-print-target');
-                            document.body.classList.remove('printing-isolated');
-                        }, 8000);
-                    })}
-                    className="btn-floating-action"
-                    style={{ background: '#FF8B00', color: '#ffffff' }}
-                >
-                    <Printer size={18} /> IMPRIMIR
-                </button>
-            </div>
+
 
             {/* Progress Section */}
             <div className="no-print" style={{
@@ -986,34 +955,35 @@ export default function ChecklistManager(): React.ReactElement | null {
                 </div>
 
                 {/* Progress Bar Graphic */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginTop: '1rem' }}>
                     <div style={{ height: '8px', background: 'var(--color-background)', borderRadius: '999px', overflow: 'hidden' }}>
                         <div style={{
                             height: '100%',
-                            width: `${progressPct}%`,
-                            background: progressColor,
+                            width: `${(currentStep / totalSteps) * 100}%`,
+                            background: 'var(--gradient-premium)',
                             borderRadius: '999px',
                             transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-                            boxShadow: `0 0 8px ${progressColor}88`
+                            boxShadow: '0 0 10px rgba(59,130,246,0.5)'
                         }} />
                     </div>
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                        {progressItems.map((item) => (
-                            <span key={item.label} style={{
-                                fontSize: '0.65rem', fontWeight: 700, padding: '0.2rem 0.5rem',
-                                borderRadius: '999px',
-                                background: item.done ? 'rgba(16,185,129,0.12)' : 'var(--color-background)',
-                                color: item.done ? '#10b981' : 'var(--color-text-muted)',
-                                border: `1px solid ${item.done ? 'rgba(16,185,129,0.3)' : 'var(--color-border)'}`,
-                                display: 'flex', alignItems: 'center', gap: '0.3rem'
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 4px' }}>
+                        {['Datos', 'Inspección', 'Plan/Obs', 'Firmas'].map((label, idx) => (
+                            <span key={label} style={{
+                                fontSize: '0.75rem', fontWeight: 900,
+                                color: currentStep >= idx + 1 ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                                transition: 'color 0.3s',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px'
                             }}>
-                                {item.done ? '✓' : '○'} {item.label}
+                                {label}
                             </span>
                         ))}
                     </div>
                 </div>
             </div>
 
+            {currentStep === 1 && (
+                <>
             <div id="checklist-editor-content" className="card ats-editor-panel" style={{ width: '100%', boxSizing: 'border-box', padding: '1rem', margin: '0 auto', marginBottom: '2rem' }}>
                 <div className="flex flex-col sm:flex-row justify-between items-center w-full gap-4 sm:gap-6 border-b-4 pb-6 mb-8" style={{ borderColor: 'var(--color-border)' }}>
                     {/* Top Left Text */}
@@ -1145,8 +1115,11 @@ export default function ChecklistManager(): React.ReactElement | null {
                     );
                 })}
             </div>
+                </>
+            )}
 
             {/* EDITABLE SECTIONS - Responsive */}
+            {currentStep === 2 && (
             <div className="no-print" style={{ marginBottom: '2rem' }}>
                 {activeSections.map(section => {
                                         return (
@@ -1309,8 +1282,10 @@ export default function ChecklistManager(): React.ReactElement | null {
                     );
                 })}
             </div>
+            )}
 
             {/* FORMULARIOS EDITABLES - NO PRINT */}
+            {currentStep === 3 && (
             <div className="no-print" style={{ marginBottom: '2rem' }}>
                 {/* PLAN DE ACCIÓN - FORMULARIO */}
                 <div style={{ border: '2px solid #f59e0b', borderRadius: '12px', padding: '1.5rem', background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', position: 'relative' }}>
@@ -1392,8 +1367,10 @@ export default function ChecklistManager(): React.ReactElement | null {
                     ))}
                 </div>
             </div>
+            )}
 
             {/* Firmas y Autorizaciones */}
+            {currentStep === 4 && (
             <div className="no-print card" style={{ marginTop: '1.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)', padding: '2rem' }}>
                 <h3 style={{ marginTop: 0, marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
                     <Pencil size={24} /> Firmas y Autorizaciones
@@ -1514,6 +1491,99 @@ export default function ChecklistManager(): React.ReactElement | null {
                         />
                     )}
                 </div>
+            </div>
+            )}
+
+            {/* Botones de Navegación del Wizard */}
+            <div className="flex justify-between items-center mt-8 pt-6 border-t border-[var(--color-border)] no-print">
+                <button
+                    onClick={prevStep}
+                    className="btn-wizard prev-btn"
+                    disabled={currentStep === 1}
+                    style={{
+                        padding: '0.8rem 1.5rem',
+                        borderRadius: 'var(--radius-xl)',
+                        background: 'var(--color-surface)',
+                        color: 'var(--color-text)',
+                        fontWeight: 800,
+                        fontSize: '0.9rem',
+                        border: '1px solid var(--color-border)',
+                        opacity: currentStep === 1 ? 0.5 : 1,
+                        cursor: currentStep === 1 ? 'not-allowed' : 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
+                    }}
+                >
+                    <ArrowLeft size={18} /> ANTERIOR
+                </button>
+
+                {currentStep < totalSteps ? (
+                    <button
+                        onClick={nextStep}
+                        style={{ padding: '0.8rem 2rem', borderRadius: '14px', background: 'var(--gradient-premium)', border: 'none', color: '#fff', fontWeight: 900, cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(59,130,246,0.3)' }}
+                        className="hover-scale"
+                    >
+                        SIGUIENTE <ArrowRight size={18} />
+                    </button>
+                ) : (
+                    <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <button
+                            onClick={() => {
+                                setCompanyInfo({ empresa: '', area: '', responsable: '' });
+                                setInspectionInfo({ fecha: new Date().toISOString().split('T')[0], inspector: '', proximaInspeccion: '' });
+                                setActiveSections({});
+                                setObservations('');
+                                setActionPlan([]);
+                                setOperatorSignature('');
+                                setSignature('');
+                                setSupervisorSignature('');
+                                setCurrentStep(1);
+                            }}
+                            style={{ padding: '0.8rem 1.2rem', borderRadius: '14px', background: 'transparent', border: '2px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                            className="hover:bg-red-50 dark:hover:bg-red-900/10"
+                        >
+                            <Trash2 size={18} /> Limpiar
+                        </button>
+                        <button
+                            onClick={() => window.print()}
+                            style={{ padding: '0.8rem 1.2rem', borderRadius: '14px', background: 'var(--color-surface)', border: '2px solid rgba(245, 158, 11, 0.3)', color: '#f59e0b', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                            className="hover:bg-amber-50 dark:hover:bg-amber-900/10"
+                        >
+                            <Printer size={18} /> Imprimir
+                        </button>
+                        <button
+                            onClick={() => {
+                                setShareItem({
+                                    id: Date.now(),
+                                    empresa: companyInfo.empresa,
+                                    area: companyInfo.area,
+                                    responsable: companyInfo.responsable,
+                                    fecha: inspectionInfo.fecha,
+                                    inspector: inspectionInfo.inspector,
+                                    proximaInspeccion: inspectionInfo.proximaInspeccion,
+                                    sections: activeSections,
+                                    observations,
+                                    actionPlan,
+                                    operatorSignature,
+                                    signature,
+                                    supervisorSignature
+                                });
+                            }}
+                            style={{ padding: '0.8rem 1.2rem', borderRadius: '14px', background: 'var(--color-surface)', border: '2px solid rgba(59, 130, 246, 0.3)', color: '#3b82f6', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                            className="hover:bg-blue-50 dark:hover:bg-blue-900/10"
+                        >
+                            <Share2 size={18} /> Compartir
+                        </button>
+                        <button
+                            onClick={handleSave}
+                            style={{ padding: '0.8rem 2rem', borderRadius: '14px', background: '#10b981', border: 'none', color: '#fff', fontWeight: 900, cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(16,185,129,0.3)' }}
+                            className="hover-scale"
+                        >
+                            <Save size={18} /> GUARDAR
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* El PDF del editor se genera desde el ats-pdf-offscreen con pdfElementId="pdf-content-editor" (línea ~877) */}

@@ -227,10 +227,11 @@ export default function ChemicalSafety(): React.ReactElement | null {
             </div>
             {/* Header Premium */}
             <div className="no-print" style={{ marginBottom: '2rem' }}>
-                <PremiumHeader 
+                <PremiumHeader onBack={viewMode !== 'list' ? () => setViewMode('list') : undefined} 
                     title="Seguridad Química"
                     subtitle={`Gestión GHS/SGA • ${chemicals.length} productos`}
-                    icon={<FlaskConical size={32} color="#ffffff" />}
+                    icon={<FlaskConical size={32} color="#ffffff" 
+                />}
                     color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
                 />
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginTop: '1rem' }}>

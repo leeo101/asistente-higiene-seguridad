@@ -632,10 +632,10 @@ export default function AIChatAdvisor(): React.ReactElement | null {
         <div className="container" style={{ maxWidth: '1200px', paddingBottom: '12rem' }}>
             <Breadcrumbs />
 
-            <PremiumHeader
+            <PremiumHeader onBack={showForm ? () => { setShowForm(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined}
                 title="Asesor de Seguridad IA"
                 subtitle="Análisis predictivo, normativo y preventivo con Inteligencia Artificial"
-                icon={<Sparkles size={36} />}
+                icon={<Sparkles size={36}  />}
             />
 
             {!showForm ? (

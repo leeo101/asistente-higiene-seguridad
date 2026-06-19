@@ -485,10 +485,10 @@ export default function FireLoad(): React.ReactElement | null {
             {!showForm ? (
                 <>
                     <div className="no-print">
-                        <PremiumHeader
+                        <PremiumHeader onBack={showForm ? () => { setShowForm(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined}
                             title="Carga de Fuego"
                             subtitle={`Cálculo según ${countryNorms.fire}`}
-                            icon={<Flame size={36} color="#ffffff" />}
+                            icon={<Flame size={36} color="#ffffff"  />}
                         />
                     </div>
                     <div style={{ marginBottom: '1.5rem', marginTop: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -633,10 +633,10 @@ export default function FireLoad(): React.ReactElement | null {
                 </div>
 
                 <div className="no-print">
-                    <PremiumHeader
+                    <PremiumHeader onBack={showForm ? () => { setShowForm(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined}
                         title={editData ? 'Editar Carga de Fuego' : 'Estudio de Carga de Fuego'}
                         subtitle={`Cálculo según ${countryNorms.fire}`}
-                        icon={<Flame size={36} color="#ffffff" />}
+                        icon={<Flame size={36} color="#ffffff"  />}
                     />
                     <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem', zIndex: 10 }}>
                         <></>

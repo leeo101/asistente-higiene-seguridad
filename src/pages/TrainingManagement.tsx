@@ -377,10 +377,10 @@ export default function TrainingManagement(): React.ReactElement | null {
                                 <FileText size={18} /> IMPRIMIR EXAMEN
                             </button>
                         </div>
-                        <PremiumHeader
+                        <PremiumHeader onBack={showForm ? () => { setShowForm(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined}
                             title="Generador de Exámenes"
                             subtitle="Cree plantillas en blanco para evaluar capacitaciones"
-                            icon={<FileText size={36} color="#ffffff" />}
+                            icon={<FileText size={36} color="#ffffff"  />}
                         />
                         <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem', zIndex: 10 }}>
                             <></>
@@ -458,10 +458,10 @@ export default function TrainingManagement(): React.ReactElement | null {
                                 <Printer size={18} /> IMPRIMIR PDF
                             </button>
                         </div>
-                        <PremiumHeader
+                        <PremiumHeader onBack={showForm ? () => { setShowForm(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined}
                             title={editingId ? 'Editar Capacitación' : 'Nueva Capacitación'}
                             subtitle="Complete los detalles y la asistencia de la charla"
-                            icon={<BookOpen size={36} color="#ffffff" />}
+                            icon={<BookOpen size={36} color="#ffffff"  />}
                         />
                         <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem', zIndex: 10 }}>
                             <></>
@@ -629,10 +629,10 @@ export default function TrainingManagement(): React.ReactElement | null {
                 ) : (
                     <>
                         {/* HISTORY VIEW */}
-                        <PremiumHeader
+                        <PremiumHeader onBack={showForm ? () => { setShowForm(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined}
                             title="Gestión de Capacitaciones"
                             subtitle="Registros de formación del personal"
-                            icon={<Users size={36} color="#ffffff" />}
+                            icon={<Users size={36} color="#ffffff"  />}
                         />
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginTop: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
