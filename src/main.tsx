@@ -26,6 +26,21 @@ window.addEventListener('pageshow', (event) => {
   }
 });
 
+import { Capacitor } from '@capacitor/core';
+import { Printer } from '@capgo/capacitor-printer';
+
+if (Capacitor.isNativePlatform()) {
+  const originalPrint = window.print;
+  window.print = async () => {
+    try {
+      await Printer.printWebView();
+    } catch (err) {
+      console.error("Native print error:", err);
+      originalPrint();
+    }
+  };
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>

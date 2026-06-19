@@ -64,14 +64,9 @@ export default function ShareModal({
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const handlePrint = () => {
+    const handlePrint = async () => {
         if (!isPro) {
             toast.error('La impresión de reportes es exclusiva para miembros PRO 💎', { duration: 4000 });
-            return;
-        }
-
-        if (Capacitor.isNativePlatform()) {
-            handleNativeShare('Imprimir');
             return;
         }
 
@@ -86,12 +81,26 @@ export default function ShareModal({
         document.body.classList.add('printing-isolated');
         element.classList.add('isolated-print-target');
 
-        window.print();
-        setTimeout(() => {
+        if (Capacitor.isNativePlatform()) {
+            try {
+                // @ts-ignore
+                const { Printer } = await import('@capgo/capacitor-printer');
+                await Printer.printWebView();
+            } catch (err) {
+                console.error("Error printing natively:", err);
+                toast.error("Error al imprimir");
+            }
             document.body.classList.remove('printing-isolated');
-            if (element) element.classList.remove('isolated-print-target');
+            element.classList.remove('isolated-print-target');
             onClose();
-        }, 8000); // 8 seconds delay to give Android print spooler time to capture the DOM before unmounting
+        } else {
+            window.print();
+            setTimeout(() => {
+                document.body.classList.remove('printing-isolated');
+                if (element) element.classList.remove('isolated-print-target');
+                onClose();
+            }, 8000);
+        }
     };
 
     const handleNativeShare = async (optLabel: string) => {
