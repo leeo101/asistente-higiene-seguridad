@@ -276,20 +276,7 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
                         <Plus size={20} strokeWidth={2.5} />
                         Nueva Medición
                     </button>
-                    <button
-                        onClick={() => navigate('/environmental/history')}
-                        style={{
-                            padding: '1rem 1.5rem', borderRadius: '16px',
-                            background: 'rgba(255,255,255,0.1)', color: '#fff',
-                            border: '1px solid rgba(255,255,255,0.2)',
-                            fontWeight: 800, fontSize: '1rem', cursor: 'pointer',
-                            display: 'flex', alignItems: 'center', gap: '0.5rem',
-                            backdropFilter: 'blur(10px)', whiteSpace: 'nowrap'
-                        }}
-                        className="hover-lift"
-                    >
-                        <FileText size={20} /> Historial
-                    </button>
+{/* Botón de historial removido */}
                 </div>
             </PremiumHeader>
 
