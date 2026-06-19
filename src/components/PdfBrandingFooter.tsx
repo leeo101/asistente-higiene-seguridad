@@ -10,23 +10,24 @@ export default function PdfBrandingFooter() {
                 .pdf-brand-container { display: none; }
                 @media print {
                     .pdf-brand-container {
-                        display: flex !important;
-                        flex-direction: column;
+                        display: block !important;
                         margin-top: 3rem;
                         padding-top: 1.5rem;
+                        padding-bottom: 2rem;
+                        margin-bottom: 2rem;
                         border-top: 2px solid #1e293b;
-                        gap: 1.5rem;
-                        page-break-inside: avoid;
+                        page-break-inside: avoid !important;
                         background-color: #ffffff;
                     }
                 }
                 .force-pdf-print .pdf-brand-container {
-                    display: flex !important;
-                    flex-direction: column;
+                    display: block !important;
                     margin-top: 3rem;
                     padding-top: 1.5rem;
+                    padding-bottom: 2rem;
+                    margin-bottom: 2rem;
                     border-top: 2px solid #1e293b;
-                    gap: 1.5rem;
+                    page-break-inside: avoid !important;
                     background-color: #ffffff;
                 }
                 
@@ -66,7 +67,7 @@ export default function PdfBrandingFooter() {
                     color: #64748b !important;
                     font-weight: 600 !important;
                     letter-spacing: 0.02em;
-                    margin-top: 0.5rem;
+                    margin-top: 1.5rem;
                     font-family: 'Inter', sans-serif;
                 }
                 .pdf-brand img {

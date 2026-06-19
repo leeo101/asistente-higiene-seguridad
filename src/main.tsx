@@ -35,12 +35,20 @@ if (Capacitor.isNativePlatform()) {
   const originalPrint = window.print;
   window.print = async () => {
     const target = document.querySelector('.isolated-print-target') as HTMLElement;
+    const targetId = target ? target.id : null;
     
-    if (target && target.id) {
+    // Inmediatamente remover las clases visuales feas para que el usuario no vea el "pantallazo"
+    // (los componentes agregan esto, nosotros lo sacamos al instante y usamos el clon en background)
+    document.body.classList.remove('printing-isolated');
+    if (target) {
+        target.classList.remove('isolated-print-target');
+    }
+    
+    if (targetId) {
         toast.loading('Generando vista previa...', { id: 'pdf-global' });
         try {
             await new Promise(resolve => setTimeout(resolve, 80));
-            const pdfBlob = await generatePdfBlob(target.id);
+            const pdfBlob = await generatePdfBlob(targetId);
             const base64Data = await new Promise<string>((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onerror = reject;
