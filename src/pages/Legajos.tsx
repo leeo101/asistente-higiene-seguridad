@@ -82,7 +82,7 @@ export default function Legajos() {
     e.stopPropagation();
     if (!hasAccess) {
       alert("La exportación a PDF requiere una suscripción PRO");
-      navigate('/subscription');
+      navigate('/subscribe');
       return;
     }
     setPrintingLegajo(legajo);
@@ -181,22 +181,23 @@ export default function Legajos() {
       </div>
 
       <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'flex-start' }}>
-        <button
-          onClick={() => {
-            if (!hasAccess) { navigate('/subscription'); return; }
-            navigate('/legajos/nuevo');
-          }}
-          style={{
-              padding: '0.75rem 1.5rem', background: '#10b981', color: '#fff',
-              border: 'none', borderRadius: '14px', fontWeight: 800, fontSize: '0.9rem',
-              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem',
-              boxShadow: '0 4px 15px rgba(16,185,129,0.4)', transition: 'all 0.2s'
-          }}
-          onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-          onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-        >
-          <Plus size={18} /> Nuevo Legajo
-        </button>
+        {hasAccess && (
+          <button
+            onClick={() => {
+              navigate('/legajos/nuevo');
+            }}
+            style={{
+                padding: '0.75rem 1.5rem', background: '#10b981', color: '#fff',
+                border: 'none', borderRadius: '14px', fontWeight: 800, fontSize: '0.9rem',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem',
+                boxShadow: '0 4px 15px rgba(16,185,129,0.4)', transition: 'all 0.2s'
+            }}
+            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            <Plus size={18} /> Nuevo Legajo
+          </button>
+        )}
       </div>
 
       {!hasAccess && (
@@ -218,7 +219,7 @@ export default function Legajos() {
               Actualizá tu cuenta para crear, gestionar y exportar legajos en PDF.
             </p>
             <button 
-              onClick={() => navigate('/subscription')}
+              onClick={() => navigate('/subscribe')}
               style={{ padding: '0.6rem 1.2rem', background: '#d97706', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '0.85rem' }}
             >
               Mejorar a PRO
@@ -282,11 +283,7 @@ export default function Legajos() {
           <p style={{ color: 'var(--color-text-muted)', margin: '0 0 1.5rem 0', fontSize: '0.9rem' }}>
             {searchTerm || statusFilter ? 'Probá con otros filtros de búsqueda.' : 'Creá tu primer legajo para empezar a gestionar a tus clientes.'}
           </p>
-          {!searchTerm && !statusFilter && (
-            <button onClick={() => navigate('/legajos/nuevo')} className="btn-primary" style={{ padding: '0.8rem 1.5rem' }}>
-                <Plus size={18} /> Crear Primer Legajo
-            </button>
-          )}
+
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.5rem' }}>

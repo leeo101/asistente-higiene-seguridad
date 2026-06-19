@@ -163,7 +163,7 @@ export default function LogoSettings(): React.ReactElement | null {
                     <p style={{ color: 'var(--color-text-secondary)', fontSize: isMobile ? '0.95rem' : '1.1rem', maxWidth: '400px', lineHeight: 1.6 }}>
                         La personalización de la identidad visual con logo y colores corporativos es una característica del plan Pro.
                     </p>
-                    <button onClick={() => navigate('/subscription')} className="primary-btn" style={{ padding: isMobile ? '0.8rem 2rem' : '1rem 2.5rem', borderRadius: '16px', marginTop: '1.5rem', fontWeight: 800, fontSize: isMobile ? '1rem' : '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', width: isMobile ? '100%' : 'auto', justifyContent: 'center' }}>
+                    <button onClick={() => navigate('/subscribe')} className="primary-btn" style={{ padding: isMobile ? '0.8rem 2rem' : '1rem 2.5rem', borderRadius: '16px', marginTop: '1.5rem', fontWeight: 800, fontSize: isMobile ? '1rem' : '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', width: isMobile ? '100%' : 'auto', justifyContent: 'center' }}>
                         <Sparkles size={20} /> Mejorar a Pro
                     </button>
                     <></>

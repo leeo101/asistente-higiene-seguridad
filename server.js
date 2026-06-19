@@ -3,7 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
-import { MercadoPagoConfig, Preference } from 'mercadopago';
+import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import { Resend } from 'resend';
 
@@ -214,6 +214,22 @@ const verifyFirebaseToken = async (req, res, next) => {
     }
 };
 
+const requirePro = async (req, res, next) => {
+    const ADMIN_EMAILS = ['admin@asistentehs.com'];
+    if (req.user && req.user.email && ADMIN_EMAILS.includes(req.user.email)) return next();
+    if (req.user && req.user.isPro) return next();
+    try {
+        
+        const subDoc = await admin.firestore().collection('users').doc(req.user.uid).collection('data').doc('subscriptionData').get();
+        if (subDoc.exists && subDoc.data().status === 'active') {
+             await admin.auth().setCustomUserClaims(req.user.uid, { isPro: true });
+             return next();
+        }
+    } catch (e) {}
+    return res.status(403).json({ error: 'Se requiere suscripci贸n PRO (Forbidden)' });
+};
+
+
 // Payment endpoint - moderate limiter
 app.post('/api/create-subscription', adminLimiter, async (req, res) => {
     try {
@@ -250,10 +266,33 @@ app.post('/api/create-subscription', adminLimiter, async (req, res) => {
 });
 
 // ==========================================
+
+// Payment verification endpoint
+app.post('/api/verify-payment', verifyFirebaseToken, async (req, res) => {
+    try {
+        const { payment_id } = req.body;
+        if (!payment_id) return res.status(400).json({ error: 'Missing payment_id' });
+        const payment = new Payment(client);
+        const paymentInfo = await payment.get({ id: payment_id });
+        if (paymentInfo.status === 'approved') {
+            const uid = req.user.uid;
+            
+            await admin.auth().setCustomUserClaims(uid, { isPro: true });
+            const oneMonthFromNow = Date.now() + 30 * 24 * 60 * 60 * 1000;
+            await admin.firestore().collection('users').doc(uid).collection('data').doc('subscriptionData').set({ status: 'active', expiry: oneMonthFromNow.toString() });
+            return res.json({ success: true, isPro: true });
+        } else {
+            return res.status(400).json({ error: 'Payment not approved' });
+        }
+    } catch (error) {
+        return res.status(500).json({ error: 'Error al verificar el pago.' });
+    }
+});
+
 // AI VISION API (Gemini)
 // ==========================================
 
-app.post('/api/analyze-image', aiLimiter, verifyFirebaseToken, async (req, res) => {
+app.post('/api/analyze-image', aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
     try {
         const { image } = req.body;
         if (!image) return res.status(400).json({ error: 'No se envi贸 imagen' });
@@ -375,7 +414,7 @@ app.post('/api/analyze-image', aiLimiter, verifyFirebaseToken, async (req, res) 
 // ==========================================
 // AI CONTRACTOR DOCUMENT ANALYSIS (Gemini)
 // ==========================================
-app.post('/api/analyze-contractor-doc', aiLimiter, verifyFirebaseToken, async (req, res) => {
+app.post('/api/analyze-contractor-doc', aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
     try {
         const { image } = req.body;
         if (!image) return res.status(400).json({ error: 'No se envi贸 imagen' });
@@ -459,7 +498,7 @@ app.post('/api/analyze-contractor-doc', aiLimiter, verifyFirebaseToken, async (r
     }
 });
 
-app.post('/api/daily-insight', aiLimiter, verifyFirebaseToken, async (req, res) => {
+app.post('/api/daily-insight', aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
     try {
         const { country = 'argentina' } = req.body;
         const apiKey = process.env.GEMINI_API_KEY;
@@ -497,7 +536,7 @@ app.post('/api/daily-insight', aiLimiter, verifyFirebaseToken, async (req, res) 
     }
 });
 
-app.post('/api/ai-advisor', aiLimiter, verifyFirebaseToken, async (req, res) => {
+app.post('/api/ai-advisor', aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
     try {
         const { taskDescription, country = 'argentina' } = req.body;
         if (!taskDescription) return res.status(400).json({ error: 'Falta la descripci贸n de la tarea' });
@@ -562,7 +601,7 @@ app.post('/api/ai-advisor', aiLimiter, verifyFirebaseToken, async (req, res) => 
 // ==========================================
 // AI EXTINGUISHER VISION (Gemini)
 // ==========================================
-app.post('/api/analyze-extinguisher', aiLimiter, verifyFirebaseToken, async (req, res) => {
+app.post('/api/analyze-extinguisher', aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
     try {
         const { image } = req.body;
         if (!image) return res.status(400).json({ error: 'No se envi贸 imagen' });
@@ -642,7 +681,7 @@ app.post('/api/analyze-extinguisher', aiLimiter, verifyFirebaseToken, async (req
 // ==========================================
 // AI ATS GENERATOR (Gemini)
 // ==========================================
-app.post('/api/ai-ats-generator', aiLimiter, verifyFirebaseToken, async (req, res) => {
+app.post('/api/ai-ats-generator', aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
     try {
         const { taskTitle, country = 'argentina' } = req.body;
         if (!taskTitle) return res.status(400).json({ error: 'Falta el t铆tulo de la tarea' });
@@ -708,7 +747,7 @@ app.post('/api/ai-ats-generator', aiLimiter, verifyFirebaseToken, async (req, re
 // ==========================================
 // AI REPORT CONCLUSION GENERATOR (Gemini)
 // ==========================================
-app.post('/api/ai-report-conclusion', aiLimiter, verifyFirebaseToken, async (req, res) => {
+app.post('/api/ai-report-conclusion', aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
     try {
         const { reportType, reportData, country = 'argentina' } = req.body;
         if (!reportType || !reportData) return res.status(400).json({ error: 'Faltan datos del reporte' });
@@ -755,7 +794,7 @@ app.post('/api/ai-report-conclusion', aiLimiter, verifyFirebaseToken, async (req
 // ==========================================
 // AI LEGAL SUMMARY (Gemini)
 // ==========================================
-app.post('/api/ai-legal-summary', aiLimiter, verifyFirebaseToken, async (req, res) => {
+app.post('/api/ai-legal-summary', aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
     try {
         const { leyTitle, leyDescription, country = 'argentina' } = req.body;
         if (!leyTitle) return res.status(400).json({ error: 'Faltan datos de la normativa' });
@@ -802,7 +841,7 @@ app.post('/api/ai-legal-summary', aiLimiter, verifyFirebaseToken, async (req, re
 // ==========================================
 // AI GENERAL RISKS VISION (Gemini)
 // ==========================================
-app.post('/api/ai-stopcard', aiLimiter, verifyFirebaseToken, async (req, res) => {
+app.post('/api/ai-stopcard', aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
     try {
         const { transcript, country = 'argentina' } = req.body;
         if (!transcript) return res.status(400).json({ error: 'Falta transcripci贸n' });
@@ -852,7 +891,7 @@ app.post('/api/ai-stopcard', aiLimiter, verifyFirebaseToken, async (req, res) =>
 // ==========================================
 // AI GENERAL RISKS VISION (Gemini)
 // ==========================================
-app.post('/api/analyze-general-risks', aiLimiter, verifyFirebaseToken, async (req, res) => {
+app.post('/api/analyze-general-risks', aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
     try {
         const { image } = req.body;
         if (!image) return res.status(400).json({ error: 'No se envi贸 imagen' });
@@ -1236,8 +1275,8 @@ app.post('/api/send-expiry-email', async (req, res) => {
     const { email, name, notifications } = req.body;
     if (!email || !notifications || notifications.length === 0) return res.status(400).json({ error: 'Faltan datos' });
     try {
-        let html = '<div style="font-family: Arial; padding: 20px;"><h2 style="color: #ef4444;">?? Alertas de Vencimiento</h2><p>Hola ' + (name || '') + ',</p><p>Te informamos sobre los siguientes vencimientos cr韙icos:</p><table style="width: 100%; border-collapse: collapse;"><thead><tr style="background: #f8fafc;"><th style="padding: 10px; text-align: left;">Tipo</th><th style="padding: 10px; text-align: left;">Elemento</th><th style="padding: 10px; text-align: left;">Estado</th></tr></thead><tbody>';
-        notifications.forEach(n => { html += '<tr><td style="padding: 10px; border-bottom: 1px solid #ddd;">' + n.type.toUpperCase() + '</td><td style="padding: 10px; border-bottom: 1px solid #ddd;">' + n.label + '</td><td style="padding: 10px; border-bottom: 1px solid #ddd; color: ' + (n.isExpired ? '#ef4444' : '#f59e0b') + '">' + (n.isExpired ? 'Vencido hace ' + Math.abs(n.daysLeft) + ' d韆s' : 'Vence en ' + n.daysLeft + ' d韆s') + '</td></tr>'; });
+        let html = '<div style="font-family: Arial; padding: 20px;"><h2 style="color: #ef4444;">?? Alertas de Vencimiento</h2><p>Hola ' + (name || '') + ',</p><p>Te informamos sobre los siguientes vencimientos cr锟絫icos:</p><table style="width: 100%; border-collapse: collapse;"><thead><tr style="background: #f8fafc;"><th style="padding: 10px; text-align: left;">Tipo</th><th style="padding: 10px; text-align: left;">Elemento</th><th style="padding: 10px; text-align: left;">Estado</th></tr></thead><tbody>';
+        notifications.forEach(n => { html += '<tr><td style="padding: 10px; border-bottom: 1px solid #ddd;">' + n.type.toUpperCase() + '</td><td style="padding: 10px; border-bottom: 1px solid #ddd;">' + n.label + '</td><td style="padding: 10px; border-bottom: 1px solid #ddd; color: ' + (n.isExpired ? '#ef4444' : '#f59e0b') + '">' + (n.isExpired ? 'Vencido hace ' + Math.abs(n.daysLeft) + ' d锟絘s' : 'Vence en ' + n.daysLeft + ' d锟絘s') + '</td></tr>'; });
         html += '</tbody></table><p style="margin-top: 30px;"><a href="https://asistentehs.com" style="background: #3b82f6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Ingresar al Sistema</a></p></div>';
         if (process.env.RESEND_API_KEY) { await resend.emails.send({ from: 'Asistente HYS <soporte@asistentehs.com>', to: email, subject: '?? Tienes ' + notifications.length + ' alertas de vencimiento', html }); } else { console.log('Sin RESEND_API_KEY, correo simulado', html); }
         res.status(200).json({ success: true });

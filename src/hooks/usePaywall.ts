@@ -10,7 +10,28 @@ export function usePaywall() {
   const { syncPulse } = useSync();
   const [internalPulse, setInternalPulse] = useState(0);
 
-  // Escuchar eventos de storage para reaccionar a cambios en otras pestañas o procesos
+  const [isProClaim, setIsProClaim] = useState<boolean>(false);
+  const [loadingClaims, setLoadingClaims] = useState(true);
+
+  // SECURITY FIX: Verify isPro via server-side JWT claims, ignore localStorage
+  useEffect(() => {
+    if (currentUser) {
+      currentUser.getIdTokenResult()
+        .then((idTokenResult) => {
+          setIsProClaim(!!idTokenResult.claims.isPro);
+        })
+        .catch((err) => {
+          console.error("Error fetching token claims", err);
+          setIsProClaim(false);
+        })
+        .finally(() => setLoadingClaims(false));
+    } else {
+      setIsProClaim(false);
+      setLoadingClaims(false);
+    }
+  }, [currentUser]);
+
+  // Listen to storage only for daysRemaining calculations
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'subscriptionData' || e.key === 'personalData') {
@@ -21,32 +42,29 @@ export function usePaywall() {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  const status = useMemo(() => {
-    if (currentUser?.email && ADMIN_EMAILS.includes(currentUser.email)) {
-      return 'active';
-    }
+  const isAdmin = useMemo(() => {
+    return !!(currentUser?.email && ADMIN_EMAILS.includes(currentUser.email));
+  }, [currentUser?.email]);
+
+  const isLocalActive = useMemo(() => {
     try {
       const subData = JSON.parse(localStorage.getItem('subscriptionData') || '{}');
-      if (!subData.status) return 'none';
-      if (subData.status !== 'active') return 'none';
-
-      const expiry = parseInt(subData.expiry || '0', 10);
-      if (!expiry) return 'active';
-      if (Date.now() > expiry) return 'expired';
-      return 'active';
+      if (subData.status === 'active') {
+        const expiry = parseInt(subData.expiry || '0', 10);
+        if (!expiry || Date.now() < expiry) return true;
+      }
+      return false;
     } catch {
-      return 'none';
+      return false;
     }
-  }, [currentUser?.email, syncPulse, internalPulse]); // Re-calcular si cambia el pulso de sincronización
+  }, [syncPulse, internalPulse]);
 
-  const isActive = status === 'active';
-  const isPro = !!currentUser && isActive;
+  // STRICT SECURITY: isPro is strictly determined by Server Claims or Admin status
+  const isPro = isAdmin || isProClaim;
 
   const daysRemaining = useMemo(() => {
-    if (!isPro) return 0;
-    if (currentUser?.email && ADMIN_EMAILS.includes(currentUser.email)) {
-      return Infinity;
-    }
+    if (!isPro && !isLocalActive) return 0;
+    if (isAdmin) return Infinity;
     try {
       const subData = JSON.parse(localStorage.getItem('subscriptionData') || '{}');
       const expiry = parseInt(subData.expiry || '0', 10);
@@ -55,14 +73,17 @@ export function usePaywall() {
     } catch {
       return 0;
     }
-  }, [currentUser?.email, isPro, syncPulse, internalPulse]);
+  }, [isAdmin, isPro, isLocalActive, syncPulse, internalPulse]);
+
+  const status = isPro ? 'active' : 'none';
+  const isActive = isPro;
 
   const requirePro = (action: (() => void) | (() => Promise<void>)) => {
     if (!currentUser) {
       navigate('/login');
       return;
     }
-    if (!isActive) {
+    if (!isPro) {
       const event = new CustomEvent('show-paywall');
       window.dispatchEvent(event);
       return;
@@ -76,6 +97,6 @@ export function usePaywall() {
     daysRemaining,
     status,
     isActive,
-    loading: false
+    loading: loadingClaims
   };
 }

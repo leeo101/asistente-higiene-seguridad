@@ -256,10 +256,17 @@ export default function LegajoForm() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    
+    // PAYWALL ENFORCEMENT
+    if (currentUser && !hasAccess) {
+      navigate('/subscribe', { replace: true });
+      return;
+    }
+
     if (id && currentUser) {
       loadLegajo(id);
     }
-  }, [id, currentUser]);
+  }, [id, currentUser, hasAccess, navigate]);
 
   const loadLegajo = async (legajoId: string) => {
     if (!currentUser) return;
@@ -320,7 +327,7 @@ export default function LegajoForm() {
   const handleGeneratePDF = async () => {
     if (!hasAccess) {
       alert("La exportación a PDF requiere una suscripción PRO");
-      navigate('/subscription');
+      navigate('/subscribe');
       return;
     }
     

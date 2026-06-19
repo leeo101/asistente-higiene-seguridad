@@ -31,25 +31,45 @@ export default function Subscription(): React.ReactElement | null {
         }
 
         if (paymentStatus === 'approved') {
-            const currentExpiry = parseInt(subData.expiry || '0', 10);
-            const baseDate = (currentExpiry && currentExpiry > Date.now()) ? new Date(currentExpiry) : new Date();
-
-            baseDate.setMonth(baseDate.getMonth() + 1);
-            const newExpiry = baseDate.getTime();
-
-            const newSubData = {
-                status: 'active',
-                expiry: String(newExpiry),
-                updatedAt: Date.now()
-            };
-
-            syncDocument('subscriptionData', newSubData);
-            setExpiryDate(new Date(newExpiry));
-            setIsSubscribed(true);
-            toast.success(currentExpiry > Date.now() ? '¡Suscripción renovada con éxito!' : '¡Suscripción activada con éxito!');
-            window.history.replaceState({}, document.title, window.location.pathname);
+            const payment_id = urlParams.get('payment_id');
+            
+            if (payment_id) {
+                setLoading(true);
+                // Call backend to verify
+                currentUser?.getIdToken().then(token => {
+                    fetch(`${API_BASE_URL}/api/verify-payment`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ payment_id })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            setIsSubscribed(true);
+                            toast.success('¡Suscripción activada con éxito!');
+                            // Force token refresh to get new custom claims
+                            return currentUser.getIdToken(true);
+                        } else {
+                            toast.error('Hubo un error verificando el pago. Contacta soporte.');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Payment verification error', err);
+                        toast.error('Error de red al verificar el pago.');
+                    })
+                    .finally(() => {
+                        setLoading(false);
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    });
+                });
+            } else {
+                toast.error('Pago aprobado pero falta ID de validación.');
+            }
         }
-    }, [isPro, syncDocument]);
+    }, [isPro, currentUser]);
 
     const handleMercadoPago = async () => {
         if (!currentUser) {

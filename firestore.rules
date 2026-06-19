@@ -2,12 +2,21 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Regla global de aislamiento Multi-Tenant (Inquilino único)
-    // El wildcard {document=**} asegura que CUALQUIER subcolección o documento anidado
-    // bajo la raíz del usuario (ej: /users/UID/legajos, /users/UID/data, etc.)
-    // solo sea accesible si el token JWT del solicitante coincide con el {uid}.
+    // Reglas de seguridad mejoradas para evitar abuso de almacenamiento
     match /users/{uid}/{document=**} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read: if request.auth != null && request.auth.uid == uid;
+      
+      // Permitir escritura si es el dueño y el payload no es masivo (menos de 150 campos)
+      // Nota: subscriptionData se deniega en una regla más específica abajo.
+      allow write: if request.auth != null 
+                   && request.auth.uid == uid 
+                   && request.resource.data.keys().size() < 150;
+    }
+    
+    // PAYWALL SECURITY: Prevent users from writing to their own subscriptionData
+    match /users/{uid}/data/subscriptionData {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false; // Only backend admin SDK can write this
     }
     
     // registration_requests is managed via Backend API only

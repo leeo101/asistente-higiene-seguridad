@@ -17,7 +17,8 @@ import toast from 'react-hot-toast';
 import confetti from 'canvas-confetti';
 import DailyNewsWidget from '../components/DailyNewsWidget';
 import DailyAIInsight from '../components/DailyAIInsight';
-import { Plus, Heartbeat } from '@phosphor-icons/react';
+import { Heartbeat } from '@phosphor-icons/react';
+
 
 // Tipos
 interface KPIData {
@@ -119,7 +120,11 @@ const KPICard: React.FC<KPICardProps> = ({ icon: Icon, title, value, trend, grad
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
         border: '1px solid rgba(255,255,255,0.2)',
-        transition: 'transform 0.3s ease, box-shadow 0.3s ease'
+        transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+        transform: 'translateZ(0)',
+        willChange: 'transform',
+        backfaceVisibility: 'hidden',
+        WebkitBackfaceVisibility: 'hidden'
       }}
       onMouseOver={e => {
         e.currentTarget.style.transform = 'translateY(-5px)';
@@ -406,71 +411,115 @@ export default function Dashboard(): React.ReactElement {
       <div className="container" style={{ paddingTop: isMobile ? '7rem' : '6rem', paddingBottom: '3rem' }}>
         <Breadcrumbs />
 
-      {/* Header */}
+      {/* ── Header ── */}
       <div style={{
         marginBottom: '2rem',
         display: 'flex',
         flexDirection: isMobile ? 'column' : 'row',
-        alignItems: isMobile ? 'flex-start' : 'center',
+        alignItems: isMobile ? 'stretch' : 'center',
         justifyContent: 'space-between',
         gap: '1rem',
-        flexWrap: 'wrap'
       }}>
         <div>
-          <h1 style={{ fontSize: isMobile ? '1.8rem' : 'clamp(1.5rem, 5vw, 2rem)', fontWeight: 900, margin: '0 0 0.5rem', color: 'var(--color-text)' }}>
+          <h1 style={{ fontSize: isMobile ? '1.8rem' : 'clamp(1.5rem, 5vw, 2rem)', fontWeight: 900, margin: '0 0 0.3rem', color: 'var(--color-text)', lineHeight: 1.1 }}>
             Dashboard
           </h1>
           <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', margin: 0 }}>
             Vista general de tu sistema de gestión
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '0.6rem', width: isMobile ? '100%' : 'auto' }}>
+
+        {/* Action buttons — same height on all breakpoints */}
+        <div style={{
+          display: 'flex',
+          gap: '0.65rem',
+          width: isMobile ? '100%' : 'auto',
+          alignItems: 'stretch',
+        }}>
+          {/* Export button */}
           <button
             onClick={() => navigate('/reports')}
             style={{
               flex: isMobile ? 1 : 'none',
-              padding: '0.7rem 1rem',
+              height: '44px',
+              padding: '0 1.2rem',
               background: 'var(--color-surface)',
               border: '1px solid var(--color-border)',
-              borderRadius: '12px',
+              borderRadius: '14px',
               fontWeight: 700,
-              fontSize: '0.85rem',
+              fontSize: '0.875rem',
               cursor: 'pointer',
               color: 'var(--color-text)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '0.4rem',
-              backdropFilter: 'blur(8px)'
+              gap: '0.45rem',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              transition: 'all 0.22s cubic-bezier(0.16,1,0.3,1)',
+              whiteSpace: 'nowrap',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = 'var(--color-primary)';
+              e.currentTarget.style.color = 'var(--color-primary)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 6px 20px rgba(59,130,246,0.15)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = 'var(--color-border)';
+              e.currentTarget.style.color = 'var(--color-text)';
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)';
             }}
           >
-            <Download size={18} /> {isMobile ? 'Exportar' : 'Exportar'}
+            <Download size={17} weight="bold" />
+            <span>Exportar</span>
           </button>
+
+          {/* Monthly Report button — primary gradient */}
           <button
             onClick={() => navigate('/management-report')}
-            className="btn-primary"
             style={{
               flex: isMobile ? 1 : 'none',
-              padding: '0.7rem 1rem',
+              height: '44px',
+              padding: '0 1.3rem',
+              background: 'linear-gradient(135deg, var(--color-primary) 0%, #6366f1 100%)',
+              border: 'none',
+              borderRadius: '14px',
+              fontWeight: 800,
+              fontSize: '0.875rem',
+              cursor: 'pointer',
+              color: '#fff',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '0.4rem',
-              fontSize: '0.85rem'
+              gap: '0.45rem',
+              boxShadow: '0 4px 16px rgba(59,130,246,0.35)',
+              transition: 'all 0.22s cubic-bezier(0.16,1,0.3,1)',
+              whiteSpace: 'nowrap',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 8px 28px rgba(59,130,246,0.45)';
+              e.currentTarget.style.filter = 'brightness(1.1)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 4px 16px rgba(59,130,246,0.35)';
+              e.currentTarget.style.filter = 'brightness(1)';
             }}
           >
-            <FileText size={18} /> {isMobile ? 'Reporte' : 'Reporte Mensual'}
+            <FileText size={17} weight="bold" />
+            <span>{isMobile ? 'Reporte' : 'Reporte Mensual'}</span>
           </button>
         </div>
       </div>
+      {/* ── / Header ── */}
 
-      {/* Header */}
-
-      {/* Mejora #7: Dashboard Inteligente (Salud del Sistema & IA) */}
+      {/* Salud del Sistema & IA Insight */}
       {!loading && (
         <div style={{ marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          
-          {/* Salud del Sistema & IA Insight */}
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.5fr 2fr', gap: '1.5rem' }}>
             
             {/* Health Score Bar */}
@@ -508,22 +557,6 @@ export default function Dashboard(): React.ReactElement {
               criticalRisksCount={kpis.riskMatrixStatus.critical || 0} 
             />
 
-          </div>
-
-          {/* Quick Actions */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-            <button onClick={() => navigate('/inspections/new')} className="btn-primary" style={{ padding: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', borderRadius: '12px', fontWeight: 700 }}>
-              <Plus size={18} weight="bold" /> Nueva Inspección
-            </button>
-            <button onClick={() => navigate('/permits/new')} style={{ padding: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', borderRadius: '12px', background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontWeight: 700, cursor: 'pointer' }}>
-              <Plus size={18} weight="bold" /> Nuevo Permiso
-            </button>
-            <button onClick={() => navigate('/trainings')} style={{ padding: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', borderRadius: '12px', background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontWeight: 700, cursor: 'pointer' }}>
-              <Plus size={18} weight="bold" /> Cargar Capacitación
-            </button>
-            <button onClick={() => navigate('/accidents')} style={{ padding: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', borderRadius: '12px', background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontWeight: 700, cursor: 'pointer' }}>
-              <Plus size={18} weight="bold" /> Registrar Incidente
-            </button>
           </div>
         </div>
       )}

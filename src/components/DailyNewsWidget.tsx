@@ -40,10 +40,10 @@ export default function DailyNewsWidget() {
                             title = parts.join(' - ');
                         }
 
-                        // Clean up HTML from description
-                        const div = document.createElement('div');
-                        div.innerHTML = item.description;
-                        let cleanDesc = div.textContent || div.innerText || '';
+                        // Clean up HTML from description using DOMParser to prevent XSS
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(item.description, 'text/html');
+                        let cleanDesc = doc.body.textContent || doc.body.innerText || '';
                         // Sometimes the description just repeats the title or has "Leer más". Let's clean it up or use a fallback.
                         if (cleanDesc.length > 150) cleanDesc = cleanDesc.substring(0, 150) + '...';
 
