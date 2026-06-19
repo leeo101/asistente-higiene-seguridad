@@ -64,14 +64,7 @@ export default function Ergonomics(): React.ReactElement | null {
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                    <button onClick={() => navigate('/', { state: { scrollTo: 'ergonomics' } })} style={{
-                        display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
-                        background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)',
-                        borderRadius: '12px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
-                        boxShadow: 'var(--shadow-sm)'
-                    }}>
-                        <ArrowLeft size={20} /> INICIO
-                    </button>
+                    <></>
                 </div>
                 <button
                     onClick={() => navigate('/ergonomics-form')}

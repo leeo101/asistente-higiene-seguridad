@@ -377,24 +377,7 @@ export default function WorkPermit(): React.ReactElement | null {
                     />
 
                     <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
-                        <button
-                            onClick={() => navigate('/', { state: { scrollTo: 'work-permit' } })}
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.5rem',
-                                padding: '0.5rem 1rem',
-                                background: 'var(--color-surface)',
-                                color: 'var(--color-text)',
-                                border: '1px solid var(--color-border)',
-                                borderRadius: '8px',
-                                fontWeight: 700,
-                                cursor: 'pointer',
-                                transition: 'all 0.2s ease'
-                            }}
-                        >
-                            INICIO
-                        </button>
+                        <></>
                     </div>
 
                     <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>

@@ -234,24 +234,7 @@ export default function ChemicalSafety(): React.ReactElement | null {
                     color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
                 />
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginTop: '1rem' }}>
-                    <button
-                        onClick={() => navigate('/', { state: { scrollTo: 'chemical-safety' } })}
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            padding: '0.5rem 1rem',
-                            background: 'var(--color-surface)',
-                            color: 'var(--color-text)',
-                            border: '1px solid var(--color-border)',
-                            borderRadius: '8px',
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                            transition: 'all 0.2s ease'
-                        }}
-                    >
-                        INICIO
-                    </button>
+                    <></>
                     <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                         <button
                             onClick={() => navigate('/chemical-safety/new')}

@@ -492,14 +492,7 @@ export default function FireLoad(): React.ReactElement | null {
                         />
                     </div>
                     <div style={{ marginBottom: '1.5rem', marginTop: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                        <button onClick={() => navigate('/', { state: { scrollTo: 'fire-load' } })} style={{
-                            display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
-                            background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)',
-                            borderRadius: '12px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
-                            boxShadow: 'var(--shadow-sm)'
-                        }}>
-                            <ArrowLeft size={20} /> INICIO
-                        </button>
+                        <></>
                         <div style={{ flex: 1, minWidth: '250px', position: 'relative' }}>
                             <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }}>
                                 <Flame size={18} />

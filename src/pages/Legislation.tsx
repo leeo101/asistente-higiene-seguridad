@@ -165,24 +165,7 @@ export default function Legislation(): React.ReactElement | null {
             />
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
-                <button
-                    onClick={() => navigate('/', { state: { scrollTo: 'legislation' } })}
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        padding: '0.5rem 1rem',
-                        background: 'var(--color-surface)',
-                        color: 'var(--color-text)',
-                        border: '1px solid var(--color-border)',
-                        borderRadius: '8px',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease'
-                    }}
-                >
-                    INICIO
-                </button>
+                <></>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--color-surface)', padding: '0.5rem 1rem', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
                     <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>País:</span>
                     <select 

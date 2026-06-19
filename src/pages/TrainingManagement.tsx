@@ -636,14 +636,7 @@ export default function TrainingManagement(): React.ReactElement | null {
                         />
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginTop: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                                <button onClick={() => navigate('/', { state: { scrollTo: 'training-management' } })} style={{
-                                    display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
-                                    background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)',
-                                    borderRadius: '12px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
-                                    boxShadow: 'var(--shadow-sm)'
-                                }}>
-                                    <ArrowLeft size={20} /> INICIO
-                                </button>
+                                <></>
                                 <button
                                     onClick={() => setShowExamForm(true)}
                                     style={{ flex: '0 1 auto', padding: '0.8rem 1.5rem', borderRadius: '12px', background: '#8E44AD', color: '#fff', border: 'none', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(142,68,173,0.3)', whiteSpace: 'nowrap', margin: 0 }}

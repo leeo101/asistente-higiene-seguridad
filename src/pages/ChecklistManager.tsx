@@ -805,14 +805,7 @@ export default function ChecklistManager(): React.ReactElement | null {
             {!showForm ? (
                 <>
                     <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                        <button onClick={() => navigate('/', { state: { scrollTo: 'checklists' } })} style={{
-                            display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
-                            background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)',
-                            borderRadius: '12px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
-                            boxShadow: 'var(--shadow-sm)'
-                        }}>
-                            <ArrowLeft size={20} /> INICIO
-                        </button>
+                        <></>
                         <button
                             onClick={() => { setSearchParams({}); setShowForm(true); }}
                             style={{ flex: '0 1 auto', padding: '1rem 1.5rem', borderRadius: '16px', background: '#36B37E', color: '#fff', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(54,179,126,0.3)', whiteSpace: 'nowrap' }}
