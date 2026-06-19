@@ -459,7 +459,7 @@ function App() {
                   background: 'var(--color-background)',
                   border: '1px solid var(--color-border)',
                   borderRadius: 'var(--radius-lg)',
-                  padding: '0.6rem',
+                  padding: '0.5rem',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -470,7 +470,7 @@ function App() {
                   transition: 'all var(--transition-base)'
                 }}
               >
-                <Search weight="bold" size={20} />
+                <Search weight="bold" size={18} />
               </button>
               <HeaderNotifications />
               <CloudStatusIndicator />

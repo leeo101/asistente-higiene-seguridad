@@ -25,7 +25,7 @@ export default function HeaderNotifications() {
                     padding: 0, position: 'relative', flexShrink: 0,
                     background: notifications.length > 0 ? 'rgba(255, 0, 0, 0.25)' : 'rgba(15, 23, 42, 0.05)',
                     border: notifications.length > 0 ? '1px solid rgba(255, 0, 0, 0.8)' : '1px solid rgba(15, 23, 42, 0.1)',
-                    width: '42px', height: '42px', borderRadius: '12px',
+                    width: '48px', height: '48px', borderRadius: '14px',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     cursor: 'pointer', color: notifications.length > 0 ? '#ff4444' : '#64748b',
                     transition: 'all 0.3s ease',
@@ -43,13 +43,13 @@ export default function HeaderNotifications() {
                     }
                     `}
                 </style>
-                <Bell weight={notifications.length > 0 ? "fill" : "duotone"} size={26} />
+                <Bell weight={notifications.length > 0 ? "fill" : "duotone"} size={30} />
                 {notifications.length > 0 && (
                     <span style={{
                         position: 'absolute', top: '-5px', right: '-5px',
                         background: '#ef4444', color: '#fff',
-                        borderRadius: '50%', width: '20px', height: '20px',
-                        fontSize: '0.6rem', fontWeight: 900,
+                        borderRadius: '50%', width: '22px', height: '22px',
+                        fontSize: '0.7rem', fontWeight: 900,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         border: '2px solid var(--color-hero-bg, #0f172a)',
                         animation: 'pulse 2s infinite',
