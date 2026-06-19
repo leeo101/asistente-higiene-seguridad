@@ -28,7 +28,7 @@ export default function PremiumHeader({
       background: bg,
       padding: 'clamp(1rem, 3vw, 2rem)',
       borderRadius: '20px',
-      marginTop: '1.5rem',
+      marginTop: '0.5rem',
       marginBottom: '0',
       position: 'relative',
       overflow: 'hidden',

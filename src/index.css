@@ -1437,7 +1437,7 @@ label {
 
   /* Fix header overlap in mobile */
   .container {
-    padding-top: 9rem !important;
+    padding-top: 6rem !important;
   }
 
   .floating-action-bar {

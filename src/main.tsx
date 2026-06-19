@@ -34,7 +34,13 @@ import toast from 'react-hot-toast';
 if (Capacitor.isNativePlatform()) {
   const originalPrint = window.print;
   window.print = async () => {
-    const target = document.querySelector('.isolated-print-target') as HTMLElement;
+    let target = document.querySelector('.isolated-print-target') as HTMLElement;
+    
+    // Si no hay target aislado, buscar por ID típico de reportes
+    if (!target) {
+        target = document.getElementById('pdf-content') as HTMLElement;
+    }
+    
     const targetId = target ? target.id : null;
     
     // Inmediatamente remover las clases visuales feas para que el usuario no vea el "pantallazo"
