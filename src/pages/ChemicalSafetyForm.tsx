@@ -9,6 +9,7 @@ import PdfSignatures from '../components/PdfSignatures';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PremiumHeader from '../components/PremiumHeader';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 const GHS_PICTOGRAMS = {
     explosive: { icon: '🧨', name: 'Explosivo', color: '#dc2626' },
@@ -465,6 +466,7 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
                                     isProfessional: false
                                 } : null}
                             />
+            <PdfBrandingFooter />
                         </div>
 
                         {/* Interactive Signature Drawing Pads */}

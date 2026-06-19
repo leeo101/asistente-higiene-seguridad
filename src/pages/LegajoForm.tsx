@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import LegajoPdf from '../components/LegajoPdf';
 import PremiumHeader from '../components/PremiumHeader';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 const TABS = [
   { id: 'empresa', label: 'Empresa', icon: Building2, color: '#2563eb' },
@@ -1023,6 +1024,7 @@ export default function LegajoForm() {
                   }}
                   box3={null}
               />
+            <PdfBrandingFooter />
             </div>
 
             <div className="no-print animate-fade-in" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem', marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--color-border)' }}>

@@ -20,6 +20,7 @@ import PdfSignatures from '../components/PdfSignatures';
 import { DataTable } from '../components/DataTable';
 import { downloadCSV } from '../services/exportCsv';
 import PremiumHeader from '../components/PremiumHeader';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 function DeleteConfirm({ onConfirm, onCancel }: any) {
     return (
@@ -795,6 +796,7 @@ export default function ToolboxTalk(): React.ReactElement {
                                         isProfessional: false
                                     } : null}
                                 />
+            <PdfBrandingFooter />
                             </div>
 
                             {/* Interactive Signature Drawing Pads */}

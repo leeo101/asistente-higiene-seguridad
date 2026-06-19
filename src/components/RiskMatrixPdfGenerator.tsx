@@ -2,6 +2,7 @@ import React from 'react';
 import { ShieldCheck, Calendar, MapPin, UserCheck, AlertTriangle } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
+import PdfBrandingFooter from './PdfBrandingFooter';
 
 const getRiskLevel = (p, s) => {
     const val = p * s;
@@ -179,6 +180,7 @@ export default function RiskMatrixPdfGenerator({ data }: { data: any }): React.R
 
                 {/* Firmas */}
                 <PdfSignatures data={finalData} />
+            <PdfBrandingFooter />
 
                 <div style={{ marginTop: 'auto', paddingTop: '2rem', textAlign: 'center', fontSize: '0.65rem', fontWeight: 900, color: '#94a3b8', letterSpacing: '0.1em', textTransform: 'uppercase', pageBreakInside: 'avoid' }}>
                     Documento de Prevención de Riesgos Laborales

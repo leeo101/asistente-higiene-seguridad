@@ -20,6 +20,7 @@ import PremiumHeader from '../components/PremiumHeader';
 import { usePaywall } from '../hooks/usePaywall';
 import AdBanner from '../components/AdBanner';
 import { getCountryNormativa } from '../data/legislationData';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 // Res. SRT 30/2023 — Valores Límite de Exposición (VLE) TGBH en °C
 // Reemplaza el Anexo II del Dec. 351/79 (vigente desde 2024, prórroga Res. 7/2024)
@@ -831,6 +832,7 @@ export default function ThermalStress(): React.ReactElement | null {
                                 isProfessional: false
                             } : null}
                         />
+            <PdfBrandingFooter />
                     </div>
 
                     {/* Interactive Signature Drawing Pads */}

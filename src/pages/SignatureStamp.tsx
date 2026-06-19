@@ -97,8 +97,8 @@ export default function SignatureStamp(): React.ReactElement | null {
 
     const handleSave = async () => {
         const data = {
-            signature: signatureImage || signatureCanvasRef.current?.toDataURL(),
-            stamp: stampImage || stampCanvasRef.current?.toDataURL()
+            signature: signatureImage || (signatureHasContent ? signatureCanvasRef.current?.toDataURL() : null),
+            stamp: stampImage || (stampHasContent ? stampCanvasRef.current?.toDataURL() : null)
         };
         await syncDocument('signatureStampData', data);
         setSaved(true);

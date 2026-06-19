@@ -2,6 +2,7 @@ import React from 'react';
 import PdfSignatures from './PdfSignatures';
 import { Activity, Wind, Clipboard } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import PdfBrandingFooter from './PdfBrandingFooter';
 
 const MONITORING_TYPES = [
     { id: 'air', name: 'Calidad de Aire', icon: '💨' },
@@ -247,6 +248,7 @@ export default function EnvironmentalPdf({ data, id = "pdf-content" }: { data: a
                         isProfessional: false
                     } : null}
                 />
+            <PdfBrandingFooter />
 
                 <div style={{ marginTop: '1.5rem', fontSize: '0.6rem', color: '#64748b', textAlign: 'center' }}>
                     DOCUMENTO OBLIGATORIO PARA EL SEGUIMIENTO AMBIENTAL SEGÚN ISO 14001:2015.

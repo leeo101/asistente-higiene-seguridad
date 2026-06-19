@@ -24,6 +24,7 @@ import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
 import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 const DEFAULT_TEMPLATES = {
     'manual_tools': {
@@ -1512,6 +1513,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                             isProfessional: false
                         } : null}
                     />
+            <PdfBrandingFooter />
                 </div>
 
                 {/* Interactive Signature Drawing Pads */}

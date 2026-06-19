@@ -2,6 +2,7 @@ import React from 'react';
 import { Lock, Zap, AlertTriangle } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
+import PdfBrandingFooter from './PdfBrandingFooter';
 
 const ENERGY_MAP = {
     electrical: { name: 'Eléctrica', icon: '⚡', color: '#b45309', bg: '#fef3c7', border: '#fde68a' },
@@ -178,6 +179,7 @@ export default function LOTOPdf({ data }: { data: any }): React.ReactElement | n
                         isProfessional: false
                     } : null}
                 />
+            <PdfBrandingFooter />
 
                 <div style={{ marginTop: '2rem', fontSize: '0.6rem', color: '#64748b', textAlign: 'center', fontWeight: 900, letterSpacing: '0.1em' }}>
                     REGISTRO DE BLOQUEO CONFORME A NORMAS INTERNACIONALES DE SEGURIDAD INDUSTRIAL.

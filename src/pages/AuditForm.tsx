@@ -10,6 +10,7 @@ import PremiumHeader from '../components/PremiumHeader';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 const AUDIT_TYPES = [
     { id: 'internal', name: 'Interna', icon: '📋' },
@@ -700,6 +701,7 @@ export default function AuditForm(): React.ReactElement | null {
                                     isProfessional: false
                                 } : null}
                             />
+            <PdfBrandingFooter />
                         </div>
 
                         {/* Interactive Signature Drawing Pads */}

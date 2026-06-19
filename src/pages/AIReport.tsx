@@ -8,6 +8,7 @@ import { usePaywall } from '../hooks/usePaywall';
 import CompanyLogo from '../components/CompanyLogo';
 import PdfSignatures from '../components/PdfSignatures';
 import { toast } from 'react-hot-toast';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 export default function AIReport(): React.ReactElement | null {
   const { requirePro } = usePaywall();
@@ -366,6 +367,7 @@ export default function AIReport(): React.ReactElement | null {
                     } : null}
                     box2={showSignatures.professional ? undefined : null}
                 />
+            <PdfBrandingFooter />
 
                 {/* Footer Content (Static in report) */}
                 <div style={{ position: 'relative', marginTop: '30px', paddingBottom: '30px', width: '100%', textAlign: 'center', fontSize: '0.7rem', color: '#94a3b8' }}>

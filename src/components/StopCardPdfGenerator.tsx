@@ -3,6 +3,7 @@ import { MapPin, Calendar, Clock, User, AlertCircle, AlertTriangle, ShieldCheck,
 import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
 import { getCountryNormativa } from '../data/legislationData';
+import PdfBrandingFooter from './PdfBrandingFooter';
 
 export default function StopCardPdfGenerator({ card }: { card: any }): React.ReactElement | null {
     const componentRef = useRef<HTMLDivElement>(null);
@@ -484,6 +485,7 @@ export default function StopCardPdfGenerator({ card }: { card: any }): React.Rea
 
                 {/* Footer Signature - Mejorado visualmente */}
                 <PdfSignatures data={card} />
+            <PdfBrandingFooter />
                 </div>
             </div>
 );

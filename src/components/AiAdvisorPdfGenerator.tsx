@@ -2,6 +2,7 @@ import React from 'react';
 import { Sparkles, ShieldAlert, HardHat, Lightbulb, Gavel } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
+import PdfBrandingFooter from './PdfBrandingFooter';
 
 export default function AiAdvisorPdfGenerator({ data }: { data: any }): React.ReactElement | null {
 // function body start
@@ -124,6 +125,7 @@ export default function AiAdvisorPdfGenerator({ data }: { data: any }): React.Re
 
                 {/* Signature Row */}
                 <PdfSignatures data={data} />
+            <PdfBrandingFooter />
 
             </div>
         </div>

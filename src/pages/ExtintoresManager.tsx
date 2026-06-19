@@ -20,6 +20,7 @@ import { DataTable } from '../components/DataTable';
 import ExtinguisherPdfGenerator from '../components/ExtinguisherPdfGenerator';
 import ConfirmModal from '../components/ConfirmModal';
 import ExcelJS from 'exceljs';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 const formatType = (tipo: string) => {
   
@@ -864,6 +865,7 @@ export default function ExtintoresManager() {
                                         isProfessional: false
                                     } : null}
                                 />
+            <PdfBrandingFooter />
                             </div>
 
                             <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 gap-8">

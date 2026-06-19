@@ -9,6 +9,7 @@ import PdfSignatures from '../components/PdfSignatures';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PremiumHeader from '../components/PremiumHeader';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 const ENERGY_TYPES = [
     { id: 'electrical', name: 'Eléctrica', icon: '⚡', color: '#fbbf24' },
@@ -510,6 +511,7 @@ export default function LOTOForm(): React.ReactElement | null {
                                     isProfessional: false
                                 } : null}
                             />
+            <PdfBrandingFooter />
                         </div>
 
                         {/* Interactive Signature Drawing Pads */}

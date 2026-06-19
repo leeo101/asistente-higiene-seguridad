@@ -3,6 +3,7 @@ import { Building2, MapPin, Calendar } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
 import { getCountryNormativa } from '../data/legislationData';
+import PdfBrandingFooter from './PdfBrandingFooter';
 
 export default function ProfessionalReportPdfGenerator({ currentReport }: { currentReport: any }): React.ReactElement | null {
 // logo code removed
@@ -138,6 +139,7 @@ export default function ProfessionalReportPdfGenerator({ currentReport }: { curr
 
                 {/* Firmas */}
                 <PdfSignatures data={report} />
+            <PdfBrandingFooter />
 
                 {/* Footer Legal */}
                 <div style={{ width: '100%', textAlign: 'center', fontSize: '0.7rem', color: '#94a3b8', marginTop: '3rem', fontStyle: 'italic', borderTop: '1px solid #e2e8f0', paddingTop: '1rem' }}>

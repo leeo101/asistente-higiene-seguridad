@@ -11,6 +11,7 @@ import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
 import LiftingPdfGenerator from '../components/LiftingPdfGenerator';
 import ConfirmModal from '../components/ConfirmModal';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 const labelStyle: React.CSSProperties = {
     display: 'block',
@@ -655,6 +656,7 @@ export default function LiftingForm(): React.ReactElement | null {
                                     isProfessional: false
                                 } : null}
                             />
+            <PdfBrandingFooter />
                         </div>
 
                         {/* Interactive Signature Drawing Pads - Premium Glassmorphism */}

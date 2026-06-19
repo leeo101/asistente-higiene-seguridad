@@ -2,6 +2,7 @@ import React from 'react';
 import { CarFront, ClipboardList, ShieldCheck } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
+import PdfBrandingFooter from './PdfBrandingFooter';
 
 export default function FleetPdfGenerator({ data, checklistItems }: { data: any, checklistItems: any[] }): React.ReactElement | null {
     if (!data) return null;
@@ -206,6 +207,7 @@ export default function FleetPdfGenerator({ data, checklistItems }: { data: any,
                         isProfessional: false
                     } : null}
                 />
+            <PdfBrandingFooter />
 
 
             </div>

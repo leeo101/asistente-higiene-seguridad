@@ -9,6 +9,7 @@ import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
 import PremiumHeader from '../components/PremiumHeader';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 const WORK_TYPES = [
     { id: 'scaffolding', name: 'Andamios', icon: '🏗️' },
@@ -513,6 +514,7 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
                                     isProfessional: false
                                 } : null}
                             />
+            <PdfBrandingFooter />
                         </div>
 
                         {/* Interactive Signature Drawing Pads */}

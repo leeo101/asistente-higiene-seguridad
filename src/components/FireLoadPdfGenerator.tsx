@@ -3,6 +3,7 @@ import { Flame, ShieldCheck, Info, FileText } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
 import { getCountryNormativa } from '../data/legislationData';
+import PdfBrandingFooter from './PdfBrandingFooter';
 
 export default function FireLoadPdfGenerator({ data }: { data: any }): React.ReactElement | null {
 
@@ -184,6 +185,7 @@ export default function FireLoadPdfGenerator({ data }: { data: any }): React.Rea
                 )}
 
                 <PdfSignatures data={data} />
+            <PdfBrandingFooter />
             </div>
         </div>
     );

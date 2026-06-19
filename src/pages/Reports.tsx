@@ -14,6 +14,7 @@ import { DataTable } from '../components/DataTable';
 
 import ShareModal from '../components/ShareModal';
 import ProfessionalReportPdfGenerator from '../components/ProfessionalReportPdfGenerator';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 const inputStyle: React.CSSProperties = {
     width: '100%',
@@ -724,6 +725,7 @@ export default function Reports(): React.ReactElement | null {
                                 license: professional.license
                             } : null}
                         />
+            <PdfBrandingFooter />
                     </div>
 
                     {/* Interactive Signature Drawing Pads */}

@@ -3,6 +3,7 @@ import { Weight, AlertTriangle } from 'lucide-react';
 import { Crane } from '@phosphor-icons/react';
 import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
+import PdfBrandingFooter from './PdfBrandingFooter';
 
 export default function LiftingPdfGenerator({ data }: { data: any }): React.ReactElement | null {
     if (!data) return null;
@@ -257,6 +258,7 @@ export default function LiftingPdfGenerator({ data }: { data: any }): React.Reac
                         isProfessional: false
                     } : null}
                 />
+            <PdfBrandingFooter />
 
             </div>
         </div>

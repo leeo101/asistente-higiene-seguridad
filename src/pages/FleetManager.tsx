@@ -8,6 +8,7 @@ import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
 import FleetPdfGenerator from '../components/FleetPdfGenerator';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 const labelStyle: React.CSSProperties = {
     display: 'block',
@@ -426,6 +427,7 @@ export default function FleetForm(): React.ReactElement | null {
                                     isProfessional: false
                                 } : null}
                             />
+            <PdfBrandingFooter />
                         </div>
 
                         {/* Interactive Signature Drawing Pads - Premium Glassmorphism */}

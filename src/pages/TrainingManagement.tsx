@@ -21,6 +21,7 @@ import PdfSignatures from '../components/PdfSignatures';
 import { DataTable } from '../components/DataTable';
 import AnimatedPage from '../components/AnimatedPage';
 import QRModal from '../components/QRModal';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 function StatCard({ icon, label, value, color, gradient }: { icon: React.ReactNode; label: string; value: string | number; color: string; gradient: string }) {
     return (
@@ -641,6 +642,7 @@ export default function TrainingManagement(): React.ReactElement | null {
                                     box2={showSignatures.professional ? { title: 'INSTRUCTOR / EXPOSITOR', subtitle: (professional.name || 'Firma de Especialista').toUpperCase(), signatureUrl: formData.signature || professional.signature || null, stampUrl: professional.stamp || null, isProfessional: true, license: professional.license } : null}
                                     box3={showSignatures.supervisor ? { title: 'SUPERVISIÓN / VERIFICADOR', subtitle: 'Verificación de Capacitación', signatureUrl: formData.supervisorSignature || null, isProfessional: false } : null}
                                 />
+            <PdfBrandingFooter />
                             </div>
 
                             {(showSignatures.operator || showSignatures.professional || showSignatures.supervisor) && (

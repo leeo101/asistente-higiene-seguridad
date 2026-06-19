@@ -17,6 +17,7 @@ import { usePaywall } from '../hooks/usePaywall';
 import AdBanner from '../components/AdBanner';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 export default function Drills(): React.ReactElement | null {
   const { requirePro } = usePaywall();
@@ -494,6 +495,7 @@ export default function Drills(): React.ReactElement | null {
                                 isProfessional: false
                             } : null}
                         />
+            <PdfBrandingFooter />
                     </div>
 
                     {/* Interactive Signature Drawing Pads */}

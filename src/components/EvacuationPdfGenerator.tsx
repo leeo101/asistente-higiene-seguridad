@@ -2,6 +2,7 @@ import React from 'react';
 import { Timer, Users, Target } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
+import PdfBrandingFooter from './PdfBrandingFooter';
 
 export default function EvacuationPdfGenerator({ data }: { data: any }): React.ReactElement | null {
     if (!data) return null;
@@ -145,6 +146,7 @@ export default function EvacuationPdfGenerator({ data }: { data: any }): React.R
                         isProfessional: false
                     } : null}
                 />
+            <PdfBrandingFooter />
 
                 <div style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.65rem', color: '#94a3b8', borderTop: '1px solid #e2e8f0', paddingTop: '0.5rem' }}>
                     Documento generado por Asistente HYS | simulador teórico de evacuación basado en modelos estándar de dinámica peatonal.

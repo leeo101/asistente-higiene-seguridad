@@ -98,11 +98,13 @@ export default function GlobalSearch({ onClose }: GlobalSearchProps): React.Reac
   // ── Build search results ─────────────────────────────────────────────────
   useEffect(() => {
     if (!query.trim() || query.length < 2) { setResults([]); setActiveIdx(0); return; }
-    const q = query.toLowerCase();
+    
+    const normalizeText = (text: string) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const q = normalizeText(query);
     const found: CmdItem[] = [];
 
     MODULES.forEach(mod => {
-      if (`${mod.label} ${mod.sub}`.toLowerCase().includes(q)) {
+      if (normalizeText(`${mod.label} ${mod.sub}`).includes(q)) {
         found.push({ key:`m-${mod.nav}`, id:'nav', nav:mod.nav, color:mod.color, bg:mod.bg, icon:mod.icon, label:'Módulo', title:mod.label, subtitle:mod.sub, date:null, isModule:true });
       }
     });
@@ -113,7 +115,7 @@ export default function GlobalSearch({ onClose }: GlobalSearchProps): React.Reac
         items.forEach(item => {
           const title = item[src.titleField] || '';
           const subtitle = src.subtitleField ? (item[src.subtitleField] || '') : '';
-          if (`${title} ${subtitle}`.toLowerCase().includes(q)) {
+          if (normalizeText(`${title} ${subtitle}`).includes(q)) {
             found.push({ key:`h-${src.key}-${item.id||item.fecha}`, id:item.id||item.fecha, nav:src.nav, color:src.color, bg:src.bg, icon:src.icon, label:src.label, title:title||'—', subtitle, date:item[src.dateField], isModule:false });
           }
         });

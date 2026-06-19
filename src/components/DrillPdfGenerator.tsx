@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { ArrowLeft, Printer, Calendar, MapPin, CheckSquare, Clock, Users, Flame } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
+import PdfBrandingFooter from './PdfBrandingFooter';
 
 export default function DrillPdfGenerator({ report, onBack, isHeadless = false }: { report: any, onBack?: any, isHeadless?: boolean }): React.ReactElement | null {
 
@@ -197,6 +198,7 @@ export default function DrillPdfGenerator({ report, onBack, isHeadless = false }
                             isProfessional: false
                         } : null}
                     />
+            <PdfBrandingFooter />
 
                 </div>
             </div>

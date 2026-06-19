@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { Calendar, Flame, MapPin } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
+import PdfBrandingFooter from './PdfBrandingFooter';
 
 const getStatus = (dueDateStr: string) => {
     if (!dueDateStr) return { text: 'Sin Dato', color: '#64748b', vto: '-', base: '-' };
@@ -280,6 +281,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                     {showSignatures && (showSignatures.operator || showSignatures.professional || showSignatures.supervisor) && (
                         <div style={{ marginTop: '20px', pageBreakInside: 'avoid' }}>
                             <PdfSignatures data={{ showSignatures, operatorSignature: globalSignatures?.operatorSignature, supervisorSignature: globalSignatures?.supervisorSignature }} />
+            <PdfBrandingFooter />
                         </div>
                     )}
                 </div>

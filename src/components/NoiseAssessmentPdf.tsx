@@ -2,6 +2,7 @@ import React from 'react';
 import { AlertTriangle, ShieldCheck, Activity } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
+import PdfBrandingFooter from './PdfBrandingFooter';
 
 const TYPE_MAP = {
     personal: 'Dosimetría Personal',
@@ -150,6 +151,7 @@ export default function NoiseAssessmentPdf({ data }: { data: any }): React.React
                         isProfessional: false
                     } : null}
                 />
+            <PdfBrandingFooter />
         </div>
                 </div>
 );

@@ -18,6 +18,7 @@ import { downloadCSV } from '../services/exportCsv';
 import { DataTable } from '../components/DataTable';
 import PremiumHeader from '../components/PremiumHeader';
 import toast from 'react-hot-toast';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 const SECTIONS = ['Datos Generales', 'Accidentado', 'Descripción y Testigos', 'Análisis Causal', 'Medidas Preventivas'];
 
@@ -759,6 +760,7 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                                 isProfessional: false
                             } : null}
                         />
+            <PdfBrandingFooter />
                     </div>
 
                     <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

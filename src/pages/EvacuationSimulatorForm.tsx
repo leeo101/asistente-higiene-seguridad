@@ -9,6 +9,7 @@ import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
 import EvacuationPdfGenerator from '../components/EvacuationPdfGenerator';
+import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 const labelStyle: React.CSSProperties = {
     display: 'block',
@@ -410,6 +411,7 @@ export default function EvacuationSimulatorForm(): React.ReactElement | null {
                                     isProfessional: false
                                 } : null}
                             />
+            <PdfBrandingFooter />
                         </div>
 
                         {/* Interactive Signature Drawing Pads */}

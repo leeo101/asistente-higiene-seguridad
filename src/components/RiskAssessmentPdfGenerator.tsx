@@ -2,6 +2,7 @@ import React from 'react';
 import { ShieldAlert, Activity, AlertCircle, Calendar, MapPin, Briefcase } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
+import PdfBrandingFooter from './PdfBrandingFooter';
 
 export default function RiskAssessmentPdfGenerator({ assessmentData }: { assessmentData: any }): React.ReactElement | null {
     if (!assessmentData) return null;
@@ -157,6 +158,7 @@ export default function RiskAssessmentPdfGenerator({ assessmentData }: { assessm
 
                 {/* Firmas */}
                 <PdfSignatures data={data} />
+            <PdfBrandingFooter />
                 </div>
             </div>
     );
