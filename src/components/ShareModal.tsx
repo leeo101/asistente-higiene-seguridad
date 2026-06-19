@@ -82,23 +82,51 @@ export default function ShareModal({
         element.classList.add('isolated-print-target');
 
         if (Capacitor.isNativePlatform()) {
+            setIsGenerating(true);
+            toast.loading('Generando vista previa...', { id: 'pdf-gen' });
+            
             try {
+                // Pequeno delay para ui
+                await new Promise(resolve => setTimeout(resolve, 80));
+                
+                const pdfBlob = await generatePdfBlob(elementIdToPrint);
+                const base64Data = await new Promise<string>((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onerror = reject;
+                    reader.onload = () => resolve(reader.result as string);
+                    reader.readAsDataURL(pdfBlob);
+                });
+                
+                const base64String = base64Data.split(',')[1];
+                const safeName = propFileName
+                    ? (propFileName.endsWith('.pdf') ? propFileName : `${propFileName}.pdf`)
+                    : `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'reporte'}.pdf`;
+
+                toast.dismiss('pdf-gen');
+                
                 // @ts-ignore
                 const { Printer } = await import('@capgo/capacitor-printer');
-                await Printer.printWebView({ name: title || 'Reporte' });
+                await Printer.printBase64({
+                    data: base64String,
+                    mimeType: 'application/pdf',
+                    name: safeName
+                });
                 
                 document.body.classList.remove('printing-isolated');
                 element.classList.remove('isolated-print-target');
                 onClose();
             } catch (err) {
                 console.error("Error printing natively:", err);
-                toast.error("La impresión directa falló. Generando PDF...");
+                toast.dismiss('pdf-gen');
+                toast.error("La vista previa falló. Compartiendo PDF...");
                 
                 document.body.classList.remove('printing-isolated');
                 element.classList.remove('isolated-print-target');
                 
                 // Fallback a compartir
                 handleNativeShare('Imprimir');
+            } finally {
+                setIsGenerating(false);
             }
         } else {
             window.print();
