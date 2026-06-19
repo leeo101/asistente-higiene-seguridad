@@ -329,20 +329,26 @@ function CloudStatusIndicator() {
   );
 }
 
+import { useNavigationType } from 'react-router-dom';
+
 function ScrollToTop() {
   const { pathname } = useLocation();
+  const navType = useNavigationType();
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-    const timeout = setTimeout(() => {
-      window.scrollTo({
-        top: 0,
-        left: 0,
-        behavior: 'instant'
-      });
-    }, 10);
-    return () => clearTimeout(timeout);
-  }, [pathname]);
+    // Solo scrollear arriba si es una nueva navegación, no si volvemos atrás
+    if (navType !== 'POP') {
+      window.scrollTo(0, 0);
+      const timeout = setTimeout(() => {
+        window.scrollTo({
+          top: 0,
+          left: 0,
+          behavior: 'instant'
+        });
+      }, 10);
+      return () => clearTimeout(timeout);
+    }
+  }, [pathname, navType]);
 
   return null;
 }
