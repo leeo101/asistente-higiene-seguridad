@@ -1530,9 +1530,9 @@ export default function ChecklistManager(): React.ReactElement | null {
                     <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center', flexWrap: 'wrap' }}>
                         <button
                             onClick={() => {
-                                setCompanyInfo({ empresa: '', area: '', responsable: '' });
-                                setInspectionInfo({ fecha: new Date().toISOString().split('T')[0], inspector: '', proximaInspeccion: '' });
-                                setActiveSections({});
+                                setCompanyInfo({ name: '', inspector: '', address: '', responsable: '' });
+                                setInspectionInfo({ item: '', serial: '', date: new Date().toISOString().split('T')[0], expirationDate: '', extinguisherObs: '', marca: '', patente: '', horometro: '', pt: '', responsableArea: '' });
+                                setActiveSections([]);
                                 setObservations('');
                                 setActionPlan([]);
                                 setOperatorSignature('');
@@ -1556,12 +1556,12 @@ export default function ChecklistManager(): React.ReactElement | null {
                             onClick={() => {
                                 setShareItem({
                                     id: Date.now(),
-                                    empresa: companyInfo.empresa,
-                                    area: companyInfo.area,
+                                    empresa: companyInfo.name,
+                                    area: companyInfo.address,
                                     responsable: companyInfo.responsable,
-                                    fecha: inspectionInfo.fecha,
-                                    inspector: inspectionInfo.inspector,
-                                    proximaInspeccion: inspectionInfo.proximaInspeccion,
+                                    fecha: inspectionInfo.date,
+                                    inspector: companyInfo.inspector,
+                                    proximaInspeccion: inspectionInfo.expirationDate,
                                     sections: activeSections,
                                     observations,
                                     actionPlan,

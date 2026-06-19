@@ -232,7 +232,7 @@ export default function Reports(): React.ReactElement | null {
     if (!isFormVisible) {
         return (
             <div className="container" style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '7rem', paddingTop: '5.5rem' }}>
-                <PremiumHeader onBack={isFormVisible ? () => { setIsFormVisible(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined} 
+                <PremiumHeader onBack={isFormVisible ? () => { setIsFormVisible(false); } : undefined} 
                     title="Informes Profesionales"
                     subtitle="Gestión e historial de informes técnicos."
                     icon={<FileText size={32} color="#ffffff"  />}
@@ -369,7 +369,7 @@ export default function Reports(): React.ReactElement | null {
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '6rem', paddingTop: '5.5rem' }}>
-            <PremiumHeader onBack={isFormVisible ? () => { setIsFormVisible(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined} 
+            <PremiumHeader onBack={isFormVisible ? () => { setIsFormVisible(false); } : undefined} 
                 title="Generar Informe"
                 subtitle="Documentación Profesional de Seguridad e Higiene"
                 icon={<FileText  />}

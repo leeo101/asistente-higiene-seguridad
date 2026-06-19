@@ -369,7 +369,7 @@ export default function WorkPermit(): React.ReactElement | null {
                         <Breadcrumbs />
                     </div>
 
-                    <PremiumHeader onBack={showForm ? () => { setShowForm(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined}
+                    <PremiumHeader onBack={showForm ? () => { setShowForm(false); } : undefined}
                         title="Permisos de Trabajo"
                         subtitle="Gestión de Tareas Críticas y Especiales"
                         icon={<ShieldCheck size={32} color="#ffffff"  />}
@@ -422,7 +422,7 @@ export default function WorkPermit(): React.ReactElement | null {
             ) : (
                 <AnimatedPage>
                     <div className="no-print" style={{ marginBottom: '2rem' }}>
-                        <PremiumHeader onBack={showForm ? () => { setShowForm(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined} 
+                        <PremiumHeader onBack={showForm ? () => { setShowForm(false); } : undefined} 
                             title={editData ? 'Editar Permiso de Trabajo' : 'Nuevo Permiso de Trabajo'}
                             subtitle="Gestión de Riesgos Especiales"
                             icon={<ShieldCheck size={32} color="#ffffff"  />}

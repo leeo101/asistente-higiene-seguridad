@@ -314,7 +314,7 @@ export default function LightingReport(): React.ReactElement | null {
     if (!isFormVisible) {
         return (
             <div className="container" style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '7rem', paddingTop: '5.5rem' }}>
-                <PremiumHeader onBack={isFormVisible ? () => { setIsFormVisible(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined} 
+                <PremiumHeader onBack={isFormVisible ? () => { setIsFormVisible(false); } : undefined} 
                     title="Estudios de Iluminación"
                     subtitle="Gestión e historial de estudios de iluminación y luxometría."
                     icon={<Lightbulb size={32} color="#ffffff"  />}
@@ -428,7 +428,7 @@ export default function LightingReport(): React.ReactElement | null {
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem', paddingTop: '6.5rem' }}>
-            <PremiumHeader onBack={isFormVisible ? () => { setIsFormVisible(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined} 
+            <PremiumHeader onBack={isFormVisible ? () => { setIsFormVisible(false); } : undefined} 
                 title={location.state?.editData ? 'Editar Protocolo de Iluminación' : 'Nuevo Estudio de Iluminación'}
                 subtitle={`Medición según ${countryNorms.lighting}`}
                 icon={<Lightbulb size={32} color="#ffffff"  />}

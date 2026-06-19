@@ -251,7 +251,7 @@ export default function LiftingForm(): React.ReactElement | null {
     if (!isFormVisible && !isEdit) {
         return (
             <div className="container" style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '7rem', paddingTop: isMobile ? '4.5rem' : '5.5rem' }}>
-                <PremiumHeader onBack={isFormVisible ? () => { setIsFormVisible(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined} 
+                <PremiumHeader onBack={isFormVisible ? () => { setIsFormVisible(false); } : undefined} 
                     title="Planes de Izaje"
                     subtitle="Gestión e historial de planes de izaje seguro."
                     icon={<Weight size={32} color="#ffffff"  />}
@@ -389,7 +389,7 @@ export default function LiftingForm(): React.ReactElement | null {
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '2rem', paddingTop: isMobile ? '7.5rem' : '6.5rem' }}>
-            <PremiumHeader onBack={isFormVisible ? () => { setIsFormVisible(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined} 
+            <PremiumHeader onBack={isFormVisible ? () => { setIsFormVisible(false); } : undefined} 
                 title={isEdit ? 'Editar Plan de Izaje' : 'Nuevo Plan de Izaje'}
                 subtitle="Complete la información del plan de izaje."
                 icon={<Crane size={32} color="#ffffff"  />}

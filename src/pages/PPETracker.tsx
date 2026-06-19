@@ -161,7 +161,7 @@ export default function PPETracker(): React.ReactElement | null {
 
     return (
         <div className="container" style={{ maxWidth: '750px', paddingBottom: '4rem', paddingTop: '6rem' }}>
-            <PremiumHeader onBack={isFormVisible ? () => { setIsFormVisible(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined} 
+            <PremiumHeader onBack={isFormVisible ? () => { setIsFormVisible(false); } : undefined} 
                 title="Control de EPP"
                 subtitle="Res. SIyC 18/25 · Res. SRT 299/11"
                 icon={<HardHat size={32} color="#ffffff"  />}

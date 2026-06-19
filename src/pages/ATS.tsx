@@ -506,7 +506,7 @@ export default function ATS(): React.ReactElement | null {
                 {/* Breadcrumbs de navegación */}
                 <Breadcrumbs />
 
-                <PremiumHeader onBack={showForm ? () => { setShowForm(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined}
+                <PremiumHeader onBack={showForm ? () => { setShowForm(false); } : undefined}
                     title="Generador de ATS"
                     subtitle="Identificación y control de riesgos para tareas críticas"
                     icon={<ShieldCheck size={36}  />}

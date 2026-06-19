@@ -415,7 +415,7 @@ export default function ThermalStress(): React.ReactElement | null {
 
             {!isFormVisible ? (
                 <div className="animate-fade-in" style={{ padding: '0 1rem', width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
-                    <PremiumHeader onBack={isFormVisible ? () => { setIsFormVisible(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined}
+                    <PremiumHeader onBack={isFormVisible ? () => { setIsFormVisible(false); } : undefined}
                         title="Evaluaciones de Estrés Térmico"
                         subtitle={`Res. SRT 30/2023 • ${history.length} registros`}
                         icon={<ThermometerSun size={36} color="#ffffff"  />}
@@ -494,7 +494,7 @@ export default function ThermalStress(): React.ReactElement | null {
                     </div>
 
                     <div className="no-print animate-fade-in">
-                        <PremiumHeader onBack={isFormVisible ? () => { setIsFormVisible(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined}
+                        <PremiumHeader onBack={isFormVisible ? () => { setIsFormVisible(false); } : undefined}
                             title={editData ? 'Editar Estrés Térmico' : 'Estrés Térmico Calculadora'}
                             subtitle="Res. SRT 30/2023 — reemplaza Res. 295/03 (derogada)"
                             icon={<ThermometerSun size={36} color="#ffffff"  />}

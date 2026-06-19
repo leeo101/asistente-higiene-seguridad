@@ -485,7 +485,7 @@ export default function FireLoad(): React.ReactElement | null {
             {!showForm ? (
                 <>
                     <div className="no-print">
-                        <PremiumHeader onBack={showForm ? () => { setShowForm(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined}
+                        <PremiumHeader onBack={showForm ? () => { setShowForm(false); } : undefined}
                             title="Carga de Fuego"
                             subtitle={`Cálculo según ${countryNorms.fire}`}
                             icon={<Flame size={36} color="#ffffff"  />}
@@ -633,7 +633,7 @@ export default function FireLoad(): React.ReactElement | null {
                 </div>
 
                 <div className="no-print">
-                    <PremiumHeader onBack={showForm ? () => { setShowForm(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined}
+                    <PremiumHeader onBack={showForm ? () => { setShowForm(false); } : undefined}
                         title={editData ? 'Editar Carga de Fuego' : 'Estudio de Carga de Fuego'}
                         subtitle={`Cálculo según ${countryNorms.fire}`}
                         icon={<Flame size={36} color="#ffffff"  />}

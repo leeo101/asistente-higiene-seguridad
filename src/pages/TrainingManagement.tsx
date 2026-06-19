@@ -377,7 +377,7 @@ export default function TrainingManagement(): React.ReactElement | null {
                                 <FileText size={18} /> IMPRIMIR EXAMEN
                             </button>
                         </div>
-                        <PremiumHeader onBack={showForm ? () => { setShowForm(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined}
+                        <PremiumHeader onBack={showForm ? () => { setShowForm(false); } : undefined}
                             title="Generador de Exámenes"
                             subtitle="Cree plantillas en blanco para evaluar capacitaciones"
                             icon={<FileText size={36} color="#ffffff"  />}
@@ -458,7 +458,7 @@ export default function TrainingManagement(): React.ReactElement | null {
                                 <Printer size={18} /> IMPRIMIR PDF
                             </button>
                         </div>
-                        <PremiumHeader onBack={showForm ? () => { setShowForm(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined}
+                        <PremiumHeader onBack={showForm ? () => { setShowForm(false); } : undefined}
                             title={editingId ? 'Editar Capacitación' : 'Nueva Capacitación'}
                             subtitle="Complete los detalles y la asistencia de la charla"
                             icon={<BookOpen size={36} color="#ffffff"  />}
@@ -629,7 +629,7 @@ export default function TrainingManagement(): React.ReactElement | null {
                 ) : (
                     <>
                         {/* HISTORY VIEW */}
-                        <PremiumHeader onBack={showForm ? () => { setShowForm(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined}
+                        <PremiumHeader onBack={showForm ? () => { setShowForm(false); } : undefined}
                             title="Gestión de Capacitaciones"
                             subtitle="Registros de formación del personal"
                             icon={<Users size={36} color="#ffffff"  />}

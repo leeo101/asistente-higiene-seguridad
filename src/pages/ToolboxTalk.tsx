@@ -421,7 +421,7 @@ export default function ToolboxTalk(): React.ReactElement {
 
                 {!showForm ? (
                     <>
-                        <PremiumHeader onBack={showForm ? () => { setShowForm(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined} 
+                        <PremiumHeader onBack={showForm ? () => { setShowForm(false); } : undefined} 
                             title="Charla de 5 Minutos" 
                             subtitle="Registro de asistentes y firma digital" 
                             icon={<MessageSquare size={36} color="#ffffff"  />} 
@@ -498,7 +498,7 @@ export default function ToolboxTalk(): React.ReactElement {
                 ) : (
                     <>
                         <div className="no-print">
-                            <PremiumHeader onBack={showForm ? () => { setShowForm(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined} 
+                            <PremiumHeader onBack={showForm ? () => { setShowForm(false); } : undefined} 
                                 title={editId ? 'Editar Charla' : 'Nueva Charla'} 
                                 subtitle="Registro de asistentes y firma digital" 
                                 icon={<MessageSquare size={36} color="#ffffff"  />} 

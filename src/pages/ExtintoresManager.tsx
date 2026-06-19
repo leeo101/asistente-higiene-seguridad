@@ -527,7 +527,7 @@ export default function ExtintoresManager() {
         <div className="container" style={{ maxWidth: '1200px', paddingBottom: '8rem' }}>
             {!showForm && (
                 <>
-                    <PremiumHeader onBack={showForm ? () => { setShowForm(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined}
+                    <PremiumHeader onBack={showForm ? () => { setShowForm(false); } : undefined}
                         title="Control de Matafuegos"
                         subtitle="Inventario, trazabilidad NFPA 10 y Códigos QR"
                         icon={<Flame size={32} color="#ffffff"  />}
@@ -653,7 +653,7 @@ export default function ExtintoresManager() {
             {showForm ? (
                 <div className="card animate-fade-in ats-editor-panel" style={{ padding: '0', border: 'none', background: 'transparent' }}>
                     <div className="no-print" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2rem' }}>
-                        <PremiumHeader onBack={showForm ? () => { setShowForm(false); if(typeof setSearchParams !== 'undefined') setSearchParams({}); } : undefined} 
+                        <PremiumHeader onBack={showForm ? () => { setShowForm(false); } : undefined} 
                             title={editingId ? 'Editar Extintor' : 'Registrar Nuevo Extintor'}
                             subtitle="Ficha Técnica del Extintor"
                             icon={<Flame size={32} color="#ffffff"  />}
