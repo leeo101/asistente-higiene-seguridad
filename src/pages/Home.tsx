@@ -566,7 +566,7 @@ export default function Home(): React.ReactElement {
           <StarryBackground />
           <div style={{ position: 'relative', zIndex: 1, maxWidth: '1200px', margin: '0 auto' }}>
             <div className="stagger-item" style={{ animationDelay: '0.1s' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.8rem', background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: '100px', marginBottom: '2rem', backdropFilter: 'blur(8px)' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.8rem', background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: '100px', marginBottom: '2rem', backdropFilter: isMobile ? 'none' : 'blur(8px)' }}>
                 <Shield size={14} color="#60a5fa" weight="bold" />
                 <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '1px' }}>Dashboard Privado</span>
               </div>
@@ -578,7 +578,7 @@ export default function Home(): React.ReactElement {
                 padding: '1.5rem',
                 borderRadius: '24px',
                 boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
-                backdropFilter: 'blur(12px)',
+                backdropFilter: isMobile ? 'none' : 'blur(12px)',
                 position: 'relative',
                 overflow: 'hidden'
               }}>

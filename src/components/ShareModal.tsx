@@ -85,14 +85,21 @@ export default function ShareModal({
             try {
                 // @ts-ignore
                 const { Printer } = await import('@capgo/capacitor-printer');
-                await Printer.printWebView();
+                await Printer.printWebView({ name: title || 'Reporte' });
+                
+                document.body.classList.remove('printing-isolated');
+                element.classList.remove('isolated-print-target');
+                onClose();
             } catch (err) {
                 console.error("Error printing natively:", err);
-                toast.error("Error al imprimir");
+                toast.error("La impresión directa falló. Generando PDF...");
+                
+                document.body.classList.remove('printing-isolated');
+                element.classList.remove('isolated-print-target');
+                
+                // Fallback a compartir
+                handleNativeShare('Imprimir');
             }
-            document.body.classList.remove('printing-isolated');
-            element.classList.remove('isolated-print-target');
-            onClose();
         } else {
             window.print();
             setTimeout(() => {
