@@ -205,26 +205,7 @@ export default function LOTOForm(): React.ReactElement | null {
             />
 
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', marginTop: '1.5rem', padding: '0 1.5rem', maxWidth: '800px', margin: '1.5rem auto 0' }}>
-                <button
-                    onClick={() => navigate('/loto')}
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        padding: '0.5rem 1rem',
-                        background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)',
-                        color: '#ffffff',
-                        border: 'none',
-                        borderRadius: '8px',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        boxShadow: '0 4px 15px rgba(54, 179, 126, 0.3)'
-                    }}
-                >
-                    <ArrowLeft size={18} />
-                    VOLVER
-                </button>
+                <></>
             </div>
 
             <main style={{ padding: '3.5rem 1.5rem 1.5rem', maxWidth: '800px', margin: '0 auto' }}>

@@ -347,9 +347,7 @@ export default function AuditManager(): React.ReactElement | null {
                 </div>
 
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                    <button onClick={() => navigate('/', { state: { scrollTo: 'audit' } })} style={{ flex: '0 1 auto', padding: '0.75rem 1.5rem', borderRadius: '16px', background: 'var(--color-background)', border: '2px solid var(--color-border)', color: 'var(--color-text)', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', whiteSpace: 'nowrap', transition: 'all 0.2s' }} className="hover-scale">
-                        <ArrowLeft size={20} /> Inicio
-                    </button>
+                    <></>
                     <button
                         onClick={() => navigate('/audit/new')}
                         style={{

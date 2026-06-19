@@ -646,28 +646,7 @@ export default function FireLoad(): React.ReactElement | null {
                         icon={<Flame size={36} color="#ffffff" />}
                     />
                     <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem', zIndex: 10 }}>
-                        <button 
-                            onClick={() => setShowForm(false)} 
-                            style={{ 
-                                display: 'flex', 
-                                alignItems: 'center', 
-                                gap: '0.5rem', 
-                                padding: '0.5rem 1.25rem', 
-                                background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)', 
-                                border: 'none', 
-                                borderRadius: '12px', 
-                                color: '#ffffff', 
-                                fontWeight: 800,
-                                cursor: 'pointer',
-                                boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)',
-                                transition: 'all 0.2s',
-                                letterSpacing: '0.3px'
-                            }}
-                            onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(54, 179, 126, 0.4)'; }}
-                            onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(54, 179, 126, 0.3)'; }}
-                        >
-                            <ArrowLeft size={18} strokeWidth={2.5} /> Volver
-                        </button>
+                        <></>
                     </div>
                 </div>
 

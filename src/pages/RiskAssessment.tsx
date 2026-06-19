@@ -235,9 +235,7 @@ export default function RiskAssessment(): React.ReactElement | null {
 
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-                <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={20}  />
-                        </button>
+                <></>
                 <div>
                     <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 800 }}>
                         {editData ? 'Editar Matriz de Riesgo' : 'Evaluación de Riesgo'}

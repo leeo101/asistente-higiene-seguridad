@@ -222,26 +222,7 @@ export default function ExtinguisherInspection() {
             />
 
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
-                <button
-                    onClick={() => navigate('/extintores')}
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        padding: '0.5rem 1rem',
-                        background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)',
-                        color: '#ffffff',
-                        border: 'none',
-                        borderRadius: '8px',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        boxShadow: '0 4px 15px rgba(54, 179, 126, 0.3)'
-                    }}
-                >
-                    <ArrowLeft size={18} />
-                    VOLVER
-                </button>
+                <></>
             </div>
 
             <div className="card" style={{ padding: '1.2rem', marginBottom: '1.5rem', background: 'var(--color-surface)', border: '2px solid var(--color-border)' }}>

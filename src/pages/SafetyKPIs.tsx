@@ -532,25 +532,7 @@ export default function SafetyKPIs(): React.ReactElement {
                 />
                 
                 <div style={{ marginBottom: '1.5rem', marginTop: '1.5rem' }}>
-                    <button
-                        onClick={() => { setShowForm(false); setEditing(null); }}
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            padding: '0.75rem 1.5rem',
-                            background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '12px',
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                            boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)',
-                            transition: 'all 0.2s ease'
-                        }}
-                    >
-                        <ArrowLeft size={20} /> Volver
-                    </button>
+                    <></>
                 </div>
                 
                 <div className="card" style={{ padding: '2.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '24px', boxShadow: 'var(--shadow-lg)', marginTop: '1rem' }}>

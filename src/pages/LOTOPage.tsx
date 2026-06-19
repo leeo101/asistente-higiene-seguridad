@@ -87,9 +87,7 @@ export default function LOTOPage(): React.ReactElement | null {
                 backdropFilter: 'blur(20px)'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', maxWidth: '1400px', margin: '0 auto' }}>
-                    <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={20}  />
-                        </button>
+                    <></>
                     <div style={{ flex: 1 }}>
                         <h1 style={{ margin: 0, fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: 900 }}>
                             <Lock size={isMobile ? 20 : 24} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />

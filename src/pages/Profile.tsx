@@ -80,21 +80,7 @@ export default function Profile(): React.ReactElement | null {
     return (
         <div className="container animate-fade-in" style={{ maxWidth: '600px', paddingBottom: '4rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                <button onClick={() => navigate('/')} style={{ 
-                    padding: '0.6rem', 
-                    background: 'var(--color-surface)', 
-                    border: '1px solid var(--color-border)', 
-                    borderRadius: '12px',
-                    cursor: 'pointer', 
-                    color: 'var(--color-text)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
-                    transition: 'all 0.2s'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-surface-hover)'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'var(--color-surface)'} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={20}  />
-                        </button>
+                <></>
                 <h1 className="gradient-text" style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, letterSpacing: '-0.5px' }}>Perfil Profesional</h1>
             </div>
 

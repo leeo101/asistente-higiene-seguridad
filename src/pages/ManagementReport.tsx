@@ -266,9 +266,7 @@ export default function ManagementReport(): React.ReactElement | null {
     return (
         <div className="container" style={{ paddingBottom: '4rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', marginTop: '1rem' }}>
-                <button onClick={() => navigate('/')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={24}  />
-                        </button>
+                <></>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                     <TrendingUp size={24} color="var(--color-primary)" />
                     <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Informe de Gestión</h1>
@@ -277,9 +275,7 @@ export default function ManagementReport(): React.ReactElement | null {
 
             <div className="card" style={{ padding: '1.2rem', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <button onClick={() => setMonthOffset(prev => prev - 1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={16}  />
-                        </button>
+                    <></>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, fontSize: '1.1rem', color: 'var(--color-primary)', textTransform: 'capitalize', width: '140px', justifyContent: 'center' }}>
                         <Calendar size={18} />
                         {monthName.split(' ')[0]}

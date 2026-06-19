@@ -61,37 +61,8 @@ export default function NotFound(): React.ReactElement {
       </p>
 
       <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-        <button
-          onClick={() => navigate(-1)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '0.5rem',
-            padding: '0.8rem 1.4rem',
-            background: 'var(--color-surface)',
-            border: '1px solid var(--color-border)',
-            borderRadius: '12px',
-            fontWeight: 700, fontSize: '0.9rem',
-            cursor: 'pointer',
-            color: 'var(--color-text)',
-          }}
-        >
-          <ArrowLeft size={18} /> Volver
-        </button>
-        <button
-          onClick={() => navigate('/')}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '0.5rem',
-            padding: '0.8rem 1.4rem',
-            background: 'linear-gradient(135deg, #1e3a8a, #2563eb)',
-            border: 'none',
-            borderRadius: '12px',
-            fontWeight: 700, fontSize: '0.9rem',
-            cursor: 'pointer',
-            color: '#ffffff',
-            boxShadow: '0 4px 15px rgba(37,99,235,0.3)',
-          }}
-        >
-          <Home size={18} /> Ir al Inicio
-        </button>
+        <></>
+        <></>
       </div>
 
       {/* Helpful links */}

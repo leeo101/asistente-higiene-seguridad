@@ -119,9 +119,7 @@ export default function ResetPassword(): React.ReactElement | null {
                     }}>
                         <AlertCircle size={32} style={{ margin: '0 auto' }} />
                         <p style={{ margin: 0, fontWeight: 500 }}>{status.message}</p>
-                        <button onClick={() => navigate('/login')} className="btn-secondary" style={{ width: '100%' }}>
-                            Volver al Login
-                        </button>
+                        <></>
                     </div>
                 ) : (
                     <form onSubmit={handleReset} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>

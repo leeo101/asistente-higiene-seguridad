@@ -89,12 +89,7 @@ export default function Report(): React.ReactElement | null {
                     No se ha podido recuperar la información del relevamiento actual. 
                     Por favor, regrese a la lista de control e intente nuevamente.
                 </p>
-                <button onClick={() => navigate('/checklist')}
-                    className="btn-primary"
-                    style={{ padding: '0.8rem 2rem' }}
-                >
-                    Volver a la Lista
-                </button>
+                <></>
             </div>
         );
     }
@@ -107,9 +102,7 @@ export default function Report(): React.ReactElement | null {
             {/* Action Bar (No Print) */}
             <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <button onClick={() => navigate('/')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={20}  />
-                        </button>
+                    <></>
                     <div>
                         <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Informe de Inspección</h1>
                         <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>ID #{inspectionData.id?.toString().slice(-6)}</p>

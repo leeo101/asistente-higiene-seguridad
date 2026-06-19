@@ -7,15 +7,27 @@ export function useHardwareBackButton() {
   const location = useLocation();
 
   useEffect(() => {
-    // Escuchar el botón físico de Atrás en Android
     const listener = CapacitorApp.addListener('backButton', ({ canGoBack }) => {
-      const isRoot = window.location.pathname === '/' || window.location.pathname === '/login' || window.location.pathname === '/dashboard';
+      const path = window.location.pathname;
+      const isRoot = path === '/' || path === '/login' || path === '/dashboard';
       
       if (isRoot) {
-        // Si estamos en inicio, salir de la app
         CapacitorApp.exitApp();
+        return;
+      }
+
+      // Si estamos en un formulario "nuevo" o detalle, intentar volver a la lista del módulo
+      if (path.endsWith('/nuevo') || path.endsWith('/new')) {
+        const parentPath = path.replace(/\/nuevo$/, '').replace(/\/new$/, '');
+        navigate(parentPath, { replace: true });
+      } else if (path.includes('/inspect/')) {
+        const parentPath = path.split('/inspect/')[0];
+        navigate(parentPath, { replace: true });
+      } else if (path.includes('/editar/')) {
+        const parentPath = path.split('/editar/')[0];
+        navigate(parentPath, { replace: true });
       } else {
-        // Sino, volvemos a la pantalla anterior
+        // En cualquier otro caso, ir a la pantalla anterior en el historial
         navigate(-1);
       }
     });

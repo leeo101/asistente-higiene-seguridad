@@ -31,9 +31,7 @@ export default function CAPAPage(): React.ReactElement | null {
         <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: isMobile ? '80px' : '2rem' }}>
             <div style={{ background: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)', padding: isMobile ? '0.75rem 1rem' : '1.5rem', position: 'sticky', top: 0, zIndex: 100, backdropFilter: 'blur(20px)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '0.75rem' : '1rem', maxWidth: '1400px', margin: '0 auto' }}>
-                    <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={isMobile ? 18 : 20}  />
-                        </button>
+                    <></>
                     <div style={{ flex: 1, minWidth: 0 }}>
                         <h1 style={{ margin: 0, fontSize: isMobile ? '1.15rem' : '1.5rem', fontWeight: 900, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}><RefreshCw size={isMobile ? 18 : 24} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle', flexShrink: 0 }} />CAPA</h1>
                         <p style={{ margin: '0.25rem 0 0 0', fontSize: isMobile ? '0.75rem' : '0.85rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Acciones Correctivas/Preventivas • {stats.open} abiertas</p>

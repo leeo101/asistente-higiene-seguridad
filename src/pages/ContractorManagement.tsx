@@ -250,9 +250,7 @@ export default function ContractorManagement() {
             gap: isMobile ? '1rem' : '0'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%' }}>
-              <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={20}  />
-                        </button>
+              <></>
               <div style={{ flex: 1 }}>
                 <h1 className="gradient-text" style={{ margin: 0, fontSize: isMobile ? '1.5rem' : '2rem', fontWeight: 900, letterSpacing: '-0.5px' }}>Contratistas</h1>
                 <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 500 }}>Control documental y personal</p>

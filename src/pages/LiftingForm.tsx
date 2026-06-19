@@ -415,25 +415,7 @@ export default function LiftingForm(): React.ReactElement | null {
 
             <main style={{ padding: '3.5rem 1.5rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
                 <div style={{ marginBottom: '1.5rem' }}>
-                    <button
-                        onClick={() => { setIsFormVisible(false); window.scrollTo(0, 0); }}
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            padding: '0.75rem 1.5rem',
-                            background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '12px',
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                            boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)',
-                            transition: 'all 0.2s ease'
-                        }}
-                    >
-                        <ArrowLeft size={20} /> Volver
-                    </button>
+                    <></>
                 </div>
                 <div className="card" style={{ padding: '2rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem' }}>

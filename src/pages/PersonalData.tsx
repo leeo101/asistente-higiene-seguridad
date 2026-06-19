@@ -106,21 +106,7 @@ export default function PersonalData(): React.ReactElement | null {
         <div className="container animate-fade-in" style={{ maxWidth: '600px', paddingBottom: '4rem' }}>
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                <button onClick={() => navigate(-1)}
-                    style={{
-                        padding: '0.6rem',
-                        background: 'var(--color-surface)',
-                        border: '1px solid var(--color-border)',
-                        borderRadius: '12px',
-                        cursor: 'pointer',
-                        color: 'var(--color-text)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        transition: 'all 0.2s'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-surface-hover)'}
-                    onMouseLeave={(e) => e.currentTarget.style.background = 'var(--color-surface)'} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={20}  />
-                        </button>
+                <></>
                 <div>
                     <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, letterSpacing: '-0.5px' }}>Datos Personales</h1>
                     <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>Tu información profesional</p>

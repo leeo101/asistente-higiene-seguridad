@@ -8,21 +8,7 @@ export default function PrivacyPolicy(): React.ReactElement | null {
 
     return (
         <div className="container" style={{ paddingTop: '6rem', paddingBottom: '5rem', maxWidth: '800px' }}>
-            <button
-                onClick={() => navigate(-1)}
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    background: 'transparent',
-                    border: 'none',
-                    cursor: 'pointer',
-                    color: 'var(--color-text-muted)',
-                    marginBottom: '2rem'
-                }}
-            >
-                <ArrowLeft size={18} /> Volver
-            </button>
+            <></>
 
             <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
                 <div style={{

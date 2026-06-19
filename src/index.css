@@ -1488,9 +1488,11 @@ label {
 
 /* Ocultar botones de retroceso visuales (Navegación Nativa habilitada) */
 button[title*="Volver"],
+button[title*="volver"],
 button[aria-label*="Volver"],
 button[aria-label*="Atrás"],
 .btn-back,
+.btn-back-premium,
 .back-button-ui {
   display: none !important;
 }

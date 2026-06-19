@@ -147,25 +147,7 @@ export default function Subscription(): React.ReactElement | null {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <button
-                        onClick={() => navigate('/')}
-                        style={{
-                            width: '100%',
-                            padding: '1rem',
-                            background: 'var(--color-primary)',
-                            color: '#ffffff',
-                            border: 'none',
-                            borderRadius: '12px',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '0.5rem'
-                        }}
-                    >
-                        Ir al Inicio <ArrowRight size={18} />
-                    </button>
+                    <></>
 
                     {isExpiringSoon && (
                         <button
@@ -269,43 +251,11 @@ export default function Subscription(): React.ReactElement | null {
             {/* Benefits Side */}
             <div>
                 {showPricing && (
-                    <button
-                        onClick={() => setShowPricing(false)}
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            background: 'rgba(59, 130, 246, 0.1)',
-                            border: 'none',
-                            color: '#3b82f6',
-                            cursor: 'pointer',
-                            marginBottom: '2rem',
-                            padding: '0.6rem 1rem',
-                            borderRadius: '10px',
-                            fontWeight: 700
-                        }}
-                    >
-                        <ArrowLeft size={18} /> Volver a mi Plan
-                    </button>
+                    <></>
                 )}
 
                 {!showPricing && (
-                    <button
-                        onClick={() => navigate(-1)}
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            background: 'none',
-                            border: 'none',
-                            color: 'var(--color-text-secondary)',
-                            cursor: 'pointer',
-                            marginBottom: '3rem',
-                            padding: '0'
-                        }}
-                    >
-                        <ArrowLeft size={18} /> Regresar al Inicio
-                    </button>
+                    <></>
                 )}
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#3b82f6', marginBottom: '1.5rem' }}>

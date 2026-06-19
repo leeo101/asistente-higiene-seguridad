@@ -62,9 +62,7 @@ export default function AdminRequests(): React.ReactElement | null {
         <div className="container pb-20">
             <header className="header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                        <ArrowLeft size={20} />
-                    </button>
+                    <></>
                     <div className="icon-wrapper">
                         <UserPlus className="text-primary" size={24} />
                     </div>

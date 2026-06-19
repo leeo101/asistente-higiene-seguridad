@@ -36,9 +36,7 @@ export default function CreateInspection(): React.ReactElement | null {
     return (
         <div className="container" style={{ maxWidth: '600px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft  size={20} />
-                        </button>
+                <></>
                 <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Nueva Inspección</h1>
             </div>
 

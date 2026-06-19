@@ -125,9 +125,7 @@ export default function WorkPermitHistory(): React.ReactElement | null {
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                        <button onClick={() => navigate('/#activity')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={22}  />
-                        </button>
+                        <></>
                         <div>
                             <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800, lineHeight: 1.2 }}>Permisos de Trabajo</h1>
                             <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Tareas críticas</p>

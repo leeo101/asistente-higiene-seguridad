@@ -498,26 +498,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                 />
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-                    <button
-                        onClick={() => navigate('/risk-maps-history')}
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            padding: '0.5rem 1rem',
-                            background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)',
-                            color: '#ffffff',
-                            border: 'none',
-                            borderRadius: '8px',
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                            transition: 'all 0.2s ease',
-                            boxShadow: '0 4px 15px rgba(54, 179, 126, 0.3)'
-                        }}
-                    >
-                        <ArrowLeft size={18} />
-                        VOLVER
-                    </button>
+                    <></>
                     
                     <button onClick={clearCanvas} className="btn-outline hover-lift" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, padding: '0.5rem 1rem', borderColor: 'rgba(239, 68, 68, 0.3)', color: '#ef4444', borderRadius: '12px', fontWeight: 700 }}>
                         <Trash2 size={16} /> Borrar Todo

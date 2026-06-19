@@ -194,26 +194,7 @@ export default function EnvironmentalForm(): React.ReactElement | null {
                 />
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginTop: '1rem' }}>
-                    <button
-                        onClick={() => navigate('/environmental')}
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            padding: '0.5rem 1rem',
-                            background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)',
-                            color: '#ffffff',
-                            border: 'none',
-                            borderRadius: '8px',
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                            transition: 'all 0.2s ease',
-                            boxShadow: '0 4px 15px rgba(54, 179, 126, 0.3)'
-                        }}
-                    >
-                        <ArrowLeft size={18} />
-                        VOLVER
-                    </button>
+                    <></>
                 </div>
             </div>
 

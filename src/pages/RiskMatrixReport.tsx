@@ -154,12 +154,7 @@ export default function RiskMatrixReport(): React.ReactElement | null {
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 marginBottom: '2rem', background: 'transparent'
             }}>
-                <button onClick={() => navigate('/history')} style={{
-                    background: 'transparent', border: 'none', display: 'flex', alignItems: 'center',
-                    gap: '0.5rem', cursor: 'pointer', color: 'var(--color-text)', fontWeight: 700
-                }}>
-                    <ArrowLeft size={18} /> Volver
-                </button>
+                <></>
             </div>
 
             {/* ─── Printable Report ─── */}

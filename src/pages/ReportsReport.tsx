@@ -63,9 +63,7 @@ export default function ReportsReport(): React.ReactElement | null {
             />
             {/* Control Panel - Absolute Print Hide */}
             <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                <button onClick={() => navigate('/reports')} style={{ background: 'transparent', border: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--color-text)' }}>
-                    <ArrowLeft size={20} /> Volver a Formulario
-                </button>
+                <></>
             </div>
 
             <div id="pdf-content" className="card report-print" style={{

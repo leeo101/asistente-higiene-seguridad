@@ -385,25 +385,7 @@ export default function LegajoForm() {
         />
 
         <div>
-            <button
-                onClick={() => { navigate('/legajos'); }}
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '0.75rem 1.5rem',
-                    background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '12px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)',
-                    transition: 'all 0.2s ease'
-                }}
-            >
-                <ArrowLeft size={20} /> Volver
-            </button>
+            <></>
         </div>
 
       {/* ═══ Tabs ═══ */}

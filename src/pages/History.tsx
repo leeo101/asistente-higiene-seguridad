@@ -211,9 +211,7 @@ export default function History(): React.ReactElement | null {
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', minWidth: '200px' }}>
-                        <button onClick={() => navigate('/')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft  size={20} />
-                        </button>
+                        <></>
                         <h1 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: 800 }}>Historial de Matrices</h1>
                     </div>
                     <div style={{ display: 'flex', gap: '0.8rem', marginTop: 'auto' }}>
@@ -342,9 +340,7 @@ export default function History(): React.ReactElement | null {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-                <button onClick={() => navigate('/')} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft  size={20} />
-                        </button>
+                <></>
                 <div style={{ display: 'flex', gap: '0.8rem', marginTop: 'auto' }}>
                     <button onClick={() => {
                         downloadCSV(historicalData.map(h => ({

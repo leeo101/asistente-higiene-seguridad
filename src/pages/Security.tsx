@@ -79,21 +79,7 @@ export default function Security(): React.ReactElement | null {
     return (
         <div className="container animate-fade-in" style={{ paddingBottom: '4rem', maxWidth: '600px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                <button onClick={() => navigate(-1)}
-                    style={{
-                        padding: '0.6rem',
-                        background: 'var(--color-surface)',
-                        border: '1px solid var(--color-border)',
-                        borderRadius: '12px',
-                        cursor: 'pointer',
-                        color: 'var(--color-text)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        transition: 'all 0.2s'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-surface-hover)'}
-                    onMouseLeave={(e) => e.currentTarget.style.background = 'var(--color-surface)'} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={20}  />
-                        </button>
+                <></>
                 <div>
                     <h1 style={{ fontSize: '1.6rem', margin: 0, fontWeight: 900, letterSpacing: '-0.5px' }}>Seguridad y Contraseña</h1>
                     <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>Gestioná el acceso a tu cuenta</p>
@@ -211,12 +197,7 @@ export default function Security(): React.ReactElement | null {
                     borderRadius: '20px', padding: '1.5rem'
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-                        <button onClick={() => setShowPasswordChange(false)}
-                            style={{ padding: '0.5rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '10px', cursor: 'pointer', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
-                            onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-surface-hover)'}
-                            onMouseLeave={(e) => e.currentTarget.style.background = 'var(--color-background)'} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={18}  />
-                        </button>
+                        <></>
                         <div>
                             <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900 }}>Cambiar Contraseña</h3>
                         </div>

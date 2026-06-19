@@ -552,10 +552,7 @@ export default function Login(): React.ReactElement {
 
         {view === 'register' && (
           <>
-            <button
-              onClick={() => setView('login')} style={{ position: 'absolute', top: '1rem', left: '1rem', background: 'var(--color-surface)', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--color-text)', zIndex: 10 }} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={20}  />
-                        </button>
+            <></>
 
             <h1 style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Crear Cuenta</h1>
             <p style={{ color: 'var(--color-text-muted)', marginBottom: '2rem' }}>Comienza gratis</p>
@@ -778,10 +775,7 @@ export default function Login(): React.ReactElement {
 
         {view === 'forgot' && (
           <>
-            <button
-              onClick={() => setView('login')} style={{ position: 'absolute', top: '1rem', left: '1rem', background: 'var(--color-surface)', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--color-text)', zIndex: 10 }} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                            <ArrowLeft size={20}  />
-                        </button>
+            <></>
 
             <h1 style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Recuperar Contraseña</h1>
             <p style={{ color: 'var(--color-text-muted)', marginBottom: '2rem' }}>Te enviaremos un enlace</p>

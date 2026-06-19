@@ -515,9 +515,7 @@ export default function ATS(): React.ReactElement | null {
                 {!showForm ? (
                     <>
                         <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                            <button onClick={() => navigate('/', { state: { scrollTo: 'ats' } })} style={{ flex: '0 1 auto', padding: '1rem 1.5rem', borderRadius: '16px', background: 'var(--color-background)', border: '2px solid var(--color-border)', color: 'var(--color-text)', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', whiteSpace: 'nowrap', transition: 'all 0.2s' }} className="hover-scale">
-                                <ArrowLeft size={20} /> Inicio
-                            </button>
+                            <></>
                             <button
                                 onClick={() => { 
                                     setFormData({
@@ -626,9 +624,7 @@ export default function ATS(): React.ReactElement | null {
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1.5rem', flexWrap: 'wrap' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                            <button onClick={() => { setShowForm(false); navigate('/ats'); }} style={{ padding: '0.8rem', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', borderRadius: '12px', border: 'none', cursor: 'pointer', color: '#ffffff', display: 'flex', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)' }} className="hover-scale" title="Volver al historial">
-                                <ArrowLeft size={22}  />
-                            </button>
+                            <></>
                             <div>
                                 <h1 style={{ margin: 0, fontSize: 'clamp(1.2rem, 4vw, 1.8rem)', fontWeight: 900, color: 'var(--color-text)', letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                                     <ShieldCheck className="text-blue-600" size={28} />

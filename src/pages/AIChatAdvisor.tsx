@@ -641,9 +641,7 @@ export default function AIChatAdvisor(): React.ReactElement | null {
             {!showForm ? (
                 <>
                     <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                        <button onClick={() => navigate('/', { state: { scrollTo: 'ai-advisor' } })} style={{ flex: '0 1 auto', padding: '1rem 1.5rem', borderRadius: '16px', background: 'var(--color-background)', border: '2px solid var(--color-border)', color: 'var(--color-text)', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', whiteSpace: 'nowrap', transition: 'all 0.2s' }} className="hover-scale">
-                            <ArrowLeft size={20} /> Inicio
-                        </button>
+                        <></>
                         <button
                             onClick={() => { 
                                 handleNewQuery();
@@ -698,9 +696,7 @@ export default function AIChatAdvisor(): React.ReactElement | null {
             ) : (
                 <>
                     <div className="no-print" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-                        <button onClick={() => navigate('/ai-advisor')} style={{ background: 'var(--color-background)', border: '2px solid var(--color-border)', borderRadius: '12px', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, cursor: 'pointer', color: 'var(--color-text)' }}>
-                            <ArrowLeft size={18} /> Volver
-                        </button>
+                        <></>
                     </div>
 
             {/* History Panel */}

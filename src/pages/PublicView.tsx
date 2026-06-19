@@ -79,13 +79,7 @@ export default function PublicView(): React.ReactElement | null {
             <div style={{ padding: '2rem', textAlign: 'center', marginTop: '5rem' }}>
                 <AlertTriangle size={48} color="#ef4444" style={{ marginBottom: '1rem' }} />
                 <h2 style={{ fontWeight: 800 }}>{error}</h2>
-                <button 
-                    onClick={() => navigate('/')} 
-                    className="btn-primary" 
-                    style={{ marginTop: '2rem', marginInline: 'auto' }}
-                >
-                    Ir al Inicio
-                </button>
+                <></>
             </div>
         );
     }

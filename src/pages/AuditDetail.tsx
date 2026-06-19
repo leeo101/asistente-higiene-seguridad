@@ -111,9 +111,7 @@ export default function AuditDetail(): React.ReactElement | null {
                 alignItems: 'center'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <button onClick={() => navigate(-1)} className="btn-back-premium" title="Volver" aria-label="Volver atrás">
-                        <ArrowLeft size={20} />
-                    </button>
+                    <></>
                     <div style={{
                         width: '64px',
                         height: '64px',
