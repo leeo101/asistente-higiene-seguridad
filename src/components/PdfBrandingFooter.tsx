@@ -37,51 +37,49 @@ export default function PdfBrandingFooter() {
                     border-radius: 4px;
                 }
 
-                @media print, .force-pdf-print {
-                    .pdf-legal-text {
-                        font-size: 0.65rem !important;
-                        color: #334155 !important;
-                        line-height: 1.6 !important;
-                        text-align: justify !important;
-                        font-family: 'Times New Roman', Times, serif;
-                        font-style: italic;
-                    }
-                    .pdf-legal-text strong {
-                        color: #0f172a !important;
-                        font-style: normal;
-                        font-family: 'Inter', sans-serif;
-                        text-transform: uppercase;
-                        letter-spacing: 0.05em;
-                        font-size: 0.7rem !important;
-                        display: block;
-                        margin-bottom: 0.5rem;
-                        border-bottom: 1px solid #cbd5e1;
-                        padding-bottom: 0.3rem;
-                    }
-                    .pdf-brand {
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        gap: 0.5rem;
-                        font-size: 0.7rem !important;
-                        color: #64748b !important;
-                        font-weight: 600 !important;
-                        letter-spacing: 0.02em;
-                        margin-top: 0.5rem;
-                        font-family: 'Inter', sans-serif;
-                    }
-                    .pdf-brand img {
-                        width: 16px;
-                        height: 16px;
-                        object-fit: contain;
-                        opacity: 0.8;
-                        filter: grayscale(100%);
-                    }
-                    .pdf-brand a {
-                        color: #0f172a !important;
-                        font-weight: 800 !important;
-                        text-decoration: none;
-                    }
+                .pdf-legal-text {
+                    font-size: 0.65rem !important;
+                    color: #334155 !important;
+                    line-height: 1.6 !important;
+                    text-align: justify !important;
+                    font-family: 'Times New Roman', Times, serif;
+                    font-style: italic;
+                }
+                .pdf-legal-text strong {
+                    color: #0f172a !important;
+                    font-style: normal;
+                    font-family: 'Inter', sans-serif;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                    font-size: 0.7rem !important;
+                    display: block;
+                    margin-bottom: 0.5rem;
+                    border-bottom: 1px solid #cbd5e1;
+                    padding-bottom: 0.3rem;
+                }
+                .pdf-brand {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 0.5rem;
+                    font-size: 0.7rem !important;
+                    color: #64748b !important;
+                    font-weight: 600 !important;
+                    letter-spacing: 0.02em;
+                    margin-top: 0.5rem;
+                    font-family: 'Inter', sans-serif;
+                }
+                .pdf-brand img {
+                    width: 16px !important;
+                    height: 16px !important;
+                    object-fit: contain !important;
+                    opacity: 0.8 !important;
+                    filter: grayscale(100%) !important;
+                }
+                .pdf-brand a {
+                    color: #0f172a !important;
+                    font-weight: 800 !important;
+                    text-decoration: none;
                 }
             `}</style>
             
