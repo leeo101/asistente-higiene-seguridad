@@ -262,20 +262,7 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
             >
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1rem' }}>
                     <></>
-                    <button
-                        onClick={() => navigate('/environmental/new')}
-                        style={{
-                            flex: '0 1 auto', padding: '1rem 1.5rem', borderRadius: '16px', 
-                            background: '#36B37E', color: '#fff', border: 'none', 
-                            fontWeight: 800, fontSize: '1rem', cursor: 'pointer', 
-                            display: 'flex', alignItems: 'center', gap: '0.5rem', 
-                            boxShadow: '0 4px 15px rgba(54,179,126,0.3)', whiteSpace: 'nowrap'
-                        }}
-                        className="hover-lift"
-                    >
-                        <Plus size={20} strokeWidth={2.5} />
-                        Nueva Medición
-                    </button>
+{/* Botón Nueva Medición movido abajo */}
 {/* Botón de historial removido */}
                 </div>
             </PremiumHeader>
@@ -476,24 +463,23 @@ export default function EnvironmentalMonitor(): React.ReactElement | null {
                         </div>
                     )}
                     
-                    {/* Botón Nueva Medición (siempre visible) */}
-                    {measurements.length > 0 && (
-                        <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center', paddingBottom: '2rem' }}>
-                            <button 
-                                onClick={() => navigate('/environmental/new')} 
-                                className="hover-lift"
-                                style={{ 
-                                    width: 'auto', padding: '1rem 2rem', fontSize: '1.1rem', 
-                                    display: 'flex', alignItems: 'center', gap: '0.75rem', 
-                                    borderRadius: 'var(--radius-xl)', boxShadow: '0 10px 25px rgba(54,179,126,0.3)',
-                                    background: '#36B37E', color: '#fff', border: 'none', fontWeight: 800, cursor: 'pointer'
-                                }}
-                            >
-                                <Plus size={24} strokeWidth={2.5} />
-                                Nueva Medición
-                            </button>
-                        </div>
-                    )}
+                    {/* Botón Nueva Medición (movido desde arriba) */}
+                    <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center', paddingBottom: '2rem' }}>
+                        <button
+                            onClick={() => navigate('/environmental/new')}
+                            style={{
+                                flex: '0 1 auto', padding: '1rem 1.5rem', borderRadius: '16px', 
+                                background: '#36B37E', color: '#fff', border: 'none', 
+                                fontWeight: 800, fontSize: '1rem', cursor: 'pointer', 
+                                display: 'flex', alignItems: 'center', gap: '0.5rem', 
+                                boxShadow: '0 4px 15px rgba(54,179,126,0.3)', whiteSpace: 'nowrap'
+                            }}
+                            className="hover-lift"
+                        >
+                            <Plus size={20} strokeWidth={2.5} />
+                            Nueva Medición
+                        </button>
+                    </div>
                 </>
             )}
 
