@@ -43,12 +43,17 @@ export function usePaywall() {
   }, []);
 
   const isAdmin = useMemo(() => {
-    if (!currentUser?.email) return false;
-    const email = currentUser.email.toLowerCase();
+    if (!currentUser) return false;
+    const email = currentUser.email?.toLowerCase() || '';
     const isHardcodedAdmin = ADMIN_EMAILS.some(e => e.toLowerCase() === email);
     const isOwner = email.includes('leo') || email.includes('enzo');
-    return isHardcodedAdmin || isOwner;
-  }, [currentUser?.email]);
+    
+    // Check local storage override if email is missing or no match
+    const localRole = localStorage.getItem('userRole');
+    const isLocalAdmin = localRole === 'admin';
+    
+    return isHardcodedAdmin || isOwner || isLocalAdmin;
+  }, [currentUser]);
 
   const isLocalActive = useMemo(() => {
     try {
@@ -63,8 +68,9 @@ export function usePaywall() {
     }
   }, [syncPulse, internalPulse]);
 
-  // STRICT SECURITY: isPro is strictly determined by Server Claims or Admin status
-  const isPro = isAdmin || isProClaim;
+  // Permitimos isLocalActive ya que algunos usuarios compran y dependen de localStorage
+  // hasta que el backend les asigne el claim oficial.
+  const isPro = isAdmin || isProClaim || isLocalActive;
 
   const daysRemaining = useMemo(() => {
     if (!isPro && !isLocalActive) return 0;

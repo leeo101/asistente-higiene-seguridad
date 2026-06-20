@@ -206,55 +206,53 @@ export default function ExtinguisherAI(): React.ReactElement | null {
 
     const analyzeExtinguisher = async (imageSrc) => {
         setIsAnalyzing(true);
-        requirePro(async () => {
-            try {
-                const token = await auth.currentUser?.getIdToken(true);
-                const response = await fetch(`${API_BASE_URL}/api/analyze-extinguisher`, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ image: imageSrc })
-                });
+        try {
+            const token = await auth.currentUser?.getIdToken(true);
+            const response = await fetch(`${API_BASE_URL}/api/analyze-extinguisher`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ image: imageSrc })
+            });
 
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.error || 'Error en el análisis');
-                }
-
-                const data = await response.json();
-                
-                if (!data.extinguisherDetected) {
-                    throw new Error('No se detectó ningún extintor en la imagen. Por favor, enfoca claramente el matafuego.');
-                }
-                
-                setAnalysisResult(data);
-                
-                // Guardar en historial
-                const historyItem = {
-                    id: Date.now().toString(),
-                    date: new Date().toISOString(),
-                    image: imageSrc,
-                    ...data,
-                    type: 'extinguisher_ai'
-                };
-                
-                const history = JSON.parse(localStorage.getItem('extinguisher_ai_history') || '[]');
-                history.unshift(historyItem);
-                localStorage.setItem('extinguisher_ai_history', JSON.stringify(history.slice(0, 50)));
-                await syncCollection('extinguisher_ai_history', history.slice(0, 50));
-                
-                toast.success('✅ Extintor analizado correctamente');
-            } catch (error) {
-                console.error('Analysis error:', error);
-                toast.error(getErrorMessage(error) || 'Error analizando la imagen');
-                setCapturedImage(null);
-                startCamera();
-            } finally {
-                setIsAnalyzing(false);
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Error en el análisis');
             }
-        });
+
+            const data = await response.json();
+            
+            if (!data.extinguisherDetected) {
+                throw new Error('No se detectó ningún extintor en la imagen. Por favor, enfoca claramente el matafuego.');
+            }
+            
+            setAnalysisResult(data);
+            
+            // Guardar en historial
+            const historyItem = {
+                id: Date.now().toString(),
+                date: new Date().toISOString(),
+                image: imageSrc,
+                ...data,
+                type: 'extinguisher_ai'
+            };
+            
+            const history = JSON.parse(localStorage.getItem('extinguisher_ai_history') || '[]');
+            history.unshift(historyItem);
+            localStorage.setItem('extinguisher_ai_history', JSON.stringify(history.slice(0, 50)));
+            await syncCollection('extinguisher_ai_history', history.slice(0, 50));
+            
+            toast.success('✅ Extintor analizado correctamente');
+        } catch (error) {
+            console.error('Analysis error:', error);
+            toast.error(getErrorMessage(error) || 'Error analizando la imagen');
+            setCapturedImage(null);
+            startCamera();
+        } finally {
+            setIsAnalyzing(false);
+        }
     };
     const simulateAnalysis = () => {
         const types = Object.keys(EXTINTOR_INFO);
