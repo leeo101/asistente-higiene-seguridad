@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera, RefreshCw, CheckCircle, AlertTriangle, Flame, Loader2, FlipHorizontal, Info, Search, Download, Trash2, Calendar, Share2, QrCode, Crosshair, Plus } from 'lucide-react';
+import { ArrowLeft, Camera, RefreshCw, CheckCircle, AlertTriangle, Flame, Loader2, FlipHorizontal, Info, Search, Download, Trash2, Calendar, Share2, QrCode, Crosshair, Plus, Zap, ZapOff } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { auth } from '../firebase';
 import { usePaywall } from '../hooks/usePaywall';
@@ -82,6 +82,7 @@ export default function ExtinguisherAI(): React.ReactElement | null {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [analysisResult, setAnalysisResult] = useState(null);
     const [facingMode, setFacingMode] = useState('environment');
+    const [torchOn, setTorchOn] = useState(false);
     const { currentUser } = useAuth();
 
     // History state
@@ -148,6 +149,7 @@ export default function ExtinguisherAI(): React.ReactElement | null {
 
     const startCamera = async () => {
         stopStream();
+        setTorchOn(false);
         try {
             const constraints = {
                 video: {
@@ -158,10 +160,27 @@ export default function ExtinguisherAI(): React.ReactElement | null {
             };
             const newStream = await navigator.mediaDevices.getUserMedia(constraints);
             setStream(newStream);
+            streamRef.current = newStream;
             if (videoRef.current) videoRef.current.srcObject = newStream;
         } catch (err) {
             console.error("Error accessing camera:", err);
             toast.error("No se pudo acceder a la cámara. Verificá los permisos.");
+        }
+    };
+
+    const toggleTorch = async () => {
+        if (!streamRef.current) return;
+        const track = streamRef.current.getVideoTracks()[0];
+        if (track) {
+            try {
+                await track.applyConstraints({
+                    advanced: [{ torch: !torchOn } as any]
+                });
+                setTorchOn(!torchOn);
+            } catch (e) {
+                console.error("Error toggle torch:", e);
+                toast.error("Flash no soportado por este navegador o dispositivo");
+            }
         }
     };
 
@@ -548,6 +567,21 @@ export default function ExtinguisherAI(): React.ReactElement | null {
                             >
                                 <FlipHorizontal size={20}  />
                         </button>
+                            
+                            <button
+                                onClick={toggleTorch}
+                                style={{
+                                    padding: '0.8rem',
+                                    background: torchOn ? 'rgba(250, 204, 21, 0.7)' : 'rgba(0,0,0,0.6)',
+                                    border: 'none',
+                                    borderRadius: '50%',
+                                    color: torchOn ? '#000' : '#ffffff',
+                                    cursor: 'pointer',
+                                    backdropFilter: 'blur(10px)'
+                                }}
+                            >
+                                {torchOn ? <Zap size={20} /> : <ZapOff size={20} />}
+                            </button>
                             
                             <button
                                 onClick={handleCapture}

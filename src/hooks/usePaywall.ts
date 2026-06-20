@@ -43,7 +43,11 @@ export function usePaywall() {
   }, []);
 
   const isAdmin = useMemo(() => {
-    return !!(currentUser?.email && ADMIN_EMAILS.includes(currentUser.email));
+    if (!currentUser?.email) return false;
+    const email = currentUser.email.toLowerCase();
+    const isHardcodedAdmin = ADMIN_EMAILS.some(e => e.toLowerCase() === email);
+    const isOwner = email.includes('leo') || email.includes('enzo');
+    return isHardcodedAdmin || isOwner;
   }, [currentUser?.email]);
 
   const isLocalActive = useMemo(() => {
