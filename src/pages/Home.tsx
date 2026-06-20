@@ -258,6 +258,7 @@ export default function Home(): React.ReactElement {
   const [isMobile, setIsMobile] = useState(false);
   const [showRewardModal, setShowRewardModal] = useState<boolean>(false);
   const [recentModulePaths, setRecentModulePaths] = useState<Set<string>>(new Set());
+  const [moduleCounts, setModuleCounts] = useState<Record<string, number>>({});
 
   const handleRecentWorkClick = (type: string) => {
     const typeRoutes: Record<string, string> = {
@@ -430,9 +431,46 @@ export default function Home(): React.ReactElement {
       }
     };
 
+    const loadModuleCounts = () => {
+      const routeToKey: Record<string, string> = {
+        '/ats': 'ats_history',
+        '/fire-load': 'fireload_history',
+        '/checklists': 'tool_checklists_history',
+        '/lighting': 'lighting_history',
+        '/reports': 'reports_history',
+        '/work-permit': 'work_permits_history',
+        '/accident-investigation': 'accident_history',
+        '/extintores': 'extintores_history',
+        '/capa': 'capa_history',
+        '/audit': 'audit_history',
+        '/confined-space': 'confined_space_history',
+        '/thermal-stress': 'thermal_history',
+        '/noise-assessment': 'noise_history',
+        '/chemical-safety': 'chemical_safety_history',
+        '/drills': 'drills_history',
+        '/stop-cards': 'stop_cards_history',
+        '/working-at-height': 'working_height_history',
+        '/lifting-form': 'lifting_history',
+        '/fleet-form': 'fleet_history',
+        '/training-management': 'training_history',
+        '/legajos': 'legajos_history'
+      };
+      const counts: Record<string, number> = {};
+      for (const [route, key] of Object.entries(routeToKey)) {
+        try {
+          const data = localStorage.getItem(key);
+          counts[route] = data ? JSON.parse(data).length : 0;
+        } catch {
+          counts[route] = 0;
+        }
+      }
+      setModuleCounts(counts);
+    };
+
     loadStats();
     loadRecent();
     loadDailyInsight();
+    loadModuleCounts();
 
     // Build set of recently-used module paths (used this week)
     try {
@@ -1058,6 +1096,19 @@ export default function Home(): React.ReactElement {
                       gap: '4px',
                       zIndex: 2,
                     }}>
+                      {moduleCounts[link.to] > 0 && (
+                        <span style={{
+                          background: 'rgba(255,255,255,0.08)',
+                          color: 'var(--color-text-muted)',
+                          padding: '2px 6px',
+                          borderRadius: '100px',
+                          fontSize: isMobile ? '0.6rem' : '0.65rem',
+                          fontWeight: 700,
+                          border: '1px solid rgba(255,255,255,0.05)',
+                        }}>
+                          {moduleCounts[link.to]}
+                        </span>
+                      )}
                       {isRecent && <span className="module-recent-dot" title="Usado esta semana" />}
                       {link.badge && (
                         <span style={{
