@@ -96,6 +96,7 @@ export default function AIGeneralCamera(): React.ReactElement | null {
     };
 
     const handleCapture = () => {
+        if (!requirePro()) return;
         if (!videoRef.current || !canvasRef.current) return;
 
         const video = videoRef.current;
