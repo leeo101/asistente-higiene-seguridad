@@ -318,7 +318,11 @@ app.post('/api/analyze-image', aiLimiter, verifyFirebaseToken, requirePro, async
         }
         const mimeType = image.split(';')[0].split(':')[1] || 'image/jpeg';
 
-        const prompt = `Analiza detalladamente esta imagen de un entorno laboral y verifica el uso de Elementos de Protección Personal (EPP) y la existencia de riesgos evidentes. IMPORTANTE: Todas las respuestas, descripciones de riesgos y etiquetas de las cajas delimitadoras de las detecciones deben ser entregadas obligatoriamente en idioma español.`;
+        const prompt = `Actúa como un inspector estricto de seguridad industrial. Analiza detalladamente esta imagen de un entorno laboral y verifica el uso de Elementos de Protección Personal (EPP) y la existencia de riesgos EVIDENTES. 
+REGLAS ESTRICTAS:
+1. NO INVENTES riesgos ni EPPs. Si no estás 100% seguro de que alguien lleva o no un EPP, o si un riesgo no está claramente a la vista, no lo reportes.
+2. Limita las descripciones a lo que es OBJETIVAMENTE visible.
+3. IMPORTANTE: Todas las respuestas, descripciones de riesgos y etiquetas de las cajas delimitadoras de las detecciones deben ser entregadas obligatoriamente en idioma español.`;
 
         const responseSchema = {
             type: SchemaType.OBJECT,
@@ -619,7 +623,15 @@ app.post('/api/analyze-extinguisher', aiLimiter, verifyFirebaseToken, requirePro
         const base64Data = image.split(',')[1];
         const mimeType = image.split(';')[0].split(':')[1] || 'image/jpeg';
 
-        const prompt = `Analiza esta imagen y verifica si contiene un extintor de incendios (matafuegos). Si NO hay un extintor en la imagen, debes establecer "extinguisherDetected" en false. Si HAY un extintor, establece "extinguisherDetected" en true, identifica su tipo (ABC, CO2, Agua, Espuma, o K), lee la etiqueta para encontrar la capacidad (ej. 5kg, 10kg), el estado ("vigente" o "vencido"), la fecha de último control (lastCheck) y la de próximo vencimiento (nextCheck). También incluye algunas recomendaciones de seguridad. Usa formato YYYY-MM-DD para las fechas si las encuentras, o null si no se pueden leer.`;
+        const prompt = `Actúa como un inspector estricto y experto en seguridad e higiene. Analiza detalladamente la imagen de este extintor (matafuegos).
+REGLAS ESTRICTAS:
+1. NO INVENTES NINGÚN DATO NI NÚMERO. Si un dato no se lee claramente, devuelve null.
+2. Si NO hay un extintor visible, "extinguisherDetected" debe ser false y el resto de los campos vacíos.
+3. Si HAY un extintor: establece "extinguisherDetected" en true, identifica su tipo (ABC, CO2, Agua, Espuma, K).
+4. Capacidad: Extrae exactamente lo que dice la etiqueta (ej. "5 kg", "10 kg"). Si no se lee, pon null.
+5. Fechas: Busca la fecha de último control (lastCheck) y próximo vencimiento de carga (nextCheck). Busca Específicamente la fecha de "PH" o "Prueba Hidráulica" (phDate). Usa el formato YYYY-MM-DD o null si no se leen con claridad.
+6. Estado: Determina "vigente" o "vencido" comparando con la fecha actual.
+7. Brinda 1 o 2 recomendaciones muy breves de seguridad para el extintor.`;
         
         const responseSchema = {
             type: SchemaType.OBJECT,
@@ -631,6 +643,7 @@ app.post('/api/analyze-extinguisher', aiLimiter, verifyFirebaseToken, requirePro
                 status: { type: SchemaType.STRING },
                 lastCheck: { type: SchemaType.STRING },
                 nextCheck: { type: SchemaType.STRING },
+                phDate: { type: SchemaType.STRING },
                 recommendations: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } }
             },
             required: ["extinguisherDetected", "type", "confidence", "capacity", "status", "recommendations"]
@@ -909,7 +922,12 @@ app.post('/api/analyze-general-risks', aiLimiter, verifyFirebaseToken, requirePr
         const base64Data = image.split(',')[1];
         const mimeType = image.split(';')[0].split(':')[1] || 'image/jpeg';
 
-        const prompt = `Analiza detalladamente esta imagen de un entorno laboral para detección general de evidentes riesgos laborales. IMPORTANTE: Todas las respuestas, descripciones de riesgos, recomendaciones y etiquetas de las cajas delimitadoras de las detecciones deben ser entregadas obligatoriamente en idioma español.`;
+        const prompt = `Actúa como un experto prevencionista de riesgos laborales altamente estricto. Analiza detalladamente esta imagen de un entorno laboral para detección general de evidentes riesgos laborales.
+REGLAS ESTRICTAS:
+1. NO INVENTES NI ASUMAS RIESGOS INVISIBLES. Si no hay un riesgo físico, mecánico, químico o ergonómico CLARAMENTE visible, no lo reportes.
+2. No uses descripciones genéricas (ej. "posible riesgo de tropiezo" si no hay nada en el suelo). Sé específico y describe solo lo que se ve en la foto.
+3. Si el entorno parece seguro, indica que no se observan riesgos evidentes.
+4. IMPORTANTE: Todas las respuestas, descripciones de riesgos, recomendaciones y etiquetas de las cajas delimitadoras de las detecciones deben ser entregadas obligatoriamente en idioma español.`;
         
         const responseSchema = {
             type: SchemaType.OBJECT,

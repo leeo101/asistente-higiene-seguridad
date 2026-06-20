@@ -188,6 +188,9 @@ export default function ExtinguisherAIPdfGenerator({ item }: { item: any }): Rea
                             {item.nextCheck && (
                                 <div style={{ fontSize: '8.5pt', color: '#475569', marginTop: '4px' }}><strong>Próximo control:</strong> {new Date(item.nextCheck).toLocaleDateString('es-AR')}</div>
                             )}
+                            {item.phDate && (
+                                <div style={{ fontSize: '8.5pt', color: '#3b82f6', marginTop: '4px' }}><strong>Vencimiento P.H.:</strong> {new Date(item.phDate).toLocaleDateString('es-AR')}</div>
+                            )}
                         </div>
 
                         {/* Recomendaciones */}

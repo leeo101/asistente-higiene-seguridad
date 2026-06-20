@@ -269,6 +269,7 @@ export default function ExtinguisherAI() {
             status: Math.random() > 0.3 ? 'vigente' : 'vencido',
             lastCheck: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
             nextCheck: new Date(Date.now() + Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            phDate: new Date(Date.now() + Math.random() * 1000 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
             recommendations: [
                 'Verificar presión del manómetro',
                 'Controlar fecha de vencimiento',
@@ -768,6 +769,21 @@ export default function ExtinguisherAI() {
                             </div>
                             <div style={{ fontSize: '1rem', fontWeight: 800, color: analysisResult.nextCheck ? '#f59e0b' : 'var(--color-text)' }}>
                                 {analysisResult.nextCheck ? new Date(analysisResult.nextCheck).toLocaleDateString('es-AR') : 'N/A'}
+                            </div>
+                        </div>
+
+                        {/* PH Date */}
+                        <div style={{
+                            padding: '1rem',
+                            background: 'var(--color-surface)',
+                            borderRadius: '12px',
+                            border: '1px solid var(--color-border)'
+                        }}>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+                                💧 Vencimiento P.H.
+                            </div>
+                            <div style={{ fontSize: '1rem', fontWeight: 800, color: analysisResult.phDate ? '#3b82f6' : 'var(--color-text)' }}>
+                                {analysisResult.phDate ? new Date(analysisResult.phDate).toLocaleDateString('es-AR') : 'N/A'}
                             </div>
                         </div>
 
