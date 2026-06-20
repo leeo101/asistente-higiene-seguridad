@@ -215,6 +215,31 @@ export default function ExtinguisherAIPdfGenerator({ item }: { item: any }): Rea
                     </div>
                 </div>
 
+                {/* Signatures */}
+                {(item.signature || item.inspectorName) && (
+                    <div style={{
+                        marginTop: '2rem',
+                        display: 'flex',
+                        justifyContent: 'flex-start',
+                        gap: '4rem',
+                        paddingTop: '2rem',
+                        borderTop: '1px solid #e2e8f0',
+                        pageBreakInside: 'avoid'
+                    }}>
+                        <div style={{ textAlign: 'center', width: '250px' }}>
+                            {item.signature ? (
+                                <img src={item.signature} alt="Firma Inspector" style={{ height: '80px', objectFit: 'contain', marginBottom: '0.5rem', borderBottom: '1px solid #cbd5e1' }} />
+                            ) : (
+                                <div style={{ height: '80px', borderBottom: '1px solid #cbd5e1', marginBottom: '0.5rem' }}></div>
+                            )}
+                            <div style={{ fontSize: '9pt', fontWeight: 800, color: '#334155', textTransform: 'uppercase' }}>
+                                {item.inspectorName || 'Inspector'}
+                            </div>
+                            <div style={{ fontSize: '8pt', color: '#64748b' }}>Firma del Inspector</div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Footer */}
                 <div style={{ 
                     textAlign: 'center', 

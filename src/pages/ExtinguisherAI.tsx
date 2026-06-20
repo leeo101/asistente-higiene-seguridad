@@ -12,6 +12,7 @@ import QRModal from '../components/QRModal';
 import { downloadCSV } from '../services/exportCsv';
 import ShareModal from '../components/ShareModal';
 import ExtinguisherAIPdfGenerator from '../components/ExtinguisherAIPdfGenerator';
+import SignatureCanvas from '../components/SignatureCanvas';
 import PremiumHeader from '../components/PremiumHeader';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { useAuth } from '../contexts/AuthContext';
@@ -92,6 +93,8 @@ export default function ExtinguisherAI() {
     const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
     const [qrTarget, setQrTarget] = useState<{ text: string, title: string } | null>(null);
     const [shareItem, setShareItem] = useState<any>(null);
+    const [signature, setSignature] = useState<string | null>(null);
+    const [inspectorName, setInspectorName] = useState('');
     const { syncPulse } = useSync();
 
     useEffect(() => {
@@ -283,6 +286,8 @@ export default function ExtinguisherAI() {
     const handleRetry = () => {
         setCapturedImage(null);
         setAnalysisResult(null);
+        setSignature(null);
+        setInspectorName('');
         startCamera();
     };
 
@@ -489,6 +494,8 @@ export default function ExtinguisherAI() {
                                     const data = {
                                         ...analysisResult,
                                         extintorInfo: extintorData,
+                                        signature,
+                                        inspectorName,
                                         savedAt: new Date().toISOString(),
                                         id: Date.now().toString()
                                     };
@@ -500,6 +507,8 @@ export default function ExtinguisherAI() {
                                     setIsCameraVisible(false);
                                     setAnalysisResult(null);
                                     setCapturedImage(null);
+                                    setSignature(null);
+                                    setInspectorName('');
                                 }}
                                 className="btn-floating-action" style={{ background: '#36B37E', color: '#ffffff' }}
                             >
@@ -839,6 +848,46 @@ export default function ExtinguisherAI() {
                                     <li key={i} style={{ fontSize: '0.9rem' }}>{rec}</li>
                                 ))}
                             </ul>
+                        </div>
+                    )}
+
+                    {/* Signature */}
+                    {analysisResult && (
+                        <div style={{
+                            padding: '1.2rem',
+                            background: 'var(--color-surface)',
+                            borderRadius: '12px',
+                            border: '1px solid var(--color-border)',
+                            marginTop: '1rem',
+                            pageBreakInside: 'avoid'
+                        }}>
+                            <h3 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 800 }}>Firma del Inspector</h3>
+                            <input 
+                                type="text"
+                                placeholder="Nombre del Inspector / Técnico"
+                                value={inspectorName}
+                                onChange={(e) => setInspectorName(e.target.value)}
+                                style={{ 
+                                    width: '100%', padding: '0.8rem', borderRadius: '8px', 
+                                    border: '1px solid var(--color-border)', background: 'var(--color-surface)', 
+                                    marginBottom: '1rem', color: 'var(--color-text)', fontSize: '0.95rem' 
+                                }}
+                            />
+                            <div className="no-print">
+                                <SignatureCanvas
+                                    onSave={(sig) => setSignature(sig)}
+                                    onClear={() => setSignature(null)}
+                                />
+                            </div>
+                            
+                            {/* PDF View for Signature */}
+                            {signature && (
+                                <div className="print-only" style={{ display: 'none' }}>
+                                    <img src={signature} alt="Firma Inspector" style={{ height: '80px', objectFit: 'contain', borderBottom: '1px solid #cbd5e1', marginBottom: '0.5rem' }} />
+                                    <div style={{ fontSize: '9pt', fontWeight: 800 }}>{inspectorName || 'Inspector'}</div>
+                                    <div style={{ fontSize: '8pt', color: '#64748b' }}>Firma del Inspector</div>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
