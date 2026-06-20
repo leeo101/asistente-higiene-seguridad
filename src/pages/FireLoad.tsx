@@ -557,8 +557,6 @@ export default function FireLoad(): React.ReactElement | null {
                             searchFields={['empresa', 'sector']}
                             emptyMessage="No se encontraron estudios de carga de fuego."
                             emptyIcon={<Flame size={48} />}
-                            onEmptyAction={() => setShowForm(true)}
-                            emptyActionLabel="Generar primer Cálculo"
                         />
                     </div>
                 </>

@@ -150,8 +150,6 @@ export default function WorkPermitHistory(): React.ReactElement | null {
                     searchFields={['empresa', 'obra']}
                     emptyMessage="No hay permisos registrados."
                     emptyIcon={<Key size={48} />}
-                    onEmptyAction={() => navigate('/work-permit')}
-                    emptyActionLabel="Crear nuevo Permiso"
                 />
 
                 {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}

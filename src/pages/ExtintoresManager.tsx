@@ -23,11 +23,7 @@ import ExcelJS from 'exceljs';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 const formatType = (tipo: string) => {
-  
     if (!tipo) return 'N/A';
-    const t = String(tipo).toUpperCase();
-    if (t === 'ABC') return 'HCFC';
-    if (t === 'BC') return 'CO2';
     return tipo;
 };
 
@@ -56,7 +52,7 @@ export default function ExtintoresManager() {
     const [formData, setFormData] = useState({
         numero: '',
         numeroSerie: '',
-        tipo: 'ABC',
+        tipo: 'ABC (PQS)',
         capacidad: '5 kg',
         ubicacion: '',
         empresa: '',
@@ -198,7 +194,7 @@ export default function ExtintoresManager() {
         await saveToStorage(updated);
         setShowForm(false);
         setEditingId(null);
-        setFormData({ numero: '', numeroSerie: '', tipo: 'ABC', capacidad: '5 kg', ubicacion: '', marca: '', fechaFabricacion: '', vencimientoRecarga: '', vencimientoPH: '', selloIRAM: '', estadoFisico: 'Operativo', foto: null, empresa: '', showSignatures: { professional: true, supervisor: false, operator: false }, operatorSignature: '', supervisorSignature: '', professionalSignature: '', professionalName: '', professionalLicense: '' });
+        setFormData({ numero: '', numeroSerie: '', tipo: 'ABC (PQS)', capacidad: '5 kg', ubicacion: '', marca: '', fechaFabricacion: '', vencimientoRecarga: '', vencimientoPH: '', selloIRAM: '', estadoFisico: 'Operativo', foto: null, empresa: '', showSignatures: { professional: true, supervisor: false, operator: false }, operatorSignature: '', supervisorSignature: '', professionalSignature: '', professionalName: '', professionalLicense: '' });
     };
 
     const handleEdit = (ext) => {
@@ -279,7 +275,8 @@ export default function ExtintoresManager() {
         const matchesSearch = e.numero.toLowerCase().includes(searchTerm.toLowerCase()) || 
             e.ubicacion.toLowerCase().includes(searchTerm.toLowerCase()) ||
             e.tipo.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesEmpresa = filterEmpresa === '' || e.empresa === filterEmpresa;
+        const normalizeEmpresa = (emp) => (emp || '').trim().toUpperCase();
+        const matchesEmpresa = filterEmpresa === '' || normalizeEmpresa(e.empresa) === filterEmpresa;
         return matchesSearch && matchesEmpresa;
     });
 
@@ -347,9 +344,9 @@ export default function ExtintoresManager() {
         }
     };
 
-    const uniqueEmpresas = [...new Set(extintores.map(e => e.empresa).filter(Boolean))];
+    const uniqueEmpresas = [...new Set(extintores.map(e => (e.empresa || '').trim().toUpperCase()).filter(Boolean))].sort();
 
-    const types = ['HCFC', 'CO2', 'K', 'Agua', 'Espuma'];
+    const types = ['ABC(HFCF)', 'BC(CO2)', 'ABC (PQS)', 'AB', 'K', 'Agua', 'Espuma', 'D'];
 
     const expiredLifespans = extintores.filter(ext => {
         const st = getLifespanStatus(ext.fechaFabricacion);
@@ -447,7 +444,9 @@ export default function ExtintoresManager() {
             render: (item: any) => {
                 const st = getRecargaExpirationStatus(item.vencimientoRecarga);
                 return (
-                    <span style={{ color: st.color, fontWeight: 700, fontSize: '0.8rem' }}>{st.label} ({st.expirationDate || '-'})</span>
+                    <span style={{ backgroundColor: st.bg || 'transparent', color: st.color, padding: '0.2rem 0.6rem', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                        {st.icon && st.icon} {st.label} ({st.expirationDate || '-'})
+                    </span>
                 );
             }
         },
@@ -458,7 +457,9 @@ export default function ExtintoresManager() {
             render: (item: any) => {
                 const st = getPHExpirationStatus(item.vencimientoPH);
                 return (
-                    <span style={{ color: st.color, fontWeight: 700, fontSize: '0.8rem' }}>{st.label} ({st.expirationDate || '-'})</span>
+                    <span style={{ backgroundColor: st.bg || 'transparent', color: st.color, padding: '0.2rem 0.6rem', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                        {st.icon && st.icon} {st.label} ({st.expirationDate || '-'})
+                    </span>
                 );
             }
         },
@@ -470,7 +471,9 @@ export default function ExtintoresManager() {
                 const st = getLifespanStatus(item.fechaFabricacion);
                 if (!st) return <span style={{ color: '#64748b', fontSize: '0.8rem', fontWeight: 700 }}>Sin Dato</span>;
                 return (
-                    <span style={{ color: st.color, fontWeight: 700, fontSize: '0.8rem' }}>{st.label}</span>
+                    <span style={{ backgroundColor: st.bg || 'transparent', color: st.color, padding: '0.2rem 0.6rem', borderRadius: '12px', fontWeight: 800, fontSize: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                        {st.icon && st.icon} {st.label}
+                    </span>
                 );
             }
         },
@@ -858,35 +861,44 @@ export default function ExtintoresManager() {
                 </div>
             ) : (
                 <>
-                    <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                        <button
-                            onClick={() => requirePro(() => setShowForm(true))}
-                            style={{ flex: '0 1 auto', padding: '1rem 1.5rem', borderRadius: '16px', background: '#36B37E', color: '#fff', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(54,179,126,0.3)', whiteSpace: 'nowrap' }}
-                        >
-                            <Plus size={20} /> Nuevo Matafuego
-                        </button>
-                        <div style={{ flex: '1 1 300px', position: 'relative' }}>
-                            <Search size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                    <div style={{ marginBottom: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'stretch', background: 'var(--color-surface, #fff)', padding: '1.5rem', borderRadius: '24px', boxShadow: '0 10px 40px rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.05)' }}>
+                        <div style={{ flex: '1 1 250px', position: 'relative' }}>
+                            <Search size={22} style={{ position: 'absolute', left: '1.2rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
                             <input 
                                 type="text" 
-                                placeholder="Buscar por Nº de chapa, tipo o ubicación..." 
+                                placeholder="Buscar por Nº, tipo o ubicación..." 
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                style={{ width: '100%', padding: '1rem 1rem 1rem 3rem', borderRadius: '16px', border: '2px solid var(--color-border)', fontSize: '1rem', outline: 'none', background: 'var(--color-surface)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}
+                                style={{ width: '100%', height: '100%', minHeight: '3.5rem', padding: '1rem 1rem 1rem 3.5rem', borderRadius: '16px', border: '2px solid transparent', backgroundColor: '#f8fafc', fontSize: '1rem', outline: 'none', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', fontWeight: 500, color: '#334155' }}
+                                onFocus={e => { e.currentTarget.style.border = '2px solid #3b82f6'; e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.boxShadow = '0 0 0 4px rgba(59,130,246,0.1)'; }}
+                                onBlur={e => { e.currentTarget.style.border = '2px solid transparent'; e.currentTarget.style.backgroundColor = '#f8fafc'; e.currentTarget.style.boxShadow = 'none'; }}
                             />
                         </div>
-                        <div style={{ flex: '0 1 250px' }}>
+                        <div style={{ flex: '1 1 250px', position: 'relative' }}>
                             <select 
                                 value={filterEmpresa} 
                                 onChange={e => setFilterEmpresa(e.target.value)}
-                                style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '2px solid var(--color-border)', fontSize: '1rem', outline: 'none', background: 'var(--color-surface)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', color: filterEmpresa ? 'var(--color-text)' : 'var(--color-text-muted)' }}
+                                style={{ width: '100%', height: '100%', minHeight: '3.5rem', padding: '1rem 2.5rem 1rem 1.2rem', borderRadius: '16px', border: '2px solid transparent', backgroundColor: '#f8fafc', fontSize: '1rem', outline: 'none', appearance: 'none', cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', fontWeight: 500, color: filterEmpresa ? '#334155' : '#94a3b8' }}
+                                onFocus={e => { e.currentTarget.style.border = '2px solid #3b82f6'; e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.boxShadow = '0 0 0 4px rgba(59,130,246,0.1)'; }}
+                                onBlur={e => { e.currentTarget.style.border = '2px solid transparent'; e.currentTarget.style.backgroundColor = '#f8fafc'; e.currentTarget.style.boxShadow = 'none'; }}
                             >
-                                <option value="">Todas las Empresas</option>
+                                <option value="">🏢 Todas las Empresas</option>
                                 {uniqueEmpresas.map(emp => (
                                     <option key={emp} value={emp}>{emp}</option>
                                 ))}
                             </select>
+                            <div style={{ position: 'absolute', right: '1.2rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#94a3b8' }}>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </div>
                         </div>
+                        <button
+                            onClick={() => requirePro(() => setShowForm(true))}
+                            style={{ flex: '0 1 auto', minHeight: '3.5rem', padding: '0 1.8rem', borderRadius: '16px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', boxShadow: '0 8px 20px rgba(16,185,129,0.3)', whiteSpace: 'nowrap', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
+                            onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 25px rgba(16,185,129,0.4)'; }}
+                            onMouseOut={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(16,185,129,0.3)'; }}
+                        >
+                            <Plus size={22} strokeWidth={2.5} /> Registrar Matafuego
+                        </button>
                     </div>
 
                     <div style={{ display: 'flex', gap: '0.8rem', marginBottom: '1.5rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
@@ -956,8 +968,6 @@ export default function ExtintoresManager() {
                         searchPlaceholder="" // Search is handled manually above, or we can use DataTable's search
                         emptyMessage="No hay extintores registrados."
                         emptyIcon={<Flame size={48} />}
-                        onEmptyAction={() => setShowForm(true)}
-                        emptyActionLabel="Nuevo Matafuego"
                     />
 
                 </>

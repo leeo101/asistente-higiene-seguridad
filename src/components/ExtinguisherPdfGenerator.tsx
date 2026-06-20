@@ -45,9 +45,6 @@ const getPHStatus = (dueDateStr: string) => {
 
 const formatType = (tipo: string) => {
     if (!tipo) return 'N/A';
-    const t = String(tipo).toUpperCase();
-    if (t === 'ABC') return 'HCFC';
-    if (t === 'BC') return 'CO2';
     return tipo;
 };
 
@@ -151,7 +148,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                             }
 
                             const grouped = extinguishers.reduce((acc, ext) => {
-                                const key = ext.empresa || 'Sin Empresa Especificada';
+                                const key = (ext.empresa || '').trim().toUpperCase() || 'SIN EMPRESA ESPECIFICADA';
                                 if (!acc[key]) acc[key] = [];
                                 acc[key].push(ext);
                                 return acc;
@@ -184,7 +181,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9pt', marginTop: '5px' }}>
                                             <thead>
                                                 <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
-                                                    <th style={{ padding: '8px', textAlign: 'center', fontWeight: 900, color: '#1e293b', width: '5%' }}>Nº</th>
+                                                    <th style={{ padding: '8px', textAlign: 'center', fontWeight: 900, color: '#1e293b', width: '10%' }}>Nº / CHAPA</th>
                                                     <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>TIPO / CAP.</th>
                                                     <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>F. FABRICACIÓN</th>
                                                     <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>UBICACIÓN</th>
@@ -227,7 +224,8 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                                         <tbody key={`${empresa}-${idx}`} style={{ pageBreakInside: 'avoid' }}>
                                                             <tr style={{ borderTop: '1px solid #e2e8f0', background: rowBg }}>
                                                                 <td style={{ padding: '8px', textAlign: 'center', fontWeight: 900, color: '#0f172a', fontSize: '10pt' }}>
-                                                                    {idx + 1}
+                                                                    <div style={{ fontSize: '7pt', color: '#94a3b8', marginBottom: '2px' }}>{idx + 1}</div>
+                                                                    <div>{ext?.numero || ext?.chapa || '-'}</div>
                                                                 </td>
                                                                 <td style={{ padding: '8px', color: '#334155', fontWeight: 600 }}>{formatType(ext?.tipo)} {ext?.capacidad ? `- ${ext.capacidad}` : ''}</td>
                                                                 <td style={{ padding: '8px', color: '#475569', backgroundColor: fFabBg, WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>

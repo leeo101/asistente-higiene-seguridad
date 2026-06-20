@@ -115,7 +115,7 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
             <div style={{ 
                 display: 'flex', 
                 gap: '1rem', 
-                justifyContent: 'flex-end', // Alinear a la derecha como suele ser en las firmas
+                justifyContent: 'flex-end', // Alinear a la derecha
                 width: '100%'
             }}>
                 {boxes.map((box, idx) => {
@@ -142,47 +142,45 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
                                         minHeight: '60px',
                                         height: 'auto',
                                         width: '100%',
-                                        display: 'block',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'flex-end',
                                         textAlign: 'center',
+                                        gap: '8px',
                                         borderBottom: `1px solid ${lineCol}`,
                                         paddingBottom: '0.5rem',
                                         marginBottom: '0.5rem',
                                         boxSizing: 'border-box',
                                         overflow: 'hidden'
                                     }}>
-                                        {box.signatureUrl && (
+                                        {box.signatureUrl && box.signatureUrl.length > 500 && (
                                             <img
                                                 src={box.signatureUrl}
                                                 alt="Firma"
                                                 style={{
                                                     height: '45px',
-                                                    width: box.stampUrl ? '48%' : '95%',
-                                                    maxWidth: '100%',
+                                                    width: 'auto',
+                                                    maxWidth: (box.stampUrl && box.stampUrl.length > 500) ? '48%' : '100%',
                                                     objectFit: 'contain',
+                                                    background: 'transparent',
+                                                    margin: '0 auto',
                                                     display: 'inline-block',
-                                                    verticalAlign: 'bottom',
-                                                    background: '#ffffff',
-                                                    borderRadius: '4px',
-                                                    padding: '2px',
                                                     boxSizing: 'border-box'
                                                 }}
                                             />
                                         )}
-                                        {box.stampUrl && (
+                                        {box.stampUrl && box.stampUrl.length > 500 && (
                                             <img
                                                 src={box.stampUrl}
                                                 alt="Sello"
                                                 style={{
                                                     height: '45px',
-                                                    width: box.signatureUrl ? '48%' : '95%',
-                                                    maxWidth: '100%',
+                                                    width: 'auto',
+                                                    maxWidth: (box.signatureUrl && box.signatureUrl.length > 500) ? '48%' : '100%',
                                                     objectFit: 'contain',
+                                                    background: 'transparent',
+                                                    margin: '0 auto',
                                                     display: 'inline-block',
-                                                    verticalAlign: 'bottom',
-                                                    marginLeft: box.signatureUrl ? '4px' : '0',
-                                                    background: '#ffffff',
-                                                    borderRadius: '4px',
-                                                    padding: '2px',
                                                     boxSizing: 'border-box'
                                                 }}
                                             />

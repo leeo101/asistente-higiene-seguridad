@@ -412,13 +412,6 @@ export default function SafetyKPIs(): React.ReactElement {
                     <p style={{ color: 'var(--color-text-muted)', fontWeight: 600, margin: 0 }}>
                         No hay datos de KPI aún. Ingresá el primer período para comenzar.
                     </p>
-                    <button
-                        onClick={() => { setShowForm(true); setEditing(null); setForm(emptyForm); }}
-                        className="btn-primary"
-                        style={{ marginTop: '1.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
-                    >
-                        <RefreshCw size={18} /> Ingresar Primer Período
-                    </button>
                 </div>
             )}
 

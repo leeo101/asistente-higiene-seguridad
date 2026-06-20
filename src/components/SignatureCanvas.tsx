@@ -67,8 +67,56 @@ export default function SignatureCanvas({
     const stopDrawing = () => {
         if (!isDrawing) return;
         setIsDrawing(false);
-        const dataUrl = canvasRef.current?.toDataURL('image/png');
-        if (dataUrl) onSave(dataUrl);
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        // Recortar automáticamente los espacios transparentes (auto-crop)
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        if (!ctx) {
+            const dataUrl = canvas.toDataURL('image/png');
+            onSave(dataUrl);
+            return;
+        }
+
+        const w = canvas.width;
+        const h = canvas.height;
+        const imageData = ctx.getImageData(0, 0, w, h);
+        const data = imageData.data;
+        let minX = w, minY = h, maxX = 0, maxY = 0, found = false;
+
+        for (let y = 0; y < h; y++) {
+            for (let x = 0; x < w; x++) {
+                if (data[(y * w + x) * 4 + 3] > 0) {
+                    found = true;
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+            }
+        }
+
+        let dataUrl = canvas.toDataURL('image/png');
+        if (found) {
+            const pad = 15; // Padding alrededor de la firma
+            minX = Math.max(0, minX - pad);
+            minY = Math.max(0, minY - pad);
+            maxX = Math.min(w, maxX + pad);
+            maxY = Math.min(h, maxY + pad);
+            
+            const trimW = maxX - minX;
+            const trimH = maxY - minY;
+            const trimCanvas = document.createElement('canvas');
+            trimCanvas.width = trimW;
+            trimCanvas.height = trimH;
+            const trimCtx = trimCanvas.getContext('2d');
+            if (trimCtx) {
+                trimCtx.putImageData(ctx.getImageData(minX, minY, trimW, trimH), 0, 0);
+                dataUrl = trimCanvas.toDataURL('image/png');
+            }
+        }
+        
+        onSave(dataUrl);
     };
 
     const clearCanvas = () => {

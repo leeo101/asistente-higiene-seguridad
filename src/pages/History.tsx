@@ -238,8 +238,6 @@ export default function History(): React.ReactElement | null {
                         searchFields={['name', 'location']}
                         emptyMessage="No hay matrices registradas."
                         emptyIcon={<ShieldAlert size={48} />}
-                        onEmptyAction={() => navigate('/risk-matrix')}
-                        emptyActionLabel="Crear mi primera Matriz"
                         columns={[
                             {
                                 header: 'Fecha',
@@ -361,8 +359,6 @@ export default function History(): React.ReactElement | null {
                     searchFields={['name', 'type']}
                     emptyMessage="No hay inspecciones registradas."
                     emptyIcon={<FileText size={48} />}
-                    onEmptyAction={() => navigate('/create-inspection')}
-                    emptyActionLabel="Crear mi primera Inspección"
                     columns={[
                         {
                             header: 'Fecha',
