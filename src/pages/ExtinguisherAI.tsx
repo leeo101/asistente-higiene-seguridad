@@ -64,8 +64,8 @@ const formatType = (tipo: string) => {
     return tipo;
 };
 
-export default function ExtinguisherAI(): React.ReactElement | null {
-    const { requirePro } = usePaywall();
+export default function ExtinguisherAI() {
+    const { isPro } = usePaywall();
     const navigate = useNavigate();
     useDocumentTitle('Reconocimiento de Extintores IA');
     const { syncCollection } = useSync();
@@ -185,7 +185,10 @@ export default function ExtinguisherAI(): React.ReactElement | null {
     };
 
     const handleCapture = () => {
-        if (!requirePro()) return;
+        if (!isPro) {
+            window.dispatchEvent(new CustomEvent('show-paywall'));
+            return;
+        }
         if (!videoRef.current || !canvasRef.current) return;
 
         const video = videoRef.current;

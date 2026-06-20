@@ -14,7 +14,7 @@ import PremiumHeader from '../components/PremiumHeader';
 import { getErrorMessage } from '../utils/errorUtils';
 
 export default function AIGeneralCamera(): React.ReactElement | null {
-  const { requirePro } = usePaywall();
+  const { isPro } = usePaywall();
     const navigate = useNavigate();
     const { syncCollection } = useSync();
     useDocumentTitle('Detección de Riesgos IA');
@@ -96,7 +96,10 @@ export default function AIGeneralCamera(): React.ReactElement | null {
     };
 
     const handleCapture = () => {
-        if (!requirePro()) return;
+        if (!isPro) {
+            window.dispatchEvent(new CustomEvent('show-paywall'));
+            return;
+        }
         if (!videoRef.current || !canvasRef.current) return;
 
         const video = videoRef.current;
