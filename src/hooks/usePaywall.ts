@@ -73,9 +73,8 @@ export function usePaywall() {
     }
   }, [syncPulse, internalPulse]);
 
-  // Permitimos isLocalActive ya que algunos usuarios compran y dependen de localStorage
-  // hasta que el backend les asigne el claim oficial.
-  const isPro = isAdmin || isHardcodedPro || isProClaim || isLocalActive;
+  // Solo confiamos en el token (backend) o emails hardcodeados, NO en localStorage por seguridad.
+  const isPro = isAdmin || isHardcodedPro || isProClaim;
 
   const daysRemaining = useMemo(() => {
     if (!isPro && !isLocalActive) return 0;
