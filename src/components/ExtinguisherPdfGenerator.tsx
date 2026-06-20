@@ -137,7 +137,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                         />
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
+                    <div style={{ display: 'block' }}>
                         {(() => {
                             if (!extinguishers || extinguishers.length === 0) {
                                 return (
@@ -164,12 +164,12 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                 });
 
                                 return (
-                                    <div key={empresa} style={{ pageBreakInside: 'avoid', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                    <div key={empresa} style={{ display: 'block', marginBottom: '25px' }}>
                                         {/* Company Header */}
                                         <div style={{ 
                                             background: '#f8fafc', color: '#0f172a', padding: '10px 15px', 
                                             borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '10px',
-                                            border: '2px solid #cbd5e1'
+                                            border: '2px solid #cbd5e1', marginBottom: '15px'
                                         }}>
                                             <span style={{ fontSize: '12pt', fontWeight: 900 }}>🏢 {empresa}</span>
                                             <span style={{ fontSize: '9pt', background: '#e2e8f0', color: '#334155', padding: '2px 8px', borderRadius: '12px', fontWeight: 700 }}>
