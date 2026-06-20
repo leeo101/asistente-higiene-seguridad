@@ -876,7 +876,6 @@ export default function ExtinguisherAI() {
                             <div className="no-print">
                                 <SignatureCanvas
                                     onSave={(sig) => setSignature(sig)}
-                                    onClear={() => setSignature(null)}
                                 />
                             </div>
                             
