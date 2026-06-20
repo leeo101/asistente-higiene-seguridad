@@ -215,10 +215,11 @@ const verifyFirebaseToken = async (req, res, next) => {
 };
 
 const requirePro = async (req, res, next) => {
-    const ADMIN_EMAILS = ['admin@asistentehs.com'];
+    const ADMIN_EMAILS = ['admin@asistentehs.com', 'enzorodriguez31@gmail.com'];
+    const PRO_EMAILS = ['arielalaniz9@gmail.com'];
     if (req.user && req.user.email) {
         const email = req.user.email.toLowerCase();
-        if (ADMIN_EMAILS.includes(email) || email.includes('leo') || email.includes('enzo')) {
+        if (ADMIN_EMAILS.includes(email) || PRO_EMAILS.includes(email)) {
             return next();
         }
     }

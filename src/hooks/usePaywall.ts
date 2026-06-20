@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
-import { ADMIN_EMAILS } from '../config';
+import { ADMIN_EMAILS, PRO_EMAILS } from '../config';
 
 export function usePaywall() {
   const navigate = useNavigate();
@@ -46,13 +46,18 @@ export function usePaywall() {
     if (!currentUser) return false;
     const email = currentUser.email?.toLowerCase() || '';
     const isHardcodedAdmin = ADMIN_EMAILS.some(e => e.toLowerCase() === email);
-    const isOwner = email.includes('leo') || email.includes('enzo');
     
     // Check local storage override if email is missing or no match
     const localRole = localStorage.getItem('userRole');
     const isLocalAdmin = localRole === 'admin';
     
-    return isHardcodedAdmin || isOwner || isLocalAdmin;
+    return isHardcodedAdmin || isLocalAdmin;
+  }, [currentUser]);
+
+  const isHardcodedPro = useMemo(() => {
+    if (!currentUser) return false;
+    const email = currentUser.email?.toLowerCase() || '';
+    return PRO_EMAILS.some(e => e.toLowerCase() === email);
   }, [currentUser]);
 
   const isLocalActive = useMemo(() => {
@@ -70,7 +75,7 @@ export function usePaywall() {
 
   // Permitimos isLocalActive ya que algunos usuarios compran y dependen de localStorage
   // hasta que el backend les asigne el claim oficial.
-  const isPro = isAdmin || isProClaim || isLocalActive;
+  const isPro = isAdmin || isHardcodedPro || isProClaim || isLocalActive;
 
   const daysRemaining = useMemo(() => {
     if (!isPro && !isLocalActive) return 0;

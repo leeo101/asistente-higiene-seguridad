@@ -13,6 +13,9 @@ export const API_BASE_URL: string = import.meta.env.DEV ? '' : 'https://asistent
 
 export const ADMIN_EMAILS: string[] = [
   'enzorodriguez31@gmail.com',
+];
+
+export const PRO_EMAILS: string[] = [
   'arielalaniz9@gmail.com',
 ];
 
