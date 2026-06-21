@@ -529,6 +529,45 @@ export default function Home(): React.ReactElement {
     <AnimatedPage>
     <div className="page-transition" style={{ paddingBottom: '4rem' }}>
 
+      {/* FIXED TOP NAV FOR GUESTS */}
+      {!currentUser && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0,
+          zIndex: 8000,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '0.8rem 1.2rem',
+          background: 'rgba(2, 6, 23, 0.85)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, fontSize: '1.2rem', color: 'white', letterSpacing: '-0.5px' }}>
+            <ShieldCheck weight="duotone" size={24} color="#60a5fa" />
+            <span style={{ display: isMobile ? 'none' : 'inline' }}>Asistente H&S</span>
+          </div>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <button 
+              onClick={() => navigate('/login')} 
+              style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: 'white', fontWeight: 600, padding: '0.5rem 1rem', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s' }}
+              onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+              onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+            >
+              Iniciar sesión
+            </button>
+            <button 
+              onClick={() => navigate('/login', { state: { view: 'register' } })} 
+              className="glow-button" 
+              style={{ padding: '0.5rem 1rem', fontSize: '0.95rem', borderRadius: '8px' }}
+            >
+              Registrarse
+            </button>
+          </div>
+        </div>
+      )}
+
       {!currentUser && <StickyCtaBanner />}
 
       {/* HERO BANNER / DASHBOARD HEADER */}
