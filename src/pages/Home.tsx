@@ -256,7 +256,6 @@ export default function Home(): React.ReactElement {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isMobile, setIsMobile] = useState(false);
-  const [showRewardModal, setShowRewardModal] = useState<boolean>(false);
   const [recentModulePaths, setRecentModulePaths] = useState<Set<string>>(new Set());
   const [moduleCounts, setModuleCounts] = useState<Record<string, number>>({});
 
@@ -326,12 +325,6 @@ export default function Home(): React.ReactElement {
 
       setIsSubscribed(isPro);
       setDaysLeft(daysRemaining);
-
-      if (currentUser?.email === 'enzorodriguez31@gmail.com') {
-        if (!localStorage.getItem('saw_gift_modal')) {
-          setShowRewardModal(true);
-        }
-      }
     }
 
     const loadStats = (): void => {
@@ -1339,32 +1332,6 @@ export default function Home(): React.ReactElement {
         </div>
       )}
       {/* Removed legacy onboarding modal in favor of MarketingLanding */}
-
-      {/* Special Reward Modal */}
-      {showRewardModal && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)' }}>
-          <div className="card animate-fade-in" style={{ maxWidth: '450px', width: '90%', padding: '2.5rem', textAlign: 'center', position: 'relative', border: '2px solid #f59e0b', background: 'var(--color-surface)' }}>
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
-              <Crown size={64} color="#f59e0b" weight="fill" />
-            </div>
-            <h2 style={{ fontSize: '1.8rem', fontWeight: 900, marginBottom: '1rem', color: 'var(--color-text)' }}>¡Gracias por tu sugerencia!</h2>
-            <p style={{ fontSize: '1rem', color: 'var(--color-text-muted)', lineHeight: 1.6, marginBottom: '2rem' }}>
-              En agradecimiento por ayudarnos a mejorar la plataforma, te hemos otorgado <strong>30 días de acceso PRO totalmente gratis</strong>. <br/><br/>
-              ¡Disfrutá de todas las funciones premium!
-            </p>
-            <button 
-              onClick={() => {
-                localStorage.setItem('saw_gift_modal', 'true');
-                setShowRewardModal(false);
-              }}
-              style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', background: 'linear-gradient(135deg, #f59e0b, #ea580c)', border: 'none', borderRadius: '12px', color: '#fff', fontWeight: 800, cursor: 'pointer', boxShadow: '0 8px 20px rgba(245, 158, 11, 0.3)' }}
-              className="hover-lift"
-            >
-              ¡Excelente, gracias!
-            </button>
-          </div>
-        </div>
-      )}
 
     </div>
     </AnimatedPage>
