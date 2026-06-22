@@ -111,20 +111,31 @@ const PDF_STYLES = `
   }
   .ats-pdf-status {
     text-align: center;
-    font-weight: 900;
-    font-size: 8pt;
-    color: #0f172a;
+    vertical-align: middle;
     padding: 0.2rem !important;
   }
-  .ats-pdf-status.is-on {
+  .ats-pdf-status-box {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    margin: 0 auto;
+  }
+  .ats-pdf-status-box.is-on {
     background: #ecfdf5;
     border: 2px solid #059669 !important;
+    color: #059669;
   }
-  .ats-pdf-status.is-fail {
+  .ats-pdf-status-box.is-fail {
     background: #fef2f2;
     border: 2px solid #dc2626 !important;
+    color: #dc2626;
   }
-  .ats-pdf-status.is-na {
+  .ats-pdf-status-box.is-na {
     background: #f8fafc;
     border: 2px solid #64748b !important;
     color: #64748b;
@@ -188,9 +199,13 @@ function statusClass(estado: string): string {
 function StatusCell({ label, active }: { label: string; active: boolean }) {
   const estado = label === 'SI' ? 'Cumple' : label === 'NO' ? 'No Cumple' : 'N/A';
   return (
-    <td className={`ats-pdf-status ${active ? statusClass(estado) : ''}`}>
-      {active ? '✓' : ''}
-      <div style={{ fontSize: '6pt', fontWeight: 800, marginTop: '1px', color: active ? 'inherit' : '#94a3b8' }}>{label}</div>
+    <td className="ats-pdf-status">
+      <div className={`ats-pdf-status-box ${active ? statusClass(estado) : ''}`}>
+        {active && <span style={{ fontSize: '8.5pt', fontWeight: 900, lineHeight: 1 }}>✓</span>}
+        <div style={{ fontSize: '5.5pt', fontWeight: 800, marginTop: active ? '1px' : '0', color: active ? 'inherit' : '#94a3b8' }}>
+          {label}
+        </div>
+      </div>
     </td>
   );
 }
@@ -328,7 +343,7 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
             {categories.map((categoria, catIndex) => {
               const categoryItems = checklist.filter((item) => item.categoria === categoria);
               return (
-                <div key={catIndex} className="ats-pdf-category-block">
+                <div key={catIndex} className="ats-pdf-category-block avoid-break">
                   <div
                     style={{
                       background: '#e2e8f0',
@@ -349,13 +364,20 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
                     {categoria}
                   </div>
                   <table className="ats-pdf-table" style={{ tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word',  borderTop: 'none' }}>
+                    <colgroup>
+                      <col style={{ width: '8%' }} />
+                      <col style={{ width: '8%' }} />
+                      <col style={{ width: '8%' }} />
+                      <col style={{ width: '40%' }} />
+                      <col style={{ width: '36%' }} />
+                    </colgroup>
                     <thead>
                       <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
-                        <th style={{ width: '6%' }}>SI</th>
-                        <th style={{ width: '6%' }}>NO</th>
-                        <th style={{ width: '6%' }}>N/A</th>
-                        <th style={{ width: '42%' }}>Ítem de verificación</th>
-                        <th style={{ width: '40%' }}>Observaciones</th>
+                        <th>SI</th>
+                        <th>NO</th>
+                        <th>N/A</th>
+                        <th>Ítem de verificación</th>
+                        <th>Observaciones</th>
                       </tr>
                     </thead>
                     <tbody>
