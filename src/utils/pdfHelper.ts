@@ -103,7 +103,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         // El límite máximo seguro de área para un canvas en iOS/Safari móvil es ~16.777.216 píxeles.
         // Superar este límite causa recortes (canvas en blanco, solo 1 hoja) o crashes de memoria.
         const MAX_CANVAS_AREA = 15000000; // Un poco menos de 16M para margen de seguridad
-        const widthPx = isLandscape ? 1120 : 800;
+        const widthPx = isLandscape ? 1600 : 1200;
         const totalHeight = Math.max(clone.scrollHeight, clone.clientHeight);
         const totalArea = widthPx * totalHeight;
         
@@ -128,6 +128,11 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
                 allowTaint: true,
                 logging: false,
                 windowWidth: isLandscape ? 1600 : 1200,
+                width: isLandscape ? 1600 : 1200,
+                x: 0,
+                y: 0,
+                scrollX: 0,
+                scrollY: 0,
                 windowHeight: totalHeight // ensure full height is captured
             },
             jsPDF: { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' },
