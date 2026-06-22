@@ -23,7 +23,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         'left: 0',
         'top: 0',
         'z-index: -9999',
-        'width: ' + (isLandscape ? '900px' : '600px'), // Adjusted width for closer A4 aspect ratio
+        'width: ' + (isLandscape ? '1600px' : '1200px'), // Adjusted width for closer A4 aspect ratio
 
         'height: auto',
         'overflow: visible',
@@ -41,7 +41,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
     // (como el pie de página legal) se hagan visibles en el clon antes de tomar la foto.
     clone.classList.add('force-pdf-print');
 
-    const targetWidth = isLandscape ? 900 : 600;
+    const targetWidth = isLandscape ? 1600 : 1200;
 
     // Forzar estilos en el clon para renderizado correcto (A4 width)
     clone.style.cssText += [
@@ -127,7 +127,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
                 useCORS: true, 
                 allowTaint: true,
                 logging: false,
-                windowWidth: isLandscape ? 900 : 600,
+                windowWidth: isLandscape ? 1600 : 1200,
                 windowHeight: totalHeight // ensure full height is captured
             },
             jsPDF: { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' },
