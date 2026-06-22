@@ -722,7 +722,7 @@ export default function Home(): React.ReactElement {
                   position: 'absolute', top: '-30%', right: '-10%',
                   width: '220px', height: '220px',
                   background: 'radial-gradient(circle, rgba(168,85,247,0.2) 0%, transparent 70%)',
-                  pointerEvents: 'none', filter: 'blur(20px)'
+                  pointerEvents: 'none', filter: isMobile ? 'none' : 'blur(20px)'
                 }} />
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.2rem', position: 'relative', zIndex: 1 }}>
@@ -784,7 +784,7 @@ export default function Home(): React.ReactElement {
               {/* ── TILE 2: Safety Score Gauge (bento-score) ── */}
               <div className="bento-item bento-score">
                 {/* Ambient glow */}
-                <div style={{ position: 'absolute', bottom: '-20%', left: '50%', transform: 'translateX(-50%)', width: '180px', height: '180px', background: 'radial-gradient(circle, rgba(16,185,129,0.2) 0%, transparent 70%)', pointerEvents: 'none', filter: 'blur(25px)' }} />
+                <div style={{ position: 'absolute', bottom: '-20%', left: '50%', transform: 'translateX(-50%)', width: '180px', height: '180px', background: 'radial-gradient(circle, rgba(16,185,129,0.2) 0%, transparent 70%)', pointerEvents: 'none', filter: isMobile ? 'none' : 'blur(25px)' }} />
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', position: 'relative', zIndex: 1 }}>
                   <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: 'white', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
@@ -902,6 +902,7 @@ export default function Home(): React.ReactElement {
               </div>
 
               {/* ── TILE 4: Activity Timeline (bento-timeline) ── */}
+              {!isMobile && (
               <div className="bento-item bento-timeline">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
                   <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: 'white', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
@@ -954,8 +955,10 @@ export default function Home(): React.ReactElement {
                   )}
                 </div>
               </div>
+              )}
 
               {/* ── TILE 5: Quick Access (bento-quick) ── */}
+              {!isMobile && (
               <div className="bento-item bento-quick">
                 <h3 style={{ margin: '0 0 0.8rem 0', fontSize: '0.95rem', fontWeight: 800, color: 'white', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <Star size={16} color="#f59e0b" weight="fill" />
@@ -989,6 +992,7 @@ export default function Home(): React.ReactElement {
                   })}
                 </div>
               </div>
+              )}
 
             </div>
             {/* --- FIN BENTO GRID --- */}

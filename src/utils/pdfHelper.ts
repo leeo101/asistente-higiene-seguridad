@@ -23,7 +23,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         'left: 0',
         'top: 0',
         'z-index: -9999',
-        'width: ' + (isLandscape ? '1280px' : '1024px'),
+        'width: ' + (isLandscape ? '1120px' : '800px'), // Adjusted width for closer A4 aspect ratio
 
         'height: auto',
         'overflow: visible',
@@ -45,8 +45,8 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
     clone.style.cssText += [
         '; width: 100%',
         'max-width: none',
-        'height: auto', // Permitir que expanda todo lo necesario
-        'min-height: 0',
+        'height: auto !important', // Permitir que expanda todo lo necesario
+        'min-height: 0 !important',
         'display: block',
         'position: relative',
         'background: #ffffff',
@@ -54,7 +54,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         'box-shadow: none',
         'border-radius: 0',
         'margin: 0',
-        'padding: 1px 0' // Evita que los márgenes internos se salgan
+        'padding: 10px 20px' // Agrega margen interno lateral para evitar cortes en los bordes
     ].join('; ');
 
     offscreenContainer.appendChild(clone);
@@ -68,17 +68,18 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         const style = window.getComputedStyle(htmlEl);
         if (style.overflow === 'hidden' || style.overflow === 'auto' || style.overflowY === 'auto' || style.overflowY === 'scroll') {
             // Evitar remover overflow:hidden de elementos pequeños que lo usan para border-radius (ej. avatares, progress bars)
-            if (htmlEl.clientHeight > 200) {
+            if (htmlEl.clientHeight > 150) {
                 htmlEl.style.setProperty('overflow', 'visible', 'important');
                 htmlEl.style.setProperty('overflow-y', 'visible', 'important');
+                htmlEl.style.setProperty('overflow-x', 'hidden', 'important'); // previene overflow horizontal
             }
         }
-        if (style.maxHeight !== 'none' && htmlEl.clientHeight > 200) {
+        if (style.maxHeight !== 'none' && htmlEl.clientHeight > 150) {
             htmlEl.style.setProperty('max-height', 'none', 'important');
         }
         if (htmlEl.classList.contains('h-screen') || htmlEl.classList.contains('max-h-screen') || htmlEl.classList.contains('overflow-y-auto') || htmlEl.classList.contains('overflow-hidden')) {
             htmlEl.classList.remove('h-screen', 'max-h-screen', 'overflow-y-auto');
-            if (htmlEl.clientHeight > 200) {
+            if (htmlEl.clientHeight > 150) {
                 htmlEl.classList.remove('overflow-hidden');
             }
         }
@@ -99,7 +100,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         // El límite máximo seguro de área para un canvas en iOS/Safari móvil es ~16.777.216 píxeles.
         // Superar este límite causa recortes (canvas en blanco, solo 1 hoja) o crashes de memoria.
         const MAX_CANVAS_AREA = 15000000; // Un poco menos de 16M para margen de seguridad
-        const widthPx = isLandscape ? 1280 : 1024;
+        const widthPx = isLandscape ? 1120 : 800;
         const totalHeight = Math.max(clone.scrollHeight, clone.clientHeight);
         const totalArea = widthPx * totalHeight;
         
@@ -115,7 +116,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
 
 
         const opt = {
-            margin: [10, 0, 15, 0], // Top: 10mm, Right: 0, Bottom: 15mm (espacio para el pie), Left: 0
+            margin: [10, 8, 15, 8], // Top: 10mm, Right: 8mm, Bottom: 15mm, Left: 8mm (márgenes agregados)
             filename: 'documento.pdf',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { 
@@ -123,7 +124,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
                 useCORS: true, 
                 allowTaint: true,
                 logging: false,
-                windowWidth: isLandscape ? 1280 : 1024,
+                windowWidth: isLandscape ? 1120 : 800,
                 windowHeight: totalHeight // ensure full height is captured
             },
             jsPDF: { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' },

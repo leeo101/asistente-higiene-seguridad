@@ -157,119 +157,134 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                             const sortedCompanies = Object.keys(grouped).sort();
 
                             return sortedCompanies.map(empresa => {
-                                const group = grouped[empresa].sort((a, b) => {
+                                const group = grouped[empresa].sort((a: any, b: any) => {
                                     const valA = String(a.chapa || a.numero || '');
                                     const valB = String(b.chapa || b.numero || '');
                                     return valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' });
                                 });
 
+                                const CHUNK_SIZE = 12; // Número seguro de filas por tabla para evitar recortes
+                                const chunks = [];
+                                for (let i = 0; i < group.length; i += CHUNK_SIZE) {
+                                    chunks.push(group.slice(i, i + CHUNK_SIZE));
+                                }
+
                                 return (
                                     <div key={empresa} style={{ display: 'block', marginBottom: '25px' }}>
-                                        {/* Company Header */}
-                                        <div style={{ 
-                                            background: '#f8fafc', color: '#0f172a', padding: '10px 15px', 
-                                            borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '10px',
-                                            border: '2px solid #cbd5e1', marginBottom: '15px'
-                                        }}>
-                                            <span style={{ fontSize: '12pt', fontWeight: 900 }}>🏢 {empresa}</span>
-                                            <span style={{ fontSize: '9pt', background: '#e2e8f0', color: '#334155', padding: '2px 8px', borderRadius: '12px', fontWeight: 700 }}>
-                                                {group.length} extintores
-                                            </span>
-                                        </div>
+                                        {chunks.map((chunk, chunkIdx) => (
+                                            <div key={`${empresa}-chunk-${chunkIdx}`} style={{ marginBottom: '20px', pageBreakInside: 'auto' }}>
+                                                {/* Company Header */}
+                                                <div style={{ 
+                                                    background: '#f8fafc', color: '#0f172a', padding: '10px 15px', 
+                                                    borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '10px',
+                                                    border: '2px solid #cbd5e1', marginBottom: '15px'
+                                                }}>
+                                                    <span style={{ fontSize: '12pt', fontWeight: 900 }}>
+                                                        🏢 {empresa} {chunkIdx > 0 ? '(Continuación)' : ''}
+                                                    </span>
+                                                    {chunkIdx === 0 && (
+                                                        <span style={{ fontSize: '9pt', background: '#e2e8f0', color: '#334155', padding: '2px 8px', borderRadius: '12px', fontWeight: 700 }}>
+                                                            {group.length} extintores
+                                                        </span>
+                                                    )}
+                                                </div>
 
-                                        {/* Compact Table */}
-                                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9pt', marginTop: '5px' }}>
-                                            <thead>
-                                                <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
-                                                    <th style={{ padding: '8px', textAlign: 'center', fontWeight: 900, color: '#1e293b', width: '10%' }}>Nº / CHAPA</th>
-                                                    <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>TIPO / CAP.</th>
-                                                    <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>F. FABRICACIÓN</th>
-                                                    <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>UBICACIÓN</th>
-                                                    <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>VENC. CARGA</th>
-                                                    <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>VENC. PH</th>
-                                                    <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>ÚLTIMA INSP.</th>
-                                                </tr>
-                                            </thead>
-                                            {group.map((ext, idx) => {
-                                                    const sCarga = getStatus(ext?.vencimientoRecarga || ext?.ultimaCarga);
-                                                    const sPH = getPHStatus(ext?.vencimientoPH || ext?.ultimaPH);
-                                                    const lastInspection = ext?.inspections && ext.inspections.length > 0 ? ext.inspections[ext.inspections.length - 1] : null;
+                                                {/* Compact Table */}
+                                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9pt', marginTop: '5px' }}>
+                                                    <thead>
+                                                        <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
+                                                            <th style={{ padding: '8px', textAlign: 'center', fontWeight: 900, color: '#1e293b', width: '10%' }}>Nº / CHAPA</th>
+                                                            <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>TIPO / CAP.</th>
+                                                            <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>F. FABRICACIÓN</th>
+                                                            <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>UBICACIÓN</th>
+                                                            <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>VENC. CARGA</th>
+                                                            <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>VENC. PH</th>
+                                                            <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>ÚLTIMA INSP.</th>
+                                                        </tr>
+                                                    </thead>
+                                                    {chunk.map((ext: any, idx: number) => {
+                                                            const globalIdx = chunkIdx * CHUNK_SIZE + idx;
+                                                            const sCarga = getStatus(ext?.vencimientoRecarga || ext?.ultimaCarga);
+                                                            const sPH = getPHStatus(ext?.vencimientoPH || ext?.ultimaPH);
+                                                            const lastInspection = ext?.inspections && ext.inspections.length > 0 ? ext.inspections[ext.inspections.length - 1] : null;
 
-                                                    const getFabInfo = () => {
-                                                        if (!ext?.fechaFabricacion) return { base: '-', vto: '-', expired: false };
-                                                        try {
-                                                            const d = new Date(ext.fechaFabricacion + 'T12:00:00Z');
-                                                            if (isNaN(d.getTime())) return { base: '-', vto: '-', expired: false };
-                                                            const base = d.toLocaleDateString('es-AR');
-                                                            d.setFullYear(d.getFullYear() + 20);
-                                                            const vto = d.toLocaleDateString('es-AR');
-                                                            return { base, vto, expired: d.getTime() < new Date().getTime() };
-                                                        } catch { return { base: '-', vto: '-', expired: false }; }
-                                                    };
-                                                    const fabInfo = getFabInfo();
-                                                    const fFabBg = 'transparent';
-                                                    const fFabColor = fabInfo.expired ? '#dc2626' : '#475569';
+                                                            const getFabInfo = () => {
+                                                                if (!ext?.fechaFabricacion) return { base: '-', vto: '-', expired: false };
+                                                                try {
+                                                                    const d = new Date(ext.fechaFabricacion + 'T12:00:00Z');
+                                                                    if (isNaN(d.getTime())) return { base: '-', vto: '-', expired: false };
+                                                                    const base = d.toLocaleDateString('es-AR');
+                                                                    d.setFullYear(d.getFullYear() + 20);
+                                                                    const vto = d.toLocaleDateString('es-AR');
+                                                                    return { base, vto, expired: d.getTime() < new Date().getTime() };
+                                                                } catch { return { base: '-', vto: '-', expired: false }; }
+                                                            };
+                                                            const fabInfo = getFabInfo();
+                                                            const fFabBg = 'transparent';
+                                                            const fFabColor = fabInfo.expired ? '#dc2626' : '#475569';
 
-                                                    const cargaBg = 'transparent';
-                                                    const cargaColor = sCarga.text === 'Vencido' ? '#dc2626' : sCarga.color;
-                                                    
-                                                    const phBg = 'transparent';
-                                                    const phColor = sPH.text === 'Vencido' ? '#dc2626' : sPH.color;
+                                                            const cargaBg = 'transparent';
+                                                            const cargaColor = sCarga.text === 'Vencido' ? '#dc2626' : sCarga.color;
+                                                            
+                                                            const phBg = 'transparent';
+                                                            const phColor = sPH.text === 'Vencido' ? '#dc2626' : sPH.color;
 
-                                                    const hasObs = !!(lastInspection && lastInspection.observacion);
+                                                            const hasObs = !!(lastInspection && lastInspection.observacion);
 
-                                                    const rowBg = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
+                                                            const rowBg = globalIdx % 2 === 0 ? '#ffffff' : '#f8fafc';
 
-                                                    return (
-                                                        <tbody key={`${empresa}-${idx}`} style={{ pageBreakInside: 'avoid' }}>
-                                                            <tr style={{ borderTop: '1px solid #e2e8f0', background: rowBg }}>
-                                                                <td style={{ padding: '8px', textAlign: 'center', fontWeight: 900, color: '#0f172a', fontSize: '10pt' }}>
-                                                                    <div style={{ fontSize: '7pt', color: '#94a3b8', marginBottom: '2px' }}>{idx + 1}</div>
-                                                                    <div>{ext?.numero || ext?.chapa || '-'}</div>
-                                                                </td>
-                                                                <td style={{ padding: '8px', color: '#334155', fontWeight: 600 }}>{formatType(ext?.tipo)} {ext?.capacidad ? `- ${ext.capacidad}` : ''}</td>
-                                                                <td style={{ padding: '8px', color: '#475569', backgroundColor: fFabBg, WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '8pt' }}>
-                                                                        <span>Fab: <span style={{ fontWeight: 600 }}>{fabInfo.base}</span></span>
-                                                                        <span className={fabInfo.expired ? 'text-vencido' : ''} style={{ color: fFabColor, fontWeight: fabInfo.expired ? 800 : 600 }}>Vto: {fabInfo.vto}</span>
-                                                                    </div>
-                                                                </td>
-                                                                <td style={{ padding: '8px', color: '#475569' }}>{ext?.ubicacion || 'Sin ubicación'}</td>
-                                                                <td style={{ padding: '8px', color: '#475569', backgroundColor: cargaBg, WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '8pt' }}>
-                                                                        <span>Carga: <span style={{ fontWeight: 600 }}>{sCarga.base}</span></span>
-                                                                        <span className={sCarga.text === 'Vencido' ? 'text-vencido' : ''} style={{ color: cargaColor, fontWeight: sCarga.text === 'Vencido' ? 800 : 600 }}>Vto: {sCarga.vto}</span>
-                                                                    </div>
-                                                                </td>
-                                                                <td style={{ padding: '8px', color: '#475569', backgroundColor: phBg, WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '8pt' }}>
-                                                                        <span>PH: <span style={{ fontWeight: 600 }}>{sPH.base}</span></span>
-                                                                        <span className={sPH.text === 'Vencido' ? 'text-vencido' : ''} style={{ color: phColor, fontWeight: sPH.text === 'Vencido' ? 800 : 600 }}>Vto: {sPH.vto}</span>
-                                                                    </div>
-                                                                </td>
-                                                                <td style={{ padding: '8px' }}>
-                                                                    {lastInspection ? (
-                                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                                                            <span style={{ fontWeight: 800, color: '#1e293b', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                                                                                {new Date(lastInspection.fechaVisita + 'T12:00:00Z').toLocaleDateString('es-AR')} - Res: <span style={{ display: 'inline-block', width: '30px', borderBottom: '1px solid #1e293b', verticalAlign: 'bottom', position: 'relative', top: '-1px' }}></span>
-                                                                            </span>
-                                                                        </div>
-                                                                    ) : (
-                                                                        <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>Sin inspecciones</span>
-                                                                    )}
-                                                                </td>
-                                                            </tr>
-                                                            <tr style={{ borderBottom: '2px solid #cbd5e1', background: rowBg, height: 'auto' }}>
-                                                                <td colSpan={7} style={{ padding: '0 8px 6px 8px', height: '1px' }}>
-                                                                    <div style={{ border: hasObs ? '1px dashed #dc2626' : '1px dashed #94a3b8', borderRadius: '4px', padding: '4px 6px', fontSize: '7.5pt', color: hasObs ? '#dc2626' : '#334155', background: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact', minHeight: '20px', height: '100%' }}>
-                                                                        <strong style={{ color: '#0f172a' }}>Observación:</strong> <span style={{ fontWeight: 700, color: hasObs ? '#dc2626' : 'inherit', WebkitTextFillColor: hasObs ? '#dc2626' : 'inherit' }}>{hasObs ? lastInspection.observacion : ''}</span>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                        </tbody>
-                                                    );
-                                                })}
-                                        </table>
+                                                            return (
+                                                                <tbody key={`${empresa}-${globalIdx}`} className="avoid-break" style={{ pageBreakInside: 'avoid' }}>
+                                                                    <tr style={{ borderTop: '1px solid #e2e8f0', background: rowBg }}>
+                                                                        <td style={{ padding: '8px', textAlign: 'center', fontWeight: 900, color: '#0f172a', fontSize: '10pt' }}>
+                                                                            <div style={{ fontSize: '7pt', color: '#94a3b8', marginBottom: '2px' }}>{globalIdx + 1}</div>
+                                                                            <div>{ext?.numero || ext?.chapa || '-'}</div>
+                                                                        </td>
+                                                                        <td style={{ padding: '8px', color: '#334155', fontWeight: 600 }}>{formatType(ext?.tipo)} {ext?.capacidad ? `- ${ext.capacidad}` : ''}</td>
+                                                                        <td style={{ padding: '8px', color: '#475569', backgroundColor: fFabBg, WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                                                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '8pt' }}>
+                                                                                <span>Fab: <span style={{ fontWeight: 600 }}>{fabInfo.base}</span></span>
+                                                                                <span className={fabInfo.expired ? 'text-vencido' : ''} style={{ color: fFabColor, fontWeight: fabInfo.expired ? 800 : 600 }}>Vto: {fabInfo.vto}</span>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td style={{ padding: '8px', color: '#475569' }}>{ext?.ubicacion || 'Sin ubicación'}</td>
+                                                                        <td style={{ padding: '8px', color: '#475569', backgroundColor: cargaBg, WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                                                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '8pt' }}>
+                                                                                <span>Carga: <span style={{ fontWeight: 600 }}>{sCarga.base}</span></span>
+                                                                                <span className={sCarga.text === 'Vencido' ? 'text-vencido' : ''} style={{ color: cargaColor, fontWeight: sCarga.text === 'Vencido' ? 800 : 600 }}>Vto: {sCarga.vto}</span>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td style={{ padding: '8px', color: '#475569', backgroundColor: phBg, WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                                                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '8pt' }}>
+                                                                                <span>PH: <span style={{ fontWeight: 600 }}>{sPH.base}</span></span>
+                                                                                <span className={sPH.text === 'Vencido' ? 'text-vencido' : ''} style={{ color: phColor, fontWeight: sPH.text === 'Vencido' ? 800 : 600 }}>Vto: {sPH.vto}</span>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td style={{ padding: '8px' }}>
+                                                                            {lastInspection ? (
+                                                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                                                                    <span style={{ fontWeight: 800, color: '#1e293b', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                                                                                        {new Date(lastInspection.fechaVisita + 'T12:00:00Z').toLocaleDateString('es-AR')} - Res: <span style={{ display: 'inline-block', width: '30px', borderBottom: '1px solid #1e293b', verticalAlign: 'bottom', position: 'relative', top: '-1px' }}></span>
+                                                                                    </span>
+                                                                                </div>
+                                                                            ) : (
+                                                                                <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>Sin inspecciones</span>
+                                                                            )}
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr style={{ borderBottom: '2px solid #cbd5e1', background: rowBg, height: 'auto' }}>
+                                                                        <td colSpan={7} style={{ padding: '0 8px 6px 8px', height: '1px' }}>
+                                                                            <div style={{ border: hasObs ? '1px dashed #dc2626' : '1px dashed #94a3b8', borderRadius: '4px', padding: '4px 6px', fontSize: '7.5pt', color: hasObs ? '#dc2626' : '#334155', background: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact', minHeight: '20px', height: '100%' }}>
+                                                                                <strong style={{ color: '#0f172a' }}>Observación:</strong> <span style={{ fontWeight: 700, color: hasObs ? '#dc2626' : 'inherit', WebkitTextFillColor: hasObs ? '#dc2626' : 'inherit' }}>{hasObs ? lastInspection.observacion : ''}</span>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            );
+                                                        })}
+                                                </table>
+                                            </div>
+                                        ))}
                                     </div>
                                 );
                             });
