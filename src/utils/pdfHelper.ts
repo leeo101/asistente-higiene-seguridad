@@ -53,6 +53,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         'color: #000000',
         'box-shadow: none',
         'border-radius: 0',
+        'box-sizing: border-box !important',
         'margin: 0',
         'padding: 10px 20px' // Agrega margen interno lateral para evitar cortes en los bordes
     ].join('; ');

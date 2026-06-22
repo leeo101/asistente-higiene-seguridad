@@ -148,7 +148,8 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                     className="pdf-container card print-area"
                     ref={componentRef}
                     style={{
-                        width: '210mm',
+                        width: '100%',
+                        maxWidth: '210mm',
                         minHeight: '297mm',
                         display: 'flex',
                         flexDirection: 'column',
