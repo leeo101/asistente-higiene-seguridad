@@ -169,17 +169,17 @@ export default function LiftingPdfGenerator({ data }: { data: any }): React.Reac
                             <Weight size={18} /> CÁLCULO DE CARGA
                         </h3>
                     </div>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10pt' }}>
+                    <table style={{ tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word',  width: '100%', borderCollapse: 'collapse', fontSize: '10pt' }}>
                         <tbody>
-                            <tr>
+                            <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                                 <td style={{ borderBottom: '1px solid #e2e8f0', padding: '0.8rem 1rem', fontWeight: 700, width: '60%', background: '#f8fafc', color: '#334155' }}>Peso Total a Izar (Carga + Aparejos)</td>
                                 <td style={{ borderBottom: '1px solid #e2e8f0', padding: '0.8rem 1rem', textAlign: 'right', fontWeight: 800, color: '#0f172a' }}>{data.loadWeight} kg</td>
                             </tr>
-                            <tr>
+                            <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                                 <td style={{ borderBottom: '1px solid #e2e8f0', padding: '0.8rem 1rem', fontWeight: 700, background: '#f8fafc', color: '#334155' }}>Capacidad de la Grúa al Radio Máx</td>
                                 <td style={{ borderBottom: '1px solid #e2e8f0', padding: '0.8rem 1rem', textAlign: 'right', fontWeight: 800, color: '#0f172a' }}>{data.equipmentCapacity} kg</td>
                             </tr>
-                            <tr>
+                            <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                                 <td style={{ padding: '0.8rem 1rem', fontWeight: 800, background: isCritical ? '#fee2e2' : '#f0fdf4', color: isCritical ? '#b91c1c' : '#16a34a' }}>Porcentaje de Capacidad de Uso</td>
                                 <td style={{ padding: '0.8rem 1rem', textAlign: 'right', fontWeight: 900, background: isCritical ? '#fee2e2' : '#f0fdf4', color: isCritical ? '#b91c1c' : '#16a34a', fontSize: '11pt' }}>{loadPercentage ? loadPercentage.toFixed(1) : 0}%</td>
                             </tr>

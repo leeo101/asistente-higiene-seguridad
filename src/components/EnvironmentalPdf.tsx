@@ -173,9 +173,9 @@ export default function EnvironmentalPdf({ data, id = "pdf-content" }: { data: a
                     <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid #000', paddingBottom: '0.3rem' }}>
                         <Activity size={18} /> RESULTADOS DE LAS MEDICIONES
                     </h3>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ddd' }}>
+                    <table style={{ tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word',  width: '100%', borderCollapse: 'collapse', border: '1px solid #ddd' }}>
                         <thead>
-                            <tr style={{ background: '#f1f5f9' }}>
+                            <tr className="avoid-break" style={{ pageBreakInside: 'avoid', breakInside: 'avoid',  background: '#f1f5f9' }}>
                                 <th style={{ border: '1px solid #ddd', padding: '0.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 900 }}>PARÁMETRO</th>
                                 <th style={{ border: '1px solid #ddd', padding: '0.5rem', textAlign: 'center', fontSize: '0.75rem', fontWeight: 900 }}>VALOR HALLADO</th>
                                 <th style={{ border: '1px solid #ddd', padding: '0.5rem', textAlign: 'center', fontSize: '0.75rem', fontWeight: 900 }}>UNIDAD</th>
@@ -183,13 +183,13 @@ export default function EnvironmentalPdf({ data, id = "pdf-content" }: { data: a
                         </thead>
                         <tbody>
                             {data.parameters && data.parameters.length > 0 ? data.parameters.map((p, i) => (
-                                <tr key={i}>
+                                <tr className="avoid-break" key={i} style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                                     <td style={{ border: '1px solid #ddd', padding: '0.5rem', fontWeight: 700 }}>{PARAMETERS_MAP[data.monitoringType]?.[p.parameterId] || p.parameterId}</td>
                                     <td style={{ border: '1px solid #ddd', padding: '0.5rem', textAlign: 'center', fontWeight: 900, color: statusColor }}>{p.value}</td>
                                     <td style={{ border: '1px solid #ddd', padding: '0.5rem', textAlign: 'center' }}>{UNITS_MAP[p.parameterId] || '-'}</td>
                                 </tr>
                             )) : (
-                                <tr>
+                                <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                                     <td colSpan={3} style={{ border: '1px solid #ddd', padding: '1rem', textAlign: 'center', color: '#666' }}>No se registraron parámetros específicos</td>
                                 </tr>
                             )}

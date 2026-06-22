@@ -190,9 +190,9 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                                 </div>
 
                                                 {/* Compact Table */}
-                                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9pt', marginTop: '5px' }}>
+                                                <table style={{ tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word',  width: '100%', borderCollapse: 'collapse', fontSize: '9pt', marginTop: '5px' }}>
                                                     <thead>
-                                                        <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
+                                                        <tr className="avoid-break" style={{ pageBreakInside: 'avoid', breakInside: 'avoid',  background: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
                                                             <th style={{ padding: '8px', textAlign: 'center', fontWeight: 900, color: '#1e293b', width: '10%' }}>Nº / CHAPA</th>
                                                             <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>TIPO / CAP.</th>
                                                             <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>F. FABRICACIÓN</th>
@@ -235,7 +235,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
 
                                                             return (
                                                                 <tbody key={`${empresa}-${globalIdx}`} className="avoid-break" style={{ pageBreakInside: 'avoid' }}>
-                                                                    <tr style={{ borderTop: '1px solid #e2e8f0', background: rowBg }}>
+                                                                    <tr className="avoid-break" style={{ pageBreakInside: 'avoid', breakInside: 'avoid',  borderTop: '1px solid #e2e8f0', background: rowBg }}>
                                                                         <td style={{ padding: '8px', textAlign: 'center', fontWeight: 900, color: '#0f172a', fontSize: '10pt' }}>
                                                                             <div style={{ fontSize: '7pt', color: '#94a3b8', marginBottom: '2px' }}>{globalIdx + 1}</div>
                                                                             <div>{ext?.numero || ext?.chapa || '-'}</div>
@@ -272,7 +272,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                                                             )}
                                                                         </td>
                                                                     </tr>
-                                                                    <tr style={{ borderBottom: '2px solid #cbd5e1', background: rowBg, height: 'auto' }}>
+                                                                    <tr className="avoid-break" style={{ pageBreakInside: 'avoid', breakInside: 'avoid',  borderBottom: '2px solid #cbd5e1', background: rowBg, height: 'auto' }}>
                                                                         <td colSpan={7} style={{ padding: '0 8px 6px 8px', height: '1px' }}>
                                                                             <div style={{ border: hasObs ? '1px dashed #dc2626' : '1px dashed #94a3b8', borderRadius: '4px', padding: '4px 6px', fontSize: '7.5pt', color: hasObs ? '#dc2626' : '#334155', background: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact', minHeight: '20px', height: '100%' }}>
                                                                                 <strong style={{ color: '#0f172a' }}>Observación:</strong> <span style={{ fontWeight: 700, color: hasObs ? '#dc2626' : 'inherit', WebkitTextFillColor: hasObs ? '#dc2626' : 'inherit' }}>{hasObs ? lastInspection.observacion : ''}</span>

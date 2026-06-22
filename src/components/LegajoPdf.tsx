@@ -110,7 +110,7 @@ export default function LegajoPdf({ data }: { data: any }): React.ReactElement |
     );
 
     const AmbienteRow = ({ label, apto, fecha }: { label: string, apto: boolean, fecha: string }) => (
-        <tr>
+        <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
             <td style={{ padding: '0.8rem 1rem', borderBottom: '1px solid #e2e8f0', fontSize: '0.9rem', fontWeight: 600, color: '#1e293b' }}>{label}</td>
             <td style={{ padding: '0.8rem 1rem', borderBottom: '1px solid #e2e8f0', fontWeight: 800, color: apto ? '#166534' : '#dc2626', textAlign: 'center' }}>
                 <span style={{
@@ -344,9 +344,9 @@ export default function LegajoPdf({ data }: { data: any }): React.ReactElement |
             <ChapterDivider title="Medio Ambiente Laboral" subtitle="Estudios de higiene ocupacional" icon={Wind} colorKey="ambiente" chapterNum={5} />
             <SectionHeader title="Estudios y Mediciones" icon={Wind} colorKey="ambiente" />
             <div style={{ background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <table style={{ tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word',  width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
-                        <tr style={{ background: '#f1f5f9' }}>
+                        <tr className="avoid-break" style={{ pageBreakInside: 'avoid', breakInside: 'avoid',  background: '#f1f5f9' }}>
                             <th style={{ textAlign: 'left', padding: '1rem', borderBottom: '2px solid #cbd5e1', fontSize: '0.8rem', fontWeight: 800, color: '#475569', textTransform: 'uppercase' }}>Estudio / Medición</th>
                             <th style={{ textAlign: 'center', padding: '1rem', borderBottom: '2px solid #cbd5e1', fontSize: '0.8rem', fontWeight: 800, color: '#475569', textTransform: 'uppercase' }}>Resultado</th>
                             <th style={{ textAlign: 'center', padding: '1rem', borderBottom: '2px solid #cbd5e1', fontSize: '0.8rem', fontWeight: 800, color: '#475569', textTransform: 'uppercase' }}>Fecha Medición</th>

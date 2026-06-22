@@ -116,9 +116,9 @@ export default function RiskMatrixPdfGenerator({ data }: { data: any }): React.R
                         <h3 style={{ margin: 0, fontWeight: 900, fontSize: '1.1rem', textTransform: 'uppercase' }}>Análisis y Evaluación de Riesgos</h3>
                     </div>
 
-                    <table style={{ width: '100%', borderCollapse: 'collapse', border: '2px solid #e2e8f0', borderRadius: '8px',  }}>
+                    <table style={{ tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word',  width: '100%', borderCollapse: 'collapse', border: '2px solid #e2e8f0', borderRadius: '8px',  }}>
                         <thead>
-                            <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
+                            <tr className="avoid-break" style={{ pageBreakInside: 'avoid', breakInside: 'avoid',  background: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
                                 <th style={{ padding: '0.8rem', textAlign: 'left', fontSize: '0.65rem', fontWeight: 900, color: '#475569', textTransform: 'uppercase', width: '25%' }}>Tarea / Actividad</th>
                                 <th style={{ padding: '0.8rem', textAlign: 'left', fontSize: '0.65rem', fontWeight: 900, color: '#475569', textTransform: 'uppercase', width: '15%' }}>Peligro / Tipo</th>
                                 <th style={{ padding: '0.8rem', textAlign: 'left', fontSize: '0.65rem', fontWeight: 900, color: '#475569', textTransform: 'uppercase', width: '20%' }}>Efecto Probable</th>
@@ -129,13 +129,13 @@ export default function RiskMatrixPdfGenerator({ data }: { data: any }): React.R
                         </thead>
                         <tbody>
                             {rows.length === 0 ? (
-                                <tr>
+                                <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                                     <td colSpan={6} style={{ padding: '2rem', textAlign: 'center', color: '#64748b', fontStyle: 'italic', fontWeight: 600 }}>Sin datos evaluados.</td>
                                 </tr>
                             ) : rows.map((row, idx) => {
                                 const level = getRiskLevel(row.probability || 1, row.severity || 1);
                                 return (
-                                    <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0', background: idx % 2 === 0 ? '#ffffff' : '#f8fafc', pageBreakInside: 'avoid' }}>
+                                    <tr className="avoid-break" key={idx} style={{ borderBottom: '1px solid #e2e8f0', background: idx % 2 === 0 ? '#ffffff' : '#f8fafc', pageBreakInside: 'avoid' }}>
                                         <td style={{ padding: '0.6rem 0.8rem', fontSize: '0.8rem', fontWeight: 700, color: '#1e293b', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{row.task}</td>
                                         <td style={{ padding: '0.6rem 0.8rem', fontSize: '0.75rem', color: '#334155', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                                             <div style={{ fontWeight: 800, color: '#0f172a' }}>{row.hazardType}</div>

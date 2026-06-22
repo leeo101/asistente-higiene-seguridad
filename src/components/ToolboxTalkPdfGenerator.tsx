@@ -182,9 +182,9 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
 
             {/* Tabla de Asistentes */}
             <div style={{ marginBottom: '1rem' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '8pt' }}>
+                <table style={{ tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word',  width: '100%', borderCollapse: 'collapse', fontSize: '8pt' }}>
                     <thead>
-                        <tr style={{ background: '#0052CC', color: '#ffffff' }}>
+                        <tr className="avoid-break" style={{ pageBreakInside: 'avoid', breakInside: 'avoid',  background: '#0052CC', color: '#ffffff' }}>
                             <th style={{ padding: '0.5rem 0.4rem', width: '5%', textAlign: 'center', fontWeight: 800, border: '1px solid #003d99' }}>N°</th>
                             <th style={{ padding: '0.5rem 0.8rem', width: '48%', textAlign: 'left', fontWeight: 800, border: '1px solid #003d99' }}>Nombre y Apellido</th>
                             <th style={{ padding: '0.5rem 0.8rem', width: '22%', textAlign: 'center', fontWeight: 800, border: '1px solid #003d99' }}>DNI / CUIL</th>
@@ -193,7 +193,7 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
                     </thead>
                     <tbody>
                         {filledAttendees.map((att, idx) => (
-                            <tr key={idx} style={{ background: idx % 2 === 0 ? '#ffffff' : '#f8fafc', pageBreakInside: 'avoid' }}>
+                            <tr className="avoid-break" key={idx} style={{ background: idx % 2 === 0 ? '#ffffff' : '#f8fafc', pageBreakInside: 'avoid' }}>
                                 <td style={{ border: '1px solid #cbd5e1', padding: '0.55rem 0.4rem', textAlign: 'center', color: '#94a3b8', fontWeight: 700 }}>{idx + 1}</td>
                                 <td style={{ border: '1px solid #cbd5e1', padding: '0.55rem 0.8rem', fontWeight: 700, color: '#1e293b' }}>{att.nombre}</td>
                                 <td style={{ border: '1px solid #cbd5e1', padding: '0.55rem 0.8rem', textAlign: 'center', color: '#334155' }}>{att.dni}</td>

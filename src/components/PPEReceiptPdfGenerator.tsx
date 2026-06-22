@@ -42,32 +42,32 @@ export default function PPEReceiptPdfGenerator(): React.ReactElement | null {
                 </div>
 
                 {/* Datos del Empleador y Trabajador */}
-                <table>
+                <table style={{ width: '100%', tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word', borderCollapse: 'collapse' }}>
                     <tbody>
-                        <tr>
+                        <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                             <td colSpan={2} style={{ background: '#f0f0f0', fontWeight: 'bold', textAlign: 'center', fontSize: '8pt' }}>DATOS DEL EMPLEADOR</td>
                         </tr>
-                        <tr>
+                        <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                             <td style={{ width: '50%' }}>Razón Social:</td>
                             <td style={{ width: '50%' }}>C.U.I.T. N°:</td>
                         </tr>
-                        <tr>
+                        <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                             <td>Dirección:</td>
                             <td>Localidad / Provincia:</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <table>
+                <table style={{ width: '100%', tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word', borderCollapse: 'collapse' }}>
                     <tbody>
-                        <tr>
+                        <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                             <td colSpan={3} style={{ background: '#f0f0f0', fontWeight: 'bold', textAlign: 'center', fontSize: '8pt' }}>DATOS DEL TRABAJADOR</td>
                         </tr>
-                        <tr>
+                        <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                             <td colSpan={2} style={{ width: '66%' }}>Apellido y Nombre:</td>
                             <td style={{ width: '34%' }}>D.N.I. N°:</td>
                         </tr>
-                        <tr>
+                        <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                             <td colSpan={3}>Puesto de Trabajo:</td>
                         </tr>
                     </tbody>
@@ -78,9 +78,9 @@ export default function PPEReceiptPdfGenerator(): React.ReactElement | null {
                 </p>
 
                 {/* Tabla de EPPs */}
-                <table>
+                <table style={{ width: '100%', tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word', borderCollapse: 'collapse' }}>
                     <thead>
-                        <tr style={{ background: '#f0f0f0', fontSize: '7pt', textAlign: 'center' }}>
+                        <tr className="avoid-break" style={{ pageBreakInside: 'avoid', breakInside: 'avoid',  background: '#f0f0f0', fontSize: '7pt', textAlign: 'center' }}>
                             <th style={{ width: '20%' }}>PRODUCTO / EPP</th>
                             <th style={{ width: '10%' }}>TIPO / MODELO</th>
                             <th style={{ width: '15%' }}>MARCA</th>
@@ -92,7 +92,7 @@ export default function PPEReceiptPdfGenerator(): React.ReactElement | null {
                     </thead>
                     <tbody>
                         {[...Array(15)].map((_, i) => (
-                            <tr key={i} style={{ height: '25px' }}>
+                            <tr className="avoid-break" key={i} style={{ pageBreakInside: 'avoid', breakInside: 'avoid',  height: '25px' }}>
                                 <td></td>
                                 <td></td>
                                 <td></td>

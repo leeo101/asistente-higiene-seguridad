@@ -250,9 +250,9 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
 
         {/* Datos del trabajo */}
         <div className="ats-pdf-section ats-pdf-section-compact">
-          <table className="ats-pdf-table" style={{ marginBottom: 0 }}>
+          <table className="ats-pdf-table" style={{ tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word',  marginBottom: 0 }}>
             <tbody>
-              <tr>
+              <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                 <td style={{ width: '42%', background: '#f8fafc' }}>
                   <div style={{ fontSize: '7pt', fontWeight: 800, color: '#3b82f6', textTransform: 'uppercase', marginBottom: '0.2rem' }}>Cliente / Empresa</div>
                   <div style={{ fontWeight: 800, fontSize: '10.5pt' }}>{data.empresa || '—'}</div>
@@ -266,7 +266,7 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
                   <div style={{ fontWeight: 800, fontSize: '10.5pt' }}>{data.obra || '—'}</div>
                 </td>
               </tr>
-              <tr>
+              <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                 <td colSpan={1}>
                   <div style={{ fontSize: '7pt', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.2rem' }}>Fecha de ejecución</div>
                   <div style={{ fontWeight: 700 }}>{formatDate(data.fecha)}</div>
@@ -276,13 +276,13 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
                   <div style={{ fontWeight: 700 }}>{data.capatazNombre || '—'}</div>
                 </td>
               </tr>
-              <tr>
+              <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                 <td colSpan={3}>
                   <div style={{ fontSize: '7pt', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.2rem' }}>Descripción de la tarea</div>
                   <div style={{ fontWeight: 700, fontSize: '10pt', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>{data.tarea || '—'}</div>
                 </td>
               </tr>
-              <tr>
+              <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                 <td colSpan={3} style={{ background: '#eff6ff' }}>
                   <div style={{ fontSize: '7pt', fontWeight: 800, color: '#1d4ed8', textTransform: 'uppercase', marginBottom: '0.2rem' }}>Profesional HyS actuante</div>
                   <div style={{ fontWeight: 800 }}>{actName || '—'}{actLic ? ` · Mat. ${actLic}` : ''}</div>
@@ -298,9 +298,9 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
             <div style={{ fontSize: '9pt', fontWeight: 900, textTransform: 'uppercase', color: '#0f172a', borderLeft: '4px solid #2563eb', paddingLeft: '0.6rem', marginBottom: '0.65rem' }}>
               1. Secuencia de tareas y análisis de riesgos
             </div>
-            <table className="ats-pdf-table">
+            <table className="ats-pdf-table" style={{ width: '100%', tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word', borderCollapse: 'collapse' }}>
               <thead>
-                <tr>
+                <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                   <th style={{ width: '6%' }}>#</th>
                   <th style={{ width: '30%' }}>Paso a seguir</th>
                   <th style={{ width: '30%' }}>Riesgos asociados</th>
@@ -351,9 +351,9 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
                     <span style={{ color: '#3b82f6', fontSize: '9pt', lineHeight: 1 }}>■</span>
                     {categoria}
                   </div>
-                  <table className="ats-pdf-table" style={{ borderTop: 'none' }}>
+                  <table className="ats-pdf-table" style={{ tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word',  borderTop: 'none' }}>
                     <thead>
-                      <tr>
+                      <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                         <th style={{ width: '5%' }}>SI</th>
                         <th style={{ width: '5%' }}>NO</th>
                         <th style={{ width: '5%' }}>N/A</th>

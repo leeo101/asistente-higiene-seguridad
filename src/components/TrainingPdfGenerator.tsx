@@ -152,9 +152,9 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                     </div>
 
                     {/* Tabla de Asistentes */}
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9pt', marginBottom: '2rem' }}>
+                    <table style={{ tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word',  width: '100%', borderCollapse: 'collapse', fontSize: '9pt', marginBottom: '2rem' }}>
                         <thead>
-                            <tr style={{ background: '#1e293b', color: '#ffffff' }}>
+                            <tr className="avoid-break" style={{ pageBreakInside: 'avoid', breakInside: 'avoid',  background: '#1e293b', color: '#ffffff' }}>
                                 <th style={{ padding: '0.6rem 0.4rem', width: '5%', textAlign: 'center', fontWeight: 800, border: '1px solid #0f172a' }}>N°</th>
                                 <th style={{ padding: '0.6rem 0.8rem', width: '30%', textAlign: 'left', fontWeight: 800, border: '1px solid #0f172a' }}>Apellido y Nombres</th>
                                 <th style={{ padding: '0.6rem 0.8rem', width: '15%', textAlign: 'center', fontWeight: 800, border: '1px solid #0f172a' }}>DNI / CUIL</th>
@@ -165,7 +165,7 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                         </thead>
                         <tbody>
                             {training?.asistentes?.map((asist, idx) => (
-                                <tr key={idx} style={{ pageBreakInside: 'avoid', background: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
+                                <tr className="avoid-break" key={idx} style={{ pageBreakInside: 'avoid', background: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '0.6rem 0.4rem', textAlign: 'center', color: '#64748b', fontWeight: 700 }}>{idx + 1}</td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '0.6rem 0.8rem', fontWeight: 700, color: '#1e293b' }}>{asist.nombre}</td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '0.6rem 0.8rem', textAlign: 'center', color: '#334155' }}>{asist.dni}</td>
@@ -176,7 +176,7 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                             ))}
                             {/* Rendimiento de líneas vacías para rellenar */}
                             {Array.from({ length: Math.max(0, 5 - (training?.asistentes?.length || 0)) }).map((_, i) => (
-                                <tr key={`empty-${i}`} style={{ pageBreakInside: 'avoid' }}>
+                                <tr className="avoid-break" key={`empty-${i}`} style={{ pageBreakInside: 'avoid' }}>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '1.2rem 0.4rem' }}></td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '1.2rem 0.8rem' }}></td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '1.2rem 0.8rem' }}></td>

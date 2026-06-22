@@ -170,9 +170,9 @@ export default function ReportPdfGenerator({ initialData }: ReportPdfGeneratorPr
 
                 {findings.length > 0 ? (
                     <div style={{ marginBottom: '2.5rem' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                        <table style={{ tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word',  width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                             <thead>
-                                <tr style={{ background: '#f1f5f9' }}>
+                                <tr className="avoid-break" style={{ pageBreakInside: 'avoid', breakInside: 'avoid',  background: '#f1f5f9' }}>
                                     <th style={{ border: '1px solid #e2e8f0', padding: '0.8rem', textAlign: 'left', color: '#475569' }}>#</th>
                                     <th style={{ border: '1px solid #e2e8f0', padding: '0.8rem', textAlign: 'left', color: '#475569' }}>Categoría / Item</th>
                                     <th style={{ border: '1px solid #e2e8f0', padding: '0.8rem', textAlign: 'left', color: '#475569' }}>Descripción del Hallazgo</th>
@@ -181,7 +181,7 @@ export default function ReportPdfGenerator({ initialData }: ReportPdfGeneratorPr
                             </thead>
                             <tbody>
                                 {findings.map((obs, i) => (
-                                    <tr key={i} style={{ pageBreakInside: 'avoid' }}>
+                                    <tr className="avoid-break" key={i} style={{ pageBreakInside: 'avoid' }}>
                                         <td style={{ border: '1px solid #e2e8f0', padding: '0.8rem', fontWeight: 700, color: '#64748b' }}>{i + 1}</td>
                                         <td style={{ border: '1px solid #e2e8f0', padding: '0.8rem' }}>
                                             <div style={{ fontWeight: 800, color: '#0f172a' }}>{obs.category}</div>

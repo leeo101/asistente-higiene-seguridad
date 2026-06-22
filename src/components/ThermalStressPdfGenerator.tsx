@@ -188,17 +188,17 @@ export default function ThermalStressPdfGenerator({ data, onBack = () => window.
                         IDENTIFICACIÓN DEL PUESTO
                     </div>
                     <div style={{ border: '1px solid #e2e8f0', borderTop: 'none', borderRadius: '0 0 8px 8px',  }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10pt' }}>
+                        <table style={{ tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word',  width: '100%', borderCollapse: 'collapse', fontSize: '10pt' }}>
                             <tbody>
-                                <tr>
+                                <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                                     <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', background: '#f8fafc', fontWeight: '700', width: '30%', color: '#475569' }}>🪑 Puesto Evaluado:</td>
                                     <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', fontWeight: '800', color: '#1e293b' }}>{report?.puesto || 'N/A'}</td>
                                 </tr>
-                                <tr>
+                                <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                                     <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', background: '#f8fafc', fontWeight: '700', color: '#475569' }}>📍 Sector / Área:</td>
                                     <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', color: '#334155' }}>{report.sector || 'No especificado'}</td>
                                 </tr>
-                                <tr>
+                                <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                                     <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', background: '#f8fafc', fontWeight: '700', color: '#475569' }}>📋 Tarea Principal:</td>
                                     <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', color: '#334155' }}>{report.tarea || 'No especificada'}</td>
                                 </tr>
@@ -284,9 +284,9 @@ export default function ThermalStressPdfGenerator({ data, onBack = () => window.
                         CARGA DE TRABAJO Y LÍMITES
                     </div>
                     <div style={{ border: '1px solid #c4b5fd', borderTop: 'none', borderRadius: '0 0 8px 8px',  }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10pt' }}>
+                        <table style={{ tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word',  width: '100%', borderCollapse: 'collapse', fontSize: '10pt' }}>
                             <tbody>
-                                <tr>
+                                <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                                     <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', background: '#faf5ff', fontWeight: '700', width: '40%', color: '#475569' }}>
                                         {ritmoInfo.icon} Nivel Metabólico:
                                     </td>
@@ -295,13 +295,13 @@ export default function ThermalStressPdfGenerator({ data, onBack = () => window.
                                         <div style={{ fontSize: '8.5pt', color: '#64748b' }}>{ritmoInfo.desc}</div>
                                     </td>
                                 </tr>
-                                <tr>
+                                <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                                     <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', background: '#faf5ff', fontWeight: '700', color: '#475569' }}>
                                         🔄 Régimen Trabajo/Descanso:
                                     </td>
                                     <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', fontWeight: '700', color: '#1e293b' }}>{getCicloName(report?.ciclo)}</td>
                                 </tr>
-                                <tr>
+                                <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                                     <td style={{ border: '1px solid #e2e8f0', padding: '8px 10px', background: '#faf5ff', fontWeight: '700', color: '#475569' }}>
                                         📊 Límite Máximo Permitido:
                                     </td>

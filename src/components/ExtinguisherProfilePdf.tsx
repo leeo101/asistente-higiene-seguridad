@@ -272,7 +272,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                         
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10pt', fontFamily: 'sans-serif', tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                             <thead>
-                                <tr style={{ background: '#f1f5f9' }}>
+                                <tr className="avoid-break" style={{ pageBreakInside: 'avoid', breakInside: 'avoid',  background: '#f1f5f9' }}>
                                     <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left', width: '25%', fontWeight: 800 }}>Vencimiento Recarga</th>
                                     <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left', width: '25%', fontWeight: 800 }}>Vencimiento P.H. (5 Años)</th>
                                     <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left', width: '25%', fontWeight: 800 }}>Fecha Fabricación</th>
@@ -280,7 +280,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
+                                <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '12px' }}>
                                         <div style={{ fontSize: '12pt', fontWeight: 900 }}>{recargaStatus.expirationDate || '-'}</div>
                                         <div style={{ color: recargaStatus.color, fontWeight: 800, marginTop: '4px', fontSize: '9pt' }}>{recargaStatus.text}</div>
@@ -336,7 +336,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                             
                             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9pt', fontFamily: 'sans-serif', tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                                 <thead>
-                                    <tr style={{ background: '#f1f5f9' }}>
+                                    <tr className="avoid-break" style={{ pageBreakInside: 'avoid', breakInside: 'avoid',  background: '#f1f5f9' }}>
                                         <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'left', width: '60%' }}>Ítem a Verificar</th>
                                         <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', width: '15%' }}>Estado</th>
                                         <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'left', width: '25%' }}>Observación</th>
@@ -402,9 +402,9 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                     </div>
 
                     {/* Firmas */}
-                    <table style={{ width: '100%', marginTop: '20px', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
+                    <table style={{ tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word',  width: '100%', marginTop: '20px', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                         <tbody>
-                            <tr>
+                            <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                                 <td>
                                     <div style={{ paddingTop: '20px' }}>
                                         <PdfSignatures 
