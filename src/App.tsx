@@ -353,6 +353,83 @@ function ScrollToTop() {
   return null;
 }
 
+function TopHeader({ setIsSidebarOpen, setIsSearchOpen }: { setIsSidebarOpen: (v: boolean) => void, setIsSearchOpen: (v: boolean) => void }) {
+  const { currentUser } = useAuth();
+  const location = useLocation();
+  const showMenuButton = !!currentUser && location.pathname !== '/login' && location.pathname !== '/subscribe' && location.pathname !== '/ai-camera';
+
+  if (!showMenuButton) return null;
+
+  return (
+    <div
+      className="glass-panel top-header-panel no-print"
+      style={{
+        position: 'fixed',
+        top: '1rem',
+        left: '1rem',
+        right: '1rem',
+        display: 'flex',
+        alignItems: 'center',
+        zIndex: 10,
+        background: 'var(--glass-bg-header)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderRadius: 'var(--radius-2xl)',
+        border: '1px solid var(--glass-border)',
+        boxShadow: 'var(--glass-shadow)',
+        transition: 'all var(--transition-base)'
+      }}>
+      <button
+        className="hide-on-mobile"
+        onClick={() => setIsSidebarOpen(true)}
+        aria-label="Abrir menú"
+        style={{
+          background: 'var(--color-background)',
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '0.6rem',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'var(--color-primary)',
+          boxShadow: 'var(--shadow-sm)',
+          transition: 'all var(--transition-base)'
+        }}
+      >
+        <Menu weight="bold" size={22} />
+      </button>
+      <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', textDecoration: 'none', color: 'var(--color-text)', flex: 1, minWidth: 0, transition: 'opacity var(--transition-fast)' }}>
+        <img src="/logo.png" alt="Logo" style={{ width: '48px', height: '48px', flexShrink: 0, objectFit: 'contain', filter: 'drop-shadow(0 2px 8px rgba(59, 130, 246, 0.2))' }} />
+        <h1 className="header-title" style={{ margin: 0, fontSize: '1.35rem', fontWeight: 900, color: 'var(--color-text)', letterSpacing: '-0.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Asistente HYS</h1>
+      </Link>
+      <button
+        onClick={() => setIsSearchOpen(true)}
+        aria-label="Buscar"
+        title="Buscar (Ctrl+K)"
+        style={{
+          background: 'var(--color-background)',
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '0.5rem',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'var(--color-text-muted)',
+          flexShrink: 0,
+          boxShadow: 'var(--shadow-sm)',
+          transition: 'all var(--transition-base)'
+        }}
+      >
+        <Search weight="bold" size={18} />
+      </button>
+      <HeaderNotifications />
+      <CloudStatusIndicator />
+    </div>
+  );
+}
+
 import { useHardwareBackButton } from './hooks/useHardwareBackButton';
 
 function App() {
@@ -360,7 +437,6 @@ function App() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   const location = useLocation();
-  const showMenuButton = !!currentUser && location.pathname !== '/login' && location.pathname !== '/subscribe' && location.pathname !== '/ai-camera';
 
   // Habilitar el botón de retroceso físico en Android
   useHardwareBackButton();
@@ -419,74 +495,7 @@ function App() {
         />
         <PWAReloadPrompt />
         <div className="app-container" style={{ position: 'relative' }}>
-          {showMenuButton && (
-            <div
-              className="glass-panel top-header-panel no-print"
-              style={{
-                position: 'fixed',
-                top: '1rem',
-                left: '1rem',
-                right: '1rem',
-                display: 'flex',
-                alignItems: 'center',
-                zIndex: 10,
-                background: 'var(--glass-bg-header)',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                borderRadius: 'var(--radius-2xl)',
-                border: '1px solid var(--glass-border)',
-                boxShadow: 'var(--glass-shadow)',
-                transition: 'all var(--transition-base)'
-              }}>
-              <button
-                className="hide-on-mobile"
-                onClick={() => setIsSidebarOpen(true)}
-                aria-label="Abrir menú"
-                style={{
-                  background: 'var(--color-background)',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 'var(--radius-lg)',
-                  padding: '0.6rem',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'var(--color-primary)',
-                  boxShadow: 'var(--shadow-sm)',
-                  transition: 'all var(--transition-base)'
-                }}
-              >
-                <Menu weight="bold" size={22} />
-              </button>
-              <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', textDecoration: 'none', color: 'var(--color-text)', flex: 1, minWidth: 0, transition: 'opacity var(--transition-fast)' }}>
-                <img src="/logo.png" alt="Logo" style={{ width: '48px', height: '48px', flexShrink: 0, objectFit: 'contain', filter: 'drop-shadow(0 2px 8px rgba(59, 130, 246, 0.2))' }} />
-                <h1 className="header-title" style={{ margin: 0, fontSize: '1.35rem', fontWeight: 900, color: 'var(--color-text)', letterSpacing: '-0.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Asistente HYS</h1>
-              </Link>
-              <button
-                onClick={() => setIsSearchOpen(true)}
-                aria-label="Buscar"
-                title="Buscar (Ctrl+K)"
-                style={{
-                  background: 'var(--color-background)',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 'var(--radius-lg)',
-                  padding: '0.5rem',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'var(--color-text-muted)',
-                  flexShrink: 0,
-                  boxShadow: 'var(--shadow-sm)',
-                  transition: 'all var(--transition-base)'
-                }}
-              >
-                <Search weight="bold" size={18} />
-              </button>
-              <HeaderNotifications />
-              <CloudStatusIndicator />
-            </div>
-          )}
+          <TopHeader setIsSidebarOpen={setIsSidebarOpen} setIsSearchOpen={setIsSearchOpen} />
 
           {isSearchOpen && <GlobalSearch onClose={() => setIsSearchOpen(false)} />}
 
