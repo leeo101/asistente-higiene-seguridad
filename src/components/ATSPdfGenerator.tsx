@@ -68,8 +68,6 @@ const PDF_STYLES = `
     margin-bottom: 1rem;
   }
   .ats-pdf-section-compact {
-    break-inside: avoid;
-    page-break-inside: avoid;
   }
   .ats-pdf-category-block {
     margin-bottom: 0.75rem;
@@ -112,11 +110,11 @@ const PDF_STYLES = `
     font-size: 8.5pt;
   }
   .ats-pdf-status {
-    width: 28px;
     text-align: center;
     font-weight: 900;
     font-size: 8pt;
     color: #0f172a;
+    padding: 0.2rem !important;
   }
   .ats-pdf-status.is-on {
     background: #ecfdf5;
@@ -353,11 +351,11 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
                   <table className="ats-pdf-table" style={{ tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word',  borderTop: 'none' }}>
                     <thead>
                       <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
-                        <th style={{ width: '5%' }}>SI</th>
-                        <th style={{ width: '5%' }}>NO</th>
-                        <th style={{ width: '5%' }}>N/A</th>
-                        <th style={{ width: '47%' }}>Ítem de verificación</th>
-                        <th style={{ width: '38%' }}>Observaciones</th>
+                        <th style={{ width: '6%' }}>SI</th>
+                        <th style={{ width: '6%' }}>NO</th>
+                        <th style={{ width: '6%' }}>N/A</th>
+                        <th style={{ width: '42%' }}>Ítem de verificación</th>
+                        <th style={{ width: '40%' }}>Observaciones</th>
                       </tr>
                     </thead>
                     <tbody>
