@@ -115,7 +115,7 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
             <div style={{ 
                 display: 'flex', 
                 gap: '1rem', 
-                justifyContent: 'flex-end', // Alinear a la derecha
+                justifyContent: 'center', // Alinear al centro
                 width: '100%'
             }}>
                 {boxes.map((box, idx) => {
