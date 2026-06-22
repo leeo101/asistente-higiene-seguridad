@@ -360,7 +360,7 @@ function App() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   const location = useLocation();
-  const showMenuButton = location.pathname !== '/login' && location.pathname !== '/subscribe' && location.pathname !== '/ai-camera';
+  const showMenuButton = !!currentUser && location.pathname !== '/login' && location.pathname !== '/subscribe' && location.pathname !== '/ai-camera';
 
   // Habilitar el botón de retroceso físico en Android
   useHardwareBackButton();
