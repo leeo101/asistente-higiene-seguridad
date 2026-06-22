@@ -142,16 +142,14 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
                                         minHeight: '60px',
                                         height: 'auto',
                                         width: '100%',
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        alignItems: 'flex-end',
+                                        display: 'block',
                                         textAlign: 'center',
-                                        gap: '8px',
                                         borderBottom: `1px solid ${lineCol}`,
                                         paddingBottom: '0.5rem',
                                         marginBottom: '0.5rem',
                                         boxSizing: 'border-box',
-                                        overflow: 'hidden'
+                                        overflow: 'hidden',
+                                        whiteSpace: 'nowrap'
                                     }}>
                                         {box.signatureUrl && box.signatureUrl.length > 500 && (
                                             <img
@@ -163,8 +161,9 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
                                                     maxWidth: (box.stampUrl && box.stampUrl.length > 500) ? '48%' : '100%',
                                                     objectFit: 'contain',
                                                     background: 'transparent',
-                                                    margin: '0 auto',
+                                                    margin: '0 4px',
                                                     display: 'inline-block',
+                                                    verticalAlign: 'bottom',
                                                     boxSizing: 'border-box'
                                                 }}
                                             />
@@ -179,8 +178,9 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
                                                     maxWidth: (box.signatureUrl && box.signatureUrl.length > 500) ? '48%' : '100%',
                                                     objectFit: 'contain',
                                                     background: 'transparent',
-                                                    margin: '0 auto',
+                                                    margin: '0 4px',
                                                     display: 'inline-block',
+                                                    verticalAlign: 'bottom',
                                                     boxSizing: 'border-box'
                                                 }}
                                             />
