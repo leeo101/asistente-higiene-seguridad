@@ -74,7 +74,7 @@ export default function ProfessionalReportPdfGenerator({ currentReport }: { curr
                 </div>
 
                 {/* Metadata Grid */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '3rem', background: '#f8fafc', padding: '1.5rem', borderRadius: '8px', border: '1px solid #e2e8f0', color: '#1e293b', pageBreakInside: 'avoid' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '3rem', background: '#f8fafc', padding: '1.5rem', borderRadius: '8px', border: '1px solid #e2e8f0', color: '#1e293b',  }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                         <Building2 size={20} color="#3b82f6" />
                         <div>
@@ -113,7 +113,7 @@ export default function ProfessionalReportPdfGenerator({ currentReport }: { curr
                         <div style={{ width: '100%' }}>
                             <table style={{ tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word',  width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                                 <thead>
-                                    <tr className="avoid-break" style={{ pageBreakInside: 'avoid', breakInside: 'avoid',  background: '#f1f5f9' }}>
+                                    <tr className="avoid-break" style={{  breakInside: 'avoid',  background: '#f1f5f9' }}>
                                         <th style={{ border: '1px solid #e2e8f0', padding: '0.8rem', textAlign: 'left', color: '#475569' }}>Nombre y Apellido</th>
                                         <th style={{ border: '1px solid #e2e8f0', padding: '0.8rem', textAlign: 'left', color: '#475569' }}>DNI / CUIL</th>
                                         <th style={{ border: '1px solid #e2e8f0', padding: '0.8rem', textAlign: 'left', width: '35%', color: '#475569' }}>Firma</th>
@@ -121,7 +121,7 @@ export default function ProfessionalReportPdfGenerator({ currentReport }: { curr
                                 </thead>
                                 <tbody>
                                     {report.personnel.map((p, idx) => (
-                                        <tr className="avoid-break" key={p.id || idx} style={{ pageBreakInside: 'avoid' }}>
+                                        <tr className="avoid-break" key={p.id || idx} style={{  }}>
                                             <td style={{ border: '1px solid #e2e8f0', padding: '0.8rem', color: '#1e293b', fontWeight: 600 }}>{p.name}</td>
                                             <td style={{ border: '1px solid #e2e8f0', padding: '0.8rem', color: '#1e293b' }}>{p.dni}</td>
                                             <td style={{ border: '1px solid #e2e8f0', padding: '0.8rem', height: '65px', verticalAlign: 'bottom', textAlign: 'center' }}>

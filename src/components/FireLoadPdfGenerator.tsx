@@ -122,7 +122,7 @@ export default function FireLoadPdfGenerator({ data }: { data: any }): React.Rea
                     </div>
                 </div>
 
-                <div style={{ pageBreakInside: 'avoid', breakInside: 'avoid', marginBottom: '2rem' }}>
+                <div style={{ marginBottom: '2rem' }}>
                     <h3 style={{ fontSize: '1.1rem', fontWeight: 900, margin: '0 0 1rem 0', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <ShieldCheck size={20} color="#2563eb" /> Resultados Finales del Cálculo
                     </h3>

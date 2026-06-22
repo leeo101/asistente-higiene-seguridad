@@ -205,7 +205,7 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
                     </div>
 
                     {/* 4 - Análisis Causal 5 Porqués */}
-                    <div style={{ border: '1px solid #ddd6fe', borderRadius: '6px', marginBottom: '1.2rem',  pageBreakInside: 'avoid' }}>
+                    <div style={{ border: '1px solid #ddd6fe', borderRadius: '6px', marginBottom: '1.2rem',   }}>
                         <div style={{ background: '#1e293b', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <Search size={14} color="#c4b5fd" />
                             <span style={{ fontWeight: 900, fontSize: '0.75rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em' }}>4 — ANÁLISIS CAUSAL — MÉTODO "5 PORQUÉS"</span>
@@ -241,14 +241,14 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
                     </div>
 
                     {/* 5 - Plan de Acción */}
-                    <div style={{ border: '1px solid #bbf7d0', borderRadius: '6px', marginBottom: '1.5rem',  pageBreakInside: 'avoid' }}>
+                    <div style={{ border: '1px solid #bbf7d0', borderRadius: '6px', marginBottom: '1.5rem',   }}>
                         <div style={{ background: '#1e293b', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <CheckCircle size={14} color="#86efac" />
                             <span style={{ fontWeight: 900, fontSize: '0.75rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em' }}>5 — PLAN DE ACCIÓN CORRECTIVA / PREVENTIVA</span>
                         </div>
                         <table style={{ tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word',  width: '100%', borderCollapse: 'collapse', fontSize: '8.5pt' }}>
                             <thead>
-                                <tr className="avoid-break" style={{ pageBreakInside: 'avoid', breakInside: 'avoid',  background: '#f0fdf4' }}>
+                                <tr className="avoid-break" style={{  breakInside: 'avoid',  background: '#f0fdf4' }}>
                                     <th style={{ padding: '0.5rem 0.8rem', textAlign: 'left', fontWeight: 800, color: '#166534', width: '50%', border: '1px solid #bbf7d0', fontSize: '0.65rem', textTransform: 'uppercase' }}>Acción a Implementar</th>
                                     <th style={{ padding: '0.5rem 0.8rem', textAlign: 'left', fontWeight: 800, color: '#166534', width: '25%', border: '1px solid #bbf7d0', fontSize: '0.65rem', textTransform: 'uppercase' }}>Responsable</th>
                                     <th style={{ padding: '0.5rem 0.8rem', textAlign: 'center', fontWeight: 800, color: '#166534', width: '25%', border: '1px solid #bbf7d0', fontSize: '0.65rem', textTransform: 'uppercase' }}>Fecha Límite</th>
@@ -257,7 +257,7 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
                             <tbody>
                                 {report?.medidas?.filter(m => m.accion).length > 0 ? (
                                     report.medidas.filter(m => m.accion).map((m, idx) => (
-                                        <tr className="avoid-break" key={idx} style={{ background: idx % 2 === 0 ? '#fff' : '#f0fdf4', pageBreakInside: 'avoid' }}>
+                                        <tr className="avoid-break" key={idx} style={{ background: idx % 2 === 0 ? '#fff' : '#f0fdf4',  }}>
                                             <td style={{ padding: '0.5rem 0.8rem', border: '1px solid #dcfce7', fontWeight: 600, color: '#1e293b', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{m.accion}</td>
                                             <td style={{ padding: '0.5rem 0.8rem', border: '1px solid #dcfce7', color: '#475569', fontWeight: 600 }}>{m.responsable || '-'}</td>
                                             <td style={{ padding: '0.5rem 0.8rem', border: '1px solid #dcfce7', color: '#475569', textAlign: 'center' }}>
@@ -266,7 +266,7 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
                                         </tr>
                                     ))
                                 ) : (
-                                    <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}><td colSpan={3} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8', border: '1px solid #dcfce7' }}>No se definieron medidas correctivas.</td></tr>
+                                    <tr className="avoid-break"  style={{  breakInside: 'avoid' }}><td colSpan={3} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8', border: '1px solid #dcfce7' }}>No se definieron medidas correctivas.</td></tr>
                                 )}
                             </tbody>
                         </table>

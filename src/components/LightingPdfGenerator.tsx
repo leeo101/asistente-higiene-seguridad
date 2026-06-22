@@ -130,7 +130,7 @@ export default function LightingPdfGenerator({ data }: { data: any }): React.Rea
                     </div>
                     <table style={{ tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word',  width: '100%', borderCollapse: 'collapse', fontSize: '8.5pt' }}>
                         <thead>
-                            <tr className="avoid-break" style={{ pageBreakInside: 'avoid', breakInside: 'avoid',  background: '#f8fafc' }}>
+                            <tr className="avoid-break" style={{  breakInside: 'avoid',  background: '#f8fafc' }}>
                                 <th style={{ padding: '0.5rem 0.4rem', width: '5%', textAlign: 'center', fontWeight: 800, color: '#64748b', border: '1px solid #e2e8f0', fontSize: '0.65rem' }}>N°</th>
                                 <th style={{ padding: '0.5rem 0.8rem', textAlign: 'left', fontWeight: 800, color: '#64748b', border: '1px solid #e2e8f0', fontSize: '0.65rem' }}>PUNTO / PUESTO DE TRABAJO</th>
                                 <th style={{ padding: '0.5rem 0.8rem', width: '18%', textAlign: 'center', fontWeight: 800, color: '#64748b', border: '1px solid #e2e8f0', fontSize: '0.65rem' }}>LUX MEDIDO</th>
@@ -139,12 +139,12 @@ export default function LightingPdfGenerator({ data }: { data: any }): React.Rea
                         </thead>
                         <tbody>
                             {meds.length === 0 ? (
-                                <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}><td colSpan={4} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8', fontStyle: 'italic', border: '1px solid #e2e8f0' }}>Sin mediciones registradas</td></tr>
+                                <tr className="avoid-break"  style={{  breakInside: 'avoid' }}><td colSpan={4} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8', fontStyle: 'italic', border: '1px solid #e2e8f0' }}>Sin mediciones registradas</td></tr>
                             ) : meds.map((m, idx) => {
                                 const val = parseFloat(m.luxMedido) || 0;
                                 const ok = val >= (parseFloat(luxRequerido) || 0);
                                 return (
-                                    <tr className="avoid-break" key={m.id || idx} style={{ background: ok ? (idx % 2 === 0 ? '#ffffff' : '#f8fafc') : '#fef2f2', pageBreakInside: 'avoid' }}>
+                                    <tr className="avoid-break" key={m.id || idx} style={{ background: ok ? (idx % 2 === 0 ? '#ffffff' : '#f8fafc') : '#fef2f2',  }}>
                                         <td style={{ border: '1px solid #e2e8f0', padding: '0.5rem 0.4rem', textAlign: 'center', color: '#94a3b8', fontWeight: 700 }}>{idx + 1}</td>
                                         <td style={{ border: '1px solid #e2e8f0', padding: '0.5rem 0.8rem', fontWeight: 600, color: '#334155' }}>{m.ubicacion || '-'}</td>
                                         <td style={{ border: '1px solid #e2e8f0', padding: '0.5rem 0.8rem', textAlign: 'center', fontWeight: 900, color: ok ? '#15803d' : '#dc2626', fontSize: '1rem' }}>{m.luxMedido}</td>
@@ -162,7 +162,7 @@ export default function LightingPdfGenerator({ data }: { data: any }): React.Rea
                 </div>
 
                 {/* Evaluación normativa */}
-                <div style={{ border: `1.5px solid ${cumple ? '#86efac' : '#fca5a5'}`, borderRadius: '6px', marginBottom: '1.5rem',  pageBreakInside: 'avoid' }}>
+                <div style={{ border: `1.5px solid ${cumple ? '#86efac' : '#fca5a5'}`, borderRadius: '6px', marginBottom: '1.5rem',   }}>
                     <div style={{ background: cumple ? '#f0fdf4' : '#fef2f2', padding: '1rem 1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
                         <div>
                             <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.3rem' }}>PROMEDIO REGISTRADO</div>
@@ -183,7 +183,7 @@ export default function LightingPdfGenerator({ data }: { data: any }): React.Rea
 
                 {/* Conclusión */}
                 {conclusion && (
-                    <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.5rem',  pageBreakInside: 'avoid' }}>
+                    <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.5rem',   }}>
                         <div style={{ background: '#334155', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                             <FileText size={14} color="#fff" />
                             <span style={{ fontWeight: 900, fontSize: '0.72rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>CONCLUSIÓN TÉCNICA PROFESIONAL</span>

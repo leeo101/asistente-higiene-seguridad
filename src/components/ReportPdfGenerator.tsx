@@ -93,12 +93,12 @@ export default function ReportPdfGenerator({ initialData }: ReportPdfGeneratorPr
                 </div>
 
                 {/* Summary Cards */}
-                <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', pageBreakInside: 'avoid' }}>
-                    <div style={{ flex: 1, padding: '1rem', textAlign: 'center', background: '#f1f5f9', border: '1.5px solid #e2e8f0', borderRadius: '12px', pageBreakInside: 'avoid' }}>
+                <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem',  }}>
+                    <div style={{ flex: 1, padding: '1rem', textAlign: 'center', background: '#f1f5f9', border: '1.5px solid #e2e8f0', borderRadius: '12px',  }}>
                         <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#1e293b' }}>{findingCount}</div>
                         <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Hallazgos</div>
                     </div>
-                    <div style={{ flex: 1, padding: '1rem', textAlign: 'center', background: '#f1f5f9', border: '1.5px solid #e2e8f0', borderRadius: '12px', pageBreakInside: 'avoid' }}>
+                    <div style={{ flex: 1, padding: '1rem', textAlign: 'center', background: '#f1f5f9', border: '1.5px solid #e2e8f0', borderRadius: '12px',  }}>
                         <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#1e293b' }}>
                             {(() => {
                                 const categories = [
@@ -146,7 +146,7 @@ export default function ReportPdfGenerator({ initialData }: ReportPdfGeneratorPr
                         const percent = Math.round((ok / total) * 100) || 0;
 
                         return (
-                            <div key={idx} style={{ padding: '0.8rem', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', pageBreakInside: 'avoid' }}>
+                            <div key={idx} style={{ padding: '0.8rem', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0',  }}>
                                 <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#334155', marginBottom: '0.5rem' }}>{cat.name}</div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
                                     <div style={{ flex: 1, height: '6px', background: '#e2e8f0', borderRadius: '3px',  }}>
@@ -172,7 +172,7 @@ export default function ReportPdfGenerator({ initialData }: ReportPdfGeneratorPr
                     <div style={{ marginBottom: '2.5rem' }}>
                         <table style={{ tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word',  width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                             <thead>
-                                <tr className="avoid-break" style={{ pageBreakInside: 'avoid', breakInside: 'avoid',  background: '#f1f5f9' }}>
+                                <tr className="avoid-break" style={{  breakInside: 'avoid',  background: '#f1f5f9' }}>
                                     <th style={{ border: '1px solid #e2e8f0', padding: '0.8rem', textAlign: 'left', color: '#475569' }}>#</th>
                                     <th style={{ border: '1px solid #e2e8f0', padding: '0.8rem', textAlign: 'left', color: '#475569' }}>Categoría / Item</th>
                                     <th style={{ border: '1px solid #e2e8f0', padding: '0.8rem', textAlign: 'left', color: '#475569' }}>Descripción del Hallazgo</th>
@@ -181,7 +181,7 @@ export default function ReportPdfGenerator({ initialData }: ReportPdfGeneratorPr
                             </thead>
                             <tbody>
                                 {findings.map((obs, i) => (
-                                    <tr className="avoid-break" key={i} style={{ pageBreakInside: 'avoid' }}>
+                                    <tr className="avoid-break" key={i} style={{  }}>
                                         <td style={{ border: '1px solid #e2e8f0', padding: '0.8rem', fontWeight: 700, color: '#64748b' }}>{i + 1}</td>
                                         <td style={{ border: '1px solid #e2e8f0', padding: '0.8rem' }}>
                                             <div style={{ fontWeight: 800, color: '#0f172a' }}>{obs.category}</div>
@@ -207,7 +207,7 @@ export default function ReportPdfGenerator({ initialData }: ReportPdfGeneratorPr
                         {/* Evidence Photos placed below to avoid table breakout issues */}
                         <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                             {findings.map((obs, i) => obs.photo && (
-                                <div key={`photo-${i}`} style={{ width: '45%', border: '1px solid #e2e8f0', padding: '0.5rem', borderRadius: '8px', pageBreakInside: 'avoid' }}>
+                                <div key={`photo-${i}`} style={{ width: '45%', border: '1px solid #e2e8f0', padding: '0.5rem', borderRadius: '8px',  }}>
                                     <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#64748b', marginBottom: '0.5rem' }}>EVIDENCIA #{i + 1}</div>
                                     <img src={obs.photo} alt={`Evidencia ${i + 1}`} style={{ width: '100%', height: 'auto', borderRadius: '4px' }} />
                                 </div>

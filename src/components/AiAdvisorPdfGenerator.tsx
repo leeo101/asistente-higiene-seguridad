@@ -79,7 +79,7 @@ export default function AiAdvisorPdfGenerator({ data }: { data: any }): React.Re
                 {/* Analysis Sections */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem', marginBottom: '2rem' }}>
                     {data.riesgos?.length > 0 && (
-                        <div style={{ pageBreakInside: 'avoid' }}>
+                        <div style={{  }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#ef4444', marginBottom: '0.8rem', borderBottom: '2px solid #fecaca', paddingBottom: '0.5rem' }}>
                                 <ShieldAlert size={20} /> <h3 style={{ margin: 0, fontSize: '12pt', fontWeight: 800 }}>Riesgos Detectados</h3>
                             </div>
@@ -90,7 +90,7 @@ export default function AiAdvisorPdfGenerator({ data }: { data: any }): React.Re
                     )}
 
                     {data.epp?.length > 0 && (
-                        <div style={{ pageBreakInside: 'avoid' }}>
+                        <div style={{  }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#3b82f6', marginBottom: '0.8rem', borderBottom: '2px solid #bfdbfe', paddingBottom: '0.5rem' }}>
                                 <HardHat size={20} /> <h3 style={{ margin: 0, fontSize: '12pt', fontWeight: 800 }}>EPP Recomendado</h3>
                             </div>
@@ -101,7 +101,7 @@ export default function AiAdvisorPdfGenerator({ data }: { data: any }): React.Re
                     )}
 
                     {data.recomendaciones?.length > 0 && (
-                        <div style={{ pageBreakInside: 'avoid' }}>
+                        <div style={{  }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#10b981', marginBottom: '0.8rem', borderBottom: '2px solid #a7f3d0', paddingBottom: '0.5rem' }}>
                                 <Lightbulb size={20} /> <h3 style={{ margin: 0, fontSize: '12pt', fontWeight: 800 }}>Medidas Preventivas</h3>
                             </div>
@@ -112,7 +112,7 @@ export default function AiAdvisorPdfGenerator({ data }: { data: any }): React.Re
                     )}
 
                     {data.normativa?.length > 0 && (
-                        <div style={{ pageBreakInside: 'avoid' }}>
+                        <div style={{  }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#8b5cf6', marginBottom: '0.8rem', borderBottom: '2px solid #ddd6fe', paddingBottom: '0.5rem' }}>
                                 <Gavel size={20} /> <h3 style={{ margin: 0, fontSize: '12pt', fontWeight: 800 }}>Marco Legal ({personalData.country === 'chile' ? 'Chile' : personalData.country === 'argentina' ? 'Argentina' : personalData.country === 'bolivia' ? 'Bolivia' : personalData.country === 'paraguay' ? 'Paraguay' : personalData.country === 'uruguay' ? 'Uruguay' : 'Local'})</h3>
                             </div>

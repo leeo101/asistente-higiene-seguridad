@@ -135,7 +135,7 @@ export default function WorkPermitPdfGenerator({ data, id = "pdf-content" }: { d
 
                 {/* Checklist Section */}
                 {checklist.length > 0 && (
-                    <div style={{ marginBottom: '2rem', pageBreakInside: 'avoid' }}>
+                    <div style={{ marginBottom: '2rem' }}>
                         <h3 style={{ fontSize: '1rem', fontWeight: 900, margin: '0 0 1rem 0', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <ShieldCheck size={20} /> VERIFICACIÓN PREVENTIVA (CHECKLIST)
                         </h3>
@@ -182,7 +182,7 @@ export default function WorkPermitPdfGenerator({ data, id = "pdf-content" }: { d
 
                 {/* Personnel Section */}
                 {checklist.length > 0 && personal.length > 0 && (
-                    <div style={{ marginBottom: '2rem', pageBreakInside: 'avoid' }}>
+                    <div style={{ marginBottom: '2rem' }}>
                         <h3 style={{ fontSize: '1rem', fontWeight: 900, margin: '0 0 1rem 0', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <Users size={20} /> PERSONAL AUTORIZADO
                         </h3>

@@ -98,7 +98,7 @@ export default function AiReportPdfGenerator({ item }: { item: any }): React.Rea
                 </div>
 
                 {/* Evidence Photo */}
-                <div style={{ marginBottom: '2rem', textAlign: 'center', pageBreakInside: 'avoid' }}>
+                <div style={{ marginBottom: '2rem', textAlign: 'center',  }}>
                     <div style={{ width: '100%', maxWidth: '350px', height: '250px', borderRadius: '8px',  border: '1px solid #cbd5e1', margin: '0 auto', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         {data.image ? (
                             <img src={data.image} alt="Evidencia" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
@@ -112,7 +112,7 @@ export default function AiReportPdfGenerator({ item }: { item: any }): React.Rea
                 </div>
 
                 {/* Analysis Results */}
-                <div style={{ marginBottom: '2rem', pageBreakInside: 'avoid' }}>
+                <div style={{ marginBottom: '2rem',  }}>
                     <h3 style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem', marginBottom: '1rem', color: '#1e293b', fontSize: '12pt' }}>
                         {data.type === 'general_risks' ? 'Resumen de Riesgos Detectados' : 'Evaluación de EPP Detectada'}
                     </h3>
@@ -149,7 +149,7 @@ export default function AiReportPdfGenerator({ item }: { item: any }): React.Rea
                 </div>
 
                 {data.type !== 'general_risks' && data.analysis?.foundRisks?.length > 0 && (
-                    <div style={{ marginBottom: '2rem', pageBreakInside: 'avoid' }}>
+                    <div style={{ marginBottom: '2rem',  }}>
                         <h4 style={{ color: '#b91c1c', marginBottom: '0.8rem', fontSize: '11pt' }}>Riesgos Adicionales:</h4>
                         <ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#1e293b', fontSize: '10pt' }}>
                             {data.analysis.foundRisks.map((risk, i) => (
