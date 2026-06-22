@@ -229,7 +229,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                     <Hash size={20} color="#3b82f6" /> Identificación del Equipo
                                 </h3>
                                 
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                                     <div>
                                         <div style={{ fontSize: '9pt', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Nº Chapa / Interno</div>
                                         <div style={{ fontSize: '12pt', fontWeight: 900, color: '#0f172a' }}>{data.numero || '-'}</div>
@@ -270,7 +270,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                             <Calendar size={20} color="#f59e0b" /> Control de Vencimientos
                         </h3>
                         
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10pt', fontFamily: 'sans-serif' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10pt', fontFamily: 'sans-serif', tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                             <thead>
                                 <tr style={{ background: '#f1f5f9' }}>
                                     <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left', width: '25%', fontWeight: 800 }}>Vencimiento Recarga</th>
@@ -334,7 +334,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                 <div><strong style={{ color: '#64748b' }}>Resultado de inspección:</strong> <span style={{ display: 'inline-block', width: '150px', borderBottom: '1px solid #64748b', marginLeft: '5px' }}></span></div>
                             </div>
                             
-                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9pt', fontFamily: 'sans-serif' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9pt', fontFamily: 'sans-serif', tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                                 <thead>
                                     <tr style={{ background: '#f1f5f9' }}>
                                         <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'left', width: '60%' }}>Ítem a Verificar</th>
@@ -344,7 +344,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                 </thead>
                                 <tbody>
                                     {latestInspection.items?.map((item, idx) => (
-                                        <tr key={idx} style={{ background: idx % 2 === 1 ? '#f8fafc' : '#ffffff', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
+                                        <tr key={idx} className="avoid-break" style={{ background: idx % 2 === 1 ? '#f8fafc' : '#ffffff', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                                             <td style={{ border: '1px solid #cbd5e1', padding: '8px', color: '#334155', fontWeight: 600 }}>{item.text}</td>
                                             <td style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', fontWeight: 900, color: item.status === 'OK' ? '#10b981' : item.status === 'NC' ? '#ef4444' : '#64748b' }}>
                                                 {item.status || 'N/A'}
