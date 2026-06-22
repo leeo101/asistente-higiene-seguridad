@@ -302,7 +302,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                         </table>
                     </div>
 
-                    <div style={{ marginBottom: '30px', flex: 1 }}>
+                    <div style={{ marginBottom: '30px' }}>
                         <h3 style={{ margin: '0 0 15px 0', fontSize: '14pt', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '2px solid #1e293b', paddingBottom: '8px' }}>
                             <ShieldCheck size={20} color="#10b981" /> Última Inspección Registrada
                         </h3>
@@ -343,7 +343,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                 </thead>
                                 <tbody>
                                     {latestInspection.items?.map((item, idx) => (
-                                        <tr key={idx} style={{ background: idx % 2 === 1 ? '#f8fafc' : '#ffffff' }}>
+                                        <tr key={idx} style={{ background: idx % 2 === 1 ? '#f8fafc' : '#ffffff', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                                             <td style={{ border: '1px solid #cbd5e1', padding: '8px', color: '#334155', fontWeight: 600 }}>{item.text}</td>
                                             <td style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', fontWeight: 900, color: item.status === 'OK' ? '#10b981' : item.status === 'NC' ? '#ef4444' : '#64748b' }}>
                                                 {item.status || 'N/A'}
