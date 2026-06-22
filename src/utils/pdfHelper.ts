@@ -41,10 +41,12 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
     // (como el pie de página legal) se hagan visibles en el clon antes de tomar la foto.
     clone.classList.add('force-pdf-print');
 
+    const targetWidth = isLandscape ? 1120 : 800;
+
     // Forzar estilos en el clon para renderizado correcto (A4 width)
     clone.style.cssText += [
-        '; width: 100%',
-        'max-width: none',
+        '; width: ' + targetWidth + 'px !important',
+        'max-width: ' + targetWidth + 'px !important',
         'height: auto !important', // Permitir que expanda todo lo necesario
         'min-height: 0 !important',
         'display: block',
