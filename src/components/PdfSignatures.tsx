@@ -142,14 +142,15 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
                                         minHeight: '60px',
                                         height: 'auto',
                                         width: '100%',
-                                        display: 'block',
-                                        textAlign: 'center',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'flex-end',
                                         borderBottom: `1px solid ${lineCol}`,
                                         paddingBottom: '0.5rem',
                                         marginBottom: '0.5rem',
                                         boxSizing: 'border-box',
                                         overflow: 'hidden',
-                                        whiteSpace: 'nowrap'
+                                        gap: '8px'
                                     }}>
                                         {box.signatureUrl && box.signatureUrl.length > 500 && (
                                             <img
@@ -161,9 +162,6 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
                                                     maxWidth: (box.stampUrl && box.stampUrl.length > 500) ? '48%' : '100%',
                                                     objectFit: 'contain',
                                                     background: 'transparent',
-                                                    margin: '0 4px',
-                                                    display: 'inline-block',
-                                                    verticalAlign: 'bottom',
                                                     boxSizing: 'border-box'
                                                 }}
                                             />
@@ -178,9 +176,6 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
                                                     maxWidth: (box.signatureUrl && box.signatureUrl.length > 500) ? '48%' : '100%',
                                                     objectFit: 'contain',
                                                     background: 'transparent',
-                                                    margin: '0 4px',
-                                                    display: 'inline-block',
-                                                    verticalAlign: 'bottom',
                                                     boxSizing: 'border-box'
                                                 }}
                                             />
