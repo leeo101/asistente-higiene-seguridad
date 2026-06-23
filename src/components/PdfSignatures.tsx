@@ -115,8 +115,7 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
             <div style={{ 
                 display: 'block', 
                 width: '100%',
-                textAlign: 'center',
-                fontSize: 0 // to remove inline-block whitespace
+                textAlign: 'center'
             }}>
                 {boxes.map((box, idx) => {
                     const isPro = box.isProfessional;
