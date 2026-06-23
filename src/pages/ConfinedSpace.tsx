@@ -724,6 +724,7 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
         <div className="card" style={{
             padding: '1.25rem',
             display: 'flex',
+            flexWrap: 'wrap',
             alignItems: 'center',
             gap: '1rem',
             transition: 'all var(--transition-fast)',
@@ -744,8 +745,8 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
             </div>
 
             {/* Información */}
-            <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+            <div style={{ flex: '1 1 200px', minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
                     <h3 style={{ 
                         margin: 0, 
                         fontSize: '1.1rem', 
@@ -794,7 +795,7 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
             </div>
 
             {/* Acciones */}
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                 {permit.status === 'pending' && (
                     <button
                         onClick={onAuthorize}
@@ -983,10 +984,14 @@ function ActivePermitsList({ activePermits, onComplete, onSuspend, onView, onSha
                 return (
                     <div key={permit.id} className="card" style={{
                         padding: '1.5rem',
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        alignItems: 'center',
+                        gap: '1rem',
                         border: isExpired ? '2px solid #9ca3af' : '2px solid #16a34a',
                         background: isExpired ? '#f9fafb' : '#f0fdf4'
                     }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', width: '100%' }}>
                             <div style={{
                                 width: '72px',
                                 height: '72px',
@@ -1007,8 +1012,8 @@ function ActivePermitsList({ activePermits, onComplete, onSuspend, onView, onSha
                                     {timeRemaining}h
                                 </span>
                             </div>
-                            <div style={{ flex: 1 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                            <div style={{ flex: '1 1 200px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
                                     <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 900 }}>
                                         {spaceType?.icon} {permit.spaceName}
                                     </h3>
@@ -1067,7 +1072,7 @@ function ActivePermitsList({ activePermits, onComplete, onSuspend, onView, onSha
                                     )}
                                 </div>
                             </div>
-                            <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column' }}>
+                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                                 <button
                                     onClick={() => onAddReading(permit)}
                                     className="btn-outline"
