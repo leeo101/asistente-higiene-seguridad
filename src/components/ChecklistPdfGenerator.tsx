@@ -376,8 +376,7 @@ export default function ChecklistPdfGenerator({
             {/* Normativa aplicable */}
             {selectedNorms.length > 0 && (
                 <>
-                    <div className="html2pdf__page-break"></div>
-                    <div style={{ border: '1px solid #d8b4fe', borderRadius: '6px', marginBottom: '1.5rem' }}>
+                    <div style={{ border: '1px solid #d8b4fe', borderRadius: '6px', marginBottom: '1rem' }}>
                     <div style={{ background: '#7c3aed', padding: '0.6rem 1rem', color: '#fff', fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         📚 NORMATIVA LEGAL APLICABLE
                     </div>
