@@ -39,17 +39,19 @@ export default function QRModal({ text, title = 'Código QR', onClose }: QRModal
                 position: 'fixed', inset: 0, zIndex: 9999,
                 background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                padding: '1.5rem', animation: 'fadeIn 0.2s ease'
+                padding: '1rem', animation: 'fadeIn 0.2s ease',
+                boxSizing: 'border-box'
             }}
         >
             <div
                 onClick={e => e.stopPropagation()}
                 style={{
                     background: 'var(--color-surface)', borderRadius: '24px',
-                    padding: '2rem', maxWidth: '320px', width: '100%',
+                    padding: '2rem 1.5rem', maxWidth: '320px', width: '100%',
                     textAlign: 'center',
                     boxShadow: '0 25px 80px rgba(0,0,0,0.3)',
-                    border: '1px solid var(--color-border)'
+                    border: '1px solid var(--color-border)',
+                    boxSizing: 'border-box'
                 }}
             >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
@@ -59,12 +61,26 @@ export default function QRModal({ text, title = 'Código QR', onClose }: QRModal
                     </button>
                 </div>
 
-                <div style={{ background: '#fff', borderRadius: '16px', padding: '1rem', display: 'inline-block', marginBottom: '1rem' }}>
-                    <canvas ref={canvasRef} />
-                </div>
+                <a 
+                    href={text} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    style={{ 
+                        background: '#fff', borderRadius: '16px', padding: '1rem', 
+                        display: 'inline-block', marginBottom: '1rem',
+                        textDecoration: 'none', cursor: 'pointer',
+                        transition: 'transform 0.2s ease',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                    onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                    title="Hacé clic para abrir el enlace"
+                >
+                    <canvas ref={canvasRef} style={{ maxWidth: '100%', height: 'auto', display: 'block' }} />
+                </a>
 
                 <p style={{ margin: '0 0 1rem', fontSize: '0.75rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
-                    Escaneá este código para ver el detalle del registro
+                    Escaneá este código o <strong>tocalo directamente</strong> para ver el detalle.
                 </p>
 
                 <button

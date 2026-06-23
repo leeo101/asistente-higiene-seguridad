@@ -992,9 +992,26 @@ export default function ExtintoresManager() {
                         <h3 style={{ margin: 0, color: 'var(--color-text)', fontWeight: 900, fontSize: '1.4rem' }}>{qrData.ext.numero}</h3>
                         <p style={{ color: 'var(--color-text-muted)', fontWeight: 700, fontSize: '0.9rem', marginBottom: '1.5rem' }}>{qrData.ext.tipo} - {qrData.ext.ubicacion}</p>
                         
-                        <div style={{ background: '#fff', padding: '1rem', borderRadius: '16px', display: 'inline-block', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', marginBottom: '1.5rem' }}>
+                        <a 
+                            href={qrData.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ 
+                                background: '#fff', padding: '1rem', borderRadius: '16px', 
+                                display: 'inline-block', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', 
+                                marginBottom: '1.5rem', textDecoration: 'none', cursor: 'pointer',
+                                transition: 'transform 0.2s ease'
+                            }}
+                            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                            title="Hacé clic para abrir el enlace"
+                        >
                             <img src={qrData.url} alt="QR Extintor" style={{ width: '200px', height: '200px', display: 'block' }} />
-                        </div>
+                        </a>
+                        
+                        <p style={{ margin: '0 0 1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+                            Escaneá este código o <strong>tocalo directamente</strong> para ver el detalle.
+                        </p>
                         
                         <div style={{ display: 'flex', gap: '1rem' }}>
                             <button onClick={() => {
