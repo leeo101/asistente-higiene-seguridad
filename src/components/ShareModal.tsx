@@ -313,17 +313,17 @@ export default function ShareModal({
         <div className="share-modal-overlay" onClick={onClose}>
             <div className="share-modal-container" onClick={e => e.stopPropagation()}>
                 
+                <button
+                    onClick={onClose}
+                    className="share-close-btn"
+                    title="Cerrar"
+                >
+                    <X size={16} strokeWidth={3} />
+                </button>
+
                 <div className="share-modal-content">
                     {/* Drag handle indicator for mobile - hidden by default, can be shown in CSS if needed but we want it centered now */}
                     <div className="share-drag-handle" />
-
-                    <button
-                        onClick={onClose}
-                        className="share-close-btn"
-                        title="Cerrar"
-                    >
-                        <X size={16} strokeWidth={3} />
-                    </button>
 
                     <div className="share-header">
                         <div className="share-logo-box">
@@ -639,9 +639,9 @@ export default function ShareModal({
                             display: none;
                         }
                         .share-close-btn {
-                            position: fixed;
-                            top: 1.5rem;
-                            right: 1.5rem;
+                            position: absolute;
+                            top: 0.5rem;
+                            right: 0.5rem;
                             width: 38px;
                             height: 38px;
                             background: #ef4444;
