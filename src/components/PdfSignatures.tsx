@@ -145,45 +145,50 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
                                         minHeight: '60px',
                                         height: 'auto',
                                         width: '100%',
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
+                                        textAlign: 'center',
                                         borderBottom: `1px solid ${lineCol}`,
                                         paddingBottom: '0.5rem',
                                         marginBottom: '0.5rem',
                                         boxSizing: 'border-box',
                                         overflow: 'hidden',
-                                        gap: '8px'
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center'
                                     }}>
-                                        {box.signatureUrl && box.signatureUrl.length > 500 && (
+                                        {box.signatureUrl && box.signatureUrl.length > 20 && (
                                             <img
                                                 src={box.signatureUrl}
                                                 alt="Firma"
                                                 style={{
                                                     height: '45px',
                                                     width: 'auto',
-                                                    maxWidth: (box.stampUrl && box.stampUrl.length > 500) ? '48%' : '100%',
+                                                    maxWidth: (box.stampUrl && box.stampUrl.length > 20) ? '48%' : '100%',
                                                     objectFit: 'contain',
                                                     background: 'transparent',
-                                                    boxSizing: 'border-box'
+                                                    boxSizing: 'border-box',
+                                                    display: 'inline-block',
+                                                    verticalAlign: 'middle'
                                                 }}
                                             />
                                         )}
-                                        {box.stampUrl && box.stampUrl.length > 500 && (
+                                        {box.stampUrl && box.stampUrl.length > 20 && (
                                             <img
                                                 src={box.stampUrl}
                                                 alt="Sello"
                                                 style={{
                                                     height: '45px',
                                                     width: 'auto',
-                                                    maxWidth: (box.signatureUrl && box.signatureUrl.length > 500) ? '48%' : '100%',
+                                                    maxWidth: (box.signatureUrl && box.signatureUrl.length > 20) ? '48%' : '100%',
                                                     objectFit: 'contain',
                                                     background: 'transparent',
-                                                    boxSizing: 'border-box'
+                                                    boxSizing: 'border-box',
+                                                    display: 'inline-block',
+                                                    verticalAlign: 'middle',
+                                                    marginLeft: (box.signatureUrl && box.signatureUrl.length > 20) ? '8px' : '0'
                                                 }}
                                             />
                                         )}
-                                        {!box.signatureUrl && !box.stampUrl && (
+                                        {(!box.signatureUrl || box.signatureUrl.length <= 20) && (!box.stampUrl || box.stampUrl.length <= 20) && (
                                             <div style={{ height: '60px', width: '100%' }}></div>
                                         )}
                                     </div>

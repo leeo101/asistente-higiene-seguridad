@@ -90,11 +90,13 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
         gasMonitoring: { o2: '', lel: '', co: '', h2s: '', time: '' },
         ventilation: { natural: false, forced: false, extractive: false },
         importance: 'high',
-        status: 'pending',
         createdAt: new Date().toISOString(),
+        duration: '',
         observations: '',
         signature: '',
+        operatorName: '',
         operatorSignature: '',
+        supervisorName: '',
         supervisorSignature: '',
         showSignatures: { operator: true, professional: true, supervisor: true }
     });
@@ -287,6 +289,10 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                         <div>
                             <label style={labelStyle}>Departamento</label>
                             <input type="text" className="input-professional" value={permit.department} onChange={(e) => setPermit({ ...permit, department: e.target.value })} placeholder="Mantenimiento / Operaciones" />
+                        </div>
+                        <div>
+                            <label style={labelStyle}>Duración Estimada</label>
+                            <input type="text" className="input-professional" value={permit.duration || ''} onChange={(e) => setPermit({ ...permit, duration: e.target.value })} placeholder="Ej: 4 horas" />
                         </div>
                         <div style={{ gridColumn: isMobile ? 'auto' : 'span 2' }}>
                             <label style={labelStyle}>Descripción del Trabajo</label>
@@ -526,11 +532,17 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                         {/* Interactive Signature Drawing Pads */}
                         <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)]" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '2rem', marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--color-border)' }}>
                             {showSignatures.operator && (
-                                <SignatureCanvas 
-                                    onSave={(sig) => setPermit((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
-                                    initialImage={permit.operatorSignature}
-                                    label="Firma de Responsable / Entrante"
-                                />
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                    <div>
+                                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '0.5rem', display: 'block' }}>Nombre del Responsable / Entrante</label>
+                                        <input type="text" className="input-professional" value={permit.operatorName || ''} onChange={(e) => setPermit({ ...permit, operatorName: e.target.value })} placeholder="Nombre y Apellido" />
+                                    </div>
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setPermit((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
+                                        initialImage={permit.operatorSignature}
+                                        label="Firma de Responsable / Entrante"
+                                    />
+                                </div>
                             )}
                             
                             {showSignatures.professional && (
@@ -542,11 +554,17 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                             )}
 
                             {showSignatures.supervisor && (
-                                <SignatureCanvas 
-                                    onSave={(sig) => setPermit((prev: any) => ({ ...prev, supervisorSignature: sig || '', signature: sig || '' }))}
-                                    initialImage={permit.supervisorSignature || permit.signature}
-                                    label="Firma de Autorización de Ingreso"
-                                />
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                    <div>
+                                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '0.5rem', display: 'block' }}>Nombre de Autorización de Ingreso</label>
+                                        <input type="text" className="input-professional" value={permit.supervisorName || ''} onChange={(e) => setPermit({ ...permit, supervisorName: e.target.value })} placeholder="Nombre y Apellido" />
+                                    </div>
+                                    <SignatureCanvas 
+                                        onSave={(sig) => setPermit((prev: any) => ({ ...prev, supervisorSignature: sig || '', signature: sig || '' }))}
+                                        initialImage={permit.supervisorSignature || permit.signature}
+                                        label="Firma de Autorización de Ingreso"
+                                    />
+                                </div>
                             )}
                         </div>
                     </div>

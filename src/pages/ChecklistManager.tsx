@@ -522,13 +522,33 @@ export default function ChecklistManager(): React.ReactElement | null {
         const id = searchParams.get('id');
         if (id) {
             setShowForm(true);
+            setCurrentStep(1); // Jump to step 1 so they can see templates and company info
             const savedData = localStorage.getItem(`checklist_${id}`);
             if (savedData) {
                 const parsed = JSON.parse(savedData);
                 if (parsed.checklistTitle) setChecklistTitle(parsed.checklistTitle);
-                setCompanyInfo(parsed.companyInfo);
-                setInspectionInfo(parsed.inspectionInfo);
-                setActiveSections(parsed.activeSections);
+                setCompanyInfo(parsed.companyInfo || { name: parsed.empresa || '', inspector: '', address: '', responsable: parsed.responsable || '' });
+                setInspectionInfo(parsed.inspectionInfo || { item: parsed.equipo || '', serial: parsed.serial || '', date: parsed.fecha?.split('T')[0] || new Date().toISOString().split('T')[0], expirationDate: '', extinguisherObs: '', marca: '', patente: '', horometro: '', pt: '', responsableArea: '' });
+                
+                let loadedSections = parsed.activeSections;
+                if (!loadedSections) {
+                    let legacyItems = parsed.items || parsed.checks || [];
+                    if (!Array.isArray(legacyItems) && typeof legacyItems === 'object') {
+                        legacyItems = Object.values(legacyItems);
+                    }
+                    if (legacyItems.length > 0) {
+                        loadedSections = [{
+                            id: 'legacy',
+                            title: 'PUNTOS DE INSPECCIÓN',
+                            isMandatory: false,
+                            items: legacyItems
+                        }];
+                    } else {
+                        loadedSections = [];
+                    }
+                }
+                setActiveSections(loadedSections);
+                
                 setObservations(parsed.observations || '');
                 setActionPlan(parsed.actionPlan || []);
                 setNextReview(parsed.nextReview || '');
@@ -781,7 +801,7 @@ export default function ChecklistManager(): React.ReactElement | null {
             render: (item: any) => (
                 <div style={{ display: 'flex', gap: '0.4rem' }}>
                     <button onClick={() => { setSearchParams({ id: item.id }); setShowForm(true); }} style={{ padding: '0.4rem 0.8rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '4px' }}><FileText size={15} /> Ver</button>
-                    <button onClick={() => requirePro(() => { const url = `${window.location.origin}/v/${currentUser?.uid}/checklist/${item.id}?print=true`; setQrTarget({ text: url, title: `Checklist — ${item.equipo}` } as any); })} style={{ padding: '0.4rem', background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer' }} title="QR"><QrCode size={15} /></button>
+                    <button onClick={() => requirePro(() => { const url = `${window.location.origin}/v/${currentUser?.uid}/checklist/${item.id}?print=true`; setQrTarget({ text: url, title: `Checklist — ${item.equipo}`, details: <><p style={{ margin: '0 0 0.3rem' }}><strong>Empresa:</strong> {item.empresa}</p><p style={{ margin: '0 0 0.3rem' }}><strong>Equipo:</strong> {item.equipo}</p><p style={{ margin: 0 }}><strong>Fecha:</strong> {new Date(item.fecha).toLocaleDateString('es-AR')}</p></> } as any); })} style={{ padding: '0.4rem', background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer' }} title="QR"><QrCode size={15} /></button>
                     <button onClick={() => requirePro(() => setShareItem(JSON.parse(localStorage.getItem('checklist_' + item.id) || 'null') || item))} style={{ padding: '0.4rem', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '8px', color: '#16a34a', cursor: 'pointer' }} title="Compartir"><Share2 size={15} /></button>
                     <button onClick={() => setDeleteTarget(item.id)} style={{ padding: '0.4rem', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}><Trash2 size={15} /></button>
                 </div>
@@ -852,7 +872,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                         emptyIcon={<ClipboardList size={48} />}
                     />
 
-                    {qrTarget && <QRModal text={(qrTarget as any).text} title={(qrTarget as any).title} onClose={() => setQrTarget(null)} />}
+                    {qrTarget && <QRModal text={(qrTarget as any).text} title={(qrTarget as any).title} details={(qrTarget as any).details} onClose={() => setQrTarget(null)} />}
                     {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
                     <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Checklist - ${(shareItem as any)?.equipo || ''}`} text={shareItem ? `📋 Checklist de Seguridad\n🔧 Equipo: ${(shareItem as any).equipo}\n🏗️ Empresa: ${(shareItem as any).empresa}\n📅 Fecha: ${new Date((shareItem as any).fecha).toLocaleDateString('es-AR')}` : ''} rawMessage={``} elementIdToPrint="pdf-content" fileName={`Checklist_${(shareItem as any)?.equipo || 'Reporte'}.pdf`} />
                     <div className="ats-pdf-offscreen">

@@ -754,7 +754,8 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
                         color: 'var(--color-text)',
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
-                        textOverflow: 'ellipsis'
+                        textOverflow: 'ellipsis',
+                        maxWidth: 'calc(100vw - 200px)'
                     }}>
                         {spaceType?.icon} {permit.spaceName}
                     </h3>
@@ -795,7 +796,7 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
             </div>
 
             {/* Acciones */}
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', flexShrink: 0, marginLeft: 'auto' }}>
                 {permit.status === 'pending' && (
                     <button
                         onClick={onAuthorize}

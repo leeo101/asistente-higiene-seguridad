@@ -99,8 +99,8 @@ export default function ConfinedSpacePdf({ data }: { data: any }): React.ReactEl
                     </div>
 
                     <div style={{ flex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                        <h1 style={{ margin: 0, fontWeight: 900, fontSize: '1.8rem', letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1, color: '#0f172a' }}>ESPACIO CONFINADO</h1>
-                        <div style={{ marginTop: '0.3rem', background: hasGasAlert ? '#dc2626' : '#f59e0b', color: 'white', padding: '0.2rem 0.8rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.08em' }}>
+                        <h1 style={{ margin: 0, fontWeight: 900, fontSize: '1.8rem', letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1, color: '#ffffff', background: '#0f172a', padding: '0.4rem 1rem', borderRadius: '8px' }}>ESPACIO CONFINADO</h1>
+                        <div style={{ marginTop: '0.5rem', background: hasGasAlert ? '#dc2626' : '#f59e0b', color: 'white', padding: '0.2rem 0.8rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.08em' }}>
                             PERMISO DE INGRESO — RES. SRT 95/03
                         </div>
                     </div>
@@ -119,16 +119,16 @@ export default function ConfinedSpacePdf({ data }: { data: any }): React.ReactEl
                         <div style={{ fontWeight: 900, fontSize: '1.3rem', color: '#0f172a', marginTop: '0.3rem' }}>{data.spaceName || 'No especificado'}</div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', background: '#ffffff' }}>
-                        <div style={{ padding: '0.75rem 1rem', borderRight: '1px solid #e2e8f0' }}>
+                    <div style={{ display: 'flex', background: '#ffffff' }}>
+                        <div style={{ flex: 1, padding: '0.75rem 1rem', borderRight: '1px solid #e2e8f0' }}>
                             <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><MapPin size={12}/> UBICACIÓN / SECTOR</span>
                             <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.2rem' }}>{data.location || 'No especificada'}</div>
                         </div>
-                        <div style={{ padding: '0.75rem 1rem', borderRight: '1px solid #e2e8f0' }}>
+                        <div style={{ flex: 1, padding: '0.75rem 1rem', borderRight: '1px solid #e2e8f0' }}>
                             <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={12}/> FECHA</span>
                             <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.2rem' }}>{data.createdAt ? new Date(data.createdAt).toLocaleDateString('es-AR') : 'N/A'}</div>
                         </div>
-                        <div style={{ padding: '0.75rem 1rem' }}>
+                        <div style={{ flex: 1, padding: '0.75rem 1rem' }}>
                             <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Clock size={12}/> DURACIÓN ESTIMADA</span>
                             <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.2rem' }}>{data.duration || 'N/A'}</div>
                         </div>
@@ -145,7 +145,7 @@ export default function ConfinedSpacePdf({ data }: { data: any }): React.ReactEl
                         )}
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', background: '#ffffff' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', background: '#ffffff' }}>
                         {[
                             { key: 'o2', label: 'O₂', unit: '%', val: gasReadings.o2, limit: '19.5 – 23.5%' },
                             { key: 'lel', label: 'LEL', unit: '%', val: gasReadings.lel, limit: '< 10%' },
@@ -155,7 +155,7 @@ export default function ConfinedSpacePdf({ data }: { data: any }): React.ReactEl
                         ].map((gas, idx) => {
                             const colors = gas.key !== 'time' ? getGasColor(gas.key, gas.val) : { bg: '#f8fafc', color: '#334155', border: '#e2e8f0' };
                             return (
-                                <div key={gas.key} style={{ padding: '0.75rem 0.5rem', background: colors.bg, borderRight: idx < 4 ? '1px solid #e2e8f0' : 'none', textAlign: 'center', border: `1px solid ${colors.border}`, margin: '0.3rem', borderRadius: '6px' }}>
+                                <div key={gas.key} style={{ flex: '1 1 0', padding: '0.75rem 0.5rem', background: colors.bg, textAlign: 'center', border: `1px solid ${colors.border}`, margin: '0.3rem', borderRadius: '6px', minWidth: '80px' }}>
                                     <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'block' }}>{gas.label}</span>
                                     <span style={{ fontSize: '1.4rem', fontWeight: 900, color: colors.color, display: 'block', lineHeight: 1.2 }}>{gas.val || '--'}</span>
                                     <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#94a3b8', display: 'block' }}>{gas.unit}</span>
@@ -167,8 +167,8 @@ export default function ConfinedSpacePdf({ data }: { data: any }): React.ReactEl
                 </div>
 
                 {/* Ventilación y Peligros */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
-                    <div style={{ border: '1px solid #bfdbfe', borderRadius: '6px', overflow: 'hidden', breakInside: 'avoid' }}>
+                <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+                    <div style={{ flex: 1, border: '1px solid #bfdbfe', borderRadius: '6px', overflow: 'hidden', breakInside: 'avoid' }}>
                         <div style={{ background: '#dbeafe', borderBottom: '1px solid #bfdbfe', padding: '0.5rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                             <Wind size={15} color="#1e40af" />
                             <span style={{ fontWeight: 900, fontSize: '0.72rem', color: '#1e40af', textTransform: 'uppercase' }}>VENTILACIÓN</span>
@@ -178,7 +178,7 @@ export default function ConfinedSpacePdf({ data }: { data: any }): React.ReactEl
                         </div>
                     </div>
 
-                    <div style={{ border: '1px solid #fca5a5', borderRadius: '6px', overflow: 'hidden', breakInside: 'avoid' }}>
+                    <div style={{ flex: 1, border: '1px solid #fca5a5', borderRadius: '6px', overflow: 'hidden', breakInside: 'avoid' }}>
                         <div style={{ background: '#fee2e2', borderBottom: '1px solid #fca5a5', padding: '0.5rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                             <AlertTriangle size={15} color="#991b1b" />
                             <span style={{ fontWeight: 900, fontSize: '0.72rem', color: '#991b1b', textTransform: 'uppercase' }}>PELIGROS DETECTADOS</span>
@@ -198,20 +198,20 @@ export default function ConfinedSpacePdf({ data }: { data: any }): React.ReactEl
                             <User size={15} color="#0f172a" />
                             <span style={{ fontWeight: 900, fontSize: '0.72rem', color: '#0f172a', textTransform: 'uppercase' }}>EQUIPO DE TRABAJO ASIGNADO</span>
                         </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', background: '#ffffff', fontSize: '0.8rem' }}>
-                            <div style={{ padding: '0.6rem 0.8rem', borderRight: '1px solid #e2e8f0' }}>
+                        <div style={{ display: 'flex', background: '#ffffff', fontSize: '0.8rem' }}>
+                            <div style={{ flex: 1, padding: '0.6rem 0.8rem', borderRight: '1px solid #e2e8f0' }}>
                                 <span style={{ fontWeight: 800, color: '#64748b', fontSize: '0.65rem', display: 'block', marginBottom: '0.2rem' }}>ENTRANTES</span>
                                 {data.team.entrants?.length > 0 ? data.team.entrants.map((e: string, i: number) => <div key={i} style={{ fontWeight: 700 }}>• {e}</div>) : '-'}
                             </div>
-                            <div style={{ padding: '0.6rem 0.8rem', borderRight: '1px solid #e2e8f0' }}>
+                            <div style={{ flex: 1, padding: '0.6rem 0.8rem', borderRight: '1px solid #e2e8f0' }}>
                                 <span style={{ fontWeight: 800, color: '#64748b', fontSize: '0.65rem', display: 'block', marginBottom: '0.2rem' }}>VIGÍA</span>
                                 <div style={{ fontWeight: 700 }}>{data.team.attendant || '-'}</div>
                             </div>
-                            <div style={{ padding: '0.6rem 0.8rem', borderRight: '1px solid #e2e8f0' }}>
+                            <div style={{ flex: 1, padding: '0.6rem 0.8rem', borderRight: '1px solid #e2e8f0' }}>
                                 <span style={{ fontWeight: 800, color: '#64748b', fontSize: '0.65rem', display: 'block', marginBottom: '0.2rem' }}>SUPERVISOR</span>
                                 <div style={{ fontWeight: 700 }}>{data.team.supervisor || '-'}</div>
                             </div>
-                            <div style={{ padding: '0.6rem 0.8rem' }}>
+                            <div style={{ flex: 1, padding: '0.6rem 0.8rem' }}>
                                 <span style={{ fontWeight: 800, color: '#64748b', fontSize: '0.65rem', display: 'block', marginBottom: '0.2rem' }}>RESCATE</span>
                                 <div style={{ fontWeight: 700 }}>{data.team.rescue || '-'}</div>
                             </div>

@@ -6,10 +6,11 @@ import { X, Download } from 'lucide-react';
 interface QRModalProps {
   text: string;
   title?: string;
+  details?: React.ReactNode;
   onClose: () => void;
 }
 
-export default function QRModal({ text, title = 'Código QR', onClose }: QRModalProps) {
+export default function QRModal({ text, title = 'Código QR', details, onClose }: QRModalProps) {
     const canvasRef = useRef(null);
     const [dataUrl, setDataUrl] = useState(null);
 
@@ -82,6 +83,12 @@ export default function QRModal({ text, title = 'Código QR', onClose }: QRModal
                 <p style={{ margin: '0 0 1rem', fontSize: '0.75rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
                     Escaneá este código o <strong>tocalo directamente</strong> para ver el detalle.
                 </p>
+
+                {details && (
+                    <div style={{ background: 'rgba(0,0,0,0.02)', padding: '0.8rem', borderRadius: '12px', marginBottom: '1rem', textAlign: 'left', fontSize: '0.8rem', color: 'var(--color-text)' }}>
+                        {details}
+                    </div>
+                )}
 
                 <button
                     onClick={handleDownload}

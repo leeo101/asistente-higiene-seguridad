@@ -18,9 +18,26 @@ export default function ChecklistPdfGenerator({
     if (!checklistData) return null;
 
     const fullData = checklistData;
-    const sections = fullData.activeSections || [];
-    const compInfo = fullData.companyInfo || {};
-    const inspInfo = fullData.inspectionInfo || {};
+    let sections = fullData.activeSections;
+    if (!sections) {
+        let legacyItems = fullData.items || fullData.checks || [];
+        if (!Array.isArray(legacyItems) && typeof legacyItems === 'object') {
+            legacyItems = Object.values(legacyItems);
+        }
+        if (legacyItems.length > 0) {
+            sections = [{
+                id: 'legacy',
+                title: 'PUNTOS DE INSPECCIÓN',
+                isMandatory: false,
+                items: legacyItems
+            }];
+        } else {
+            sections = [];
+        }
+    }
+    // Fallback to root properties if companyInfo/inspectionInfo are missing (e.g. old summary data)
+    const compInfo = fullData.companyInfo || { name: fullData.empresa, responsable: fullData.responsable };
+    const inspInfo = fullData.inspectionInfo || { item: fullData.equipo, serial: fullData.serial, date: fullData.fecha?.split('T')[0] };
     const obs = fullData.observations || '';
     const actionPlan = fullData.actionPlan || [];
     const nextReview = fullData.nextReview || '';
@@ -79,7 +96,7 @@ export default function ChecklistPdfGenerator({
             className="pdf-container print-area"
             style={{
                 width: '100%', maxWidth: '210mm', minHeight: '297mm',
-                padding: '8mm 12mm', background: '#ffffff', color: '#1e293b',
+                padding: '8mm 12mm', backgroundColor: '#ffffff', color: '#1e293b',
                 boxShadow: '0 20px 40px rgba(0,0,0,0.1)', borderRadius: '8px',
                 boxSizing: 'border-box', margin: '0 auto', fontSize: '8pt',
                 fontFamily: 'Helvetica, Arial, sans-serif',
@@ -109,7 +126,7 @@ export default function ChecklistPdfGenerator({
 
                 <div style={{ flex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
                     <h1 style={{ margin: 0, fontWeight: 900, fontSize: '2.4rem', letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1, color: '#0f172a' }}>{checklistData.checklistTitle || 'CHECK LIST'}</h1>
-                    <div style={{ marginTop: '0.3rem', background: hasCritical ? '#dc2626' : '#3b82f6', color: 'white', padding: '0.2rem 0.8rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.1em' }}>
+                    <div style={{ marginTop: '0.3rem', backgroundColor: hasCritical ? '#dc2626' : '#3b82f6', color: 'white', padding: '0.2rem 0.8rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.1em' }}>
                         {hasCritical ? `⚠ ${failCount} NO CONFORMIDAD${failCount > 1 ? 'ES' : ''} DETECTADA${failCount > 1 ? 'S' : ''}` : 'INSPECCIÓN DE HIGIENE Y SEGURIDAD'}
                     </div>
                 </div>
@@ -126,49 +143,54 @@ export default function ChecklistPdfGenerator({
             </div>
 
             {/* Datos del Relevamiento */}
-            <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1rem', width: '100%',  }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', background: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
-                    <div style={{ padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
+            <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1rem', width: '100%' }}>
+                <div style={{ display: 'flex', backgroundColor: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
+                    <div style={{ flex: 2, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
                         <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Building2 size={12}/> CLIENTE / EMPRESA</span>
-                        <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{compInfo.name || checklistData.empresa || '-'}</div>
+                        <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{compInfo.name || '-'}</div>
                     </div>
-                    <div style={{ padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
-                        <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Hash size={12}/> CUIT / CUIL</span>
+                    <div style={{ flex: 1, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
+                        <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><MapPin size={12}/> ÁREA / UBICACIÓN</span>
                         <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#334155', marginTop: '0.2rem' }}>{compInfo.cuit || '-'}</div>
                     </div>
-                    <div style={{ padding: '0.4rem 0.6rem' }}>
+                    <div style={{ flex: 1, padding: '0.4rem 0.6rem' }}>
                         <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><MapPin size={12}/> UBICACIÓN / OBRA</span>
                         <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#334155', marginTop: '0.2rem' }}>{compInfo.location || '-'}</div>
                     </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', background: '#ffffff', borderBottom: '1px solid #cbd5e1' }}>
-                    {!(hasVehicles && !hasTools && !hasPermits && !hasHeavy && !hasExtinguishers) && (
-                        <div style={{ padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
+                <div style={{ display: 'flex', backgroundColor: '#ffffff', borderBottom: '1px solid #cbd5e1' }}>
+                    {(!hasTools && !hasHeavy && !hasVehicles && !hasPermits && !hasExtinguishers) ? (
+                        <div style={{ flex: 2, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
                             <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><ClipboardCheck size={12}/> {hasPermits ? "SECTOR / ÁREA" : "EQUIPO / ÁREA REVISADA"}</span>
                             <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.item || checklistData.equipo || '-'}</div>
                         </div>
+                    ) : (
+                        <div style={{ flex: 2, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
+                            <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><AlertTriangle size={12}/> EQUIPO / LUGAR DE INSP.</span>
+                            <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#334155', marginTop: '0.2rem' }}>{inspInfo.date ? new Date(inspInfo.date + 'T12:00:00Z').toLocaleDateString('es-AR') : '-'}</div>
+                        </div>
                     )}
-                    <div style={{ padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
+                    <div style={{ flex: 1, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
                         <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={12}/> FECHA DE REVISIÓN</span>
                         <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#334155', marginTop: '0.2rem' }}>{inspInfo.date ? new Date(inspInfo.date + 'T12:00:00Z').toLocaleDateString('es-AR') : '-'}</div>
                     </div>
-                    <div style={{ padding: '0.4rem 0.6rem' }}>
+                    <div style={{ flex: 1, padding: '0.4rem 0.6rem' }}>
                         <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><User size={12}/> INSPECTOR</span>
                         <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#334155', marginTop: '0.2rem' }}>{compInfo.inspector || '-'}</div>
                     </div>
                 </div>
                 
                 {hasVehicles && (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', background: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
-                        <div style={{ padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
+                    <div style={{ display: 'flex', backgroundColor: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
+                        <div style={{ flex: 1, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
                             <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><ClipboardCheck size={12}/> MARCA / MODELO</span>
                             <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.marca || '-'}</div>
                         </div>
-                        <div style={{ padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
+                        <div style={{ flex: 1, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
                             <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Hash size={12}/> DOMINIO (PATENTE)</span>
                             <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.patente || '-'}</div>
                         </div>
-                        <div style={{ padding: '0.4rem 0.6rem' }}>
+                        <div style={{ flex: 1, padding: '0.4rem 0.6rem' }}>
                             <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Activity size={12}/> HORÓMETRO / KM</span>
                             <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.horometro || '-'}</div>
                         </div>
@@ -176,12 +198,12 @@ export default function ChecklistPdfGenerator({
                 )}
 
                 {(hasTools || hasHeavy) && !hasVehicles && (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', background: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
-                        <div style={{ padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
+                    <div style={{ display: 'flex', backgroundColor: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
+                        <div style={{ flex: 1, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
                             <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><ClipboardCheck size={12}/> MARCA / MODELO</span>
                             <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.marca || '-'}</div>
                         </div>
-                        <div style={{ padding: '0.4rem 0.6rem' }}>
+                        <div style={{ flex: 1, padding: '0.4rem 0.6rem' }}>
                             <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Hash size={12}/> {hasExtinguishers ? "CHAPA / NÚMERO" : "Nº IDENTIFICACIÓN (SERIAL)"}</span>
                             <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.serial || '-'}</div>
                         </div>
@@ -189,8 +211,8 @@ export default function ChecklistPdfGenerator({
                 )}
 
                 {(!hasTools && !hasHeavy && !hasVehicles && !hasPermits) && (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', background: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
-                        <div style={{ padding: '0.4rem 0.6rem' }}>
+                    <div style={{ display: 'flex', backgroundColor: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
+                        <div style={{ flex: 1, padding: '0.4rem 0.6rem' }}>
                             <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Hash size={12}/> {hasExtinguishers ? "CHAPA / NÚMERO" : "Nº IDENTIFICACIÓN (SERIAL)"}</span>
                             <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.serial || '-'}</div>
                         </div>
@@ -198,25 +220,25 @@ export default function ChecklistPdfGenerator({
                 )}
 
                 {hasPermits && (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', background: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
-                        <div style={{ padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
+                    <div style={{ display: 'flex', backgroundColor: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
+                        <div style={{ flex: 1, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
                             <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><ClipboardCheck size={12}/> Nº PERMISO DE TRABAJO (PT)</span>
-                            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.pt || '-'}</div>
+                            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{compInfo.address || '-'}</div>
                         </div>
-                        <div style={{ padding: '0.4rem 0.6rem' }}>
-                            <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><User size={12}/> RESPONSABLE DEL ÁREA</span>
+                        <div style={{ flex: 1, padding: '0.4rem 0.6rem' }}>
+                            <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><User size={12}/> RESPONSABLE EMPRESA</span>
                             <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.responsableArea || '-'}</div>
                         </div>
                     </div>
                 )}
 
                 {hasExtinguishers && (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', background: '#fef2f2', borderTop: '1px solid #cbd5e1' }}>
-                        <div style={{ padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
+                    <div style={{ display: 'flex', backgroundColor: '#fef2f2', borderTop: '1px solid #cbd5e1' }}>
+                        <div style={{ flex: 1, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
                             <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#991b1b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={12}/> VENCIMIENTO CARGA (EXTINTOR)</span>
                             <div style={{ fontWeight: 800, fontSize: '0.8rem', color: '#7f1d1d', marginTop: '0.2rem' }}>{inspInfo.expirationDate ? new Date(inspInfo.expirationDate + 'T12:00:00Z').toLocaleDateString('es-AR') : '-'}</div>
                         </div>
-                        <div style={{ padding: '0.4rem 0.6rem' }}>
+                        <div style={{ flex: 2, padding: '0.4rem 0.6rem' }}>
                             <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#991b1b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><AlertTriangle size={12}/> OBSERVACIONES EXTINTOR</span>
                             <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#7f1d1d', marginTop: '0.2rem' }}>{inspInfo.extinguisherObs || '-'}</div>
                         </div>
@@ -225,21 +247,21 @@ export default function ChecklistPdfGenerator({
             </div>
 
             {/* Resumen Estadístico - Cards modernas */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.8rem', marginBottom: '1rem' }}>
-                <div style={{ background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: '8px', padding: '0.6rem', textAlign: 'center' }}>
+            <div style={{ display: 'flex', gap: '0.8rem', marginBottom: '1rem' }}>
+                <div style={{ flex: 1, backgroundColor: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: '8px', padding: '0.6rem', textAlign: 'center' }}>
                     <div style={{ fontSize: '0.55rem', fontWeight: 800, color: '#16a34a', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.2rem' }}>✓ CUMPLE</div>
                     <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#15803d', lineHeight: 1 }}>{okCount}</div>
-                    <div style={{ marginTop: '0.2rem', background: '#16a34a', color: '#fff', padding: '0.1rem 0.5rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 900, display: 'inline-block' }}>{okPercent}%</div>
+                    <div style={{ marginTop: '0.2rem', backgroundColor: '#16a34a', color: '#fff', padding: '0.1rem 0.5rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 900, display: 'inline-block' }}>{okPercent}%</div>
                 </div>
-                <div style={{ background: '#fef2f2', border: '1.5px solid #fca5a5', borderRadius: '8px', padding: '0.6rem', textAlign: 'center' }}>
+                <div style={{ flex: 1, backgroundColor: '#fef2f2', border: '1.5px solid #fca5a5', borderRadius: '8px', padding: '0.6rem', textAlign: 'center' }}>
                     <div style={{ fontSize: '0.55rem', fontWeight: 800, color: '#dc2626', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.2rem' }}>✗ NO CUMPLE</div>
                     <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#b91c1c', lineHeight: 1 }}>{failCount}</div>
-                    <div style={{ marginTop: '0.2rem', background: '#dc2626', color: '#fff', padding: '0.1rem 0.5rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 900, display: 'inline-block' }}>{failPercent}%</div>
+                    <div style={{ marginTop: '0.2rem', backgroundColor: '#dc2626', color: '#fff', padding: '0.1rem 0.5rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 900, display: 'inline-block' }}>{failPercent}%</div>
                 </div>
-                <div style={{ background: '#f8fafc', border: '1.5px solid #cbd5e1', borderRadius: '8px', padding: '0.6rem', textAlign: 'center' }}>
+                <div style={{ flex: 1, backgroundColor: '#f8fafc', border: '1.5px solid #cbd5e1', borderRadius: '8px', padding: '0.6rem', textAlign: 'center' }}>
                     <div style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.2rem' }}>— N / A</div>
                     <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#475569', lineHeight: 1 }}>{naCount}</div>
-                    <div style={{ marginTop: '0.2rem', background: '#64748b', color: '#fff', padding: '0.1rem 0.5rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 900, display: 'inline-block' }}>{naPercent}%</div>
+                    <div style={{ marginTop: '0.2rem', backgroundColor: '#64748b', color: '#fff', padding: '0.1rem 0.5rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 900, display: 'inline-block' }}>{naPercent}%</div>
                 </div>
             </div>
 
@@ -248,16 +270,16 @@ export default function ChecklistPdfGenerator({
                 const sectionFails = section.items.filter(item => item.status === 'FAIL');
                 return (
                     <div key={section.id} style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '0.8rem' }}>
-                        <div style={{ background: '#e2e8f0', padding: '0.4rem 0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #cbd5e1' }}>
+                        <div style={{ backgroundColor: '#e2e8f0', padding: '0.4rem 0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #cbd5e1' }}>
                             <h3 style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                                 {section.title}
                             </h3>
                             {sectionFails.length > 0 ? (
-                                <span style={{ padding: '0.1rem 0.5rem', background: '#ef4444', color: '#fff', borderRadius: '12px', fontSize: '0.55rem', fontWeight: 800 }}>
+                                <span style={{ padding: '0.1rem 0.5rem', backgroundColor: '#ef4444', color: '#fff', borderRadius: '12px', fontSize: '0.55rem', fontWeight: 800 }}>
                                     ⚠ {sectionFails.length} NO CONFORME{sectionFails.length > 1 ? 'S' : ''}
                                 </span>
                             ) : (
-                                <span style={{ padding: '0.1rem 0.5rem', background: '#166534', color: '#dcfce7', borderRadius: '12px', fontSize: '0.55rem', fontWeight: 800 }}>
+                                <span style={{ padding: '0.1rem 0.5rem', backgroundColor: '#166534', color: '#dcfce7', borderRadius: '12px', fontSize: '0.55rem', fontWeight: 800 }}>
                                     ✓ SIN DESVÍOS
                                 </span>
                             )}
@@ -268,34 +290,34 @@ export default function ChecklistPdfGenerator({
                                 <div key={idx} className="avoid-break" style={{
                                     borderBottom: idx === section.items.length - 1 ? 'none' : '1px solid #f1f5f9',
                                     pageBreakInside: 'avoid',
-                                    background: item.status === 'FAIL' ? '#fef2f2' : idx % 2 === 0 ? '#ffffff' : '#f8fafc'
+                                    backgroundColor: item.status === 'FAIL' ? '#fef2f2' : idx % 2 === 0 ? '#ffffff' : '#f8fafc'
                                 }}>
                                     {/* Fila principal: número | texto | estado */}
-                                    <div style={{ display: 'grid', gridTemplateColumns: '26px 1fr 60px', alignItems: 'stretch' }}>
-                                        <div style={{ padding: '0.4rem 0.2rem', display: 'flex', justifyContent: 'center', alignItems: 'center', borderRight: '1px solid #e2e8f0' }}>
-                                            <span style={{ background: '#e2e8f0', color: '#64748b', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px', fontSize: '0.55rem', fontWeight: 900 }}>
+                                    <div style={{ display: 'flex', alignItems: 'stretch' }}>
+                                        <div style={{ width: '26px', flexShrink: 0, padding: '0.4rem 0.2rem', display: 'flex', justifyContent: 'center', alignItems: 'center', borderRight: '1px solid #e2e8f0' }}>
+                                            <span style={{ backgroundColor: '#e2e8f0', color: '#64748b', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px', fontSize: '0.55rem', fontWeight: 900 }}>
                                                 {idx + 1}
                                             </span>
                                         </div>
 
-                                        <div style={{ padding: '0.4rem 0.6rem', display: 'flex', alignItems: 'center', fontWeight: 600, fontSize: '0.75rem', color: item.status === 'FAIL' ? '#7f1d1d' : '#334155' }}>
+                                        <div style={{ flex: 1, padding: '0.4rem 0.6rem', display: 'flex', alignItems: 'center', fontWeight: 600, fontSize: '0.75rem', color: item.status === 'FAIL' ? '#7f1d1d' : '#334155' }}>
                                             {item.text}
                                         </div>
 
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.4rem', borderLeft: '1px solid #e2e8f0' }}>
+                                        <div style={{ width: '60px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.4rem', borderLeft: '1px solid #e2e8f0' }}>
                                             {item.status === 'OK' ? (
-                                                <span style={{ background: '#dcfce7', color: '#16a34a', padding: '0.15rem 0.4rem', borderRadius: '4px', fontWeight: 900, fontSize: '0.6rem' }}>C</span>
+                                                <span style={{ backgroundColor: '#dcfce7', color: '#16a34a', padding: '0.15rem 0.4rem', borderRadius: '4px', fontWeight: 900, fontSize: '0.6rem' }}>C</span>
                                             ) : item.status === 'FAIL' ? (
-                                                <span style={{ background: '#fecaca', color: '#dc2626', padding: '0.15rem 0.4rem', borderRadius: '4px', fontWeight: 900, fontSize: '0.6rem' }}>NC</span>
+                                                <span style={{ backgroundColor: '#fecaca', color: '#dc2626', padding: '0.15rem 0.4rem', borderRadius: '4px', fontWeight: 900, fontSize: '0.6rem' }}>NC</span>
                                             ) : (
-                                                <span style={{ background: '#f1f5f9', color: '#94a3b8', padding: '0.15rem 0.4rem', borderRadius: '4px', fontWeight: 900, fontSize: '0.6rem' }}>N/A</span>
+                                                <span style={{ backgroundColor: '#f1f5f9', color: '#94a3b8', padding: '0.15rem 0.4rem', borderRadius: '4px', fontWeight: 900, fontSize: '0.6rem' }}>N/A</span>
                                             )}
                                         </div>
                                     </div>
 
                                     {/* Observación e imágenes del ítem */}
                                     {(item.observation || (item.photos && item.photos.length > 0)) && (
-                                        <div style={{ padding: '0.2rem 0.6rem 0.4rem 2rem', borderTop: '1px dashed #e2e8f0', background: item.status === 'FAIL' ? '#fef9f9' : '#f8fafc' }}>
+                                        <div style={{ padding: '0.2rem 0.6rem 0.4rem 2rem', borderTop: '1px dashed #e2e8f0', backgroundColor: item.status === 'FAIL' ? '#fef9f9' : '#f8fafc' }}>
                                             {item.observation && (
                                                 <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.65rem', color: item.status === 'FAIL' ? '#991b1b' : '#475569', fontStyle: 'italic', fontWeight: 600 }}>
                                                     📝 {item.observation}
@@ -325,10 +347,10 @@ export default function ChecklistPdfGenerator({
             {/* Observaciones */}
             {obs && (
                 <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1rem' }}>
-                    <div style={{ background: '#334155', color: '#fff', padding: '0.4rem 0.8rem', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <div style={{ backgroundColor: '#334155', color: '#fff', padding: '0.4rem 0.8rem', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         OBSERVACIONES Y COMENTARIOS DEL INSPECTOR
                     </div>
-                    <div style={{ padding: '0.8rem', fontSize: '0.75rem', color: '#334155', fontWeight: 600, whiteSpace: 'pre-wrap', lineHeight: 1.4, background: '#f8fafc' }}>
+                    <div style={{ padding: '0.8rem', fontSize: '0.75rem', color: '#334155', fontWeight: 600, whiteSpace: 'pre-wrap', lineHeight: 1.4, backgroundColor: '#f8fafc' }}>
                         {obs}
                     </div>
                 </div>
@@ -337,14 +359,14 @@ export default function ChecklistPdfGenerator({
             {/* Plan de Acción */}
             {actionPlan.length > 0 && (
                 <div style={{ border: '1px solid #fcd34d', borderRadius: '6px', marginBottom: '1rem' }}>
-                    <div style={{ background: '#f59e0b', padding: '0.4rem 0.8rem', color: '#fff', fontWeight: 900, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <div style={{ backgroundColor: '#f59e0b', padding: '0.4rem 0.8rem', color: '#ffffff', fontWeight: 900, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         🎯 PLAN DE ACCIÓN CORRECTIVA — {actionPlan.length} ACCIÓN{actionPlan.length > 1 ? 'ES' : ''}
                     </div>
-                    <div style={{ padding: '0.8rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '0.6rem', background: '#fffbeb' }}>
+                    <div style={{ padding: '0.8rem', display: 'flex', flexWrap: 'wrap', gap: '0.6rem', backgroundColor: '#fffbeb' }}>
                         {actionPlan.map((action, idx) => (
-                            <div key={action.id} className="avoid-break" style={{ background: '#ffffff', border: '1px solid #fcd34d', borderRadius: '6px', padding: '0.6rem', pageBreakInside: 'avoid' }}>
+                            <div key={action.id} className="avoid-break" style={{ flex: '1 1 260px', minWidth: '260px', backgroundColor: '#ffffff', border: '1px solid #fcd34d', borderRadius: '6px', padding: '0.6rem', pageBreakInside: 'avoid' }}>
                                 <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'flex-start' }}>
-                                    <span style={{ background: '#f59e0b', color: '#fff', minWidth: '16px', height: '16px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', fontWeight: 900 }}>{idx + 1}</span>
+                                    <span style={{ backgroundColor: '#f59e0b', color: '#fff', minWidth: '16px', height: '16px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', fontWeight: 900 }}>{idx + 1}</span>
                                     <div style={{ flex: 1 }}>
                                         <p style={{ margin: '0 0 0.2rem 0', fontWeight: 800, fontSize: '0.7rem', color: '#1e293b' }}>{action.action}</p>
                                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem', fontSize: '0.6rem', color: '#64748b', fontWeight: 700 }}>
@@ -364,7 +386,7 @@ export default function ChecklistPdfGenerator({
 
             {/* Próxima Revisión */}
             {nextReview && (
-                <div className="avoid-break" style={{ border: '1px solid #bfdbfe', borderRadius: '6px', padding: '0.6rem 1rem', marginBottom: '1rem', background: '#eff6ff', display: 'flex', alignItems: 'center', gap: '0.8rem', pageBreakInside: 'avoid' }}>
+                <div className="avoid-break" style={{ border: '1px solid #bfdbfe', borderRadius: '6px', padding: '0.6rem 1rem', marginBottom: '1rem', backgroundColor: '#eff6ff', display: 'flex', alignItems: 'center', gap: '0.8rem', pageBreakInside: 'avoid' }}>
                     <Calendar size={18} color="#2563eb" />
                     <div>
                         <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#1e3a8a', textTransform: 'uppercase' }}>PRÓXIMA REVISIÓN PROGRAMADA</p>
@@ -377,16 +399,16 @@ export default function ChecklistPdfGenerator({
             {selectedNorms.length > 0 && (
                 <>
                     <div style={{ border: '1px solid #d8b4fe', borderRadius: '6px', marginBottom: '1rem' }}>
-                    <div style={{ background: '#7c3aed', padding: '0.6rem 1rem', color: '#fff', fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <div style={{ backgroundColor: '#7c3aed', padding: '0.6rem 1rem', color: '#fff', fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         📚 NORMATIVA LEGAL APLICABLE
                     </div>
-                    <div style={{ padding: '0.8rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', background: '#faf5ff' }}>
+                    <div style={{ padding: '0.8rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', backgroundColor: '#faf5ff' }}>
                         {selectedNorms.map(normId => {
                             const norm = availableNorms.find(n => n.id === normId);
                             if (!norm) return null;
                             return (
-                                <div key={normId} style={{ flex: '1 1 260px', display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#fff', padding: '0.5rem 0.7rem', borderRadius: '6px', border: '1px solid #e9d5ff' }}>
-                                    <span style={{ width: '16px', height: '16px', background: '#7c3aed', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', fontWeight: 900, flexShrink: 0 }}>✓</span>
+                                <div key={normId} style={{ flex: '1 1 260px', display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: '#fff', padding: '0.5rem 0.7rem', borderRadius: '6px', border: '1px solid #e9d5ff' }}>
+                                    <span style={{ width: '16px', height: '16px', backgroundColor: '#7c3aed', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', fontWeight: 900, flexShrink: 0 }}>✓</span>
                                     <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1e293b' }}>{norm.name}</span>
                                 </div>
                             );
