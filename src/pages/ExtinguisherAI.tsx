@@ -673,18 +673,18 @@ export default function ExtinguisherAI() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
                     {/* Main Result Card */}
                     <div style={{
-                        padding: '1.5rem',
+                        padding: '1rem',
                         background: extintorData ? 
                             `linear-gradient(135deg, ${extintorData.color}20, ${extintorData.color}10)` : 
                             'var(--color-surface)',
-                        borderRadius: '16px',
+                        borderRadius: '12px',
                         border: `2px solid ${extintorData?.color || 'var(--color-border)'}`
                     }}>
-                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.8rem' }}>
                             <div style={{
-                                fontSize: '3rem',
+                                fontSize: '2.5rem',
                                 background: '#ffffff',
-                                padding: '1rem',
+                                padding: '0.8rem',
                                 borderRadius: '12px',
                                 boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                             }}>
@@ -692,8 +692,8 @@ export default function ExtinguisherAI() {
                             </div>
                             <div style={{ flex: 1 }}>
                                 <h2 style={{ 
-                                    margin: '0 0 0.5rem 0', 
-                                    fontSize: '1.3rem', 
+                                    margin: '0 0 0.3rem 0', 
+                                    fontSize: '1.1rem', 
                                     fontWeight: 900,
                                     color: extintorData?.color || 'var(--color-text)'
                                 }}>
@@ -703,8 +703,8 @@ export default function ExtinguisherAI() {
                                 <div style={{ 
                                     display: 'inline-flex', 
                                     alignItems: 'center', 
-                                    gap: '0.5rem',
-                                    padding: '0.4rem 0.8rem',
+                                    gap: '0.4rem',
+                                    padding: '0.3rem 0.6rem',
                                     background: analysisResult.status === 'vigente' ? 
                                         'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
                                     borderRadius: '20px',
@@ -735,80 +735,80 @@ export default function ExtinguisherAI() {
                     {/* Details Grid */}
                     <div style={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-                        gap: '1rem'
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+                        gap: '0.8rem'
                     }}>
                         {/* Capacity */}
                         <div style={{
-                            padding: '1rem',
+                            padding: '0.8rem',
                             background: 'var(--color-surface)',
-                            borderRadius: '12px',
+                            borderRadius: '10px',
                             border: '1px solid var(--color-border)'
                         }}>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.3rem' }}>
                                 📊 Capacidad
                             </div>
-                            <div style={{ fontSize: '1.3rem', fontWeight: 900, color: 'var(--color-text)' }}>
+                            <div style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--color-text)' }}>
                                 {analysisResult.capacity || 'N/A'}
                             </div>
                         </div>
 
                         {/* Last Check */}
                         <div style={{
-                            padding: '1rem',
+                            padding: '0.8rem',
                             background: 'var(--color-surface)',
-                            borderRadius: '12px',
+                            borderRadius: '10px',
                             border: '1px solid var(--color-border)'
                         }}>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.3rem' }}>
                                 📅 Último Control
                             </div>
-                            <div style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-text)' }}>
+                            <div style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--color-text)' }}>
                                 {analysisResult.lastCheck ? new Date(analysisResult.lastCheck).toLocaleDateString('es-AR') : 'N/A'}
                             </div>
                         </div>
 
                         {/* Next Check */}
                         <div style={{
-                            padding: '1rem',
+                            padding: '0.8rem',
                             background: 'var(--color-surface)',
-                            borderRadius: '12px',
+                            borderRadius: '10px',
                             border: '1px solid var(--color-border)'
                         }}>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.3rem' }}>
                                 ⏰ Próximo Control
                             </div>
-                            <div style={{ fontSize: '1rem', fontWeight: 800, color: analysisResult.nextCheck ? '#f59e0b' : 'var(--color-text)' }}>
+                            <div style={{ fontSize: '0.9rem', fontWeight: 800, color: analysisResult.nextCheck ? '#f59e0b' : 'var(--color-text)' }}>
                                 {analysisResult.nextCheck ? new Date(analysisResult.nextCheck).toLocaleDateString('es-AR') : 'N/A'}
                             </div>
                         </div>
 
                         {/* PH Date */}
                         <div style={{
-                            padding: '1rem',
+                            padding: '0.8rem',
                             background: 'var(--color-surface)',
-                            borderRadius: '12px',
+                            borderRadius: '10px',
                             border: '1px solid var(--color-border)'
                         }}>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.3rem' }}>
                                 💧 Vencimiento P.H.
                             </div>
-                            <div style={{ fontSize: '1rem', fontWeight: 800, color: analysisResult.phDate ? '#3b82f6' : 'var(--color-text)' }}>
+                            <div style={{ fontSize: '0.9rem', fontWeight: 800, color: analysisResult.phDate ? '#3b82f6' : 'var(--color-text)' }}>
                                 {analysisResult.phDate ? new Date(analysisResult.phDate).toLocaleDateString('es-AR') : 'N/A'}
                             </div>
                         </div>
 
                         {/* Confidence */}
                         <div style={{
-                            padding: '1rem',
+                            padding: '0.8rem',
                             background: 'var(--color-surface)',
-                            borderRadius: '12px',
+                            borderRadius: '10px',
                             border: '1px solid var(--color-border)'
                         }}>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.3rem' }}>
                                 🎯 Confianza IA
                             </div>
-                            <div style={{ fontSize: '1.3rem', fontWeight: 900, color: '#10b981' }}>
+                            <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#10b981' }}>
                                 {Math.round((analysisResult.confidence || 0) * 100)}%
                             </div>
                         </div>
@@ -817,18 +817,18 @@ export default function ExtinguisherAI() {
                     {/* Usage Instructions */}
                     {extintorData && (
                         <div style={{
-                            padding: '1.2rem',
+                            padding: '0.8rem 1rem',
                             background: `${extintorData.color}10`,
-                            borderRadius: '12px',
+                            borderRadius: '10px',
                             border: `1px solid ${extintorData.color}30`
                         }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem' }}>
-                                <Info size={20} color={extintorData.color} />
-                                <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: extintorData.color }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
+                                <Info size={18} color={extintorData.color} />
+                                <h3 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: extintorData.color }}>
                                     Modo de Uso
                                 </h3>
                             </div>
-                            <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text)', lineHeight: 1.6 }}>
+                            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text)', lineHeight: 1.5 }}>
                                 {extintorData.usage}
                             </p>
                         </div>
@@ -837,17 +837,17 @@ export default function ExtinguisherAI() {
                     {/* Recommendations */}
                     {analysisResult.recommendations && (
                         <div style={{
-                            padding: '1.2rem',
+                            padding: '0.8rem 1rem',
                             background: 'var(--color-surface)',
-                            borderRadius: '12px',
+                            borderRadius: '10px',
                             border: '1px solid var(--color-border)'
                         }}>
-                            <h3 style={{ margin: '0 0 0.8rem 0', fontSize: '1rem', fontWeight: 800 }}>
+                            <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', fontWeight: 800 }}>
                                 📋 Recomendaciones
                             </h3>
-                            <ul style={{ margin: 0, paddingLeft: '1.5rem', color: 'var(--color-text)', lineHeight: 1.8 }}>
+                            <ul style={{ margin: 0, paddingLeft: '1.5rem', color: 'var(--color-text)', lineHeight: 1.6 }}>
                                 {analysisResult.recommendations.map((rec, i) => (
-                                    <li key={i} style={{ fontSize: '0.9rem' }}>{rec}</li>
+                                    <li key={i} style={{ fontSize: '0.8rem' }}>{rec}</li>
                                 ))}
                             </ul>
                         </div>
