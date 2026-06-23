@@ -639,17 +639,19 @@ export default function ShareModal({
                             display: none;
                         }
                         .share-close-btn {
-                            top: 1rem;
-                            right: 1rem;
-                            width: 32px;
-                            height: 32px;
+                            top: 0.5rem;
+                            right: 0.5rem;
+                            width: 38px;
+                            height: 38px;
                             background: #ef4444;
                             color: #ffffff;
-                            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+                            border-radius: 50%;
+                            z-index: 99999;
+                            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5);
                         }
                         .share-header {
                             margin-bottom: 1rem;
-                            margin-top: 0.5rem;
+                            margin-top: 1.5rem;
                         }
                         .share-logo-box {
                             display: none;
