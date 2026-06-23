@@ -92,6 +92,7 @@ export default function GlobalSearch({ onClose }: GlobalSearchProps): React.Reac
   const [activeIdx, setActiveIdx] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
 
   useEffect(() => { inputRef.current?.focus(); }, []);
 
@@ -246,14 +247,16 @@ export default function GlobalSearch({ onClose }: GlobalSearchProps): React.Reac
         </div>
 
         {/* ── Footer ────────────────────────────────────────────────────── */}
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0.65rem 1.4rem', borderTop:'1px solid var(--glass-border)', background:'var(--color-background)' }}>
-          <div style={{ display:'flex', gap:'1.25rem', fontSize:'0.7rem', color:'var(--color-text-muted)', fontWeight:600 }}>
-            <span><kbd style={kbdStyle}>↑↓</kbd> navegar</span>
-            <span><kbd style={kbdStyle}>↵</kbd> abrir</span>
-            <span><kbd style={kbdStyle}>ESC</kbd> cerrar</span>
+        {!isMobile && (
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0.65rem 1.4rem', borderTop:'1px solid var(--glass-border)', background:'var(--color-background)' }}>
+            <div style={{ display:'flex', gap:'1.25rem', fontSize:'0.7rem', color:'var(--color-text-muted)', fontWeight:600 }}>
+              <span><kbd style={kbdStyle}>↑↓</kbd> navegar</span>
+              <span><kbd style={kbdStyle}>↵</kbd> abrir</span>
+              <span><kbd style={kbdStyle}>ESC</kbd> cerrar</span>
+            </div>
+            <span style={{ fontSize:'0.65rem', fontWeight:800, color:'var(--color-text-muted)', opacity:0.45, letterSpacing:'0.05em' }}>Ctrl + K</span>
           </div>
-          <span style={{ fontSize:'0.65rem', fontWeight:800, color:'var(--color-text-muted)', opacity:0.45, letterSpacing:'0.05em' }}>Ctrl + K</span>
-        </div>
+        )}
       </div>
 
       <style>{`
