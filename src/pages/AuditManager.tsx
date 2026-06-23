@@ -290,7 +290,7 @@ export default function AuditManager(): React.ReactElement | null {
                 text={shareItem ? `📋 Informe de Auditoría EHS\n📌 Título: ${shareItem.auditTitle || shareItem.title}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${shareItem.date || shareItem.scheduledDate}` : ''}
                 rawMessage={shareItem ? `📋 Informe de Auditoría EHS\n📌 Título: ${shareItem.auditTitle || shareItem.title}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${shareItem.date || shareItem.scheduledDate}` : ''}
                 elementIdToPrint="pdf-content"
-                fileName={`Auditoria_${shareItem?.auditTitle.replace(/\s+/g, '_') || 'Reporte'}.pdf`}
+                fileName={`Auditoria_${(shareItem?.auditTitle || shareItem?.title || 'Reporte').replace(/\s+/g, '_')}.pdf`}
             />
 
             <div style={{ position: 'fixed', left: 0, opacity: 0, top: 0, pointerEvents: 'none' }}>
