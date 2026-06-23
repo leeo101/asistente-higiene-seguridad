@@ -16,46 +16,47 @@ export default function LegajoPdf({ data }: { data: any }): React.ReactElement |
         firmas: '#7c3aed'
     };
 
-    // Componente para Mini-Carátula de Sección
     const ChapterDivider = ({ title, subtitle, icon: Icon, colorKey, chapterNum }: any) => {
         const color = sectionColors[colorKey] || '#2563eb';
         return (
-            <div style={{
-                height: '250mm', // Force full page height for divider (A4 is 297mm, giving some margins)
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                pageBreakBefore: 'always',
-                pageBreakAfter: 'always',
-                background: `linear-gradient(135deg, #ffffff 0%, ${color}08 100%)`,
-                borderRadius: '24px',
-                border: `1px solid ${color}20`,
-                margin: '10mm 0',
-                padding: '2rem',
-                textAlign: 'center'
-            }}>
+            <>
+                <div className="html2pdf__page-break"></div>
                 <div style={{
-                    width: '80px', height: '80px', borderRadius: '20px',
-                    background: `linear-gradient(135deg, ${color}, ${color}dd)`, color: '#fff',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    marginBottom: '2rem',
-                    boxShadow: `0 10px 30px ${color}40`
+                    height: '250mm', // Force full page height for divider (A4 is 297mm, giving some margins)
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    background: `linear-gradient(135deg, #ffffff 0%, ${color}08 100%)`,
+                    borderRadius: '24px',
+                    border: `1px solid ${color}20`,
+                    margin: '10mm 0',
+                    padding: '2rem',
+                    textAlign: 'center'
                 }}>
-                    <Icon size={40} />
+                    <div style={{
+                        width: '80px', height: '80px', borderRadius: '20px',
+                        background: `linear-gradient(135deg, ${color}, ${color}dd)`, color: '#fff',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        marginBottom: '2rem',
+                        boxShadow: `0 10px 30px ${color}40`
+                    }}>
+                        <Icon size={40} />
+                    </div>
+                    <div style={{ color: color, fontWeight: 900, fontSize: '1.2rem', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+                        Capítulo {chapterNum}
+                    </div>
+                    <h2 style={{ margin: 0, fontSize: '2.5rem', fontWeight: 900, color: '#1e293b', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
+                        {title}
+                    </h2>
+                    {subtitle && (
+                        <p style={{ fontSize: '1.1rem', color: '#64748b', marginTop: '1rem', fontWeight: 500 }}>
+                            {subtitle}
+                        </p>
+                    )}
                 </div>
-                <div style={{ color: color, fontWeight: 900, fontSize: '1.2rem', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
-                    Capítulo {chapterNum}
-                </div>
-                <h2 style={{ margin: 0, fontSize: '2.5rem', fontWeight: 900, color: '#1e293b', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
-                    {title}
-                </h2>
-                {subtitle && (
-                    <p style={{ fontSize: '1.1rem', color: '#64748b', marginTop: '1rem', fontWeight: 500 }}>
-                        {subtitle}
-                    </p>
-                )}
-            </div>
+                <div className="html2pdf__page-break"></div>
+            </>
         );
     };
 
@@ -164,8 +165,7 @@ export default function LegajoPdf({ data }: { data: any }): React.ReactElement |
                 height: '260mm', // Full page approx
                 display: 'flex', 
                 flexDirection: 'column', 
-                position: 'relative',
-                pageBreakAfter: 'always'
+                position: 'relative'
             }}>
                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 'auto', paddingTop: '2rem' }}>
                     <CompanyLogo />
@@ -365,7 +365,7 @@ export default function LegajoPdf({ data }: { data: any }): React.ReactElement |
             {renderAdjuntos(data.ambiente?.adjuntos)}
 
             {/* FIRMAS Y CIERRE */}
-            <div style={{ pageBreakBefore: 'always' }} />
+            <div className="html2pdf__page-break"></div>
             <SectionHeader title="Declaración y Cierre" icon={PenTool} colorKey="firmas" />
             <div style={{ background: '#f8fafc', padding: '2rem', borderRadius: '16px', border: '1px solid #e2e8f0', marginBottom: '3rem' }}>
                 <p style={{ margin: 0, fontSize: '0.95rem', color: '#475569', lineHeight: 1.6 }}>
