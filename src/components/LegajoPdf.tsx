@@ -20,7 +20,7 @@ export default function LegajoPdf({ data }: { data: any }): React.ReactElement |
         const color = sectionColors[colorKey] || '#2563eb';
         return (
             <>
-                <div className="html2pdf__page-break"></div>
+                <div style={{ pageBreakBefore: 'always', breakBefore: 'page' }}></div>
                 <div style={{
                     height: '250mm', // Force full page height for divider (A4 is 297mm, giving some margins)
                     display: 'flex',
@@ -55,7 +55,7 @@ export default function LegajoPdf({ data }: { data: any }): React.ReactElement |
                         </p>
                     )}
                 </div>
-                <div className="html2pdf__page-break"></div>
+                <div style={{ pageBreakAfter: 'always', breakAfter: 'page' }}></div>
             </>
         );
     };
@@ -165,7 +165,9 @@ export default function LegajoPdf({ data }: { data: any }): React.ReactElement |
                 height: '260mm', // Full page approx
                 display: 'flex', 
                 flexDirection: 'column', 
-                position: 'relative'
+                position: 'relative',
+                pageBreakAfter: 'always',
+                breakAfter: 'page'
             }}>
                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 'auto', paddingTop: '2rem' }}>
                     <CompanyLogo />
@@ -365,7 +367,7 @@ export default function LegajoPdf({ data }: { data: any }): React.ReactElement |
             {renderAdjuntos(data.ambiente?.adjuntos)}
 
             {/* FIRMAS Y CIERRE */}
-            <div className="html2pdf__page-break"></div>
+            <div style={{ pageBreakBefore: 'always', breakBefore: 'page' }}></div>
             <SectionHeader title="Declaración y Cierre" icon={PenTool} colorKey="firmas" />
             <div style={{ background: '#f8fafc', padding: '2rem', borderRadius: '16px', border: '1px solid #e2e8f0', marginBottom: '3rem' }}>
                 <p style={{ margin: 0, fontSize: '0.95rem', color: '#475569', lineHeight: 1.6 }}>
