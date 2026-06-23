@@ -53,8 +53,8 @@ const PDF_STYLES = `
   }
   .ats-pdf-root {
     font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
-    font-size: 9.5pt;
-    line-height: 1.45;
+    font-size: 8.5pt;
+    line-height: 1.35;
     color: #0f172a;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
@@ -65,12 +65,12 @@ const PDF_STYLES = `
     overflow-wrap: break-word;
   }
   .ats-pdf-section {
-    margin-bottom: 1rem;
+    margin-bottom: 0.85rem;
   }
   .ats-pdf-section-compact {
   }
   .ats-pdf-category-block {
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.6rem;
     break-inside: auto;
     page-break-inside: auto;
   }
@@ -79,7 +79,7 @@ const PDF_STYLES = `
     page-break-after: avoid;
   }
   .ats-pdf-root .no-break {
-    margin-top: 1.25rem !important;
+    margin-top: 1rem !important;
   }
   .ats-pdf-root > .ats-pdf-offscreen-wrap {
     display: block !important;
@@ -93,34 +93,34 @@ const PDF_STYLES = `
   .ats-pdf-table th,
   .ats-pdf-table td {
     border: 1px solid #cbd5e1;
-    padding: 0.45rem 0.55rem;
+    padding: 0.3rem 0.4rem;
     vertical-align: top;
     word-break: break-word;
     overflow-wrap: break-word;
   }
   .ats-pdf-table thead th {
     background: #f1f5f9;
-    font-size: 7.5pt;
+    font-size: 7pt;
     font-weight: 800;
     text-transform: uppercase;
     color: #475569;
     letter-spacing: 0.04em;
   }
   .ats-pdf-check-row td {
-    font-size: 8.5pt;
+    font-size: 7.5pt;
   }
   .ats-pdf-status {
     text-align: center;
     vertical-align: middle;
-    padding: 0.2rem !important;
+    padding: 0.15rem !important;
   }
   .ats-pdf-status-box {
     display: inline-flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 26px;
-    height: 26px;
+    width: 22px;
+    height: 22px;
     border-radius: 4px;
     border: 1px solid transparent;
     margin: 0 auto;
