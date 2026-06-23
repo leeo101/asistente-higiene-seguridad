@@ -531,7 +531,7 @@ export default function ExtinguisherAI() {
                     </div>
 
             {/* Camera / Image Display */}
-            <div id="extinguisher-pdf-content" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div id="extinguisher-pdf-content" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
                 <div style={{
                     position: 'relative',
                     background: 'var(--color-surface)',
@@ -618,8 +618,10 @@ export default function ExtinguisherAI() {
                             alt="Extintor capturado"
                             style={{
                                 width: '100%',
-                                height: 'auto',
-                                display: 'block'
+                                maxHeight: '300px',
+                                objectFit: 'contain',
+                                display: 'block',
+                                background: '#f1f5f9'
                             }}
                         />
                         
@@ -668,7 +670,7 @@ export default function ExtinguisherAI() {
 
             {/* Analysis Results */}
             {analysisResult && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
                     {/* Main Result Card */}
                     <div style={{
                         padding: '1.5rem',
@@ -854,12 +856,16 @@ export default function ExtinguisherAI() {
                     {/* Signature */}
                     {analysisResult && (
                         <div style={{
-                            padding: '1.2rem',
+                            padding: '1rem',
                             background: 'var(--color-surface)',
                             borderRadius: '12px',
                             border: '1px solid var(--color-border)',
-                            marginTop: '1rem',
-                            pageBreakInside: 'avoid'
+                            marginTop: '0.5rem',
+                            pageBreakInside: 'avoid',
+                            textAlign: 'center',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center'
                         }}>
                             <h3 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 800 }}>Firma del Inspector</h3>
                             <input 
@@ -881,10 +887,12 @@ export default function ExtinguisherAI() {
                             
                             {/* PDF View for Signature */}
                             {signature && (
-                                <div className="print-only" style={{ display: 'none' }}>
-                                    <img src={signature} alt="Firma Inspector" style={{ height: '80px', objectFit: 'contain', borderBottom: '1px solid #cbd5e1', marginBottom: '0.5rem' }} />
-                                    <div style={{ fontSize: '9pt', fontWeight: 800 }}>{inspectorName || 'Inspector'}</div>
-                                    <div style={{ fontSize: '8pt', color: '#64748b' }}>Firma del Inspector</div>
+                                <div className="print-only" style={{ display: 'none', textAlign: 'center', marginTop: '1rem' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                        <img src={signature} alt="Firma Inspector" style={{ height: '80px', objectFit: 'contain', borderBottom: '1px solid #cbd5e1', marginBottom: '0.5rem', display: 'block' }} />
+                                    </div>
+                                    <div style={{ fontSize: '9pt', fontWeight: 800, textAlign: 'center' }}>{inspectorName || 'Inspector'}</div>
+                                    <div style={{ fontSize: '8pt', color: '#64748b', textAlign: 'center' }}>Firma del Inspector</div>
                                 </div>
                             )}
                         </div>

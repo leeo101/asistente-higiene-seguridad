@@ -70,7 +70,6 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                     ref={componentRef}
                     style={{
                         width: isLandscape ? '297mm' : '210mm',
-                        minHeight: isLandscape ? '210mm' : '297mm',
                         padding: '15mm', background: '#ffffff', color: '#000000',
                         boxShadow: '0 20px 40px rgba(0,0,0,0.1)', borderRadius: '8px',
                         boxSizing: 'border-box'
