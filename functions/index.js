@@ -5,6 +5,10 @@ const cors = require("cors")({ origin: true });
 const { MercadoPagoConfig, Preference } = require("mercadopago");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const nodemailer = require("nodemailer");
+const admin = require("firebase-admin");
+const { onSchedule } = require("firebase-functions/v2/scheduler");
+
+admin.initializeApp();
 
 setGlobalOptions({ maxInstances: 10, region: "us-central1" });
 
@@ -202,3 +206,104 @@ exports.forgotPassword = onRequest((req, res) => {
         }
     });
 });
+
+// ==========================================
+// EXPIRY NOTIFICATIONS CRON JOB
+// ==========================================
+exports.checkExpirationsJob = onSchedule("every day 08:00", async (event) => {
+    logger.info("Iniciando checkExpirationsJob (8:00 AM)...");
+    
+    function getDaysLeft(dateStr, lifespanMonths) {
+        if (!dateStr) return null;
+        const base = new Date(dateStr);
+        if (isNaN(base.getTime())) return null;
+        if (lifespanMonths) {
+            base.setMonth(base.getMonth() + Number(lifespanMonths));
+        }
+        // Normalize today to start of day
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        base.setHours(0, 0, 0, 0);
+        
+        return Math.ceil((base.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    }
+
+    try {
+        const usersSnapshot = await admin.firestore().collection("users").get();
+        if (usersSnapshot.empty) {
+            logger.info("No hay usuarios registrados.");
+            return;
+        }
+
+        let totalMessages = 0;
+
+        for (const userDoc of usersSnapshot.docs) {
+            const uid = userDoc.id;
+            
+            // Buscar tokens del usuario
+            const tokensSnapshot = await admin.firestore().collection("users").doc(uid).collection("fcmTokens").get();
+            if (tokensSnapshot.empty) continue; // No tiene dispositivos registrados para push
+            
+            const tokens = tokensSnapshot.docs.map(doc => doc.data().token).filter(t => t);
+            if (tokens.length === 0) continue;
+
+            const notificationsToSend = [];
+
+            // 1. REVISAR EXTINTORES
+            const extDoc = await admin.firestore().collection("users").doc(uid).collection("data").doc("extinguishers_inventory").get();
+            if (extDoc.exists) {
+                const items = extDoc.data().items || [];
+                for (const ext of items) {
+                    if (ext.ultimaCarga) {
+                        const daysLeft = getDaysLeft(ext.ultimaCarga, 12);
+                        if (daysLeft === 0 || daysLeft === 7) {
+                            notificationsToSend.push({
+                                title: daysLeft === 0 ? "¡Extintor Vencido!" : "Extintor próximo a vencer",
+                                body: `El extintor #${ext.chapa} (${ext.ubicacion || 'sin ubicación'}) ${daysLeft === 0 ? 'venció HOY' : 'vence en 7 días'} (Recarga).`,
+                                url: "/extinguishers"
+                            });
+                        }
+                    }
+                    if (ext.ultimaPH) {
+                        const daysLeft = getDaysLeft(ext.ultimaPH, 60);
+                        if (daysLeft === 0 || daysLeft === 7) {
+                            notificationsToSend.push({
+                                title: daysLeft === 0 ? "¡Extintor Vencido!" : "Extintor próximo a vencer",
+                                body: `El extintor #${ext.chapa} (${ext.ubicacion || 'sin ubicación'}) ${daysLeft === 0 ? 'venció HOY' : 'vence en 7 días'} (P. Hidráulica).`,
+                                url: "/extinguishers"
+                            });
+                        }
+                    }
+                }
+            }
+
+            // (Se podrían agregar más chequeos para contratistas, EPP, etc. aquí usando el mismo patrón)
+
+            // Enviar notificaciones si hay alguna
+            if (notificationsToSend.length > 0) {
+                for (const notif of notificationsToSend) {
+                    const message = {
+                        notification: {
+                            title: notif.title,
+                            body: notif.body
+                        },
+                        data: {
+                            url: notif.url,
+                            tag: "hys-push"
+                        },
+                        tokens: tokens
+                    };
+                    
+                    const response = await admin.messaging().sendEachForMulticast(message);
+                    logger.info(`Notificaciones enviadas al usuario ${uid}: ${response.successCount} exitosas, ${response.failureCount} fallidas.`);
+                    totalMessages += response.successCount;
+                }
+            }
+        }
+        
+        logger.info(`checkExpirationsJob finalizado. Total mensajes enviados: ${totalMessages}`);
+    } catch (error) {
+        logger.error("Error en checkExpirationsJob", error);
+    }
+});
+

@@ -5,7 +5,12 @@ const APP_ICON = '/favicon-180.png';
 const APP_BADGE = '/favicon-32.png';
 const APP_NAME = 'Asistente HYS';
 
+import { messaging, db } from '../firebase';
+import { getToken, onMessage } from 'firebase/messaging';
+import { doc, setDoc } from 'firebase/firestore';
+
 export type NotifPermission = 'granted' | 'denied' | 'default' | 'unsupported';
+
 
 /** Retorna el estado actual del permiso de notificaciones */
 export function getPermissionStatus(): NotifPermission {
@@ -25,6 +30,46 @@ export async function requestNotificationPermission(): Promise<NotifPermission> 
 export function isNotificationDenied(): boolean {
     return typeof Notification !== 'undefined' && Notification.permission === 'denied';
 }
+
+const VAPID_KEY = 'BP7GtLUGNUkD3SKfdXD2mbou3KXh-9PiRVNIZ1-EEnYz9e62vnC-Hng8vWZxN7sNVZ5_Hp22gP6rBGaCgiwePvs';
+
+export async function requestAndSaveToken(uid: string) {
+    try {
+        const msg = messaging();
+        if (!msg) return; // No soportado
+
+        const permission = await requestNotificationPermission();
+        if (permission !== 'granted') {
+            console.log('Permiso de notificaciones denegado.');
+            return;
+        }
+
+        const token = await getToken(msg, { vapidKey: VAPID_KEY });
+        if (token) {
+            console.log('FCM Token obtenido. Guardando en Firestore...', token);
+            await setDoc(doc(db, 'users', uid, 'fcmTokens', token), {
+                token,
+                updatedAt: Date.now()
+            });
+        } else {
+            console.log('No se pudo obtener el FCM token.');
+        }
+
+        onMessage(msg, (payload) => {
+            console.log('[Foreground] Notificación recibida:', payload);
+            sendNotification({
+                title: payload.notification?.title || 'Notificación',
+                body: payload.notification?.body || '',
+                tag: payload.data?.tag,
+                url: payload.data?.url
+            });
+        });
+
+    } catch (e) {
+        console.error('Error al registrar notificaciones push:', e);
+    }
+}
+
 
 export interface NotificationPayload {
     title: string;

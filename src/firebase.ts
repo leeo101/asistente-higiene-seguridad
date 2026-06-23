@@ -7,6 +7,7 @@ import {
   Firestore
 } from "firebase/firestore";
 import { initializeAppCheck, ReCaptchaV3Provider, AppCheck } from "firebase/app-check";
+import { getMessaging, Messaging, isSupported } from "firebase/messaging";
 
 // Configuración de Firebase
 interface FirebaseConfig {
@@ -59,6 +60,14 @@ if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
 export const auth: Auth = getAuth(app);
 export const db: Firestore = getFirestore(app);
 export const storage: FirebaseStorage = getStorage(app);
+
+let messagingInstance: Messaging | null = null;
+isSupported().then((supported) => {
+  if (supported) {
+    messagingInstance = getMessaging(app);
+  }
+});
+export const messaging = () => messagingInstance;
 
 // Habilitar persistencia offline para que Firestore encole escrituras
 // y permita lecturas al no tener internet

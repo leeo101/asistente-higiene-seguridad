@@ -201,6 +201,20 @@ function GlobalPrintGuard() {
   return null;
 }
 
+import { requestAndSaveToken } from './services/notificationService';
+
+function PushNotificationEnabler() {
+  const { currentUser } = useAuth();
+  
+  useEffect(() => {
+    if (currentUser?.uid) {
+      requestAndSaveToken(currentUser.uid);
+    }
+  }, [currentUser]);
+
+  return null;
+}
+
 function ThemeApplier() {
   const { currentUser } = useAuth();
 
@@ -471,6 +485,7 @@ function App() {
       <SyncProvider>
         <ScrollToTop />
         <GlobalPrintGuard />
+        <PushNotificationEnabler />
         <ThemeApplier />
         <NetworkBadge />
         <OfflineIndicator />
