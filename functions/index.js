@@ -142,7 +142,8 @@ Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de
 
 const { Resend } = require("resend");
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || "dummy_key_for_build");
+
 
 exports.forgotPassword = onRequest((req, res) => {
     return cors(req, res, async () => {
