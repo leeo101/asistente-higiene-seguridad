@@ -49,12 +49,12 @@ interface ATSPdfGeneratorProps {
 const PDF_STYLES = `
   @page {
     size: A4 portrait;
-    margin: 14mm 12mm 16mm 12mm;
+    margin: 10mm 10mm 12mm 10mm;
   }
   .ats-pdf-root {
     font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
-    font-size: 8pt;
-    line-height: 1.3;
+    font-size: 7.5pt;
+    line-height: 1.25;
     color: #0f172a;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
@@ -93,7 +93,7 @@ const PDF_STYLES = `
   .ats-pdf-table th,
   .ats-pdf-table td {
     border: 1px solid #cbd5e1;
-    padding: 0.25rem 0.35rem;
+    padding: 0.15rem 0.25rem;
     vertical-align: top;
     word-break: break-word;
     overflow-wrap: break-word;
@@ -119,8 +119,8 @@ const PDF_STYLES = `
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     border-radius: 4px;
     border: 1px solid transparent;
     margin: 0 auto;
@@ -229,7 +229,7 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
         style={{
           width: '100%',
           maxWidth: '210mm',
-          padding: '10mm 12mm',
+          padding: '6mm 10mm',
           background: '#ffffff',
           color: '#0f172a',
           margin: '0 auto',
@@ -239,22 +239,22 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
         <style type="text/css">{PDF_STYLES}</style>
 
         {/* Encabezado */}
-        <div className="ats-pdf-section ats-pdf-section-compact" style={{ borderBottom: '3px solid #e2e8f0', paddingBottom: '1rem', marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
+        <div className="ats-pdf-section ats-pdf-section-compact" style={{ borderBottom: '3px solid #e2e8f0', paddingBottom: '0.6rem', marginBottom: '0.8rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.8rem' }}>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '7pt', fontWeight: 800, color: '#64748b', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+              <div style={{ fontSize: '6.5pt', fontWeight: 800, color: '#64748b', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
                 Sistema de Gestión · Higiene y Seguridad
               </div>
-              <h1 style={{ margin: '0.35rem 0 0', fontSize: '22pt', fontWeight: 900, letterSpacing: '-0.02em', color: '#0f172a', lineHeight: 1 }}>
+              <h1 style={{ margin: '0.2rem 0 0', fontSize: '18pt', fontWeight: 900, letterSpacing: '-0.02em', color: '#0f172a', lineHeight: 1 }}>
                 Análisis de Trabajo Seguro
               </h1>
-              <div style={{ marginTop: '0.35rem', fontSize: '8pt', color: '#3b82f6', fontWeight: 800, letterSpacing: '0.08em' }}>
+              <div style={{ marginTop: '0.2rem', fontSize: '7.5pt', color: '#3b82f6', fontWeight: 800, letterSpacing: '0.08em' }}>
                 ATS · DOCUMENTO TÉCNICO
               </div>
             </div>
-            <div style={{ textAlign: 'right', minWidth: '120px' }}>
-              <CompanyLogo style={{ height: '38px', maxWidth: '130px', marginLeft: 'auto' }} />
-              <div style={{ marginTop: '0.5rem', fontSize: '7pt', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>
+            <div style={{ textAlign: 'right', minWidth: '100px' }}>
+              <CompanyLogo style={{ height: '32px', maxWidth: '110px', marginLeft: 'auto' }} />
+              <div style={{ marginTop: '0.3rem', fontSize: '6.5pt', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>
                 Ref. {docId}
               </div>
             </div>

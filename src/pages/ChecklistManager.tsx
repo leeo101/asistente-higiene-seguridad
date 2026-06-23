@@ -1554,21 +1554,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                         </button>
                         <button
                             onClick={() => {
-                                setShareItem({
-                                    id: Date.now(),
-                                    empresa: companyInfo.name,
-                                    area: companyInfo.address,
-                                    responsable: companyInfo.responsable,
-                                    fecha: inspectionInfo.date,
-                                    inspector: companyInfo.inspector,
-                                    proximaInspeccion: inspectionInfo.expirationDate,
-                                    sections: activeSections,
-                                    observations,
-                                    actionPlan,
-                                    operatorSignature,
-                                    signature,
-                                    supervisorSignature
-                                });
+                                requirePro(() => setShowShare(true));
                             }}
                             style={{ padding: '0.8rem 1.2rem', borderRadius: '14px', background: 'var(--color-surface)', border: '2px solid rgba(59, 130, 246, 0.3)', color: '#3b82f6', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
                             className="hover:bg-blue-50 dark:hover:bg-blue-900/10"

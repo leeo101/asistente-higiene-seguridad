@@ -639,14 +639,15 @@ export default function ShareModal({
                             display: none;
                         }
                         .share-close-btn {
-                            top: 0.5rem;
-                            right: 0.5rem;
+                            position: fixed;
+                            top: 1.5rem;
+                            right: 1.5rem;
                             width: 38px;
                             height: 38px;
                             background: #ef4444;
                             color: #ffffff;
                             border-radius: 50%;
-                            z-index: 99999;
+                            z-index: 999999;
                             box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5);
                         }
                         .share-header {
