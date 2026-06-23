@@ -113,9 +113,11 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
             textAlign: 'center'
         }}>
             <div style={{ 
-                display: 'block', 
+                display: 'flex', 
+                justifyContent: 'center',
+                alignItems: 'flex-start',
                 width: '100%',
-                textAlign: 'center'
+                gap: '1rem'
             }}>
                 {boxes.map((box, idx) => {
                     const isPro = box.isProfessional;
@@ -127,19 +129,16 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
 
                     return (
                         <div key={idx} style={{
-                            display: 'inline-block',
-                            verticalAlign: 'top',
+                            flex: boxes.length === 1 ? '0 0 280px' : '1 1 0',
+                            margin: boxes.length === 1 ? '0 auto' : '0',
                             border: `1px solid ${borderCol}`,
                             background: bgCol,
                             borderRadius: '6px',
                             padding: '0.8rem',
                             textAlign: 'center',
-                            width: '30%', // Slightly less than 33% to allow for margins
-                            margin: '0 1%', // This replaces the flex gap
                             minWidth: '220px',
                             maxWidth: '280px',
-                            boxSizing: 'border-box',
-                            fontSize: '1rem' // restore font size
+                            boxSizing: 'border-box'
                         }}>
                             {/* Signature / Stamp image row */}
                                     <div style={{
