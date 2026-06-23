@@ -110,13 +110,13 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
             borderTop: '2px dashed #cbd5e1',
             paddingTop: '1.5rem',
             paddingBottom: '1rem',
-            overflowX: 'auto'
+            textAlign: 'center'
         }}>
             <div style={{ 
-                display: 'flex', 
-                gap: '1rem', 
-                justifyContent: 'center', // Alinear al centro
-                width: '100%'
+                display: 'block', 
+                width: '100%',
+                textAlign: 'center',
+                fontSize: 0 // to remove inline-block whitespace
             }}>
                 {boxes.map((box, idx) => {
                     const isPro = box.isProfessional;
@@ -128,14 +128,19 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
 
                     return (
                         <div key={idx} style={{
+                            display: 'inline-block',
+                            verticalAlign: 'top',
                             border: `1px solid ${borderCol}`,
                             background: bgCol,
                             borderRadius: '6px',
                             padding: '0.8rem',
                             textAlign: 'center',
-                            flex: '0 0 calc(33.333% - 0.66rem)', // Exactamente el mismo tamaño que si hubieran 3
-                            maxWidth: '280px', // Evitar que crezca demasiado en pantallas/hojas grandes
-                            boxSizing: 'border-box'
+                            width: '30%', // Slightly less than 33% to allow for margins
+                            margin: '0 1%', // This replaces the flex gap
+                            minWidth: '220px',
+                            maxWidth: '280px',
+                            boxSizing: 'border-box',
+                            fontSize: '1rem' // restore font size
                         }}>
                             {/* Signature / Stamp image row */}
                                     <div style={{
