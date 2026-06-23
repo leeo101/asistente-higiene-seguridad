@@ -614,28 +614,17 @@ export default function Home(): React.ReactElement {
                 La plataforma de Higiene y Seguridad con IA que redacta, calcula y genera PDFs profesionales. Validado por la normativa de toda la región.
               </p>
               <div className="hero-buttons stagger-item" style={{ animationDelay: '0.3s', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: isMobile ? 'center' : 'flex-start', flexDirection: isMobile ? 'column' : 'row', width: '100%' }}>
-                {isMobile ? (
-                  <>
-                    <button onClick={() => navigate('/login', { state: { view: 'login' } })} style={{ padding: '1.1rem 2.5rem', borderRadius: 'var(--radius-xl)', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)', color: 'white', fontWeight: 700, cursor: 'pointer', fontSize: '1.1rem', transition: 'all 0.3s ease', width: '100%' }} onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}>
-                      Iniciar Sesión
-                    </button>
-                    <button onClick={() => navigate('/login', { state: { view: 'register' } })} className="glow-button hover-lift" style={{ padding: '1.1rem 2.5rem', fontSize: '1.1rem', width: '100%' }}>
-                      Registrarse <ArrowRight size={20} style={{ display: 'inline', verticalAlign: 'middle', margin: '-2px 0 0 0.5rem' }} />
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button onClick={() => navigate('/login', { state: { view: 'register' } })} className="glow-button hover-lift" style={{ padding: '1.1rem 2.5rem', fontSize: '1.1rem' }}>
-                      Generar mi primer ATS Gratis <ArrowRight size={20} style={{ display: 'inline', verticalAlign: 'middle', margin: '-2px 0 0 0.5rem' }} />
-                    </button>
-                    <button onClick={() => {
-                      const demoInput = document.querySelector('.glass-mockup input') as HTMLInputElement;
-                      if (demoInput) demoInput.focus();
-                    }} style={{ padding: '1.1rem 2.5rem', borderRadius: 'var(--radius-xl)', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)', color: 'white', fontWeight: 700, cursor: 'pointer', fontSize: '1.1rem', transition: 'all 0.3s ease' }} onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}>
-                      Ver Demo de IA
-                    </button>
-                  </>
-                )}
+                <>
+                  <button onClick={() => navigate('/login', { state: { view: 'register' } })} className="glow-button hover-lift" style={{ padding: '1.1rem 2.5rem', fontSize: '1.1rem', width: isMobile ? '100%' : 'auto' }}>
+                    {isMobile ? 'Empezar Gratis' : 'Generar mi primer ATS Gratis'} <ArrowRight size={20} style={{ display: 'inline', verticalAlign: 'middle', margin: '-2px 0 0 0.5rem' }} />
+                  </button>
+                  <button onClick={() => {
+                    const demoInput = document.querySelector('.glass-mockup input') as HTMLInputElement;
+                    if (demoInput) demoInput.focus();
+                  }} style={{ padding: '1.1rem 2.5rem', borderRadius: 'var(--radius-xl)', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)', color: 'white', fontWeight: 700, cursor: 'pointer', fontSize: '1.1rem', transition: 'all 0.3s ease', width: isMobile ? '100%' : 'auto' }} onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}>
+                    Ver Demo de IA
+                  </button>
+                </>
               </div>
               {/* Social proof avatars */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1.5rem', justifyContent: isMobile ? 'center' : 'flex-start' }}>
