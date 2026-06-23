@@ -87,7 +87,8 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
             rescue: ''
         },
         equipment: EQUIPMENT_CHECKLIST.map(e => ({ ...e, checked: false })),
-        atmosphericReadings: [],
+        gasMonitoring: { o2: '', lel: '', co: '', h2s: '', time: '' },
+        ventilation: { natural: false, forced: false, extractive: false },
         importance: 'high',
         status: 'pending',
         createdAt: new Date().toISOString(),
@@ -150,6 +151,8 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
             setPermit({
                 ...edit,
                 equipment: edit.equipment || EQUIPMENT_CHECKLIST.map(e => ({ ...e, checked: false })),
+                gasMonitoring: edit.gasMonitoring || { o2: '', lel: '', co: '', h2s: '', time: '' },
+                ventilation: edit.ventilation || { natural: false, forced: false, extractive: false },
                 hazards: edit.hazards || [],
                 team: edit.team || { entrants: [], attendant: '', supervisor: '', rescue: '' },
                 operatorSignature: edit.operatorSignature || '',
@@ -378,6 +381,48 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                             <label style={labelStyle}>Equipo de Rescate</label>
                             <input type="text" className="input-professional" value={permit.team.rescue} onChange={(e) => setPermit({ ...permit, team: { ...permit.team, rescue: e.target.value } })} placeholder="Empresa o equipo interno" />
                         </div>
+                    </div>
+
+                    {/* Sección: Monitoreo Atmosférico */}
+                    <SectionTitle icon={<Activity size={20} />} title="Monitoreo Atmosférico" />
+                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(5, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
+                        <div>
+                            <label style={labelStyle}>O₂ (%)</label>
+                            <input type="number" step="0.1" className="input-professional" value={permit.gasMonitoring?.o2 || ''} onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, o2: e.target.value } })} placeholder="20.9" />
+                        </div>
+                        <div>
+                            <label style={labelStyle}>LEL (%)</label>
+                            <input type="number" step="1" className="input-professional" value={permit.gasMonitoring?.lel || ''} onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, lel: e.target.value } })} placeholder="0" />
+                        </div>
+                        <div>
+                            <label style={labelStyle}>CO (ppm)</label>
+                            <input type="number" step="1" className="input-professional" value={permit.gasMonitoring?.co || ''} onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, co: e.target.value } })} placeholder="0" />
+                        </div>
+                        <div>
+                            <label style={labelStyle}>H₂S (ppm)</label>
+                            <input type="number" step="1" className="input-professional" value={permit.gasMonitoring?.h2s || ''} onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, h2s: e.target.value } })} placeholder="0" />
+                        </div>
+                        <div>
+                            <label style={labelStyle}>Hora Medición</label>
+                            <input type="time" className="input-professional" value={permit.gasMonitoring?.time || ''} onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, time: e.target.value } })} />
+                        </div>
+                    </div>
+
+                    {/* Sección: Ventilación */}
+                    <SectionTitle icon={<Wind size={20} />} title="Ventilación" />
+                    <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                            <input type="checkbox" checked={permit.ventilation?.natural || false} onChange={(e) => setPermit({ ...permit, ventilation: { ...permit.ventilation, natural: e.target.checked } })} style={{ width: '20px', height: '20px' }} />
+                            <span style={{ fontWeight: 700 }}>Natural</span>
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                            <input type="checkbox" checked={permit.ventilation?.forced || false} onChange={(e) => setPermit({ ...permit, ventilation: { ...permit.ventilation, forced: e.target.checked } })} style={{ width: '20px', height: '20px' }} />
+                            <span style={{ fontWeight: 700 }}>Forzada</span>
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                            <input type="checkbox" checked={permit.ventilation?.extractive || false} onChange={(e) => setPermit({ ...permit, ventilation: { ...permit.ventilation, extractive: e.target.checked } })} style={{ width: '20px', height: '20px' }} />
+                            <span style={{ fontWeight: 700 }}>Extractiva</span>
+                        </label>
                     </div>
 
                     {/* Observaciones */}

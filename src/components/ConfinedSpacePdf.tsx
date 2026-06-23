@@ -137,11 +137,11 @@ export default function ConfinedSpacePdf({ data }: { data: any }): React.ReactEl
 
                 {/* Monitoreo Atmosférico */}
                 <div style={{ marginBottom: '1.5rem', border: hasGasAlert ? '1.5px solid #fca5a5' : '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden' }}>
-                    <div style={{ background: '#1e293b', padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <Activity size={16} color="#fff" />
-                        <span style={{ fontWeight: 900, fontSize: '0.78rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em' }}>MONITOREO ATMOSFÉRICO OBLIGATORIO</span>
+                    <div style={{ background: '#1e293b', padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <Activity size={16} color="#ffffff" />
+                        <span style={{ fontWeight: 900, fontSize: '0.78rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em', WebkitTextFillColor: '#ffffff' }}>MONITOREO ATMOSFÉRICO OBLIGATORIO</span>
                         {hasGasAlert && (
-                            <span style={{ marginLeft: 'auto', background: '#dc2626', color: '#fff', padding: '0.15rem 0.6rem', borderRadius: '10px', fontSize: '0.65rem', fontWeight: 900 }}>⚠ FUERA DE LÍMITES</span>
+                            <span style={{ marginLeft: 'auto', background: '#dc2626', color: '#ffffff', padding: '0.15rem 0.6rem', borderRadius: '10px', fontSize: '0.65rem', fontWeight: 900, WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact', WebkitTextFillColor: '#ffffff' }}>⚠ FUERA DE LÍMITES</span>
                         )}
                     </div>
 
@@ -168,20 +168,20 @@ export default function ConfinedSpacePdf({ data }: { data: any }): React.ReactEl
 
                 {/* Ventilación y Peligros */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
-                    <div style={{ border: '1px solid #bfdbfe', borderRadius: '6px', overflow: 'hidden' }}>
-                        <div style={{ background: '#1e40af', padding: '0.5rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                            <Wind size={15} color="#fff" />
-                            <span style={{ fontWeight: 900, fontSize: '0.72rem', color: '#fff', textTransform: 'uppercase' }}>VENTILACIÓN</span>
+                    <div style={{ border: '1px solid #bfdbfe', borderRadius: '6px', overflow: 'hidden', breakInside: 'avoid' }}>
+                        <div style={{ background: '#1e40af', padding: '0.5rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                            <Wind size={15} color="#ffffff" />
+                            <span style={{ fontWeight: 900, fontSize: '0.72rem', color: '#ffffff', textTransform: 'uppercase', WebkitTextFillColor: '#ffffff' }}>VENTILACIÓN</span>
                         </div>
                         <div style={{ padding: '0.8rem', background: '#eff6ff', fontSize: '0.85rem', fontWeight: 700, color: '#1e40af', minHeight: '50px' }}>
                             {ventilationText}
                         </div>
                     </div>
 
-                    <div style={{ border: '1px solid #fca5a5', borderRadius: '6px', overflow: 'hidden' }}>
-                        <div style={{ background: '#991b1b', padding: '0.5rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                            <AlertTriangle size={15} color="#fff" />
-                            <span style={{ fontWeight: 900, fontSize: '0.72rem', color: '#fff', textTransform: 'uppercase' }}>PELIGROS DETECTADOS</span>
+                    <div style={{ border: '1px solid #fca5a5', borderRadius: '6px', overflow: 'hidden', breakInside: 'avoid' }}>
+                        <div style={{ background: '#991b1b', padding: '0.5rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                            <AlertTriangle size={15} color="#ffffff" />
+                            <span style={{ fontWeight: 900, fontSize: '0.72rem', color: '#ffffff', textTransform: 'uppercase', WebkitTextFillColor: '#ffffff' }}>PELIGROS DETECTADOS</span>
                         </div>
                         <div style={{ padding: '0.8rem', background: '#fef2f2', display: 'flex', flexWrap: 'wrap', gap: '0.3rem', minHeight: '50px' }}>
                             {data.hazards?.length > 0 ? data.hazards.map((p, i) => (
@@ -191,11 +191,59 @@ export default function ConfinedSpacePdf({ data }: { data: any }): React.ReactEl
                     </div>
                 </div>
 
+                {/* Equipo de Trabajo */}
+                {data.team && (
+                    <div style={{ marginBottom: '1.5rem', border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden', breakInside: 'avoid' }}>
+                        <div style={{ background: '#0f172a', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                            <User size={15} color="#ffffff" />
+                            <span style={{ fontWeight: 900, fontSize: '0.72rem', color: '#ffffff', textTransform: 'uppercase', WebkitTextFillColor: '#ffffff' }}>EQUIPO DE TRABAJO ASIGNADO</span>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', background: '#ffffff', fontSize: '0.8rem' }}>
+                            <div style={{ padding: '0.6rem 0.8rem', borderRight: '1px solid #e2e8f0' }}>
+                                <span style={{ fontWeight: 800, color: '#64748b', fontSize: '0.65rem', display: 'block', marginBottom: '0.2rem' }}>ENTRANTES</span>
+                                {data.team.entrants?.length > 0 ? data.team.entrants.map((e: string, i: number) => <div key={i} style={{ fontWeight: 700 }}>• {e}</div>) : '-'}
+                            </div>
+                            <div style={{ padding: '0.6rem 0.8rem', borderRight: '1px solid #e2e8f0' }}>
+                                <span style={{ fontWeight: 800, color: '#64748b', fontSize: '0.65rem', display: 'block', marginBottom: '0.2rem' }}>VIGÍA</span>
+                                <div style={{ fontWeight: 700 }}>{data.team.attendant || '-'}</div>
+                            </div>
+                            <div style={{ padding: '0.6rem 0.8rem', borderRight: '1px solid #e2e8f0' }}>
+                                <span style={{ fontWeight: 800, color: '#64748b', fontSize: '0.65rem', display: 'block', marginBottom: '0.2rem' }}>SUPERVISOR</span>
+                                <div style={{ fontWeight: 700 }}>{data.team.supervisor || '-'}</div>
+                            </div>
+                            <div style={{ padding: '0.6rem 0.8rem' }}>
+                                <span style={{ fontWeight: 800, color: '#64748b', fontSize: '0.65rem', display: 'block', marginBottom: '0.2rem' }}>RESCATE</span>
+                                <div style={{ fontWeight: 700 }}>{data.team.rescue || '-'}</div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Equipamiento */}
+                {data.equipment && (
+                    <div style={{ marginBottom: '1.5rem', border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden', breakInside: 'avoid' }}>
+                        <div style={{ background: '#0f172a', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                            <ShieldCheck size={15} color="#ffffff" />
+                            <span style={{ fontWeight: 900, fontSize: '0.72rem', color: '#ffffff', textTransform: 'uppercase', WebkitTextFillColor: '#ffffff' }}>EQUIPAMIENTO DE SEGURIDAD REQUERIDO</span>
+                        </div>
+                        <div style={{ background: '#f8fafc', padding: '0.8rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                            {data.equipment.filter((e: any) => e.checked).length > 0 
+                                ? data.equipment.filter((e: any) => e.checked).map((e: any, i: number) => (
+                                    <span key={i} style={{ background: '#ffffff', border: '1px solid #cbd5e1', color: '#0f172a', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                                        <span style={{ color: '#16a34a' }}>✓</span> {e.name}
+                                    </span>
+                                ))
+                                : <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>Ningún equipo seleccionado</span>
+                            }
+                        </div>
+                    </div>
+                )}
+
                 {/* Observaciones */}
                 {data.observations && (
-                    <div style={{ marginBottom: '1.5rem', border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden' }}>
-                        <div style={{ background: '#334155', color: '#fff', padding: '0.5rem 1rem', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                            OBSERVACIONES Y CONCLUSIONES DEL INSPECTOR
+                    <div style={{ marginBottom: '1.5rem', border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden', breakInside: 'avoid' }}>
+                        <div style={{ background: '#334155', padding: '0.5rem 1rem', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                            <span style={{ color: '#ffffff', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', WebkitTextFillColor: '#ffffff' }}>OBSERVACIONES Y CONCLUSIONES DEL INSPECTOR</span>
                         </div>
                         <div style={{ padding: '0.8rem 1rem', fontSize: '0.85rem', color: '#334155', fontWeight: 600, lineHeight: 1.6, whiteSpace: 'pre-wrap', background: '#f8fafc' }}>
                             {data.observations}

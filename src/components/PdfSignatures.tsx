@@ -144,7 +144,7 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
                                         width: '100%',
                                         display: 'flex',
                                         justifyContent: 'center',
-                                        alignItems: 'flex-end',
+                                        alignItems: 'center',
                                         borderBottom: `1px solid ${lineCol}`,
                                         paddingBottom: '0.5rem',
                                         marginBottom: '0.5rem',
