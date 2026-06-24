@@ -19,44 +19,41 @@ export default function LegajoPdf({ data }: { data: any }): React.ReactElement |
     const ChapterDivider = ({ title, subtitle, icon: Icon, colorKey, chapterNum }: any) => {
         const color = sectionColors[colorKey] || '#2563eb';
         return (
-            <>
-                <div style={{ pageBreakBefore: 'always', breakBefore: 'page' }}></div>
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                background: `linear-gradient(135deg, #ffffff 0%, ${color}08 100%)`,
+                borderRadius: '24px',
+                border: `1px solid ${color}20`,
+                margin: '20px 0',
+                padding: '1.5rem',
+                textAlign: 'center',
+                pageBreakInside: 'avoid',
+                breakInside: 'avoid'
+            }}>
                 <div style={{
-                    height: '250mm', // Force full page height for divider (A4 is 297mm, giving some margins)
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    background: `linear-gradient(135deg, #ffffff 0%, ${color}08 100%)`,
-                    borderRadius: '24px',
-                    border: `1px solid ${color}20`,
-                    margin: '10mm 0',
-                    padding: '2rem',
-                    textAlign: 'center'
+                    width: '60px', height: '60px', borderRadius: '16px',
+                    background: `linear-gradient(135deg, ${color}, ${color}dd)`, color: '#fff',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    marginBottom: '1rem',
+                    boxShadow: `0 10px 30px ${color}40`
                 }}>
-                    <div style={{
-                        width: '80px', height: '80px', borderRadius: '20px',
-                        background: `linear-gradient(135deg, ${color}, ${color}dd)`, color: '#fff',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        marginBottom: '2rem',
-                        boxShadow: `0 10px 30px ${color}40`
-                    }}>
-                        <Icon size={40} />
-                    </div>
-                    <div style={{ color: color, fontWeight: 900, fontSize: '1.2rem', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
-                        Capítulo {chapterNum}
-                    </div>
-                    <h2 style={{ margin: 0, fontSize: '2.5rem', fontWeight: 900, color: '#1e293b', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
-                        {title}
-                    </h2>
-                    {subtitle && (
-                        <p style={{ fontSize: '1.1rem', color: '#64748b', marginTop: '1rem', fontWeight: 500 }}>
-                            {subtitle}
-                        </p>
-                    )}
+                    <Icon size={30} />
                 </div>
-                <div style={{ pageBreakAfter: 'always', breakAfter: 'page' }}></div>
-            </>
+                <div style={{ color: color, fontWeight: 900, fontSize: '1rem', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+                    Capítulo {chapterNum}
+                </div>
+                <h2 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, color: '#1e293b', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
+                    {title}
+                </h2>
+                {subtitle && (
+                    <p style={{ fontSize: '1rem', color: '#64748b', marginTop: '0.5rem', fontWeight: 500 }}>
+                        {subtitle}
+                    </p>
+                )}
+            </div>
         );
     };
 
@@ -162,7 +159,7 @@ export default function LegajoPdf({ data }: { data: any }): React.ReactElement |
 
             {/* CARÁTULA PRINCIPAL (COVER PAGE) */}
             <div style={{ 
-                height: '260mm', // Full page approx
+                minHeight: '230mm', // Ensures it covers most of the page without overflowing to a second blank page
                 display: 'flex', 
                 flexDirection: 'column', 
                 position: 'relative',
