@@ -15,6 +15,7 @@ import {
 } from '../services/notificationService';
 import { getCountryNormativa } from '../data/legislationData';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useSync } from '../contexts/SyncContext';
 
 const MONTHS = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const DAYS_SHORT = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
@@ -126,6 +127,7 @@ function urgencyBadge(days: number) {
 export default function SafetyCalendar(): React.ReactElement | null {
     useDocumentTitle('Calendario HYS');
     const navigate = useNavigate();
+    const { syncCollection } = useSync();
     const today = new Date();
     const [currentMonth, setCurrentMonth] = useState(today.getMonth());
     const [currentYear,  setCurrentYear]  = useState(today.getFullYear());
@@ -160,9 +162,10 @@ export default function SafetyCalendar(): React.ReactElement | null {
         initializeSchedules(loaded);
     }, []);
 
-    const saveManualEvents = (ev: any[]) => {
+    const saveManualEvents = async (ev: any[]) => {
         setManualEvents(ev);
         localStorage.setItem('safety_calendar_events', JSON.stringify(ev));
+        await syncCollection('safety_calendar_events', ev);
     };
 
     const addEvent = () => {

@@ -279,6 +279,124 @@ exports.checkExpirationsJob = onSchedule("every day 08:00", async (event) => {
             }
 
             // (Se podrían agregar más chequeos para contratistas, EPP, etc. aquí usando el mismo patrón)
+            
+            // 2. CONTRATISTAS
+            const contractorsDoc = await admin.firestore().collection("users").doc(uid).collection("data").doc("contractors_data").get();
+            if (contractorsDoc.exists) {
+                const items = contractorsDoc.data().items || [];
+                for (const c of items) {
+                    if (c.documentExpiresAt) {
+                        const daysLeft = getDaysLeft(c.documentExpiresAt, 0);
+                        if (daysLeft === 0 || daysLeft === 7) {
+                            notificationsToSend.push({
+                                title: daysLeft === 0 ? "¡Documentación Vencida!" : "Documentación próxima a vencer",
+                                body: `La documentación principal del contratista ${c.name} ${daysLeft === 0 ? 'venció HOY' : 'vence en 7 días'}.`,
+                                url: "/contractors"
+                            });
+                        }
+                    }
+                }
+            }
+
+            // 3. PERSONAL DE CONTRATISTAS
+            const workersDoc = await admin.firestore().collection("users").doc(uid).collection("data").doc("workers_data").get();
+            if (workersDoc.exists) {
+                const items = workersDoc.data().items || [];
+                for (const w of items) {
+                    if (w.artExpiresAt) {
+                        const daysLeft = getDaysLeft(w.artExpiresAt, 0);
+                        if (daysLeft === 0 || daysLeft === 7) {
+                            notificationsToSend.push({
+                                title: daysLeft === 0 ? "¡ART Vencida!" : "ART próxima a vencer",
+                                body: `La ART de ${w.name} ${daysLeft === 0 ? 'venció HOY' : 'vence en 7 días'}.`,
+                                url: "/contractors"
+                            });
+                        }
+                    }
+                    if (w.lifeInsuranceExpiresAt) {
+                        const daysLeft = getDaysLeft(w.lifeInsuranceExpiresAt, 0);
+                        if (daysLeft === 0 || daysLeft === 7) {
+                            notificationsToSend.push({
+                                title: daysLeft === 0 ? "¡Seguro Vencido!" : "Seguro próximo a vencer",
+                                body: `El Seguro de Vida de ${w.name} ${daysLeft === 0 ? 'venció HOY' : 'vence en 7 días'}.`,
+                                url: "/contractors"
+                            });
+                        }
+                    }
+                }
+            }
+
+            // 4. ELEMENTOS DE PROTECCIÓN PERSONAL (EPP)
+            const ppeDoc = await admin.firestore().collection("users").doc(uid).collection("data").doc("ppe_items").get();
+            if (ppeDoc.exists) {
+                const items = ppeDoc.data().items || [];
+                for (const ppe of items) {
+                    if (ppe.purchaseDate && ppe.lifeMonths) {
+                        const daysLeft = getDaysLeft(ppe.purchaseDate, ppe.lifeMonths);
+                        if (daysLeft === 0 || daysLeft === 7) {
+                            notificationsToSend.push({
+                                title: daysLeft === 0 ? "¡EPP Vencido!" : "EPP próximo a vencer",
+                                body: `El equipo ${ppe.type || ppe.name} entregado a ${ppe.assignedTo || 'alguien'} ${daysLeft === 0 ? 'venció HOY' : 'vence en 7 días'} y requiere recambio.`,
+                                url: "/ppe-tracker"
+                            });
+                        }
+                    }
+                }
+            }
+
+            // 5. CAPACITACIONES (Vencen al año)
+            const trainDoc = await admin.firestore().collection("users").doc(uid).collection("data").doc("training_history").get();
+            if (trainDoc.exists) {
+                const items = trainDoc.data().items || [];
+                for (const t of items) {
+                    if (t.fecha) {
+                        const daysLeft = getDaysLeft(t.fecha, 12);
+                        if (daysLeft === 0 || daysLeft === 7) {
+                            notificationsToSend.push({
+                                title: daysLeft === 0 ? "¡Capacitación Vencida!" : "Renovación de Capacitación",
+                                body: `La capacitación "${t.tema}" dictada el ${t.fecha} cumple 1 año ${daysLeft === 0 ? 'HOY' : 'en 7 días'}. Considerar renovación.`,
+                                url: "/training"
+                            });
+                        }
+                    }
+                }
+            }
+
+            // 6. SIMULACROS (Vencen al año)
+            const drillDoc = await admin.firestore().collection("users").doc(uid).collection("data").doc("drills_history").get();
+            if (drillDoc.exists) {
+                const items = drillDoc.data().items || [];
+                for (const d of items) {
+                    if (d.fecha) {
+                        const daysLeft = getDaysLeft(d.fecha, 12);
+                        if (daysLeft === 0 || daysLeft === 7) {
+                            notificationsToSend.push({
+                                title: daysLeft === 0 ? "¡Simulacro Vencido!" : "Simulacro Anual Próximo",
+                                body: `El simulacro en ${d.empresa || 'la empresa'} realizado el ${d.fecha} cumple 1 año ${daysLeft === 0 ? 'HOY' : 'en 7 días'}.`,
+                                url: "/drills"
+                            });
+                        }
+                    }
+                }
+            }
+
+            // 7. CALENDARIO DE SEGURIDAD (Eventos)
+            const calendarDoc = await admin.firestore().collection("users").doc(uid).collection("data").doc("safety_calendar_events").get();
+            if (calendarDoc.exists) {
+                const items = calendarDoc.data().items || [];
+                for (const ev of items) {
+                    if (ev.date) {
+                        const daysLeft = getDaysLeft(ev.date, 0);
+                        if (daysLeft === 0 || daysLeft === 1) { // 1 día antes y el mismo día
+                            notificationsToSend.push({
+                                title: daysLeft === 0 ? "¡Evento de Hoy!" : "Evento Mañana",
+                                body: `${ev.title}. ${daysLeft === 0 ? 'Hoy' : 'Mañana'}.`,
+                                url: "/calendar"
+                            });
+                        }
+                    }
+                }
+            }
 
             // Enviar notificaciones si hay alguna
             if (notificationsToSend.length > 0) {
