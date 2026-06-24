@@ -160,13 +160,13 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                 >
                     <style type="text/css" media="print">
                         {`
-                            @page { size: A4 portrait; margin: 15mm; }
+                            @page { size: A4 portrait; margin: 10mm; }
                             body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                             .no-print { display: none !important; }
                             .print-area { 
                                 box-shadow: none !important; 
                                 margin: 0 !important; 
-                                padding: 10mm !important; 
+                                padding: 5mm !important; 
                                 width: 100% !important; 
                                 border: none !important;
                                 min-height: 0 !important;
@@ -193,9 +193,9 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                         `}
                     </style>
 
-                    <div style={{ borderBottom: '3px solid #1e293b', paddingBottom: '15px', marginBottom: '25px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ borderBottom: '3px solid #1e293b', paddingBottom: '10px', marginBottom: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
-                            <h1 style={{ margin: '0 0 5px 0', fontSize: '22pt', color: '#1e293b', fontWeight: 900, textTransform: 'uppercase' }}>
+                            <h1 style={{ margin: '0 0 5px 0', fontSize: '18pt', color: '#1e293b', fontWeight: 900, textTransform: 'uppercase' }}>
                                 Ficha Técnica de Extintor
                             </h1>
                             <p style={{ margin: 0, fontSize: '11pt', color: '#475569', fontWeight: 600 }}>
@@ -212,24 +212,24 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                         />
                     </div>
 
-                    <div style={{ display: 'flex', gap: '20px', marginBottom: '30px' }}>
+                    <div style={{ display: 'flex', gap: '20px', marginBottom: '15px' }}>
                         <div style={{ width: '150px', flexShrink: 0 }}>
                             {data.foto ? (
-                                <img src={data.foto} alt="Extintor" style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #cbd5e1' }} />
+                                <img src={data.foto} alt="Extintor" style={{ width: '100%', height: '160px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #cbd5e1' }} />
                             ) : (
-                                <div style={{ width: '100%', height: '200px', background: '#f1f5f9', borderRadius: '8px', border: '2px dashed #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <div style={{ width: '100%', height: '160px', background: '#f1f5f9', borderRadius: '8px', border: '2px dashed #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <Flame size={48} color="#94a3b8" />
                                 </div>
                             )}
                         </div>
 
                         <div style={{ flex: 1 }}>
-                            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '15px' }}>
-                                <h3 style={{ margin: '0 0 15px 0', fontSize: '14pt', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #cbd5e1', paddingBottom: '8px' }}>
-                                    <Hash size={20} color="#3b82f6" /> Identificación del Equipo
+                            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px' }}>
+                                <h3 style={{ margin: '0 0 10px 0', fontSize: '12pt', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #cbd5e1', paddingBottom: '6px' }}>
+                                    <Hash size={18} color="#3b82f6" /> Identificación del Equipo
                                 </h3>
                                 
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                                     <div>
                                         <div style={{ fontSize: '9pt', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Nº Chapa / Interno</div>
                                         <div style={{ fontSize: '12pt', fontWeight: 900, color: '#0f172a' }}>{data.numero || '-'}</div>
@@ -265,35 +265,35 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                         </div>
                     </div>
 
-                    <div style={{ marginBottom: '30px' }}>
-                        <h3 style={{ margin: '0 0 15px 0', fontSize: '14pt', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '2px solid #1e293b', paddingBottom: '8px' }}>
-                            <Calendar size={20} color="#f59e0b" /> Control de Vencimientos
+                    <div style={{ marginBottom: '15px' }}>
+                        <h3 style={{ margin: '0 0 10px 0', fontSize: '12pt', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '2px solid #1e293b', paddingBottom: '6px' }}>
+                            <Calendar size={18} color="#f59e0b" /> Control de Vencimientos
                         </h3>
                         
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10pt', fontFamily: 'sans-serif', tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                             <thead>
                                 <tr className="avoid-break" style={{ pageBreakInside: 'avoid', breakInside: 'avoid',  background: '#f1f5f9' }}>
-                                    <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left', width: '25%', fontWeight: 800 }}>Vencimiento Recarga</th>
-                                    <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left', width: '25%', fontWeight: 800 }}>Vencimiento P.H. (5 Años)</th>
-                                    <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left', width: '25%', fontWeight: 800 }}>Fecha Fabricación</th>
-                                    <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left', width: '25%', fontWeight: 800 }}>Vida Útil (20 Años)</th>
+                                    <th style={{ border: '1px solid #cbd5e1', padding: '6px', textAlign: 'left', width: '25%', fontWeight: 800 }}>Vencimiento Recarga</th>
+                                    <th style={{ border: '1px solid #cbd5e1', padding: '6px', textAlign: 'left', width: '25%', fontWeight: 800 }}>Vencimiento P.H. (5 Años)</th>
+                                    <th style={{ border: '1px solid #cbd5e1', padding: '6px', textAlign: 'left', width: '25%', fontWeight: 800 }}>Fecha Fabricación</th>
+                                    <th style={{ border: '1px solid #cbd5e1', padding: '6px', textAlign: 'left', width: '25%', fontWeight: 800 }}>Vida Útil (20 Años)</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
-                                    <td style={{ border: '1px solid #cbd5e1', padding: '12px' }}>
-                                        <div style={{ fontSize: '12pt', fontWeight: 900 }}>{recargaStatus.expirationDate || '-'}</div>
-                                        <div style={{ color: recargaStatus.color, fontWeight: 800, marginTop: '4px', fontSize: '9pt' }}>{recargaStatus.text}</div>
+                                    <td style={{ border: '1px solid #cbd5e1', padding: '6px' }}>
+                                        <div style={{ fontSize: '11pt', fontWeight: 900 }}>{recargaStatus.expirationDate || '-'}</div>
+                                        <div style={{ color: recargaStatus.color, fontWeight: 800, marginTop: '4px', fontSize: '8pt' }}>{recargaStatus.text}</div>
                                     </td>
-                                    <td style={{ border: '1px solid #cbd5e1', padding: '12px' }}>
-                                        <div style={{ fontSize: '12pt', fontWeight: 900 }}>{phStatus.expirationDate ? phStatus.expirationDate : '-'}</div>
-                                        <div style={{ color: phStatus.color, fontWeight: 800, marginTop: '4px', fontSize: '9pt' }}>{phStatus.text}</div>
+                                    <td style={{ border: '1px solid #cbd5e1', padding: '6px' }}>
+                                        <div style={{ fontSize: '11pt', fontWeight: 900 }}>{phStatus.expirationDate ? phStatus.expirationDate : '-'}</div>
+                                        <div style={{ color: phStatus.color, fontWeight: 800, marginTop: '4px', fontSize: '8pt' }}>{phStatus.text}</div>
                                     </td>
-                                    <td style={{ border: '1px solid #cbd5e1', padding: '12px' }}>
-                                        <div style={{ fontSize: '12pt', fontWeight: 900 }}>{data.fechaFabricacion ? new Date(data.fechaFabricacion).toLocaleDateString('es-AR') : '-'}</div>
+                                    <td style={{ border: '1px solid #cbd5e1', padding: '6px' }}>
+                                        <div style={{ fontSize: '11pt', fontWeight: 900 }}>{data.fechaFabricacion ? new Date(data.fechaFabricacion).toLocaleDateString('es-AR') : '-'}</div>
                                     </td>
-                                    <td style={{ border: '1px solid #cbd5e1', padding: '12px' }}>
-                                        <div style={{ fontSize: '12pt', fontWeight: 900 }}>{lifespanStatus.expirationDate || '-'}</div>
+                                    <td style={{ border: '1px solid #cbd5e1', padding: '6px' }}>
+                                        <div style={{ fontSize: '11pt', fontWeight: 900 }}>{lifespanStatus.expirationDate || '-'}</div>
                                         {lifespanStatus && (
                                             <div style={{ color: lifespanStatus.color, fontWeight: 800, marginTop: '4px', fontSize: '9pt' }}>{lifespanStatus.text}</div>
                                         )}
@@ -303,9 +303,9 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                         </table>
                     </div>
 
-                    <div style={{ marginBottom: '30px' }}>
-                        <h3 style={{ margin: '0 0 15px 0', fontSize: '14pt', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '2px solid #1e293b', paddingBottom: '8px' }}>
-                            <ShieldCheck size={20} color="#10b981" /> Última Inspección Registrada
+                    <div style={{ marginBottom: '15px' }}>
+                        <h3 style={{ margin: '0 0 10px 0', fontSize: '12pt', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '2px solid #1e293b', paddingBottom: '6px' }}>
+                            <ShieldCheck size={18} color="#10b981" /> Última Inspección Registrada
                         </h3>
                         
                         {!latestInspection && !data.ultimaInspeccion ? (
@@ -317,39 +317,39 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                         {!latestInspection && data.ultimaInspeccion ? (
                              <div style={{ padding: '15px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                  <div>
-                                     <div style={{ fontSize: '10pt', color: '#64748b', fontWeight: 700 }}>Fecha:</div>
-                                     <div style={{ fontSize: '12pt', fontWeight: 900, color: '#0f172a' }}>{new Date(data.ultimaInspeccion).toLocaleDateString('es-AR')}</div>
+                                     <div style={{ fontSize: '8pt', color: '#64748b', fontWeight: 700 }}>Fecha:</div>
+                                     <div style={{ fontSize: '10pt', fontWeight: 900, color: '#0f172a' }}>{new Date(data.ultimaInspeccion).toLocaleDateString('es-AR')}</div>
                                  </div>
-                                 <div style={{ background: '#dcfce7', color: '#166534', padding: '8px 16px', borderRadius: '999px', fontWeight: 800, fontSize: '10pt', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                     <ShieldCheck size={16} /> INSPECCIÓN OK
+                                 <div style={{ background: '#dcfce7', color: '#166534', padding: '4px 8px', borderRadius: '999px', fontWeight: 800, fontSize: '9pt', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                     <ShieldCheck size={14} /> INSPECCIÓN OK
                                  </div>
                              </div>
                         ) : null}
-                        <div style={{ marginBottom: '30px' }}>
+                        <div style={{ marginBottom: '10px' }}>
                         {latestInspection && (
-                            <div style={{ marginTop: data.ultimaInspeccion && !latestInspection ? '20px' : '0' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '10pt', background: '#f8fafc', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                            <div style={{ marginTop: data.ultimaInspeccion && !latestInspection ? '10px' : '0' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '9pt', background: '#f8fafc', padding: '6px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                                 <div><strong style={{ color: '#64748b' }}>Fecha:</strong> <span style={{ fontWeight: 800 }}>{new Date(latestInspection.fecha).toLocaleDateString('es-AR')}</span></div>
                                 <div><strong style={{ color: '#64748b' }}>Inspector:</strong> <span style={{ fontWeight: 800 }}>{latestInspection.inspector || '-'}</span></div>
-                                <div><strong style={{ color: '#64748b' }}>Resultado de inspección:</strong> <span style={{ display: 'inline-block', width: '150px', borderBottom: '1px solid #64748b', marginLeft: '5px' }}></span></div>
+                                <div><strong style={{ color: '#64748b' }}>Resultado de inspección:</strong> <span style={{ display: 'inline-block', width: '100px', borderBottom: '1px solid #64748b', marginLeft: '5px' }}></span></div>
                             </div>
                             
                             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9pt', fontFamily: 'sans-serif', tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                                 <thead>
                                     <tr className="avoid-break" style={{ pageBreakInside: 'avoid', breakInside: 'avoid',  background: '#f1f5f9' }}>
-                                        <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'left', width: '60%' }}>Ítem a Verificar</th>
-                                        <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', width: '15%' }}>Estado</th>
-                                        <th style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'left', width: '25%' }}>Observación</th>
+                                        <th style={{ border: '1px solid #cbd5e1', padding: '4px', textAlign: 'left', width: '60%' }}>Ítem a Verificar</th>
+                                        <th style={{ border: '1px solid #cbd5e1', padding: '4px', textAlign: 'center', width: '15%' }}>Estado</th>
+                                        <th style={{ border: '1px solid #cbd5e1', padding: '4px', textAlign: 'left', width: '25%' }}>Observación</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {latestInspection.items?.map((item, idx) => (
                                         <tr key={idx} className="avoid-break" style={{ background: idx % 2 === 1 ? '#f8fafc' : '#ffffff', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
-                                            <td style={{ border: '1px solid #cbd5e1', padding: '8px', color: '#334155', fontWeight: 600 }}>{item.text}</td>
-                                            <td style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', fontWeight: 900, color: item.status === 'OK' ? '#10b981' : item.status === 'NC' ? '#ef4444' : '#64748b' }}>
+                                            <td style={{ border: '1px solid #cbd5e1', padding: '4px', color: '#334155', fontWeight: 600 }}>{item.text}</td>
+                                            <td style={{ border: '1px solid #cbd5e1', padding: '4px', textAlign: 'center', fontWeight: 900, color: item.status === 'OK' ? '#10b981' : item.status === 'NC' ? '#ef4444' : '#64748b' }}>
                                                 {item.status || 'N/A'}
                                             </td>
-                                            <td style={{ border: '1px solid #cbd5e1', padding: '8px', color: '#64748b', fontStyle: 'italic' }}>{item.observacion || '-'}</td>
+                                            <td style={{ border: '1px solid #cbd5e1', padding: '4px', color: '#64748b', fontStyle: 'italic' }}>{item.observacion || '-'}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -363,7 +363,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
 
                             {/* FOTOS DE INSPECCIÓN */}
                             {((latestInspection.fotos && latestInspection.fotos.length > 0) || (latestInspection.items && latestInspection.items.some(i => i.photos && i.photos.length > 0))) && (
-                                <div style={{ marginTop: '15px', borderTop: '2px dashed #cbd5e1', paddingTop: '15px', pageBreakInside: 'avoid' }}>
+                                <div style={{ marginTop: '10px', borderTop: '2px dashed #cbd5e1', paddingTop: '10px', pageBreakInside: 'avoid' }}>
                                     <h4 style={{ margin: '0 0 10px 0', fontSize: '10pt', color: '#0f172a', fontWeight: 800 }}>📸 Evidencia Fotográfica</h4>
                                     
                                     {/* Fotos Generales */}
@@ -402,11 +402,11 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                     </div>
 
                     {/* Firmas */}
-                    <table style={{ tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word',  width: '100%', marginTop: '20px', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
+                    <table style={{ tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word',  width: '100%', marginTop: '10px', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                         <tbody>
                             <tr className="avoid-break"  style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                                 <td>
-                                    <div style={{ paddingTop: '20px' }}>
+                                    <div style={{ paddingTop: '10px' }}>
                                         <PdfSignatures 
                                             data={data}
                                             box1={data.showSignatures?.operator ? {
