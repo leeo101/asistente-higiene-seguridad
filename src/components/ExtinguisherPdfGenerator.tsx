@@ -77,7 +77,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                 >
                     <style type="text/css" media="print">
                         {`
-                            @page { size: A4 ${isLandscape ? 'landscape' : 'portrait'}; margin: 15mm; }
+                            @page { size: A4 ${isLandscape ? 'landscape' : 'portrait'}; margin: 10mm; }
                             body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                             .no-print { display: none !important; }
                             .print-area { 
@@ -162,7 +162,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                     return valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' });
                                 });
 
-                                const CHUNK_SIZE = 12; // Número seguro de filas por tabla para evitar recortes
+                                const CHUNK_SIZE = 16; // Número seguro de filas por tabla para evitar recortes
                                 const chunks = [];
                                 for (let i = 0; i < group.length; i += CHUNK_SIZE) {
                                     chunks.push(group.slice(i, i + CHUNK_SIZE));
@@ -174,9 +174,9 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                             <div key={`${empresa}-chunk-${chunkIdx}`} style={{ marginBottom: '20px', pageBreakInside: 'auto' }}>
                                                 {/* Company Header */}
                                                 <div style={{ 
-                                                    background: '#f8fafc', color: '#0f172a', padding: '10px 15px', 
-                                                    borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '10px',
-                                                    border: '2px solid #cbd5e1', marginBottom: '15px'
+                                                    background: '#f8fafc', color: '#0f172a', padding: '6px 12px', 
+                                                    borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '10px',
+                                                    border: '2px solid #cbd5e1', marginBottom: '8px'
                                                 }}>
                                                     <span style={{ fontSize: '12pt', fontWeight: 900 }}>
                                                         🏢 {empresa} {chunkIdx > 0 ? '(Continuación)' : ''}
@@ -192,13 +192,13 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                                 <table style={{ tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word',  width: '100%', borderCollapse: 'collapse', fontSize: '9pt', marginTop: '5px' }}>
                                                     <thead>
                                                         <tr className="avoid-break" style={{ pageBreakInside: 'avoid', breakInside: 'avoid',  background: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
-                                                            <th style={{ padding: '8px', textAlign: 'center', fontWeight: 900, color: '#1e293b', width: '10%' }}>Nº / CHAPA</th>
-                                                            <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>TIPO / CAP.</th>
-                                                            <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>F. FABRICACIÓN</th>
-                                                            <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>UBICACIÓN</th>
-                                                            <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>VENC. CARGA</th>
-                                                            <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>VENC. PH</th>
-                                                            <th style={{ padding: '8px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>ÚLTIMA INSP.</th>
+                                                            <th style={{ padding: '4px 6px', textAlign: 'center', fontWeight: 900, color: '#1e293b', width: '10%' }}>Nº / CHAPA</th>
+                                                            <th style={{ padding: '4px 6px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>TIPO / CAP.</th>
+                                                            <th style={{ padding: '4px 6px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>F. FABRICACIÓN</th>
+                                                            <th style={{ padding: '4px 6px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>UBICACIÓN</th>
+                                                            <th style={{ padding: '4px 6px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>VENC. CARGA</th>
+                                                            <th style={{ padding: '4px 6px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>VENC. PH</th>
+                                                            <th style={{ padding: '4px 6px', textAlign: 'left', fontWeight: 900, color: '#1e293b' }}>ÚLTIMA INSP.</th>
                                                         </tr>
                                                     </thead>
                                                     {chunk.map((ext: any, idx: number) => {
@@ -235,31 +235,31 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                                             return (
                                                                 <tbody key={`${empresa}-${globalIdx}`} className="avoid-break" style={{ pageBreakInside: 'avoid' }}>
                                                                     <tr className="avoid-break" style={{ pageBreakInside: 'avoid', breakInside: 'avoid',  borderTop: '1px solid #e2e8f0', background: rowBg }}>
-                                                                        <td style={{ padding: '8px', textAlign: 'center', fontWeight: 900, color: '#0f172a', fontSize: '10pt' }}>
+                                                                        <td style={{ padding: '4px 6px', textAlign: 'center', fontWeight: 900, color: '#0f172a', fontSize: '10pt' }}>
                                                                             <div style={{ fontSize: '7pt', color: '#94a3b8', marginBottom: '2px' }}>{globalIdx + 1}</div>
                                                                             <div>{ext?.numero || ext?.chapa || '-'}</div>
                                                                         </td>
-                                                                        <td style={{ padding: '8px', color: '#334155', fontWeight: 600 }}>{formatType(ext?.tipo)} {ext?.capacidad ? `- ${ext.capacidad}` : ''}</td>
-                                                                        <td style={{ padding: '8px', color: '#475569', backgroundColor: fFabBg, WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                                                                        <td style={{ padding: '4px 6px', color: '#334155', fontWeight: 600 }}>{formatType(ext?.tipo)} {ext?.capacidad ? `- ${ext.capacidad}` : ''}</td>
+                                                                        <td style={{ padding: '4px 6px', color: '#475569', backgroundColor: fFabBg, WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                                                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '8pt' }}>
                                                                                 <span>Fab: <span style={{ fontWeight: 600 }}>{fabInfo.base}</span></span>
                                                                                 <span className={fabInfo.expired ? 'text-vencido' : ''} style={{ color: fFabColor, fontWeight: fabInfo.expired ? 800 : 600 }}>Vto: {fabInfo.vto}</span>
                                                                             </div>
                                                                         </td>
-                                                                        <td style={{ padding: '8px', color: '#475569' }}>{ext?.ubicacion || 'Sin ubicación'}</td>
-                                                                        <td style={{ padding: '8px', color: '#475569', backgroundColor: cargaBg, WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                                                                        <td style={{ padding: '4px 6px', color: '#475569' }}>{ext?.ubicacion || 'Sin ubicación'}</td>
+                                                                        <td style={{ padding: '4px 6px', color: '#475569', backgroundColor: cargaBg, WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                                                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '8pt' }}>
                                                                                 <span>Carga: <span style={{ fontWeight: 600 }}>{sCarga.base}</span></span>
                                                                                 <span className={sCarga.text === 'Vencido' ? 'text-vencido' : ''} style={{ color: cargaColor, fontWeight: sCarga.text === 'Vencido' ? 800 : 600 }}>Vto: {sCarga.vto}</span>
                                                                             </div>
                                                                         </td>
-                                                                        <td style={{ padding: '8px', color: '#475569', backgroundColor: phBg, WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                                                                        <td style={{ padding: '4px 6px', color: '#475569', backgroundColor: phBg, WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                                                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '8pt' }}>
                                                                                 <span>PH: <span style={{ fontWeight: 600 }}>{sPH.base}</span></span>
                                                                                 <span className={sPH.text === 'Vencido' ? 'text-vencido' : ''} style={{ color: phColor, fontWeight: sPH.text === 'Vencido' ? 800 : 600 }}>Vto: {sPH.vto}</span>
                                                                             </div>
                                                                         </td>
-                                                                        <td style={{ padding: '8px' }}>
+                                                                        <td style={{ padding: '4px 6px' }}>
                                                                             {lastInspection ? (
                                                                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                                                                                     <span style={{ fontWeight: 800, color: '#1e293b', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
@@ -272,7 +272,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                                                         </td>
                                                                     </tr>
                                                                     <tr className="avoid-break" style={{ pageBreakInside: 'avoid', breakInside: 'avoid',  borderBottom: '2px solid #cbd5e1', background: rowBg, height: 'auto' }}>
-                                                                        <td colSpan={7} style={{ padding: '0 8px 6px 8px', height: '1px' }}>
+                                                                        <td colSpan={7} style={{ padding: '0 6px 4px 6px', height: '1px' }}>
                                                                             <div style={{ border: hasObs ? '1px dashed #dc2626' : '1px dashed #94a3b8', borderRadius: '4px', padding: '4px 6px', fontSize: '7.5pt', color: hasObs ? '#dc2626' : '#334155', background: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact', minHeight: '20px', height: '100%' }}>
                                                                                 <strong style={{ color: '#0f172a' }}>Observación:</strong> <span style={{ fontWeight: 700, color: hasObs ? '#dc2626' : 'inherit', WebkitTextFillColor: hasObs ? '#dc2626' : 'inherit' }}>{hasObs ? lastInspection.observacion : ''}</span>
                                                                             </div>
